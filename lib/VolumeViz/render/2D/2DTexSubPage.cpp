@@ -1,10 +1,7 @@
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 
 #include <Inventor/C/glue/gl.h>
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/misc/SoState.h>
-#include <Inventor/system/gl.h>
-
+#include <Inventor/errors/SoDebugError.h>
 
 // (This is cut'n'pasted from torbjorv's end-of-project doc in
 // SoVolumeData.cpp:)
@@ -78,6 +75,15 @@ void
 Cvr2DTexSubPage::activate(void) const
 {
   glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
+#if 1 // DEBUG
+  // FIXME: glAreTexturesResident() is OpenGL 1.1 only. 20021119 mortene.
+  GLboolean residences[1];
+  GLboolean resident = glAreTexturesResident(1, this->texturename, residences);
+  if (!resident) {
+    SoDebugError::postWarning("Cvr2DTexSubPage::activate",
+                              "texture %d not resident", this->texturename);
+  }
+#endif // debug
 }
 
 // If no palette specified, this function assumes RGBA data. If a
