@@ -605,6 +605,9 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   }
 
 done:
+#if 0 // debug, useful for doing many 3d-to-2d-texture-performance comparisons 
+  (void)SoVolumeRenderP::performanceTest(cc_glglue_instance(action->getCacheContext()));
+#endif // debug
   state->pop();
 }
 
@@ -968,12 +971,11 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
                                             GLuint * texture3did,
                                             GLuint * texture2dids)
 {
-  // FIXME: I only get a rate of (3D / 2D) texture rendering slightly
-  // over 3 for my non-3D-texture capable RIVA TNT2, which seems to be
-  // way off -- 3D textures seems much, much slower than that when
-  // actually rendering volumes with them. So this probably needs some
-  // tuning. Should perhaps render larger triangles to get a more
-  // accurate comparison? 20040710 mortene.
+  // FIXME: the ratio of 3D-to-2D texture performance varies wildly,
+  // at least for me on a RIVA TNT2 card, with a factor of about 5x
+  // (i.e. 3D texturing is reported to be from ~40x to ~200x slower
+  // than 2D texturing). Investigate why this happens, and improve
+  // test. 20040711 mortene.
 
   unsigned int i;
   const float xp = (rand() * 5.0f) / RAND_MAX;
@@ -1070,11 +1072,10 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
 
   GLuint texture3did[1];
   GLuint texture2dids[2];
+  // FIXME: I'm seeing only partly textured polygons in the test (ca
+  // the bottom halves are just unicolored). Looks like the textures
+  // are not filled up properly from the next call. 20040711 mortene.
   SoVolumeRenderP::setupPerformanceTestTextures(texture3did, texture2dids, glue);
-
-  // Save the framebuffer for later
-  GLdouble viewportsize[4];
-  glGetDoublev(GL_VIEWPORT, viewportsize);
 
   glPixelTransferf(GL_RED_SCALE, 1.0f);  // Setting to initial values
   glPixelTransferf(GL_GREEN_SCALE, 1.0f);
@@ -1088,10 +1089,13 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
   glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
 
-  int size = (int) (viewportsize[2] * viewportsize[3]) * 4;
+  // Save the framebuffer for later
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+
+  const unsigned int size = viewport[2] * viewport[3] * 4;
   GLubyte * framebuf = new GLubyte[size];
-  glReadPixels(0, 0, (int) viewportsize[2], (int) viewportsize[3], GL_RGBA,
-               GL_UNSIGNED_BYTE, framebuf);
+  glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, framebuf);
 
   glDepthMask(GL_FALSE); // Dont write to the depthbuffer. It wont be restored.
   glDisable(GL_DEPTH_TEST);
@@ -1099,7 +1103,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glDisable(GL_CULL_FACE);
   glDisable(GL_BLEND);
 
-  glViewport(0, 0, (GLuint) viewportsize[2], (GLuint) viewportsize[3]);
+  glViewport(0, 0, viewport[2], viewport[3]);
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
@@ -1108,7 +1112,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   const float fovy = 45.0f;
   const float zNear = 0.1f;
   const float zFar = 100.0f;
-  const float aspect = (GLfloat) viewportsize[2] / (GLfloat) viewportsize[3];
+  const float aspect = (float) viewport[2] / (float) viewport[3];
   const double radians = fovy / 2 * M_PI / 180;
   const double deltaZ = zFar - zNear;
   const double sine = sin(radians);
@@ -1126,11 +1130,23 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   m[3][3] = 0;
   glMultMatrixd(&m[0][0]); // Finished
 
-  glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
   glTranslatef(0.0f, 0.0f, -15.0f);
+
+  // Debug envvar used for keeping the 3D and 2D textured polygons
+  // visibly in the buffer.
+  static int keeptestgfx = -1;
+  if (keeptestgfx == -1) {
+    const char * env = coin_getenv("CVR_DEBUG_3DTEX_PERFORMANCE");
+    keeptestgfx = env && (atoi(env) > 0);
+  }
+
+  if (keeptestgfx) {
+    glClearColor(0, 0, 1, 0);
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
 
   SbList<double> timelist2d, timelist3d;
 
@@ -1147,13 +1163,20 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   const double average2dtime = SoVolumeRenderP::getAveragePerformanceTime(timelist2d);
 
   // Write back framebuffer
-  glDrawPixels((int) viewportsize[2], (int) viewportsize[3], GL_RGBA, GL_UNSIGNED_BYTE, framebuf);
+  if (!keeptestgfx) {
+    // FIXME: missing glRasterPos() call here? 20040711 mortene.
+    glDrawPixels(viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, framebuf);
+  }
   delete[] framebuf;
 
   glDeleteTextures(1, texture3did);
   glDeleteTextures(2, texture2dids);
 
+  glMatrixMode(GL_PROJECTION);
   glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+
   glPopAttrib();
 
   if (CvrUtil::doDebugging()) {
