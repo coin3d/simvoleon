@@ -32,14 +32,16 @@ public:
 
   void dumpToPPM(const char * filename) const;
 
+  // FIXME: move to CvrCLUT?
+  static CvrCLUT * getCLUT(const SoGLRenderAction * action);
+
 private:
   SbBool destructbuffer;
   void * voxelbuffer;
   SbVec3s dimensions;
   UnitSize unitsize;
 
-  static CvrCLUT * makeCLUT(SoGLRenderAction * action);
-  static CvrCLUT * getCLUT(SoGLRenderAction * action);
+  static CvrCLUT * makeCLUT(const SoGLRenderAction * action);
   static SbDict * CLUTdict;
 
   static SbBool usePaletteTextures(SoGLRenderAction * action);
