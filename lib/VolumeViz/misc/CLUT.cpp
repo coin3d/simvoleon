@@ -597,7 +597,7 @@ CvrCLUT::usePaletteTextures(const SoGLRenderAction * action)
     SoDebugError::postInfo("CvrCLUT::usePaletteTextures",
                            "returns %d (SoVolumeData::usePalettedTexture==%d, "
                            "force_paletted==%d, force_rgba==%d, "
-                           "OpenGL-has-palette-texture-extension==%d), "
+                           "OpenGL-has-palette-texture-extension==%d, "
                            "OpenGL-has-fragment-programs==%d)",
                            usepalettetex,
                            apiusepalette, force_paletted, force_rgba,
