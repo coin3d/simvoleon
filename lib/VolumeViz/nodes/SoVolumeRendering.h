@@ -40,13 +40,17 @@ public:
   static void initClass(void);
   SoVolumeRendering();
 
-  enum HW_Feature {
-    HW_VOLUMEPRO, HW_3DTEXMAP, HW_TEXCOLORMAP, HW_TEXCOMPRESSION
-  };
-
+  enum HW_Feature { HW_VOLUMEPRO, HW_3DTEXMAP, HW_TEXCOLORMAP, HW_TEXCOMPRESSION };
   enum HW_SupportStatus { NO, YES, UNKNOWN };
-
   HW_SupportStatus isSupported(HW_Feature feature);
+
+  static void setReadAlternateRep(SbBool flag);
+  static void setWriteAlternateRep(SbBool flag);
+  static SbBool getReadAlternateRep(void);
+  static SbBool getWriteAlternateRep(void);
+
+  static void setDelayedRendering(SbBool flag);
+  static SbBool getDelayedRendering(void);
 
 protected:
   ~SoVolumeRendering();

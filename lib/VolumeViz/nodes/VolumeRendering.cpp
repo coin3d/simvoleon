@@ -274,6 +274,10 @@
 #include <VolumeViz/nodes/SoVolumeTriangleStripSet.h>
 #include <VolumeViz/render/common/CvrTextureObject.h>
 
+#if COIN_DEBUG
+#include <Inventor/errors/SoDebugError.h>
+#endif // COIN_DEBUG
+
 // *************************************************************************
 
 SO_NODE_ABSTRACT_SOURCE(SoVolumeRendering);
@@ -398,3 +402,127 @@ SoVolumeRendering::isSupported(HW_Feature feature)
 
   return SoVolumeRendering::NO;
 }
+
+// *************************************************************************
+
+/*!
+  If this flag is set, alternate representation for SIM Voleon nodes
+  will be imported and used in the scene graph, if they are present in
+  the import file.
+
+  If the flag is \c FALSE, alternate representations will be discarded
+  upon import.
+
+  Default value is \c FALSE.
+
+  \since SIM Voleon 2.0
+*/
+void
+SoVolumeRendering::setReadAlternateRep(SbBool flag)
+{
+  // FIXME: implement this feature. 20041008 mortene
+
+  if (flag) {
+    SoDebugError::postWarning("SoVolumeRendering::setReadAlternateRep",
+                              "alternate representation export not in place "
+                              "yet -- ignoring");
+  }
+}
+
+/*!
+  If this flag is set, some of the SIM Voleon nodes will write
+  themselves (upon SoWriteAction traversal) as an alternative
+  representation in the form of only core Coin nodes -- typically as
+  textures (SoTexture2 / SoTexture3) and facesets
+  (e.g. SoIndexedFaceSet).
+
+  If the flag is \c FALSE, the node will write itself as is common,
+  i.e. only as itself, with its own fields.
+
+  Default value is \c FALSE.
+
+  \since SIM Voleon 2.0
+*/
+void
+SoVolumeRendering::setWriteAlternateRep(SbBool flag)
+{
+  // FIXME: implement this feature. 20041008 mortene
+
+  if (flag) {
+    SoDebugError::postWarning("SoVolumeRendering::setWriteAlternateRep",
+                              "alternate representation export not in place "
+                              "yet -- ignoring");
+  }
+}
+
+/*!
+  Returns value of the "read as alternative representation" flag.
+
+  \sa SoVolumeRendering::setReadAlternateRep
+  \since SIM Voleon 2.0
+*/
+SbBool
+SoVolumeRendering::getReadAlternateRep(void)
+{
+  return FALSE;
+}
+
+/*!
+  Returns value of the "write as alternative representation" flag.
+
+  \sa SoVolumeRendering::setWriteAlternateRep
+  \since SIM Voleon 2.0
+*/
+SbBool
+SoVolumeRendering::getWriteAlternateRep(void)
+{
+  return FALSE;
+}
+
+// *************************************************************************
+
+/*!
+  When set to \c TRUE, this will cause all geometry from the volume render
+  nodes to be rendered as if they are all (partly) transparent.
+
+  This makes it more likely that other geometry in the scene graph
+  which is further away from the camera than the volume(s) will be
+  rendered correctly. When \c FALSE, there is the chance that other
+  geometry will be occluded by even fully transparent parts of the
+  volume(s).
+
+  Default value is \c FALSE.
+
+  Important implementation note: this flag is as of yet ignored in SIM
+  Voleon, and is currently only present for compatibility reasons. SIM
+  Voleon always renders geometry as if it is transparent, even if this
+  flag is \c FALSE.
+
+  \since SIM Voleon 2.0
+*/
+void
+SoVolumeRendering::setDelayedRendering(SbBool flag)
+{
+  // FIXME: implement properly. 20041008 mortene.
+
+  // FIXME: this should also heed an envvar IVVR_DELAY_RENDER, for
+  // compatibility with TGS VolumeViz. 20041008 mortene.
+
+  if (!flag) {
+    SoDebugError::postWarning("SoVolumeRendering::setDelayedRendering",
+                              "not yet heeded, implementation is stub "
+                              "-- ignoring flag");
+  }
+}
+
+/*!
+  Returns value of the flag indicating whether or not to always to
+  delayed rendering of geometry used for visualizing the volume(s).
+*/
+SbBool
+SoVolumeRendering::getDelayedRendering(void)
+{
+  return TRUE;
+}
+
+// *************************************************************************
