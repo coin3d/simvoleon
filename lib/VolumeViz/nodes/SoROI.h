@@ -40,7 +40,8 @@ public:
     INVERT_OUTPUT = 0x2000, 
     SUB_VOLUME = ENABLE_X0 | ENABLE_Y0 | ENABLE_Z0, 
     EXCLUSION_BOX = SUB_VOLUME | INVERT_OUTPUT, 
-    CROSS = ENABLE_X0 | ENABLE_Y0 | ENABLE_Y1 | ENABLE_Z1 | ENABLE_X2 | ENABLE_Z2 | OR_SELECT, 
+    CROSS = ENABLE_X0 | ENABLE_Y0 | ENABLE_Y1 | 
+            ENABLE_Z1 | ENABLE_X2 | ENABLE_Z2 | OR_SELECT, 
     CROSS_INVERT = CROSS | INVERT_OUTPUT, 
     FENCE = ENABLE_X0 | ENABLE_Y1 | ENABLE_Z2 | OR_SELECT, 
     FENCE_INVERT = FENCE | INVERT_OUTPUT 
@@ -57,9 +58,11 @@ public:
   SoSFBool relative;
 
 private:
+  virtual void GLRender(SoGLRenderAction *action);
+
+  // FIXME: Implement these functions... torbjorv 07312002
   virtual void doAction(SoAction *action);
   virtual void callback(SoCallbackAction *action);
-  virtual void GLRender(SoGLRenderAction *action);
   virtual void getBoundingBox(SoGetBoundingBoxAction *action);
   virtual void pick(SoPickAction *action);
 

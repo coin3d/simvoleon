@@ -27,33 +27,171 @@
 
 
 /*
-TODO:
 
-- LOAD_ALL: Builds as many pages as possible, limited by the texellimit. 
-  This is done whenever StorageHint changes and building is required. 
-  Both SetData and changes in StorageHint must trigger the build. 
-  The textures are NOT uploaded to OpenGL here. They're uploaded in VolumeData's 
-  GLRender. 
-- Testing: 
-  * test setPageSize with different sizes for each axis
-  * test setVolumeSize with different sizes for each axis
-- GL_SHARED_PALETTE_EXT
-- Document datastructures (slices, linked list of pages)
-- Document memoryleak/slowdown 
-- Describe the strange glColorTableEXT-behaviour
-- LUTs for transferfunction
-- texMemSize should perhaps been changed to work with bytes? In the case of
-  paletted textures, using texels as a measure is more or less moronic. TGS
-  does this. 'nuff said. :)
-- when using paletted textures the userinterface works badly, as the
-  texturegeneration is quite heavy
-- optimize the transferfunction for paletted textures
-- functionality for uploading a batch of textures at startup, avoiding 
-  the terrible respons in userinterface.
-- check all FIXMEs
+DICTIONARY
+
+  "Slice"      : One complete cut through the volume along an axis. 
+  "Page"       : A segment of a slice. 
+  "In-memory"  : In this context, "in-memory" means volumedata (pages) that's 
+                 pulled out of the reader and run through a transferfunction,
+                 thus ready to be rendered.
+  LRU          : Least Recently Used
+
+
+
+
+DATASTRUCTURES
+
+  As several different renderingnodes may share the same volumedatanode, 
+  a sharing mechanism for in-memory data is implemented. The volume is 
+  partioned into slices along each of the three axis, and each slice is 
+  segmented into pages. Each page is identified by it's slicenumber and 
+  it's (x,y) position in the slice. Even though different renderingnodes 
+  may share the same volumedata, they may have have individual 
+  transferfunctions. A page shared by two renderingnodes with different 
+  transferfunctions cannot share the same in-memory page. A page is 
+  therefore also identified by the nodeId of it's transferfunctions. 
+  All pages with same coordinates (sliceIdx, x, y) but different 
+  transferfunctions are saved as a linked list. 
+
+
+  
+LRU-system
+
+  To support large sets of volumedata, a simple memorymanagementsystem is
+  implemented. The scenegraphs VolumeData-node contains a logical clock 
+  that's incremented for each run through it's GLRender. All in-memory 
+  pages are tagged with a timestamp at the time they're loaded. The 
+  VolumeData-node has a maxlimit for the amount of HW/SW memory it should
+  occupy, and whenever it exceeds this limit it throws out the page with
+  the smallest timestamp. A simple LRU-cache. Of course, all pages' 
+  timestamps are updated whenever they're rendered. 
+
+  The datastructures does not work perfectly together with the LRU-cache. 
+  Whenever a page is to be deallocated, a search through all slices and
+  pages is required. The monitors for bytes allocated by in-memory pages
+  are updated in a very non-elegant way (study i.e. 
+  SoVolumeData::renderOrthoSliceX)
+
+  Some sort of pagemanagersystem could be implemented to solve this 
+  problem by storing all pages in a "flat" structure. This would look 
+  nicer, but would be slower as long as (sliceIdx, x, y) can't be used
+  as direct indices into the tables. 
+
+
+
+USER INTERACTION
+
+  As for now, the implementation loads only the pages that are needed for
+  the current position of a SoROI/SoVolumeRender-node. Due to significant
+  overhead when loading data and squeezing them through a transferfunction,
+  the user experiences major delays in the visual response on her 
+  interactions. TGS does not have functionality for dynamic loading of data,
+  so the StorageHint-enum is extended with two elements (LOAD_MAX,
+  LOAD_DYNAMIC). Currently, LOAD_DYNAMIC is the only one implemented of 
+  the StorageHints, and is set as default. By using LOAD_MAX, the specified
+  available memory should be filled to it's maximum. Pages should be 
+  selected in an intelligent way, depending on the location of possible 
+  SoROI-nodes (load the surrounding area). This should in most cases speed up 
+  the visual feedback. 
+
+
+
+PALETTED TEXTURES
+  
+  Paletted textures rocks. Depending on the size of the pages, it could 
+  save significant amounts of memory. The current implementation uses
+  individual palettes for each page. This can be both a good idea and a 
+  terrible one. 
+
+  Good: If the videocard supports palettes with different sizes. If, 
+  for eaxmple, a page contains only one color, a 1-bit palette could be used
+  and each pixel will occupy 1 bit of hardware memory. 
+
+  Bad: If the videocard does NOT support palettes with different sizes. This
+  means that each palette i.e. has to have 256 entries, and with RGBA colors
+  the palette will occupy 256x4=1024 bytes. With pagesizes smaller than 64x64,
+  this would make the palette occupy just as many bytes as the actual 
+  pixeldata. If the videocard actually DOES support variable-size palettes, it
+  could still be a bad idea. If all the pages require a 256-entry palette
+  (or more) due to heavy colorvariations, the palettes would require a lot 
+  of hardware memory.
+
+  These problems may be solved by the use of several techniques. First of all, 
+  there is an extension called GL_SHARED_PALETTE_EXT, that allows several 
+  textures to share the same palette. A global palette for the entire volume 
+  could be generated, resulting in some heavy precalculation and possibly loss
+  of coloraccuracy, but saving a lot of memory. The best solution would 
+  probably be a combination of local and global palettes. Local, if the 
+  page consist entirely of one color. Global and shared whenever heavy 
+  colorvariations occur. 
+
+
+
+glColorTableEXT
+
+  Study SoVolumeDataPage::setData. The code supports palettes of variable 
+  sizes, exploiting the obvious advantages explained in the previous section.
+  In between the uploading of palette and texture, there is a check of what 
+  palettesize actually achieved. It seems like there's no guarantee that
+  a videocard supports the different palettesizes/formats. If the following
+  glTexImage2D tries to set a internal format that doesn't fit the 
+  palettesize, the entire uploading could fail. At least it does on this 
+  card (3DLabs Oxygen GVX1). The check for palettesize fixes this problem. 
+
+
+
+MEMORYMANAGMENT
+
+  The TGS-API contains a function setTexMemSize. It makes the client app
+  able to specify the amount of memory the volumedatanode should occupy. 
+  In TEXELS?!? As far as my neurons can figure out, this doesn't make 
+  sense at all. This implementation supports this function, but also 
+  provides a setHWMemorySize which specifies the maximum number of BYTES
+  the volumedata should occupy of hardware memory. 
+
+
+
+READERS
+
+  Currently, only a reader of memoryprovided data is implemented 
+  (SoVRMemReader). SoVolumeData uses the interface specified with 
+  SoVolumeReader, and extensions with other readers should be straight
+  forward. When running setReader or setVolumeData, only a pointer to the
+  reader is stored. In other words, things could go bananas if the client
+  app start mocking around with the reader's settings after a call to 
+  setReader. If the reader is changed, setReader must be run over again. 
+  This requirement differs from TGS as their implementation loads all data
+  once specified a reader (I guess). 
+
+
+
+RENDERING
+
+  A SoVolumeRender is nothing but a SoROI which renders the entire
+  volume. And this is how it should be implemented. But this is not how
+  it is implemented now. :) The GLRender-function for both SoROI and 
+  SoVolumeRender is more or less identical, and they should share some
+  common renderfunction capable of rendering an entire volume. This should 
+  in turn use a slicerendering-function similar to SoVolumeDataSlice::render. 
+
+
+
+TODO
+  
+  No pickingfunctionality whatsoever is implemented. Other missing functions
+  are tagged with FIXMEs. 
+
+  Missing classes: SoObliqueSlice, SoOrthoSlice, all readers, all details. 
+  
+
+
+REFACTORING
+
+  - hva jeg synes er mest gjenbrukbart ved en refaktorering
+
+
 */
-
-
 
 // *************************************************************************
 
@@ -244,7 +382,8 @@ SoVolumeData::getDimensions()
 
 
 
-// FIXME: If size != 2^n these functions should extend to the nearest size. 
+// FIXME: If size != 2^n these functions should extend to the nearest 
+// accepted size. 
 // torbjorv 07292002
 void 
 SoVolumeData::setVolumeData(const SbVec3s &dimensions, 
@@ -337,34 +476,40 @@ SoVolumeData::GLRender(SoGLRenderAction * action)
 {
   SoVolumeDataElement::setVolumeData(action->getState(), this, this);
   PRIVATE(this)->tick++;
-  printf("numBytesSW = %010d numBytesHW = %010d\n", 
-         PRIVATE(this)->numBytesSW,
-         PRIVATE(this)->numBytesHW);
 
+  // FIXME: Move this initialization to a proper home in Coin. 
+  // torbjorv 08282002
   if (!PRIVATE(this)->extensionsInitialized) {
 
     // Compressed texture extensions
     glCompressedTexImage3DARB = 
-      (PFNGLCOMPRESSEDTEXIMAGE3DARBPROC)wglGetProcAddress("glCompressedTexImage3DARB");
+      (PFNGLCOMPRESSEDTEXIMAGE3DARBPROC)
+      wglGetProcAddress("glCompressedTexImage3DARB");
     glCompressedTexImage2DARB = 
-      (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)wglGetProcAddress("glCompressedTexImage2DARB");
+      (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)
+      wglGetProcAddress("glCompressedTexImage2DARB");
 
 
     // Paletted texture extensions
     glColorTableEXT =
-      (PFNGLCOLORTABLEEXTPROC)wglGetProcAddress("glColorTableEXT");
+      (PFNGLCOLORTABLEEXTPROC)
+      wglGetProcAddress("glColorTableEXT");
 
     glColorSubTableEXT =
-      (PFNGLCOLORSUBTABLEEXTPROC)wglGetProcAddress("glColorSubTableEXT");
+      (PFNGLCOLORSUBTABLEEXTPROC)
+      wglGetProcAddress("glColorSubTableEXT");
 
     glGetColorTableEXT =     
-      (PFNGLGETCOLORTABLEEXTPROC)wglGetProcAddress("glGetColorTableEXT");
+      (PFNGLGETCOLORTABLEEXTPROC)
+      wglGetProcAddress("glGetColorTableEXT");
 
     glGetColorTableParameterivEXT = 
-      (PFNGLGETCOLORTABLEPARAMETERIVEXTPROC)wglGetProcAddress("glGetColorTableParameterivEXT");
+      (PFNGLGETCOLORTABLEPARAMETERIVEXTPROC)
+      wglGetProcAddress("glGetColorTableParameterivEXT");
   
     glGetColorTableParameterfvEXT = 
-      (PFNGLGETCOLORTABLEPARAMETERFVEXTPROC)wglGetProcAddress("glGetColorTableParameterfvEXT"); 
+      (PFNGLGETCOLORTABLEPARAMETERFVEXTPROC)
+      wglGetProcAddress("glGetColorTableParameterfvEXT"); 
 
     PRIVATE(this)->extensionsInitialized = true;
   }// if
@@ -372,12 +517,13 @@ SoVolumeData::GLRender(SoGLRenderAction * action)
 
 
 
-void SoVolumeData::renderOrthoSliceX(SoState * state, 
-                                     SbBox2f &quad, 
-                                     float x,
-                                     int sliceIdx, 
-                                     SbBox2f &textureCoords,
-                                     SoTransferFunction * transferFunction)
+void 
+SoVolumeData::renderOrthoSliceX(SoState * state, 
+                                SbBox2f &quad, 
+                                float x,
+                                int sliceIdx, 
+                                SbBox2f &textureCoords,
+                                SoTransferFunction * transferFunction)
 {
   SbVec2f max, min;
   quad.getBounds(min, max);
@@ -407,12 +553,13 @@ void SoVolumeData::renderOrthoSliceX(SoState * state,
   PRIVATE(this)->managePages();
 }// renderOrthoSliceX
 
-void SoVolumeData::renderOrthoSliceY(SoState * state, 
-                                     SbBox2f &quad, 
-                                     float y,
-                                     int sliceIdx, 
-                                     SbBox2f &textureCoords,
-                                     SoTransferFunction * transferFunction)
+void 
+SoVolumeData::renderOrthoSliceY(SoState * state, 
+                                SbBox2f &quad, 
+                                float y,
+                                int sliceIdx, 
+                                SbBox2f &textureCoords,
+                                SoTransferFunction * transferFunction)
 {
 
   SbVec2f max, min;
@@ -445,12 +592,13 @@ void SoVolumeData::renderOrthoSliceY(SoState * state,
 
 
 
-void SoVolumeData::renderOrthoSliceZ(SoState * state, 
-                                     SbBox2f &quad, 
-                                     float z,
-                                     int sliceIdx, 
-                                     SbBox2f &textureCoords,
-                                     SoTransferFunction * transferFunction)
+void 
+SoVolumeData::renderOrthoSliceZ(SoState * state, 
+                                SbBox2f &quad, 
+                                float z,
+                                int sliceIdx, 
+                                SbBox2f &textureCoords,
+                                SoTransferFunction * transferFunction)
 {
 
   SbVec2f max, min;
@@ -486,7 +634,8 @@ void SoVolumeData::renderOrthoSliceZ(SoState * state,
 
 
 
-SbVec3s & SoVolumeData::getPageSize()
+SbVec3s & 
+SoVolumeData::getPageSize()
 {
   return PRIVATE(this)->pageSize;
 }// getPageSize
@@ -525,7 +674,8 @@ SoVolumeData::setHWMemorySize(int size)
 /*************************** PIMPL-FUNCTIONS ********************************/
 
 
-SoVolumeDataSlice * SoVolumeDataP::getSliceX(int sliceIdx)
+SoVolumeDataSlice * 
+SoVolumeDataP::getSliceX(int sliceIdx)
 {
   // Valid slice?
   if (sliceIdx >= this->dimensions[0]) return NULL;
@@ -552,7 +702,8 @@ SoVolumeDataSlice * SoVolumeDataP::getSliceX(int sliceIdx)
 }// getSliceX
 
 
-SoVolumeDataSlice * SoVolumeDataP::getSliceY(int sliceIdx)
+SoVolumeDataSlice * 
+SoVolumeDataP::getSliceY(int sliceIdx)
 {
   // Valid slice?
   if (sliceIdx >= this->dimensions[1]) return NULL;
@@ -580,7 +731,8 @@ SoVolumeDataSlice * SoVolumeDataP::getSliceY(int sliceIdx)
 
 
 
-SoVolumeDataSlice * SoVolumeDataP::getSliceZ(int sliceIdx)
+SoVolumeDataSlice * 
+SoVolumeDataP::getSliceZ(int sliceIdx)
 {
   // Valid slice?
   if (sliceIdx >= this->dimensions[2]) return NULL;
@@ -609,7 +761,8 @@ SoVolumeDataSlice * SoVolumeDataP::getSliceZ(int sliceIdx)
 
 // FIXME: Perhaps there already is a function somewhere in C or Coin
 // that can test this easily?  31082002 torbjorv
-bool SoVolumeDataP::check2n(int n)
+bool 
+SoVolumeDataP::check2n(int n)
 {
   for (int i = 0; i < sizeof(int)*8; i++) {
 
@@ -628,14 +781,16 @@ bool SoVolumeDataP::check2n(int n)
 
 
 
-void SoVolumeDataP::releaseSlices()
+void 
+SoVolumeDataP::releaseSlices()
 {
   releaseSlicesX();
   releaseSlicesY();
   releaseSlicesZ();
 }// releasePages
 
-void SoVolumeDataP::freeTexels(int desired)
+void 
+SoVolumeDataP::freeTexels(int desired)
 {
   if (desired > maxTexels) return;
 
@@ -644,7 +799,8 @@ void SoVolumeDataP::freeTexels(int desired)
 }// freeTexels
 
 
-void SoVolumeDataP::releaseLRUPage()
+void 
+SoVolumeDataP::releaseLRUPage()
 {
   SoVolumeDataPage * LRUPage = NULL;
   SoVolumeDataPage * tmpPage = NULL;
@@ -725,20 +881,58 @@ void SoVolumeDataP::releaseLRUPage()
 
 
 
-void SoVolumeDataP::releaseSlicesX()
+void 
+SoVolumeDataP::releaseSlicesX()
 {
+  if (slicesX) {
+    for (int i = 0; i < dimensions[0]; i++) {
+      delete slicesX[i];
+      slicesX[i] = NULL;
+    }// for
+
+    delete [] slicesX;
+  }// if
 }// releaseSlicesX
 
 
-void SoVolumeDataP::releaseSlicesY()
+
+
+
+void 
+SoVolumeDataP::releaseSlicesY()
 {
+  if (slicesY) {
+    for (int i = 0; i < dimensions[1]; i++) {
+      delete slicesY[i];
+      slicesY[i] = NULL;
+    }// for
+
+    delete [] slicesY;
+  }// if
 }// releaseSlicesY
 
-void SoVolumeDataP::releaseSlicesZ()
+
+
+
+
+void 
+SoVolumeDataP::releaseSlicesZ()
 {
+  if (slicesZ) {
+    for (int i = 0; i < dimensions[2]; i++) {
+      delete slicesZ[i];
+      slicesX[i] = NULL;
+    }// for
+
+    delete [] slicesZ;
+  }// if
 }// releaseSlicesZ
 
-void SoVolumeDataP::freeHWBytes(int desired)
+
+
+
+void 
+SoVolumeDataP::freeHWBytes(int desired)
 {
   if (desired > maxBytesHW) return;
 
@@ -746,7 +940,11 @@ void SoVolumeDataP::freeHWBytes(int desired)
     releaseLRUPage();
 }// freeHWBytes
 
-void SoVolumeDataP::managePages()
+
+
+
+void 
+SoVolumeDataP::managePages()
 {
   // Keep both measures within maxlimits
   freeHWBytes(0);
@@ -755,7 +953,7 @@ void SoVolumeDataP::managePages()
 
 
 /****************** UNIMPLEMENTED FUNCTIONS ******************************/
-
+// FIXME: Implement these functions. torbjorv 08282002
 
 
 SbBool 

@@ -52,7 +52,9 @@ public:
     SKIP
   };
 
-  typedef AbortCode SoVolumeRenderAbortCB(int totalSlices, int thisSlice, void *userData);
+  typedef AbortCode SoVolumeRenderAbortCB(int totalSlices, 
+                                          int thisSlice, 
+                                          void *userData);
 
   // Fields
   SoSFEnum interpolation;

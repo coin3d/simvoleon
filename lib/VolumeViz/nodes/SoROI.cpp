@@ -7,6 +7,20 @@
  *
 \**************************************************************************/
 
+/*
+FIXME
+
+  SoROIP::boxes keeps all the boxes to be rendered. A ROI may be specified
+  using a number of clipping planes, resulting in a volume impossible to 
+  describe with one box. SoROI::GLRender renders all the boxes currently 
+  stored in SoROIP::boxes, but does NOT depthsort them first. This is 
+  cruicial, and must be implemented. A sensor and a callback is attached to
+  SoROI::box and should generate a new list of boxes whenever this field
+  changes. It should also be attached to SoROI::subVolume. 
+
+  torbjorv 08282002
+*/
+
 
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/fields/SoSFEnum.h>
@@ -96,8 +110,6 @@ SoROI::SoROI(void)
   SO_NODE_DEFINE_ENUM_VALUE(Flags, FENCE);
   SO_NODE_DEFINE_ENUM_VALUE(Flags, FENCE_INVERT);
   SO_NODE_SET_SF_ENUM_TYPE(flags, Flags);
-
-
 
   SO_NODE_ADD_FIELD(box, (0, 0, 0, 1, 1, 1));
   SO_NODE_ADD_FIELD(subVolume, (0, 0, 0, 0, 0, 0));
@@ -199,12 +211,24 @@ SoROI::GLRender(SoGLRenderAction *action)
   this->box.getValue(sliceBox);
   sliceBox.getBounds(minSlice, maxSlice);
   SbVec3f min, max;
-  min[0] = volumeMin[0] + (volumeMax[0] - volumeMin[0])*(float(minSlice[0]) / dimensions[0]);
-  min[1] = volumeMin[1] + (volumeMax[1] - volumeMin[1])*(float(minSlice[1]) / dimensions[1]);
-  min[2] = volumeMin[2] + (volumeMax[2] - volumeMin[2])*(float(minSlice[2]) / dimensions[2]);
-  max[0] = volumeMin[0] + (volumeMax[0] - volumeMin[0])*(float(maxSlice[0]) / dimensions[0]);
-  max[1] = volumeMin[1] + (volumeMax[1] - volumeMin[1])*(float(maxSlice[1]) / dimensions[1]);
-  max[2] = volumeMin[2] + (volumeMax[2] - volumeMin[2])*(float(maxSlice[2]) / dimensions[2]);
+  min[0] = 
+    volumeMin[0] + 
+    (volumeMax[0] - volumeMin[0])*(float(minSlice[0]) / dimensions[0]);
+  min[1] = 
+    volumeMin[1] + 
+    (volumeMax[1] - volumeMin[1])*(float(minSlice[1]) / dimensions[1]);
+  min[2] = 
+    volumeMin[2] + 
+    (volumeMax[2] - volumeMin[2])*(float(minSlice[2]) / dimensions[2]);
+  max[0] = 
+    volumeMin[0] + 
+    (volumeMax[0] - volumeMin[0])*(float(maxSlice[0]) / dimensions[0]);
+  max[1] = 
+    volumeMin[1] + 
+    (volumeMax[1] - volumeMin[1])*(float(maxSlice[1]) / dimensions[1]);
+  max[2] = 
+    volumeMin[2] + 
+    (volumeMax[2] - volumeMin[2])*(float(maxSlice[2]) / dimensions[2]);
 
   float depth;
   float depthAdder;
@@ -239,14 +263,17 @@ SoROI::GLRender(SoGLRenderAction *action)
           imageIdx = maxSlice[0] - (i - minSlice[0]) - 1;
 
         volumeData->renderOrthoSliceX(state,
-                                      SbBox2f(min[2], min[1], max[2], max[1]), 
+                                      SbBox2f(min[2], 
+                                              min[1], 
+                                              max[2], 
+                                              max[1]), 
                                       depth,
                                       imageIdx,
                                       mappingCoords,
                                       transferFunction);
 
         depth += depthAdder;
-      }// for*/
+      }// for
     }// if
     else 
 
@@ -281,14 +308,17 @@ SoROI::GLRender(SoGLRenderAction *action)
           imageIdx = maxSlice[1] - (i - minSlice[1]) - 1;
 
         volumeData->renderOrthoSliceY(state,
-                                      SbBox2f(min[0], min[2], max[0], max[2]), 
+                                      SbBox2f(min[0], 
+                                              min[2], 
+                                              max[0], 
+                                              max[2]), 
                                       depth,
                                       imageIdx,
                                       mappingCoords,
                                       transferFunction);
 
         depth += depthAdder;
-      }// for*/
+      }// for
     }// else if
     else 
 
@@ -324,7 +354,10 @@ SoROI::GLRender(SoGLRenderAction *action)
           imageIdx = maxSlice[2] - (i - minSlice[2]) - 1;
 
         volumeData->renderOrthoSliceZ(state,
-                                      SbBox2f(min[0], min[1], max[0], max[1]), 
+                                      SbBox2f(min[0], 
+                                              min[1], 
+                                              max[0], 
+                                              max[1]), 
                                       depth,
                                       imageIdx,
                                       mappingCoords,
@@ -352,7 +385,8 @@ void SoROIP::boxCallback(void *data, SoSensor *sensor)
   SoROI * thisp = (SoROI *)data;
 
   // FIXME: Generate all boxes. This is just a dummybox. torbjorv 08012002
-  // FIXME: Check if the box's coordinates are valid. Clamp if not. torbjorv 08012002
+  // FIXME: Check if the box's coordinates are valid. Clamp if not. 
+  // torbjorv 08012002
 
   // Generating all visible boxes
   delete [] PRIVATE(thisp)->boxes;

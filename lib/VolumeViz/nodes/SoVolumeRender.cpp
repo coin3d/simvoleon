@@ -120,16 +120,6 @@ SoVolumeRender::initClass(void)
 }// initClass
 
 
-void 
-SoVolumeRender::generatePrimitives(SoAction * action)
-{}
-
-
-void 
-SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
-{
-}
-
 
 // doc in super
 void 
@@ -151,7 +141,7 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   SoTransferFunction * transferFunction = 
     transferFunctionElement->getTransferFunction();
 
-  // ---- Calculating a camvec from camera to center of object
+  // Calculating a camvec from camera to center of object
   const SbMatrix & mm = SoModelMatrixElement::get(state);
   SbMatrix imm = mm.inverse();
 
@@ -200,7 +190,7 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   float depthAdder;
 
 
-  // ---- Render along X-axis
+  // Render along X-axis
   if ((abstoviewer[0] >= abstoviewer[1]) &&
       (abstoviewer[0] >= abstoviewer[2])) {
 
@@ -217,14 +207,21 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
     // Rendering slices
     for (int i = 0; i < numSlices.getValue(); i++) {
-      int imageIdx = (int)((float(i)/float(numSlices.getValue()))*float(dimensions[0]));
+      int imageIdx = 
+        (int)((float(i)/float(numSlices.getValue()))*float(dimensions[0]));
 
       // Are we rendering in in reverse order?
       if (depthAdder < 0)
-        imageIdx = (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*dimensions[0]) - imageIdx;
+        imageIdx = 
+          (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*
+          dimensions[0]) - 
+          imageIdx;
 
       volumeData->renderOrthoSliceX(state,
-                                    SbBox2f(min[1], min[2], max[1], max[2]), 
+                                    SbBox2f(min[1], 
+                                            min[2], 
+                                            max[1], 
+                                            max[2]), 
                                     depth,
                                     imageIdx,
                                     SbBox2f(0.0, 0.0, 1.0, 1.0),
@@ -237,7 +234,7 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
 
 
-  // ---- Render along Y-axis
+  // Render along Y-axis
   if ((abstoviewer[1] >= abstoviewer[0]) &&
       (abstoviewer[1] >= abstoviewer[2])) {
 
@@ -258,10 +255,16 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
       // Are we rendering in in reverse order?
       if (depthAdder < 0)
-        imageIdx = (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*dimensions[1]) - imageIdx;
+        imageIdx = 
+          (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*
+          dimensions[1]) - 
+          imageIdx;
 
       volumeData->renderOrthoSliceY(state,
-                                    SbBox2f(min[1], min[2], max[1], max[2]), 
+                                    SbBox2f(min[1], 
+                                            min[2], 
+                                            max[1], 
+                                            max[2]), 
                                     depth,
                                     imageIdx,
                                     SbBox2f(0.0, 0.0, 1.0, 1.0),
@@ -275,7 +278,7 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
 
 
-  // ---- Render along Z-axis
+  // Render along Z-axis
   if ((abstoviewer[2] >= abstoviewer[0]) &&
       (abstoviewer[2] >= abstoviewer[1])) {
 
@@ -296,10 +299,16 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
       // Are we rendering in in reverse order?
       if (camvec[2] < 0)
-        imageIdx = (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*dimensions[2]) - imageIdx;
+        imageIdx = 
+          (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*
+          dimensions[2]) - 
+          imageIdx;
 
       volumeData->renderOrthoSliceZ(state,
-                                    SbBox2f(min[0], min[1], max[0], max[1]), 
+                                    SbBox2f(min[0], 
+                                            min[1], 
+                                            max[0], 
+                                            max[1]), 
                                     depth,
                                     imageIdx,
                                     SbBox2f(0.0, 0.0, 1.0, 1.0),
@@ -311,3 +320,14 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
   glPopAttrib();
 }// GLRender
+
+void 
+SoVolumeRender::generatePrimitives(SoAction * action)
+{}
+
+
+void 
+SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
+{
+}
+

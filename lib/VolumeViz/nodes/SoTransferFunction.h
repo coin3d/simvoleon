@@ -52,8 +52,11 @@ public:
   // Functions
   SoTransferFunction();
   ~SoTransferFunction();
-  void reMap(int min, int max);
   void GLRender(SoGLRenderAction * action);
+
+  // FIXME: Implement this function. torbjorv 08282002
+  void reMap(int min, int max);
+
 
 
 private:
@@ -70,9 +73,6 @@ private:
                 float *& palette,
                 int &paletteFormat,
                 int &paletteSize);
-
-  int unpack(const void * data, int numBits, int index);
-  void pack(void * data, int numBits, int index, int val);
 
 };//SoTransferFunction
 

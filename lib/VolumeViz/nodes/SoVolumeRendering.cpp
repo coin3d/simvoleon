@@ -15,7 +15,8 @@
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoROI.h>
 
-
+// FIXME: All extensionstuff should be moved to a proper home in Coin.
+// torbjorv 08282002
 
 
 PFNGLCOMPRESSEDTEXIMAGE3DARBPROC glCompressedTexImage3DARB;
@@ -104,6 +105,10 @@ SoVolumeRendering::initClass(void)
   SoTransferFunctionElement::initClass();
 }// initClass
 
+
+
+// FIXME: These functions are still to be implemented. 
+// torbjorv 08282002
 
 void 
 SoVolumeRendering::init()

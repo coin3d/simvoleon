@@ -7,6 +7,15 @@
  *
 \**************************************************************************/
 
+/*
+FIXME
+
+  LUTs for all the predefined enums must be implemented. 
+
+  The different ColorMapTypes must be implemented. Currently, only RGBA
+  is supported.
+*/
+
 
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
@@ -35,6 +44,9 @@ public:
   SoTransferFunctionP(SoTransferFunction * master) {
     this->master = master;
   }
+
+  int unpack(const void * data, int numBits, int index);
+  void pack(void * data, int numBits, int index, int val);
 
 private:
   SoTransferFunction * master;
@@ -71,7 +83,6 @@ SoTransferFunction::SoTransferFunction(void)
   SO_NODE_ADD_FIELD(offset, (0));
   SO_NODE_ADD_FIELD(predefColorMap, (GREY));
   SO_NODE_ADD_FIELD(colorMapType, (RGBA));
-  SO_NODE_ADD_FIELD(colorMapType, (0));
 }//Constructor
 
 
@@ -94,15 +105,12 @@ SoTransferFunction::initClass(void)
   if (first == 1) return;
   first = 1;
 
-  SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering, "TransferFunction");
+  SO_NODE_INIT_CLASS(SoTransferFunction, 
+                     SoVolumeRendering, 
+                     "TransferFunction");
   SoTransferFunctionElement::initClass();
 }// initClass
 
-
-
-void 
-SoTransferFunction::reMap(int min, int max)
-{}
 
 
 
@@ -112,12 +120,15 @@ SoTransferFunction::reMap(int min, int max)
 void
 SoTransferFunction::GLRender(SoGLRenderAction * action)
 {
-  SoTransferFunctionElement::setTransferFunction(action->getState(), this, this);
+  SoTransferFunctionElement::setTransferFunction(action->getState(), 
+                                                 this, 
+                                                 this);
 }// GLRender
 
 
-/*!
-  Coin method.
+/*
+  Transfers input to output, according to specified parameters. 
+
 */
 void
 SoTransferFunction::transfer(const void * input, 
@@ -129,53 +140,6 @@ SoTransferFunction::transfer(const void * input,
                              int &paletteFormat,
                              int &paletteSize)
 {
-/*
-- transferfunksjon: returnerer data, evt. palett, datatype
-- transferfunksjon som alltid returnerer RGBA
-- transferfunksjon som konverterer til palettert data
-- paletter returneres alltid som RGBA
-- hvis RGBA, gjør ingenting
-- hvis RGB...? Hvordan skal man lage en alphakanal her? Mulig RGB er 
-  en meningsløs form for inputdata...?
-- hvis UNSIGNED_BYTE/UNSIGNED_SHORT:
-  * returner både transferred data og RGBA-palette
-- colorMap kan være vilkårlig antall entries. Maks-grensen vil være 64k 
-  pga SHORT-begrensningen på input data. Dermed skulle det bare være å sjekke
-  hvor mange entries som er i bruk, redusere dette mest mulig å returnere 
-  paletter i henhold til dette. Må dermed endre indexering, naturligvis... 
-
-
-Pseudokode:
-
-  Hvis input = RGBA, ignorer både shift, offset og definert palette. 
-  Returner samme data som input-data. 
-
-  Hvis input = GL_UNSIGNED_BYTE
-  - sett opp en int-tabell palCount med likt antall entries som paletten
-  - initier palCount til 0
-  - gå over hele inputdata og tell antall referanser til alle paletteentries. 
-    Husk å ta hensyn til shift og offset
-  - bygg ny palette med kun nødvendig antall entries. Finn ut datatype på 
-    outputdata (antall bits i indexer)
-  - bygg remap-tabell fra inputdata til indexering i ny palette. Det vil si
-    ta hensyn til shift, offset og remapping til ny palette
-  - bygg outputdata. 
-  - returner
-
-  Hvis input = GL_UNSIGNED_SHORT
-  - samme som GL_UNSIGNED_BYTE
-
-  hva skal skje hvis definert palette ikke inneholder nok entries? Klippe til 
-  nærmeste ovenfra/nedenfra?
-
-  lag privatefunksjoner (om mulig være inline...?):
-  - int unpackIndex(void * data, int datatype (index1, 2, 4, 8, 16), int &bitPointer);
-  - packIndex(void * data, int datatype (index1, 2, 4, 8, 16), int index, int &bitPointer);
-
-
-
-
-*/
   // Handling RGBA inputdata. Just forwarding to output
   if (inputDataType == SoVolumeRendering::RGBA) {
     outputFormat = GL_RGBA;
@@ -208,8 +172,11 @@ Pseudokode:
     memset(palCount, 0, sizeof(int)*numEntries);
     for (i = 0; i < size[0]*size[1]; i++) {
 
-      // FIXME: Test if the index is out of bounds 
-      int idx = unsigned short((unpack(input, numBits, i)<<shift.getValue()) + offset.getValue());
+      // FIXME: Test if the index is out of bounds. 08282002 torbjorv.
+      int idx = 
+        unsigned short((PRIVATE(this)->unpack(input, numBits, i) << shift.getValue()) + 
+        offset.getValue());
+
       palCount[idx]++;
     }// for
 
@@ -253,19 +220,22 @@ Pseudokode:
     }// if
 
     // Rebuilding texturedata
-    unsigned char * newTexture = new unsigned char[size[0]*size[1]*newNumBits/8];
-    memset(newTexture, 0, size[0]*size[1]*newNumBits/8);
+    unsigned char * newTexture = 
+      new unsigned char[size[0] * size[1] * newNumBits / 8];
+    memset(newTexture, 0, size[0] * size[1] * newNumBits / 8);
     for (i = 0; i < size[0]*size[1]; i++) {
-      int idx = unsigned short((unpack(input, numBits, i) << shift.getValue()) + offset.getValue());
+      int idx = 
+        unsigned short((PRIVATE(this)->unpack(input, numBits, i) << shift.getValue()) + 
+        offset.getValue());
+
       idx = remap[idx];
-      pack(newTexture, newNumBits, i, idx);
+      PRIVATE(this)->pack(newTexture, newNumBits, i, idx);
     }// for
     output = newTexture;
     paletteFormat = GL_RGBA;
 
     delete [] palCount;
     delete [] remap;
-
   }//else
 }// transfer
 
@@ -273,11 +243,12 @@ Pseudokode:
 
 
 /*
-Handles packed data for 1, 2, 4, 8 and 16 bits. Assumes 16-bit data are stored in 
-little-endian format (that is the x86-way, right?). And MSB is the leftmost of the
-bitstream...? Think so. 
+  Handles packed data for 1, 2, 4, 8 and 16 bits. Assumes 16-bit 
+  data are stored in little-endian format (that is the x86-way, 
+  right?). And MSB is the leftmost of the bitstream...? Think so. 
 */
-int SoTransferFunction::unpack(const void * data, int numBits, int index)
+int 
+SoTransferFunctionP::unpack(const void * data, int numBits, int index)
 {
   if (numBits == 8)
     return (int)((char*)data)[index];
@@ -300,7 +271,12 @@ int SoTransferFunction::unpack(const void * data, int numBits, int index)
 
 
 
-void SoTransferFunction::pack(void * data, int numBits, int index, int val)
+/*
+  Saves the index specified in val with the specified number of bits, 
+  at the specified index (not elementindex, not byteindex) in data. 
+*/
+void 
+SoTransferFunctionP::pack(void * data, int numBits, int index, int val)
 {
   if (val >= (1 << numBits))
     val = (1 << numBits) - 1;
@@ -325,3 +301,7 @@ void SoTransferFunction::pack(void * data, int numBits, int index, int val)
     ((char*)data)[byteIndex] = byte;
   }// else 
 }// pack
+
+
+// FIXME: Implement this function torbjorv 08282002
+void SoTransferFunction::reMap(int min, int max) {}

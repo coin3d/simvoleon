@@ -46,7 +46,7 @@ public:
     MEMORY = 0x00000008,
     VOLUMEPRO = 0x00000010, 
     TEX2D_SINGLE = 0x00000020,
-    LOAD_ALL = 0x00000040,          // Builds as many pages as possible at 
+    LOAD_MAX = 0x00000040,          // Builds as many pages as possible at 
     DYNAMIC_LOADING = 0x00000080,   // Only loads the pages used
   };
 
@@ -109,7 +109,9 @@ public:
   void setHWMemorySize(int size);
   void setReader(SoVolumeReader * reader);
 
-  // FIXME: The following functions are still to be implemented. torbjorv 07122002
+
+  // FIXME: The following functions are still to be implemented. 
+  // torbjorv 07122002
   SbBool getVolumeData( SbVec3s &dimension, 
                         void *&data, 
                         SoVolumeRendering::DataType &type);
@@ -128,7 +130,8 @@ public:
   void enableAutoUnSampling(SbBool enable);
   void unSample();
   void setSubSamplingMethod(SubMethod method);
-  void setSubSamplingLevel(const SbVec3s &ROISampling, const SbVec3s &secondarySampling);
+  void setSubSamplingLevel(const SbVec3s &ROISampling, 
+                           const SbVec3s &secondarySampling);
 
 
 
