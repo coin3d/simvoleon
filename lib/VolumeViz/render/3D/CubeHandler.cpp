@@ -87,6 +87,7 @@ CvrCubeHandler::setPalette(const CvrCLUT * c)
   assert(this->volumecube && "'volumecube' object is not initialized.");
   assert(c != NULL);
   this->volumecube->setPalette(c);
+  this->clut = c;
 }
 
 void
