@@ -267,6 +267,10 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
   // FIXME: how does the blending cooperate with the other geometry in
   // a Coin scene graph? Do we need to delay rendering? 20021109 mortene.
+  //
+  // UPDATE: yes, we do, or geometry that is traversed after this will
+  // not be rendered through the transparent parts because it fails
+  // the Z-buffer test.
 
   glEnable(GL_BLEND);
 
