@@ -40,6 +40,10 @@ public:
     // Init to lowest and highest uint16_t values.
     this->opaquethresholds[0] = 0;
     this->opaquethresholds[1] = (2 << 16) - 1;
+
+    // Make sure this is set to an unused value, so it gets
+    // initialized at first invocation.
+    this->transfertablenodeid = SoNode::getNextNodeId();
   }
 
   static uint8_t PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];
@@ -47,11 +51,25 @@ public:
 
   int opaquethresholds[2];
 
+  // The simple idea for speeding up transfer of volume data is to
+  // dynamically fill in an index array, so each transfer value
+  // calcualtion is done only once.
+  void blankoutTransferTable(void);
+  uint32_t transfertable[256];
+  SbBool transferdone[256];
+  uint32_t transfertablenodeid;
+
 private:
   SoTransferFunction * master;
 };
 
 uint8_t SoTransferFunctionP::PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];
+
+void
+SoTransferFunctionP::blankoutTransferTable(void)
+{
+  for (unsigned int i=0; i < 256; i++) { this->transferdone[i] = FALSE; }
+}
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
@@ -161,9 +179,22 @@ SoTransferFunction::transfer(const uint8_t * input,
                              const SbVec2s & size,
                              SbBool & invisible) const
 {
-  // FIXME: I have a simple idea for (immensely?) speeding up transfer
-  // of 8-bit and 16-bit volume data transfer: dynamically set up an
-  // index array, so each transfer is done only once. 20021124 mortene.
+  // FIXME: about the "invisible" flag: this should really be an
+  // SbBox2s that indicates which part of the output buffer is
+  // non-fully-transparent. This could be used to optimize texture
+  // rendering. 20021201 mortene.
+
+  // FIXME: in addition to the "invisible" area, we could keep an
+  // "opaqueness" area, to make it possible to optimize rendering by
+  // occlusion culling. 20021201 mortene.
+
+
+  // This table needs to be invalidated when any parameter of the
+  // SoTransferFunction node changes.
+  if (PRIVATE(this)->transfertablenodeid != this->getNodeId()) {
+    PRIVATE(this)->blankoutTransferTable();
+    PRIVATE(this)->transfertablenodeid = this->getNodeId();
+  }
 
   assert(inputdatatype == SoVolumeData::RGBA ||
          inputdatatype == SoVolumeData::UNSIGNED_BYTE ||
@@ -175,13 +206,15 @@ SoTransferFunction::transfer(const uint8_t * input,
     assert(endianness != COIN_HOST_IS_UNKNOWNENDIAN && "weird hardware!");
   }
 
-  uint32_t * output = new uint32_t[size[0]*size[1]];
+  const unsigned int nrelements = size[0]*size[1];
+
+  uint32_t * output = new uint32_t[nrelements];
 
   invisible = TRUE;
 
   // Handling RGBA inputdata. Just forwarding to output
   if (inputdatatype == SoVolumeData::RGBA) {
-    (void)memcpy(output, input, size[0] * size[1] * sizeof(uint32_t));
+    (void)memcpy(output, input, nrelements * sizeof(uint32_t));
     // FIXME: set the "invisible" flag correctly according to actual
     // input. 20021129 mortene.
     invisible = FALSE;
@@ -214,11 +247,20 @@ SoTransferFunction::transfer(const uint8_t * input,
     int32_t shiftval = this->shift.getValue();
     int32_t offsetval = this->offset.getValue();
 
-    for (int j=0; j < size[0]*size[1]; j++) {
-      uint8_t inval = input[j];
+    for (unsigned int j=0; j < nrelements; j++) {
+      const uint8_t voldataidx = input[j];
 
-      if (shiftval != 0) inval <<= shiftval;
-      if (offsetval != 0) inval += offsetval;
+      if (PRIVATE(this)->transferdone[voldataidx]) {
+        output[j] = PRIVATE(this)->transfertable[voldataidx];
+
+        uint8_t alpha = (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
+          ((output[j] & 0xff000000) > 24) : (output[j] & 0x000000ff);
+        invisible = invisible && (alpha == 0x00);
+        continue;
+      }
+
+      uint8_t inval = voldataidx << shiftval;
+      inval += offsetval;
 
       if ((inval == 0x00) || // FIXME: not sure about this.. 20021119 mortene.
           (inval < PRIVATE(this)->opaquethresholds[0]) ||
@@ -272,6 +314,9 @@ SoTransferFunction::transfer(const uint8_t * input,
 
         invisible = invisible && (rgba[3] == 0x00);
       }
+      
+      PRIVATE(this)->transferdone[voldataidx] = TRUE;
+      PRIVATE(this)->transfertable[voldataidx] = output[j];
     }
   }
 
@@ -289,7 +334,7 @@ SoTransferFunction::transfer(const uint8_t * input,
     const uint16_t * inp = (const uint16_t *)input;
 
     if (endianness == COIN_HOST_IS_LITTLEENDIAN) {
-      for (int j=0; j < size[0]*size[1]; j++) {
+      for (unsigned int j=0; j < nrelements; j++) {
         outp[j] =
           (0 << 0) | // red
           (uint32_t(inp[j] & 0x00ff) << 8) | // green
@@ -298,7 +343,7 @@ SoTransferFunction::transfer(const uint8_t * input,
       }
     }
     else {
-      for (int j=0; j < size[0]*size[1]; j++) {
+      for (unsigned int j=0; j < nrelements; j++) {
         outp[j] =
           (0 << 24) | // red
           (uint32_t(inp[j] & 0x00ff) << 16) | // green
@@ -321,7 +366,13 @@ SoTransferFunction::reMap(int low, int high)
   
   // This is done to update our node-id, which should automatically
   // invalidate any 2D texture slices or 3D textures generated with
-  // the previous colormap transfer.
+  // the previous colormap transfer. Also, our internal index tables
+  // for speeding up transfers needs to be invalidated when these
+  // values changes.
+  //
+  // These settings should really have been made public as fields, and
+  // this would have been unnecessary. We can't do that without
+  // breaking compatibility with TGS's VolumeViz, though.
   this->touch();
 }
 
