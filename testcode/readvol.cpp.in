@@ -6,17 +6,33 @@
 #include <Inventor/nodes/SoLightModel.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/sensors/SoTimerSensor.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <VolumeViz/readers/SoVRVolFileReader.h>
 
+#include <Inventor/errors/SoDebugError.h>
+
+static void
+changeTransferColormap(void * d, SoSensor * sensor)
+{
+  SoTransferFunction * tf = (SoTransferFunction *)d;
+
+  int newval= (tf->predefColorMap.getValue() + 1);
+  newval %= (SoTransferFunction::SEISMIC + 1);
+  if (newval == 0) newval = SoTransferFunction::GREY;
+
+  SoDebugError::postInfo("changeTransferColormap", "newval==%d", newval);
+
+  tf->predefColorMap = newval;
+}
 
 int
 main(int argc, char ** argv)
 {
-  if (argc != 2) {
+  if (argc < 2) {
     fprintf(stderr, "\nUsage: %s dataset.vol\n\n", argv[0]);
     exit(1);
   }
@@ -42,9 +58,12 @@ main(int argc, char ** argv)
 
   root->addChild(pVolData);
 
+#if 1 // FIXME: handle missing transferfunction. 20021117 mortene.
   // Add TransferFunction (color map) to scene graph
   SoTransferFunction *pTransFunc = new SoTransferFunction();
+  if (argc == 3) pTransFunc->predefColorMap = atoi(argv[2]); // XXX
   root->addChild(pTransFunc);
+#endif
 
   // Add VolumeRender to scene graph
   SoVolumeRender * pVolRend = new SoVolumeRender();
@@ -62,6 +81,12 @@ main(int argc, char ** argv)
 
   So@Gui@ExaminerViewer * ex = new So@Gui@ExaminerViewer(window);
   ex->setSceneGraph(root);
+
+#if 0
+  SoTimerSensor sensor(changeTransferColormap, pTransFunc);
+  sensor.setInterval(10);
+  sensor.schedule();
+#endif
 
   ex->show();
   So@Gui@::show(window);
