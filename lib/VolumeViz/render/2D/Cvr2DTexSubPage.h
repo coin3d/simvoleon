@@ -56,16 +56,16 @@ public:
   static unsigned int totalTextureMemoryUsed(void);
 
 private:
-  void makeGLTexture(const SoGLRenderAction * action);
+  struct GLResource { GLuint texid; };
+  static SbBool resourceCleanerS(void * owner, uint32_t ctxid, void * resource, void * closure);
+
+  struct Cvr2DTexSubPage::GLResource * makeGLTexture(const SoGLRenderAction * action);
   void activateTexture(const SoGLRenderAction * actio, Interpolation interp) const;
 
   void activateCLUT(const SoGLRenderAction * action);
   void deactivateCLUT(const SoGLRenderAction * action);
 
   static void bindTexMemFullImage(const cc_glglue * glw);
-
-  struct GLResource { GLuint texid; };
-  static SbBool resourceCleanerS(void * owner, uint32_t ctxid, void * resource, void * closure);
 
   static GLuint emptyimgname[1];
   SbVec2s texdims;

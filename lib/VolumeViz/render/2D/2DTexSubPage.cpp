@@ -208,14 +208,22 @@ Cvr2DTexSubPage::activateTexture(const SoGLRenderAction * action,
   uint32_t glctxid = action->getCacheContext();
   void * resource;
   const SbBool found = cvr_rc_find_resource(glctxid, (void *)this, &resource);
-  
+
+  struct Cvr2DTexSubPage::GLResource * res = NULL;
   if (!found) { 
     // FIXME: makeGLTexture() should really be const. 20040715 mortene.
-    ((Cvr2DTexSubPage *)this)->makeGLTexture(action);
+    res = ((Cvr2DTexSubPage *)this)->makeGLTexture(action);
+  }
+  else {
+    res = (struct Cvr2DTexSubPage::GLResource *)resource;
   }
 
-  struct Cvr2DTexSubPage::GLResource * res =
-    (struct Cvr2DTexSubPage::GLResource *)resource;
+  if (res == NULL) {
+    // Texture could not be found nor made. A warning should have been
+    // displayed somewhere deeper down in the call-chain, so we simply
+    // return.
+    return;
+  }
 
   glBindTexture(GL_TEXTURE_2D, res->texid);
 
@@ -327,7 +335,7 @@ Cvr2DTexSubPage::bindTexMemFullImage(const cc_glglue * glw)
 // the indices are byte or short.
 //
 // FIXME: this function should be const. 20040715 mortene.
-void
+struct Cvr2DTexSubPage::GLResource *
 Cvr2DTexSubPage::makeGLTexture(const SoGLRenderAction * action)
 {
   const uint32_t glctx = action->getCacheContext();
@@ -397,112 +405,114 @@ Cvr2DTexSubPage::makeGLTexture(const SoGLRenderAction * action)
       first = FALSE;
     }
 #endif // debug
+
+    return NULL;
+  }
+
+
+  Cvr2DTexSubPage::nroftexels += nrtexels;
+  Cvr2DTexSubPage::texmembytes += texmem;
+
+  // FIXME: glGenTextures() / glBindTexture() / glDeleteTextures()
+  // are only supported in opengl >= 1.1, should have a fallback for
+  // 1.0 drivers, like we have in Coin, where we can use display
+  // lists instead. 20040715 mortene.
+
+  struct Cvr2DTexSubPage::GLResource * res = new struct Cvr2DTexSubPage::GLResource;
+  glGenTextures(1, &(res->texid));
+  assert(glGetError() == GL_NO_ERROR);
+
+  cvr_rc_bind_resource(glctx, this, res);
+
+  glBindTexture(GL_TEXTURE_2D, res->texid);
+  assert(glGetError() == GL_NO_ERROR);
+
+  void * imgptr = NULL;
+  if (this->ispaletted) imgptr = ((Cvr2DPaletteTexture *)this->texobj)->getIndex8Buffer();
+  else imgptr = ((Cvr2DRGBATexture *)this->texobj)->getRGBABuffer();
+
+  // debugging: keep this around until the peculiar NVidia bug with
+  // 1- or 2-pixel width textures has been analyzed.
+  //
+  // FIXME: need to find out what the hell this problem is. 20031031 mortene.
+#if 0
+  printf("glTexImage2D() args: dims==<%d,%d>, ispaletted==%d, imgptr==%p\n",
+         this->texdims[0], this->texdims[1], this->ispaletted, imgptr);
+
+  static int allnum = 0;
+  allnum++;
+  if (this->texdims[0]==1 || this->texdims[1]==1) {
+    static int num = 0;
+    num++;
+    printf("numero %d/%d, nroftexels==%d, texmembytes==%d\n",
+           num, allnum,
+           Cvr2DTexSubPage::nroftexels,
+           Cvr2DTexSubPage::texmembytes);
   }
   else {
-    Cvr2DTexSubPage::nroftexels += nrtexels;
-    Cvr2DTexSubPage::texmembytes += texmem;
-
-    // FIXME: glGenTextures() / glBindTexture() / glDeleteTextures()
-    // are only supported in opengl >= 1.1, should have a fallback for
-    // 1.0 drivers, like we have in Coin, where we can use display
-    // lists instead. 20040715 mortene.
-
-    struct Cvr2DTexSubPage::GLResource * res = new struct Cvr2DTexSubPage::GLResource;
-    glGenTextures(1, &(res->texid));
-    assert(glGetError() == GL_NO_ERROR);
-
-    cvr_rc_bind_resource(glctx, this, res);
-
-    glBindTexture(GL_TEXTURE_2D, res->texid);
-    assert(glGetError() == GL_NO_ERROR);
-
-    void * imgptr = NULL;
-    if (this->ispaletted) imgptr = ((Cvr2DPaletteTexture *)this->texobj)->getIndex8Buffer();
-    else imgptr = ((Cvr2DRGBATexture *)this->texobj)->getRGBABuffer();
-
-    // debugging: keep this around until the peculiar NVidia bug with
-    // 1- or 2-pixel width textures has been analyzed.
-    //
-    // FIXME: need to find out what the hell this problem is. 20031031 mortene.
-#if 0
-    printf("glTexImage2D() args: dims==<%d,%d>, ispaletted==%d, imgptr==%p\n",
-	   this->texdims[0], this->texdims[1], this->ispaletted, imgptr);
-
-    static int allnum = 0;
-    allnum++;
-    if (this->texdims[0]==1 || this->texdims[1]==1) {
-      static int num = 0;
-      num++;
-      printf("numero %d/%d, nroftexels==%d, texmembytes==%d\n",
-	     num, allnum,
-	     Cvr2DTexSubPage::nroftexels,
-	     Cvr2DTexSubPage::texmembytes);
-    }
-    else {
-      printf("numero %d, nroftexels==%d, texmembytes==%d\n",
-	     allnum,
-	     Cvr2DTexSubPage::nroftexels,
-	     Cvr2DTexSubPage::texmembytes);
-    }
+    printf("numero %d, nroftexels==%d, texmembytes==%d\n",
+           allnum,
+           Cvr2DTexSubPage::nroftexels,
+           Cvr2DTexSubPage::texmembytes);
+  }
 #endif // debugging
-
    
 
-    // FIXME: Combining texture compression and GL_COLOR_INDEX doesnt
-    // seem to work on NVIDIA cards (tested on GeForceFX 5600 &
-    // GeForce2 MX) (20040316 handegar)
-    int palettetype = GL_COLOR_INDEX;
+  // FIXME: Combining texture compression and GL_COLOR_INDEX doesnt
+  // seem to work on NVIDIA cards (tested on GeForceFX 5600 &
+  // GeForce2 MX) (20040316 handegar)
+  int palettetype = GL_COLOR_INDEX;
 
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
-    if (cc_glglue_has_arb_fragment_program(glw))
-      palettetype = GL_LUMINANCE;    
+  if (cc_glglue_has_arb_fragment_program(glw))
+    palettetype = GL_LUMINANCE;    
 #endif // HAVE_ARB_FRAGMENT_PROGRAM
 
-    // FIXME: Is this way of compressing textures OK? (20040303 handegar)
-    if (cc_glue_has_texture_compression(glw) && 
-        this->compresstextures &&
-        palettetype != GL_COLOR_INDEX) {
-      if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
-      else colorformat = GL_COMPRESSED_INTENSITY_ARB;
-    }
-
-    if (!CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
-      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 colorformat,
-                 this->texdims[0],
-                 this->texdims[1],
-                 0,
-                 this->ispaletted ? palettetype : GL_RGBA,
-                 GL_UNSIGNED_BYTE,
-                 imgptr);
-                 
-    assert(glGetError() == GL_NO_ERROR);
-
-    GLint wrapenum = GL_CLAMP;
-    // FIXME: avoid using GL_CLAMP_TO_EDGE, since it may not be
-    // available on all drivers. (Notably, it is missing from the
-    // Microsoft OpenGL 1.1 software renderer, which is often used for
-    // offscreen rendering on MSWin systems.)
-    //
-    // Let this code be disabled for a while, and fix any visual
-    // artifacts showing up -- preferably *without* re-enabling the
-    // use of GL_CLAMP_TO_EDGE again. Eventually, we should simply
-    // just remove the below disabled code, if we find that we can
-    // actually do without it.
-    //
-    // 20040714 mortene.
-#if 0
-    if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
-#endif
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
-    assert(glGetError() == GL_NO_ERROR);
+  // FIXME: Is this way of compressing textures OK? (20040303 handegar)
+  if (cc_glue_has_texture_compression(glw) && 
+      this->compresstextures &&
+      palettetype != GL_COLOR_INDEX) {
+    if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
+    else colorformat = GL_COMPRESSED_INTENSITY_ARB;
   }
 
+  if (!CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    
+  glTexImage2D(GL_TEXTURE_2D,
+               0,
+               colorformat,
+               this->texdims[0],
+               this->texdims[1],
+               0,
+               this->ispaletted ? palettetype : GL_RGBA,
+               GL_UNSIGNED_BYTE,
+               imgptr);
+                 
+  assert(glGetError() == GL_NO_ERROR);
+
+  GLint wrapenum = GL_CLAMP;
+  // FIXME: avoid using GL_CLAMP_TO_EDGE, since it may not be
+  // available on all drivers. (Notably, it is missing from the
+  // Microsoft OpenGL 1.1 software renderer, which is often used for
+  // offscreen rendering on MSWin systems.)
+  //
+  // Let this code be disabled for a while, and fix any visual
+  // artifacts showing up -- preferably *without* re-enabling the
+  // use of GL_CLAMP_TO_EDGE again. Eventually, we should simply
+  // just remove the below disabled code, if we find that we can
+  // actually do without it.
+  //
+  // 20040714 mortene.
+#if 0
+  if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
+#endif
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
+  assert(glGetError() == GL_NO_ERROR);
+
+  return res;
 }
 
 void
