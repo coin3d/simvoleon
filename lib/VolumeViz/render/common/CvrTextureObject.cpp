@@ -400,10 +400,6 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   CvrTextureObject * obj = CvrTextureObject::findInstanceMatch(incoming);
   if (obj) { return obj; }
 
-  assert(coin_is_power_of_two(texsize[0]));
-  assert(coin_is_power_of_two(texsize[1]));
-  assert(coin_is_power_of_two(texsize[2]));
-
   const SbVec3s & voxdims = vbelem->getVoxelCubeDimensions();
   const void * dataptr = vbelem->getVoxels();
 
@@ -428,7 +424,12 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   else { t = Cvr3DRGBATexture::getClassTypeId(); }
 
   CvrTextureObject * newtexobj = (CvrTextureObject *)t.createInstance();
-  newtexobj->dimensions = texsize;
+
+  // The actual dimensions of the GL texture must be values that are
+  // power-of-two's:
+  for (unsigned int i=0; i < 3; i++) {
+    newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i]);
+  }
 
   cubechunk->transfer(action, newtexobj, invisible);
 
