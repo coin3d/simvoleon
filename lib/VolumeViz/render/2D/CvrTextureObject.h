@@ -10,6 +10,7 @@ public:
   ~CvrTextureObject();
 
   uint32_t * getRGBABuffer(void);
+  const SbVec2s & getDimensions(void) const;
 
 private:
   SbVec2s dimensions;

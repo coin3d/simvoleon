@@ -1,7 +1,12 @@
 #include <VolumeViz/render/2D/CvrTextureObject.h>
+#include <Inventor/C/tidbits.h>
+#include <assert.h>
 
 CvrTextureObject::CvrTextureObject(const SbVec2s & size)
 {
+  assert(coin_is_power_of_two(size[0]));
+  assert(coin_is_power_of_two(size[1]));
+
   this->dimensions = size;
   this->rgbabuffer = NULL;
 }
@@ -21,4 +26,10 @@ CvrTextureObject::getRGBABuffer(void)
   }
 
   return this->rgbabuffer;
+}
+
+const SbVec2s &
+CvrTextureObject::getDimensions(void) const
+{
+  return this->dimensions;
 }
