@@ -50,9 +50,9 @@ CvrPageHandler::renderOrthoSlice(SoState * state,
     verticalspan = SbVec3f(0, height, 0);
   }
   else if (axis == 1) {
-    origo = SbVec3f(qmin[0], depth, qmin[1]);
+    origo = SbVec3f(qmin[0], depth, qmax[1]);
     horizspan = SbVec3f(width, 0, 0);
-    verticalspan = SbVec3f(0, 0, height);
+    verticalspan = SbVec3f(0, 0, -height);
   }
   else if (axis == 2) {
     origo = SbVec3f(qmin[0], qmin[1], depth);
