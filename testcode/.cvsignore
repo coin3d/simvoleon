@@ -1,0 +1,8 @@
+SoTransferFunction_ctrl.cpp
+SoTransferFunction_ctrl.h
+moc_SoTransferFunction_ctrl.cpp
+moc_TransferFunctionHandler.cpp
+readvol
+readvol.cpp
+rgbload
+rgbload.cpp
