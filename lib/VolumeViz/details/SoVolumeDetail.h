@@ -1,5 +1,5 @@
-#ifndef COIN_SOVOLUMERENDERDETAIL_H
-#define COIN_SOVOLUMERENDERDETAIL_H
+#ifndef COIN_SOVOLUMEDETAIL_H
+#define COIN_SOVOLUMEDETAIL_H
 
 /**************************************************************************\
  *
@@ -29,20 +29,47 @@
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3s.h>
 #include <Inventor/lists/SbList.h>
-
 #include <VolumeViz/C/basic.h>
-#include <VolumeViz/details/SoVolumeDetail.h>
 
-class SIMVOLEON_DLL_API SoVolumeRenderDetail : public SoVolumeDetail {
-  typedef SoVolumeDetail inherited;
 
-  SO_DETAIL_HEADER(SoVolumeRenderDetail);
+class SIMVOLEON_DLL_API SoVolumeDetail : public SoDetail {
+  typedef SoDetail inherited;
+
+  SO_DETAIL_HEADER(SoVolumeDetail);
 
 public:
   static void initClass(void);
-  SoVolumeRenderDetail(void);
-  virtual ~SoVolumeRenderDetail();
+  SoVolumeDetail(void);
+  virtual ~SoVolumeDetail();
  
+  virtual SoDetail * copy(void) const;
+
+  void getProfileObjectPos(SbVec3f profile[2]) const;
+  int getProfileDataPos(SbVec3s profile[2] = 0) const;
+  unsigned int getProfileValue(int index,
+                               SbVec3s * pos = 0, SbVec3f * objpos = 0,
+                               SbBool flag = FALSE) const;
+
+  SbBool getFirstNonTransparentValue(unsigned int * value,
+                                     SbVec3s * pos = 0, SbVec3f * objpos = 0,
+                                     SbBool flag = FALSE) const;
+
+private:
+  void addVoxelIntersection(const SbVec3f & voxelcoord,
+                            const SbVec3s & voxelindex,
+                            unsigned int voxelvalue,
+                            uint8_t rgba[4]);
+
+  class VoxelInfo {
+  public:
+    SbVec3f voxelcoord;
+    SbVec3s voxelindex;
+    unsigned int voxelvalue;
+    uint8_t rgba[4];
+  };
+  SbList<VoxelInfo> voxelinfolist;
+
+  friend class SoVolumeRender;
 };
 
-#endif // !COIN_SOVOLUMERENDERDETAIL_H
+#endif // !COIN_SOVOLUMEDETAIL_H

@@ -1,5 +1,5 @@
-#ifndef COIN_SOVOLUMERENDERDETAIL_H
-#define COIN_SOVOLUMERENDERDETAIL_H
+#ifndef COIN_SOVOLUMESKINDETAIL_H
+#define COIN_SOVOLUMESKINDETAIL_H
 
 /**************************************************************************\
  *
@@ -33,16 +33,16 @@
 #include <VolumeViz/C/basic.h>
 #include <VolumeViz/details/SoVolumeDetail.h>
 
-class SIMVOLEON_DLL_API SoVolumeRenderDetail : public SoVolumeDetail {
-  typedef SoVolumeDetail inherited;
+class SIMVOLEON_DLL_API SoVolumeSkinDetail : public SoVolumeDetail {
+  typedef SoDetail inherited;
 
-  SO_DETAIL_HEADER(SoVolumeRenderDetail);
+  SO_DETAIL_HEADER(SoVolumeSkinDetail);
 
 public:
   static void initClass(void);
-  SoVolumeRenderDetail(void);
-  virtual ~SoVolumeRenderDetail();
+  SoVolumeSkinDetail(void);
+  virtual ~SoVolumeSkinDetail();
  
 };
 
-#endif // !COIN_SOVOLUMERENDERDETAIL_H
+#endif // !COIN_SOVOLUMESKINDETAIL_H

@@ -1,6 +1,3 @@
-#ifndef COIN_SOVOLUMERENDERDETAIL_H
-#define COIN_SOVOLUMERENDERDETAIL_H
-
 /**************************************************************************\
  *
  *  This file is part of the SIM Voleon visualization library.
@@ -24,25 +21,40 @@
  *
 \**************************************************************************/
 
-#include <Inventor/details/SoDetail.h>
-#include <Inventor/details/SoSubDetail.h>
-#include <Inventor/SbVec3f.h>
-#include <Inventor/SbVec3s.h>
-#include <Inventor/lists/SbList.h>
+/*!
+  \class SoVolumeSkinDetail SoVolumeSkinDetail.h VolumeViz/details/SoVolumeSkinDetail.h
+  \brief The SoVolumeSkinDetail stores ray intersection information through a volume.
 
-#include <VolumeViz/C/basic.h>
-#include <VolumeViz/details/SoVolumeDetail.h>
+  An SoVolumeSkinDetail contains the information about a ray
+  intersecting of a volume rendered with the SoVolumeSkin node.
 
-class SIMVOLEON_DLL_API SoVolumeRenderDetail : public SoVolumeDetail {
-  typedef SoVolumeDetail inherited;
+  The detail contains a "profile" of voxel values through the volume,
+  where the profile is defined by a start point and an end point.
+*/
 
-  SO_DETAIL_HEADER(SoVolumeRenderDetail);
+#include <VolumeViz/details/SoVolumeSkinDetail.h>
+#include <Inventor/SbName.h>
+#include <stddef.h>
+#include <string.h>
 
-public:
-  static void initClass(void);
-  SoVolumeRenderDetail(void);
-  virtual ~SoVolumeRenderDetail();
- 
-};
+// *************************************************************************
 
-#endif // !COIN_SOVOLUMERENDERDETAIL_H
+SO_DETAIL_SOURCE(SoVolumeSkinDetail);
+
+// *************************************************************************
+
+SoVolumeSkinDetail::SoVolumeSkinDetail(void)
+{
+  assert(SoVolumeSkinDetail::getClassTypeId() != SoType::badType());
+}
+
+SoVolumeSkinDetail::~SoVolumeSkinDetail()
+{
+}
+
+// doc in super
+void
+SoVolumeSkinDetail::initClass(void)
+{
+  SO_DETAIL_INIT_CLASS(SoVolumeSkinDetail, SoDetail);
+}

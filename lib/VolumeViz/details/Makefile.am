@@ -7,7 +7,9 @@ noinst_LTLIBRARIES = libdetails.la
 endif
 
 SOURCES = \
+	VolumeDetail.cpp \
 	VolumeRenderDetail.cpp \
+	VolumeSkinDetail.cpp \
 	OrthoSliceDetail.cpp \
 	ObliqueSliceDetail.cpp
 
@@ -18,7 +20,9 @@ details_lst_SOURCES = $(SOURCES)
 libdetailsincdir = $(includedir)/VolumeViz/details
 
 libdetailsinc_HEADERS = \
+	SoVolumeDetail.h \
 	SoVolumeRenderDetail.h \
+	SoVolumeSkinDetail.h \
 	SoOrthoSliceDetail.h \
 	SoObliqueSliceDetail.h
 
