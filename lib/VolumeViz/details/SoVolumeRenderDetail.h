@@ -5,6 +5,7 @@
 #include <Inventor/details/SoSubDetail.h>
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3s.h>
+#include <Inventor/lists/SbList.h>
 
 
 class SoVolumeRenderDetail : public SoDetail {
@@ -34,11 +35,15 @@ private:
                             const SbVec3s & voxelindex,
                             unsigned int voxelvalue,
                             uint8_t rgba[4]);
-  // XXX
-//   SbList<SbVec3f> voxelcoords;
-//   SbList<SbVec3s> voxelindices;
-//   SbList<unsigned int> voxelvalues;
-//   SbList<uint8_t
+
+  class VoxelInfo {
+  public:
+    SbVec3f voxelcoord;
+    SbVec3s voxelindex;
+    unsigned int voxelvalue;
+    uint8_t rgba[4];
+  };
+  SbList<VoxelInfo> voxelinfolist;
 
   friend class SoVolumeRender;
 };
