@@ -177,13 +177,22 @@
 
 ========================================================================
     
-012 There are clearly visible seams between texture sub-cubes of a
-    volume.
+012 There are seams between texture sub-cubes (3D textures) and
+    texture sub-pages (2D textures) of a volume.
 
-    To reproduce, look at e.g. LOBSTER.VOL with default
-    SoTransferFunction and the default 64x64x64 pagesize.
+    To reproduce, look at a volume with 2D texturing (it is much
+    harder to spot for 3D texturing) and a transfer function with
+    sharp color changes, with interpolation set to "LINEAR". The seams
+    then visible is caused by the textures _not_ interpolating to the
+    neighboring row of texels at the texture borders.
 
-    This is a critical bug.
+    This is a medium priority bug.
+
+    It is not trivial to fix: we need to generate textures that
+    "borrows" rows / columns from neighboring data blocks for the
+    texture borders, then shrink the textures so that only the "inner"
+    part (i.e. excluding the 1-texel borders) are used for the
+    textured polygons.
 
     20040723 mortene.
 
