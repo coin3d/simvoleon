@@ -6,6 +6,7 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/SoPickedPoint.h>
 #include <Inventor/system/gl.h>
+#include <Inventor/C/tidbits.h>
 
 #include <VolumeViz/nodes/SoOrthoSlice.h>
 
@@ -52,6 +53,10 @@ public:
   SoOrthoSliceP(SoOrthoSlice * master)
   {
     this->master = master;
+
+    if (SoOrthoSliceP::debug == -1) {
+      SoOrthoSliceP::debug = coin_getenv("CVR_DEBUG_ORTHOSLICE") ? 1 : 0;
+    }
   }
 
   ~SoOrthoSliceP()
@@ -77,10 +82,14 @@ public:
 
   SoColorPacker colorpacker;
 
+  static int debug;
+
 private:
   SbList<CachedPage*> cachedpages[3];
   SoOrthoSlice * master;
 };
+
+int SoOrthoSliceP::debug = -1;
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
@@ -95,6 +104,14 @@ private:
   SoOrthoSlice::Z, the slice will lay in the X-Y plane.
 
   Default value is SoOrthoSlice::Z.
+*/
+
+/*!
+  \var SoSFUInt32 SoOrthoSlice::sliceNumber
+
+  Decides where the slice will be made through the volume.
+
+  Default value is 0.
 */
 
 // *************************************************************************
@@ -291,7 +308,7 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   this->computeBBox(action, slicebox, dummy);
 
   // debug
-  SoOrthoSliceP::renderBox(action, slicebox);
+  if (SoOrthoSliceP::debug) { SoOrthoSliceP::renderBox(action, slicebox); }
 
   // Fetching the current volumedata
   const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
