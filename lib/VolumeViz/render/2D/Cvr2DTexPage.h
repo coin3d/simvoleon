@@ -33,7 +33,7 @@ private:
                                            int col, int row);
 
   void releaseAllSubPages(void);
-  void releaseSubPage(const int col, const int row);
+  void releaseSubPage(const int row, const int col);
 
   int calcSubPageIdx(int row, int col) const;
 

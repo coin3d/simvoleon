@@ -136,7 +136,7 @@ void Cvr2DTexPage::init(SoVolumeReader * reader,
   Release resources used by a page in the slice.
 */
 void
-Cvr2DTexPage::releaseSubPage(const int col, const int row)
+Cvr2DTexPage::releaseSubPage(const int row, const int col)
 {
   const int idx = this->calcSubPageIdx(row, col);
   Cvr2DTexSubPageItem * p = this->subpages[idx];
@@ -154,12 +154,12 @@ Cvr2DTexPage::releaseSubPage(Cvr2DTexSubPage * page)
   assert(page != NULL);
   assert(this->subpages != NULL);
 
-  for (int i = 0; i < this->nrrows; i++) {
-    for (int j = 0; j < this->nrcolumns; j++) {
-      const int idx = this->calcSubPageIdx(i, j);
+  for (int row = 0; row < this->nrrows; row++) {
+    for (int col = 0; col < this->nrcolumns; col++) {
+      const int idx = this->calcSubPageIdx(row, col);
       Cvr2DTexSubPageItem * p = this->subpages[idx];
       if (p->page == page) {
-        this->releaseSubPage(i, j);
+        this->releaseSubPage(row, col);
         return;
       }
     }
@@ -172,9 +172,9 @@ Cvr2DTexPage::releaseAllSubPages(void)
 {
   if (this->subpages == NULL) return;
 
-  for (int i = 0; i < this->nrrows; i++) {
-    for (int j = 0; j < this->nrcolumns; j++) {
-      this->releaseSubPage(i, j);
+  for (int row = 0; row < this->nrrows; row++) {
+    for (int col = 0; col < this->nrcolumns; col++) {
+      this->releaseSubPage(row, col);
     }
   }
 
@@ -586,7 +586,7 @@ Cvr2DTexPage::getSubPage(uint32_t transferfuncid, int col, int row)
   Cvr2DTexSubPageItem * subp = this->subpages[idx];
 
   if (subp && (subp->transferfuncid != transferfuncid)) {
-    this->releaseSubPage(col, row);
+    this->releaseSubPage(row, col);
     return NULL;
   }
 
