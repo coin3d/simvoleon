@@ -46,7 +46,19 @@
   };
   \endverbatim
 
-  For information about how the data will be mapped to the world
+  Volume data will by default be \e normalized to be within a 2x2x2
+  unit dimensions cube. As an example, if you set up a voxel data set
+  of dimensions 100x400x200, this will be rendered within a bounding
+  box of <-0.25, -1, -0.5> to <0.25, 1, 0.5>. Notice that the largest
+  dimension (the Y dimension in this example) will be made to fit
+  within unit size 2, and the other dimensions will be scaled
+  accordingly.
+
+  You may use SoVolumeData::setVolumeSize() to force a different unit
+  size box around the volume, or you can simply use the standard Coin
+  transformation nodes, like e.g. SoScale.
+
+  For more information about how the data will be mapped to the world
   coordinate system, see the documentation of
   SoVolumeData::setVolumeData().
 */
@@ -72,6 +84,7 @@ struct vol_header {
   uint32_t bits_per_voxel;
   uint32_t index_bits;
   // FIXME: should assert-chk that sizeof(float)==4. 20021109 mortene.
+  // FIXME: messy, use arrays. 20041007 mortene.
   float scaleX, scaleY, scaleZ;
   float rotX, rotY, rotZ;
 };
@@ -164,10 +177,15 @@ SoVRVolFileReader::getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
 
   dim.setValue(volh->width, volh->height, volh->images);
 
-  SbVec3f voldims(volh->width * volh->scaleX,
-                  volh->height * volh->scaleY,
-                  volh->images * volh->scaleZ);
-  size.setBounds(-voldims/2.0f, voldims/2.0f);
+  const short largestdimension = SbMax(dim[0], SbMax(dim[1], dim[2]));
+  SbVec3f normdims(dim[0], dim[1], dim[2]);
+  normdims /= float(largestdimension);
+  normdims *= 2.0f;
+
+  SbVec3f scale(volh->scaleX, volh->scaleY, volh->scaleZ);
+
+  for (unsigned int i=0; i < 3; i++) { normdims[i] *= scale[i]; }
+  size.setBounds(-normdims / 2.0f, normdims / 2.0f);
 }
 
 // Documented in superclass.

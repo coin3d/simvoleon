@@ -104,8 +104,8 @@ VOLUMEREADERS
   reader. Sub-classes, i.e. the non-abstract readers, needs to
   implement this function.
 
-  \a size is set to the "world size" of the volume, in the implicit
-  unit coordinates.
+  \a size is set to the "world size" of the volume, in unit
+  coordinates.
 
   \a type is set to either SoVolumeData::UNSIGNED_BYTE or
   SoVolumeData::UNSIGNED_SHORT, to signify that the voxel values are
