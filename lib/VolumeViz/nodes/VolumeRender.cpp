@@ -35,6 +35,7 @@
 #include <Inventor/bundles/SoMaterialBundle.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/SoPickedPoint.h>
+#include <Inventor/SbTime.h>
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
@@ -100,6 +101,8 @@ public:
     this->pagehandler = NULL;
     this->cubehandler = NULL;
 
+    this->volumedataset = NULL;
+
     this->abortfunc = NULL;
     this->abortfuncdata = NULL;
   }
@@ -112,7 +115,12 @@ public:
 
   unsigned int calculateNrOf2DSlices(SoGLRenderAction * action, const SbVec3s & dimensions);
   unsigned int calculateNrOf3DSlices(SoGLRenderAction * action, const SbVec3s & dimensions);
-  SbBool use3DTexturing(void) const;
+  SbBool use3DTexturing(void);
+
+  void setupPerformanceTestTextures();
+  float performanceTest();
+  void renderPerformanceTestScene();
+  float getAveragePerformanceTime(SbList <float> & l);  
 
   CvrPageHandler * pagehandler; // For 2D page rendering
   CvrCubeHandler * cubehandler; // For 3D cube rendering
@@ -125,6 +133,13 @@ public:
   SbList <SbVec3f> raypicklines;
 
   SbBool force2dtextures;
+
+  // Performance test vars
+  unsigned char * volumedataset;
+  GLuint texture3did[1];
+  GLuint texture2dids[2];
+  SbList <float> timelist2d;
+  SbList <float> timelist3d;
 
 private:
   SoVolumeRender * master;
@@ -818,15 +833,216 @@ SoVolumeRenderP::rayPickDebug(SoGLRenderAction * action)
 
 // *************************************************************************
 
+void
+SoVolumeRenderP::setupPerformanceTestTextures()
+{
+  if (this->volumedataset != NULL) // textures are already initialized
+    return;
+
+  const int texturesize = 16;
+  this->volumedataset = new unsigned char[texturesize * texturesize * texturesize * 4];
+  for (int i=0;i<(texturesize*4); i+=4) {
+    for (int j=0;j<texturesize;++j) {
+      for (int k=0;k<texturesize;++k) {    
+        volumedataset[i + (j*texturesize) + (k*texturesize*texturesize) + 0] =  //R
+          (unsigned char) (256 * ((float) rand()/RAND_MAX));
+        volumedataset[i + (j*texturesize) + (k*texturesize*texturesize) + 1] =  //G
+          (unsigned char) (256 * ((float) rand()/RAND_MAX));
+        volumedataset[i + (j*texturesize) + (k*texturesize*texturesize) + 2] =  //B
+          (unsigned char) (256 * ((float) rand()/RAND_MAX));
+        volumedataset[i + (j*texturesize) + (k*texturesize*texturesize) + 3] =  //A
+          (unsigned char) (256 * ((float) rand()/RAND_MAX));
+      }
+    }
+  }
+
+  // Setup 3D texture   
+  glGenTextures(1, this->texture3did);
+  assert(glGetError() == GL_NO_ERROR);
+  
+  glEnable(GL_TEXTURE_3D);
+  glBindTexture(GL_TEXTURE_3D, this->texture3did[0]);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP);  
+  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, texturesize, texturesize, texturesize, 
+               0, GL_RGBA, GL_UNSIGNED_BYTE, this->volumedataset);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  
+   
+  // Setup 2D textures   
+  glGenTextures(2, this->texture2dids);
+  assert(glGetError() == GL_NO_ERROR);
+  
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, this->texture2dids[0]);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texturesize, texturesize, 0, GL_RGBA, 
+               GL_UNSIGNED_BYTE, this->volumedataset);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  glBindTexture(GL_TEXTURE_2D, this->texture2dids[1]);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texturesize, texturesize, 0, GL_RGBA, 
+               GL_UNSIGNED_BYTE, this->volumedataset);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  delete this->volumedataset;
+
+}
+
+void
+SoVolumeRenderP::renderPerformanceTestScene()
+{
+
+  int i=0;  
+  const float xp = (rand() * 5.0f) / RAND_MAX;
+  const float yp = (rand() * 5.0f) / RAND_MAX;
+  const float zp = (rand() * 5.0f) / RAND_MAX;
+  
+  // 3D texture 
+  SbTime start1 = SbTime::getTimeOfDay();
+  
+  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_TEXTURE_3D);
+  for (i=0;i<5;++i) {
+    glBindTexture (GL_TEXTURE_3D, this->texture3did[0]);
+    glBegin(GL_TRIANGLES);
+    glTexCoord3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glTexCoord3f(1.0f, 0.0f, 0.0f);
+    glVertex3f(xp, 0.0f, zp);
+    glTexCoord3f(0.0f, 1.0f, 1.0f);
+    glVertex3f(xp, -yp, zp);
+    glEnd();
+  }
+
+  SbTime end1 = SbTime::getTimeOfDay();
+  this->timelist3d.append((end1 - start1).getValue());
+  
+  // 2D textures 
+  SbTime start2 = SbTime::getTimeOfDay();
+  
+  glDisable(GL_TEXTURE_3D);
+  glEnable(GL_TEXTURE_2D);
+  for (i=0;i<5;++i) {
+    glBindTexture(GL_TEXTURE_2D, this->texture2dids[i & 1]); // Flip between to textures
+    glBegin(GL_TRIANGLES);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(xp, 0.0f, yp);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(-xp, yp, zp);
+    glEnd();
+  }
+
+  SbTime end2 = SbTime::getTimeOfDay();
+  this->timelist2d.append((end2 - start2).getValue());
+
+}
+
+float
+SoVolumeRenderP::getAveragePerformanceTime(SbList <float> & l)
+{
+  int i=0;
+
+  // Remove the highest and lowest value in the array
+  int idhighest=-1, idlowest=-1;
+  float highest=0.0f, lowest=100;
+  for (i=0;i<l.getLength();++i) {
+    if (l[i] < lowest) {
+      idlowest = i;
+      lowest = l[i];
+    }
+    if (l[i] > highest) {
+      idhighest = i;
+      highest = l[i];
+    }          
+  }
+
+  assert(idhighest != -1);
+  assert(idlowest != -1);
+  l.remove(idhighest);
+  l.remove(idlowest);
+
+  float sum=0;
+  for (i=0;i<l.getLength();++i) sum += l[i];
+  return (sum / l.getLength());
+
+}
+
+float
+SoVolumeRenderP::performanceTest() 
+{
+  this->setupPerformanceTestTextures();
+
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
+  glDisable(GL_CULL_FACE);
+  glDisable(GL_BLEND);
+
+  glViewport(0, 0, 400, 400);
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+
+  // The following is a substutute for gluPerspective(...)
+  const float fovy = 45.0f;
+  const float zNear = 0.1f;
+  const float zFar = 100.0f;
+  const float aspect = (GLfloat)400 / (GLfloat)400;
+  const double radians = fovy / 2 * M_PI / 180;  
+  const double deltaZ = zFar - zNear;
+  const double sine = sin(radians);
+  const double cotangent = cos(radians) / sine;
+  GLdouble m[4][4];
+  m[0][1] = 0; m[0][2] = 0; m[0][3] = 0;
+  m[1][0] = 0; m[1][2] = 0; m[1][3] = 0;
+  m[2][0] = 0; m[2][1] = 0; 
+  m[3][0] = 0; m[3][1] = 0; 
+  m[0][0] = cotangent / aspect;
+  m[1][1] = cotangent;
+  m[2][2] = -(zFar + zNear) / deltaZ;
+  m[2][3] = -1;
+  m[3][2] = -2 * zNear * zFar / deltaZ;
+  m[3][3] = 0;
+  glMultMatrixd(&m[0][0]); // Finished
+  
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  glTranslatef(0.0f, 0.0f, -15.0f);
+
+  this->timelist2d.truncate(0);
+  this->timelist3d.truncate(0);
+  for (int i=0;i<5;++i) // 5 times 5 polygons for both 3D and 2D.
+    this->renderPerformanceTestScene();
+ 
+  const float average3dtime = this->getAveragePerformanceTime(this->timelist3d);
+  const float average2dtime = this->getAveragePerformanceTime(this->timelist2d);
+
+  // Clear frame buffer 
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  return average3dtime / average2dtime;
+
+}
+
+
 SbBool
-SoVolumeRenderP::use3DTexturing(void) const
+SoVolumeRenderP::use3DTexturing(void) 
 {
   // This check should only be done once.
   static int do3dtextures = -1;
 
   if (do3dtextures == 1) return TRUE;
   else if (do3dtextures == 0) return FALSE;
-
+  
   // Shall we force 3D texturing?
   const char * envstr = coin_getenv("CVR_FORCE_3D_TEXTURES");
   if (envstr && (atoi(envstr) > 0)) {
@@ -860,17 +1076,28 @@ SoVolumeRenderP::use3DTexturing(void) const
       return FALSE;
     }
   }
+  
+  
+  // FIXME: The performance test should be properly tested on many
+  // different GFX cards to see if the rating threshold is high enough
+  // (20040503 handegar)
+  const float rating = this->performanceTest(); // => (3D rendertime) / (2D rendertime)
+  if (rating > 0.5) { // 2D should atleast be twice as fast before 3D texturing is abandoned.  
+    do3dtextures = 1;
+    return TRUE;
+  }
 
-  // FIXME: What shall we do as default behaviour? The GPU *has* 3D
-  // texture support if we have reached this point. (20040316 handegar)
-  //
-  // UPDATE: this is where we should do a performance check to see how
-  // 3D textures behaves versus the speed we're getting from 2D
-  // textures. If within a factor of 1/3 or something of the speed,
-  // choose 3D textures. 20040317 mortene.
+  if (CvrUtil::doDebugging()) {    
+    SoDebugError::postWarning("SoVolumeRenderP::use3DTexturing",
+                              "Your GFX card did not score high enough in the performance test "
+                              "for 3D textures compared to 2D textures. 2D texturing will be "
+                              "forced. (If you wish to force 3D texturing, set the envvar "
+                              "CVR_FORCE_3D_TEXTURES=1)");
+  }
 
-  do3dtextures = 1;
-  return TRUE;
+  do3dtextures = 0;
+  return FALSE;
+
 }
 
 unsigned int
