@@ -37,7 +37,7 @@ SoTransferFunctionElement::setTransferFunction(SoState * const state,
                                                SoTransferFunction * func)
 {
   SoTransferFunctionElement * elem = (SoTransferFunctionElement *)
-    SoTransferFunctionElement::::getElement(state, SoTransferFunctionElement::classStackIndex);
+    SoElement::getElement(state, SoTransferFunctionElement::classStackIndex);
 
   if (elem) {
     elem->transferFunction = func;
@@ -56,7 +56,7 @@ const SoTransferFunctionElement *
 SoTransferFunctionElement::getInstance(SoState * const state)
 {
   return (const SoTransferFunctionElement *)
-    SoTransferFunctionElement::getConstElement(state, SoTransferFunctionElement::classStackIndex));
+    SoTransferFunctionElement::getConstElement(state, SoTransferFunctionElement::classStackIndex);
 }
 
 
