@@ -29,6 +29,22 @@
   to be rendered. For a complete, stand-alone usage example, see the
   SIM Voleon main page documentation.
 
+  Volume data will by default be \e normalized to be within a 2x2x2
+  unit dimensions cube. (But note that this is up to the reader
+  classes, so it may not be the same for all readers. Check the
+  individual class documentation for the file formats you are using.)
+
+  As an example, if you set up a voxel data set of dimensions
+  100x400x200, this will be rendered within a bounding box of <-0.25,
+  -1, -0.5> to <0.25, 1, 0.5>. Notice that the largest dimension (the
+  Y dimension in this example) will be made to fit within unit size 2,
+  and the other dimensions will be scaled accordingly.
+
+  You may use SoVolumeData::setVolumeSize() to force a different unit
+  size box around the volume, or you can simply use the standard Coin
+  transformation nodes, like e.g. SoScale, to accomplish this.
+
+
   The volume rendering of SIM Voleon works well on volume data sets of
   any dimensions. With other volume rendering systems, it is often
   necessary to accommodate the rendering system by pre-processing the
@@ -346,6 +362,16 @@ SoVolumeData::getVolumeSize(void) const
   will be mapped to \e increasing positions along the \e Y axis,
   making up slices. Slices will be mapped to \e increasing Z axis
   positions.
+
+  The data will be mapped to be within a cube of size 2x2x2, where the
+  largest voxel dimension(s) will be used to normalize the other
+  dimensions.
+
+  As an example, if you set up a voxel data set of dimensions
+  100x400x200, this will be rendered within a bounding box of <-0.25,
+  -1, -0.5> to <0.25, 1, 0.5>. Notice that the largest dimension (the
+  Y dimension in this example) will be made to fit within unit size 2,
+  and the other dimensions will be scaled accordingly.
 */
 void
 SoVolumeData::setVolumeData(const SbVec3s & dimensions,
