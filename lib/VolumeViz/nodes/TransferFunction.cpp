@@ -7,6 +7,7 @@
 #include <VolumeViz/nodes/SoTransferFunction.h>
 
 #include <string.h>
+#include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoCallbackAction.h>
 #include <Inventor/actions/SoPickAction.h>
@@ -127,13 +128,6 @@ void
 SoTransferFunction::pick(SoPickAction * action)
 {
   this->doAction(action);
-}
-
-
-// FIXME: expose tidbits.h properly from Coin. 20021109 mortene.
-extern "C" {
-enum CoinEndiannessValues { COIN_HOST_IS_UNKNOWNENDIAN = -1, COIN_HOST_IS_LITTLEENDIAN = 0, COIN_HOST_IS_BIGENDIAN = 1 };
-extern int coin_host_get_endianness(void);
 }
 
 static inline uint32_t

@@ -6,6 +6,7 @@
 
 #include <VolumeViz/nodes/SoVolumeData.h>
 
+#include <Inventor/C/tidbits.h>
 #include <Inventor/SbVec3s.h>
 #include <Inventor/actions/SoCallbackAction.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -20,63 +21,11 @@
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 #include <limits.h>
 
-// FIXME: expose tidbits.h properly from Coin. 20021122 mortene.
-extern "C" {
-extern SbBool coin_is_power_of_two(unsigned int);
-}
-
-
 /*
 DICTIONARY
 
   "Page"      : One complete cut through the volume, normal to an axis.
   "SubPage"   : A segment of a page.
-  "In-memory" : In this context, "in-memory" means volume data (pages) that's
-                pulled out of the reader and run through a transfer function,
-                thus ready to be rendered.
-  LRU         : Least Recently Used
-
-
-
-DATA STRUCTURES
-
-  As several different rendering nodes may share the same volume data
-  node, a sharing mechanism for in-memory data is implemented. The
-  volume is partitioned into pages along each of the three axes, and
-  each page is segmented into subpages. Each subpage is identified by it's
-  page number and it's (x,y) position in the page. Even though
-  different rendering nodes may share the same volume data, they may
-  have individual transfer functions. A subpage shared by two rendering
-  nodes with different transfer functions cannot share the same
-  in-memory subpage. A subpage is therefore also identified by the nodeId of
-  it's transfer functions.  All subpages with same coordinates (sliceIdx,
-  x, y) but different transfer functions are saved as a linked list.
-
-
-
-LRU-system
-
-  To support large sets of volume data, a simple memory management
-  system is implemented. The scene graph's VolumeData-node contains a
-  logical clock that's incremented for each run through it's
-  GLRender. All in-memory subpages are tagged with a timestamp at the
-  time they're loaded. The VolumeData-node has a max limit for the
-  amount of HW/SW memory it should occupy, and whenever it exceeds
-  this limit it throws out the subpage with the oldest timestamp. A
-  simple LRU-cache, in other words. Of course, all subpages' timestamps
-  are "touched" (updated) whenever they're rendered.
-
-  The data structures does not work perfectly together with the
-  LRU-cache.  Whenever a subpage is to be deallocated, a search through
-  all pages and subpages is required. The monitors for bytes allocated
-  by in-memory subpages are updated in a very non-elegant way (study i.e.
-  SoVolumeData::renderOrthoSlice()).
-
-  Some sort of subpage manager system could be implemented to solve this
-  problem by storing all subpages in a "flat" structure. This would look
-  nicer, but would be slower as long as (sliceIdx, x, y) can't be used
-  as direct indices into the tables.
-
 
 
 USER INTERACTION
