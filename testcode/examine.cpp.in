@@ -1,83 +1,49 @@
-#include <VolumeViz/nodes/SoVolumeRendering.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/nodes/SoVolumeRender.h>
-#include <VolumeViz/nodes/SoTransferFunction.h>
-#include <Inventor/Qt/SoQtRenderArea.h>
 #include <Inventor/@Gui@/So@Gui@.h>
 #include <Inventor/@Gui@/viewers/So@Gui@ExaminerViewer.h>
 #include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoPerspectiveCamera.h>
-#include <Inventor/nodes/SoDirectionalLight.h>
-#include <Inventor/nodes/SoCube.h>
-#include <Inventor/manips/SoTrackballManip.h>
-#include <Inventor/nodes/SoDrawStyle.h>
-#include <Inventor/nodes/SoPickStyle.h>
-#include <Inventor/nodes/SoLightModel.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/nodes/SoVolumeRendering.h>
 
 #include "utility.h"
 
 int
 main(int argc, char ** argv)
 {
-  @WIDGET@ window = So@Gui@::init( argv[0] );
+  @WIDGET@ window = So@Gui@::init(argv[0]);
   SoVolumeRendering::init();
-  SoDB::setRealTimeInterval(SbTime(1.0/50.0));
 
-  So@Gui@ExaminerViewer * ex1 = new So@Gui@ExaminerViewer( window );
-  //  ex1->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
-
-  SoSeparator *root = new SoSeparator;
+  SoSeparator * root = new SoSeparator;
   root->ref();
 
-  SoPerspectiveCamera * myCamera = new SoPerspectiveCamera;
-  myCamera->position = SbVec3f(0.0f, 0.0f, 5.0f);
-  root->addChild(myCamera);
-  root->addChild(new SoDirectionalLight);
-
-  SoLightModel * lm = new SoLightModel;
-  lm->model = SoLightModel::BASE_COLOR;
-  root->addChild(lm);
-
-  SoSeparator * cubeframe = new SoSeparator;
-  root->addChild(cubeframe);
-
-  SoDrawStyle * drawStyle = new SoDrawStyle;
-  drawStyle->style = SoDrawStyle::LINES;
-  cubeframe->addChild(drawStyle);
-
-  SoPickStyle * pickstyle = new SoPickStyle;
-  pickstyle->style = SoPickStyle::UNPICKABLE;
-  cubeframe->addChild(pickstyle);
-
-  cubeframe->addChild(new SoCube);
-
   SbVec3s dim = SbVec3s(64, 64, 64);
-  int *pData = (int *) generateRGBAVoxelSet(dim);
+  void * voxeldata = generateRGBAVoxelSet(dim);
 
-  // Add VolumeData to scene graph
-  SoVolumeData * pVolData = new SoVolumeData();
-  pVolData->setVolumeData(dim, (unsigned char *)pData, SoVolumeData::RGBA);
-  pVolData->setVolumeSize(SbBox3f(-1, -1, -1, 1, 1, 1));
-
-  root->addChild(pVolData);
+  // Add SoVolumeData to scene graph
+  SoVolumeData * volumedata = new SoVolumeData();
+  volumedata->setVolumeData(dim, voxeldata, SoVolumeData::RGBA);
+  root->addChild(volumedata);
 
   // Add TransferFunction (color map) to scene graph
-  SoTransferFunction *pTransFunc = new SoTransferFunction();
-  root->addChild( pTransFunc );
+  SoTransferFunction * transfunc = new SoTransferFunction();
+  root->addChild(transfunc);
 
   // Add VolumeRender to scene graph
-  SoVolumeRender * pVolRend = new SoVolumeRender();
-  root->addChild(pVolRend);
-  pVolRend->numSlices = 64;
+  SoVolumeRender * volrend = new SoVolumeRender();
+  root->addChild(volrend);
 
-  myCamera->viewAll(root, ex1->getViewportRegion());
-  ex1->setSceneGraph(root);
+  So@Gui@ExaminerViewer * viewer = new So@Gui@ExaminerViewer(window);
+  viewer->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
+  viewer->setSceneGraph(root);
 
-  ex1->show();
-  So@Gui@::show( window );
+  viewer->show();
+  So@Gui@::show(window);
   So@Gui@::mainLoop();
-  delete ex1;
+  delete viewer;
 
   root->unref();
+  delete voxeldata;
+
   return 0;
 }
