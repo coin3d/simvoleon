@@ -185,14 +185,7 @@ buildSubSliceX(const void * input,
   }
 }
 
-
-
-
-/*!
-  Returns a texture with X as horisontal and Z as vertical axis
-  Assumes that the provided data is in RGBA-form Caller deletes of
-  course.
-*/
+// Copies rows of x-axis data along the z-axis.
 void
 buildSubSliceY(const void * input,
                void * output,
@@ -203,47 +196,29 @@ buildSubSliceY(const void * input,
 {
   uint8_t * input8bits = (uint8_t *)input;
   uint8_t * output8bits = (uint8_t *)output;
-  uint16_t * input16bits = (uint16_t *)input;
-  uint16_t * output16bits = (uint16_t *)output;
-  uint32_t * input32bits = (uint32_t *)input;
-  uint32_t * output32bits = (uint32_t *)output;
 
   SbVec2s ssmin, ssmax;
   cutslice.getBounds(ssmin, ssmax);
 
   int yOffset = pageidx * dim[0];
-  int zOffset = ssmin[1] * dim[0] * dim[1] + yOffset;
-  int zLimit = dim[0] * dim[1] * ssmax[1] + yOffset;
 
-  while (zOffset < zLimit) {
-    int xOffset = ssmin[0] + zOffset;
-    int xLimit = ssmax[0] + zOffset;
+  const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
+  assert(nrhorizvoxels > 0);
+  const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
+  assert(nrvertvoxels > 0);
 
-    switch (type) {
+  const unsigned int voxelsize = datatype2bytesize(type);
 
-      case SoVolumeData::UNSIGNED_BYTE:
-          while (xOffset < xLimit) {
-            *output8bits++ = input8bits[xOffset];
-            xOffset++;
-          }
-          break;
+  for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
+    const unsigned int inoffset =
+      (yOffset + (ssmin[1] + rowidx) * dim[0] * dim[1] + ssmin[0]) * voxelsize;
+    const uint8_t * srcptr = &(input8bits[inoffset]);
 
-      case SoVolumeData::UNSIGNED_SHORT:
-          while (xOffset < xLimit) {
-            *output16bits++ = input16bits[xOffset];
-            xOffset++;
-          }
-          break;
+    // FIXME: nrhorizvoxels here should be actual width of
+    // subpages, in case it's not 2^n. 20021125 mortene.
+    uint8_t * dstptr = &(output8bits[nrhorizvoxels * rowidx * voxelsize]);
 
-      case SoVolumeData::RGBA:
-          while (xOffset < xLimit) {
-            *output32bits++ = input32bits[xOffset];
-            xOffset++;
-          }
-          break;
-
-    }
-    zOffset += dim[0]*dim[1];
+    (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
   }
 }
 
