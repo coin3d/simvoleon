@@ -136,8 +136,47 @@ SoOrthoSliceP::getPageGeometry(SoVolumeData * volumedata,
                                SbVec3f & verticalspan) const
 {
   this->getPageOrigo(volumedata, origo);
-  horizspan = SbVec3f(1, 0, 0);
-  verticalspan = SbVec3f(0, -1, 0);
+
+  SbBox3f spacesize = volumedata->getVolumeSize();
+  SbVec3f spacemin, spacemax;
+  spacesize.getBounds(spacemin, spacemax);
+
+  const int axis = PUBLIC(this)->axis.getValue();
+
+  const SbBox2f QUAD = (axis == SoOrthoSlice::Z) ?
+    SbBox2f(spacemin[0], spacemin[1], spacemax[0], spacemax[1]) :
+    ((axis == SoOrthoSlice::X) ?
+     SbBox2f(spacemin[2], spacemin[1], spacemax[2], spacemax[1]) :
+     // then it's along Y
+     SbBox2f(spacemin[0], spacemin[2], spacemax[0], spacemax[2]));
+
+  SbVec2f qmax, qmin;
+  QUAD.getBounds(qmin, qmax);
+
+  const float width = qmax[0] - qmin[0];
+  const float height = qmax[1] - qmin[1];
+
+  switch (axis) {
+  case 0:
+    horizspan = SbVec3f(0, 0, width);
+    verticalspan = SbVec3f(0, -height, 0);
+    break;
+  case 1:
+    // The last component is "flipped" to make the y-direction slices
+    // not come out upside-down. FIXME: should really investigate if
+    // this is the correct fix. 20021124 mortene.
+    horizspan = SbVec3f(width, 0, 0);
+    verticalspan = SbVec3f(0, 0, height);
+    break;
+  case 2:
+    horizspan = SbVec3f(width, 0, 0);
+    verticalspan = SbVec3f(0, -height, 0);
+    break;
+  default: assert(FALSE); break;
+  }
+
+  horizspan.normalize();
+  verticalspan.normalize();
 }
 
 void
