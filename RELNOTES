@@ -8,6 +8,13 @@ file.
 The changes described here are issues that might have an effect on the
 compatibility of your source code when upgrading the library.
 
+SIM Voleon 2.0.1
+================
+
+* This version is dependent on the Coin version to be 2.3.0 or
+  later. This was necessary to fix a major resource leak bug with
+  OpenGL textures.
+
 
 SIM Voleon 2.0.0
 ================
