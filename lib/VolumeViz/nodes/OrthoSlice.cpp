@@ -23,6 +23,8 @@ public:
   }
 
   static void renderBox(SoGLRenderAction * action, SbBox3f box);
+
+  void getPageGeometry(SbVec3f & origo, SbVec3f & horizspan, SbVec3f & verticalspan);
   
 private:
   SoOrthoSlice * master;
@@ -91,6 +93,15 @@ SoOrthoSlice::affectsState(void) const
 }
 
 void
+SoOrthoSliceP::getPageGeometry(SbVec3f & origo,
+                               SbVec3f & horizspan, SbVec3f & verticalspan)
+{
+  origo = SbVec3f(0, 0, 0);
+  horizspan = SbVec3f(1, 0, 0);
+  verticalspan = SbVec3f(0, 1, 0);
+}
+
+void
 SoOrthoSlice::GLRender(SoGLRenderAction * action)
 {
   // FIXME: need to make sure we're not cached in a renderlist
@@ -109,14 +120,14 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   SoVolumeData * volumedata = volumedataelement->getVolumeData();
   assert(volumedata != NULL);
 
+  // XXX FIXME XXX cache pages
   Cvr2DTexPage * page = new Cvr2DTexPage();
   page->init(volumedata->getReader(), this->sliceNumber.getValue(),
              this->axis.getValue(), SbVec2s(64, 64) /* subpagetexsize */);
 
-  page->render(action,
-               SbVec3f(0, 0, 0), // const SbVec3f & origo,
-               SbVec3f(64, 0, 0), // const SbVec3f & horizspan,
-               SbVec3f(0, 64, 0), // const SbVec3f & verticalspan,
+  SbVec3f origo, horizspan, verticalspan;
+  PRIVATE(this)->getPageGeometry(origo, horizspan, verticalspan);
+  page->render(action, origo, horizspan, verticalspan,
                // FIXME: ugly cast
                (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue());
 }
@@ -169,6 +180,10 @@ SoOrthoSlice::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 
 // *************************************************************************
 
+// Render 3D box.
+//
+// FIXME: should make bbox debug rendering part of SoSeparator /
+// SoGroup. 20030305 mortene.
 void
 SoOrthoSliceP::renderBox(SoGLRenderAction * action, SbBox3f box)
 {
