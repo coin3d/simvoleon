@@ -29,9 +29,11 @@
 #include <Inventor/SbBox2s.h>
 #include <Inventor/SbBox3s.h>
 #include <Inventor/system/gl.h>
+#include <Inventor/lists/SbList.h>
 
 class SoGLRenderAction;
 class SbVec2s;
+class CvrGLTextureCache;
 
 // *************************************************************************
 
@@ -86,6 +88,8 @@ private:
   SbVec3s dimensions;
   uint32_t refcounter;
   static SbDict * instancedict;
+
+  SbList<CvrGLTextureCache *> * cacheListForGLContext(const uint32_t glctxid) const;
 
   struct EqualityComparison {
     uint32_t sovolumedata_id;

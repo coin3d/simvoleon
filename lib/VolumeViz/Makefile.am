@@ -1,5 +1,5 @@
 # Note misc/ must be built after nodes/gradients/.
-SUBDIRS = C details elements nodes misc readers render .
+SUBDIRS = C caches details elements nodes misc readers render .
 
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
@@ -15,6 +15,7 @@ libSimVoleon@SUFFIX@_la_SOURCES = dummy.cpp
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = dummy.cpp
 
 libSimVoleon@SUFFIX@_la_LIBADD = \
+	caches/libcaches.la \
 	details/libdetails.la \
 	elements/libelements.la \
 	misc/libmisc.la \
@@ -26,6 +27,7 @@ libSimVoleon@SUFFIX@_la_LIBADD = \
         render/common/libcommonrender.la
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
+	caches/caches.lst \
 	details/details.lst \
 	elements/elements.lst \
 	misc/misc.lst \
@@ -95,6 +97,7 @@ uninstall-local:
 	incbasedir="$(DESTDIR)$(includedir)/VolumeViz"; \
 	for dir in \
 	  "$$incbasedir/C" \
+	  "$$incbasedir/caches" \
 	  "$$incbasedir/details" \
 	  "$$incbasedir/elements" \
 	  "$$incbasedir/nodes" \

@@ -28,12 +28,14 @@
 
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
-#include <Inventor/SbName.h>
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/SbVec2s.h>
 #include <Inventor/SbBox2s.h>
+#include <Inventor/SbName.h>
+#include <Inventor/SbVec2s.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/errors/SoDebugError.h>
 
+#include <VolumeViz/caches/CvrGLTextureCache.h>
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
@@ -94,6 +96,8 @@ CvrTextureObject::CvrTextureObject(void)
 
 CvrTextureObject::~CvrTextureObject()
 {
+  // FIXME: this doesn't help when we have no callback for when it is
+  // actually killed. 20040722 mortene.
   cvr_rc_tag_resources_dead(this);
 
   const unsigned long key = this->hashKey();
@@ -126,26 +130,34 @@ CvrTextureObject::getDimensions(void) const
 
 // *************************************************************************
 
-// FIXME: a GL texture for a CvrTextureObject is not only dependent on
-// the context, but also various things that are on the state stack
-// ("texture compression wanted" flag, for instance).
-//
-// The best way to handle this is properly by using the Coin cache
-// mechanism? Check how pederb did the font caching, which should be a
-// simple example to follow.
-//
-// 20040716 mortene.
+SbList<CvrGLTextureCache *> *
+CvrTextureObject::cacheListForGLContext(const uint32_t glctxid) const
+{
+  void * ptr;
+  const SbBool found = cvr_rc_find_resource(glctxid, (void *)this, &ptr);
+
+  if (found) { return (SbList<CvrGLTextureCache *> *)ptr; }
+
+  SbList<CvrGLTextureCache *> * newlist = new SbList<CvrGLTextureCache *>;
+  cvr_rc_bind_resource(glctxid, (void *)this, newlist);
+
+  return newlist;
+}
+
 SbBool
 CvrTextureObject::findGLTexture(const SoGLRenderAction * action, GLuint & texid) const
 {
-  uint32_t glctxid = action->getCacheContext();
-  void * resource;
-  const SbBool found = cvr_rc_find_resource(glctxid, (void *)this, &resource);
+  SbList<CvrGLTextureCache *> * cachelist =
+    this->cacheListForGLContext(action->getCacheContext());
 
-  if (!found) { return FALSE; }
-  // FIXME: ugly cast. 20040716 mortene.
-  texid = (GLuint)resource;
-  return TRUE;
+  for (int i=0; i < cachelist->getLength(); i++) {
+    CvrGLTextureCache * cache = (*cachelist)[i];
+    if (cache->isValid(action->getState())) {
+      texid = cache->getGLTextureId();
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 GLuint 
@@ -154,8 +166,24 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   GLuint texid;
   if (this->findGLTexture(action, texid)) { return texid; }
 
-  const uint32_t glctxid = action->getCacheContext();
-  const cc_glglue * glw = cc_glglue_instance(glctxid);
+  SoState * state = action->getState();
+
+  // FIXME: why is this necessary? Investigate. 20040722 mortene.
+  const SbBool storedinvalid = SoCacheElement::setInvalid(FALSE);
+
+  // FIXME: in SoAsciiText, pederb uses this right after making a
+  // cache -- what does this do?:
+  //
+  //    * SoCacheElement::addCacheDependency(state, cache); ???
+  //
+  // 20040722 mortene.
+
+  CvrGLTextureCache * cache = new CvrGLTextureCache(state);
+  cache->ref();
+
+  // FIXME: check up exactly why this is done. 20040722 mortene.
+  state->push();
+  SoCacheElement::set(state, cache);
 
   // Default values is for RGBA-texture:
   int colorformat = 4;
@@ -185,6 +213,9 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   glEnable(gltextypeenum);
   glBindTexture(gltextypeenum, texid);
   assert(glGetError() == GL_NO_ERROR);
+
+  const uint32_t glctxid = action->getCacheContext();
+  const cc_glglue * glw = cc_glglue_instance(glctxid);
 
   GLint wrapenum = GL_CLAMP;
   // FIXME: avoid using GL_CLAMP_TO_EDGE, since it may not be
@@ -219,8 +250,6 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
   if (cc_glglue_has_arb_fragment_program(glw)) { palettetype = GL_LUMINANCE; }
 #endif // HAVE_ARB_FRAGMENT_PROGRAM
-
-  SoState * state = action->getState();
 
   // NOTE: Combining texture compression and GL_COLOR_INDEX doesn't
   // seem to work on NVIDIA cards (tested on GeForceFX 5600 &
@@ -272,7 +301,13 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
 
   assert(glGetError() == GL_NO_ERROR);
 
-  cvr_rc_bind_resource(glctxid, (void *)this, (void *)texid);
+  cache->setGLTextureId(texid);
+
+  SbList<CvrGLTextureCache *> * l = this->cacheListForGLContext(glctxid);
+  l->append(cache);
+
+  state->pop();
+  SoCacheElement::setInvalid(storedinvalid);
 
   return texid;
 }
@@ -413,9 +448,12 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   // We'll self-destruct when the SoVolumeData node is changed.
   //
   // FIXME: need to implement the self-destruction mechanism. Should
-  // attach an SoNodeSensor to the node, have a
+  // attach an SoNodeSensor to the SoVolumeData-node, have a
   // "about-to-be-destroyed" callback for the owners/auditors of
   // newtexobj, etc etc. 20040721 mortene.
+  //
+  // UPDATE: ..or is this already taken care of higher up in the
+  // call-chain? I think it may be. Investigate. 20040722 mortene.
   newtexobj->eqcmp = incoming;
 
   const unsigned long key = newtexobj->hashKey();

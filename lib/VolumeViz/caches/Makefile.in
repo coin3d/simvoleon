@@ -188,46 +188,39 @@ voleon_man_dir = @voleon_man_dir@
 voleon_src_dir = @voleon_src_dir@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
-@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = misc.lst
-@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libmisc.la
+@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = caches.lst
+@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libcaches.la
 
 SOURCES = \
-	VoxelChunk.cpp CvrVoxelChunk.h \
-	CLUT.cpp CvrCLUT.h \
-	Util.cpp CvrUtil.h \
-	GIMPGradient.cpp CvrGIMPGradient.h
+	GLTextureCache.cpp CvrGLTextureCache.h
 
 
-libmisc_la_SOURCES = $(SOURCES)
+libcaches_la_SOURCES = $(SOURCES)
 
-misc_lst_SOURCES = $(SOURCES)
-subdir = lib/VolumeViz/misc
+caches_lst_SOURCES = $(SOURCES)
+subdir = lib/VolumeViz/caches
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/lib/config.h
 CONFIG_CLEAN_FILES =
 LIBRARIES = $(noinst_LIBRARIES)
 
-misc_lst_AR = $(AR) cru
-misc_lst_LIBADD =
-am__objects_1 = VoxelChunk.$(OBJEXT) CLUT.$(OBJEXT) Util.$(OBJEXT) \
-	GIMPGradient.$(OBJEXT)
-am_misc_lst_OBJECTS = $(am__objects_1)
-misc_lst_OBJECTS = $(am_misc_lst_OBJECTS)
+caches_lst_AR = $(AR) cru
+caches_lst_LIBADD =
+am__objects_1 = GLTextureCache.$(OBJEXT)
+am_caches_lst_OBJECTS = $(am__objects_1)
+caches_lst_OBJECTS = $(am_caches_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
-libmisc_la_LDFLAGS =
-libmisc_la_LIBADD =
-am__objects_2 = VoxelChunk.lo CLUT.lo Util.lo GIMPGradient.lo
-am_libmisc_la_OBJECTS = $(am__objects_2)
-libmisc_la_OBJECTS = $(am_libmisc_la_OBJECTS)
+libcaches_la_LDFLAGS =
+libcaches_la_LIBADD =
+am__objects_2 = GLTextureCache.lo
+am_libcaches_la_OBJECTS = $(am__objects_2)
+libcaches_la_OBJECTS = $(am_libcaches_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CLUT.Plo ./$(DEPDIR)/CLUT.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/GIMPGradient.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/GIMPGradient.Po ./$(DEPDIR)/Util.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/Util.Po ./$(DEPDIR)/VoxelChunk.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/VoxelChunk.Po
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/GLTextureCache.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/GLTextureCache.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -243,13 +236,10 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-DIST_SOURCES = $(misc_lst_SOURCES) $(libmisc_la_SOURCES)
+DIST_SOURCES = $(caches_lst_SOURCES) $(libcaches_la_SOURCES)
 DIST_COMMON = Makefile.am Makefile.in
 SOURCES = \
-	VoxelChunk.cpp CvrVoxelChunk.h \
-	CLUT.cpp CvrCLUT.h \
-	Util.cpp CvrUtil.h \
-	GIMPGradient.cpp CvrGIMPGradient.h
+	GLTextureCache.cpp CvrGLTextureCache.h
 
 
 all: all-am
@@ -258,7 +248,7 @@ all: all-am
 .SUFFIXES: .cpp .lo .o .obj
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  lib/VolumeViz/misc/Makefile
+	  $(AUTOMAKE) --gnu  lib/VolumeViz/caches/Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
 
@@ -273,8 +263,8 @@ clean-noinstLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libmisc.la: $(libmisc_la_OBJECTS) $(libmisc_la_DEPENDENCIES) 
-	$(CXXLINK)  $(libmisc_la_LDFLAGS) $(libmisc_la_OBJECTS) $(libmisc_la_LIBADD) $(LIBS)
+libcaches.la: $(libcaches_la_OBJECTS) $(libcaches_la_DEPENDENCIES) 
+	$(CXXLINK)  $(libcaches_la_LDFLAGS) $(libcaches_la_OBJECTS) $(libcaches_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -282,14 +272,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CLUT.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CLUT.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GIMPGradient.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GIMPGradient.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Util.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Util.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VoxelChunk.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VoxelChunk.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GLTextureCache.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GLTextureCache.Po@am__quote@
 
 distclean-depend:
 	-rm -rf ./$(DEPDIR)
@@ -511,10 +495,10 @@ uninstall-am: uninstall-info-am
 	tags uninstall uninstall-am uninstall-info-am
 
 
-misc.lst: $(misc_lst_OBJECTS)
+caches.lst: $(caches_lst_OBJECTS)
 	@echo "Linking $@..."; \
 	rm -f $@; \
-	for i in $(misc_lst_OBJECTS); do echo $$i >>$@; done
+	for i in $(caches_lst_OBJECTS); do echo $$i >>$@; done
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

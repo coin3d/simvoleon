@@ -188,7 +188,7 @@ voleon_man_dir = @voleon_man_dir@
 voleon_src_dir = @voleon_src_dir@
 
 # Note misc/ must be built after nodes/gradients/.
-SUBDIRS = C details elements nodes misc readers render .
+SUBDIRS = C caches details elements nodes misc readers render .
 
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
@@ -201,6 +201,7 @@ libSimVoleon@SUFFIX@_la_SOURCES = dummy.cpp
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = dummy.cpp
 
 libSimVoleon@SUFFIX@_la_LIBADD = \
+	caches/libcaches.la \
 	details/libdetails.la \
 	elements/libelements.la \
 	misc/libmisc.la \
@@ -213,6 +214,7 @@ libSimVoleon@SUFFIX@_la_LIBADD = \
 
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
+	caches/caches.lst \
 	details/details.lst \
 	elements/elements.lst \
 	misc/misc.lst \
@@ -237,9 +239,10 @@ LIBRARIES = $(lib_LIBRARIES)
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_AR = $(AR) cru
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_DEPENDENCIES = \
-	details/details.lst elements/elements.lst misc/misc.lst \
-	nodes/nodes.lst readers/readers.lst render/2D/2Drender.lst \
-	render/3D/3Drender.lst render/Pointset/pointsetrender.lst \
+	caches/caches.lst details/details.lst elements/elements.lst \
+	misc/misc.lst nodes/nodes.lst readers/readers.lst \
+	render/2D/2Drender.lst render/3D/3Drender.lst \
+	render/Pointset/pointsetrender.lst \
 	render/common/commonrender.lst
 am_simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS = \
 	dummy.$(OBJEXT)
@@ -247,10 +250,11 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS = \
 	$(am_simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libSimVoleon@SUFFIX@_la_DEPENDENCIES = details/libdetails.la \
-	elements/libelements.la misc/libmisc.la nodes/libnodes.la \
-	readers/libreaders.la render/2D/lib2Drender.la \
-	render/3D/lib3Drender.la render/Pointset/libpointsetrender.la \
+libSimVoleon@SUFFIX@_la_DEPENDENCIES = caches/libcaches.la \
+	details/libdetails.la elements/libelements.la misc/libmisc.la \
+	nodes/libnodes.la readers/libreaders.la \
+	render/2D/lib2Drender.la render/3D/lib3Drender.la \
+	render/Pointset/libpointsetrender.la \
 	render/common/libcommonrender.la
 am_libSimVoleon@SUFFIX@_la_OBJECTS = dummy.lo
 libSimVoleon@SUFFIX@_la_OBJECTS = $(am_libSimVoleon@SUFFIX@_la_OBJECTS)
@@ -726,6 +730,7 @@ uninstall-local:
 	incbasedir="$(DESTDIR)$(includedir)/VolumeViz"; \
 	for dir in \
 	  "$$incbasedir/C" \
+	  "$$incbasedir/caches" \
 	  "$$incbasedir/details" \
 	  "$$incbasedir/elements" \
 	  "$$incbasedir/nodes" \
