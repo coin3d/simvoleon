@@ -259,12 +259,12 @@ SoVolumeRender::initClass(void)
   SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
 }
 
-
-
 // doc in super
 void
 SoVolumeRender::GLRender(SoGLRenderAction * action)
 {
+  // FIXME: need to make sure we're not cached in a renderlist
+
   if (!this->shouldGLRender(action)) return;
 
   if (cvr_debug_raypicks()) { PRIVATE(this)->rayPickDebug(action); }
@@ -326,6 +326,8 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     if (!PRIVATE(this)->pagehandler) {
       PRIVATE(this)->pagehandler =
         new CvrPageHandler(dimensions, volumedata->getReader());
+      // FIXME: needs to be invalidated / deallocated when
+      // SoVolumeData get replaced by one with different dimensions
     }
 
     int numslices = PRIVATE(this)->calculateNrOfSlices(action, dimensions);
