@@ -21,6 +21,27 @@
  *
 \**************************************************************************/
 
+/*!
+  \class SoVolumeSkin VolumeViz/nodes/SoVolumeSkin.h
+  \brief Render just the six sides of the volume data.
+
+  Insert a node of this type after an SoVolumeData node in the scene
+  graph to render the six external sides of the volume data set.
+
+  This can be useful as a very efficient way of visualizing a complete
+  opaque volume, only seen from the outside.
+
+  Note that if the transfer function set by a preceding
+  SoTransferFunction node contains transparency, the visual appearance
+  to the end user will probably not look correct.
+
+  \sa SoVolumeRender, SoTransferFunction, SoOrthoSlice
+
+  \since SIM Voleon 1.1
+*/
+
+// *************************************************************************
+
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/elements/SoViewVolumeElement.h>

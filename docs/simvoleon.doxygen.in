@@ -390,6 +390,8 @@ INPUT                  = \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeIndexedTriangleStripSet.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeRendering.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeRendering.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeSkin.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeSkin.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/readers/SoVRVolFileReader.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/readers/VRVolFileReader.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/readers/SoVolumeReader.h \
