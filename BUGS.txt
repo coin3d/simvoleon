@@ -242,3 +242,12 @@ for suggestions for major improvements and new features.
     20041010 mortene. 
 
 ========================================================================
+
+021 VOL file import is not robust enough.
+
+    Will for instance assert() instead of gracefully handling various
+    unexpected conditions. See FIXMEs in readers/VRVOLFileReader.cpp.
+
+    20041014 mortene.
+
+========================================================================
