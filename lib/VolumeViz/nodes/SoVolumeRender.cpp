@@ -211,9 +211,11 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
         imageIdx = (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*dimensions[0]) - imageIdx;
 
       volumeData->renderOrthoSliceX(state,
-                                    imageIdx,
                                     SbBox2f(min[1], min[2], max[1], max[2]), 
-                                    SbBox2f(0.0, 0.0, 1.0, 1.0), depth);
+                                    depth,
+                                    imageIdx,
+                                    SbBox2f(0.0, 0.0, 1.0, 1.0),
+                                    NULL);
 
       depth += depthAdder;
     }// for*/
@@ -246,9 +248,11 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
         imageIdx = (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*dimensions[1]) - imageIdx;
 
       volumeData->renderOrthoSliceY(state,
-                                    imageIdx,
                                     SbBox2f(min[1], min[2], max[1], max[2]), 
-                                    SbBox2f(0.0, 0.0, 1.0, 1.0), depth);
+                                    depth,
+                                    imageIdx,
+                                    SbBox2f(0.0, 0.0, 1.0, 1.0),
+                                    NULL);
 
       depth += depthAdder;
     }// for*/
@@ -282,9 +286,11 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
         imageIdx = (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*dimensions[2]) - imageIdx;
 
       volumeData->renderOrthoSliceZ(state,
-                                    imageIdx,
                                     SbBox2f(min[0], min[1], max[0], max[1]), 
-                                    SbBox2f(0.0, 0.0, 1.0, 1.0), depth);
+                                    depth,
+                                    imageIdx,
+                                    SbBox2f(0.0, 0.0, 1.0, 1.0),
+                                    NULL);
 
       depth += depthAdder;
     }// for

@@ -13,7 +13,7 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
-#include <VolumeViz/misc/SoVolumeDataPage.h>
+#include <VolumeViz/readers/SoVRMemReader.h>
 
 #if HAVE_CONFIG_H
 #include <config.h>
@@ -33,22 +33,6 @@
   Both SetData and changes in StorageHint must trigger the build. 
   The textures are NOT uploaded to OpenGL here. They're uploaded in VolumeData's 
   GLRender. 
-- Create SoVolumeDataSlice-class:
-    * SbVec2s size (columns, rows)
-    * SoVolumeDataPage * getPage(col, row, SoTransferFunction *, SoVolumeReader *)
-- Create SoVolumeDataPage-struct
-    * storage (opengl, memory) 
-    * format (GL_INDEX8, GL_RGBA)
-    * size
-    * textureName
-    * lastUse
-    * void * data;
-    * unsigned long lastuse;
-    * setActive(long tick)
-    * float * palette 
-    * setData()
-* Create SoVRMemReader-class
-    * 
 */
 
 
@@ -117,71 +101,60 @@ public:
   SoVolumeDataP(SoVolumeData * master) 
   {
     this->master = master;
-    pageX = NULL;
-    pageY = NULL;
-    pageZ = NULL;
+
+    slicesX = NULL;
+    slicesY = NULL;
+    slicesZ = NULL;
 
     volumeSize = SbBox3f(-1, -1, -1, 1, 1, 1);
-    dimensions = SbVec3s(1, 1, 1);
-    data = NULL;
-
+    dimensions = SbVec3s(0, 0, 0);
     pageSize = SbVec3s(64, 64, 64);
 
     maxTexels = 64*1024*1024;
     currentTexels = 0;
     currentPages = 0;
-
     tick = 0;
     extensionsInitialized = false;
+
+    VRMemReader = NULL;
+    reader = NULL;
   }// constructor
 
   ~SoVolumeDataP()
   {
-    releasePages();
+    delete VRMemReader;
+    releaseSlices();
   }// destructor
-
-  const void * data;
 
   SbVec3s dimensions;
   SbBox3f volumeSize;
   SbVec3s pageSize;
+  SoVolumeData::DataType dataType;
+
+  SoVRMemReader * VRMemReader;
+  SoVolumeReader * reader;
 
   long tick;
   bool extensionsInitialized;
-
   int maxTexels;
   int currentTexels;
   int currentPages;
-  SoVolumeData::DataType dataType;
 
+  SoVolumeDataSlice **slicesX;
+  SoVolumeDataSlice **slicesY;
+  SoVolumeDataSlice **slicesZ;
 
-  // Pointers to arrays with pointers. Each array contains every SoVolumeDataPage along 
-  // that axis. If the pagesize generates 16 pages each slice along Z-axis, 
-  // SoVolumeDataPage (col, row) in slice n would be positioned at 
-  // slice[n*pageSize[0]*pageSize[1] + row*pageSize[0] + col]
-  // Use get...SoVolumeDataPage-functions to retreive the pages. 
-  SoVolumeDataPage **pageX;
-  SoVolumeDataPage **pageY;
-  SoVolumeDataPage **pageZ;
+  SoVolumeDataSlice * getSliceX(int sliceIdx);
+  SoVolumeDataSlice * getSliceY(int sliceIdx);
+  SoVolumeDataSlice * getSliceZ(int sliceIdx);
 
-  SoVolumeDataPage * getPage(int sliceIdx, SoVolumeData::Axis axis, int col, int row);
-  const void * getRGBAPage(int sliceIdx, SoVolumeData::Axis axis, int col, int row);
-  const void * getRGBAPageX(int sliceIdx, int col, int row);
-  const void * getRGBAPageY(int sliceIdx, int col, int row);
-  const void * getRGBAPageZ(int sliceIdx, int col, int row);
-
-  // FIXME: Implement support for other pixelformats. torbjorv 08312002
-  SoVolumeDataPage * getPageX(int sliceIdx, int col, int row);
-  SoVolumeDataPage * getPageY(int sliceIdx, int col, int row);
-  SoVolumeDataPage * getPageZ(int sliceIdx, int col, int row);
-
-  void releasePages();
-  void releasePagesX();
-  void releasePagesY();
-  void releasePagesZ();
+  void releaseSlices();
+  void releaseSlicesX();
+  void releaseSlicesY();
+  void releaseSlicesZ();
 
   void freeTexels(int desired);
-  void releaseOldestPage();
+  void releaseLRUPage();
 
   bool check2n(int n);
 private:
@@ -277,17 +250,24 @@ void
 SoVolumeData::setVolumeSize(const SbBox3f &size)
 {
   PRIVATE(this)->volumeSize = size;
+  if (PRIVATE(this)->VRMemReader)
+    PRIVATE(this)->VRMemReader->setVolumeSize(size);
 }// setVolumeSize
 
 
 SbBox3f &
 SoVolumeData::getVolumeSize() 
-{ return PRIVATE(this)->volumeSize; }
+{ 
+
+  return PRIVATE(this)->volumeSize; 
+}
 
 
 SbVec3s &
 SoVolumeData::getDimensions() 
-{ return PRIVATE(this)->dimensions; }
+{ 
+  return PRIVATE(this)->dimensions; 
+}
 
 
 
@@ -298,17 +278,20 @@ SoVolumeData::setVolumeData(const SbVec3s &dimensions,
                             const void *data, 
                             SoVolumeData::DataType type) 
 {
-  
-  PRIVATE(this)->data = data;
-  PRIVATE(this)->dimensions = dimensions;
-  PRIVATE(this)->dataType = type;
 
-  if (PRIVATE(this)->pageSize[0] > PRIVATE(this)->dimensions[0])
-    PRIVATE(this)->pageSize[0] = PRIVATE(this)->dimensions[0];
-  if (PRIVATE(this)->pageSize[1] > PRIVATE(this)->dimensions[1])
-    PRIVATE(this)->pageSize[1] = PRIVATE(this)->dimensions[1];
-  if (PRIVATE(this)->pageSize[2] > PRIVATE(this)->dimensions[2])
-    PRIVATE(this)->pageSize[2] = PRIVATE(this)->dimensions[2];
+  PRIVATE(this)->VRMemReader = new SoVRMemReader;
+  PRIVATE(this)->VRMemReader->setData(dimensions, 
+                                      data, 
+                                      PRIVATE(this)->volumeSize,
+                                      type);
+  this->setReader(PRIVATE(this)->VRMemReader);
+ 
+  if (PRIVATE(this)->pageSize[0] > dimensions[0])
+    PRIVATE(this)->pageSize[0] = dimensions[0];
+  if (PRIVATE(this)->pageSize[1] > dimensions[1])
+    PRIVATE(this)->pageSize[1] = dimensions[1];
+  if (PRIVATE(this)->pageSize[2] > dimensions[2])
+    PRIVATE(this)->pageSize[2] = dimensions[2];
 }// setVolumeData
 
 
@@ -365,9 +348,9 @@ SoVolumeData::setPageSize(SbVec3s &size)
 
   PRIVATE(this)->pageSize = size;
 
-  if (rebuildX) PRIVATE(this)->releasePagesX();
-  if (rebuildY) PRIVATE(this)->releasePagesY();
-  if (rebuildZ) PRIVATE(this)->releasePagesZ();
+  if (rebuildX) PRIVATE(this)->releaseSlicesX();
+  if (rebuildY) PRIVATE(this)->releaseSlicesY();
+  if (rebuildZ) PRIVATE(this)->releaseSlicesZ();
 }// setPageSize
 
 
@@ -417,293 +400,101 @@ SoVolumeData::GLRender(SoGLRenderAction * action)
 
 
 
-SoVolumeDataPage *
-SoVolumeDataP::getPage(int sliceIdx, SoVolumeData::Axis axis, int col, int row)
+void SoVolumeData::renderOrthoSliceX(SoState * state, 
+                                     SbBox2f &quad, 
+                                     float x,
+                                     int sliceIdx, 
+                                     SbBox2f &textureCoords,
+                                     SoTransferFunction * transferFunction)
 {
-  // FIXME: Need to implement support for different pixelformats. 
-  // torbjorv 07122002
+  SbVec2f max, min;
+  quad.getBounds(min, max);
 
-  switch (axis)
-  {
-    case SoVolumeData::X: return this->getPageX(sliceIdx, col, row);
-                          break;  
+  SoVolumeDataSlice * slice = 
+    PRIVATE(this)->getSliceX(sliceIdx);
 
-    case SoVolumeData::Y: return this->getPageY(sliceIdx, col, row);
-                          break;
+  PRIVATE(this)->currentTexels -= slice->numTexels;
+  PRIVATE(this)->currentPages -= slice->numPages;
 
-    case SoVolumeData::Z: return this->getPageZ(sliceIdx, col, row);
-                          break;
-  }// switch
-  return NULL;
-}// getSlice
+  slice->render(state,
+                SbVec3f(x, min[1], min[0]),
+                SbVec3f(x, min[1], max[0]),
+                SbVec3f(x, max[1], max[0]),
+                SbVec3f(x, max[1], min[0]),
+                textureCoords,
+                transferFunction,
+                PRIVATE(this)->tick);
 
+  PRIVATE(this)->currentTexels += slice->numTexels;
+  PRIVATE(this)->currentPages += slice->numPages;
 
-
-
-void SoVolumeData::renderOrthoSliceX(SoState * state, int sliceIdx, SbBox2f &slice, SbBox2f &mappingcoordinates, float x)
-{
-  float minU, minV, maxU, maxV;
-  float minZ, minY, maxZ, maxY;
-  mappingcoordinates.getBounds(minU, minV, maxU, maxV);
-  slice.getBounds(minZ, minY, maxZ, maxY);
- 
-  SbVec2f pageSizef = SbVec2f(float(PRIVATE(this)->pageSize[2])/PRIVATE(this)->dimensions[2], 
-                              float(PRIVATE(this)->pageSize[1])/PRIVATE(this)->dimensions[1]);
-
-
-  float localLeftU, localRightU;
-  float localUpperV, localLowerV;
-  float globalCurrentLeftU, globalCurrentRightU;
-  float globalCurrentUpperV, globalCurrentLowerV;
-  float currentLeftZ, currentRightZ, currentLowerY, currentUpperY;
-
-
-  globalCurrentLowerV = minV;
-  currentLowerY = minY;
-  int row = minV*PRIVATE(this)->dimensions[1]/PRIVATE(this)->pageSize[1];
-  localLowerV = (globalCurrentLowerV - row*pageSizef[1])/pageSizef[1];
-  while (globalCurrentLowerV != maxV) {
-    if ((row + 1)*pageSizef[1] < maxV) {
-      globalCurrentUpperV = (row + 1)*pageSizef[1];
-      currentUpperY = (maxY - minY)*(globalCurrentUpperV - minV)/(maxV - minV) + minY;
-      localUpperV = 1.0;
-    }// if
-    else {
-      globalCurrentUpperV = maxV;
-      currentUpperY = maxY;
-      localUpperV = (globalCurrentUpperV - row*pageSizef[1])/pageSizef[1];
-    }// else
-  
-
-    int col = minU*PRIVATE(this)->dimensions[2]/PRIVATE(this)->pageSize[2];
-    globalCurrentLeftU = minU;
-    currentLeftZ = minZ;
-    localLeftU = (globalCurrentLeftU - col*pageSizef[0])/pageSizef[0];
-    while (globalCurrentLeftU != maxU) {
-      if ((col + 1)*pageSizef[0] < maxU) {
-        globalCurrentRightU = (col + 1)*pageSizef[0];
-        currentRightZ = (maxZ - minZ)*(globalCurrentRightU - minU)/(maxU - minU) + minZ;
-        localRightU = 1.0;
-      }// if
-      else {
-        globalCurrentRightU = maxU;
-        currentRightZ = maxZ;
-        localRightU = (globalCurrentRightU - col*pageSizef[0])/pageSizef[0];
-      }// else
-
-
-      // rendering
-      SoVolumeDataPage * page = 
-        PRIVATE(this)->getPageX(sliceIdx, col, row);
-      page->setActivePage(PRIVATE(this)->tick);
-
-      glBegin(GL_QUADS);
-      glColor4f(1, 1, 1, 1);
-      glTexCoord2f(localLeftU, localLowerV);
-      glVertex3f(x, currentLowerY, currentLeftZ);    
-      glTexCoord2f(localRightU, localLowerV);
-      glVertex3f(x, currentLowerY, currentRightZ);    
-      glTexCoord2f(localRightU, localUpperV);
-      glVertex3f(x, currentUpperY, currentRightZ);    
-      glTexCoord2f(localLeftU, localUpperV);
-      glVertex3f(x, currentUpperY, currentLeftZ); 
-
-      glEnd();
-
-      globalCurrentLeftU = globalCurrentRightU;
-      currentLeftZ = currentRightZ;
-      localLeftU = 0.0;
-      col++;
-    }// while
-
-    globalCurrentLowerV = globalCurrentUpperV;
-    currentLowerY = currentUpperY;
-    localLowerV = 0.0;
-    row++;
-  }// while
+  PRIVATE(this)->freeTexels(0);
 }// renderOrthoSliceX
 
-
-
-
-
-
-
-void SoVolumeData::renderOrthoSliceY(SoState * state, int sliceIdx, SbBox2f &slice, SbBox2f &mappingcoordinates, float y)
+void SoVolumeData::renderOrthoSliceY(SoState * state, 
+                                     SbBox2f &quad, 
+                                     float y,
+                                     int sliceIdx, 
+                                     SbBox2f &textureCoords,
+                                     SoTransferFunction * transferFunction)
 {
-  float minU, minV, maxU, maxV;
-  float minX, minZ, maxX, maxZ;
-  mappingcoordinates.getBounds(minU, minV, maxU, maxV);
-  slice.getBounds(minX, minZ, maxX, maxZ);
- 
-  SbVec2f pageSizef = SbVec2f(float(PRIVATE(this)->pageSize[2])/PRIVATE(this)->dimensions[2], 
-                              float(PRIVATE(this)->pageSize[1])/PRIVATE(this)->dimensions[1]);
 
+  SbVec2f max, min;
+  quad.getBounds(min, max);
 
-  float localLeftU, localRightU;
-  float localUpperV, localLowerV;
-  float globalCurrentLeftU, globalCurrentRightU;
-  float globalCurrentUpperV, globalCurrentLowerV;
-  float currentLeftX, currentRightX, currentLowerZ, currentUpperZ;
+  SoVolumeDataSlice * slice = 
+    PRIVATE(this)->getSliceY(sliceIdx);
 
+  PRIVATE(this)->currentTexels -= slice->numTexels;
+  PRIVATE(this)->currentPages -= slice->numPages;
 
-  globalCurrentLowerV = minV;
-  currentLowerZ = minZ;
-  int row = minV*PRIVATE(this)->dimensions[1]/PRIVATE(this)->pageSize[1];
-  localLowerV = (globalCurrentLowerV - row*pageSizef[1])/pageSizef[1];
-  while (globalCurrentLowerV != maxV) {
-    if ((row + 1)*pageSizef[1] < maxV) {
-      globalCurrentUpperV = (row + 1)*pageSizef[1];
-      currentUpperZ = (maxZ - minZ)*(globalCurrentUpperV - minV)/(maxV - minV) + minZ;
-      localUpperV = 1.0;
-    }// if
-    else {
-      globalCurrentUpperV = maxV;
-      currentUpperZ = maxZ;
-      localUpperV = (globalCurrentUpperV - row*pageSizef[1])/pageSizef[1];
-    }// else
-  
+  slice->render(state,
+                SbVec3f(min[0], y, min[1]),
+                SbVec3f(max[0], y, min[1]),
+                SbVec3f(max[0], y, max[1]),
+                SbVec3f(min[0], y, max[1]),
+                textureCoords,
+                transferFunction,
+                PRIVATE(this)->tick);
 
-    int col = minU*PRIVATE(this)->dimensions[0]/PRIVATE(this)->pageSize[0];
-    globalCurrentLeftU = minU;
-    currentLeftX = minX;
-    localLeftU = (globalCurrentLeftU - col*pageSizef[0])/pageSizef[0];
-    while (globalCurrentLeftU != maxU) {
-      if ((col + 1)*pageSizef[0] < maxU) {
-        globalCurrentRightU = (col + 1)*pageSizef[0];
-        currentRightX = (maxX - minX)*(globalCurrentRightU - minU)/(maxU - minU) + minX;
-        localRightU = 1.0;
-      }// if
-      else {
-        globalCurrentRightU = maxU;
-        currentRightX = maxX;
-        localRightU = (globalCurrentRightU - col*pageSizef[0])/pageSizef[0];
-      }// else
+  PRIVATE(this)->currentTexels += slice->numTexels;
+  PRIVATE(this)->currentPages += slice->numPages;
 
-
-      // rendering
-      SoVolumeDataPage * page = 
-        PRIVATE(this)->getPageY(sliceIdx, col, row);
-      page->setActivePage(PRIVATE(this)->tick);
-
-      glBegin(GL_QUADS);
-      glColor4f(1, 1, 1, 1);
-      glTexCoord2f(localLeftU, localLowerV);
-      glVertex3f(currentLeftX, y, currentLowerZ);    
-      glTexCoord2f(localRightU, localLowerV);
-      glVertex3f(currentRightX, y, currentLowerZ);    
-      glTexCoord2f(localRightU, localUpperV);
-      glVertex3f(currentRightX, y, currentUpperZ);    
-      glTexCoord2f(localLeftU, localUpperV);
-      glVertex3f(currentLeftX, y, currentUpperZ);    
-
-      glEnd();
-
-      globalCurrentLeftU = globalCurrentRightU;
-      currentLeftX = currentRightX;
-      localLeftU = 0.0;
-      col++;
-    }// while
-
-    globalCurrentLowerV = globalCurrentUpperV;
-    currentLowerZ = currentUpperZ;
-    localLowerV = 0.0;
-    row++;
-  }// while
+  PRIVATE(this)->freeTexels(0);
 }// renderOrthoSliceY
 
 
 
-
-
-
-
-
-
-
-
-
-void SoVolumeData::renderOrthoSliceZ(SoState * state, int sliceIdx, SbBox2f &slice, SbBox2f &mappingcoordinates, float z)
+void SoVolumeData::renderOrthoSliceZ(SoState * state, 
+                                     SbBox2f &quad, 
+                                     float z,
+                                     int sliceIdx, 
+                                     SbBox2f &textureCoords,
+                                     SoTransferFunction * transferFunction)
 {
-  float minU, minV, maxU, maxV;
-  float minX, minY, maxX, maxY;
-  mappingcoordinates.getBounds(minU, minV, maxU, maxV);
-  slice.getBounds(minX, minY, maxX, maxY);
- 
-  SbVec2f pageSizef = SbVec2f(float(PRIVATE(this)->pageSize[0])/PRIVATE(this)->dimensions[0], 
-                              float(PRIVATE(this)->pageSize[1])/PRIVATE(this)->dimensions[1]);
 
+  SbVec2f max, min;
+  quad.getBounds(min, max);
 
-  float localLeftU, localRightU;
-  float localUpperV, localLowerV;
-  float globalCurrentLeftU, globalCurrentRightU;
-  float globalCurrentUpperV, globalCurrentLowerV;
-  float currentLeftX, currentRightX, currentLowerY, currentUpperY;
+  SoVolumeDataSlice * slice = 
+    PRIVATE(this)->getSliceZ(sliceIdx);
 
+  PRIVATE(this)->currentTexels -= slice->numTexels;
+  PRIVATE(this)->currentPages -= slice->numPages;
 
-  globalCurrentLowerV = minV;
-  currentLowerY = minY;
-  int row = minV*PRIVATE(this)->dimensions[1]/PRIVATE(this)->pageSize[1];
-  localLowerV = (globalCurrentLowerV - row*pageSizef[1])/pageSizef[1];
-  while (globalCurrentLowerV != maxV) {
-    if ((row + 1)*pageSizef[1] < maxV) {
-      globalCurrentUpperV = (row + 1)*pageSizef[1];
-      currentUpperY = (maxY - minY)*(globalCurrentUpperV - minV)/(maxV - minV) + minY;
-      localUpperV = 1.0;
-    }// if
-    else {
-      globalCurrentUpperV = maxV;
-      currentUpperY = maxY;
-      localUpperV = (globalCurrentUpperV - row*pageSizef[1])/pageSizef[1];
-    }// else
-  
+  slice->render(state,
+                SbVec3f(min[0], min[1], z),
+                SbVec3f(max[0], min[1], z),
+                SbVec3f(max[0], max[1], z),
+                SbVec3f(min[0], max[1], z),
+                textureCoords,
+                transferFunction,
+                PRIVATE(this)->tick);
 
-    int col = minU*PRIVATE(this)->dimensions[0]/PRIVATE(this)->pageSize[0];
-    globalCurrentLeftU = minU;
-    currentLeftX = minX;
-    localLeftU = (globalCurrentLeftU - col*pageSizef[0])/pageSizef[0];
-    while (globalCurrentLeftU != maxU) {
-      if ((col + 1)*pageSizef[0] < maxU) {
-        globalCurrentRightU = (col + 1)*pageSizef[0];
-        currentRightX = (maxX - minX)*(globalCurrentRightU - minU)/(maxU - minU) + minX;
-        localRightU = 1.0;
-      }// if
-      else {
-        globalCurrentRightU = maxU;
-        currentRightX = maxX;
-        localRightU = (globalCurrentRightU - col*pageSizef[0])/pageSizef[0];
-      }// else
+  PRIVATE(this)->currentTexels += slice->numTexels;
+  PRIVATE(this)->currentPages += slice->numPages;
 
-
-      // rendering
-      SoVolumeDataPage * page = 
-        PRIVATE(this)->getPageZ(sliceIdx, col, row);
-      page->setActivePage(PRIVATE(this)->tick);
-
-      glBegin(GL_QUADS);
-      glColor4f(1, 1, 1, 1);
-      glTexCoord2f(localLeftU, localLowerV);
-      glVertex3f(currentLeftX, currentLowerY, z);    
-      glTexCoord2f(localRightU, localLowerV);
-      glVertex3f(currentRightX, currentLowerY, z);    
-      glTexCoord2f(localRightU, localUpperV);
-      glVertex3f(currentRightX, currentUpperY, z);    
-      glTexCoord2f(localLeftU, localUpperV);
-      glVertex3f(currentLeftX, currentUpperY, z);    
-
-      glEnd();
-
-      globalCurrentLeftU = globalCurrentRightU;
-      currentLeftX = currentRightX;
-      localLeftU = 0.0;
-      col++;
-    }// while
-
-    globalCurrentLowerV = globalCurrentUpperV;
-    currentLowerY = currentUpperY;
-    localLowerV = 0;
-    row++;
-  }// while
+  PRIVATE(this)->freeTexels(0);
 }// renderOrthoSliceZ
 
 
@@ -725,10 +516,107 @@ void
 SoVolumeData::setTexMemorySize(int size) 
 {
   PRIVATE(this)->maxTexels = size;
-}
+}// setTexMemorySize
+
+
+
+void 
+SoVolumeData::setReader(SoVolumeReader * reader) 
+{
+  PRIVATE(this)->reader = reader;
+
+  reader->getDataChar(PRIVATE(this)->volumeSize,
+                      PRIVATE(this)->dataType, 
+                      PRIVATE(this)->dimensions);
+}// setReader
+
+
 
 
 /*************************** PIMPL-FUNCTIONS ********************************/
+
+
+SoVolumeDataSlice * SoVolumeDataP::getSliceX(int sliceIdx)
+{
+  // Valid slice?
+  if (sliceIdx >= this->dimensions[0]) return NULL;
+
+  // First SoVolumeDataPage ever?
+  if (!slicesX) {
+    slicesX = new SoVolumeDataSlice*[dimensions[0]];
+    memset( slicesX, 
+            0, 
+            sizeof(SoVolumeDataSlice*)*dimensions[0]);
+  }// if
+
+  if (!slicesX[sliceIdx]) {
+    SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
+    newSlice->init(this->reader, 
+                   sliceIdx, 
+                   SoVolumeRendering::X, 
+                   SbVec2s(this->pageSize[2], this->pageSize[1]));
+
+    slicesX[sliceIdx] = newSlice;
+  }// if
+
+  return slicesX[sliceIdx];
+}// getSliceX
+
+
+SoVolumeDataSlice * SoVolumeDataP::getSliceY(int sliceIdx)
+{
+  // Valid slice?
+  if (sliceIdx >= this->dimensions[1]) return NULL;
+
+  // First SoVolumeDataPage ever?
+  if (!slicesY) {
+    slicesY = new SoVolumeDataSlice*[dimensions[1]];
+    memset( slicesY, 
+            0, 
+            sizeof(SoVolumeDataSlice*)*dimensions[1]);
+  }// if
+
+  if (!slicesY[sliceIdx]) {
+    SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
+    newSlice->init(this->reader, 
+                   sliceIdx, 
+                   SoVolumeRendering::Y, 
+                   SbVec2s(this->pageSize[0], this->pageSize[2]));
+
+    slicesY[sliceIdx] = newSlice;
+  }// if
+
+  return slicesY[sliceIdx];
+}// getSliceZ
+
+
+
+SoVolumeDataSlice * SoVolumeDataP::getSliceZ(int sliceIdx)
+{
+  // Valid slice?
+  if (sliceIdx >= this->dimensions[2]) return NULL;
+
+  // First SoVolumeDataPage ever?
+  if (!slicesZ) {
+    slicesZ = new SoVolumeDataSlice*[dimensions[2]];
+    memset( slicesZ, 
+            0, 
+            sizeof(SoVolumeDataSlice*)*dimensions[2]);
+  }// if
+
+  if (!slicesZ[sliceIdx]) {
+    SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
+    newSlice->init(this->reader, 
+                   sliceIdx, 
+                   SoVolumeRendering::Z, 
+                   SbVec2s(this->pageSize[0], this->pageSize[1]));
+
+    slicesZ[sliceIdx] = newSlice;
+  }// if
+
+  return slicesZ[sliceIdx];
+}// getSliceZ
+
 
 // FIXME: Perhaps there already is a function somewhere in C or Coin
 // that can test this easily?  31082002 torbjorv
@@ -750,390 +638,112 @@ bool SoVolumeDataP::check2n(int n)
 
 
 
-SoVolumeDataPage * SoVolumeDataP::getPageX(int sliceIdx, int col, int row)
+
+void SoVolumeDataP::releaseSlices()
 {
-  assert(data);
-
-  // Valid SoVolumeDataPage?
-  if ((col >= (dimensions[2]/pageSize[2])) || 
-      (row >= (dimensions[1]/pageSize[1])))
-    return NULL;
-
-  // First SoVolumeDataPage ever?
-  if (!pageX) {
-    pageX = new SoVolumeDataPage*[dimensions[0]*pageSize[1]*pageSize[2]];
-    memset( pageX, 
-            0, 
-            sizeof(SoVolumeDataPage*)*dimensions[0]*pageSize[1]*pageSize[2]);
-  }// if
-
-  // Texture already generated?
-  if (!pageX[sliceIdx*pageSize[2]*pageSize[1] + row*pageSize[2] + col]) {
-
-    freeTexels(pageSize[2]*pageSize[1]);
-
-    unsigned char * RGBATexture = 
-        (unsigned char *)getRGBAPageX(sliceIdx, col, row);
-    
-    SoVolumeDataPage * page = new SoVolumeDataPage();
-    page->setData(SoVolumeDataPage::OPENGL,
-                  RGBATexture, 
-                  SbVec2s(pageSize[2], pageSize[1]), 
-                  4,
-                  GL_RGBA);
-
-    delete [] RGBATexture;
-
-    pageX[sliceIdx*pageSize[2]*pageSize[1] + row*pageSize[2] + col] = page;
-
-    currentTexels += pageSize[2]*pageSize[1];
-    currentPages++;
-  }// if
-
-  return pageX[sliceIdx*pageSize[2]*pageSize[1] + row*pageSize[2] + col];
-}// getPageX
-
-
-
-SoVolumeDataPage * SoVolumeDataP::getPageY(int sliceIdx, int col, int row)
-{
-  assert(data);
-
-  // Valid SoVolumeDataPage?
-  if ((col >= (dimensions[0]/pageSize[0])) || 
-      (row >= (dimensions[2]/pageSize[2])))
-    return NULL;
-
-  // First SoVolumeDataPage ever?
-  if (!pageY) {
-    pageY = new SoVolumeDataPage*[dimensions[1]*pageSize[0]*pageSize[2]];
-    memset( pageY, 
-            0, 
-            sizeof(SoVolumeDataPage*)*dimensions[1]*pageSize[0]*pageSize[2]);
-  }// if
-
-  // Texture already generated?
-  if (!pageY[sliceIdx*pageSize[0]*pageSize[2] + row*pageSize[0] + col])
-  {
-    freeTexels(pageSize[0]*pageSize[2]);
-
-    unsigned char * RGBATexture = 
-        (unsigned char *)getRGBAPageY(sliceIdx, col, row);
-    
-    SoVolumeDataPage * page = new SoVolumeDataPage();
-    page->setData(SoVolumeDataPage::OPENGL,
-                  RGBATexture, 
-                  SbVec2s(pageSize[0], pageSize[2]), 
-                  4,
-                  GL_RGBA);
-
-    delete [] RGBATexture;
-
-    pageY[sliceIdx*pageSize[0]*pageSize[2] + row*pageSize[0] + col] = page;
-
-    currentTexels += pageSize[0]*pageSize[2];
-    currentPages++;
-  }// if
-
-  return pageY[sliceIdx*pageSize[0]*pageSize[2] + row*pageSize[0] + col];
-}// getPageY
-
-
-
-
-
-
-SoVolumeDataPage * SoVolumeDataP::getPageZ(int sliceIdx, int col, int row)
-{
-  assert(data);
-
-  if ((col >= (this->dimensions[0]/this->pageSize[0])) || 
-      (row >= (this->dimensions[1]/this->pageSize[1])))
-    return NULL;
-
-  if (!pageZ) {
-    pageZ = new SoVolumeDataPage*[dimensions[2]*pageSize[0]*pageSize[1]];
-    memset( pageZ, 
-            0, 
-            sizeof(SoVolumeDataPage*)*dimensions[2]*pageSize[0]*pageSize[1]);
-  }// if
-
-
-  // Texture already generated?
-  void * p = pageZ[sliceIdx*pageSize[0]*pageSize[1] + row*pageSize[0] + col];
-  if (!pageZ[sliceIdx*pageSize[0]*pageSize[1] + row*pageSize[0] + col])
-  {
-    freeTexels(pageSize[0]*pageSize[1]);
-
-    unsigned char * RGBATexture = 
-        (unsigned char *)getRGBAPageZ(sliceIdx, col, row);
-    
-    SoVolumeDataPage * page = new SoVolumeDataPage();
-    page->setData(SoVolumeDataPage::OPENGL,
-                  RGBATexture, 
-                  SbVec2s(pageSize[0], pageSize[1]), 
-                  4,
-                  GL_RGBA);
-
-    delete [] RGBATexture;
-
-    pageZ[sliceIdx*pageSize[0]*pageSize[1] + row*pageSize[0] + col] = page;
-
-    currentTexels += pageSize[0]*pageSize[1];
-    currentPages++;
-  }// if
-
-  return pageZ[sliceIdx*pageSize[0]*pageSize[1] + row*pageSize[0] + col];
-}// getPageZ
-
-
-
-
-// Returns a texture with Z as horisontal and Y as vertical axis
-// Assumes that the provided data is in RGBA-form
-// Caller deletes of course. 
-
-// This function and the similar functions for Y- and Z-axis should
-// be fairly optimized. They're unrolled four times as the pages 
-// are restricted downwards to a size of 4. 
-const void * 
-SoVolumeDataP::getRGBAPageX(int sliceIdx, int col, int row)
-{
-  int * texture = 
-    new int[pageSize[2]*pageSize[1]];
-  int * intData = (int*)data;
-
-  int out = 0;
-  int xOffset = sliceIdx;
-  int yOffset = pageSize[1]*row*dimensions[0];
-  int yLimit = pageSize[1]*(row + 1)*dimensions[0];
-  int zAdd = dimensions[0]*dimensions[1];
-  int zAdd4 = zAdd*4;
-  int zStart = pageSize[2]*col*dimensions[0]*dimensions[1];
-
-  while (yOffset < yLimit) {
-    int zOffset = zStart + xOffset + yOffset;
-    int zLimit  = pageSize[2]*(col + 1)*dimensions[0]*dimensions[1] 
-                + xOffset + yOffset;
-    while (zOffset < zLimit) {
-      texture[out + 0] = intData[zOffset + 0*zAdd];
-      texture[out + 1] = intData[zOffset + 1*zAdd];
-      texture[out + 2] = intData[zOffset + 2*zAdd];
-      texture[out + 3] = intData[zOffset + 3*zAdd];
-      out += 4;
-      zOffset += zAdd4;
-    }// while
-    yOffset += dimensions[0];
-  }// while
-
-  return texture;
-}// getRGBAPageX
-
-
-
-// Returns a texture with X as horisontal and Z as vertical axis
-// Assumes that the provided data is in RGBA-form
-// Caller deletes of course.
-const void * 
-SoVolumeDataP::getRGBAPageY(int sliceIdx, int col, int row)
-{
-  int * texture = 
-    new int[pageSize[0]*pageSize[2]];
-  int * intData = (int*)data;
-
-  int out = 0;
-  int yOffset = sliceIdx*dimensions[0];
-  int zOffset = pageSize[2]*dimensions[0]*dimensions[1]*row + yOffset;
-  int zLimit = dimensions[0]*dimensions[1]*(row + 1)*pageSize[2] + yOffset;
-
-  while (zOffset < zLimit) {
-    int xOffset = pageSize[0]*col + zOffset;
-    int xLimit = pageSize[0]*(col + 1) + zOffset;
-    while (xOffset < xLimit) {
-      texture[out] = intData[xOffset];
-      texture[out + 1] = intData[xOffset + 1];
-      texture[out + 2] = intData[xOffset + 2];
-      texture[out + 3] = intData[xOffset + 3];
-      out += 4;
-      xOffset += 4;
-    }// while
-    zOffset += dimensions[0]*dimensions[1];
-  }// while
-
-  return texture;
-}// getRGBAPageY
-
-
-
-// Returns a texture with X as horisontal and Y as vertical axis
-// Assumes that the provided data is in RGBA-form
-// Caller deletes of course.
-const void * 
-SoVolumeDataP::getRGBAPageZ(int sliceIdx, int col, int row)
-{
-  int * texture = 
-    new int[pageSize[0]*pageSize[1]];
-  int * intData = (int*)data;
-
-  int out = 0;
-  int zOffset = sliceIdx*dimensions[0]*dimensions[1];
-  int yOffset = pageSize[1]*row*dimensions[0] + zOffset;
-  int yLimit = pageSize[1]*(row + 1)*dimensions[0] + zOffset;
-  int xStart = pageSize[0]*col;
-  while (yOffset < yLimit) {
-    int xOffset = xStart + yOffset; 
-    int xLimit = pageSize[0] + xStart + yOffset; 
-    while (xOffset < xLimit) {
-      texture[out] = intData[xOffset];
-      texture[out + 1] = intData[xOffset + 1];
-      texture[out + 2] = intData[xOffset + 2];
-      texture[out + 3] = intData[xOffset + 3];
-      out += 4;
-      xOffset += 4;
-    }// while
-
-    // Next line of pixels
-    yOffset += dimensions[0];
-  }// while
-
-  return texture;
-}// getRGBAPageZ
-
-
-
-const void * 
-SoVolumeDataP::getRGBAPage(int sliceIdx, SoVolumeData::Axis axis, int col, int row)
-{
-  switch (axis)
-  {
-    case SoVolumeData::X:
-      return getRGBAPageX(sliceIdx, col, row);
-      break;
-
-    case SoVolumeData::Y:
-      return getRGBAPageY(sliceIdx, col, row);
-      break;
-
-    case SoVolumeData::Z:
-      return getRGBAPageZ(sliceIdx, col, row);
-      break;
-  }// switch
-
-  return NULL;
-}// getRGBAPage
-
-
-void SoVolumeDataP::releasePages()
-{
-  releasePagesX();
-  releasePagesY();
-  releasePagesZ();
+  releaseSlicesX();
+  releaseSlicesY();
+  releaseSlicesZ();
 }// releasePages
-
-
-void SoVolumeDataP::releasePagesX()
-{
-  int i;
-  if ( pageX ) {
-    for (i = 0; i < dimensions[0]; i++) {
-      if (pageX[i]) {
-
-        delete pageX[i];
-        pageX[i] = NULL;
-      }
-    }// for
-  }
-
-  delete [] pageX;
-  pageX = NULL;
-}// releasePages
-
-void SoVolumeDataP::releasePagesY()
-{
-  int i;
-  if ( pageY ) {
-    for (i = 0; i < dimensions[1]; i++) {
-      if (pageY[i]) {
-        delete pageY[i];
-        pageY[i] = NULL;
-      }
-    }// for
-  }
-
-  delete [] pageY;
-  pageY = NULL;
-}// releasePages
-
-void SoVolumeDataP::releasePagesZ()
-{
-  int i;
-  if ( pageZ ) {
-    for (i = 0; i < dimensions[2]; i++) {
-      if (pageZ[i]) {
-        delete pageZ[i];
-        pageZ[i] = NULL;
-      }
-    }// for
-  }
-
-  delete [] pageZ;
-  pageZ = NULL;
-}// releasePages
-
-
 
 void SoVolumeDataP::freeTexels(int desired)
 {
   if (desired > maxTexels) return;
 
   while ((maxTexels - currentTexels) < desired)
-    releaseOldestPage();
+    releaseLRUPage();
 }// freeTexels
 
 
-void SoVolumeDataP::releaseOldestPage()
+void SoVolumeDataP::releaseLRUPage()
 {
-  int i;
+  SoVolumeDataPage * LRUPage = NULL;
+  SoVolumeDataPage * tmpPage = NULL;
+  SoVolumeDataSlice * LRUSlice = NULL;
 
-  unsigned int oldest = -1;
-  SoVolumeDataPage **p = NULL;
-
-  if (pageX)
-    for (i = this->dimensions[0]*this->pageSize[1]*this->pageSize[2] - 1; i >= 0; i--) {
-      if (pageX[i] )
-        if (pageX[i]->lastuse < oldest) {
-          p = &pageX[i];
-          oldest = pageX[i]->lastuse;
+  // Searching for LRU page among X-slices
+  if (this->slicesX) {
+    for (int i = 0; i < this->dimensions[0]; i++) {
+      tmpPage = NULL;
+      if (slicesX[i]) {
+        tmpPage = slicesX[i]->getLRUPage();
+        if (LRUPage == NULL) {
+          LRUSlice = slicesX[i];
+          LRUPage = tmpPage;
         }// if
+        else
+          if (tmpPage != NULL)
+            if (tmpPage->lastuse < LRUPage->lastuse) {
+              LRUSlice = slicesX[i];
+              LRUPage = tmpPage;
+            }// if
+      }// if
     }//for
+  }//if
 
-  if (pageY)
-    for (i = this->dimensions[1]*this->pageSize[0]*this->pageSize[2] - 1; i >= 0; i--) {
-      if (pageY[i] )
-        if (pageY[i]->lastuse < oldest) {
-          p = &pageY[i];
-          oldest = pageY[i]->lastuse;
+  // Searching for LRU page among X-slices
+  if (this->slicesY) {
+    for (int i = 0; i < this->dimensions[1]; i++) {
+      tmpPage = NULL;
+      if (slicesY[i]) {
+        tmpPage = slicesY[i]->getLRUPage();
+        if (LRUPage == NULL) {
+          LRUSlice = slicesY[i];
+          LRUPage = tmpPage;
         }// if
+        else
+          if (tmpPage != NULL)
+            if (tmpPage->lastuse < LRUPage->lastuse) {
+              LRUSlice = slicesY[i];
+              LRUPage = tmpPage;
+            }// if
+      }// if
     }//for
+  }//if
 
-  if (pageZ)
-    for (i = this->dimensions[2]*this->pageSize[0]*this->pageSize[1] - 1; i >= 0; i--) {
-      if (pageZ[i] )
-        if (pageZ[i]->lastuse < oldest) {
-          p = &pageZ[i];
-          oldest = pageZ[i]->lastuse;
+  // Searching for LRU page among X-slices
+  if (this->slicesZ) {
+    for (int i = 0; i < this->dimensions[2]; i++) {
+      tmpPage = NULL;
+      if (slicesZ[i]) {
+        tmpPage = slicesZ[i]->getLRUPage();
+        if (LRUPage == NULL) {
+          LRUSlice = slicesZ[i];
+          LRUPage = tmpPage;
         }// if
+        else
+          if (tmpPage != NULL)
+            if (tmpPage->lastuse < LRUPage->lastuse) {
+              LRUSlice = slicesZ[i];
+              LRUPage = tmpPage;
+            }// if
+      }// if
     }//for
+  }//if
 
-  this->currentPages--;
-  this->currentTexels -= (*p)->size[0]*(*p)->size[1];
-  delete *p;
-  *p = NULL;
-}// relaseOldestPage
+  this->currentTexels -= LRUSlice->numTexels;
+  this->currentPages -= LRUSlice->numPages;
+
+  LRUSlice->releasePage(LRUPage);
+
+  this->currentTexels += LRUSlice->numTexels;
+  this->currentPages += LRUSlice->numPages;
+}// relaseLRUPage
 
 
 
+void SoVolumeDataP::releaseSlicesX()
+{
+}// releaseSlicesX
 
+
+void SoVolumeDataP::releaseSlicesY()
+{
+}// releaseSlicesY
+
+void SoVolumeDataP::releaseSlicesZ()
+{
+}// releaseSlicesZ
 
 /****************** UNIMPLEMENTED FUNCTIONS ******************************/
 
@@ -1144,10 +754,6 @@ SoVolumeData::getVolumeData(SbVec3s &dimensions,
                             void *&data, 
                             SoVolumeData::DataType &type) 
 { return FALSE; }
-
-void 
-SoVolumeData::setReader(SoVolumeReader &reader) 
-{}
 
 SoVolumeReader * 
 SoVolumeData::getReader() 

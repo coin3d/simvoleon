@@ -229,9 +229,11 @@ SoROI::GLRender(SoGLRenderAction *action)
           imageIdx = maxSlice[0] - (i - minSlice[0]) - 1;
 
         volumeData->renderOrthoSliceX(state,
-                                      imageIdx,
                                       SbBox2f(min[2], min[1], max[2], max[1]), 
-                                      mappingCoords, depth);
+                                      depth,
+                                      imageIdx,
+                                      mappingCoords,
+                                      NULL);
 
         depth += depthAdder;
       }// for*/
@@ -269,9 +271,11 @@ SoROI::GLRender(SoGLRenderAction *action)
           imageIdx = maxSlice[1] - (i - minSlice[1]) - 1;
 
         volumeData->renderOrthoSliceY(state,
-                                      imageIdx,
                                       SbBox2f(min[0], min[2], max[0], max[2]), 
-                                      mappingCoords, depth);
+                                      depth,
+                                      imageIdx,
+                                      mappingCoords,
+                                      NULL);
 
         depth += depthAdder;
       }// for*/
@@ -310,9 +314,11 @@ SoROI::GLRender(SoGLRenderAction *action)
           imageIdx = maxSlice[2] - (i - minSlice[2]) - 1;
 
         volumeData->renderOrthoSliceZ(state,
-                                      imageIdx,
                                       SbBox2f(min[0], min[1], max[0], max[1]), 
-                                      mappingCoords, depth);
+                                      depth,
+                                      imageIdx,
+                                      mappingCoords,
+                                      NULL);
 
         depth += depthAdder;
       }// for

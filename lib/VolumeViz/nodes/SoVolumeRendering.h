@@ -29,11 +29,23 @@ public:
     HW_TEXCOMPRESSION
   };
 
-
   enum HW_SupportStatus {
     NO, 
     YES, 
     UNKNOWN
+  };
+
+  enum Axis {
+    X, 
+    Y, 
+    Z
+  };
+
+  enum DataType {
+    UNSIGNED_BYTE,
+    UNSIGNED_SHORT,
+    RGB,
+    RGBA
   };
 
   SoVolumeRendering();

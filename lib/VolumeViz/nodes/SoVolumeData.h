@@ -22,6 +22,7 @@
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <Inventor/nodes/SoSubNode.h>
 #include <VolumeViz/misc/SoVolumeDataPage.h>
+#include <VolumeViz/misc/SoVolumeDataSlice.h>
 
 class SoVolumeReader;
 
@@ -49,13 +50,6 @@ public:
     DYNAMIC_LOADING = 0x00000080,   // Only loads the pages used
   };
 
-  enum DataType {
-    UNSIGNED_BYTE, 
-    UNSIGNED_SHORT,
-    RGB,
-    RGBA,
-  };
-
   enum SubMethod {
     NEAREST, 
     MAX, 
@@ -69,13 +63,6 @@ public:
     CUBIC
   };
 
-  enum Axis {
-    X, 
-    Y, 
-    Z
-  };
-
-
   // Fields
   SoSFString fileName;
   SoSFEnum storageHint;
@@ -87,7 +74,8 @@ public:
   // Functions
   void setVolumeData( const SbVec3s &dimension, 
                       const void *data, 
-                      SoVolumeData::DataType type=UNSIGNED_BYTE);
+                      SoVolumeRendering::DataType type 
+                      = SoVolumeRendering::UNSIGNED_BYTE);
 
   void setVolumeSize(const SbBox3f &size);
   SbBox3f &getVolumeSize();
@@ -96,31 +84,35 @@ public:
   SoVolumeData(void);
   ~SoVolumeData();
   void renderOrthoSliceX( SoState * state,
+                          SbBox2f &quad, 
+                          float x,
                           int sliceIdx,
-                          SbBox2f &slice, 
-                          SbBox2f &mappingcoordinates, 
-                          float x);
+                          SbBox2f &textureCoords,
+                          SoTransferFunction * transferFunction);
   void renderOrthoSliceY( SoState * state,
+                          SbBox2f &quad, 
+                          float y,
                           int sliceIdx,
-                          SbBox2f &slice, 
-                          SbBox2f &mappingcoordinates, 
-                          float y);
+                          SbBox2f &textureCoords,
+                          SoTransferFunction * transferFunction);
   void renderOrthoSliceZ( SoState * state,
+                          SbBox2f &quad, 
+                          float z,
                           int sliceIdx,
-                          SbBox2f &slice, 
-                          SbBox2f &mappingcoordinates, 
-                          float z);
+                          SbBox2f &textureCoords,
+                          SoTransferFunction * transferFunction);
   void setPageSize(int size);
   void setPageSize(SbVec3s &size);
   SbVec3s & getPageSize();
   void setTexMemorySize(int size);
-
-
-
+  void setReader(SoVolumeReader * reader);
 
   // FIXME: The following functions are still to be implemented. torbjorv 07122002
-  SbBool getVolumeData(SbVec3s &dimension, void *&data, SoVolumeData::DataType &type);
-  void setReader(SoVolumeReader &reader);
+  SbBool getVolumeData( SbVec3s &dimension, 
+                        void *&data, 
+                        SoVolumeRendering::DataType &type);
+
+
   SoVolumeReader * getReader();
   SbBool getMinMax(int &min, int &max);
   SbBool getHistogram(int &length, int *&histogram);
