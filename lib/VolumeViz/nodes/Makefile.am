@@ -2,13 +2,14 @@ SUBDIRS = gradients
 
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
-if BUILD_WITH_MSVC
-noinst_LIBRARIES = nodes.lst
-else
-noinst_LTLIBRARIES = libnodes.la
-endif
+# **************************************************************************
+#
+# PublicHeaders    - header files that should be installed
+# PrivateHeaders   - source files that should be distributed, but not
+#                    installed - including source-included source files.
+# RegularSources   - source files compiled in this directory
 
-SOURCES = \
+RegularSources = \
 	TransferFunction.cpp \
 	VolumeData.cpp \
 	VolumeRender.cpp \
@@ -27,16 +28,7 @@ SOURCES = \
 	CvrTriangleStripSetRenderP.cpp \
 	CvrIndexedTriangleStripSetRenderP.cpp
 
-# FIXME: not yet implemented. 20040505 mortene.
-#	ROI.cpp
-
-libnodes_la_SOURCES = $(SOURCES)
-
-nodes_lst_SOURCES = $(SOURCES)
-
-libnodesincdir = $(includedir)/VolumeViz/nodes
-
-libnodesinc_HEADERS = \
+PublicHeaders = \
 	SoOrthoSlice.h \
 	SoVolumeSkin.h \
 	SoObliqueSlice.h \
@@ -47,7 +39,9 @@ libnodesinc_HEADERS = \
 	SoVolumeFaceSet.h \
 	SoVolumeIndexedFaceSet.h \
 	SoVolumeTriangleStripSet.h \
-	SoVolumeIndexedTriangleStripSet.h \
+	SoVolumeIndexedTriangleStripSet.h
+
+PrivateHeaders = \
 	CvrIndexedSetRenderBaseP.h \
 	CvrNonIndexedSetRenderBaseP.h \
 	CvrFaceSetRenderP.h \
@@ -55,9 +49,26 @@ libnodesinc_HEADERS = \
 	CvrTriangleStripSetRenderP.h \
 	CvrIndexedTriangleStripSetRenderP.h 
 
-# FIXME: not yet implemented. 20040505 mortene
-#	SoROI.h 
+# **************************************************************************
 
+if BUILD_WITH_MSVC
+noinst_LIBRARIES = nodes.lst
+else
+noinst_LTLIBRARIES = libnodes.la
+endif
+
+libnodes_la_SOURCES = $(RegularSources)
+EXTRA_libnodes_la_SOURCES = $(PublicHeaders) $(PrivateHeaders)
+
+nodes_lst_SOURCES = $(RegularSources)
+EXTRA_nodes_lst_SOURCES = $(PublicHeaders) $(PrivateHeaders)
+
+# **************************************************************************
+
+libnodesincdir = $(includedir)/VolumeViz/nodes
+libnodesinc_HEADERS = $(PublicHeaders)
+
+# **************************************************************************
 
 nodes.lst: $(nodes_lst_OBJECTS)
 	@echo "Linking $@..."; \
@@ -88,3 +99,4 @@ install-libnodesincHEADERS: $(libnodesinc_HEADERS)
 	done; \
 	:
 
+# **************************************************************************

@@ -1,25 +1,44 @@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
+# **************************************************************************
+#
+# PublicHeaders    - header files that should be installed
+# PrivateHeaders   - source files that should be distributed, but not
+#                    installed - including source-included source files.
+# RegularSources   - source files compiled in this directory
+
+RegularSources = \
+	VolumeReader.cpp \
+	VRVolFileReader.cpp \
+	VRMemReader.cpp
+
+PublicHeaders = \
+	SoVolumeReader.h \
+	SoVRVolFileReader.h
+
+PrivateHeaders = \
+	SoVRMemReader.h
+
+# **************************************************************************
+
 if BUILD_WITH_MSVC
 noinst_LIBRARIES = readers.lst
 else
 noinst_LTLIBRARIES = libreaders.la
 endif
 
-SOURCES = \
-	VolumeReader.cpp \
-	VRVolFileReader.cpp \
-	VRMemReader.cpp	SoVRMemReader.h
+libreaders_la_SOURCES = $(RegularSources)
+EXTRA_libreaders_la_SOURCES = $(PublicHeaders) $(PrivateHeaders)
 
-libreaders_la_SOURCES = $(SOURCES)
+readers_lst_SOURCES = $(RegularSources)
+EXTRA_readers_lst_SOURCES = $(PublicHeaders) $(PrivateHeaders)
 
-readers_lst_SOURCES = $(SOURCES)
+# **************************************************************************
 
 libreadersincdir = $(includedir)/VolumeViz/readers
+libreadersinc_HEADERS = $(PublicHeaders)
 
-libreadersinc_HEADERS = \
-	SoVolumeReader.h \
-	SoVRVolFileReader.h
+# **************************************************************************
 
 readers.lst: $(readers_lst_OBJECTS)
 	@echo "Linking $@..."; \
@@ -50,3 +69,4 @@ install-libreadersincHEADERS: $(libreadersinc_HEADERS)
 	done; \
 	:
 
+# **************************************************************************
