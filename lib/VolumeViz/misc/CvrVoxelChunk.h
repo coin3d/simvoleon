@@ -37,14 +37,7 @@ private:
   UnitSize unitsize;
 
   CvrCLUT * makeCLUT(SoGLRenderAction * action) const;
-
-  // The simple idea for speeding up transfer of volume data is to
-  // dynamically fill in an index array, so each transfer value
-  // calculation is done only once.
-  static void blankoutTransferTable(void);
-  static uint32_t transfertable[256];
-  static SbBool transferdone[256];
-  static uint32_t transfertablenodeid;
+  static SbBool usePaletteTextures(SoGLRenderAction * action);
 
   static uint8_t PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];
   static void initPredefGradients(void);

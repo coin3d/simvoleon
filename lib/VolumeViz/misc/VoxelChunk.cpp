@@ -2,9 +2,12 @@
 #include <VolumeViz/render/2D/CvrRGBATexture.h>
 #include <VolumeViz/render/2D/CvrPaletteTexture.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/misc/CvrGIMPGradient.h>
 #include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrUtil.h>
 
 #include <../nodes/gradients/GREY.h>
 #include <../nodes/gradients/TEMPERATURE.h>
@@ -174,6 +177,45 @@ CvrVoxelChunk::makeCLUT(SoGLRenderAction * action) const
   return clut;
 }
 
+SbBool
+CvrVoxelChunk::usePaletteTextures(SoGLRenderAction * action)
+{
+  SoState * state = action->getState();
+  const SoVolumeDataElement * vdelement = SoVolumeDataElement::getInstance(state);
+  assert(vdelement != NULL);
+  const SoVolumeData * volumedatanode = vdelement->getVolumeData();
+  assert(volumedatanode != NULL);
+
+  const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
+
+  // Check if paletted textures is wanted by the app programmer.
+  SbBool usepalettetex = volumedatanode->usePalettedTexture.getValue();
+
+  const char * env;
+  static int force_paletted = -1; // "-1" means "undecided"
+  static int force_rgba = -1;
+  if (force_paletted == -1) { force_paletted = (env = coin_getenv("CVR_FORCE_PALETTED_TEXTURES")) && (atoi(env) > 0); }
+  if (force_rgba == -1) { force_rgba = (env = coin_getenv("CVR_FORCE_RGBA_TEXTURES")) && (atoi(env) > 0); }
+  assert(!(force_paletted && force_rgba)); // both at the same time can't be done, silly
+
+  if (force_paletted) usepalettetex = TRUE;
+  if (force_rgba) usepalettetex = FALSE;
+
+  // If we requested paletted textures, does OpenGL support them?
+  // (FIXME: one more thing to check versus OpenGL is that the
+  // palette size can fit.)
+  usepalettetex = usepalettetex && cc_glglue_has_paletted_textures(glw);
+
+  static SbBool first = TRUE;
+  if (first && CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("CvrVoxelChunk::usePaletteTextures",
+                           "returns %s", usepalettetex ? "TRUE" : "FALSE");
+    first = FALSE;
+  }
+
+  return usepalettetex;
+}
+
 /*!
   Transfers voxel data to a texture.
 
@@ -196,14 +238,8 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
   SoState * state = action->getState();
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   assert(tfelement != NULL);
-  SoTransferFunction * transferfunc = tfelement->getTransferFunction();
+  const SoTransferFunction * transferfunc = tfelement->getTransferFunction();
   assert(transferfunc != NULL);
-
-  static int endianness = COIN_HOST_IS_UNKNOWNENDIAN;
-  if (endianness == COIN_HOST_IS_UNKNOWNENDIAN) {
-    endianness = coin_host_get_endianness();
-    assert(endianness != COIN_HOST_IS_UNKNOWNENDIAN && "weird hardware!");
-  }
 
   // FIXME: only handles 2D textures yet. 20021203 mortene.
   assert(this->getDimensions()[2] == 1);
@@ -240,9 +276,7 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
 
     const CvrCLUT * clut = this->makeCLUT(action);
 
-    SbBool usepalettetex = FALSE;
-    // FIXME: check if palette textures can and should be used XXX XXX
-    // XXX
+    SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
 
     if (usepalettetex) {
       palettetex = new CvrPaletteTexture(texsize);
