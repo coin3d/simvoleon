@@ -245,7 +245,7 @@ SoVRVolFileReader::setUserData(void * data)
   // '\0'. Must check header_length and convert '\0'-chars to
   // '\n'-chars. 20021109 mortene.
 
-#if 1 // debug
+#if 0 // debug
   SoDebugError::postInfo("SoVRVolFileReader::setUserData",
                          "description=='%s'",
                          PRIVATE(this)->description.getString());
