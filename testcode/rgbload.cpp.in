@@ -24,7 +24,7 @@ static SbVec3s volume_size;
 void 
 resize_data(SbVec3s newsize)
 {
-  fprintf(stderr,"resizing data: %g %g %g => %g %g %g...",
+  fprintf(stderr,"resizing data: %d %d %d => %d %d %d...",
           volume_size[0],
           volume_size[1],
           volume_size[2],
@@ -151,7 +151,9 @@ main(int argc, char ** argv)
   resize_data(SbVec3s(128, 128, 64));
 
   // change filter here
+#if 1
   APPLY_FILTER(ptr[2] > 128);
+#endif
 
   @WIDGET@ window = So@Gui@::init( argv[0] );
   SoVolumeRendering::init();
