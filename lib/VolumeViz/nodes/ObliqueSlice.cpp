@@ -1,6 +1,9 @@
 #include <VolumeViz/nodes/SoObliqueSlice.h>
+
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
+#include <Inventor/errors/SoDebugError.h>
+
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
@@ -79,7 +82,16 @@ SoObliqueSlice::rayPick(SoRayPickAction * action)
 void
 SoObliqueSlice::generatePrimitives(SoAction * action)
 {
-  // FIXME: implement
+  // FIXME: implement me?
+
+#if CVR_DEBUG && 1 // debug
+  static SbBool warn = TRUE;
+  if (warn) {
+    SoDebugError::postInfo("SoObliqueSlice::generatePrimitives",
+                           "not yet implemented");
+    warn = FALSE;
+  }
+#endif // debug
 }
 
 // doc in super
