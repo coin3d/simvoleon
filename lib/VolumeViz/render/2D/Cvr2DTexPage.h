@@ -23,13 +23,13 @@ public:
               const SbVec2f & spacescale,
               Cvr2DTexSubPage::Interpolation interpolation);
 
-  void releaseSubPage(Cvr2DTexSubPage * page);
-
 private:
   class Cvr2DTexSubPageItem * getSubPage(SoState * state, int col, int row);
 
   class Cvr2DTexSubPageItem * buildSubPage(SoGLRenderAction * action,
                                            int col, int row);
+
+  void releaseSubPage(Cvr2DTexSubPage * page);
 
   void releaseAllSubPages(void);
   void releaseSubPage(const int row, const int col);
