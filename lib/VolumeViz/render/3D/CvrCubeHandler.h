@@ -67,6 +67,8 @@ private:
 
   Cvr3DTexCube * volumecube;
   const CvrCLUT * clut;
+  uint32_t voxelblockelementnodeid;
+
 };
 
 #endif // !SIMVOLEON_CVRCUBEHANDLER_H

@@ -61,6 +61,7 @@ CvrCubeHandler::CvrCubeHandler(void)
 {
   this->volumecube = NULL;
   this->clut = NULL;
+  this->voxelblockelementnodeid = 0;
 }
 
 CvrCubeHandler::~CvrCubeHandler()
@@ -114,11 +115,24 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   }
 
   SoState * state = action->getState();
-
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
   assert(vbelem != NULL);
- 
-  if (this->volumecube == NULL) { this->volumecube = new Cvr3DTexCube(action); }
+
+  // Has the dataelement changed since last time?
+  // FIXME: Is this test too strict? Not all components in the voxel
+  // block element will demand a reconstruction of the 3DTexCube
+  // object (20040806 handegar)
+  if ((this->voxelblockelementnodeid != vbelem->getNodeId()) &&
+      (this->volumecube != NULL)) {
+    delete this->volumecube;
+    this->volumecube = NULL;
+    this->clut = NULL;
+    this->voxelblockelementnodeid = vbelem->getNodeId();
+  }
+
+  if (this->volumecube == NULL) { 
+    this->volumecube = new Cvr3DTexCube(action); 
+  }
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
