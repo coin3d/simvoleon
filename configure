@@ -21938,6 +21938,9 @@ echo "$as_me: error: could not compile and link against Coin" >&2;}
 fi
 
 
+  # Coin 2.3.0 is needed for the cc_glglue_has_arb_fragment_program()
+  # function, and the SoGLCacheContextElement::scheduleDeleteCallback()
+  # method.
   echo "$as_me:$LINENO: checking if Coin version is >= 2.3.0" >&5
 echo $ECHO_N "checking if Coin version is >= 2.3.0... $ECHO_C" >&6
   cat >conftest.$ac_ext <<_ACEOF

@@ -61,6 +61,7 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrGlobalRenderLock.h>
 
 #include "CvrTriangleStripSetRenderP.h"
 
@@ -122,6 +123,11 @@ SoVolumeTriangleStripSet::initClass(void)
 void
 SoVolumeTriangleStripSet::GLRender(SoGLRenderAction * action)
 {
+  // This will automatically lock and unlock a mutex stopping multiple
+  // render threads for SIM Voleon nodes. FIXME: should really make
+  // code re-entrant / threadsafe. 20041112 mortene.
+  CvrGlobalRenderLock lock;
+
 
   // FIXME: need to make sure we're not cached in a renderlist
   if (!this->shouldGLRender(action)) return;

@@ -196,6 +196,7 @@ SOURCES = \
 	CLUT.cpp CvrCLUT.h \
 	Util.cpp CvrUtil.h \
 	ResourceManager.cpp CvrResourceManager.h \
+	CvrGlobalRenderLock.h GlobalRenderLock.cpp \
 	GIMPGradient.cpp CvrGIMPGradient.h
 
 
@@ -212,7 +213,8 @@ LIBRARIES = $(noinst_LIBRARIES)
 misc_lst_AR = $(AR) cru
 misc_lst_LIBADD =
 am__objects_1 = VoxelChunk.$(OBJEXT) CLUT.$(OBJEXT) Util.$(OBJEXT) \
-	ResourceManager.$(OBJEXT) GIMPGradient.$(OBJEXT)
+	ResourceManager.$(OBJEXT) GlobalRenderLock.$(OBJEXT) \
+	GIMPGradient.$(OBJEXT)
 am_misc_lst_OBJECTS = $(am__objects_1)
 misc_lst_OBJECTS = $(am_misc_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
@@ -220,7 +222,7 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libmisc_la_LDFLAGS =
 libmisc_la_LIBADD =
 am__objects_2 = VoxelChunk.lo CLUT.lo Util.lo ResourceManager.lo \
-	GIMPGradient.lo
+	GlobalRenderLock.lo GIMPGradient.lo
 am_libmisc_la_OBJECTS = $(am__objects_2)
 libmisc_la_OBJECTS = $(am_libmisc_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
@@ -228,6 +230,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CLUT.Plo ./$(DEPDIR)/CLUT.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/GIMPGradient.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/GIMPGradient.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/GlobalRenderLock.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/GlobalRenderLock.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/ResourceManager.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/ResourceManager.Po ./$(DEPDIR)/Util.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/Util.Po ./$(DEPDIR)/VoxelChunk.Plo \
@@ -254,6 +258,7 @@ SOURCES = \
 	CLUT.cpp CvrCLUT.h \
 	Util.cpp CvrUtil.h \
 	ResourceManager.cpp CvrResourceManager.h \
+	CvrGlobalRenderLock.h GlobalRenderLock.cpp \
 	GIMPGradient.cpp CvrGIMPGradient.h
 
 
@@ -291,6 +296,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CLUT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GIMPGradient.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GIMPGradient.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GlobalRenderLock.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GlobalRenderLock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ResourceManager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ResourceManager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Util.Plo@am__quote@

@@ -5,6 +5,7 @@ New in SIM Voleon v2.0.1a (so far):
     sometimes break, causing rendering artifacts
   - fixed a major resource leak for OpenGL textures
   - obscure bug in optimalization feature for tracking "open" areas fixed
+  - rendering code is now multithread-safe
 
 New in SIM Voleon v2.0.0:
 

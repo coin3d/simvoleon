@@ -11,6 +11,7 @@ SOURCES = \
 	CLUT.cpp CvrCLUT.h \
 	Util.cpp CvrUtil.h \
 	ResourceManager.cpp CvrResourceManager.h \
+	CvrGlobalRenderLock.h GlobalRenderLock.cpp \
 	GIMPGradient.cpp CvrGIMPGradient.h
 
 libmisc_la_SOURCES = $(SOURCES)

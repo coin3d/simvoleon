@@ -59,6 +59,7 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrGlobalRenderLock.h>
 
 // *************************************************************************
 
@@ -314,6 +315,11 @@ SoOrthoSliceP::confirmValidInContext(SoState * state) const
 void
 SoOrthoSlice::GLRender(SoGLRenderAction * action)
 {
+  // This will automatically lock and unlock a mutex stopping multiple
+  // render threads for SIM Voleon nodes. FIXME: should really make
+  // code re-entrant / threadsafe. 20041112 mortene.
+  CvrGlobalRenderLock lock;
+
   SoState * state = action->getState();
 
   // Fetching the current volumedata information.

@@ -274,6 +274,7 @@
 #include <VolumeViz/nodes/SoVolumeSkin.h>
 #include <VolumeViz/nodes/SoVolumeTriangleStripSet.h>
 #include <VolumeViz/render/common/CvrTextureObject.h>
+#include <VolumeViz/misc/CvrGlobalRenderLock.h>
 
 // *************************************************************************
 
@@ -319,6 +320,8 @@ SoVolumeRendering::init(void)
 {
   if (SoVolumeRenderingP::wasinitialized) return;
   SoVolumeRenderingP::wasinitialized = TRUE;
+
+  CvrGlobalRenderLock::init();
 
   SoTransferFunctionElement::initClass();
   CvrCompressedTexturesElement::initClass();
