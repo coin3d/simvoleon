@@ -575,6 +575,7 @@ SoVolumeDataP::getSlice(const SoVolumeDataP::Axis AXISIDX, int sliceidx)
        SbVec2s(this->pageSize[0], this->pageSize[2]) :
        SbVec2s(this->pageSize[0], this->pageSize[1]));
     
+    assert(pagesize[0] > 0 && pagesize[1] > 0);
     newslice->init(this->reader, sliceidx, axis, pagesize);
 
     this->slices[AXISIDX][sliceidx] = newslice;
