@@ -152,14 +152,14 @@ SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
   The number of slices to render will be calculated as follows:
 
   \code
-  unsigned int numslices = complexity * 2 * numSlices;
+  unsigned int numslices = complexity * 2.0f * this->numSlices;
   \endcode
 
   Where \a "complexity" is the current SoComplexity::value setting in
   the scene graph traversal state. The default complexity value for a
   scene graph with no SoComplexity node(s) is 0.5.
 
-  For \a "numSlices", see SoVolumeRender::numSlices.
+  For \a "this->numSlices", see SoVolumeRender::numSlices.
 */
 
 /*!
