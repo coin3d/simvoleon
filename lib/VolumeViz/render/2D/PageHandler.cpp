@@ -64,6 +64,21 @@ CvrPageHandler::getViewVector(SoGLRenderAction * action, SbVec3f & direction) co
 unsigned int
 CvrPageHandler::getCurrentAxis(const SbVec3f & viewvec) const
 {
+  // This is a debugging backdoor: if the environment variable
+  // CVR_LOCK_AXIS is set, we'll return the axis value (0 for X, 1 for
+  // Y and 2 for Z) it sets, no matter what.
+  static int lockaxis = -1;
+  if (lockaxis == -1) {
+    const char * envstr = coin_getenv("CVR_LOCK_AXIS");
+    if (envstr) {
+      lockaxis = atoi(envstr);
+      assert(lockaxis >= 0 && lockaxis <= 2);
+    }
+    else lockaxis = -2;
+  }
+  if (lockaxis != -2) return lockaxis;
+
+
   SbVec3f abstoviewer;
   abstoviewer[0] = fabs(viewvec[0]);
   abstoviewer[1] = fabs(viewvec[1]);
