@@ -328,6 +328,14 @@ if $sim_ac_build_library; then
 
 fi # sim_ac_build_library
 
+# **************************************************************************
+
+# append compiler flags detected earlier, now that all configure tests
+# are done...
+
+CFLAGS="$CFLAGS $sim_ac_compiler_CFLAGS"
+CXXFLAGS="$CXXFLAGS $sim_ac_compiler_CXXFLAGS"
+
 # *******************************************************************
 
 AC_SUBST([LIBFLAGS], [])
