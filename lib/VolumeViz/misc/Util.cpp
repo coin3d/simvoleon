@@ -75,11 +75,11 @@ CvrUtil::buildSubPageX(const uint8_t * input,
 
     // We're using destwidth instead of nrhorizvoxels here in case the
     // actual width of subpages is different from the cutslice
-    // size. This can happen out towards the borders of the
+    // size. This happens out towards the borders of the
     // volumedata-set if volumedatadimension % subpagesize != 0.
     uint8_t * dstptr = &(output[destwidth * rowidx * voxelsize]);
 
-    // FIXME: try to optimize this loop. 20021125 mortene.
+    // FIXME: should optimize this loop. 20021125 mortene.
     for (unsigned int horizidx = 0; horizidx < nrhorizvoxels; horizidx++) {
       *dstptr++ = *srcptr++;
       if (voxelsize > 1) *dstptr++ = *srcptr++;
@@ -91,6 +91,32 @@ CvrUtil::buildSubPageX(const uint8_t * input,
 }
 
 // Copies rows of x-axis data along the z-axis.
+/*
+  Here's how a 4x3 slice would be cut, from the memory layout:
+
+  +----------------+
+  |                |
+  |    xxxx        |
+  |                |
+  |                |
+  |                |
+  +----------------+
+  |                |
+  |    xxxx        |
+  |                |
+  |                |
+  |                |
+  +----------------+
+  |                |
+  |    xxxx        |
+  |                |
+  |                |
+  |                |
+  +----------------+
+
+  Cutting is done top-to-bottom, and is placed in the output slice
+  buffer left-to-right, top-to-bottom.
+ */
 void
 CvrUtil::buildSubPageY(const uint8_t * input,
                        uint8_t * output,
@@ -120,10 +146,8 @@ CvrUtil::buildSubPageY(const uint8_t * input,
     const unsigned int inoffset = staticoffset + (rowidx * dim[0] * dim[1]);
     const uint8_t * srcptr = &(input[inoffset * voxelsize]);
 
-    // We're using destwidth instead of nrhorizvoxels here in case the
-    // actual width of subpages is different from the cutslice
-    // size. This can happen out towards the borders of the
-    // volumedata-set if volumedatadimension % subpagesize != 0.
+    // We're using destwidth instead of nrhorizvoxels here, see code
+    // comment in buildSubPageX().
     uint8_t * dstptr = &(output[destwidth * rowidx * voxelsize]);
 
     (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
@@ -158,10 +182,8 @@ CvrUtil::buildSubPageZ(const uint8_t * input, uint8_t * output,
     const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
     const uint8_t * srcptr = &(input[inoffset * voxelsize]);
 
-    // We're using destwidth instead of nrhorizvoxels here in case the
-    // actual width of subpages is different from the cutslice
-    // size. This can happen out towards the borders of the
-    // volumedata-set if volumedatadimension % subpagesize != 0.
+    // We're using destwidth instead of nrhorizvoxels here, see code
+    // comment in buildSubPageX().
     uint8_t * dstptr = &(output[destwidth * rowidx * voxelsize]);
 
     (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
