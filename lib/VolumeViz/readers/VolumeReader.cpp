@@ -7,13 +7,19 @@
 #include <VolumeViz/readers/SoVolumeReader.h>
 #include <Inventor/errors/SoDebugError.h>
 
-#if HAVE_CONFIG_H
+#ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <sys/types.h>
-#include <sys/stat.h>
+#ifdef HAVE_UNISTD_H
 #include <unistd.h>
+#endif // HAVE_UNISTD_H
+
+#ifdef HAVE_SYS_TYPES_H
+#include <sys/types.h>
+#endif // HAVE_SYS_TYPES_H
+
+#include <sys/stat.h>
 #include <errno.h>
 #include <string.h>
 
