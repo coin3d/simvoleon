@@ -19,10 +19,12 @@ CvrTextureObject::~CvrTextureObject()
 // Returns pointer to RGBA buffer. Allocates memory for it if
 // necessary.
 uint32_t *
-CvrTextureObject::getRGBABuffer(void)
+CvrTextureObject::getRGBABuffer(void) const
 {
   if (this->rgbabuffer == NULL) {
-    this->rgbabuffer = new uint32_t[this->dimensions[0] * this->dimensions[1]];
+    // Cast away constness.
+    CvrTextureObject * that = (CvrTextureObject *)this;
+    that->rgbabuffer = new uint32_t[this->dimensions[0] * this->dimensions[1]];
   }
 
   return this->rgbabuffer;

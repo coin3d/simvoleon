@@ -9,7 +9,7 @@ public:
   CvrTextureObject(const SbVec2s & size);
   ~CvrTextureObject();
 
-  uint32_t * getRGBABuffer(void);
+  uint32_t * getRGBABuffer(void) const;
   const SbVec2s & getDimensions(void) const;
 
 private:
