@@ -24,7 +24,8 @@ public:
 
   static void renderBox(SoGLRenderAction * action, SbBox3f box);
 
-  void getPageGeometry(SbVec3f & origo, SbVec3f & horizspan, SbVec3f & verticalspan);
+  void getPageGeometry(SoVolumeData * volumedata, SbVec3f & origo, SbVec3f & horizspan, SbVec3f & verticalspan) const;
+  void getPageOrigo(SoVolumeData * volumedata, SbVec3f & origo) const;
   
 private:
   SoOrthoSlice * master;
@@ -93,12 +94,50 @@ SoOrthoSlice::affectsState(void) const
 }
 
 void
-SoOrthoSliceP::getPageGeometry(SbVec3f & origo,
-                               SbVec3f & horizspan, SbVec3f & verticalspan)
+SoOrthoSliceP::getPageOrigo(SoVolumeData * volumedata, SbVec3f & origo) const
 {
-  origo = SbVec3f(0, 0, 0);
+  SbBox3f spacesize = volumedata->getVolumeSize();
+  SbVec3f spacemin, spacemax;
+  spacesize.getBounds(spacemin, spacemax);
+
+  const int axis = PUBLIC(this)->axis.getValue();
+
+  const SbBox2f QUAD = (axis == SoOrthoSlice::Z) ?
+    SbBox2f(spacemin[0], spacemin[1], spacemax[0], spacemax[1]) :
+    ((axis == SoOrthoSlice::X) ?
+     SbBox2f(spacemin[2], spacemin[1], spacemax[2], spacemax[1]) :
+     // then it's along Y
+     SbBox2f(spacemin[0], spacemin[2], spacemax[0], spacemax[2]));
+
+  SbVec2f qmax, qmin;
+  QUAD.getBounds(qmin, qmax);
+
+  SbVec3s dimensions;
+  void * data;
+  SoVolumeData::DataType type;
+  SbBool ok = volumedata->getVolumeData(dimensions, data, type);
+  assert(ok);
+
+  const float depthprslice = (spacemax[axis] - spacemin[axis]) / dimensions[axis];
+  const float depth = spacemin[axis] + PUBLIC(this)->sliceNumber.getValue() * depthprslice;
+
+  switch (axis) {
+  case SoOrthoSlice::X: origo = SbVec3f(depth, qmax[1], qmin[0]); break;
+  case SoOrthoSlice::Y: origo = SbVec3f(qmin[0], depth, qmin[1]); break;
+  case SoOrthoSlice::Z: origo = SbVec3f(qmin[0], qmax[1], depth); break;
+  default: assert(FALSE); break;
+  }
+}
+
+void
+SoOrthoSliceP::getPageGeometry(SoVolumeData * volumedata,
+                               SbVec3f & origo,
+                               SbVec3f & horizspan,
+                               SbVec3f & verticalspan) const
+{
+  this->getPageOrigo(volumedata, origo);
   horizspan = SbVec3f(1, 0, 0);
-  verticalspan = SbVec3f(0, 1, 0);
+  verticalspan = SbVec3f(0, -1, 0);
 }
 
 void
@@ -126,7 +165,7 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
              this->axis.getValue(), SbVec2s(64, 64) /* subpagetexsize */);
 
   SbVec3f origo, horizspan, verticalspan;
-  PRIVATE(this)->getPageGeometry(origo, horizspan, verticalspan);
+  PRIVATE(this)->getPageGeometry(volumedata, origo, horizspan, verticalspan);
   page->render(action, origo, horizspan, verticalspan,
                // FIXME: ugly cast
                (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue());
