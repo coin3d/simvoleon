@@ -29,8 +29,12 @@
 
 class SoTransferFunction;
 
+// *************************************************************************
 
-class SIMVOLEON_DLL_API SoTransferFunctionElement : public SoReplacedElement {
+// Note: no longer part of public API, was taken out for SIM Voleon
+// 2.0.0. If requested, we could easily add it back again.
+
+class SoTransferFunctionElement : public SoReplacedElement {
   typedef SoReplacedElement inherited;
   SO_ELEMENT_HEADER(SoTransferFunctionElement);
 
