@@ -279,19 +279,19 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     // Setting palette
     // FIXME: does this need to be called _after_ glBindTextures()?
     // 20021121 mortene.
-    cc_glglue_glColorTableEXT(glw,
-                              GL_TEXTURE_2D,
-                              GL_RGBA,
-                              palettesize,
-                              GL_RGBA,
-                              GL_FLOAT,
-                              palette);
+    cc_glglue_glColorTable(glw,
+                           GL_TEXTURE_2D,
+                           GL_RGBA,
+                           palettesize,
+                           GL_RGBA,
+                           GL_FLOAT,
+                           palette);
 
     // Checking what palettesize we actually got
     int actualPaletteSize;
-    cc_glglue_glGetColorTableParameterivEXT(glw, GL_TEXTURE_2D,
-                                            GL_COLOR_TABLE_WIDTH_EXT,
-                                            &actualPaletteSize);
+    cc_glglue_glGetColorTableParameteriv(glw, GL_TEXTURE_2D,
+                                         GL_COLOR_TABLE_WIDTH,
+                                         &actualPaletteSize);
 
     switch (actualPaletteSize) {
     case 2:
