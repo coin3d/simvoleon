@@ -335,7 +335,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
       // dimensions), we should still render it at the new depth, as
       // that can give better rendering quality of the volume.
       Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
-      origo[AXISIDX] = depth;
+      origo[AXISIDX] = depth + i * depthprslice;
       page->render(action, origo, horizspan, verticalspan, QUADSCALE,
                    interpolation);
     }
@@ -343,8 +343,6 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
       assert((abortcode == SoVolumeRender::SKIP) &&
              "invalid return value from SoVolumeRender::setAbortCallback() method");
     }
-
-    depth += depthprslice;
   }
 
 #if CVR_DEBUG && 0 // debug
