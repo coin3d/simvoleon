@@ -175,8 +175,26 @@ SoOrthoSliceP::getPageGeometry(SoVolumeData * volumedata,
   default: assert(FALSE); break;
   }
 
+  SbVec3s dimensions;
+  void * data;
+  SoVolumeData::DataType type;
+  SbBool ok = volumedata->getVolumeData(dimensions, data, type);
+  assert(ok);
+
+  const SbVec3f SCALE((spacemax[0] - spacemin[0]) / dimensions[0],
+                      (spacemax[1] - spacemin[1]) / dimensions[1],
+                      (spacemax[2] - spacemin[2]) / dimensions[2]);
+
+  const SbVec2f QUADSCALE = (axis == 2) ?
+    SbVec2f(SCALE[0], SCALE[1]) :
+    ((axis == 0) ?
+     SbVec2f(SCALE[2], SCALE[1]) :
+     SbVec2f(SCALE[0], SCALE[2]));
+
   horizspan.normalize();
+  horizspan *= QUADSCALE[0];
   verticalspan.normalize();
+  verticalspan *= QUADSCALE[1];
 }
 
 void
