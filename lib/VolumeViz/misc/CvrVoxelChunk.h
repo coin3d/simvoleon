@@ -30,7 +30,7 @@ public:
 
   CvrTextureObject * transfer(SoGLRenderAction * action, SbBool & invisible) const;
 
-  virtual void dumpToPPM(const char * filename) const;
+  void dumpToPPM(const char * filename) const;
 
 private:
   SbBool destructbuffer;
