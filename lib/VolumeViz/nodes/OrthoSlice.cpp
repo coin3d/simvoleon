@@ -69,10 +69,9 @@ public:
   }
 
   static void renderBox(SoGLRenderAction * action, SbBox3f box);
-
   Cvr2DTexPage * getPage(const int axis, const int slice, SoVolumeData * v);
-
   SbPlane getSliceAsPlane(SoAction * action) const;
+  SbBool confirmValidInContext(SoState * state) const;
 
 private:
   SbList<CachedPage*> cachedpages[3];
@@ -185,10 +184,49 @@ SoOrthoSlice::doAction(SoAction * action)
   }
 }
 
+// Check whether or not everything is ok and valid for any action
+// traversal.
+SbBool
+SoOrthoSliceP::confirmValidInContext(SoState * state) const
+{
+  // Fetching the current volumedata
+  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
+  // FIXME: allow missing SoVolumeData (just don't render, react to
+  // picking or set up a non-empty bbox). 20031021 mortene.
+  assert(volumedataelement != NULL);
+  SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  // FIXME: as above. 20031021 mortene.
+  assert(volumedata != NULL);
+
+  const int axisidx = PUBLIC(this)->axis.getValue();
+  if (axisidx < SoOrthoSlice::X || axisidx > SoOrthoSlice::Z) {
+    SoDebugError::post("SoOrthoSliceP::confirmValidInContext",
+                       "SoOrthoSlice::axis has invalid value; %d",
+                       axisidx);
+    return FALSE;
+  }
+
+  const int slicenr = PUBLIC(this)->sliceNumber.getValue();
+  const short slices = volumedataelement->getVoxelCubeDimensions()[axisidx];
+  if (slicenr < 0 || slicenr >= slices) {
+    // I don't think this can legally happen, so assert if no slices
+    // are available. mortene.
+    assert(slices > 0);
+
+    SoDebugError::post("SoOrthoSliceP::confirmValidInContext",
+                       "SoOrthoSlice::sliceNumber value %d out of range "
+                       "[0, %d]", slicenr, slices - 1);
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
 void
 SoOrthoSlice::GLRender(SoGLRenderAction * action)
 {
   SoState * state = action->getState();
+  if (!PRIVATE(this)->confirmValidInContext(state)) { return; }
 
   // FIXME: need to make sure we're not cached in a renderlist
 
@@ -203,9 +241,7 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
 
   // Fetching the current volumedata
   const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL);
   SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  assert(volumedata != NULL);
 
   const int axisidx = this->axis.getValue();
   const int slicenr = this->sliceNumber.getValue();
@@ -280,7 +316,10 @@ SoOrthoSlice::rayPick(SoRayPickAction * action)
 {
   if (!this->shouldRayPick(action)) return;
 
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(action->getState());
+  SoState * state = action->getState();
+  if (!PRIVATE(this)->confirmValidInContext(state)) { return; }
+
+  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
   assert(volumedataelement != NULL);
   const SoVolumeData * volumedata = volumedataelement->getVolumeData();
   if (volumedata == NULL) { return; }
@@ -342,6 +381,7 @@ void
 SoOrthoSlice::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
   SoState * state = action->getState();
+  if (!PRIVATE(this)->confirmValidInContext(state)) { return; }
 
   const SoVolumeDataElement * volumedataelement =
     SoVolumeDataElement::getInstance(state);
