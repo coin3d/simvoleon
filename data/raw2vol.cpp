@@ -120,7 +120,7 @@ static void
 show_usage(const char * exe)
 {
   (void)fprintf(stderr, 
-                "\n\tUsage: %s WIDTH HEIGHT DEPTH IN-FILENAME > OUT-FILENAME\n\n",
+                "\n\tUsage: %s WIDTH HEIGHT DEPTH IN-FILENAME.raw OUT-FILENAME.vol\n\n",
                 exe);
 }
 
@@ -138,7 +138,7 @@ main(int argc, char ** argv)
   };
 
   const char * exename = argc > 0 ? argv[0] : "raw2vol";
-  if (argc != 5) {
+  if (argc != 6) {
     show_usage(exename);
     exit(1);
   }
@@ -154,7 +154,15 @@ main(int argc, char ** argv)
   FILE * rawf = fopen(argv[4], "rb");
   if (!rawf) {
     show_usage(exename);
-    (void)fprintf(stderr, "Couldn't open file '%s': %s\n\n",
+    (void)fprintf(stderr, "Couldn't open file '%s' for reading: %s\n\n",
+                  strerror(errno));
+    exit(1);
+  }
+
+  FILE * volf = fopen(argv[5], "wb");
+  if (!volf) {
+    show_usage(exename);
+    (void)fprintf(stderr, "Couldn't open file '%s' for writing: %s\n\n",
                   strerror(errno));
     exit(1);
   }
@@ -166,13 +174,14 @@ main(int argc, char ** argv)
   size_t wasread = fread(rawblock, 1, rawsize, rawf);
   assert(wasread == rawsize);
 
-  size_t waswritten = fwrite(&vh, 1, sizeof(struct vol_header), stdout);
+  size_t waswritten = fwrite(&vh, 1, sizeof(struct vol_header), volf);
   assert(waswritten == sizeof(struct vol_header));
-  waswritten = fwrite(rawblock, 1, rawsize, stdout);
+  waswritten = fwrite(rawblock, 1, rawsize, volf);
   assert(waswritten == rawsize);
 
   free(rawblock);
   fclose(rawf);
+  fclose(volf);
 
   return 0;
 }
