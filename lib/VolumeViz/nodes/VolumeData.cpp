@@ -206,8 +206,6 @@ public:
     // system. 20021118 mortene.
     this->maxtexmem = 16*1024*1024;
 
-    this->tick = 0;
-
     this->VRMemReader = NULL;
     this->reader = NULL;
   }
@@ -227,8 +225,6 @@ public:
 
   SoVRMemReader * VRMemReader;
   SoVolumeReader * reader;
-
-  long tick;
 
   // FIXME: this is fubar -- we need a global manager, of course, as
   // there can be more than one voxelcube in the scene at once. These
@@ -384,7 +380,9 @@ SoVolumeData::setPageSize(const SbVec3s & texsize)
   SbVec3s size = texsize;
 
   // FIXME: texsize dimensions must also be <=
-  // GL_MAX_TEXTURE_SIZE. 20021122 mortene.
+  // GL_MAX_TEXTURE_SIZE. (Note: according to the OpenGL spec, all
+  // implementations must support a width and height of at least
+  // 64x64.) 20021122 mortene.
   assert(size[0] > 0 && size[1] > 0 && size[2] > 0);
   assert(coin_is_power_of_two(size[0]));
   assert(coin_is_power_of_two(size[1]));
@@ -417,9 +415,6 @@ SoVolumeData::doAction(SoAction * action)
 void
 SoVolumeData::GLRender(SoGLRenderAction * action)
 {
-  // FIXME: shouldn't this be part of SoVolumeRender? 20021120 mortene.
-  PRIVATE(this)->tick++;
-
   this->doAction(action);
 }
 
