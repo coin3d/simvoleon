@@ -1,4 +1,4 @@
-all: examine readvol raypick rgbload
+all: examine simple8bit readvol raypick rgbload
 
 ## 
 
@@ -8,7 +8,10 @@ READVOL_OBJECTS = \
         SoTransferFunction_ctrl.o moc_SoTransferFunction_ctrl.o
 
 EXAMINE_OBJECTS = \
-        examine.o  utility.o
+        examine.o utility.o
+
+SIMPLE8BIT_OBJECTS = \
+        simple8bit.o utility.o
 
 RAYPICK_OBJECTS = \
         raypick.o utility.o
@@ -20,6 +23,7 @@ clean:
 	rm -f rgbload $(RGBLOAD_OBJECTS) rgbload.cpp \
               raypick $(RAYPICK_OBJECTS) raypick.cpp \
               examine $(EXAMINE_OBJECTS) examine.cpp \
+              simple8bit $(SIMPLE8BIT_OBJECTS) simple8bit.cpp \
               readvol $(READVOL_OBJECTS) readvol.cpp \
               moc_TransferFunctionHandler.cpp \
               SoTransferFunction_ctrl.h SoTransferFunction_ctrl.cpp moc_SoTransferFunction_ctrl.cpp
@@ -74,6 +78,17 @@ examine.o: examine.cpp
 
 examine: $(EXAMINE_OBJECTS)
 	soqt-config --link $@ $(EXAMINE_OBJECTS) -lSimVoleon
+
+## ``simple8bit'' example
+
+simple8bit.cpp: simple8bit.cpp.in
+	@soqt-config --ac-subst $<
+
+simple8bit.o: simple8bit.cpp
+	soqt-config --compile $<
+
+simple8bit: $(SIMPLE8BIT_OBJECTS)
+	soqt-config --link $@ $(SIMPLE8BIT_OBJECTS) -lSimVoleon
 
 ## ``raypick'' example
 
