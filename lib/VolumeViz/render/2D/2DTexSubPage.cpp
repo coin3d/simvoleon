@@ -250,9 +250,9 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
 
   // FIXME: limits should be stored in a global texture manager class
   // or some such. 20021121 mortene.
-  if (Cvr2DTexSubPage::detectedtextureswapping ||
+  if (//Cvr2DTexSubPage::detectedtextureswapping ||
       ((nrtexels + Cvr2DTexSubPage::nroftexels) > (16*1024*1024)) ||
-      ((texmem + Cvr2DTexSubPage::texmembytes) > (16*1024*1024))) {
+      ((texmem + Cvr2DTexSubPage::texmembytes) > (64*1024*1024))) {
 #if CVR_DEBUG && 1 // debug
     static SbBool first = TRUE;
     if (first) {
