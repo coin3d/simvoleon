@@ -276,8 +276,18 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
 
   const SbVec2s size(this->getDimensions()[0], this->getDimensions()[1]);
 
+  // FIXME: this is just a temporary fix for what seems like a really
+  // weird and nasty NVidia driver bug; allocate enough textures of 1-
+  // or 2-pixel width, and the driver will eventually crash. (We're
+  // talking ~ a few tens of such textures, plus 1000-2000 other
+  // textures, as seen on freya.trh.sim.no.)  20031031 mortene.
+#if 0
   const SbVec2s texsize(coin_next_power_of_two(size[0] - 1),
                         coin_next_power_of_two(size[1] - 1));
+#else
+  const SbVec2s texsize(SbMax((uint32_t)4, coin_next_power_of_two(size[0] - 1)),
+                        SbMax((uint32_t)4, coin_next_power_of_two(size[1] - 1)));
+#endif
 
   invisible = TRUE;
 
