@@ -107,6 +107,7 @@ libVolumeViz_la_SOURCES =
 
 libVolumeViz_la_LIBADD = \
         elements/libelements.la \
+	misc/libmisc.la \
 	nodes/libnodes.la \
         readers/libreaders.la \
 	render/2D/lib2Drender.la
@@ -121,6 +122,7 @@ VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES =
 
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD = \
         elements/elements.lst \
+        misc/misc.lst \
         nodes/nodes.lst \
         readers/readers.lst \
 	render/2D/2Drender.lst
@@ -133,15 +135,16 @@ LIBRARIES = $(lib_LIBRARIES)
 
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_AR = $(AR) cru
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_DEPENDENCIES = \
-	elements/elements.lst nodes/nodes.lst readers/readers.lst \
-	render/2D/2Drender.lst
+	elements/elements.lst misc/misc.lst nodes/nodes.lst \
+	readers/readers.lst render/2D/2Drender.lst
 am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS =
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS = \
 	$(am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libVolumeViz_la_DEPENDENCIES = elements/libelements.la nodes/libnodes.la \
-	readers/libreaders.la render/2D/lib2Drender.la
+libVolumeViz_la_DEPENDENCIES = elements/libelements.la misc/libmisc.la \
+	nodes/libnodes.la readers/libreaders.la \
+	render/2D/lib2Drender.la
 am_libVolumeViz_la_OBJECTS =
 libVolumeViz_la_OBJECTS = $(am_libVolumeViz_la_OBJECTS)
 

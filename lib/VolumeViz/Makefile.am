@@ -12,6 +12,7 @@ libVolumeViz_la_SOURCES =
 
 libVolumeViz_la_LIBADD = \
         elements/libelements.la \
+	misc/libmisc.la \
 	nodes/libnodes.la \
         readers/libreaders.la \
 	render/2D/lib2Drender.la
@@ -24,6 +25,7 @@ VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES =
 
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD = \
         elements/elements.lst \
+        misc/misc.lst \
         nodes/nodes.lst \
         readers/readers.lst \
 	render/2D/2Drender.lst
