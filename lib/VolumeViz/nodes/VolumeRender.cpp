@@ -1036,8 +1036,8 @@ SoVolumeRenderP::getAveragePerformanceTime(SbList<double> & l)
     }
   }
 
-  assert(idhighest != -1);
-  assert(idlowest != -1);
+  assert(idhighest != UINT_MAX);
+  assert(idlowest != UINT_MAX);
   l.removeFast(idhighest);
   l.removeFast(idlowest);
 
