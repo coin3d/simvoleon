@@ -12,6 +12,20 @@
 #include <limits.h>
 #include <string.h>
 
+/*
+  As several different rendering nodes may share the same volume data
+  node, a sharing mechanism for in-memory data is implemented. The
+  volume is partitioned into pages along each of the three axes, and
+  each page is segmented into subpages. Each subpage is identified by
+  it's page number and it's (x,y) position in the page. Even though
+  different rendering nodes may share the same volume data, they may
+  have individual transfer functions. A subpage shared by two
+  rendering nodes with different transfer functions cannot share the
+  same in-memory subpage. A subpage is therefore also identified by
+  the nodeId of it's transfer functions.  All subpages with same
+  coordinates (sliceIdx, x, y) but different transfer functions are
+  saved as a linked list.
+*/
 
 // *************************************************************************
 
@@ -31,7 +45,6 @@ public:
   Cvr2DTexSubPage * page;
   Cvr2DTexSubPageItem * next, * prev;
   uint32_t transferfuncid;
-  long lasttick;
 };
 
 // *************************************************************************
@@ -147,44 +160,6 @@ Cvr2DTexPage::releaseSubPage(Cvr2DTexSubPage * page)
   assert(FALSE && "couldn't find page");
 }
 
-
-
-void Cvr2DTexPage::releaseLRUSubPage(void)
-{
-  assert(this->subpages != NULL);
-
-  long tick;
-  Cvr2DTexSubPage * LRUPage = this->getLRUSubPage(tick);
-  assert(LRUPage != NULL);
-  this->releaseSubPage(LRUPage);
-}
-
-
-
-Cvr2DTexSubPage *
-Cvr2DTexPage::getLRUSubPage(long & tick)
-{
-  assert(this->subpages != NULL);
-
-  Cvr2DTexSubPage * LRUPage = NULL;
-  long lowesttick = LONG_MAX;
-
-  const int NRPAGES = this->nrcolumns * this->nrrows;
-  for (int i = 0; i < NRPAGES; i++) {
-    Cvr2DTexSubPageItem * pitem = this->subpages[i];
-    while (pitem != NULL) {
-      if (pitem->lasttick < lowesttick) {
-        LRUPage = pitem->page;
-        lowesttick = pitem->lasttick;
-      }
-      pitem = pitem->next;
-    }
-  }
-  tick = lowesttick;
-  return LRUPage;
-}
-
-
 void
 Cvr2DTexPage::releaseAllSubPages(void)
 {
@@ -229,8 +204,7 @@ void
 Cvr2DTexPage::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
                      const SbVec3f & horizspan, const SbVec3f & verticalspan,
-                     const SbVec2f & spacescale,
-                     long tick)
+                     const SbVec2f & spacescale)
 {
   // Find the "local 3D-space" size of each subpage.
 
@@ -265,7 +239,6 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
       // memory usage). 20021121 mortene.
 
       pageitem->page->render(upleft, subpagewidth, subpageheight);
-      pageitem->lasttick = tick;
 
     }
   }
@@ -425,7 +398,6 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
   pitem->transferfuncid = transferfunc->getNodeId();
-  pitem->lasttick = LONG_MAX; // avoid getting it swapped right out again
 
   Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
   if (p == NULL) {

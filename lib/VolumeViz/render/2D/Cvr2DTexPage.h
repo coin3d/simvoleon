@@ -20,11 +20,9 @@ public:
 
   void render(SoGLRenderAction * action, const SbVec3f & origo,
               const SbVec3f & horizspan, const SbVec3f & verticalspan,
-              const SbVec2f & spacescale,
-              long tick);
+              const SbVec2f & spacescale);
 
-  Cvr2DTexSubPage * getLRUSubPage(long & tick);
-  void releaseSubPage(Cvr2DTexSubPage *page);
+  void releaseSubPage(Cvr2DTexSubPage * page);
 
 private:
   class Cvr2DTexSubPageItem * getSubPage(SoGLRenderAction * action,
@@ -33,7 +31,6 @@ private:
   class Cvr2DTexSubPageItem * buildSubPage(SoGLRenderAction * action,
                                            int col, int row);
 
-  void releaseLRUSubPage(void);
   void releaseAllSubPages(void);
 
   int calcSubPageIdx(int row, int col) const;

@@ -302,8 +302,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices)
     // better rendering quality of the volume.
     Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
     origo[AXISIDX] = depth;
-    page->render(action, origo, horizspan, verticalspan, QUADSCALE,
-                 0 /*FIXME: PRIVATE(this)->tick*/);
+    page->render(action, origo, horizspan, verticalspan, QUADSCALE);
 
     depth += depthprslice;
   }
@@ -371,61 +370,3 @@ CvrPageHandler::releaseSlices(const unsigned int AXISIDX)
 
   delete[] this->slices[AXISIDX];
 }
-
-#if 0 // TMP OBSOLETE
-
-void
-SoVolumeDataP::managePages(void)
-{
-  // FIXME: this functionality should really be part of a global
-  // manager for the 2D texture pages (and for 3D textures later).
-  // 20021120 mortene.
-
-  // Keep both measures within maxlimits
-
-  while (Cvr2DTexSubPage::totalTextureMemoryUsed() > this->maxtexmem) {
-    this->releaseLRUPage();
-  }
-
-  while (Cvr2DTexSubPage::totalNrOfTexels() > this->maxnrtexels) {
-    this->releaseLRUPage();
-  }
-}
-
-void
-SoVolumeDataP::releaseLRUPage(void)
-{
-  Cvr2DTexSubPage * lru_subpage = NULL;
-  Cvr2DTexPage * lru_page = NULL;
-  long lowesttick = LONG_MAX;
-
-  // Searching for least recently used page.
-
-  // FIXME: should really be stored in a heap data structure. 20021120 mortene.
-  //
-  // FIXME: update, just a double-linked list will do the trick --
-  // just link a page used and move it to front. 20021124 mortene.
-
-  for (int dim=0; dim < 3; dim++) {
-    if (this->slices[dim]) {
-      for (int i = 0; i < this->voldatadims[dim]; i++) {
-        Cvr2DTexPage * page = this->slices[dim][i];
-        if (page) {
-          long tickval;
-          Cvr2DTexSubPage * subpage = page->getLRUSubPage(tickval);
-          SbBool newlow = (lru_subpage == NULL);
-          if (!newlow) { newlow = subpage && (lowesttick > tickval); }
-          if (newlow) {
-            lru_page = page;
-            lru_subpage = subpage;
-            lowesttick = tickval;
-          }
-        }
-      }
-    }
-  }
-
-  lru_page->releaseSubPage(lru_subpage);
-}
-
-#endif // TMP OBSOLETE
