@@ -22,6 +22,7 @@ main(int argc, char ** argv)
   root->ref();
 
   uint8_t * voxeldata = NULL;
+  SoVolumeData * volumedata = NULL;
 
   // Add SoVolumeData to scene graph
 
@@ -29,7 +30,7 @@ main(int argc, char ** argv)
     SbVec3s dim = SbVec3s(64, 64, 64);
     voxeldata = generateRGBAVoxelSet(dim);
 
-    SoVolumeData * volumedata = new SoVolumeData();
+    volumedata = new SoVolumeData();
     volumedata->setVolumeData(dim, voxeldata, SoVolumeData::RGBA);
     volumedata->setVolumeSize(SbBox3f(-64, -32, -32, 64, 32, 32));
     root->addChild(volumedata);
@@ -38,9 +39,9 @@ main(int argc, char ** argv)
     SoVRVolFileReader * filereader = new SoVRVolFileReader;
     filereader->setUserData(argv[1]);
 
-    SoVolumeData * voldata = new SoVolumeData();
-    voldata->setReader(filereader);
-    root->addChild(voldata);
+    volumedata = new SoVolumeData();
+    volumedata->setReader(filereader);
+    root->addChild(volumedata);
   }
 
   // Add TransferFunction (color map) to scene graph
@@ -53,7 +54,7 @@ main(int argc, char ** argv)
   SoOrthoSlice * orthoslice = new SoOrthoSlice();
   root->addChild(orthoslice);
 
-  OrthoSliceHandler * osdia = new OrthoSliceHandler(orthoslice);
+  OrthoSliceHandler * osdia = new OrthoSliceHandler(orthoslice, volumedata);
 
   // Add SoVolumeRender to scene graph
   SoVolumeRender * volrend = new SoVolumeRender();

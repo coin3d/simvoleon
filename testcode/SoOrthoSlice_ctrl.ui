@@ -95,19 +95,6 @@
             <string>sliceNumber</string>
         </property>
     </widget>
-    <widget class="QLineEdit">
-        <property name="name">
-            <cstring>sliceNumberEdit</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>196</x>
-                <y>17</y>
-                <width>292</width>
-                <height>27</height>
-            </rect>
-        </property>
-    </widget>
     <widget class="QComboBox">
         <item>
             <property name="text">
@@ -222,6 +209,35 @@
                 <x>197</x>
                 <y>212</y>
                 <width>292</width>
+                <height>27</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QSlider">
+        <property name="name">
+            <cstring>sliceNumberSlider</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>192</x>
+                <y>19</y>
+                <width>295</width>
+                <height>24</height>
+            </rect>
+        </property>
+        <property name="orientation">
+            <enum>Horizontal</enum>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>sliceNumberEdit</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>502</x>
+                <y>17</y>
+                <width>52</width>
                 <height>27</height>
             </rect>
         </property>
