@@ -211,6 +211,10 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   //
   // FIXME: check if that is a general GL limitation. (I seem to
   // remember it is.) 20040716 mortene.
+  //
+  // FIXME: compression setting is a property of the GL texture which
+  // should be part of the comparison check when we figure out whether
+  // to make a new texture, or to reuse an exisiting one. 20040716 mortene.
   if (cc_glue_has_texture_compression(glw) && compressed && palettetype != GL_COLOR_INDEX) {
     if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
     else colorformat = GL_COMPRESSED_INTENSITY_ARB;

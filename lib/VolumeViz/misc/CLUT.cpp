@@ -274,7 +274,9 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue)
   // FIXME: What about mutiple GL contexts (as with
   // soshape_bumpmap.cpp for example)?? Each context would need its
   // own programs. (20040312 handegar)
-
+  //
+  // FIXME: yes, this must be bound to the specific GL
+  // context. 20040716 mortene.
   cc_glglue_glGenPrograms(glue, 1, &this->palettelookupprogramid);
   cc_glglue_glBindProgram(glue, GL_FRAGMENT_PROGRAM_ARB, this->palettelookupprogramid);
 
@@ -315,6 +317,7 @@ CvrCLUT::initPaletteTexture(const cc_glglue * glue)
   if (this->palettelookuptexture != 0)
     glDeleteTextures(1, &this->palettelookuptexture);
 
+  // FIXME: this must be bound to the specific GL context. 20040716 mortene.
   glGenTextures(1, &this->palettelookuptexture);
   glEnable(GL_TEXTURE_1D);
   glBindTexture(GL_TEXTURE_1D, this->palettelookuptexture);
