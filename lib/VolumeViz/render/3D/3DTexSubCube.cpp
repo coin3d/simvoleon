@@ -47,7 +47,7 @@
 
 // *************************************************************************
 
-Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
+Cvr3DTexSubCube::Cvr3DTexSubCube(const SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
                                  const SbVec3f & cubesize,
                                  const SbVec3s & originaltexsize)

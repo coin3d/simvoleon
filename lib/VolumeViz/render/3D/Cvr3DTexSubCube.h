@@ -40,7 +40,7 @@ class CvrTextureObject;
 
 class Cvr3DTexSubCube {
 public:
-  Cvr3DTexSubCube(SoGLRenderAction * action,
+  Cvr3DTexSubCube(const SoGLRenderAction * action,
                   const CvrTextureObject * texobj,
                   const SbVec3f & cubesize, 
                   const SbVec3s & texsize);

@@ -25,34 +25,37 @@
 \**************************************************************************/
 
 #include <Inventor/SbVec3s.h>
-#include <Inventor/misc/SoState.h>
-#include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
+
+class SoState;
+class CvrCLUT;
 
 // *************************************************************************
 
 class Cvr3DTexCube {
   
 public:
-  Cvr3DTexCube(SoGLRenderAction * action);
+  Cvr3DTexCube(const SoGLRenderAction * action);
   ~Cvr3DTexCube();
   
   enum NonindexedSetType { FACE_SET, TRIANGLESTRIP_SET };
   enum IndexedSetType { INDEXEDFACE_SET, INDEXEDTRIANGLESTRIP_SET };
 
-  void render(SoGLRenderAction * action, const SbVec3f & origo,
+  void render(const SoGLRenderAction * action, const SbVec3f & origo,
               const unsigned int numslices);
 
-  void renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & origo,
+  void renderObliqueSlice(const SoGLRenderAction * action,
+                          const SbVec3f & origo,
                           const SbPlane plane);
  
-  void renderIndexedSet(SoGLRenderAction * action, const SbVec3f & origo,
+  void renderIndexedSet(const SoGLRenderAction * action, const SbVec3f & origo,
                         const SbVec3f * vertexarray,
                         const int * indices,
                         const unsigned int numindices,
                         const enum IndexedSetType type);
 
-  void renderNonindexedSet(SoGLRenderAction * action, const SbVec3f & origo,
+  void renderNonindexedSet(const SoGLRenderAction * action,
+                           const SbVec3f & origo,
                            const SbVec3f * vertexarray,
                            const int * numVertices,
                            const unsigned int listlength,
@@ -67,14 +70,14 @@ public:
 
 private:
   class Cvr3DTexSubCubeItem * getSubCube(SoState * state, int col, int row, int depth);
-  class Cvr3DTexSubCubeItem * buildSubCube(SoGLRenderAction * action,
+  class Cvr3DTexSubCubeItem * buildSubCube(const SoGLRenderAction * action,
                                            int col, int row, int depth);   
 
   void releaseAllSubCubes(void);
   void releaseSubCube(const int row, const int col, const int depth);
   int calcSubCubeIdx(int row, int col, int depth) const;
   void calculateOptimalSubCubeSize();
-  void renderResult(SoGLRenderAction * action, 
+  void renderResult(const SoGLRenderAction * action, 
                     SbList <Cvr3DTexSubCubeItem *> subcubelist);
 
   class Cvr3DTexSubCubeItem ** subcubes;
@@ -91,7 +94,6 @@ private:
   void * abortfuncdata;
 
   const CvrCLUT * clut;
-
 };
 
 #endif // !SIMVOLEON_CVR3DTEXPAGE_H

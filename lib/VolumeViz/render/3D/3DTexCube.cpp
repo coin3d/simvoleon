@@ -45,6 +45,7 @@
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
+#include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
 
 // *************************************************************************
 
@@ -59,9 +60,8 @@ public:
 
 // *************************************************************************
 
-Cvr3DTexCube::Cvr3DTexCube(SoGLRenderAction * action)
+Cvr3DTexCube::Cvr3DTexCube(const SoGLRenderAction * action)
 {
-
   this->clut = NULL;
   this->subcubes = NULL;
 
@@ -188,7 +188,7 @@ Cvr3DTexCube::calculateOptimalSubCubeSize(void)
 
 // Called by all the 'render*()' methods after the intersection test.
 void
-Cvr3DTexCube::renderResult(SoGLRenderAction * action,
+Cvr3DTexCube::renderResult(const SoGLRenderAction * action,
                            SbList <Cvr3DTexSubCubeItem *> subcubelist)
 {
   // Render all subcubes.
@@ -207,7 +207,7 @@ Cvr3DTexCube::renderResult(SoGLRenderAction * action,
 // Renders arbitrary positioned quad, textured for the cube (slice)
 // represented by this object. Loads all the cubes needed.
 void
-Cvr3DTexCube::render(SoGLRenderAction * action,
+Cvr3DTexCube::render(const SoGLRenderAction * action,
                      const SbVec3f & origo,
                      const unsigned int numslices)
 {
@@ -303,7 +303,8 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
 // Renders *one* slice of the volume according to the specified
 // plane. Loads all the subcubes needed.
 void
-Cvr3DTexCube::renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & origo,
+Cvr3DTexCube::renderObliqueSlice(const SoGLRenderAction * action,
+                                 const SbVec3f & origo,
                                  const SbPlane plane)
 {
 
@@ -372,7 +373,7 @@ Cvr3DTexCube::renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & orig
 
 // Renders a indexed faceset inside the volume. Loads all the subcubes needed.
 void
-Cvr3DTexCube::renderIndexedSet(SoGLRenderAction * action,
+Cvr3DTexCube::renderIndexedSet(const SoGLRenderAction * action,
                                const SbVec3f & origo,
                                const SbVec3f * vertexarray,
                                const int * indices,
@@ -438,7 +439,7 @@ Cvr3DTexCube::renderIndexedSet(SoGLRenderAction * action,
 
 // Renders a nonindexed faceset inside the volume. Loads all the subcubes needed.
 void
-Cvr3DTexCube::renderNonindexedSet(SoGLRenderAction * action,
+Cvr3DTexCube::renderNonindexedSet(const SoGLRenderAction * action,
                                   const SbVec3f & origo,
                                   const SbVec3f * vertexarray,
                                   const int * numVertices,
@@ -521,7 +522,8 @@ Cvr3DTexCube::calcSubCubeIdx(int row, int col, int depth) const
 
 // Builds a cube if it doesn't exist. Rebuilds it if it does exist.
 Cvr3DTexSubCubeItem *
-Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int depth)
+Cvr3DTexCube::buildSubCube(const SoGLRenderAction * action,
+                           int col, int row, int depth)
 {
   // FIXME: optimalization idea; *crop* textures for 100%
   // transparency. 20021124 mortene.
