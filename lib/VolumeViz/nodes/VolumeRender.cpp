@@ -11,11 +11,15 @@
 #include <Inventor/elements/SoGLTexture3EnabledElement.h>
 #include <Inventor/bundles/SoMaterialBundle.h>
 #include <Inventor/C/tidbits.h>
+#include <Inventor/SoPickedPoint.h>
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/render/2D/CvrPageHandler.h>
+#include <VolumeViz/details/SoVolumeRenderDetail.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 
 // *************************************************************************
 
@@ -43,8 +47,8 @@ public:
                                    const SbVec3s & dimensions);
 
   SbVec3s objectToIJKCoordinates(const SbVec3f & objectpos,
+                                 const SbVec3f & volumesize,
                                  const SbVec3f & mincorner,
-                                 const SbVec3f & maxcorner,
                                  const SbVec3s & voxeldimensions) const;
 
   CvrPageHandler * pagehandler;
@@ -373,17 +377,12 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
   assert(volumedata != NULL);
 
   this->computeObjectSpaceRay(action);
-
   const SbLine & ray = action->getLine();
-  ray.print(stdout); fprintf(stdout, "\n"); fflush(stdout);
 
   SbBox3f objbbox = volumedata->getVolumeSize();
 
   SbVec3f mincorner, maxcorner;
   objbbox.getBounds(mincorner, maxcorner);
-
-  fprintf(stdout, "mincorner: "); mincorner.print(stdout); fprintf(stdout, "\n"); fflush(stdout);
-  fprintf(stdout, "maxcorner: "); maxcorner.print(stdout); fprintf(stdout, "\n"); fflush(stdout);
 
   SbPlane sides[6] = {
     SbPlane(SbVec3f(0, 0, 1), mincorner[2]), // front face
@@ -434,43 +433,96 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
     this->touch(); // smash caches and re-render with line(s)
   }
 
+  const SoTransferFunctionElement * transferfunctionelement =
+    SoTransferFunctionElement::getInstance(state);
+  assert(transferfunctionelement != NULL);
+  SoTransferFunction * transferfunction =
+    transferfunctionelement->getTransferFunction();
+  assert(transferfunction != NULL);
+
   SbVec3s voxeldimensions;
   void * voxelptr;
   SoVolumeData::DataType voxeltype;
   SbBool ok = volumedata->getVolumeData(voxeldimensions, voxelptr, voxeltype);
   assert(ok);
 
-  SbVec3s ijk = PRIVATE(this)->objectToIJKCoordinates(intersects[0],
-                                                      mincorner, maxcorner,
-                                                      voxeldimensions);
-#if CVR_DEBUG && 1 // debug
-  SoDebugError::postInfo("SoVolumeRender::rayPick",
-                         "ijk=<%d, %d, %d>", ijk[0], ijk[1], ijk[2]);
-#endif // debug
-  
+  // Find objectspace-dimensions of a voxel.
+  const SbVec3f size = maxcorner - mincorner;
+  const SbVec3f voxelsize(voxeldimensions[0] / size[0],
+                          voxeldimensions[1] / size[1],
+                          voxeldimensions[2] / size[2]);
 
-//       if (action->isBetweenPlanes(intersectpt)) {
-//       SoPickedPoint * pp = action->addIntersection(intersectpt);
-//       if (pp) {
-//             SoCubeDetail * detail = new SoCubeDetail();
-//             detail->setPart(translation[cnt]);
-//             pp->setDetail(detail, shape);
-//             if (flags & SOPICK_MATERIAL_PER_PART) 
-//               pp->setMaterialIndex(translation[cnt]);
-//             pp->setObjectNormal(norm);
+  // Calculate maximum number of voxels that could possibly be touched
+  // by the ray.
+  const SbVec3f rayvec = (intersects[1] - intersects[0]);
+  const float minvoxdim = SbMin(voxelsize[0], SbMin(voxelsize[1], voxelsize[2]));
+  const unsigned int maxvoxinray = (unsigned int)(rayvec.length() / minvoxdim + 1);
+
+  const SbVec3f stepvec = rayvec / maxvoxinray;
+  SbVec3s ijk, lastijk(-1, -1, -1);
+
+  const SbBox3s voxelbounds(SbVec3s(0, 0, 0),
+                            voxeldimensions - SbVec3s(1, 1, 1));
+
+  SoPickedPoint * pp = NULL;
+  SoVolumeRenderDetail * detail = NULL;
+  CvrCLUT * clut = NULL;
+  SbVec3f objectcoord = intersects[0];
+  while (TRUE) {
+    ijk = PRIVATE(this)->objectToIJKCoordinates(objectcoord, size, mincorner,
+                                                voxeldimensions);
+    if (!voxelbounds.intersect(ijk)) break;
+
+    if (!action->isBetweenPlanes(objectcoord)) {
+      objectcoord += stepvec;
+      continue;
+    }
+
+    if (ijk != lastijk) { // touched new voxel
+      lastijk = ijk;
+      if (cvr_debug_raypicks()) {
+        SoDebugError::postInfo("SoVolumeRender::rayPick",
+                               "ijk=<%d, %d, %d>", ijk[0], ijk[1], ijk[2]);
+      }
+      if (pp == NULL) {
+        pp = action->addIntersection(objectcoord);
+        // if NULL, something else is obstructing the view to the
+        // volume, the app programmer only want the nearest, and we
+        // don't need to continue our intersection tests
+        if (pp == NULL) return;
+        detail = new SoVolumeRenderDetail;
+        pp->setDetail(detail, this);
+
+        clut = CvrVoxelChunk::getCLUT(transferfunctionelement);
+        clut->ref();
+      }
+
+      const uint32_t voxelvalue = volumedata->getVoxelValue(ijk);
+      uint8_t rgba[4];
+      if (voxeltype == SoVolumeData::RGBA) { *((uint32_t *)rgba) = voxelvalue; }
+      else { clut->lookupRGBA(voxelvalue, rgba); }
+
+      detail->addVoxelIntersection(objectcoord, ijk, voxelvalue, rgba);
+    }
+    else if (cvr_debug_raypicks()) {
+      SoDebugError::postInfo("SoVolumeRender::rayPick", "duplicate");
+    }
+
+    objectcoord += stepvec;
+  }
+
+  if (clut) clut->unref();
 }
 
 SbVec3s
 SoVolumeRenderP::objectToIJKCoordinates(const SbVec3f & objectpos,
+                                        const SbVec3f & volumesize,
                                         const SbVec3f & mincorner,
-                                        const SbVec3f & maxcorner,
                                         const SbVec3s & voxeldimensions) const
 {
-  SbVec3f size = maxcorner - mincorner;
-
   SbVec3s ijk;
   for (int i=0; i < 3; i++) {
-    const float normcoord = (objectpos[i] - mincorner[i]) / size[i];
+    const float normcoord = (objectpos[i] - mincorner[i]) / volumesize[i];
     ijk[i] = short(normcoord * (voxeldimensions[i] - 1.0f));
   }
   return ijk;
