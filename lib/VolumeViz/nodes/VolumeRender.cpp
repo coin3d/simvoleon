@@ -320,16 +320,12 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
                          dimensions[0], dimensions[1], dimensions[2]);
 #endif // debug
 
-  // FIXME: should check that rendering should be done through 2D
-  // texture slices. 20021124 mortene.
+  // FIXME: check that rendering should be done through 2D texture
+  // slices. 20021124 mortene.
   if (1) {
     if (!PRIVATE(this)->pagehandler) {
       PRIVATE(this)->pagehandler =
         new CvrPageHandler(dimensions, volumedata->getReader());
-      // FIXME: the pagehandler instance must be devalidated /
-      // destructed when data changes, the transferfunction changes or
-      // other volume-rendering options that should cause
-      // texture-updating changes. 20021124 mortene.
     }
 
     int numslices = PRIVATE(this)->calculateNrOfSlices(action, dimensions);
