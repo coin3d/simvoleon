@@ -2,7 +2,8 @@ BUILT_SOURCES = \
 	basic.h
 
 DISTCLEANFILES = \
-	basic.h
+	basic.h \
+	stamp-h3
 
 EXTRA_DIST = \
 	basic.h.in
