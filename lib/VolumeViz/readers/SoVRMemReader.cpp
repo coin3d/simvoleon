@@ -121,8 +121,12 @@ SoVRMemReader::setData(const SbVec3s &dimensions,
 void 
 SoVRMemReaderP::buildSubSliceX(void * output, int sliceIdx, const SbBox2s &subSlice)
 {
-  int * intData = (int*)data;
-  int * texture = (int*)output;
+  unsigned int * intData = (unsigned int *)data;
+  unsigned int * intTexture = (unsigned int *)output;
+  unsigned char * byteData = (unsigned char *)data;
+  unsigned char * byteTexture = (unsigned char *)output;
+  unsigned short * shortData = (unsigned short *)data;
+  unsigned short * shortTexture = (unsigned short *)output;
 
   SbVec2s min, max;
   subSlice.getBounds(min, max);
@@ -138,11 +142,34 @@ SoVRMemReaderP::buildSubSliceX(void * output, int sliceIdx, const SbBox2s &subSl
     int zOffset = zStart + xOffset + yOffset;
     int zLimit  = max[0]*dimensions[0]*dimensions[1] 
                 + xOffset + yOffset;
-    while (zOffset < zLimit) {
-      texture[out] = intData[zOffset];
-      out ++;
-      zOffset += zAdd;
-    }// while
+
+    switch (this->dataType) {
+
+      case SoVolumeRendering::UNSIGNED_BYTE:
+        while (zOffset < zLimit) {
+          byteTexture[out] = byteData[zOffset];
+          out ++;
+          zOffset += zAdd;
+        }// while
+        break;
+
+      case SoVolumeRendering::UNSIGNED_SHORT:
+        while (zOffset < zLimit) {
+          shortTexture[out] = shortData[zOffset];
+          out ++;
+          zOffset += zAdd;
+        }// while
+        break;
+
+      case SoVolumeRendering::RGBA:
+        while (zOffset < zLimit) {
+          intTexture[out] = intData[zOffset];
+          out ++;
+          zOffset += zAdd;
+        }// while
+        break;
+    }// switch
+
     yOffset += dimensions[0];
   }// while
 }// buildSubSliceX
@@ -157,8 +184,12 @@ SoVRMemReaderP::buildSubSliceX(void * output, int sliceIdx, const SbBox2s &subSl
 void 
 SoVRMemReaderP::buildSubSliceY(void * output, int sliceIdx, const SbBox2s &subSlice)
 {
-  int * texture = (int*)output;
-  int * intData = (int*)data;
+  unsigned int * intData = (unsigned int *)data;
+  unsigned int * intTexture = (unsigned int *)output;
+  unsigned char * byteData = (unsigned char *)data;
+  unsigned char * byteTexture = (unsigned char *)output;
+  unsigned short * shortData = (unsigned short *)data;
+  unsigned short * shortTexture = (unsigned short *)output;
 
   SbVec2s min, max;
   subSlice.getBounds(min, max);
@@ -171,11 +202,34 @@ SoVRMemReaderP::buildSubSliceY(void * output, int sliceIdx, const SbBox2s &subSl
   while (zOffset < zLimit) {
     int xOffset = min[0] + zOffset;
     int xLimit = max[0] + zOffset;
-    while (xOffset < xLimit) {
-      texture[out] = intData[xOffset];
-      out++;
-      xOffset++;
-    }// while
+
+    switch (this->dataType) {
+
+      case SoVolumeRendering::UNSIGNED_BYTE:
+          while (xOffset < xLimit) {
+            byteTexture[out] = byteData[xOffset];
+            out++;
+            xOffset++;
+          }// while
+          break;
+
+      case SoVolumeRendering::UNSIGNED_SHORT:
+          while (xOffset < xLimit) {
+            shortTexture[out] = shortData[xOffset];
+            out++;
+            xOffset++;
+          }// while
+          break;
+
+      case SoVolumeRendering::RGBA:
+          while (xOffset < xLimit) {
+            intTexture[out] = intData[xOffset];
+            out++;
+            xOffset++;
+          }// while
+          break;
+
+    }// switch
     zOffset += dimensions[0]*dimensions[1];
   }// while
 }// getRGBAPageY
@@ -188,8 +242,12 @@ SoVRMemReaderP::buildSubSliceY(void * output, int sliceIdx, const SbBox2s &subSl
 void 
 SoVRMemReaderP::buildSubSliceZ(void * output, int sliceIdx, const SbBox2s &subSlice)
 {
-  int * texture = (int*)output;
-  int * intData = (int*)data;
+  unsigned int * intData = (unsigned int *)data;
+  unsigned int * intTexture = (unsigned int *)output;
+  unsigned char * byteData = (unsigned char *)data;
+  unsigned char * byteTexture = (unsigned char *)output;
+  unsigned short * shortData = (unsigned short *)data;
+  unsigned short * shortTexture = (unsigned short *)output;
 
   SbVec2s min, max;
   subSlice.getBounds(min, max);
@@ -202,12 +260,33 @@ SoVRMemReaderP::buildSubSliceZ(void * output, int sliceIdx, const SbBox2s &subSl
   while (yOffset < yLimit) {
     int xOffset = xStart + yOffset; 
     int xLimit = max[0] + yOffset; 
-    while (xOffset < xLimit) {
-      texture[out] = intData[xOffset];
-      out++;
-      xOffset++;
-    }// while
 
+    switch (this->dataType) {
+      case SoVolumeRendering::UNSIGNED_BYTE:
+        while (xOffset < xLimit) {
+          byteTexture[out] = byteData[xOffset];
+          out++;
+          xOffset++;
+        }// while
+        break;
+
+      case SoVolumeRendering::UNSIGNED_SHORT:
+        while (xOffset < xLimit) {
+          shortTexture[out] = shortData[xOffset];
+          out++;
+          xOffset++;
+        }// while
+        break;
+
+      case SoVolumeRendering::RGBA:
+        while (xOffset < xLimit) {
+          intTexture[out] = intData[xOffset];
+          out++;
+          xOffset++;
+        }// while
+        break;
+
+    }// switch
     // Next line of pixels
     yOffset += dimensions[0];
   }// while
