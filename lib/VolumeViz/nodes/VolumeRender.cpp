@@ -118,8 +118,8 @@ static const char * texture3d_in_software[] = {
 };
 
 // number of successive test times number of triangels to render each test.
-static const unsigned int VOLUMERENDER_PERFORMANCETEST_TIMES = 10;
-static const unsigned int VOLUMERENDER_PERFORMANCETEST_TRIANGLES = 5;
+static const unsigned int VOLUMERENDER_PERFORMANCETEST_TIMES = 5;
+static const unsigned int VOLUMERENDER_PERFORMANCETEST_TRIANGLES = 10;
 
 // *************************************************************************
 
@@ -604,7 +604,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     assert(FALSE && "Rendering method not implemented/supported.");
   }
 
- done:
+done:
   state->pop();
 }
 
@@ -1045,6 +1045,14 @@ SoVolumeRenderP::getAveragePerformanceTime(SbList<double> & l)
 
   assert(idhighest != UINT_MAX);
   assert(idlowest != UINT_MAX);
+
+  if (CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("SoVolumeRenderP::getAveragePerformanceTime",
+                           "worst, best, ratio: %f, %f, %f",
+                           l[idhighest], l[idlowest],
+                           l[idhighest] / l[idlowest]);
+  }
+
   l.removeFast(idhighest);
   l.removeFast(idlowest);
 
@@ -1140,6 +1148,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
 
   // Write back framebuffer
   glDrawPixels((int) viewportsize[2], (int) viewportsize[3], GL_RGBA, GL_UNSIGNED_BYTE, framebuf);
+  delete[] framebuf;
 
   glDeleteTextures(1, texture3did);
   glDeleteTextures(2, texture2dids);
