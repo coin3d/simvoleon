@@ -169,8 +169,8 @@
   older cards), SIMVoleon will fall back to regular 2D texture
   rendering.
 
-  Beware that certain nodes requires true 3D texture support to be
-  present to function properly (e.g. SoObliqueSlice).
+  Beware that certain nodes requires true 3D texture support to
+  function properly (e.g. SoObliqueSlice).  
   </li>
 
   <li>
@@ -192,9 +192,8 @@
 
   </ul>
 
-  <center>
-   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-engine.png">
-  </center>
+  <p>
+  <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-engine.png" align=right>
 
   SIMVoleon does currently support loading of VOL files, which is a
   format introduces by the book <i>"Introduction To Volume
@@ -215,6 +214,7 @@
   maximum sub cube size. Keep in mind that allowing really large 3D
   textures might cause other textures to be swapped out of graphics
   memory, leading to reduced performance.
+  </p>
 
   \sa The documentation for the \COIN library: <http://doc.coin3d.org/Coin>.
   \sa The documentation for the SoQt library: <http://doc.coin3d.org/SoQt>.
