@@ -14,10 +14,16 @@ for suggestions for major improvements and new features.
     be wise to use an even smaller set to see the problem more
     clearly.
 
+    This is a minor problem.
+
     20030627 mortene.
 
     UPDATE 20040212 mortene: handegar committed a fix for this, check
     if it now works 100% correctly.
+
+    UPDATE 20041112 mortene: this is still not 100% correct, the span
+    of the volume will decrease (from the front side) when decreasing
+    the number of slices. This seems suboptimal.
 
 ========================================================================
 
@@ -38,7 +44,7 @@ for suggestions for major improvements and new features.
 
 ========================================================================
 
-003 SoVolumeRender with 3D-textures fails on Solaris.
+003 SoVolumeRender with 3D-textures may fail on Solaris?
 
     Tingdahl reported that when running their app on a Solaris box and
     remote displaying it on a Linux box, slices came up white instead
@@ -48,15 +54,6 @@ for suggestions for major improvements and new features.
     activation upon remote rendering?)
 
     20040616 mortene.
-
-========================================================================
-
-004 Invisible pages made visible by palette changes are not rendered.
-
-    Happens at least when rendering SoVolumeRender with paletted 2D
-    textures.
-
-    20040622 mortene.
 
 ========================================================================
 

@@ -4,7 +4,7 @@ New in SIM Voleon v2.0.1a (so far):
   - mixing 2D-textures and 3D-textures with the same palette would
     sometimes break, causing rendering artifacts
   - fixed a major resource leak for OpenGL textures
-
+  - obscure bug in optimalization feature for tracking "open" areas fixed
 
 New in SIM Voleon v2.0.0:
 
