@@ -208,16 +208,21 @@ Cvr2DTexPage::renderGLQuad(const SbVec3f & lowleft, const SbVec3f & lowright,
   glBegin(GL_QUADS);
   glColor4f(1, 1, 1, 1);
 
-  glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
-
-  glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(lowright[0], lowright[1], lowright[2]);
-
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(upright[0], upright[1], upright[2]);
+  // Texturecoords are set up so the texture is flipped in the
+  // Y-direction, as the volume data and texture map data are oriented
+  // in the opposite direction (top-to-bottom) from what the Y axis in
+  // the OpenGL coordinate system uses (bottom-to-top).
 
   glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
+
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(lowright[0], lowright[1], lowright[2]);
+
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(upright[0], upright[1], upright[2]);
+
+  glTexCoord2f(0.0f, 0.0f);
   glVertex3f(upleft[0], upleft[1], upleft[2]);
 
   glEnd();
@@ -267,7 +272,10 @@ void Cvr2DTexPage::render(SoState * state, const SbVec3f quadcoords[4],
       pageitem->lasttick = tick;
 
       SbVec3f lowleft = quadcoords[0] +
-        subpagewidth * colidx + subpageheight * rowidx;
+        // horizontal shift to correct column, renders left-to-right
+        subpagewidth * colidx +
+        // vertical shift to correct row, renders top-to-bottom
+        subpageheight * (this->nrrows - rowidx - 1);
 
       SbVec3f lowright = lowleft + subpagewidth;
       SbVec3f upleft = lowleft + subpageheight;
