@@ -355,6 +355,44 @@ SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
 }
 
 /*!
+  Returns "raw" value of voxel at given position.
+ */
+uint32_t
+SoVolumeData::getVoxelValue(const SbVec3s & voxelpos) const
+{
+  assert(voxelpos[0] < PRIVATE(this)->dimensions[0]);
+  assert(voxelpos[1] < PRIVATE(this)->dimensions[1]);
+  assert(voxelpos[2] < PRIVATE(this)->dimensions[2]);
+
+  uint8_t * voxptr = (uint8_t *)PRIVATE(this)->reader->m_data;
+  int advance = 0;
+  const unsigned int dim[3] = { // so we don't overflow a short
+    PRIVATE(this)->dimensions[0], PRIVATE(this)->dimensions[1],  PRIVATE(this)->dimensions[2]
+  };
+  advance += voxelpos[2] * dim[0] * dim[1];
+  advance += voxelpos[1] * dim[0];
+  advance += voxelpos[0];
+
+  switch (PRIVATE(this)->datatype) {
+  case UNSIGNED_BYTE: break;
+  case UNSIGNED_SHORT: advance *= 2; break;
+  case RGBA: advance *= 4; break;
+  default: assert(FALSE); break;
+  }
+
+  voxptr += advance;
+
+  uint32_t val = 0;
+  switch (PRIVATE(this)->datatype) {
+  case UNSIGNED_BYTE: val = *voxptr; break;
+  case UNSIGNED_SHORT: val = *((uint16_t *)voxptr); break;
+  case RGBA: val = *((uint32_t *)voxptr); break;
+  default: assert(FALSE); break;
+  }
+  return val;
+}
+
+/*!
   Sets the internal size of texture pages and texture cubes.  This
   sets all dimensions to the same value at once.  Default value is
   64^3.

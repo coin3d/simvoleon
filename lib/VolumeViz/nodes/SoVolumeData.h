@@ -57,6 +57,8 @@ public:
   SbBool getVolumeData(SbVec3s & dimension, void *& data,
                        SoVolumeData::DataType & type) const;
 
+  uint32_t getVoxelValue(const SbVec3s & voxelpos) const;
+
   void setVolumeSize(const SbBox3f & size);
   SbBox3f & getVolumeSize(void) const;
 
