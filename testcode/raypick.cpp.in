@@ -14,6 +14,7 @@
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/details/SoVolumeRenderDetail.h>
 
 #include "utility.h"
 
@@ -50,6 +51,31 @@ event_cb(void * ud, SoEventCallback * n)
     SbVec3f nv = point->getNormal();
     (void)fprintf(stdout, "point=<%f, %f, %f>, normvec=<%f, %f, %f>\n",
                   v[0], v[1], v[2], nv[0], nv[1], nv[2]);
+
+    const SoDetail * d = point->getDetail();
+    if (d->getTypeId() == SoVolumeRenderDetail::getClassTypeId()) {
+      const SoVolumeRenderDetail * detail = (const SoVolumeRenderDetail *)d;
+      const int nrprofilepoints = detail->getProfileDataPos();
+      (void)fprintf(stdout, "hit %d voxels\n", nrprofilepoints);
+      (void)fprintf(stdout, "voxel values: ");
+      for (int i=0; i < nrprofilepoints; i++) {
+        SbVec3f objpos;
+        unsigned int voxelval = detail->getProfileValue(i, NULL, &objpos);
+        (void)fprintf(stdout, "0x%08x ", voxelval);
+      }
+      (void)fprintf(stdout, "\n");
+      
+      SbVec3f pos;
+      SbBool hit = detail->getFirstNonTransparentValue(NULL, NULL, &pos);
+      if (hit) {
+        // Adds a point marker to the picked point.
+        const int idx = pickpoints->point.getNum();
+        pickpoints->point.set1Value(idx, pos);
+      }
+      else {
+        (void)fprintf(stdout, "fully transparent volume\n");
+      }
+    }
 
     // Adds a point marker to the picked point.
     const int idx = pickpoints->point.getNum();
@@ -111,6 +137,7 @@ main(int argc, char ** argv)
   root->addChild(transfun);
 
   SoVolumeRender * volrend = new SoVolumeRender();
+  volrend->interpolation = SoVolumeRender::NEAREST;
   root->addChild(volrend);
 
   { // Show bounding box.
