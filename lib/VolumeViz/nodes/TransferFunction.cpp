@@ -132,15 +132,28 @@ enum CoinEndiannessValues { COIN_HOST_IS_UNKNOWNENDIAN = -1, COIN_HOST_IS_LITTLE
 extern int coin_host_get_endianness(void);
 }
 
-static int endianness = COIN_HOST_IS_UNKNOWNENDIAN;
+static inline uint32_t
+compileRGBALittleEndian(const uint8_t red, const uint8_t green,
+                        const uint8_t blue, const uint8_t opaqueness)
+{
+  return
+    (uint32_t(red) << 0) | (uint32_t(green) << 8) |
+    (uint32_t(blue) << 16) | (uint32_t(opaqueness) << 24);
+}
 
+static inline uint32_t
+compileRGBABigEndian(const uint8_t red, const uint8_t green,
+                     const uint8_t blue, const uint8_t opaqueness)
+{
+  return
+    (uint32_t(red) << 24) | (uint32_t(green) << 16) |
+    (uint32_t(blue) << 8) | (uint32_t(opaqueness) << 0);
+}
 
-/*!
-  Transfers voxel data from input buffer to output buffer, according
-  to specified parameters.
-
-  Output buffer is allocated within the function.
-*/
+// Transfers voxel data from input buffer to output buffer, according
+// to specified parameters.
+//
+// Output buffer is allocated within the function.
 void
 SoTransferFunction::transfer(const void * input, 
                              SoVolumeData::DataType inputdatatype,
@@ -151,73 +164,53 @@ SoTransferFunction::transfer(const void * input,
                              int & paletteFormat,
                              int & palettesize)
 {
-  endianness = coin_host_get_endianness();
-  assert(endianness != COIN_HOST_IS_UNKNOWNENDIAN && "weird hardware!");
+  static int endianness = COIN_HOST_IS_UNKNOWNENDIAN;
+  if (endianness == COIN_HOST_IS_UNKNOWNENDIAN) {
+    endianness = coin_host_get_endianness();
+    assert(endianness != COIN_HOST_IS_UNKNOWNENDIAN && "weird hardware!");
+  }
 
-
-  // FIXME: the RGBA datatype for inputdata should be killed,
-  // methinks. 20021112 mortene.
+  // FIXME: we're using a GLEnum here, but SoVolumeData enum
+  // below. 20021112 mortene.
+  outputFormat = GL_RGBA;
+  // We only support non-paletted textures so far.
+  output = new uint32_t[size[0]*size[1]];
+  palette = NULL;
+  paletteFormat = 0;
+  palettesize = 0;
 
   // Handling RGBA inputdata. Just forwarding to output
   if (inputdatatype == SoVolumeData::RGBA) {
     // FIXME: this is of course completely wrong -- the data should be
     // handled according to the SoTransferFunction settings. 20021112 mortene.
-
-    // FIXME: we're using a GLEnum here, but SoVolumeData enum
-    // below. 20021112 mortene.
-    outputFormat = GL_RGBA;
-
-    palette = NULL;
-    paletteFormat = 0;
-    palettesize = 0;
-
-    output = new int[size[0]*size[1]];
     (void)memcpy(output, input, size[0]*size[1]*sizeof(int));
     return;
   }
 
-#if 1
   if (inputdatatype == SoVolumeData::UNSIGNED_BYTE) {
-    // FIXME: this is of course completely wrong -- the data should be
-    // handled according to the SoTransferFunction settings. 20021112 mortene.
+    // FIXME: does not heed all possible SoTransferFunction
+    // settings. 20021118 mortene.
 
-    // FIXME: we're using a GLEnum here, but SoVolumeData enum
-    // below. 20021112 mortene.
-    outputFormat = GL_RGBA;
-
-    palette = NULL;
-    paletteFormat = 0;
-    palettesize = 0;
-
-    uint32_t * outp = new uint32_t[size[0] * size[1]];
+    uint32_t * outp = (uint32_t *)output;
     const uint8_t * inp = (const uint8_t *)input;
 
     const int cmap = this->predefColorMap.getValue();
     assert(cmap >= GREY); // FIXME: "NONE" not handled yet. 20021113 mortene.
     assert(cmap <= SEISMIC);
 
-    if (endianness == COIN_HOST_IS_LITTLEENDIAN) {
-      for (int j=0; j < size[0]*size[1]; j++) {
-        if (inp[j] == 0x00) {
-          outp[j] = 0x00000000;
-        }
-        else {
-          uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[cmap][inp[j]];
+    for (int j=0; j < size[0]*size[1]; j++) {
+      if (inp[j] == 0x00) {
+        outp[j] = 0x00000000;
+      }
+      else {
+        uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[cmap][inp[j]];
 
-          outp[j] =
-            (uint32_t(rgba[0]) << 0) | // red
-            (uint32_t(rgba[1]) << 8) | // green
-            (uint32_t(rgba[2]) << 16) |  // blue
-            (uint32_t(rgba[3]) << 24); // alpha
-        }
+        outp[j] = (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
+          compileRGBALittleEndian(rgba[0], rgba[1], rgba[2], rgba[3]) :
+          compileRGBABigEndian(rgba[0], rgba[1], rgba[2], rgba[3]);
       }
     }
-    else {
-      // FIXME: augh! Must be fixed before release. 20021113 mortene.
-      assert(FALSE && "only little-endian platforms during development");
-    }
 
-    output = outp;
     return;
   }
 
@@ -225,15 +218,7 @@ SoTransferFunction::transfer(const void * input,
     // FIXME: this is of course completely wrong -- the data should be
     // handled according to the SoTransferFunction settings. 20021112 mortene.
 
-    // FIXME: we're using a GLEnum here, but SoVolumeData enum
-    // below. 20021112 mortene.
-    outputFormat = GL_RGBA;
-
-    palette = NULL;
-    paletteFormat = 0;
-    palettesize = 0;
-
-    uint32_t * outp = new uint32_t[size[0] * size[1]];
+    uint32_t * outp = (uint32_t *)output;
     const uint16_t * inp = (const uint16_t *)input;
 
     if (endianness == COIN_HOST_IS_LITTLEENDIAN) {
@@ -254,18 +239,15 @@ SoTransferFunction::transfer(const void * input,
           ((inp[j] ? 0xff : 0) << 0); // alpha
       }
     }
-
-    output = outp;
     return;
   }
 
   assert(FALSE && "unknown input format");
 
-#else
   // FIXME: tmp disabled all use of paletted (and compressed?)
   // textures. (The code wasn't working at all, as far as I could
   // see.) 20021112 mortene.
-  
+#if 0
   int numbits;
   switch (inputdatatype) {
   case SoVolumeData::UNSIGNED_BYTE: numbits = 8; break;
