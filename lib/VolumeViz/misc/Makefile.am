@@ -7,6 +7,7 @@ noinst_LTLIBRARIES = libmisc.la
 endif
 
 SOURCES = \
+	Util.cpp CvrUtil.h \
 	GIMPGradient.cpp CvrGIMPGradient.h
 
 libmisc_la_SOURCES = $(SOURCES)
