@@ -18,8 +18,11 @@ public:
   CvrPageHandler(const SbVec3s & voldatadims, SoVolumeReader * reader);
   ~CvrPageHandler();
 
+  enum Composition { MAX_INTENSITY, SUM_INTENSITY, ALPHA_BLENDING };
+
   void render(SoGLRenderAction * action, unsigned int numslices,
               Cvr2DTexSubPage::Interpolation interpolation,
+              CvrPageHandler::Composition composition,
               SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
               void * abortcbdata);
 

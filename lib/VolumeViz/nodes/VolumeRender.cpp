@@ -237,7 +237,15 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     default: assert(FALSE && "invalid value in interpolation field"); break;
     }
 
-    PRIVATE(this)->pagehandler->render(action, numslices, interp,
+    CvrPageHandler::Composition composit;
+    switch (this->composition.getValue()) {
+    case ALPHA_BLENDING: composit = CvrPageHandler::ALPHA_BLENDING; break;
+    case MAX_INTENSITY: composit = CvrPageHandler::MAX_INTENSITY; break;
+    case SUM_INTENSITY: composit = CvrPageHandler::SUM_INTENSITY; break;
+    default: assert(FALSE && "invalid value in composition field"); break;
+    }
+
+    PRIVATE(this)->pagehandler->render(action, numslices, interp, composit,
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
   }

@@ -145,6 +145,7 @@ CvrPageHandler::comparePageSize(const SbVec3s & currsubpagesize)
 void
 CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
                        Cvr2DTexSubPage::Interpolation interpolation,
+                       CvrPageHandler::Composition composition,
                        SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
                        void * abortcbdata)
 {
@@ -263,10 +264,25 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   glEnable(GL_TEXTURE_2D);
   glPolygonMode(GL_FRONT, GL_FILL);
 
-  // FIXME: how does this cooperate with the other geometry in a Coin
-  // scene graph? Do we need to delay rendering? 20021109 mortene.
+  // FIXME: how does the blending cooperate with the other geometry in
+  // a Coin scene graph? Do we need to delay rendering? 20021109 mortene.
+
   glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  if (composition == CvrPageHandler::ALPHA_BLENDING) {
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  }
+  else if (composition == CvrPageHandler::MAX_INTENSITY) {
+    // FIXME: optional OpenGL 1.2 function. 20021202 mortene.
+    glBlendEquation(GL_MAX);
+  }
+  else {
+    assert(composition == CvrPageHandler::SUM_INTENSITY && "invalid composition");
+    glBlendFunc(GL_ONE, GL_ONE);
+    // FIXME: optional OpenGL 1.2 function. 20021202 mortene.
+    glBlendEquation(GL_FUNC_ADD);
+  }
+
+  assert(glGetError() == GL_NO_ERROR);
 
   // FIXME: what's this good for? 20021128 mortene.
   glDisable(GL_CULL_FACE);
