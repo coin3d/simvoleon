@@ -1282,7 +1282,7 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
   // different GFX cards to see if the rating threshold is high enough
   // (20040503 handegar)
   const double rating = SoVolumeRenderP::performanceTest(glglue); // => (3D rendertime) / (2D rendertime)
-  if (rating < 3.0f) { // 2D should at least be this many times faster
+  if (rating < 5.0f) { // 2D should at least be this many times faster
                        // before 3D texturing is dropped.
     do3dtextures = 1;
     return TRUE;
