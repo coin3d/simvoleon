@@ -18,7 +18,7 @@ main(int argc, char ** argv)
   root->ref();
 
   SbVec3s dim = SbVec3s(64, 64, 64);
-  void * voxeldata = generateRGBAVoxelSet(dim);
+  uint8_t * voxeldata = generateRGBAVoxelSet(dim);
 
   // Add SoVolumeData to scene graph
   SoVolumeData * volumedata = new SoVolumeData();
@@ -43,7 +43,7 @@ main(int argc, char ** argv)
   delete viewer;
 
   root->unref();
-  delete voxeldata;
+  delete[] voxeldata;
 
   return 0;
 }
