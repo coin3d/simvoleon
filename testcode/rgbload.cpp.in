@@ -118,7 +118,8 @@ load_files(int numfiles, char ** files)
   int  w, h, nc;
   unsigned char * data = simage_read_image(files[0], &w, &h, &nc);
   if (!data) {
-    fprintf(stderr, "Couldn't fetch data from '%s', ...\n", files[0]);
+    fprintf(stderr, "Couldn't fetch data from '%s', ...: %s\n",
+            files[0], simage_get_last_error());
     exit(1);
   }
 
