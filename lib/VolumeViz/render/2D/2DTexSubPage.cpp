@@ -132,6 +132,8 @@ Cvr2DTexSubPage::activateTexture(Interpolation interpolation) const
   default: assert(FALSE); break;
   }
 
+  // FIXME: why are we using float version of glTexParameter here? All
+  // arguments looks like ints..? 20031027 mortene.
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp);
   assert(glGetError() == GL_NO_ERROR);
@@ -324,6 +326,8 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     // FIXME: investigate if this is really what we want. 20021120 mortene.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
+    // FIXME: the following assert hits on E&PTech test machine --
+    // fix! 20031027 mortene.
     assert(glGetError() == GL_NO_ERROR);
   }
 }
