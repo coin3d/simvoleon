@@ -209,8 +209,33 @@ CvrCLUT::activate(const cc_glglue * glw) const
                          GL_UNSIGNED_BYTE, /* palette entry unit type */
                          this->glcolors); /* data ptr */
 
-  // Sanity check.
-  assert(glGetError() == GL_NO_ERROR);
+  // Error checking.
+
+  GLenum err = glGetError();
+  if (err != GL_NO_ERROR) {
+    static SbBool warn = TRUE;
+    if (warn) {
+      warn = FALSE;
+      SoDebugError::postWarning("CvrCLUT::activate",
+                                "glColorTable(GL_TEXTURE_2D, ...) caused "
+                                "glGetError()==0x%x (dec==%d)",
+                                err, err);
+
+      // This matches the driver on ASK.trh.sim.no.
+      const char * VERSION = "1.1.28 PT";
+      const char * VENDOR = "3Dlabs";
+      const char * RENDERER = "GLINT R3 PT + GLINT Gamma";
+      if (strcmp((const char *)glGetString(GL_VERSION), VERSION) == 0 &&
+          strcmp((const char *)glGetString(GL_VENDOR), VENDOR) == 0 &&
+          strcmp((const char *)glGetString(GL_RENDERER), RENDERER) == 0) {
+        SoDebugError::postWarning("CvrCLUT::activate",
+                                  "This is a known problem with this driver "
+                                  "(vendor='%s', renderer='%s', version='%s') "
+                                  "and seems to be harmless.",
+                                  VENDOR, RENDERER, VERSION);
+      }
+    }
+  }
 
   // Sanity check.
   GLint actualsize;
