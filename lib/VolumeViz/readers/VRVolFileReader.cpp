@@ -37,6 +37,8 @@ struct vol_header {
 extern "C" {
 extern uint32_t coin_hton_uint32(uint32_t value);
 extern uint32_t coin_ntoh_uint32(uint32_t value);
+extern float coin_hton_float(float value);
+extern float coin_ntoh_float(float value);
 extern const char * coin_getenv(const char *);
 }
 
@@ -198,11 +200,39 @@ SoVRVolFileReader::setUserData(void * data)
 
   assert(filesize > sizeof(struct vol_header));
   struct vol_header * volh = &PRIVATE(this)->volh;
-  (void)memcpy(volh, this->m_data, sizeof(struct vol_header));
-
+  // magic_number and header_length
+  (void)memcpy(volh, this->m_data, 2 * sizeof(uint32_t));
   volh->magic_number = coin_ntoh_uint32(volh->magic_number);
-
   volh->header_length = coin_ntoh_uint32(volh->header_length);
+
+  // Set up sanitized defaults, in case the header is too short to
+  // cover all fields -- which is actually allowed by the format.
+  volh->width = coin_hton_uint32(0);
+  volh->height = coin_hton_uint32(0);
+  volh->images = coin_hton_uint32(0);
+  volh->bits_per_voxel = coin_hton_uint32(8);
+  volh->index_bits = coin_hton_uint32(0);
+  // XXX
+//   volh->scaleX = coin_hton_float(1.0f);
+//   volh->scaleY = coin_hton_float(1.0f);
+//   volh->scaleZ = coin_hton_float(1.0f);
+  volh->scaleX = coin_hton_float(0.0f);
+  volh->scaleY = coin_hton_float(0.0f);
+  volh->scaleZ = coin_hton_float(0.0f);
+  volh->rotX = coin_hton_float(0.0f);
+  volh->rotY = coin_hton_float(0.0f);
+  volh->rotZ = coin_hton_float(0.0f);
+
+  const int copylen =
+    SbMin(sizeof(struct vol_header), volh->header_length) - 2 * sizeof(uint32_t);
+
+  (void)memcpy(&(volh->width),
+               (uint8_t *)this->m_data + (2 * sizeof(uint32_t)),
+               copylen);
+
+  // FIXME: this actually fails with SYN_64.vol. 20021110 mortene.
+//   assert(volh->header_length >= sizeof(struct vol_header));
+  assert(volh->header_length < filesize);
 
   volh->width = coin_ntoh_uint32(volh->width);
   volh->height = coin_ntoh_uint32(volh->height);
@@ -211,14 +241,13 @@ SoVRVolFileReader::setUserData(void * data)
   volh->bits_per_voxel = coin_ntoh_uint32(volh->bits_per_voxel);
   volh->index_bits = coin_ntoh_uint32(volh->index_bits);
 
-  // FIXME: ugly casting. 20021109 mortene.
-  volh->scaleX = (float)coin_ntoh_uint32((uint32_t)volh->scaleX);
-  volh->scaleY = (float)coin_ntoh_uint32((uint32_t)volh->scaleY);
-  volh->scaleZ = (float)coin_ntoh_uint32((uint32_t)volh->scaleZ);
+  volh->scaleX = coin_ntoh_float(volh->scaleX);
+  volh->scaleY = coin_ntoh_float(volh->scaleY);
+  volh->scaleZ = coin_ntoh_float(volh->scaleZ);
 
-  volh->rotX = (float)coin_ntoh_uint32((uint32_t)volh->rotX);
-  volh->rotY = (float)coin_ntoh_uint32((uint32_t)volh->rotY);
-  volh->rotZ = (float)coin_ntoh_uint32((uint32_t)volh->rotZ);
+  volh->rotX = coin_ntoh_float(volh->rotX);
+  volh->rotY = coin_ntoh_float(volh->rotY);
+  volh->rotZ = coin_ntoh_float(volh->rotZ);
 
   const char * descrptr = ((const char *)(this->m_data)) + sizeof(struct vol_header);
   PRIVATE(this)->description = descrptr;
@@ -237,10 +266,6 @@ SoVRVolFileReader::setUserData(void * data)
   // FIXME: this actually fails with LOBSTER.vol. 20021110 mortene.
 //   assert(volh->magic_number == 0x0b7e7759);
 
-  // FIXME: this actually fails with SYN_64.vol. 20021110 mortene.
-//   assert((volh->header_length >= sizeof(struct vol_header)) &&
-//          (volh->header_length < filesize));
-
   assert((volh->width > 0) && (volh->width < 32767));
   assert((volh->height > 0) && (volh->height < 32767));
   assert((volh->images > 0) && (volh->images < 32767));
@@ -254,16 +279,26 @@ SoVRVolFileReader::setUserData(void * data)
   assert(volh->scaleY >= 0.0f);
   assert(volh->scaleZ >= 0.0f);
 
-  // FIXME: this should hopefully not be necessary when proper header
-  // read is in place. 20021120 mortene.
-  volh->scaleX = ((volh->scaleX == 0.0f) ? 1.0f : volh->scaleX);
-  volh->scaleY = ((volh->scaleY == 0.0f) ? 1.0f : volh->scaleY);
-  volh->scaleZ = ((volh->scaleZ == 0.0f) ? 1.0f : volh->scaleZ);
+  // Can't compare versus 0.0f directly, as that seems to fail for
+  // several example VOL models I have.  --mortene.
+  volh->scaleX = ((volh->scaleX < 0.0001f) ? 1.0f : volh->scaleX);
+  volh->scaleY = ((volh->scaleY < 0.0001f) ? 1.0f : volh->scaleY);
+  volh->scaleZ = ((volh->scaleZ < 0.0001f) ? 1.0f : volh->scaleZ);
+
+  // FIXME: quick hack workaround for a problem with the SYN64 file:
+  // the header stops right in the middle of scaleZ, and the
+  // description overwrites scaleX and scaleY. 20021121 mortene.
+  volh->scaleX = ((volh->scaleX > 1000000.0f) ? 1.0f : volh->scaleX);
+  volh->scaleY = ((volh->scaleY > 1000000.0f) ? 1.0f : volh->scaleY);
+  volh->scaleZ = ((volh->scaleZ > 1000000.0f) ? 1.0f : volh->scaleZ);
 
   uint32_t nrvoxels = volh->width * volh->height * volh->images;
   uint32_t minsize = (nrvoxels * volh->bits_per_voxel) / 8;
   assert(filesize >= minsize);
 
+  // Shift actual voxel data to start at the m_data pointer.
+  (void)memmove(this->m_data, (uint8_t *)this->m_data + volh->header_length,
+                filesize - volh->header_length);
 
   PRIVATE(this)->valid = TRUE;
 }
