@@ -11,10 +11,12 @@ public:
   CvrRGBATexture(const SbVec2s & size);
   virtual ~CvrRGBATexture();
 
-  uint32_t * getRGBABuffer(void) const;
-
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
+
+  uint32_t * getRGBABuffer(void) const;
+  void blankUnused(const SbVec2s & texsize);
+  virtual void dumpToPPM(const char * filename) const;
 
 private:
   uint32_t * rgbabuffer;

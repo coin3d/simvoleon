@@ -44,3 +44,45 @@ CvrRGBATexture::getRGBABuffer(void) const
 
   return this->rgbabuffer;
 }
+
+// Blank out unused texture parts, to make sure we don't get any
+// artifacts due to fp-inaccuracies when rendering.
+void
+CvrRGBATexture::blankUnused(const SbVec2s & texsize)
+{
+  assert(this->rgbabuffer);
+
+  SbVec2s texobjdims = this->getDimensions();
+  {
+    for (short y=texsize[1]; y < texobjdims[1]; y++) {
+      for (short x=0; x < texobjdims[0]; x++) {
+        this->rgbabuffer[y * texobjdims[0] + x] = 0x00000000;
+      }
+    }
+  }
+  {
+    for (short x=texsize[0]; x < texobjdims[0]; x++) {
+      for (short y=0; y < texobjdims[1]; y++) {
+        this->rgbabuffer[y * texobjdims[0] + x] = 0x00000000;
+      }
+    }
+  }
+}
+
+void
+CvrRGBATexture::dumpToPPM(const char * filename) const
+{
+  FILE * f = fopen(filename, "w");
+  assert(f);
+
+  SbVec2s texobjdims = this->getDimensions();
+  // width height maxcolval
+  (void)fprintf(f, "P3\n%d %d 255\n", texobjdims[0], texobjdims[1]);
+
+  for (int i=0; i < texobjdims[0] * texobjdims[1]; i++) {
+    uint32_t rgba = this->rgbabuffer[i];
+    fprintf(f, "%d %d %d\n",
+            rgba & 0xff, (rgba & 0xff00) >> 8,  (rgba & 0xff0000) >> 16);
+  }
+  fclose(f);
+}
