@@ -12,10 +12,27 @@
 
 #include "texmemfullimg.h"
 
+// *************************************************************************
+
+// debugging: keep this around until the peculiar NVidia bug with
+// 1- or 2-pixel width textures has been analyzed. 20031031 mortene.
+
+#define GLSYNCHRON 0
+
+#if GLSYNCHRON
+#define GLCMD(x) do { printf("%s\n", #x); x; glFinish(); } while(0)
+#else
+#define GLCMD(x) do { x; } while(0)
+#endif
+
+// *************************************************************************
+
 unsigned int Cvr2DTexSubPage::nroftexels = 0;
 unsigned int Cvr2DTexSubPage::texmembytes = 0;
 GLuint Cvr2DTexSubPage::emptyimgname[1] = { 0 };
 SbBool Cvr2DTexSubPage::detectedtextureswapping = FALSE;
+
+// *************************************************************************
 
 Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
@@ -77,7 +94,7 @@ Cvr2DTexSubPage::~Cvr2DTexSubPage()
   if (this->texturename[0] != 0) {
     // FIXME: I'm pretty sure this is invoked outside of a GL context
     // from various places in the code. 20030306 mortene.
-    glDeleteTextures(1, this->texturename);
+    GLCMD(glDeleteTextures(1, this->texturename));
 
     const unsigned int nrtexels = this->texdims[0] * this->texdims[1];
     assert(nrtexels <= Cvr2DTexSubPage::nroftexels);
@@ -119,11 +136,11 @@ void
 Cvr2DTexSubPage::activateTexture(Interpolation interpolation) const
 {
   if (this->texturename[0] == 0) {
-    glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
+    GLCMD(glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]));
     return;
   }
 
-  glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
+  GLCMD(glBindTexture(GL_TEXTURE_2D, this->texturename[0]));
 
   GLenum interp = 0;
   switch (interpolation) {
@@ -134,8 +151,8 @@ Cvr2DTexSubPage::activateTexture(Interpolation interpolation) const
 
   // FIXME: why are we using float version of glTexParameter here? All
   // arguments looks like ints..? 20031027 mortene.
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp);
+  GLCMD(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp));
+  GLCMD(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp));
   assert(glGetError() == GL_NO_ERROR);
 
 #if CVR_DEBUG && 0 // debug
@@ -192,8 +209,8 @@ void
 Cvr2DTexSubPage::bindTexMemFullImage(const cc_glglue * glw)
 {
   // FIXME: requires > OpenGL 1.0, should go through wrapper.
-  glGenTextures(1, Cvr2DTexSubPage::emptyimgname);
-  glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
+  GLCMD(glGenTextures(1, Cvr2DTexSubPage::emptyimgname));
+  GLCMD(glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]));
   // FIXME: never freed. 20021121 mortene.
     
   // Check format of GIMP-exported "texmem full" image.
@@ -201,24 +218,24 @@ Cvr2DTexSubPage::bindTexMemFullImage(const cc_glglue * glw)
   assert(coin_is_power_of_two(tex_image.height));
   assert(tex_image.bytes_per_pixel == 4);
 
-  glTexImage2D(GL_TEXTURE_2D,
+  GLCMD(glTexImage2D(GL_TEXTURE_2D,
                0,
                tex_image.bytes_per_pixel,
                tex_image.width, tex_image.height,
                0,
                GL_RGBA,
                GL_UNSIGNED_BYTE,
-               tex_image.pixel_data);
+               tex_image.pixel_data));
 
   const int texels = tex_image.width * tex_image.height;
   Cvr2DTexSubPage::nroftexels += texels;
   Cvr2DTexSubPage::texmembytes += texels * tex_image.bytes_per_pixel;
 
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  GLCMD(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+  GLCMD(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
 
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  GLCMD(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+  GLCMD(glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
 }
 
 // If no palette specified, this function assumes RGBA data. If a
@@ -298,17 +315,43 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
 
     // FIXME: these functions are only supported in opengl 1.1+...
     // torbjorv 08052002
-    glGenTextures(1, this->texturename);
+    GLCMD(glGenTextures(1, this->texturename));
     assert(glGetError() == GL_NO_ERROR);
 
-    glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
+    GLCMD(glBindTexture(GL_TEXTURE_2D, this->texturename[0]));
     assert(glGetError() == GL_NO_ERROR);
 
     void * imgptr = NULL;
     if (this->ispaletted) imgptr = ((CvrPaletteTexture *)texobj)->getIndex8Buffer();
     else imgptr = ((CvrRGBATexture *)texobj)->getRGBABuffer();
 
-    glTexImage2D(GL_TEXTURE_2D,
+    // debugging: keep this around until the peculiar NVidia bug with
+    // 1- or 2-pixel width textures has been analyzed.
+    //
+    // FIXME: need to find out what the hell this problem is. 20031031 mortene.
+#if 0
+    printf("glTexImage2D() args: dims==<%d,%d>, ispaletted==%d, imgptr==%p\n",
+	   this->texdims[0], this->texdims[1], this->ispaletted, imgptr);
+
+    static int allnum = 0;
+    allnum++;
+    if (this->texdims[0]==1 || this->texdims[1]==1) {
+      static int num = 0;
+      num++;
+      printf("numero %d/%d, nroftexels==%d, texmembytes==%d\n",
+	     num, allnum,
+	     Cvr2DTexSubPage::nroftexels,
+	     Cvr2DTexSubPage::texmembytes);
+    }
+    else {
+      printf("numero %d, nroftexels==%d, texmembytes==%d\n",
+	     allnum,
+	     Cvr2DTexSubPage::nroftexels,
+	     Cvr2DTexSubPage::texmembytes);
+    }
+#endif // debugging
+
+    GLCMD(glTexImage2D(GL_TEXTURE_2D,
                  0,
                  colorformat,
                  this->texdims[0],
@@ -316,7 +359,7 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
                  0,
                  this->ispaletted ? GL_COLOR_INDEX: GL_RGBA,
                  GL_UNSIGNED_BYTE,
-                 imgptr);
+                 imgptr));
                  
     assert(glGetError() == GL_NO_ERROR);
 
@@ -324,8 +367,8 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     // FIXME: investigate if this is really what we want. 20021120 mortene.
     if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
+    GLCMD(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum));
+    GLCMD(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum));
     assert(glGetError() == GL_NO_ERROR);
   }
 }
@@ -385,7 +428,7 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
   glTexCoord2f(0.0f, 0.0f);
   glVertex3f(upleft[0], upleft[1], upleft[2]);
 
-  glEnd();
+  GLCMD(glEnd());
 
 
   // This is a debugging backdoor: if the environment variable
@@ -400,18 +443,18 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
   }
 
   if (showsubpageframes) {
-    glDisable(GL_TEXTURE_2D);
-    glLineStipple(1, 0xffff);
-    glLineWidth(2);
+    GLCMD(glDisable(GL_TEXTURE_2D));
+    GLCMD(glLineStipple(1, 0xffff));
+    GLCMD(glLineWidth(2));
 
     glBegin(GL_LINE_LOOP);
     glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
     glVertex3f(lowright[0], lowright[1], lowright[2]);
     glVertex3f(upright[0], upright[1], upright[2]);
     glVertex3f(upleft[0], upleft[1], upleft[2]);
-    glEnd();
+    GLCMD(glEnd());
 
-    glEnable(GL_TEXTURE_2D);
+    GLCMD(glEnable(GL_TEXTURE_2D));
   }
 }
 
