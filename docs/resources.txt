@@ -1,4 +1,4 @@
-* Volume vizualisation for OI / Coin (!):
+* Volume vizualisation for OI / Coin (!), under the GNU GPL:
   <URL:http://openqvis.sourceforge.net/>
 
 * ACM publications / papers: <URL:http://www.sigchi.acm.org/pubs/>
