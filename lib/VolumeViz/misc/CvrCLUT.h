@@ -57,7 +57,9 @@ public:
   enum TextureType { TEXTURE2D, TEXTURE3D };
 
   void setAlphaUse(AlphaUse policy);
+
   void setTextureType(TextureType type);
+  TextureType getTextureType(void) const;
 
   static SbBool usePaletteTextures(const SoGLRenderAction * action);
 

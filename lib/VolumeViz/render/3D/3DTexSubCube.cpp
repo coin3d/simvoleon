@@ -115,10 +115,17 @@ Cvr3DTexSubCube::setPalette(const CvrCLUT * newclut)
   assert(newclut != NULL);
 
   if (this->clut) { this->clut->unref(); }
-  this->clut = newclut;
-  this->clut->ref();
 
-  ((CvrCLUT *) this->clut)->setTextureType(CvrCLUT::TEXTURE3D);
+  if (newclut->getTextureType() != CvrCLUT::TEXTURE3D) {
+    CvrCLUT * c = new CvrCLUT(*newclut);
+    c->setTextureType(CvrCLUT::TEXTURE3D);
+    this->clut = c;
+  }
+  else {
+    this->clut = newclut;
+  }
+
+  this->clut->ref();
 }
 
 // *************************************************************************

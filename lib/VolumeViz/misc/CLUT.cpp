@@ -119,7 +119,6 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
 void
 CvrCLUT::commonConstructor(void)
 {
-
   this->usefragmentprogramlookup = FALSE;
   this->fragmentprograminitialized = FALSE;
   this->palettehaschanged = TRUE;
@@ -140,7 +139,6 @@ CvrCLUT::commonConstructor(void)
 // Copy constructor.
 CvrCLUT::CvrCLUT(const CvrCLUT & clut)
 {
-
   this->nrentries = clut.nrentries;
   this->nrcomponents = clut.nrcomponents;
   this->datatype = clut.datatype;
@@ -494,6 +492,12 @@ void
 CvrCLUT::setTextureType(TextureType type)
 {
   this->texturetype = type;
+}
+
+CvrCLUT::TextureType
+CvrCLUT::getTextureType(void) const
+{
+  return this->texturetype;
 }
 
 void
