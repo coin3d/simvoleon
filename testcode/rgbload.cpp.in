@@ -1,0 +1,199 @@
+// Quick'n ugly example that loads a set of RGB files, applies a
+// filter and shows the volume with a clip plane dragger.
+
+#include <VolumeViz/nodes/SoVolumeRendering.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
+#include <Inventor/Qt/SoQtRenderArea.h>
+#include <Inventor/@Gui@/So@Gui@.h>
+#include <Inventor/@Gui@/viewers/So@Gui@ExaminerViewer.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoPerspectiveCamera.h>
+#include <Inventor/nodes/SoDirectionalLight.h>
+#include <Inventor/nodes/SoCube.h>
+#include <Inventor/manips/SoClipPlaneManip.h>
+#include <Inventor/nodes/SoDrawStyle.h>
+#include <Inventor/nodes/SoLightModel.h>
+#include <simage.h>
+#include <math.h>
+#include <string.h>
+
+static unsigned char * volume_data = NULL;
+static SbVec3s volume_size;
+
+void 
+resize_data(SbVec3s newsize)
+{
+  fprintf(stderr,"resizing data: %g %g %g => %g %g %g...",
+          volume_size[0],
+          volume_size[1],
+          volume_size[2],
+          newsize[0],
+          newsize[1],
+          newsize[2]);
+
+  unsigned char * dst = simage_resize3d(volume_data,
+                                        volume_size[0],
+                                        volume_size[1],
+                                        4,
+                                        volume_size[2],
+                                        newsize[0],
+                                        newsize[1],
+                                        newsize[2]);
+
+  fprintf(stderr,"done\n");
+  delete[] volume_data;
+  volume_data = dst;
+  volume_size = newsize;
+}
+
+#define APPLY_FILTER(_func_) \
+  do { \
+    int numpixels = volume_size[0] * volume_size[1] * volume_size[2]; \
+    unsigned char * ptr = volume_data; \
+    int numfixed = 0; \
+    for (int i = 0; i < numpixels; i++) { \
+      if (_func_) { ptr[3] = 0x00; numfixed++; } \
+      ptr += 4; \
+    } \
+    fprintf(stderr,"filter cleared %d pixels\n", numfixed); \
+  } while (0)
+
+void
+load_file(const char * filename, int slicenum)
+{
+  int w, h, nc;
+  unsigned char * data = simage_read_image(filename, &w, &h, &nc);
+  fprintf(stderr,"file loaded: %s, %d %d %d\n",
+          filename, w, h, nc);
+
+  if (data) {
+    unsigned char * src = data;
+    unsigned char * ptr = volume_data + volume_size[0] * volume_size[1] * 4 * slicenum;
+    for (int y = 0; y < h; y++) {
+      for (int x = 0; x < w; x++) {
+        switch(nc) {
+        case 1:
+          *ptr++ = *src;
+          *ptr++ = *src;
+          *ptr++ = *src++;
+          *ptr++ = 0xff;
+          break;
+        case 2:
+          *ptr++ = *src;
+          *ptr++ = *src;
+          *ptr++ = *src++;
+          *ptr++ = *src++;
+          break;
+        case 3:
+          *ptr++ = *src++;
+          *ptr++ = *src++;
+          *ptr++ = *src++;
+          *ptr++ = 0xff;
+          break;
+        case 4:
+          *ptr++ = *src++;
+          *ptr++ = *src++;
+          *ptr++ = *src++;
+          *ptr++ = *src++;
+          break;
+        default:
+          assert(0 && "unsupported");
+          break;
+        }
+      }
+    }
+    simage_free_image(data);
+  }
+  else {
+    fprintf(stderr,"unable to read file: %s\n", filename);
+  }
+}
+
+void
+load_files(int numfiles, char ** files)
+{
+  int  w, h, nc;
+  unsigned char * data = simage_read_image(files[0], &w, &h, &nc);
+  assert(data);
+  volume_size[0] = w;
+  volume_size[1] = h;
+  volume_size[2] = numfiles;
+  simage_free_image(data);
+
+  volume_data = new unsigned char[w*h*numfiles*4];
+
+  for (int i = 0; i < numfiles; i++) {
+    load_file(files[i], i);
+  }
+}
+
+int
+main(int argc, char ** argv)
+{
+  load_files(argc-1, &argv[1]);
+
+  // hardcoded resize
+  resize_data(SbVec3s(128, 128, 64));
+
+  // change filter here
+  APPLY_FILTER(ptr[2] > 128);
+
+  @WIDGET@ window = So@Gui@::init( argv[0] );
+  SoVolumeRendering::initClass();
+  SoDB::setRealTimeInterval(SbTime(1.0/50.0));
+
+  So@Gui@ExaminerViewer * ex1 = new So@Gui@ExaminerViewer( window );
+  ex1->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
+
+  SoSeparator *root = new SoSeparator;
+  root->ref();
+
+  SoPerspectiveCamera * myCamera = new SoPerspectiveCamera;
+  myCamera->position = SbVec3f(0.0f, 0.0f, 5.0f);
+  root->addChild(myCamera);
+  root->addChild(new SoDirectionalLight);
+
+  SoLightModel * lm = new SoLightModel;
+  lm->model = SoLightModel::BASE_COLOR;
+  root->addChild(lm);
+
+  SoDrawStyle *drawStyle = new SoDrawStyle;
+  drawStyle->style = SoDrawStyle::LINES;
+  root->addChild(new SoClipPlaneManip);
+  root->addChild(drawStyle);
+  root->addChild(new SoCube);
+
+  // Read the data (application supplied function)
+  SbVec3s dim = volume_size;
+
+  int *pData = (int *) volume_data;
+
+  // Add VolumeData to scene graph
+  SoVolumeData * pVolData = new SoVolumeData();
+  pVolData->setVolumeData(dim, (unsigned char *)pData, SoVolumeRendering::RGBA);
+  pVolData->setVolumeSize(SbBox3f(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f));
+
+  root->addChild(pVolData);
+
+  // Add TransferFunction (color map) to scene graph
+  SoTransferFunction *pTransFunc = new SoTransferFunction();
+  root->addChild( pTransFunc );
+
+  // Add VolumeRender to scene graph
+  SoVolumeRender * pVolRend = new SoVolumeRender();
+  root->addChild(pVolRend);
+  pVolRend->numSlices = 64;
+
+  myCamera->viewAll(root, ex1->getViewportRegion());
+  ex1->setSceneGraph(root);
+
+  ex1->show();
+  So@Gui@::show( window );
+  So@Gui@::mainLoop();
+  delete ex1;
+
+  root->unref();
+  return 0;
+}
