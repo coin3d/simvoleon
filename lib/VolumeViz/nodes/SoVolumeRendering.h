@@ -23,14 +23,78 @@
 
 #include <GL/gl.h>
 
+// FIXME: Move all extensionstuff to a proper home in Coin. 
+// torbjorv 08282002
+
+
 //Extensions for compressed textures...
-typedef void (APIENTRY * PFNGLCOMPRESSEDTEXIMAGE3DARBPROC) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data);
-typedef void (APIENTRY * PFNGLCOMPRESSEDTEXIMAGE2DARBPROC) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid *data);
-typedef void (APIENTRY * PFNGLCOMPRESSEDTEXIMAGE1DARBPROC) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLsizei imageSize, const GLvoid *data);
-typedef void (APIENTRY * PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data);
-typedef void (APIENTRY * PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid *data);
-typedef void (APIENTRY * PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC) (GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, const GLvoid *data);
-typedef void (APIENTRY * PFNGLGETCOMPRESSEDTEXIMAGEARBPROC) (GLenum target, GLint level, void *img);
+typedef void 
+(APIENTRY * PFNGLCOMPRESSEDTEXIMAGE3DARBPROC) (GLenum target, 
+                                               GLint level, 
+                                               GLenum internalformat, 
+                                               GLsizei width, 
+                                               GLsizei height, 
+                                               GLsizei depth, 
+                                               GLint border, 
+                                               GLsizei imageSize, 
+                                               const GLvoid *data);
+
+typedef void 
+(APIENTRY * PFNGLCOMPRESSEDTEXIMAGE2DARBPROC) (GLenum target, 
+                                               GLint level, 
+                                               GLenum internalformat, 
+                                               GLsizei width, 
+                                               GLsizei height, 
+                                               GLint border, 
+                                               GLsizei imageSize, 
+                                               const GLvoid *data);
+
+typedef void 
+(APIENTRY * PFNGLCOMPRESSEDTEXIMAGE1DARBPROC) (GLenum target, 
+                                               GLint level, 
+                                               GLenum internalformat, 
+                                               GLsizei width, 
+                                               GLint border, 
+                                               GLsizei imageSize, 
+                                               const GLvoid *data);
+
+typedef void 
+(APIENTRY * PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC) (GLenum target, 
+                                                  GLint level, 
+                                                  GLint xoffset, 
+                                                  GLint yoffset, 
+                                                  GLint zoffset, 
+                                                  GLsizei width, 
+                                                  GLsizei height, 
+                                                  GLsizei depth, 
+                                                  GLenum format, 
+                                                  GLsizei imageSize, 
+                                                  const GLvoid *data);
+
+typedef void 
+(APIENTRY * PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC) (GLenum target, 
+                                                  GLint level, 
+                                                  GLint xoffset, 
+                                                  GLint yoffset, 
+                                                  GLsizei width, 
+                                                  GLsizei height, 
+                                                  GLenum format, 
+                                                  GLsizei imageSize, 
+                                                  const GLvoid *data);
+
+typedef void 
+(APIENTRY * PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC) (GLenum target, 
+                                                  GLint level, 
+                                                  GLint xoffset, 
+                                                  GLsizei width, 
+                                                  GLenum format, 
+                                                  GLsizei imageSize, 
+                                                  const GLvoid *data);
+
+typedef void 
+(APIENTRY * PFNGLGETCOMPRESSEDTEXIMAGEARBPROC) (GLenum target, 
+                                                GLint level, 
+                                                void * img);
 
 extern PFNGLCOMPRESSEDTEXIMAGE3DARBPROC glCompressedTexImage3DARB;
 extern PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB;
@@ -40,11 +104,37 @@ extern PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC	glCompressedTexSubImage2DARB;
 extern PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC	glCompressedTexSubImage1DARB;
 extern PFNGLGETCOMPRESSEDTEXIMAGEARBPROC	glGetCompressedTexImageARB;
 
-typedef void (APIENTRY * PFNGLCOLORTABLEEXTPROC) (GLenum target, GLenum internalFormat, GLsizei width, GLenum format, GLenum type, const GLvoid *table);
-typedef void (APIENTRY * PFNGLCOLORSUBTABLEEXTPROC) (GLenum target, GLsizei start, GLsizei count, GLenum format, GLenum type, const GLvoid *data);
-typedef void (APIENTRY * PFNGLGETCOLORTABLEEXTPROC) (GLenum target, GLenum format, GLenum type, GLvoid *data);
-typedef void (APIENTRY * PFNGLGETCOLORTABLEPARAMETERIVEXTPROC) (GLenum target, GLenum pname, GLint *params);
-typedef void (APIENTRY * PFNGLGETCOLORTABLEPARAMETERFVEXTPROC) (GLenum target, GLenum pname, GLfloat *params);
+typedef void 
+(APIENTRY * PFNGLCOLORTABLEEXTPROC) (GLenum target, 
+                                     GLenum internalFormat, 
+                                     GLsizei width, 
+                                     GLenum format, 
+                                     GLenum type, 
+                                     const GLvoid *table);
+
+typedef void 
+(APIENTRY * PFNGLCOLORSUBTABLEEXTPROC) (GLenum target, 
+                                        GLsizei start, 
+                                        GLsizei count, 
+                                        GLenum format, 
+                                        GLenum type, 
+                                        const GLvoid *data);
+
+typedef void 
+(APIENTRY * PFNGLGETCOLORTABLEEXTPROC) (GLenum target, 
+                                        GLenum format, 
+                                        GLenum type, 
+                                        GLvoid *data);
+
+typedef void 
+(APIENTRY * PFNGLGETCOLORTABLEPARAMETERIVEXTPROC) (GLenum target, 
+                                                   GLenum pname, 
+                                                   GLint *params);
+
+typedef void 
+(APIENTRY * PFNGLGETCOLORTABLEPARAMETERFVEXTPROC) (GLenum target, 
+                                                   GLenum pname, 
+                                                   GLfloat *params);
 
 extern PFNGLCOLORTABLEEXTPROC glColorTableEXT;
 extern PFNGLCOLORSUBTABLEEXTPROC glColorSubTableEXT;
@@ -89,6 +179,8 @@ public:
 
   SoVolumeRendering();
   ~SoVolumeRendering();
+
+  // FIXME: Unimplemented functions. 08282002 torbjorv.
   static void init(); 
   HW_SupportStatus isSupported(HW_Feature feature);
 
