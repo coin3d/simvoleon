@@ -48,7 +48,7 @@ $1_DSP_DEFS=
 if $sim_ac_make_dsp; then
   SIM_AC_CONFIGURATION_SETTING([$2 build type], [msvc .dsp])
 
-  # -DHAVE_CONFIG_H is set up in $DEFS too late for use to use, and some
+  # -DHAVE_CONFIG_H is set up in $DEFS too late for us to use, and some
   # include directives are usually set up in the Makefile.am files
   for arg in -DHAVE_CONFIG_H $4 $CPPFLAGS $LDFLAGS $LIBS; do
     case $arg in
@@ -83,7 +83,7 @@ if $sim_ac_make_dsp; then
     -D$1_DEBUG* | -DNDEBUG )
       # Defines that vary between release/debug configurations can't be
       # set up dynamically in <lib>_DSP_DEFS - they must be static in the
-      # gendsp.sh script.  We therefore catche them here so we can ignore
+      # gendsp.sh script.  We therefore catch them here so we can ignore
       # checking for them below.
       ;;
     -D*=* | -D* )
@@ -97,9 +97,9 @@ if $sim_ac_make_dsp; then
     esac
   done
 
-  CC=[$]$3_src_dir/cfg/m4/gendsp.sh
-  CXX=[$]$3_src_dir/cfg/m4/gendsp.sh
-  CXXLD=[$]$3_src_dir/cfg/m4/gendsp.sh
+  CC=[$]$3_src_dir/cfg/gendsp.sh
+  CXX=[$]$3_src_dir/cfg/gendsp.sh
+  CXXLD=[$]$3_src_dir/cfg/gendsp.sh
   # Yes, this is totally bogus stuff, but don't worry about it.  As long
   # as gendsp.sh recognizes it...  20030219 larsa
   CPPFLAGS="$CPPFLAGS -Ddspfile=[$]$3_build_dir/$3[$]$1_MAJOR_VERSION.dsp"
@@ -108,8 +108,8 @@ if $sim_ac_make_dsp; then
 
   # this can't be set up at the point the libtool script is generated
   mv libtool libtool.bak
-  sed -e "s%^CC=\"gcc\"%CC=\"[$]$3_src_dir/cfg/m4/gendsp.sh\"%" \
-      -e "s%^CC=\".*/wrapmsvc.exe\"%CC=\"[$]$3_src_dir/cfg/m4/gendsp.sh\"%" \
+  sed -e "s%^CC=\"gcc\"%CC=\"[$]$3_src_dir/cfg/gendsp.sh\"%" \
+      -e "s%^CC=\".*/wrapmsvc.exe\"%CC=\"[$]$3_src_dir/cfg/gendsp.sh\"%" \
       <libtool.bak >libtool
   rm -f libtool.bak
   chmod 755 libtool
@@ -139,10 +139,10 @@ AC_SUBST([$1_DSP_DEFS])
 # SIM_AC_CONFIGURATION_SUMMARY macro.
 
 AC_DEFUN([SIM_AC_CONFIGURATION_SETTING],
-[if test x${sim_ac_configuration_settings+set} != xset; then
-  sim_ac_configuration_settings="$1:$2"
-else
+[if test x"${sim_ac_configuration_settings+set}" = x"set"; then
   sim_ac_configuration_settings="$sim_ac_configuration_settings|$1:$2"
+else
+  sim_ac_configuration_settings="$1:$2"
 fi
 ]) # SIM_AC_CONFIGURATION_SETTING
 
@@ -153,10 +153,10 @@ fi
 # SIM_AC_CONFIGURATION_SUMMARY macro.
 
 AC_DEFUN([SIM_AC_CONFIGURATION_WARNING],
-[if test x${sim_ac_configuration_warnings+set} != xset; then
-  sim_ac_configuration_warnings="$1"
-else
+[if test x"${sim_ac_configuration_warnings+set}" = x"set"; then
   sim_ac_configuration_warnings="$sim_ac_configuration_warnings|$1"
+else
+  sim_ac_configuration_warnings="$1"
 fi
 ]) # SIM_AC_CONFIGURATION_WARNING
 
@@ -166,7 +166,7 @@ fi
 # This macro dumps the settings and warnings summary.
 
 AC_DEFUN([SIM_AC_CONFIGURATION_SUMMARY],
-[sim_ac_settings=$sim_ac_configuration_settings
+[sim_ac_settings="$sim_ac_configuration_settings"
 sim_ac_num_settings=`echo "$sim_ac_settings" | tr -d -c "|" | wc -c`
 sim_ac_maxlength=0
 while test $sim_ac_num_settings -ge 0; do
@@ -2397,8 +2397,9 @@ else
     rhapsody* | darwin1.[[012]])
       allow_undefined_flag='-undefined suppress'
       ;;
-    *) # Darwin 1.3 on
-      allow_undefined_flag='-flat_namespace -undefined suppress'
+    *) # On Mac OS 10.1 and above, two-level namespace libraries are the
+       # default, where undefined symbols are not allowed.
+      allow_undefined_flag=''
       ;;
     esac
     # FIXME: Relying on posixy $() will cause problems for
@@ -4927,29 +4928,37 @@ AC_ARG_ENABLE(
   [enable_warnings=yes])
 
 if test x"$enable_warnings" = x"yes"; then
-  if test x"$GCC" = x"yes"; then
-    SIM_AC_CC_COMPILER_OPTION([-W -Wall -Wno-unused],
-                              [CFLAGS="$CFLAGS -W -Wall -Wno-unused"])
-    SIM_AC_CC_COMPILER_OPTION([-Wno-multichar],
-                              [CFLAGS="$CFLAGS -Wno-multichar"])
-  fi
 
-  if test x"$GXX" = x"yes"; then
-    SIM_AC_CXX_COMPILER_OPTION([-W -Wall -Wno-unused],
-                               [CXXFLAGS="$CXXFLAGS -W -Wall -Wno-unused"])
-    SIM_AC_CXX_COMPILER_OPTION([-Wno-multichar],
-                               [CXXFLAGS="$CXXFLAGS -Wno-multichar"])
-  fi
+  for sim_ac_try_warning_option in \
+    "-W" "-Wall" "-Wno-unused" "-Wno-multichar" "-Woverloaded-virtual"; do
 
+    if test x"$GCC" = x"yes"; then
+      SIM_AC_CC_COMPILER_OPTION([$sim_ac_try_warning_option],
+                                [CFLAGS="$CFLAGS $sim_ac_try_warning_option"])
+    fi
+  
+    if test x"$GXX" = x"yes"; then
+      SIM_AC_CXX_COMPILER_OPTION([$sim_ac_try_warning_option],
+                                 [CXXFLAGS="$CXXFLAGS $sim_ac_try_warning_option"])
+    fi
+
+  done
+    
   case $host in
   *-*-irix*) 
     ### Turn on all warnings ######################################
-    if test x"$CC" = xcc || test x"$CC" = xCC; then
+    # we try to catch settings like CC="CC -n32" too, even though the
+    # -n32 option belongs to C[XX]FLAGS
+    case $CC in
+    cc | "cc "* | CC | "CC "* )
       SIM_AC_CC_COMPILER_OPTION([-fullwarn], [CFLAGS="$CFLAGS -fullwarn"])
-    fi
-    if test x"$CXX" = xCC; then
+      ;;
+    esac
+    case $CXX in
+    CC | "CC "* )
       SIM_AC_CXX_COMPILER_OPTION([-fullwarn], [CXXFLAGS="$CXXFLAGS -fullwarn"])
-    fi
+      ;;
+    esac
 
     ### Turn off specific (bogus) warnings ########################
 
@@ -4973,17 +4982,22 @@ if test x"$enable_warnings" = x"yes"; then
     ##       SbTime.h in SGI/TGS Inventor does this, so we need to kill
     ##       this warning to avoid all the output clutter when compiling
     ##       the SoQt, SoGtk or SoXt libraries on IRIX with SGI MIPSPro CC.
+    ## 1169: External/internal linkage conflicts with a previous declaration.
+    ##       We get this for the "friend operators" in SbString.h
 
-    sim_ac_bogus_warnings="-woff 3115,3262,1174,1209,1355,1375,3201,1110,1506"
+    sim_ac_bogus_warnings="-woff 3115,3262,1174,1209,1355,1375,3201,1110,1506,1169"
 
-    if test x"$CC" = xcc || test x"$CC" = xCC; then
+    case $CC in
+    cc | "cc "* | CC | "CC "* )
       SIM_AC_CC_COMPILER_OPTION([$sim_ac_bogus_warnings],
                                 [CFLAGS="$CFLAGS $sim_ac_bogus_warnings"])
-    fi
-    if test x"$CXX" = xCC; then
+    esac
+    case $CXX in
+    CC | "CC "* )
       SIM_AC_CXX_COMPILER_OPTION([$sim_ac_bogus_warnings],
                                  [CXXFLAGS="$CXXFLAGS $sim_ac_bogus_warnings"])
-    fi
+      ;;
+    esac
   ;;
   esac
 fi
@@ -5058,10 +5072,14 @@ if $sim_ac_coin_desired; then
     sim_ac_path=$sim_ac_path:$prefix/bin
 
   AC_PATH_PROG(sim_ac_coin_configcmd, coin-config, false, $sim_ac_path)
-  if $sim_ac_coin_configcmd; then
+
+  if ! test "X$sim_ac_coin_configcmd" = "Xfalse"; then
     test -n "$CONFIG" &&
       $sim_ac_coin_configcmd --alternate=$CONFIG >/dev/null 2>/dev/null &&
       sim_ac_coin_configcmd="$sim_ac_coin_configcmd --alternate=$CONFIG"
+  fi
+
+  if $sim_ac_coin_configcmd; then
     sim_ac_coin_version=`$sim_ac_coin_configcmd --version`
     sim_ac_coin_cppflags=`$sim_ac_coin_configcmd --cppflags`
     sim_ac_coin_cflags=`$sim_ac_coin_configcmd --cflags 2>/dev/null`
