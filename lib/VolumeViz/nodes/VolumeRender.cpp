@@ -62,6 +62,7 @@
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/render/2D/CvrPageHandler.h>
@@ -974,6 +975,9 @@ SoVolumeRenderP::getAveragePerformanceTime(SbList<double> & l)
 double
 SoVolumeRenderP::performanceTest(const cc_glglue * glue)
 {
+
+
+
   const SbTime t = SbTime::getTimeOfDay();
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("SoVolumeRenderP::performanceTest",
@@ -986,6 +990,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   GLuint texture2dids[2];
   SoVolumeRenderP::setupPerformanceTestTextures(texture3did, texture2dids, glue);
 
+
   glPixelTransferf(GL_RED_SCALE, 1.0f);  // Setting to initial values
   glPixelTransferf(GL_GREEN_SCALE, 1.0f);
   glPixelTransferf(GL_BLUE_SCALE, 1.0f);
@@ -997,15 +1002,19 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glPixelZoom(1.0f, 1.0f);
   glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
   glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
-
+  
   // Save the framebuffer for later
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
+
+  GLint rasterpos[4];
+  glGetIntegerv(GL_CURRENT_RASTER_POSITION, rasterpos);
 
   const unsigned int size = viewport[2] * viewport[3] * 4;
   GLubyte * framebuf = new GLubyte[size];
   glReadPixels(0, 0, viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, framebuf);
 
+ 
   glDepthMask(GL_FALSE); // Dont write to the depthbuffer. It wont be restored.
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_LIGHTING);
@@ -1016,6 +1025,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
+
 
   // The following is a substitute for gluPerspective(...)
   const float fovy = 45.0f;
@@ -1044,23 +1054,26 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glLoadIdentity();
   glTranslatef(0, 0, -0.5f); // Move camera a bit, so polygons can be
                              // rendered at z=0.
-
+  
   if (SoVolumeRenderP::debug3DTextureTiming()) {
     glClearColor(0, 0, 1, 0);
     glClear(GL_COLOR_BUFFER_BIT);
   }
-
+  
   // Make sure we don't drag along the full pipeline into the first
   // test run, by forcing completion of all GL commands currently
   // being processed.
   glFinish();
 
+  
   SbList<double> timelist2d, timelist3d;
   SbTime starttime = SbTime::getTimeOfDay();
+ 
   for (unsigned int i = 0; i < VOLUMERENDER_PERFORMANCETEST_TIMES; ++i) {
+    
     SoVolumeRenderP::renderPerformanceTestScene(timelist3d, timelist2d,
                                                 texture3did, texture2dids);
-
+            
     const SbTime now = SbTime::getTimeOfDay();
     if (CvrUtil::doDebugging()) {
       SoDebugError::postInfo("SoVolumeRenderP::performanceTest",
@@ -1070,22 +1083,15 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
     // Don't run the test for more than half a second.
     if (((now - starttime).getValue()) > .5f) { break; }
   }
-
+  
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("SoVolumeRenderP::performanceTest",
                            "managed %d runs", timelist2d.getLength());
   }
-
+  
   const double average3dtime = SoVolumeRenderP::getAveragePerformanceTime(timelist3d);
   const double average2dtime = SoVolumeRenderP::getAveragePerformanceTime(timelist2d);
-
-  // Write back framebuffer
-  if (!SoVolumeRenderP::debug3DTextureTiming()) {
-    // FIXME: missing glRasterPos() call here? 20040711 mortene.
-    glDrawPixels(viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, framebuf);
-  }
-  delete[] framebuf;
-
+ 
   glDeleteTextures(1, texture3did);
   glDeleteTextures(2, texture2dids);
 
@@ -1094,7 +1100,30 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glMatrixMode(GL_MODELVIEW);
   glPopMatrix();
 
-  glPopAttrib();
+
+
+  // Write back framebuffer
+  if (!SoVolumeRenderP::debug3DTextureTiming()) {
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    glTranslatef(-1.0, -1.0, 0);
+
+    glRasterPos2i(rasterpos[0], rasterpos[1]);
+    glDisable(GL_DEPTH_TEST);
+    glDrawPixels(viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, framebuf);
+    
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
+  }
+  delete[] framebuf;
 
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("SoVolumeRenderP::performanceTest",
@@ -1106,6 +1135,8 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
                            (average3dtime / average2dtime),
                            (SbTime::getTimeOfDay() - t).getValue());
   }
+
+  glPopAttrib();
 
   return average3dtime / average2dtime;
 }
