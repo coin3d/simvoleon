@@ -235,9 +235,15 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
 
-  // FIXME: investigate if this is really what we want. 20021120 mortene.
+  // FIXME: investigate if this is really what we want. Perhaps
+  // GL_NEAREST is better? 20021120 mortene.
+#if 0
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+#else
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+#endif
 }
 
 unsigned int
