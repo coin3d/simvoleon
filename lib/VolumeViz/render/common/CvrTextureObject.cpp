@@ -421,7 +421,8 @@ CvrTextureObject::unref(void) const
 // *************************************************************************
 
 CvrTextureObject *
-CvrTextureObject::findInstanceMatch(const struct CvrTextureObject::EqualityComparison & obj)
+CvrTextureObject::findInstanceMatch(const SoType t,
+                                    const struct CvrTextureObject::EqualityComparison & obj)
 {
   const unsigned long key = CvrTextureObject::hashKey(obj);
   void * ptr;
@@ -435,9 +436,9 @@ CvrTextureObject::findInstanceMatch(const struct CvrTextureObject::EqualityCompa
 
   for (int i = 0; i < l->getLength(); i++) {
     CvrTextureObject * to = (*l)[i];
-    if (to->eqcmp == obj) { return to; }
+    if ((to->eqcmp == obj) && (to->getTypeId() == t)) { return to; }
   }
-
+  
   return NULL;
 }
 
@@ -481,6 +482,15 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
   assert(vbelem != NULL);
 
+  const SbBool paletted = CvrCLUT::usePaletteTextures(action);
+  const SbBool is2d = (axisidx != UINT_MAX);
+
+  SoType t;
+  if (is2d && paletted) { t = Cvr2DPaletteTexture::getClassTypeId(); }
+  else if (is2d) { t = Cvr2DRGBATexture::getClassTypeId(); }
+  else if (paletted) { t = Cvr3DPaletteTexture::getClassTypeId(); }
+  else { t = Cvr3DRGBATexture::getClassTypeId(); }
+
   struct CvrTextureObject::EqualityComparison incoming;
   incoming.sovolumedata_id = vbelem->getNodeId();
   incoming.cutcube = cutcube; // For 3D tex
@@ -488,13 +498,11 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   incoming.axisidx = axisidx; // For 2D tex
   incoming.pageidx = pageidx; // For 2D tex
   
-  CvrTextureObject * obj = CvrTextureObject::findInstanceMatch(incoming);
+  CvrTextureObject * obj = CvrTextureObject::findInstanceMatch(t, incoming);
   if (obj) { return obj; }
 
   const SbVec3s & voxdims = vbelem->getVoxelCubeDimensions();
   const void * dataptr = vbelem->getVoxels();
-
-  const SbBool is2d = (axisidx != UINT_MAX);
 
   // FIXME: improve buildSubPage() interface to fix this roundabout
   // way of calling it. 20021206 mortene.
@@ -505,15 +513,6 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   else { cubechunk = input->buildSubCube(cutcube); }
   delete input;
 
-  const SbBool paletted = CvrCLUT::usePaletteTextures(action);
-  SbBool invisible = FALSE;
-
-  SoType t;
-  if (is2d && paletted) { t = Cvr2DPaletteTexture::getClassTypeId(); }
-  else if (is2d) { t = Cvr2DRGBATexture::getClassTypeId(); }
-  else if (paletted) { t = Cvr3DPaletteTexture::getClassTypeId(); }
-  else { t = Cvr3DRGBATexture::getClassTypeId(); }
-
   CvrTextureObject * newtexobj = (CvrTextureObject *)t.createInstance();
 
   // The actual dimensions of the GL texture must be values that are
@@ -522,7 +521,9 @@ CvrTextureObject::create(const SoGLRenderAction * action,
     newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i]);
   }
 
+  SbBool invisible = FALSE;
   cubechunk->transfer(action, newtexobj, invisible);
+  delete cubechunk;
 
   // If completely transparent
   if (invisible) { return NULL; }
@@ -676,6 +677,7 @@ CvrTextureObject::EqualityComparison::operator==(const CvrTextureObject::Equalit
     (this->cutslice == obj.cutslice) &&
     (this->axisidx == obj.axisidx) &&
     (this->pageidx == obj.pageidx);
+  
 }
 
 // *************************************************************************

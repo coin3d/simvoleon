@@ -105,7 +105,8 @@ private:
     int operator==(const struct EqualityComparison & cmp);
   } eqcmp;
 
-  static CvrTextureObject * findInstanceMatch(const struct CvrTextureObject::EqualityComparison & cmp);
+  static CvrTextureObject * findInstanceMatch(const SoType t,
+                                              const struct CvrTextureObject::EqualityComparison & cmp);
   unsigned long CvrTextureObject::hashKey(void) const;
   static unsigned long hashKey(const struct CvrTextureObject::EqualityComparison & cmp);
 };
