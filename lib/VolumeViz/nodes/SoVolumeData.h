@@ -27,18 +27,13 @@ public:
   SoVolumeData(void);
 
   enum StorageHint {
-    // FIXME: these are not bit flags in TGS, I think. Check. 20021113 mortene.
-    AUTO = 0x00000001,
-    TEX2D_MULTI = 0x00000002,
+    AUTO,
+    TEX2D_MULTI,
     TEX2D = TEX2D_MULTI,
-    TEX3D = 0x00000004,
-    MEMORY = 0x00000008,
-    VOLUMEPRO = 0x00000010,
-    TEX2D_SINGLE = 0x00000020,
-    // FIXME: do we really need the extensions? See doc about them in
-    // the .cpp ("USER INTERACTION"). 20021107 mortene.
-    LOAD_MAX = 0x00000040,          // Builds as many pages as possible at
-    DYNAMIC_LOADING = 0x00000080,   // Only loads the pages used
+    TEX3D,
+    MEMORY,
+    VOLUMEPRO,
+    TEX2D_SINGLE
   };
 
   enum SubMethod { NEAREST, MAX, AVERAGE };
@@ -75,11 +70,9 @@ public:
 
   SoVolumeReader * getReader(void) const;
 
-  // FIXME: The following functions are still to be implemented.
-  // torbjorv 07122002
-
   SbBool getMinMax(int & min, int & max);
   SbBool getHistogram(int & length, int *& histogram);
+
   SoVolumeData * subSetting(const SbBox3s & region);
   void updateRegions(const SbBox3s * region, int num);
   SoVolumeData * reSampling(const SbVec3s & dimension,

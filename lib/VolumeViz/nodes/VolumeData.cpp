@@ -34,15 +34,7 @@ USER INTERACTION
   for the current position of a SoROI/SoVolumeRender-node. Due to
   significant overhead when loading data and squeezing them through a
   transfer function, the user experiences major delays in the visual
-  response on her interactions. TGS does not have functionality for
-  dynamic loading of data, so the StorageHint-enum is extended with
-  two elements (LOAD_MAX, LOAD_DYNAMIC). Currently, LOAD_DYNAMIC is
-  the only one implemented of the StorageHints, and is set as
-  default. By using LOAD_MAX, the specified available memory should be
-  filled to it's maximum. Subpages should be selected in an intelligent
-  way, depending on the location of possible SoROI-nodes (load the
-  surrounding area). This should in most cases speed up the visual
-  feedback.
+  response on her interactions.
 
 
 
