@@ -41,17 +41,9 @@
 #include "CvrIndexedSetRenderBaseP.h"
 #include "SoVolumeIndexedFaceSet.h"
 
-/*
-
-  TODO:
-
-  * The 'clipGeometry' feature doesn't work properly for clipped
-    geometry when using SoVertexProperty. (20040707 handegar)
-  * Lighting does not work properly as normals are ignored. (20040707 handegar)
-  * The 'offset' field is ignored. (20040707 handegar)
-  * Support for multiple materials is not testet properly yet. (20040707 handegar)
-
-*/
+// FIXME: Lighting does not work properly as normals are ignored. (20040707 handegar)
+// FIXME: The 'offset' field is ignored. (20040707 handegar)
+// FIXME: Support for multiple materials is not testet properly yet. (20040707 handegar)
 
 void
 CvrIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action, 
@@ -204,15 +196,17 @@ CvrIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
 
     if (this->parentnodeid != this->master->getNodeId()) { // Changed recently?
       SoVertexProperty * vertprop = (SoVertexProperty *) this->master->vertexProperty.getValue();
-      if (vertprop != NULL) { this->clipgeometryshape->vertexProperty.setValue(vertprop); }
-      else {
-        int i=0;
-        for (i=0;i<this->master->coordIndex.getNum();++i)
-          this->clipgeometryshape->coordIndex.set1Value(i, this->master->coordIndex[i]);
-        for (i=0;i<this->master->materialIndex.getNum();++i)
-          this->clipgeometryshape->materialIndex.set1Value(i, this->master->materialIndex[i]);       
-        // No need to copy texture coords as the face set shall always be untextured.
-      }
+      if (vertprop != NULL) this->clipgeometryshape->vertexProperty.setValue(vertprop); 
+      
+      int i=0;
+      this->clipgeometryshape->coordIndex.setNum(this->master->coordIndex.getNum());
+      for (i=0;i<this->master->coordIndex.getNum();++i)
+        this->clipgeometryshape->coordIndex.set1Value(i, this->master->coordIndex[i]);
+      this->clipgeometryshape->materialIndex.setNum(this->master->materialIndex.getNum());
+      for (i=0;i<this->master->materialIndex.getNum();++i)
+        this->clipgeometryshape->materialIndex.set1Value(i, this->master->materialIndex[i]);       
+      // No need to copy texture coords as the face set shall always be untextured.
+      
       this->parentnodeid = this->master->getNodeId();
     }
   
