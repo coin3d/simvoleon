@@ -6,6 +6,7 @@
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 
 #include <Inventor/C/tidbits.h>
+#include <Inventor/C/glue/gl.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/SbTime.h>
 #include <Inventor/errors/SoDebugError.h>
@@ -259,8 +260,6 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
   glDisable(GL_LIGHTING);
-  // FIXME: shouldn't we disable lots of stuff here (3D textures, for
-  // instance)? 20021128 mortene.
   glEnable(GL_TEXTURE_2D);
   glPolygonMode(GL_FRONT, GL_FILL);
 
@@ -268,18 +267,35 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   // a Coin scene graph? Do we need to delay rendering? 20021109 mortene.
 
   glEnable(GL_BLEND);
+
   if (composition == CvrPageHandler::ALPHA_BLENDING) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   }
-  else if (composition == CvrPageHandler::MAX_INTENSITY) {
-    // FIXME: optional OpenGL 1.2 function. 20021202 mortene.
-    glBlendEquation(GL_MAX);
-  }
   else {
-    assert(composition == CvrPageHandler::SUM_INTENSITY && "invalid composition");
-    glBlendFunc(GL_ONE, GL_ONE);
-    // FIXME: optional OpenGL 1.2 function. 20021202 mortene.
-    glBlendEquation(GL_FUNC_ADD);
+    const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
+    if (!cc_glglue_has_blendequation(glglue)) {
+      static SbBool first = TRUE;
+      if (first) {
+        SoDebugError::postWarning("CvrPageHandler::render",
+                                  "Your OpenGL driver is not capable of "
+                                  "showing data sets in MAX_INTENSITY or "
+                                  "SUM_INTENSITY composition.");
+        first = FALSE;
+      }
+      // Fall back on ALPHA_BLENDING.
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    }
+    else {
+      if (composition == CvrPageHandler::MAX_INTENSITY) {
+        cc_glglue_glBlendEquation(glglue, GL_MAX /* FIXME: <- must be made available. */);
+      }
+      else {
+        assert(composition == CvrPageHandler::SUM_INTENSITY &&
+               "invalid composition");
+        glBlendFunc(GL_ONE, GL_ONE);
+        cc_glglue_glBlendEquation(glglue, GL_FUNC_ADD /* FIXME: <- must be made available. */);
+      }
+    }
   }
 
   assert(glGetError() == GL_NO_ERROR);
