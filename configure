@@ -21780,7 +21780,7 @@ echo "${ECHO_T}no" >&6
 fi
 
 
-  if ! test "X$sim_ac_coin_configcmd" = "Xfalse"; then
+  if test "X$sim_ac_coin_configcmd" != "Xfalse"; then
     test -n "$CONFIG" &&
       $sim_ac_coin_configcmd --alternate=$CONFIG >/dev/null 2>/dev/null &&
       sim_ac_coin_configcmd="$sim_ac_coin_configcmd --alternate=$CONFIG"
@@ -21871,7 +21871,7 @@ fi
 echo "$as_me:$LINENO: result: $sim_cv_coin_avail" >&5
 echo "${ECHO_T}$sim_cv_coin_avail" >&6
     sim_ac_coin_avail=$sim_cv_coin_avail
-    if ! $sim_ac_coin_avail; then
+    if $sim_ac_coin_avail; then :; else
       { echo "$as_me:$LINENO: WARNING:
 Compilation and/or linking with the Coin main library SDK failed, for
 unknown reason. If you are familiar with configure-based configuration
