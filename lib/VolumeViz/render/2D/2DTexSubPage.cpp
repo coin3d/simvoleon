@@ -258,7 +258,13 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
 
   // This is a debugging backdoor to test stuff with no limits on how
   // much texture memory we can use.
-  static int unlimited_texmem = -1;
+
+  // FIXME: there are no restrictions on texture memory yet -- it
+  // needs support in other areas of the library. So until proper
+  // resource handling is in place, anything goes. 20030324 mortene.
+
+//   static int unlimited_texmem = -1;
+  static int unlimited_texmem = 1;
   if (unlimited_texmem == -1) {
     const char * envstr = coin_getenv("CVR_UNLIMITED_TEXMEM");
     if (envstr) { unlimited_texmem = atoi(envstr) > 0 ? 1 : 0; }
