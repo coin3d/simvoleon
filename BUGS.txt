@@ -224,3 +224,23 @@
     20040804 mortene.
 
 ========================================================================
+
+015 Potentially inefficient utilization of texture memory when using
+    3D textures.
+
+    When rendering with 3D textures, all texture sub-cubes are always
+    of the same size, which means we will some times (perhaps often)
+    use much more texture memory than necessary.
+
+    Consider this example: a voxel set of dimensions 129x129x129, with
+    a sub-cube size of 128x128x128 will _not_ use cubes of lesser
+    dimensions for the voxel data outside the larger (128x128x128)
+    cube, but *all* sub-cubes will be 128x128x128, even for only a
+    single "line" of texture, or even just for the sub-cube where just
+    the 1x1x1 texture is needed.
+
+    Consider this a high priority item.
+
+    20040817 mortene.
+
+========================================================================
