@@ -38,11 +38,6 @@ USER INTERACTION
 
 
 
-PALETTED TEXTURES
-
-  See doc in Cvr2DTexSubPage.
-
-
 MEMORY MANAGEMENT
 
   The TGS-API contains a function setTexMemorySize(). It makes the
@@ -167,10 +162,26 @@ REFACTORING
   should be consistent with the TGS VolumeViz-interface (see
   "VOLUMEREADERS").
 
-
-
-
   torbjorv 08292002
+*/
+
+// *************************************************************************
+
+/*!
+  \var SoSFBool SoVolumeData::usePalettedTexture
+
+  Indicate whether or not to use paletted textures.
+
+  Paletted textures uses only 1/4th of the amount of graphics card
+  memory resources versus ordinary RGBA textures, with no degradation
+  of rendering quality.
+
+  Not all graphics cards and drivers supports paletted textures, but
+  the library will fall back on non-paletted textures automatically if
+  that is the case.
+
+  Default value is \c TRUE. Apart from debugging purposes, there is
+  really no good reason to set this field to \c FALSE.
 */
 
 // *************************************************************************
