@@ -1,10 +1,13 @@
 #include "TransferFunctionHandler.h"
 #include <SoTransferFunction_ctrl.h>
 
-#include <VolumeViz/nodes/SoTransferFunction.h>
 #include <qvalidator.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
+
+#include <Inventor/Qt/widgets/SoQtGradientDialog.h>
+
+#include <VolumeViz/nodes/SoTransferFunction.h>
 
 
 TransferFunctionHandler::TransferFunctionHandler(SoTransferFunction * node,
@@ -24,11 +27,14 @@ TransferFunctionHandler::TransferFunctionHandler(SoTransferFunction * node,
   this->remap[1] = remaphigh;
 
   this->initGUI();
+
+  this->gradientdialog = NULL;
 }
 
 TransferFunctionHandler::~TransferFunctionHandler()
 {
   this->node->unref();
+  delete this->gradientdialog;
 }
 
 void
@@ -102,9 +108,50 @@ TransferFunctionHandler::highEditUpdate(void)
 }
 
 void
+TransferFunctionHandler::gradientCallback(const Gradient & g)
+{
+  const unsigned int NUMCOLS = 256;
+
+  QRgb coltable[NUMCOLS];
+  g.getColorArray(coltable, NUMCOLS);
+
+  // FIXME: should work with ALPHA and LUM_ALPHA also. 20031008 mortene.
+  this->node->colorMapType = SoTransferFunction::RGBA;
+
+  float colors[NUMCOLS*4];
+  for (unsigned int i=0; i < NUMCOLS; i++) {
+    QRgb c = coltable[i];
+    colors[i*4 + 0] = float(qRed(c)) / 255.0f;
+    colors[i*4 + 1] = float(qGreen(c)) / 255.0f;
+    colors[i*4 + 2] = float(qBlue(c)) / 255.0f;
+    colors[i*4 + 3] = float(qAlpha(c)) / 255.0f;
+  }
+  this->node->colorMap.setValues(0, NUMCOLS*4, colors);
+}
+
+void
+TransferFunctionHandler::gradientCallbackP(const Gradient & g, void * userdata)
+{
+  TransferFunctionHandler * that = (TransferFunctionHandler *)userdata;
+  that->gradientCallback(g);
+}
+
+void
 TransferFunctionHandler::predefColorMapUpdate(int idx)
 {
   this->node->predefColorMap = idx;
+
+  if (idx == SoTransferFunction::NONE) {
+    if (this->gradientdialog == NULL) {
+      this->gradientdialog = new SoQtGradientDialog();
+      this->gradientdialog->setChangeCallback(TransferFunctionHandler::gradientCallbackP, this);
+    }
+    this->gradientdialog->show();
+    this->gradientCallback(this->gradientdialog->getGradient());
+  }
+  else {
+    if (this->gradientdialog) { this->gradientdialog->hide(); }
+  }
 }
 
 void

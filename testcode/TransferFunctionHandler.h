@@ -5,6 +5,7 @@
 
 class SoTransferFunction;
 class SoTransferFunction_ctrl;
+class Gradient;
 
 
 class TransferFunctionHandler : QObject
@@ -31,6 +32,10 @@ private:
   SoTransferFunction_ctrl * ctrl;
 
   int remap[2];
+
+  class SoQtGradientDialog * gradientdialog;
+  void gradientCallback(const Gradient & g);
+  static void gradientCallbackP(const Gradient & g, void * userdata);
 };
 
 #endif // !CVRTEST_TRANSFERFUNCTIONHANDLER_H
