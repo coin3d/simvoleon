@@ -141,7 +141,7 @@ public:
     // Our default size (0 == unlimited).
     this->maxnrtexels = 0;
 
-    this->VRMemReader = NULL;
+    this->VRMemReader = new SoVRMemReader;
     this->reader = NULL;
   }
 
@@ -348,10 +348,7 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
                            typestr.getString());
   }
 
-
-  PRIVATE(this)->VRMemReader = new SoVRMemReader;
   PRIVATE(this)->VRMemReader->setData(dimensions, data, type);
-
   this->setReader(PRIVATE(this)->VRMemReader);
 
   PRIVATE(this)->datatype = type;
