@@ -3,6 +3,7 @@
 
 class SbVec3s;
 
-extern void * generateRGBAVoxelSet(SbVec3s & dim);
+extern uint8_t * generateRGBAVoxelSet(SbVec3s & dim);
+extern uint8_t * generate8bitVoxelSet(SbVec3s & dim);
 
 #endif // SIMVOLEON_TESTCODE_UTILITY_H
