@@ -95,6 +95,6 @@ rgbload.o: rgbload.cpp
 	soqt-config --compile $<
 
 rgbload: $(RGBLOAD_OBJECTS)
-	soqt-config --link $@ $(RGBLOAD_OBJECTS) -lSimVoleon -lSmallChange
+	soqt-config --link $@ $(RGBLOAD_OBJECTS) -lSimVoleon -lsimage
 
 ## end
