@@ -92,27 +92,27 @@ private:
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::TEMPERATURE
-  
+  &nbsp;
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::PHYSICS
- 
+  &nbsp;
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::STANDARD
- 
+  &nbsp;
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GLOW
- 
+  &nbsp;
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::BLUE_RED
- 
+  &nbsp;
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::SEISMIC
- 
+  &nbsp;
 */
 
 /*!
