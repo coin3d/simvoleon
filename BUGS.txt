@@ -72,6 +72,22 @@
     At least one potential client would use this. Should be simple to
     fix.
 
+    handegar suggests that we can simply do it by forcing 2D textures,
+    which sounds like a good idea. Can probably be done simply by
+    changing the code around line 493 of VolumeRender.cpp to
+
+         if (cc_glglue_has_3d_textures(glue) && 
+                !CvrUtil::force2DTextureRendering() && 
+                this->viewAlignedSlices.getValue()) {
+                ...
+
+    ..but do some testing with this before committing.
+
+    One problem: SoVolumeRender::viewAlignedSlices is FALSE by
+    default, i.e. programmers should explicitly change it to TRUE to
+    get 3D textures -- that's how it seems to be documented to work
+    for TGS VolumeViz.
+
     20040702 mortene.
 
 ========================================================================
