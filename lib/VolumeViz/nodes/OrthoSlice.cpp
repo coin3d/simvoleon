@@ -1,5 +1,6 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
+#include <Inventor/elements/SoGLClipPlaneElement.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 
@@ -123,10 +124,13 @@ SoOrthoSlice::initClass(void)
   SO_NODE_INIT_CLASS(SoOrthoSlice, SoShape, "SoShape");
 
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
-  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoPickAction, SoVolumeDataElement);
 
-  SO_ENABLE(SoRayPickAction, SoVolumeDataElement);
-  SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
+  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoPickAction, SoTransferFunctionElement);
+
+  SO_ENABLE(SoGLRenderAction, SoGLClipPlaneElement);
+  SO_ENABLE(SoPickAction, SoClipPlaneElement);
 }
 
 // doc in super
@@ -134,6 +138,31 @@ SbBool
 SoOrthoSlice::affectsState(void) const
 {
   return this->clipping.getValue();
+}
+
+// Doc from superclass.
+void
+SoOrthoSlice::doAction(SoAction * action)
+{
+  SoState * state = action->getState();
+
+  // The clipping is common for all action traversal.
+  if (this->clipping.getValue()) {
+    // Find the plane definition.
+    const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
+    assert(volumedataelement != NULL);
+
+    SbVec3f origo, horizspan, verticalspan;
+    volumedataelement->getPageGeometry(this->axis.getValue(),
+                                       this->sliceNumber.getValue(),
+                                       origo, horizspan, verticalspan);
+
+    SbVec3f planenormal = horizspan.cross(verticalspan);
+    if (this->clippingSide.getValue() == SoOrthoSlice::BACK) { planenormal.negate(); }
+    const SbPlane sliceplane(planenormal, origo);
+
+    SoClipPlaneElement::add(state, this, sliceplane);
+  }
 }
 
 void
@@ -191,6 +220,11 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   texpage->render(action, origo, horizspan, verticalspan, ip);
 
   glPopAttrib();
+
+
+  // Common clipping plane handling. Do this after rendering, so the
+  // slice itself isn't clipped.
+  SoOrthoSlice::doAction(action);
 }
 
 Cvr2DTexPage *
@@ -224,7 +258,12 @@ SoOrthoSliceP::getPage(const int axis, const int slice, SoVolumeData * voldata)
 void
 SoOrthoSlice::rayPick(SoRayPickAction * action)
 {
-  // FIXME: implement
+  // FIXME: implement pick
+  {
+  }
+
+  // Common clipping plane handling.
+  SoOrthoSlice::doAction(action);
 }
 
 void
@@ -279,9 +318,11 @@ SoOrthoSliceP::renderBox(SoGLRenderAction * action, SbBox3f box)
   SbVec3f bmin, bmax;
   box.getBounds(bmin, bmax);
 
-  // FIXME: push attribs
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
 
   glDisable(GL_TEXTURE_2D);
+  glDisable(GL_LIGHTING);
+  glColor4ub(0xff, 0xff, 0xff, 0xff);
   glLineStipple(1, 0xffff);
   glLineWidth(2);
 
@@ -327,9 +368,7 @@ SoOrthoSliceP::renderBox(SoGLRenderAction * action, SbBox3f box)
 
   glEnd();
 
-  // FIXME: pop attribs
-
-  glEnable(GL_TEXTURE_2D);
+  glPopAttrib();
 }
 
 // *************************************************************************

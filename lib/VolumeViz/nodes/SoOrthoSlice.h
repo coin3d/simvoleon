@@ -34,6 +34,7 @@ public:
 protected:
   ~SoOrthoSlice();
 
+  virtual void doAction(SoAction * action);
   virtual void GLRender(SoGLRenderAction * action);
   virtual void rayPick(SoRayPickAction * action);
   virtual void generatePrimitives(SoAction * action);
