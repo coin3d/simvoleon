@@ -1,5 +1,5 @@
-#ifndef SOVOLUMEINDEXEDFACESET_H
-#define SOVOLUMEINDEXEDFACESET_H
+#ifndef SIMVOLEON_SOVOLUMEINDEXEDFACESET_H
+#define SIMVOLEON_SOVOLUMEINDEXEDFACESET_H
 
 /**************************************************************************\
  *
@@ -32,31 +32,27 @@
 #include <VolumeViz/render/3D/Cvr3DTexCube.h>
 
 
-
 class SIMVOLEON_DLL_API SoVolumeIndexedFaceSet : public SoIndexedFaceSet {
   typedef SoIndexedFaceSet inherited;
   SO_NODE_HEADER(SoVolumeIndexedFaceSet);
   
 public:
-  static void initClass();  
-  SoVolumeIndexedFaceSet();
+  static void initClass(void);  
+  SoVolumeIndexedFaceSet(void);
 
   SoSFBool clipGeometry;  
   SoSFFloat offset;
 
-   
 protected:
   ~SoVolumeIndexedFaceSet();
 
-  virtual void GLRender(SoGLRenderAction *action);
+  virtual void GLRender(SoGLRenderAction * action);
 
 private:  
   friend class SoVolumeIndexedFaceSetP;
   class SoVolumeIndexedFaceSetP * pimpl;
 
   friend class CvrIndexedFaceSetRenderP;
-  friend class CvrIndexedSetRenderBaseP;
-
 };
 
-#endif /* SOVOLUMEINDEXEDFACESET_H */
+#endif // !SIMVOLEON_SOVOLUMEINDEXEDFACESET_H

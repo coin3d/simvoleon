@@ -1,5 +1,5 @@
-#ifndef SOVOLUMEFACESET_H
-#define SOVOLUMEFACESET_H
+#ifndef SIMVOLEON_SOVOLUMEFACESET_H
+#define SIMVOLEON_SOVOLUMEFACESET_H
 
 /**************************************************************************\
  *
@@ -37,8 +37,8 @@ class SIMVOLEON_DLL_API SoVolumeFaceSet : public SoFaceSet {
   SO_NODE_HEADER(SoVolumeFaceSet);
   
 public:
-  static void initClass();  
-  SoVolumeFaceSet();
+  static void initClass(void);  
+  SoVolumeFaceSet(void);
 
   SoSFBool clipGeometry;  
   SoSFFloat offset;
@@ -46,15 +46,13 @@ public:
 protected:
   ~SoVolumeFaceSet();
 
-  virtual void GLRender(SoGLRenderAction *action);
+  virtual void GLRender(SoGLRenderAction * action);
 
 private:  
   friend class SoVolumeFaceSetP;
   class SoVolumeFaceSetP * pimpl;
 
-  friend class CvrNonIndexedSetRenderBaseP;
   friend class CvrFaceSetRenderP;
-
 };
 
-#endif /* SOVOLUMEFACESET_H */
+#endif // !SIMVOLEON_SOVOLUMEFACESET_H

@@ -1,5 +1,5 @@
-#ifndef SOVOLUMETRIANGLESTRIPSET_H
-#define SOVOLUMETRIANGLESTRIPSET_H
+#ifndef SIMVOLEON_SOVOLUMETRIANGLESTRIPSET_H
+#define SIMVOLEON_SOVOLUMETRIANGLESTRIPSET_H
 
 /**************************************************************************\
  *
@@ -37,8 +37,8 @@ class SIMVOLEON_DLL_API SoVolumeTriangleStripSet : public SoTriangleStripSet {
   SO_NODE_HEADER(SoVolumeTriangleStripSet);
   
 public:
-  static void initClass();  
-  SoVolumeTriangleStripSet();
+  static void initClass(void);  
+  SoVolumeTriangleStripSet(void);
 
   SoSFBool clipGeometry;  
   SoSFFloat offset;
@@ -46,15 +46,13 @@ public:
 protected:
   ~SoVolumeTriangleStripSet();
 
-  virtual void GLRender(SoGLRenderAction *action);
+  virtual void GLRender(SoGLRenderAction * action);
 
 private:  
   friend class SoVolumeTriangleStripSetP;
   class SoVolumeTriangleStripSetP * pimpl;
 
-  friend class CvrNonIndexedSetRenderBaseP;
   friend class CvrTriangleStripSetRenderP;
-
 };
 
-#endif /* SOVOLUMETRIANGLESTRIPSET_H */
+#endif // !SIMVOLEON_SOVOLUMETRIANGLESTRIPSET_H

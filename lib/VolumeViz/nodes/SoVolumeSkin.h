@@ -1,5 +1,5 @@
-#ifndef CVR_SOVOLUMESKIN_H
-#define CVR_SOVOLUMESKIN_H
+#ifndef SIMVOLEON_SOVOLUMESKIN_H
+#define SIMVOLEON_SOVOLUMESKIN_H
 
 /**************************************************************************\
  *
@@ -52,4 +52,4 @@ private:
   class SoVolumeSkinP * pimpl;
 };
 
-#endif // !CVR_SOVOLUMESKIN_H
+#endif // !SIMVOLEON_SOVOLUMESKIN_H

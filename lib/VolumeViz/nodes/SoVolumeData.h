@@ -1,5 +1,5 @@
-#ifndef COIN_SOVOLUMEDATA_H
-#define COIN_SOVOLUMEDATA_H
+#ifndef SIMVOLEON_SOVOLUMEDATA_H
+#define SIMVOLEON_SOVOLUMEDATA_H
 
 /**************************************************************************\
  *
@@ -130,4 +130,4 @@ private:
   SoSFVec3f volumeboxmax;
 };
 
-#endif // !COIN_SOVOLUMEDATA_H
+#endif // !SIMVOLEON_SOVOLUMEDATA_H
