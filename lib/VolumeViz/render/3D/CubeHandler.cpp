@@ -125,11 +125,6 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
   glDisable(GL_LIGHTING);
-  glEnable(GL_TEXTURE_3D);
-  // FIXME: if this is set to "GL_FRONT", the testcode/examine example
-  // fails (data disappears from certain
-  // angles). Investigate. 20021202 mortene.
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   // FIXME: how does the blending cooperate with the other geometry in
   // a Coin scene graph? Do we need to delay rendering? 20021109 mortene.
@@ -197,47 +192,28 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
   assert(glGetError() == GL_NO_ERROR);
 
-  SbTime renderstart = SbTime::getTimeOfDay(); // for debugging
-
-  SbVec3f camvec;
-  this->getViewVector(action, camvec);
-
+  if (abortfunc != NULL) {
+    this->volumecube->setAbortCallback(abortfunc, abortcbdata);
+  }
+    
   SbVec3f origo, cubescale;
-
-  int i = 0;
-  SoVolumeRender::AbortCode abortcode = (abortfunc == NULL) ?
-    SoVolumeRender::CONTINUE :
-    abortfunc(numslices, i + 1, abortcbdata);
+  SbBox3f spacesize = volumedata->getVolumeSize();
+  origo = spacesize.getMin();
   
-  if (abortcode == SoVolumeRender::ABORT) {
-    glPopAttrib();
-    return;
-  }
+  SbVec3s tmp = volumedataelement->getVoxelCubeDimensions();
+  SbVec3f dimensions;
+  dimensions[0] = (float) tmp[0];
+  dimensions[1] = (float) tmp[1];
+  dimensions[2] = (float) tmp[2];
   
-  if (abortcode == SoVolumeRender::CONTINUE) {    
-    SbBox3f spacesize = volumedata->getVolumeSize();
-   
-    origo = spacesize.getMin();
+  float dx, dy, dz;
+  spacesize.getSize(dx, dy, dz);
+  
+  cubescale = SbVec3f(dx / ((float) dimensions[0]), 
+                      dy / ((float) dimensions[1]),
+                      dz / ((float) dimensions[2]));
+  
+  this->volumecube->render(action, origo, cubescale, interpolation, numslices);
 
-    SbVec3s tmp = volumedataelement->getVoxelCubeDimensions();
-    SbVec3f dimensions;
-    dimensions[0] = (float) tmp[0];
-    dimensions[1] = (float) tmp[1];
-    dimensions[2] = (float) tmp[2];
-
-    float dx, dy, dz;
-    spacesize.getSize(dx, dy, dz);
-
-    cubescale = SbVec3f(dx / ((float) dimensions[0]), 
-                        dy / ((float) dimensions[1]),
-                        dz / ((float) dimensions[2]));
-
-    this->volumecube->render(action, origo, cubescale, interpolation, numslices);
-  }
-  else {
-    assert((abortcode == SoVolumeRender::SKIP) &&
-           "invalid return value from SoVolumeRender::setAbortCallback() method");
-  }
-      
   glPopAttrib();
 }

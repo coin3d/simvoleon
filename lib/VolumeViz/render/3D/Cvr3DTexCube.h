@@ -28,7 +28,7 @@
 #include <Inventor/misc/SoState.h>
 #include <VolumeViz/readers/SoVolumeReader.h>
 #include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
-
+#include <VolumeViz/nodes/SoVolumeRender.h>
 
 class Cvr3DTexCube {
   
@@ -44,6 +44,10 @@ public:
   void setPalette(const CvrCLUT * c);
   const CvrCLUT * getPalette(void) const;
   
+  typedef SoVolumeRender::AbortCode SoVolumeRenderAbortCB(int totalslices, int thisslice, 
+                                                          void * userdata);
+  void setAbortCallback(SoVolumeRenderAbortCB * func, void * userdata);
+
 private:
   class Cvr3DTexSubCubeItem * getSubCube(SoState * state, int col, int row, int depth);
 
@@ -66,6 +70,9 @@ private:
   int nrcolumns;
   int nrrows;
   int nrdepths;
+
+  SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
+  void * abortfuncdata;
 
   const CvrCLUT * clut;
 };

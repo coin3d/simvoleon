@@ -91,12 +91,23 @@ Cvr3DTexCube::Cvr3DTexCube(SoVolumeReader * reader)
   const char * envstr = coin_getenv("CVR_SUBCUBE_FRAMES");
   if (envstr) { this->rendersubcubeoutline = atoi(envstr) > 0 ? TRUE : FALSE; }
 
+  this->abortfunc = NULL;
+  this->abortfuncdata = NULL;
+
 }
 
 Cvr3DTexCube::~Cvr3DTexCube()
 {
   this->releaseAllSubCubes();
   if (this->clut) { this->clut->unref(); }
+}
+
+
+void 
+Cvr3DTexCube::setAbortCallback(SoVolumeRenderAbortCB * func, void * userdata)
+{
+  this->abortfunc = func;
+  this->abortfuncdata = userdata;
 }
 
 /*!
@@ -243,13 +254,19 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
         const float cubecenterdist = SbAbs(camplane.getDistance(subbbox.getCenter()));
        
         for (unsigned int i=0; i<numslices; ++i) {
+
+          if (this->abortfunc != NULL) { // Check user-callback status.
+            SoVolumeRender::AbortCode abortcode = this->abortfunc(numslices, (numslices - i), this->abortfuncdata);
+            if (abortcode == SoVolumeRender::ABORT) break;            
+            else if (abortcode == SoVolumeRender::SKIP) continue; 
+          }
+
           const float dist = fardistance - i*distancedelta;
           if (dist > (cubecenterdist+cuberadius)) break; // We have passed the cube.
-          if (dist < (cubecenterdist-cuberadius)) continue; // We haven't reached the cube yet.
+          else if (dist < (cubecenterdist-cuberadius)) continue; // We haven't reached the cube yet.
 
           cubeitem->cube->checkIntersectionSlice(subcubeorigo, viewvolume, dist,
                                                  SoModelMatrixElement::get(state).inverse());
-
         }
         
         subcubelist.append(cubeitem);
