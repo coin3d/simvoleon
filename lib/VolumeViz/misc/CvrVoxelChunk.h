@@ -8,6 +8,7 @@ class CvrTextureObject;
 class SoGLRenderAction;
 class CvrCLUT;
 class SoTransferFunctionElement;
+class SbBox2s;
 
 
 class CvrVoxelChunk {
@@ -36,7 +37,14 @@ public:
   // FIXME: move to CvrCLUT?
   static CvrCLUT * getCLUT(const SoTransferFunctionElement * e);
 
+  CvrVoxelChunk * buildSubPage(const unsigned int axisidx, const int pageidx,
+                               const SbBox2s & cutslice);
+
 private:
+  CvrVoxelChunk * buildSubPageX(const int pageidx, const SbBox2s & cutslice);
+  CvrVoxelChunk * buildSubPageY(const int pageidx, const SbBox2s & cutslice);
+  CvrVoxelChunk * buildSubPageZ(const int pageidx, const SbBox2s & cutslice);
+
   SbBool destructbuffer;
   void * voxelbuffer;
   SbVec3s dimensions;

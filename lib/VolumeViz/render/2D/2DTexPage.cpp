@@ -326,7 +326,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // way of calling it. 20021206 mortene.
   CvrVoxelChunk * input = new CvrVoxelChunk(vddims, vctype, dataptr);
   CvrVoxelChunk * slice =
-    CvrUtil::buildSubPage(*input, this->axis, this->sliceIdx, subpagecut);
+    input->buildSubPage(this->axis, this->sliceIdx, subpagecut);
   delete input;
 
 #if 0 // DEBUG: dump slice parts before slicebuf transformation to bitmap files.

@@ -432,3 +432,185 @@ CvrVoxelChunk::dumpToPPM(const char * filename) const
   }
   (void)fclose(f);
 }
+
+
+// Cut a slice along any principal axis, of a single image depth.
+CvrVoxelChunk *
+CvrVoxelChunk::buildSubPage(const unsigned int axisidx, const int pageidx,
+                            const SbBox2s & cutslice)
+{
+  CvrVoxelChunk * output = NULL;
+  switch (axisidx) {
+  case 0:
+    output = this->buildSubPageX(pageidx, cutslice);
+    break;
+
+  case 1:
+    output = this->buildSubPageY(pageidx, cutslice);
+    break;
+
+  case 2:
+    output = this->buildSubPageZ(pageidx, cutslice);
+    break;
+
+  default:
+    assert(FALSE);
+    break;
+  }
+  return output;
+}
+
+
+// Copies rows of z-axis data down the y-axis.
+CvrVoxelChunk *
+CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by using an SbBox3s for cutslice. 20021203 mortene.
+                             const SbBox2s & cutslice)
+{
+  assert(pageidx >= 0);
+  assert(pageidx < this->getDimensions()[0]);
+
+  SbVec2s ssmin, ssmax;
+  cutslice.getBounds(ssmin, ssmax);
+
+  const SbVec3s dim = this->getDimensions();
+
+  const int zAdd = dim[0] * dim[1];
+
+  const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
+  assert(nrhorizvoxels > 0);
+  const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
+  assert(nrvertvoxels > 0);
+
+  const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
+  CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, this->getUnitSize());
+
+  const unsigned int staticoffset =
+    pageidx + ssmin[1] * dim[0] + ssmin[0] * zAdd;
+
+  const unsigned int voxelsize = this->getUnitSize();
+  uint8_t * inputbytebuffer = (uint8_t *)this->getBuffer();
+  uint8_t * outputbytebuffer = (uint8_t *)output->getBuffer();
+
+  for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
+    const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
+    const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
+
+    // FIXME: should optimize this loop. 20021125 mortene.
+    for (unsigned int horizidx = 0; horizidx < nrhorizvoxels; horizidx++) {
+      *dstptr++ = *srcptr++;
+      if (voxelsize > 1) *dstptr++ = *srcptr++;
+      if (voxelsize == 4) { *dstptr++ = *srcptr++; *dstptr++ = *srcptr++; }
+
+      srcptr += zAdd * voxelsize - voxelsize;
+    }
+  }
+
+  return output;
+}
+
+// Copies rows of x-axis data along the z-axis.
+/*
+  Here's how a 4x3 slice would be cut, from the memory layout:
+
+  +----------------+
+  |                |
+  |    xxxx        |
+  |                |
+  |                |
+  |                |
+  +----------------+
+  |                |
+  |    xxxx        |
+  |                |
+  |                |
+  |                |
+  +----------------+
+  |                |
+  |    xxxx        |
+  |                |
+  |                |
+  |                |
+  +----------------+
+
+  Cutting is done top-to-bottom, and is placed in the output slice
+  buffer left-to-right, top-to-bottom.
+ */
+CvrVoxelChunk *
+CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by using an SbBox3s for cutslice. 20021203 mortene.
+                             const SbBox2s & cutslice)
+{
+  assert(pageidx >= 0);
+  assert(pageidx < this->getDimensions()[1]);
+
+  SbVec2s ssmin, ssmax;
+  cutslice.getBounds(ssmin, ssmax);
+
+  const SbVec3s dim = this->getDimensions();
+
+  const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
+  assert(nrhorizvoxels > 0);
+  const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
+  assert(nrvertvoxels > 0);
+
+  const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
+  CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, this->getUnitSize());
+
+  const unsigned int staticoffset =
+    (ssmin[1] * dim[0] * dim[1]) + (pageidx * dim[0]) + ssmin[0];
+
+  const unsigned int voxelsize = this->getUnitSize();
+  uint8_t * inputbytebuffer = (uint8_t *)this->getBuffer();
+  uint8_t * outputbytebuffer = (uint8_t *)output->getBuffer();
+
+  for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
+    const unsigned int inoffset = staticoffset + (rowidx * dim[0] * dim[1]);
+    const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
+
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
+
+    (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
+  }
+
+  return output;
+}
+
+// Copies rows of x-axis data down the y-axis.
+CvrVoxelChunk *
+CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by using an SbBox3s for cutslice. 20021203 mortene.
+                             const SbBox2s & cutslice)
+{
+  assert(pageidx >= 0);
+  assert(pageidx < this->getDimensions()[2]);
+
+  SbVec2s ssmin, ssmax;
+  cutslice.getBounds(ssmin, ssmax);
+
+  const SbVec3s dim = this->getDimensions();
+
+  const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
+  assert(nrhorizvoxels > 0);
+  const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
+  assert(nrvertvoxels > 0);
+
+  const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
+  CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, this->getUnitSize());
+
+  const unsigned int staticoffset =
+    (pageidx * dim[0] * dim[1]) + (ssmin[1] * dim[0]) + ssmin[0];
+
+  const unsigned int voxelsize = this->getUnitSize();
+  uint8_t * inputbytebuffer = (uint8_t *)this->getBuffer();
+  uint8_t * outputbytebuffer = (uint8_t *)output->getBuffer();
+
+  for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
+    const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
+    const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
+
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
+
+    (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
+  }
+
+  return output;
+}

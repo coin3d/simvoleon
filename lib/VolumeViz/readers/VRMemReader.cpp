@@ -81,11 +81,10 @@ void SoVRMemReader::getSubSlice(SbBox2s & subslice,
   default: assert(FALSE); break;
   }
 
-  CvrVoxelChunk * output = 
-    CvrUtil::buildSubPage(CvrVoxelChunk(PRIVATE(this)->dimensions, vctype, this->m_data),
-                          axisidx, sliceNumber, subslice);
-  // FIXME: interface of buildSubPage() should be improved to avoid this.
-  // 20021203 mortene.
+  // FIXME: interface of buildSubPage() should be improved to avoid
+  // this roundabout way of clipping out a slice.  20021203 mortene.
+  CvrVoxelChunk vc(PRIVATE(this)->dimensions, vctype, this->m_data);
+  CvrVoxelChunk * output = vc.buildSubPage(axisidx, sliceNumber, subslice);
   (void)memcpy(data, output->getBuffer(), output->bufferSize());
   delete output;
 }
