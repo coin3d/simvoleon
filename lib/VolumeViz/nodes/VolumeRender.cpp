@@ -1012,7 +1012,7 @@ SoVolumeRenderP::performanceTest() const
   const float fovy = 45.0f;
   const float zNear = 0.1f;
   const float zFar = 100.0f;
-  const float aspect = (GLfloat)400 / (GLfloat)400;
+  const float aspect = (GLfloat) viewportsize[2] / (GLfloat) viewportsize[3];
   const double radians = fovy / 2 * M_PI / 180;  
   const double deltaZ = zFar - zNear;
   const double sine = sin(radians);
