@@ -67,14 +67,20 @@ SoVolumeRenderDetail::getProfileObjectPos(SbVec3f profile[2])
   Returns total number of voxels intersected and stored in the
   profile. This can be used to iterate over the full profile with the
   \a getProfileValue() method.
+
+  If \a profile is \c NULL, the points will not be set, but the
+  correct number of total profile points will still be returned.
 */
 int
 SoVolumeRenderDetail::getProfileDataPos(SbVec3s profile[2])
 {
   const unsigned int nrprofilepoints = this->voxelinfolist.getLength();
   assert(nrprofilepoints >= 2);
-  profile[0] = this->voxelinfolist[0].voxelindex;
-  profile[1] = this->voxelinfolist[nrprofilepoints - 1].voxelindex;
+
+  if (profile != NULL) {
+    profile[0] = this->voxelinfolist[0].voxelindex;
+    profile[1] = this->voxelinfolist[nrprofilepoints - 1].voxelindex;
+  }
 
   return nrprofilepoints;
 }
