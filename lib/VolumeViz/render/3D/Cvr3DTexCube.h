@@ -76,9 +76,10 @@ private:
   void releaseAllSubCubes(void);
   void releaseSubCube(const int row, const int col, const int depth);
   int calcSubCubeIdx(int row, int col, int depth) const;
-  void calculateOptimalSubCubeSize();
   void renderResult(const SoGLRenderAction * action, 
                     SbList <Cvr3DTexSubCubeItem *> subcubelist);
+
+  static SbVec3s clampSubCubeSize(const SbVec3s & size);
 
   class Cvr3DTexSubCubeItem ** subcubes;
 

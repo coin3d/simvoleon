@@ -37,6 +37,7 @@
 #include <Inventor/elements/SoViewingMatrixElement.h>
 #include <Inventor/errors/SoDebugError.h>
 
+#include <VolumeViz/elements/CvrPageSizeElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
@@ -65,10 +66,20 @@ Cvr3DTexCube::Cvr3DTexCube(const SoGLRenderAction * action)
   this->clut = NULL;
   this->subcubes = NULL;
 
-  this->subcubesize = SbVec3s(0, 0, 0);
-  this->calculateOptimalSubCubeSize();
+  SoState * state = action->getState();
 
-  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
+  this->subcubesize =
+    Cvr3DTexCube::clampSubCubeSize(CvrPageSizeElement::get(state));
+
+  if (CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("Cvr3DTexCube::Cvr3DTexCube",
+                           "subcubedimensions==<%d, %d, %d>",
+                           this->subcubesize[0],
+                           this->subcubesize[1],
+                           this->subcubesize[2]);
+  }
+
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
   const SbVec3s & dim = vbelem->getVoxelCubeDimensions();
 
   assert(dim[0] > 0);
@@ -147,8 +158,8 @@ subcube_qsort_compare(const void * element1, const void * element2)
 
 }
 
-void
-Cvr3DTexCube::calculateOptimalSubCubeSize(void)
+SbVec3s
+Cvr3DTexCube::clampSubCubeSize(const SbVec3s & size)
 {
   // FIXME: this doesn't guarantee that we can actually use a texture
   // of this size, should instead use Coin's
@@ -159,13 +170,10 @@ Cvr3DTexCube::calculateOptimalSubCubeSize(void)
   // Coin 2.3, so we can't use this without first separating out the
   // gl-wrapper, as planned. 20040714 mortene.
 
-  // FIXME: should also heed the value set for
-  // SoVolumeData::setPageSize() (see item #005 in BUGS.txt). 20040709 mortene.
-
   GLint maxsize;
   glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxsize);
   if (CvrUtil::doDebugging()) {
-    SoDebugError::postInfo("Cvr3DTexCube::calculateOptimalSubCubeSize",
+    SoDebugError::postInfo("Cvr3DTexCube::clampSubCubeSize",
                            "GL_MAX_3D_TEXTURE_SIZE==%d", maxsize);
   }
 
@@ -175,14 +183,16 @@ Cvr3DTexCube::calculateOptimalSubCubeSize(void)
     assert(forcedsubcubesize > 0);
     assert(forcedsubcubesize <= maxsize && "subcube size must be <= than max 3D texture size");
     assert(coin_is_power_of_two(forcedsubcubesize) && "subcube size must be power of two");
-    maxsize = forcedsubcubesize;
+    return SbVec3s(forcedsubcubesize, forcedsubcubesize, forcedsubcubesize);
   }
 
   // FIXME: My GeforceFX 5600 card sometime fails when asking for 512 as
   // cube size even if it is supposed to handle it. (20040302 handegar)
   //maxsize = SbMin(256, maxsize);
 
-  this->subcubesize = SbVec3s(maxsize, maxsize, maxsize);
+  assert((maxsize < SHRT_MAX) && "unsafe cast");
+  const short smax = (short)maxsize;
+  return SbVec3s(SbMin(size[0], smax), SbMin(size[1], smax), SbMin(size[2], smax));
 }
 
 
@@ -536,6 +546,13 @@ Cvr3DTexCube::buildSubCube(const SoGLRenderAction * action,
 
   // First Cvr3DTexSubCube ever in this slice?
   if (this->subcubes == NULL) {
+    if (CvrUtil::doDebugging()) {
+      SoDebugError::postInfo("Cvr3DTexCube::buildSubCube",
+                             "number of subcubes needed == %d (%d x %d x %d)",
+                             this->nrrows * this->nrcolumns * this->nrdepths,
+                             this->nrrows, this->nrcolumns, this->nrdepths);
+    }
+
     this->subcubes = new Cvr3DTexSubCubeItem*[this->nrrows * this->nrcolumns * this->nrdepths];
     for (int i=0; i < this->nrrows; i++) {
       for (int j=0; j < this->nrcolumns; j++) {
