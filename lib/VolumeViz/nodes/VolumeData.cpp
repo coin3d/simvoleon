@@ -586,6 +586,9 @@ SoVolumeData::setTexMemorySize(int megatexels)
   // 20021118 mortene.
 
   PRIVATE(this)->maxnrtexels = megatexels * 1024 * 1024;
+
+  // FIXME: should kick out texmem pages if we're currently over
+  // limit. 20021121 mortene.
 }
 
 void
@@ -622,6 +625,9 @@ SoVolumeData::setTextureMemorySize(int texturememory)
   // 20021118 mortene.
 
   PRIVATE(this)->maxtexmem = texturememory;
+
+  // FIXME: should kick out texmem pages if we're currently over
+  // limit. 20021121 mortene.
 }
 
 /*************************** PIMPL-FUNCTIONS ********************************/
