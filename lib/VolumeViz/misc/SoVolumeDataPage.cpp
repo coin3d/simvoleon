@@ -1,11 +1,3 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http:// www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
@@ -21,7 +13,8 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
-SoVolumeDataPage::SoVolumeDataPage()
+
+SoVolumeDataPage::SoVolumeDataPage(void)
 {
   this->size = SbVec2s(0, 0);
   this->format = 0;
@@ -35,93 +28,92 @@ SoVolumeDataPage::SoVolumeDataPage()
   this->nextPage = NULL;
   this->numBytesHW = 0;
   this->numBytesSW = 0;
-}// constructor
+}
 
 
 SoVolumeDataPage::~SoVolumeDataPage()
 {
-  release();
-  delete nextPage;
-}// destructor
+  this->release();
+  delete this->nextPage;
+}
 
 
-// FIXME: Some magic has to be done to make this one work with OpenGL 1.0. 
+// FIXME: Some magic has to be done to make this one work with OpenGL 1.0.
 // torbjorv 08052002
 void SoVolumeDataPage::setActivePage(long tick)
 {
   glBindTexture(GL_TEXTURE_2D, this->textureName);
   this->lastuse = tick;
-
-}// setActivePage
-
+}
 
 
-/*
-  If no palette specified, this function assumes RGBA data. If a palette
-  is specified, the input data should be indexes into the palette. 
-  The function uses the palette's size to decide whether the indices are
-  byte or short. 
+
+/*!
+  If no palette specified, this function assumes RGBA data. If a
+  palette is specified, the input data should be indices into the
+  palette.  The function uses the palette's size to decide whether the
+  indices are byte or short.
 */
-void SoVolumeDataPage::setData( Storage storage,
-                                unsigned char * bytes,
-                                const SbVec2s & size,
-                                const float * palette,
-                                int paletteFormat,
-                                int paletteSize)
+void SoVolumeDataPage::setData(Storage storage,
+                               unsigned char * bytes,
+                               const SbVec2s & size,
+                               const float * palette,
+                               int paletteFormat,
+                               int paletteSize)
 {
-  release();
+  this->release();
+
   this->size = size;
   this->storage = storage;
   this->paletteFormat = paletteFormat;
   this->paletteSize = paletteSize;
 
 
-
-
-  // Possible creating an in-memory copy of all data
+  // Possibly creating an in-memory copy of all data.
   if (storage & MEMORY) {
     this->data = new unsigned char[size[0]*size[1]*4];
     memcpy(this->data, bytes, size[0]*size[1]*4);
 
-    if (!palette) 
+    if (!palette)
       numBytesSW += size[0]*size[1]*4;      // RGBA-data
     else {
       if (paletteSize > 256)
         numBytesSW += size[0]*size[1]*2;    // indexed, short
       else
         numBytesSW += size[0]*size[1];      // indexed, byte
-    }// else
+    }
 
     if (palette != NULL) {
       this->palette = new unsigned char[sizeof(unsigned char)*paletteSize];
-      memcpy(this->palette, palette, sizeof(float)*paletteSize);
+      (void)memcpy(this->palette, palette, sizeof(float)*paletteSize);
 
       switch (paletteFormat) {
-        case GL_RGBA: numBytesSW += paletteSize*4;
-                      break;
-      }// switch
-    }// if
-  }// if
+        case GL_RGBA:
+          numBytesSW += paletteSize*4;
+          break;
+      }
+    }
+  }
   else {
     this->data = NULL;
     this->palette = NULL;
-  }// else
+  }
 
   // Creating OpenGL-texture
   if (storage & OPENGL) {
     const cc_glglue * glue = cc_glglue_instance(0); // FIXME: need cache context here
-    
-    // FIXME: these functions is only supported in opengl 1.1... 
+
+    // FIXME: these functions is only supported in opengl 1.1...
     // torbjorv 08052002
     glGenTextures(1, &this->textureName);
     glBindTexture(GL_TEXTURE_2D, this->textureName);
 
      // Uploading standard RGBA-texture
     if (palette == NULL) {
-      glTexImage2D( GL_TEXTURE_2D, 
+      glTexImage2D( GL_TEXTURE_2D,
                     0,
                     4,
-                    size[0], 
+                    size[0],
                     size[1],
                     0,
                     GL_RGBA,
@@ -129,7 +121,7 @@ void SoVolumeDataPage::setData( Storage storage,
                     bytes);
 
       numBytesHW += size[0]*size[1]*4;
-    }// if
+    }
 
     // Uploading paletted texture
     else if (cc_glglue_has_paletted_textures(glue)) {
@@ -141,8 +133,8 @@ void SoVolumeDataPage::setData( Storage storage,
         format = GL_UNSIGNED_SHORT;
 
       // Setting palette
-      cc_glglue_glColorTableEXT(glue, GL_TEXTURE_2D, 
-                                GL_RGBA, 
+      cc_glglue_glColorTableEXT(glue, GL_TEXTURE_2D,
+                                GL_RGBA,
                                 paletteSize,
                                 GL_RGBA,
                                 GL_FLOAT,
@@ -150,10 +142,10 @@ void SoVolumeDataPage::setData( Storage storage,
 
       // Checking what palettesize we actually got
       int actualPaletteSize;
-      cc_glglue_glGetColorTableParameterivEXT(glue,GL_TEXTURE_2D, 
-                                              GL_COLOR_TABLE_WIDTH_EXT, 
+      cc_glglue_glGetColorTableParameterivEXT(glue,GL_TEXTURE_2D,
+                                              GL_COLOR_TABLE_WIDTH_EXT,
                                               &actualPaletteSize);
-      
+
       numBytesHW += actualPaletteSize*4*4;
 
 
@@ -174,11 +166,15 @@ void SoVolumeDataPage::setData( Storage storage,
         case 65536: internalFormat = GL_COLOR_INDEX16_EXT;
                     numBytesHW += size[0]*size[1]*2;
                     break;
-      }// switch
+      default:
+        // FIXME: investigate if this can ever hit. 20021106 mortene.
+        assert(FALSE && "unknown palette size");
+        break;
+      }
 
 
       // Upload texture
-      glTexImage2D(GL_TEXTURE_2D, 
+      glTexImage2D(GL_TEXTURE_2D,
                    0,
                    internalFormat,
                    size[0],
@@ -188,16 +184,16 @@ void SoVolumeDataPage::setData( Storage storage,
                    format,
                    bytes);
 
-    }//else
+    }
 
 
-    // FIXME: Okay. I tried. This GLWrapper-thingy must be spawned right 
-    // out of hell. I'm really not able to compile it. But these lines 
+    // FIXME: Okay. I tried. This GLWrapper-thingy must be spawned right
+    // out of hell. I'm really not able to compile it. But these lines
     // need to be fixed for OpenGL 1.0 support. torbjorv 08032002
 
     // GLenum clamping;
     // const GLWrapper_t * glw = GLWRAPPER_FROM_STATE(state);
-    // if (glw->hasTextureEdgeClamp) 
+    // if (glw->hasTextureEdgeClamp)
     //   clamping = GL_CLAMP_TO_EDGE;
     // else
     //   (GLenum) GL_CLAMP;
@@ -209,21 +205,21 @@ void SoVolumeDataPage::setData( Storage storage,
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-  }// if  
+  }
   else
     this->textureName = 0;
 
-}//setData
+}
 
 
 
-void SoVolumeDataPage::release()
+void SoVolumeDataPage::release(void)
 {
-  if (textureName != 0)
-    glDeleteTextures(1, &textureName);
+  if (this->textureName != 0)
+    glDeleteTextures(1, &(this->textureName));
 
-  delete [] data;
-  delete [] palette;
+  delete[] this->data;
+  delete[] this->palette;
 
   this->size = SbVec2s(0, 0);
   this->format = 0;
@@ -236,4 +232,4 @@ void SoVolumeDataPage::release()
   this->paletteSize = 0;
   this->numBytesHW = 0;
   this->numBytesSW = 0;
-}// release
+}

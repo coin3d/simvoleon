@@ -1,12 +1,3 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
 #ifndef COIN_SOVOLUMEDATASLICE_H
 #define COIN_SOVOLUMEDATASLICE_H
 
@@ -16,39 +7,42 @@
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/readers/SoVolumeReader.h>
 
-class SoVolumeDataSlice{
+class SoVolumeDataSlice {
+
 public:
-  SoVolumeDataSlice();
+  SoVolumeDataSlice(void);
   ~SoVolumeDataSlice();
 
-  SoVolumeDataPage * getPage(int col,
-                             int row,
+  SoVolumeDataPage * getPage(int col, int row,
                              SoTransferFunction * transferFunction);
 
-  SoVolumeDataPage * buildPage(int col,
-                               int row,
+  SoVolumeDataPage * buildPage(int col, int row,
                                SoTransferFunction * transferFunction);
 
-  void init(SoVolumeReader * reader,
-            int sliceIdx,
-            SoVolumeRendering::Axis axis,
-            const SbVec2s & pageSize);
+  void init(SoVolumeReader * reader, int sliceIdx,
+            SoVolumeRendering::Axis axis, const SbVec2s & pageSize);
 
   void render(SoState * state,
-              const SbVec3f & v0,
-              const SbVec3f & v1,
-              const SbVec3f & v2,
-              const SbVec3f & v3,
+              const SbVec3f & v0, const SbVec3f & v1,
+              const SbVec3f & v2, const SbVec3f & v3,
               const SbBox2f & textureCoords,
-              SoTransferFunction * transferFunction,
-              long tick);
+              SoTransferFunction * transferFunction, long tick);
 
+  SoVolumeDataPage * getLRUPage(void);
   void releasePage(SoVolumeDataPage *page);
-  void releaseLRUPage();
-  void releaseAllPages();
-  SoVolumeDataPage * getLRUPage();
 
-  SoVolumeDataPage **pages;
+  // FIXME: must be public, since they are used from
+  // SoVolumeData. 20021106 mortene.
+  int numTexels;
+  int numPages;
+  int numBytesHW;
+  int numBytesSW;
+
+private:
+  void releaseLRUPage(void);
+  void releaseAllPages(void);
+
+  SoVolumeDataPage ** pages;
   SoVolumeReader * reader;
 
   SoVolumeRendering::Axis axis;
@@ -56,18 +50,10 @@ public:
   SbVec2s pageSize;
   SbVec2s dimensions;
 
-
-  int numTexels;
-  int numPages;
-  int numBytesHW;
-  int numBytesSW;
-
   int numCols;
   int numRows;
-private:
-  SoVolumeRendering::DataType dataType;
 
+  SoVolumeRendering::DataType dataType;
 };
 
-
-#endif //COIN_SOVOLUMEDATASLICE_H
+#endif // !COIN_SOVOLUMEDATASLICE_H

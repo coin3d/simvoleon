@@ -1,12 +1,3 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http:// www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
 #include <VolumeViz/misc/SoVolumeDataSlice.h>
 #include <Inventor/misc/SoState.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -22,9 +13,7 @@
 #include <GL/gl.h>
 
 
-
-
-SoVolumeDataSlice::SoVolumeDataSlice()
+SoVolumeDataSlice::SoVolumeDataSlice(void)
 {
   this->pageSize = SbVec2s(32, 32);
   this->pages = NULL;
@@ -34,22 +23,21 @@ SoVolumeDataSlice::SoVolumeDataSlice()
   this->sliceIdx = 0;
   this->reader = NULL;
   this->dataType = SoVolumeRendering::RGBA;
-}// constructor
+}
 
 
 SoVolumeDataSlice::~SoVolumeDataSlice()
 {
   this->reader = NULL;
-  releaseAllPages();
-}// destructor
+  this->releaseAllPages();
+}
 
 
-void SoVolumeDataSlice::init(SoVolumeReader * reader,
-                             int sliceIdx,
+void SoVolumeDataSlice::init(SoVolumeReader * reader, int sliceIdx,
                              SoVolumeRendering::Axis axis,
                              const SbVec2s & pageSize)
 {
-  releaseAllPages();
+  this->releaseAllPages();
 
   this->reader = reader;
   this->sliceIdx = sliceIdx;
@@ -62,153 +50,143 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader,
 
   switch (axis) {
     case SoVolumeRendering::X:
-      {
-        this->dimensions[0] = dim[2];
-        this->dimensions[1] = dim[1];
-      }// case
+      this->dimensions[0] = dim[2];
+      this->dimensions[1] = dim[1];
       break;
 
     case SoVolumeRendering::Y:
-      {
-        this->dimensions[0] = dim[0];
-        this->dimensions[1] = dim[2];
-      }// case
+      this->dimensions[0] = dim[0];
+      this->dimensions[1] = dim[2];
       break;
 
     case SoVolumeRendering::Z:
-      {
-        this->dimensions[0] = dim[0];
-        this->dimensions[1] = dim[1];
-      }// case
+      this->dimensions[0] = dim[0];
+      this->dimensions[1] = dim[1];
       break;
-  }// switch
+  }
 
-  this->numCols = this->dimensions[0]/this->pageSize[0];
-  this->numRows = this->dimensions[1]/this->pageSize[1];
-}// init
+  this->numCols = this->dimensions[0] / this->pageSize[0];
+  this->numRows = this->dimensions[1] / this->pageSize[1];
+}
 
 
 
-/*
-  Searches for a specified page in the slice. The page
-  is identified by it's memorylocation (the pointer). If the
-  page isn't found, nothing happens.
+/*!
+  Searches for a specified page in the slice. The page is identified
+  by it's memorylocation (the pointer). If the page isn't found,
+  nothing happens.
 */
 void
 SoVolumeDataSlice::releasePage(SoVolumeDataPage * page)
 {
-  if (pages) {
+  if (this->pages) {
     for (int i = 0; i < numCols*numRows; i++) {
-      SoVolumeDataPage *p = pages[i];
+      SoVolumeDataPage * p = this->pages[i];
 
       if (p != NULL) {
         // Delete the first page in the linked list
         if (p == page) {
-          numPages--;
-          numTexels -= pageSize[0]*pageSize[1];
-          numBytesSW -= p->numBytesSW;
-          numBytesHW -= p->numBytesHW;
+          this->numPages--;
+          this->numTexels -= this->pageSize[0] * this->pageSize[1];
+          this->numBytesSW -= p->numBytesSW;
+          this->numBytesHW -= p->numBytesHW;
 
-          pages[i] = p->nextPage;
+          this->pages[i] = p->nextPage;
           p->nextPage = NULL;
           delete p;
 
           return;
-        }// if
-        else
-        while (p->nextPage != NULL) {
-          if (p->nextPage == page) {
-            numPages--;
-            numTexels -= pageSize[0]*pageSize[1];
-            numBytesSW -= p->numBytesSW;
-            numBytesHW -= p->numBytesHW;
+        }
+        else {
+          while (p->nextPage != NULL) {
+            if (p->nextPage == page) {
+              this->numPages--;
+              this->numTexels -= this->pageSize[0] * this->pageSize[1];
+              this->numBytesSW -= p->numBytesSW;
+              this->numBytesHW -= p->numBytesHW;
 
-            p->nextPage = p->nextPage->nextPage;
-            page->nextPage = NULL;
-            delete page;
+              p->nextPage = p->nextPage->nextPage;
+              page->nextPage = NULL;
+              delete page;
+              
+              return;
+            }
+            
+            p = p->nextPage;
+          }
+        }
+      }
+    }
+  }
+}
 
-            return;
-          }// if
-
-          p = p->nextPage;
-        }// while
-      }// if
-    }// for
-  }// if
-}// releasePage
 
 
-
-void SoVolumeDataSlice::releaseLRUPage()
+void SoVolumeDataSlice::releaseLRUPage(void)
 {
-  SoVolumeDataPage * LRUPage = getLRUPage();
-  releasePage(LRUPage);
-}// releaseLRUPage
+  SoVolumeDataPage * LRUPage = this->getLRUPage();
+  this->releasePage(LRUPage);
+}
 
 
 
 SoVolumeDataPage *
-SoVolumeDataSlice::getLRUPage()
+SoVolumeDataSlice::getLRUPage(void)
 {
   SoVolumeDataPage * LRUPage = NULL;
-  if (pages) {
-    for (int i = 0; i < numCols*numRows; i++) {
-      SoVolumeDataPage * page = pages[i];
+  if (this->pages) {
+    for (int i = 0; i < this->numCols * this->numRows; i++) {
+      SoVolumeDataPage * page = this->pages[i];
       while (page != NULL) {
-        if (LRUPage == NULL)
+        if (LRUPage == NULL) {
           LRUPage = page;
-        else
-          if (page->lastuse < LRUPage->lastuse)
-            LRUPage = page;
+        }
+        else {
+          if (page->lastuse < LRUPage->lastuse) LRUPage = page;
+        }
 
         page = page->nextPage;
-      }// while
-    }// for
-  }// if
+      }
+    }
+  }
   return LRUPage;
-}// releaseLRUPage
+}
 
 
 
 
-void SoVolumeDataSlice::releaseAllPages()
+void SoVolumeDataSlice::releaseAllPages(void)
 {
-  if (pages)
-    for (int i = 0; i < numCols*numRows; i++) {
-      delete pages[i];
-      pages[i] = NULL;
-    }//for
+  if (this->pages)
+    for (int i = 0; i < this->numCols * this->numRows; i++) {
+      delete this->pages[i];
+      this->pages[i] = NULL;
+    }
 
-  delete [] pages;
-  pages = NULL;
-}// releaseAllPages
-
-
+  delete[] this->pages;
+  this->pages = NULL;
+}
 
 
-/*
 
+
+/*!
   Renders a arbitrary shaped quad. Automatically loads all pages
-  needed for the given texturecoords. Texturecoords is in relative
+  needed for the given texturecoords. Texturecoords is in normalized
   coordinates [0, 1].
 
-  vertices specified in counterclockwise order.
-  v0 maps to lower left of slice.
-  v1 maps to lower right of slice.
-  v2 maps to upper right of slice.
-  v3 maps to upper left of slice.
-
+  vertices specified in counterclockwise order: v0 maps to lower left
+  of slice, v1 maps to lower right of slice, v2 maps to upper right of
+  slice, and v3 maps to upper left of slice.
 */
 void SoVolumeDataSlice::render(SoState * state,
-                               const SbVec3f & v0,
-                               const SbVec3f & v1,
-                               const SbVec3f & v2,
-                               const SbVec3f & v3,
+                               const SbVec3f & v0, const SbVec3f & v1,
+                               const SbVec3f & v2, const SbVec3f & v3,
                                const SbBox2f & textureCoords,
                                SoTransferFunction * transferFunction,
                                long tick)
 {
-  assert(reader);
+  assert(this->reader);
   assert(transferFunction);
 
   SbVec2f minUV, maxUV;
@@ -252,7 +230,7 @@ void SoVolumeDataSlice::render(SoState * state,
       endUpperRight[0] = (1 - k)*v1[0] + k*v2[0];
       endUpperRight[1] = (1 - k)*v1[1] + k*v2[1];
       endUpperRight[2] = (1 - k)*v1[2] + k*v2[2];
-    }// if
+    }
     else {
 
       // This is the last row to be rendered
@@ -261,7 +239,7 @@ void SoVolumeDataSlice::render(SoState * state,
 
       endUpperLeft = v3;
       endUpperRight = v2;
-    }// else
+    }
 
 
     int col = (int) (minUV[0]*this->dimensions[0]/this->pageSize[0]);
@@ -283,7 +261,7 @@ void SoVolumeDataSlice::render(SoState * state,
         lowerRight = (1 - k)*endLowerLeft + k*endLowerRight;
         upperRight = (1 - k)*endUpperLeft + k*endUpperRight;
 
-      }// if
+      }
       else {
 
         // The last quad on the row
@@ -292,7 +270,7 @@ void SoVolumeDataSlice::render(SoState * state,
 
         lowerRight = endLowerRight;
         upperRight = endUpperRight;
-      }// else
+      }
 
       // rendering
       SoVolumeDataPage * page = getPage(col, row, transferFunction);
@@ -318,70 +296,60 @@ void SoVolumeDataSlice::render(SoState * state,
       upperLeft = upperRight;
       localMinUV[0] = 0.0;
       col++;
-    }// while
+    }
 
     globalMinUV[1] = globalMaxUV[1];
     localMinUV[0] = 0.0;
     endLowerLeft = endUpperLeft;
     endLowerRight = endUpperRight;
     row++;
-  }// while
+  }
 
-}//renderSlice
-
-
+}
 
 
-
-
-/*
+/*!
   Builds a page if it doesn't exist. Rebuilds it if it does exist.
 */
 SoVolumeDataPage *
-SoVolumeDataSlice::buildPage(int col,
-                             int row,
+SoVolumeDataSlice::buildPage(int col, int row,
                              SoTransferFunction * transferFunction)
 {
-  assert(reader);
+  assert(this->reader);
   assert(transferFunction);
 
   // Does the page exist already?
-  SoVolumeDataPage * page = getPage(col, row, transferFunction);
+  SoVolumeDataPage * page = this->getPage(col, row, transferFunction);
   if (!page) {
 
     // First SoVolumeDataPage ever in this slice?
     if (!this->pages) {
-      pages = new SoVolumeDataPage*[this->numCols*this->numRows];
-      memset( this->pages,
-              0,
-              sizeof(SoVolumeDataPage*)*this->numCols*this->numRows);
-    }// if
+      this->pages = new SoVolumeDataPage*[this->numCols * this->numRows];
+      memset(this->pages, 0,
+             sizeof(SoVolumeDataPage*) * this->numCols * this->numRows);
+    }
 
     page = new SoVolumeDataPage;
-    SoVolumeDataPage **pNewPage = &pages[row*this->numCols + col];
-    while (*pNewPage != NULL)
+    SoVolumeDataPage ** pNewPage = &pages[row * this->numCols + col];
+    while (*pNewPage != NULL) {
       pNewPage = &((*pNewPage)->nextPage);
+    }
 
     *pNewPage = page;
-  }// if
+  }
 
   SbBox2s subSlice = SbBox2s(col*pageSize[0],
                              row*pageSize[1],
                              (col + 1)*pageSize[0],
                              (row + 1)*pageSize[1]);
 
-
-
   void * transferredTexture = NULL;
   float * palette = NULL;
   int paletteDataType;
   int outputDataType;
   int paletteSize;
-  unsigned char * texture = new unsigned char[pageSize[0]*pageSize[1]*4];
-  reader->getSubSlice(subSlice,
-                      sliceIdx,
-                      texture,
-                      axis);
+  unsigned char * texture = new unsigned char[pageSize[0] * pageSize[1] * 4];
+  reader->getSubSlice(subSlice, sliceIdx, texture, axis);
 
   transferFunction->transfer(texture,
                              this->dataType,
@@ -392,7 +360,7 @@ SoVolumeDataSlice::buildPage(int col,
                              paletteDataType,
                              paletteSize);
 
-  delete [] texture;
+  delete[] texture;
 
   page->setData(SoVolumeDataPage::OPENGL,
                 (unsigned char*)transferredTexture,
@@ -403,8 +371,8 @@ SoVolumeDataSlice::buildPage(int col,
 
   page->transferFunctionId = transferFunction->getNodeId();
 
-  delete [] ((char*) transferredTexture);
-  delete [] palette;
+  delete[] ((char*) transferredTexture);
+  delete[] palette;
 
   pages[row*this->numCols + col] = page;
 
@@ -414,7 +382,7 @@ SoVolumeDataSlice::buildPage(int col,
   numBytesHW += page->numBytesHW;
 
   return page;
-}// buildPage
+}
 
 
 
@@ -422,23 +390,21 @@ SoVolumeDataSlice::buildPage(int col,
 
 
 SoVolumeDataPage *
-SoVolumeDataSlice::getPage(int col,
-                           int row,
+SoVolumeDataSlice::getPage(int col, int row,
                            SoTransferFunction * transferFunction)
 {
-  if (!pages) return NULL;
+  if (!this->pages) return NULL;
 
   // Valid SoVolumeDataPage?
-  if ((col >= this->numCols) ||
-      (row >= this->numRows))
+  if ((col >= this->numCols) || (row >= this->numRows))
     return NULL;
 
-  SoVolumeDataPage * p = pages[row*this->numCols + col];
+  SoVolumeDataPage * p = pages[row * this->numCols + col];
 
   while (p != NULL) {
     if (p->transferFunctionId == transferFunction->getNodeId()) break;
     p = p->nextPage;
-  }//while
+  }
 
   return p;
-}//getPage
+}
