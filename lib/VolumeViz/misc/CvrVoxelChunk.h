@@ -53,8 +53,10 @@ public:
   const SbVec3s & getDimensions(void) const;
   UnitSize getUnitSize(void) const;
 
+  // FIXME: This should be private so that only the CvrTextureManager
+  // can access it. Fix later when 2D texture support is added to the
+  // texture manager. (20040628 handegar)
   CvrTextureObject * transfer2D(SoGLRenderAction * action, SbBool & invisible) const;
-  CvrTextureObject * transfer3D(SoGLRenderAction * action, SbBool & invisible) const;
   
   void dumpToPPM(const char * filename) const;
 
@@ -67,14 +69,12 @@ public:
   CvrVoxelChunk * buildSubCube(const SbBox3s & cubecut);
 
 private:
+
+  CvrTextureObject * transfer3D(SoGLRenderAction * action, SbBool & invisible) const;
+
   CvrVoxelChunk * buildSubPageX(const int pageidx, const SbBox2s & cutslice);
   CvrVoxelChunk * buildSubPageY(const int pageidx, const SbBox2s & cutslice);
   CvrVoxelChunk * buildSubPageZ(const int pageidx, const SbBox2s & cutslice);
-
-  SbBool destructbuffer;
-  void * voxelbuffer;
-  SbVec3s dimensions;
-  UnitSize unitsize;
 
   static CvrCLUT * makeCLUT(const SoTransferFunctionElement * e);
   static SbDict * CLUTdict;
@@ -83,6 +83,14 @@ private:
 
   static uint8_t PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];
   static void initPredefGradients(void);
+
+  SbBool destructbuffer;
+  void * voxelbuffer;
+  SbVec3s dimensions;
+  UnitSize unitsize;
+
+  friend class CvrTextureManager;
+
 };
 
 #endif // !COIN_CVRVOXELCHUNK_H
