@@ -157,6 +157,42 @@ Cvr2DTexSubPage::activateTexture(Interpolation interpolation) const
                               "texture %d not resident", this->texturename);
     Cvr2DTexSubPage::detectedtextureswapping = TRUE;
   }
+
+  // For reference, here's some information from Thomas Roell of Xi
+  // Graphics on glAreTexturesResident() from c.g.a.opengl:
+  //
+  // [...]
+  //
+  //   With regards to glAreTexturesResident(), this is kind of
+  //   tricky. This function returns which textures are currently
+  //   resident is HW accessable memory (AGP, FB, TB). It does not
+  //   return whether a set of textures could be made resident at a
+  //   future point of time. A lot of OpenGL implementations (APPLE &
+  //   XiGraphics for example) do cache a texture upon first use with
+  //   3D primitive. Hence unless you had used a texture before it
+  //   will not be resident. N.b that usually operations like
+  //   glBindTexture, glTex*Image and so on will not make a texture
+  //   resident for such caching implementations.
+  //
+  // [...]
+  //
+  // Additional information from Ian D Romanick (IBM engineer doing
+  // Linux OpenGL work):
+  //
+  // [...]
+  //
+  //   AreTexturesResident is basically worthless, IMO.  All OpenGL
+  //   rendering happens in a VERY high latency pipeline.  When an
+  //   application calls AreTexturesResident, the textures may all be
+  //   resident at that time.  However, there may already be
+  //   primitives in the pipeline that will cause those textures to be
+  //   removed from texturable memory before more primitives can be
+  //   put in the pipe.
+  //
+  // [...]
+  //
+  // 20021201 mortene.
+
 #endif // debug
 }
 

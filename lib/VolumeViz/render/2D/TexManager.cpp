@@ -44,3 +44,32 @@
 // [...]
 //
 // 20021130 mortene.
+//
+// Update 20021201 mortene: I think the technique above will be
+// dangerous on UMA-machines (like the SGI O2) were tex mem is the
+// same as other system mem. One would at least have to set a upper
+// limit before running the test.
+
+
+// For reference, here's some information from Thomas Roell of Xi
+// Graphics on glPrioritizeTextures() from c.g.a.opengl:
+//
+// [...]
+//
+//   Texture priorities would be a nice thing, but only few OpenGL
+//   implementations actually use them. There are a lot of reasons
+//   that they ignore priorities. One is that the default priority is
+//   set to 1.0, which is the highest priority. That means unless all
+//   textures for all you applications running at the same time
+//   explicitely use texture priorities, the one that uses them
+//   (i.e. lower priorities) will be at a disadvantage. The other
+//   problem is that typically textures are not the only objects that
+//   live in HW accessable memory. There are display lists, color
+//   tables, vertex array objects and so on. However there is no way
+//   to prioritize them. Hence if you are using textures and display
+//   lists at the same time, useng priorities might cause a lot of
+//   texture cache trashing.
+//
+// [...]
+//
+// 20021201 mortene.
