@@ -6,12 +6,8 @@
 */
 
 #include <stddef.h>
-
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
-
 #include <Inventor/SbName.h>
-#include <Inventor/SbVec3f.h>
-#include <Inventor/SbVec3s.h>
 
 
 SO_DETAIL_SOURCE(SoOrthoSliceDetail);
@@ -38,29 +34,24 @@ SoDetail *
 SoOrthoSliceDetail::copy(void) const
 {
   SoOrthoSliceDetail * copy = new SoOrthoSliceDetail();
-  // FIXME: copy internal data
+  // internal data is automatically copied
   return copy;
 }
 
-SbVec3f &
+const SbVec3f &
 SoOrthoSliceDetail::getValueObjectPos(void) const
 {
-  // FIXME: implement
-  static SbVec3f v;
-  return v;
+  return this->objectcoords;
 }
 
-SbVec3s &
+const SbVec3s &
 SoOrthoSliceDetail::getValueDataPos(void) const
 {
-  // FIXME: implement
-  static SbVec3s v;
-  return v;
+  return this->ijkcoords;
 }
 
 unsigned int
 SoOrthoSliceDetail::getValue(void) const
 {
-  // FIXME: implement
-  return 0;
+  return this->voxelvalue;
 }

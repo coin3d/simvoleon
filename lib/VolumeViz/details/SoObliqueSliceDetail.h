@@ -3,9 +3,8 @@
 
 #include <Inventor/details/SoDetail.h>
 #include <Inventor/details/SoSubDetail.h>
-
-class SbVec3f;
-class SbVec3s;
+#include <Inventor/SbVec3f.h>
+#include <Inventor/SbVec3s.h>
 
 
 class SoObliqueSliceDetail : public SoDetail {
@@ -20,9 +19,16 @@ public:
  
   virtual SoDetail * copy(void) const;
 
-  SbVec3f & getValueObjectPos(void) const;
-  SbVec3s & getValueDataPos(void) const;
+  const SbVec3f & getValueObjectPos(void) const;
+  const SbVec3s & getValueDataPos(void) const;
   unsigned int getValue(void) const;
+
+private:
+  SbVec3f objectcoords;
+  SbVec3s ijkcoords;
+  unsigned int voxelvalue;
+
+  friend class SoObliqueSlice;
 };
 
 #endif // !COIN_SOOBLIQUESLICEDETAIL_H
