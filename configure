@@ -4426,7 +4426,11 @@ if $BUILD_WITH_MSVC; then
   export RANLIB
 fi
 
-#  Initialize libtool
+# Initialize libtool.
+#
+# FIXME: this must be done even when we're not using libtool (as when
+# building with MSVC++), because that's where at least the enable_static
+# and enable_shared flags are set up. 20030324 mortene.
 # Check whether --enable-shared or --disable-shared was given.
 if test "${enable_shared+set}" = set; then
   enableval="$enable_shared"
@@ -5462,7 +5466,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5465 "configure"' > conftest.$ac_ext
+  echo '#line 5469 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5998,7 +6002,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:6001: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:6005: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -7791,7 +7795,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7794 "configure"
+#line 7798 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -7889,7 +7893,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7892 "configure"
+#line 7896 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
