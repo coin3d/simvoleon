@@ -45,6 +45,9 @@
     remote displaying it on a Linux box, slices came up white instead
     of textured.
 
+    (Could this simply be due to the disable-all-OpenGL-non-1.0-features
+    activation upon remote rendering?)
+
     20040616 mortene.
 
 ========================================================================
@@ -115,5 +118,13 @@
     generations, and provided this link for doc on this feature:
 
         http://www.stack.nl/~dimitri/doxygen/doxytag_usage.html
+
+========================================================================
+
+008 Mac OS X configure & build set-up is sub-par.
+
+    Should match Coin's ditto.
+
+    20040710 mortene.
 
 ========================================================================
