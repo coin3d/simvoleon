@@ -102,8 +102,22 @@ SoOrthoSlice::generatePrimitives(SoAction * action)
   // FIXME: implement
 }
 
+// doc in super
 void
 SoOrthoSlice::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
-  // FIXME: implement
+#if 0 // FIXME: code from SoVolumeRender, needs slight adjustments
+  SoState * state = action->getState();
+
+  const SoVolumeDataElement * volumedataelement =
+    SoVolumeDataElement::getInstance(state);
+
+  if (volumedataelement == NULL) return;
+
+  SoVolumeData * volumedata = volumedataelement->getVolumeData();
+
+  SbBox3f vdbox = volumedata->getVolumeSize();
+  box.extendBy(vdbox);
+  center = vdbox.getCenter();
+#endif
 }
