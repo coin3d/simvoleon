@@ -290,13 +290,13 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
     }
     else {
       if (composition == CvrPageHandler::MAX_INTENSITY) {
-        cc_glglue_glBlendEquation(glglue, GL_MAX /* FIXME: <- must be made available. */);
+        cc_glglue_glBlendEquation(glglue, GL_MAX);
       }
       else {
         assert(composition == CvrPageHandler::SUM_INTENSITY &&
                "invalid composition");
         glBlendFunc(GL_ONE, GL_ONE);
-        cc_glglue_glBlendEquation(glglue, GL_FUNC_ADD /* FIXME: <- must be made available. */);
+        cc_glglue_glBlendEquation(glglue, GL_FUNC_ADD);
       }
     }
   }
