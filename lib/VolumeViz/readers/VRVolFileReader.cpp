@@ -16,7 +16,11 @@
 
 
 #include <VolumeViz/readers/SoVRVolFileReader.h>
+#include <VolumeViz/misc/CvrUtil.h>
+
+#include <Inventor/C/tidbits.h>
 #include <Inventor/errors/SoDebugError.h>
+
 #include <errno.h>
 #include <string.h>
 
@@ -32,30 +36,6 @@ struct vol_header {
   float scaleX, scaleY, scaleZ;
   float rotX, rotY, rotZ;
 };
-
-// FIXME: expose tidbits.h properly from Coin. 20021109 mortene.
-extern "C" {
-extern uint32_t coin_hton_uint32(uint32_t value);
-extern uint32_t coin_ntoh_uint32(uint32_t value);
-extern float coin_hton_float(float value);
-extern float coin_ntoh_float(float value);
-extern const char * coin_getenv(const char *);
-}
-
-// FIXME: refactor properly. 20021110 mortene.
-
-extern void buildSubSliceX(const void * input, void * output,
-                           const int pageidx, const SbBox2s & cutslice,
-                           const unsigned short destwidth,
-                           const SoVolumeData::DataType type, const SbVec3s & dim);
-extern void buildSubSliceY(const void * input, void * output,
-                           const int pageidx, const SbBox2s & cutslice,
-                           const unsigned short destwidth,
-                           const SoVolumeData::DataType type, const SbVec3s & dim);
-extern void buildSubSliceZ(const void * input, void * output,
-                           const int pageidx, const SbBox2s & cutslice,
-                           const unsigned short destwidth,
-                           const SoVolumeData::DataType type, const SbVec3s & dim);
 
 // *************************************************************************
 
@@ -172,19 +152,10 @@ SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber,
   short width, height;
   subslice.getSize(width, height);
 
-  switch (axis) {
-    case X:
-      buildSubSliceX(this->m_data, data, slicenumber, subslice, width, type, dims);
-      break;
-
-    case Y:
-      buildSubSliceY(this->m_data, data, slicenumber, subslice, width, type, dims);
-      break;
-
-    case Z:
-      buildSubSliceZ(this->m_data, data, slicenumber, subslice, width, type, dims);
-      break;
-  }
+  unsigned int axisidx = (axis == X) ? 0 : ((axis == Y) ? 1 : 2);
+  CvrUtil::buildSubPage(axisidx,
+                        (const uint8_t *)this->m_data, (uint8_t *)data,
+                        slicenumber, subslice, width, type, dims);
 }
 
 void

@@ -2,35 +2,16 @@
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
-
 #include <limits.h>
 #include <string.h>
 
-
-// *************************************************************************
-
-// FIXME: move these to an SimVolution-internal accessible class.
-// 20021125 mortene.
-
-extern void buildSubSliceX(const void * input, void * output,
-                           const int pageidx, const SbBox2s & cutslice,
-                           const unsigned short destwidth,
-                           const SoVolumeData::DataType type, const SbVec3s & dim);
-extern void buildSubSliceY(const void * input, void * output,
-                           const int pageidx, const SbBox2s & cutslice,
-                           const unsigned short destwidth,
-                           const SoVolumeData::DataType type, const SbVec3s & dim);
-extern void buildSubSliceZ(const void * input, void * output,
-                           const int pageidx, const SbBox2s & cutslice,
-                           const unsigned short destwidth,
-                           const SoVolumeData::DataType type, const SbVec3s & dim);
 
 // *************************************************************************
 
@@ -336,7 +317,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // FIXME: this will be 4 times larger than necessary for
   // UNSIGNED_BYTE type data. 20021125 mortene.
   const unsigned int slicebufsize = this->subpagesize[0] * this->subpagesize[1] * 4;
-  unsigned char * slicebuf = new unsigned char[slicebufsize];
+  uint8_t * slicebuf = new uint8_t[slicebufsize];
   (void)memset(slicebuf, 0x00, slicebufsize);
 
   SoState * state = action->getState();
@@ -351,23 +332,9 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   SbBool ok = voldatanode->getVolumeData(vddims, dataptr, type);
   assert(ok);
 
-  switch (this->axis) {
-  case 0:
-    buildSubSliceX(dataptr, slicebuf, this->sliceIdx, subpagecut, this->subpagesize[0], type, vddims);
-    break;
-
-  case 1:
-    buildSubSliceY(dataptr, slicebuf, this->sliceIdx, subpagecut, this->subpagesize[0], type, vddims);
-    break;
-
-  case 2:
-    buildSubSliceZ(dataptr, slicebuf, this->sliceIdx, subpagecut, this->subpagesize[0], type, vddims);
-    break;
-
-  default:
-    assert(FALSE);
-    break;
-  }
+  CvrUtil::buildSubPage(this->axis, (const uint8_t *)dataptr, slicebuf,
+                        this->sliceIdx, subpagecut, this->subpagesize[0],
+                        type, vddims);
 
 #if 0 // DEBUG: dump slice parts before slicebuf transformation to bitmap files.
   SbString s;
