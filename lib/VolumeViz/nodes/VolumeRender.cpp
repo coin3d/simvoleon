@@ -1,8 +1,11 @@
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
+#include <Inventor/SbLine.h>
+#include <Inventor/SbPlane.h>
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
@@ -218,8 +221,11 @@ SoVolumeRender::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoVolumeRender, SoShape, "SoShape");
 
-  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
+  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+
+  SO_ENABLE(SoRayPickAction, SoVolumeDataElement);
+  SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
 }
 
 
@@ -317,13 +323,87 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   }
 }
 
+// doc in super
 void
 SoVolumeRender::generatePrimitives(SoAction * action)
 {
-  // FIXME: implement me. 20021120 mortene.
+  // FIXME: implement me? 20021120 mortene.
 }
 
+// doc in super
+void
+SoVolumeRender::rayPick(SoRayPickAction * action)
+{
+  if (!this->shouldRayPick(action)) return;
 
+  this->computeObjectSpaceRay(action);
+
+  const SbLine & ray = action->getLine();
+  ray.print(stdout); fprintf(stdout, "\n"); fflush(stdout);
+
+  SbBox3f objbbox;
+  SbVec3f center;
+  this->computeBBox(action, objbbox, center);
+
+  SbVec3f mincorner, maxcorner;
+  objbbox.getBounds(mincorner, maxcorner);
+
+  fprintf(stdout, "mincorner: "); mincorner.print(stdout); fprintf(stdout, "\n"); fflush(stdout);
+  fprintf(stdout, "maxcorner: "); maxcorner.print(stdout); fprintf(stdout, "\n"); fflush(stdout);
+
+  SbPlane sides[6] = {
+    SbPlane(SbVec3f(0, 0, -1), mincorner[2]), // front face
+    SbPlane(SbVec3f(0, 0, 1), maxcorner[2]), // back face
+    SbPlane(SbVec3f(-1, 0, 0), mincorner[0]), // left face
+    SbPlane(SbVec3f(1, 0, 0), maxcorner[0]), // right face
+    SbPlane(SbVec3f(0, -1, 0), mincorner[1]), // bottom face
+    SbPlane(SbVec3f(0, 1, 0), maxcorner[1]) // top face
+  };
+
+  static int cmpindices[6][2] = { { 0, 1 }, { 1, 2 }, { 0, 2 } };
+
+  unsigned int nrintersect = 0;
+  SbVec3f intersects[2];
+  for (unsigned int i=0; i < (sizeof(sides) / sizeof(sides[0])); i++) {
+    SbVec3f intersectpt;
+    if (sides[i].intersect(ray, intersectpt)) {
+      intersectpt.print(stdout); fprintf(stdout, "\n"); fflush(stdout);
+
+      const int axisidx0 = cmpindices[i / 2][0];
+      const int axisidx1 = cmpindices[i / 2][1];
+      printf("axisidx = %d, %d\n", axisidx0, axisidx1);
+
+      if ((intersectpt[axisidx0] >= mincorner[axisidx0]) &&
+          (intersectpt[axisidx0] <= maxcorner[axisidx0]) &&
+          (intersectpt[axisidx1] >= mincorner[axisidx1]) &&
+          (intersectpt[axisidx1] <= maxcorner[axisidx1])) {
+        printf("hit!\n");
+        intersects[nrintersect++] = intersectpt;
+        // Break if we happen to hit more than three sides (could
+        // perhaps happen in borderline cases).
+        if (nrintersect == 2) break;
+      }
+    }
+  }
+
+
+  // Borderline case, ignore.
+  if (nrintersect < 2) { return; }
+
+  assert(nrintersect == 2);
+
+//       if (action->isBetweenPlanes(intersectpt)) {
+//       SoPickedPoint * pp = action->addIntersection(intersectpt);
+//       if (pp) {
+//             SoCubeDetail * detail = new SoCubeDetail();
+//             detail->setPart(translation[cnt]);
+//             pp->setDetail(detail, shape);
+//             if (flags & SOPICK_MATERIAL_PER_PART) 
+//               pp->setMaterialIndex(translation[cnt]);
+//             pp->setObjectNormal(norm);
+}
+
+// doc in super
 void
 SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
