@@ -1,0 +1,22 @@
+SIM Voleon 2.0.1 Released
+=========================
+
+Systems in Motion has released v2.0.1 of the SIM Voleon 3D graphics
+library for voxel rendering.  SIM Voleon 2.0.1 is a patch-level
+release, providing various bug fixes. The API and ABI of the library
+is identical to release 2.0.0.
+
+NEWS File Excerpt:
+------------------
+
+* bugfixes
+
+  - mixing 2D-textures and 3D-textures with the same palette would
+    sometimes break, causing rendering artifacts
+  - fixed a major resource leak for OpenGL textures
+  - obscure bug in optimalization feature for tracking "open" areas fixed
+  - rendering code is now multithread-safe
+
+
+See the ChangeLog file if you want the really gory details.  See the
+file RELNOTES on changes that might affect SIM Voleon usage.

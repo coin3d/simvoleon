@@ -1,0 +1,334 @@
+2004-12-20 15:54  mortene
+
+	* lib/VolumeViz/: C/basic.h.in, caches/CvrGLTextureCache.h,
+	  caches/GLTextureCache.cpp, details/ObliqueSliceDetail.cpp,
+	  details/OrthoSliceDetail.cpp, details/SoObliqueSliceDetail.h,
+	  details/SoOrthoSliceDetail.h, details/SoVolumeDetail.h,
+	  details/SoVolumeRenderDetail.h, details/SoVolumeSkinDetail.h,
+	  details/VolumeDetail.cpp, details/VolumeRenderDetail.cpp,
+	  details/VolumeSkinDetail.cpp,
+	  elements/CompressedTexturesElement.cpp,
+	  elements/CvrCompressedTexturesElement.h,
+	  elements/CvrGLInterpolationElement.h,
+	  elements/CvrPageSizeElement.h,
+	  elements/CvrPalettedTexturesElement.h,
+	  elements/CvrStorageHintElement.h,
+	  elements/CvrVoxelBlockElement.h,
+	  elements/GLInterpolationElement.cpp,
+	  elements/PageSizeElement.cpp,
+	  elements/PalettedTexturesElement.cpp,
+	  elements/SoTransferFunctionElement.h,
+	  elements/StorageHintElement.cpp,
+	  elements/TransferFunctionElement.cpp,
+	  elements/VoxelBlockElement.cpp, misc/CLUT.cpp, misc/CvrCLUT.h,
+	  misc/CvrGIMPGradient.h, misc/CvrGlobalRenderLock.h,
+	  misc/CvrResourceManager.h, misc/CvrUtil.h, misc/CvrVoxelChunk.h,
+	  misc/GIMPGradient.cpp, misc/GlobalRenderLock.cpp,
+	  misc/ResourceManager.cpp, misc/Util.cpp, misc/VoxelChunk.cpp,
+	  nodes/CvrFaceSetRenderP.cpp, nodes/CvrFaceSetRenderP.h,
+	  nodes/CvrIndexedFaceSetRenderP.cpp,
+	  nodes/CvrIndexedFaceSetRenderP.h,
+	  nodes/CvrIndexedSetRenderBaseP.cpp,
+	  nodes/CvrIndexedSetRenderBaseP.h,
+	  nodes/CvrIndexedTriangleStripSetRenderP.cpp,
+	  nodes/CvrIndexedTriangleStripSetRenderP.h,
+	  nodes/CvrNonIndexedSetRenderBaseP.cpp,
+	  nodes/CvrNonIndexedSetRenderBaseP.h,
+	  nodes/CvrTriangleStripSetRenderP.cpp,
+	  nodes/CvrTriangleStripSetRenderP.h, nodes/ObliqueSlice.cpp,
+	  nodes/OrthoSlice.cpp, nodes/ROI.cpp, nodes/SoObliqueSlice.h,
+	  nodes/SoOrthoSlice.h, nodes/SoROI.h, nodes/SoTransferFunction.h,
+	  nodes/SoVolumeData.h, nodes/SoVolumeFaceSet.h,
+	  nodes/SoVolumeIndexedFaceSet.h,
+	  nodes/SoVolumeIndexedTriangleStripSet.h, nodes/SoVolumeRender.h,
+	  nodes/SoVolumeRendering.h, nodes/SoVolumeSkin.h,
+	  nodes/SoVolumeTriangleStripSet.h, nodes/TransferFunction.cpp,
+	  nodes/VolumeData.cpp, nodes/VolumeFaceSet.cpp,
+	  nodes/VolumeIndexedFaceSet.cpp,
+	  nodes/VolumeIndexedTriangleStripSet.cpp, nodes/VolumeRender.cpp,
+	  nodes/VolumeRendering.cpp, nodes/VolumeSkin.cpp,
+	  nodes/VolumeTriangleStripSet.cpp,
+	  nodes/volumeraypickintersection.cpp,
+	  nodes/volumeraypickintersection.h, readers/SoVRMemReader.h,
+	  readers/SoVRVolFileReader.h, readers/SoVolumeReader.h,
+	  readers/VRMemReader.cpp, readers/VRVolFileReader.cpp,
+	  readers/VolumeReader.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/2DTexSubPage.cpp, render/2D/Cvr2DTexPage.h,
+	  render/2D/Cvr2DTexSubPage.h, render/2D/CvrPageHandler.h,
+	  render/2D/PageHandler.cpp, render/2D/texmemfullimg.h,
+	  render/3D/3DTexCube.cpp, render/3D/3DTexSubCube.cpp,
+	  render/3D/CubeHandler.cpp, render/3D/Cvr3DTexCube.h,
+	  render/3D/Cvr3DTexSubCube.h, render/3D/CvrCubeHandler.h,
+	  render/Pointset/PointRendering.cpp,
+	  render/Pointset/PointRendering.h,
+	  render/common/Cvr2DPaletteTexture.cpp,
+	  render/common/Cvr2DPaletteTexture.h,
+	  render/common/Cvr2DRGBATexture.cpp,
+	  render/common/Cvr2DRGBATexture.h,
+	  render/common/Cvr3DPaletteTexture.cpp,
+	  render/common/Cvr3DPaletteTexture.h,
+	  render/common/Cvr3DRGBATexture.cpp,
+	  render/common/Cvr3DRGBATexture.h,
+	  render/common/CvrPaletteTexture.cpp,
+	  render/common/CvrPaletteTexture.h,
+	  render/common/CvrRGBATexture.cpp, render/common/CvrRGBATexture.h,
+	  render/common/CvrTextureObject.cpp,
+	  render/common/CvrTextureObject.h: Copyright header update.
+
+2004-12-20 15:03  mortene
+
+	* Makefile.in, cfg/gendsp.sh: Bootstrap.
+
+2004-12-20 15:01  mortene
+
+	* Makefile.am: EXTRA_DIST stuff.
+
+2004-12-20 12:34  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Compile fix: kill
+	  warnings from MSVC 6.
+
+2004-12-17 08:36  mortene
+
+	* docs/doxygen/Coin_logo.png: Use new logo.
+
+2004-12-16 13:10  mortene
+
+	* Makefile.am, Makefile.in, packaging/Windows/NSIS/Makefile.in,
+	  packaging/Windows/NSIS/bfheader.nsi.in,
+	  packaging/Windows/NSIS/footer.nsi.in,
+	  packaging/Windows/NSIS/heading.nsi.in,
+	  packaging/Windows/NSIS/middle.nsi.in,
+	  packaging/Windows/NSIS/post.nsi.in,
+	  packaging/Windows/NSIS/simvoleon-sdk.html.in: NSIS packaging.
+
+2004-12-14 16:04  mortene
+
+	* lib/VolumeViz/: readers/VRVolFileReader.cpp,
+	  render/2D/2DTexPage.cpp, render/3D/3DTexCube.cpp: Compile fixes:
+	  kill MSVC 7 warnings.
+
+2004-12-14 15:49  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Compile fix: kill MSVC 7
+	  warnings.
+
+2004-12-14 15:42  mortene
+
+	* lib/VolumeViz/details/VolumeDetail.cpp: Compile fix: kill warning
+	  from MSVC 7.
+
+2004-12-14 11:56  mortene
+
+	* lib/VolumeViz/render/3D/3DTexCube.cpp: Robustness: work around an
+	  obscure ATI driver bug.
+
+2004-12-13 13:59  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Bugfix: array memory
+	  misdeallocated. Thanks to Kristofer Tingdahl for the bug report.
+
+2004-12-09 15:55  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Bugfix: histogram generation
+	  didn't work, reported by Petter Risholm.
+
+2004-11-16 11:09  handegar
+
+	* lib/VolumeViz/nodes/VolumeSkin.cpp: Bbox fix.
+
+2004-11-12 14:17  mortene
+
+	* NEWS, configure, lib/VolumeViz/misc/CvrGlobalRenderLock.h,
+	  lib/VolumeViz/misc/GlobalRenderLock.cpp,
+	  lib/VolumeViz/misc/Makefile.am, lib/VolumeViz/misc/Makefile.in,
+	  lib/VolumeViz/nodes/ObliqueSlice.cpp,
+	  lib/VolumeViz/nodes/OrthoSlice.cpp,
+	  lib/VolumeViz/nodes/VolumeFaceSet.cpp,
+	  lib/VolumeViz/nodes/VolumeIndexedFaceSet.cpp,
+	  lib/VolumeViz/nodes/VolumeIndexedTriangleStripSet.cpp,
+	  lib/VolumeViz/nodes/VolumeRender.cpp,
+	  lib/VolumeViz/nodes/VolumeRendering.cpp,
+	  lib/VolumeViz/nodes/VolumeSkin.cpp,
+	  lib/VolumeViz/nodes/VolumeTriangleStripSet.cpp: Bugfix: rendering
+	  is now multithread-safe (by a quick fix; using a Voleon-global
+	  lock).
+
+2004-11-12 12:34  mortene
+
+	* lib/VolumeViz/misc/: CvrResourceManager.h, ResourceManager.cpp:
+	  Resource fix: handle context destruction.
+
+2004-11-12 12:33  mortene
+
+	* configure.ac: Doc: code comment.
+
+2004-11-12 12:33  mortene
+
+	* BUGS.txt, NEWS: Bug updates.
+
+2004-11-12 12:26  mortene
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp: Debug:
+	  additional debug output, envvar controlled.
+
+2004-11-12 12:25  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Doc: FIXME update.
+
+2004-11-12 12:24  mortene
+
+	* lib/VolumeViz/: misc/VoxelChunk.cpp, render/2D/2DTexPage.cpp,
+	  render/3D/3DTexCube.cpp: Bugfix: previously invisible pages would
+	  stay that way when changing palettes.
+
+2004-11-12 12:19  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Codestyle: minor fix, less
+	  namespace pollution.
+
+2004-11-11 15:53  mortene
+
+	* NEWS, RELNOTES: News updates.
+
+2004-11-11 15:52  mortene
+
+	* BUGS.txt: Clean-up: the critical slow-down for many bricks was
+	  fixed long ago.
+
+2004-11-11 15:48  mortene
+
+	* configure, lib/config.h.in, lib/VolumeViz/misc/Makefile.in,
+	  lib/VolumeViz/render/common/Makefile.in: Bootstrap.
+
+2004-11-11 15:47  mortene
+
+	* lib/VolumeViz/render/common/: Makefile.am, resourcehandler.c,
+	  resourcehandler.h: Removes obsoleted code.
+
+2004-11-11 15:46  mortene
+
+	* lib/VolumeViz/: caches/CvrGLTextureCache.h,
+	  caches/GLTextureCache.cpp, misc/CLUT.cpp, misc/CvrCLUT.h,
+	  misc/CvrResourceManager.h, misc/ResourceManager.cpp,
+	  render/2D/2DTexSubPage.cpp, render/3D/3DTexSubCube.cpp,
+	  render/common/CvrTextureObject.cpp, misc/Makefile.am: Bugfix:
+	  plug major resource leak. GL textures are now actually destructed
+	  when going out of scope.
+
+2004-11-11 15:31  mortene
+
+	* configure.ac: Force a hard dependency on Coin v 2.3.0, as we need
+	  functionality from it to fix a nasty bug (major GL resource
+	  leaks).
+
+2004-11-10 15:54  mortene
+
+	* BUGS.txt: Bug fixed.
+
+2004-11-10 15:12  mortene
+
+	* Makefile.am, Makefile.in, configure: 'make distcheck' fix.
+
+2004-11-10 14:35  mortene
+
+	* lib/VolumeViz/: Makefile.am, Makefile.in: 'make distcheck' fixes.
+
+2004-11-10 10:12  mortene
+
+	* Makefile.am, Makefile.in, configure.ac: 'make distcheck' fix.
+
+2004-11-09 18:07  larsa
+
+	* configure: bootstrap
+
+2004-11-09 18:05  larsa
+
+	* configure.ac: tweak
+
+2004-11-09 16:50  larsa
+
+	* configure: bootstrap
+
+2004-11-09 16:41  larsa
+
+	* configure.ac: static build tweaks
+
+2004-11-09 16:12  mortene
+
+	* cfg/wrapmsvc.exe, lib/VolumeViz/C/Makefile.in: Bootstrap.
+
+2004-11-09 16:12  mortene
+
+	* lib/VolumeViz/C/Makefile.am: Build fix: 'make distcheck' fix.
+
+2004-11-03 15:31  mortene
+
+	* BUGS.txt: New item.
+
+2004-11-03 14:51  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Bugfix: must still regenerate
+	  GL-texture when we're a copy of another CvrCLUT.
+
+2004-11-03 14:40  mortene
+
+	* lib/VolumeViz/: misc/CLUT.cpp, misc/CvrCLUT.h,
+	  render/common/CvrTextureObject.cpp: Clean-ups and minor bugfixes:
+	  better handling of decisions between GL palette extension and
+	  fragment program for CLUT-textures.
+
+2004-11-03 11:15  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Remove debugging output statement
+	  inadvertently left in.
+
+2004-11-03 11:13  mortene
+
+	* lib/VolumeViz/misc/: CLUT.cpp, CvrCLUT.h: Clean-up: fragment
+	  programs are static and shared between all CLUTs
+
+2004-10-29 13:42  mortene
+
+	* lib/VolumeViz/: render/common/CvrTextureObject.cpp,
+	  nodes/VolumeRendering.cpp: Doc: various FIXME notes, API doc and
+	  code comments.
+
+2004-10-29 13:17  mortene
+
+	* lib/VolumeViz/: misc/CLUT.cpp, misc/CvrCLUT.h,
+	  render/2D/2DTexSubPage.cpp, render/3D/3DTexSubCube.cpp: Bugfix &
+	  design clean-up: don't store texture-type along with CLUT. This
+	  will for instance fail for a colortable first allocated for a 2D
+	  texture, then used for a 3D texture.
+
+2004-10-29 12:55  mortene
+
+	* lib/VolumeViz/: misc/CLUT.cpp, misc/CvrCLUT.h,
+	  render/3D/3DTexSubCube.cpp: Bugfix: fixes a _nasty_ problem,
+	  which caused problems when using both 2D- and 3D-textures in the
+	  scene at the same time. Problem reported by Kristofer Tingdahl.
+
+2004-10-22 12:22  mortene
+
+	* lib/VolumeViz/render/2D/2DTexPage.cpp: Bugfix: could crash on
+	  invisible (and thereby not instantiated) slices. Bug reported by
+	  Arend Lammertink.
+
+2004-10-18 14:02  mortene
+
+	* lib/VolumeViz/render/: 3D/3DTexCube.cpp,
+	  common/CvrTextureObject.cpp: Bugfix: handle invisible cube parts
+	  correctly.
+
+2004-10-14 11:52  mortene
+
+	* BUGS.txt: New item.
+
+2004-10-11 10:50  mortene
+
+	* BUGS.txt: New item.
+
+2004-10-11 10:48  mortene
+
+	* NEWS, configure, configure.ac: Ready for new dev cycle.

@@ -4,6 +4,6 @@ INSTALL-file packaged with the Coin source code.
 Basic installation is done in the usual UNIX-style, i.e.
 
         $ cd <builddir>
-        $ <srcdir>/SimVoleon/configure --prefix=<instdir>
+        $ <srcdir>/SIMVoleon/configure --prefix=<instdir>
         $ make install
 

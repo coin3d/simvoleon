@@ -38,7 +38,12 @@ EXTRA_DIST = \
 	packaging/Windows/NSIS/heading.nsi.in \
 	packaging/Windows/NSIS/middle.nsi.in \
 	packaging/Windows/NSIS/post.nsi.in \
-	packaging/Windows/NSIS/simvoleon-sdk.html.in
+	packaging/Windows/NSIS/simvoleon-sdk.html.in \
+	docs/ChangeLog.v2.0.0 \
+	docs/ChangeLog.v2.0.1 \
+	docs/announcement-1_0_0.txt \
+	docs/announcement-2_0_0.txt \
+	docs/announcement-2_0_1.txt
 
 m4datadir = $(datadir)/aclocal
 dist_m4data_DATA = cfg/simvoleon.m4
