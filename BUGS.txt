@@ -61,15 +61,6 @@
 
 ========================================================================
 
-005 SoVolumeData::setPageSize() ignored for 3D texturing.
-
-    3D texturing just uses the max allowed by OpenGL. Should follow
-    what is forced by the API, for several good reasons.
-
-    20040623 mortene.
-
-========================================================================
-
 006 Support for SoVolumeRender::viewAlignedSlices not implemented.
 
     At least one potential client would use this. Should be simple to
@@ -186,3 +177,26 @@
 
 ========================================================================
     
+012 There are clearly visible seams between texture sub-cubes of a
+    volume.
+
+    To reproduce, look at e.g. LOBSTER.VOL with default
+    SoTransferFunction and the default 64x64x64 pagesize.
+
+    This is a critical bug.
+
+    20040723 mortene.
+
+========================================================================
+
+013 Using many sub-cubes for a texture slows down visualization to a
+    crawl.
+
+    Happens on my box even with just 25 sub-cubes, as for LOBSTER.VOL
+    (5x5x1 sub-cubes at the default 64x64x64 pagesize).
+
+    This is a critical bug.
+
+    20040723 mortene.
+
+========================================================================
