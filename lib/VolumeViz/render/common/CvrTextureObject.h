@@ -65,7 +65,7 @@ public:
 
   virtual SbBool isPaletted(void) const = 0;
   virtual void blankUnused(const SbVec3s & texsize) const = 0;
-  virtual GLenum getGLTextureEnum(void) const = 0;
+  virtual unsigned short getNrOfTextureDimensions(void) const = 0;
 
 protected:
   // Constructor and destructor is protected as instances should

@@ -39,7 +39,7 @@ public:
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
-  virtual GLenum getGLTextureEnum(void) const { return GL_TEXTURE_2D; }
+  virtual unsigned short getNrOfTextureDimensions(void) const { return 2; }
   virtual uint8_t * getIndex8Buffer(void) const;
   virtual void blankUnused(const SbVec3s & texsize) const;
 

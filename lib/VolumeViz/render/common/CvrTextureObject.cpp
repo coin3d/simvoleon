@@ -271,7 +271,8 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   glGenTextures(1, &texid);
   assert(glGetError() == GL_NO_ERROR);
 
-  const GLenum gltextypeenum = this->getGLTextureEnum();
+  const unsigned short nrtexdims = this->getNrOfTextureDimensions();
+  const GLenum gltextypeenum = (nrtexdims == 2) ? GL_TEXTURE_2D : GL_TEXTURE_3D;
 
   glEnable(gltextypeenum);
   glBindTexture(gltextypeenum, texid);
@@ -286,19 +287,28 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   // Microsoft OpenGL 1.1 software renderer, which is often used for
   // offscreen rendering on MSWin systems.)
   //
-  // Let this code be disabled for a while, and fix any visual
-  // artifacts showing up -- preferably *without* re-enabling the
-  // use of GL_CLAMP_TO_EDGE again. Eventually, we should simply
-  // just remove the below disabled code, if we find that we can
-  // actually do without it.
+  // Disable this code, and fix any visual artifacts showing up. See
+  // also description of bug #012 in SIMVoleon/BUGS.txt.
   //
   // 20040714 mortene.
-#if 0
-  if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
-#endif
+
+  if (cc_glglue_has_texture_edge_clamp(glw) && (nrtexdims == 3)) {
+    // We do this for now, to minimize the visible seams in the 3D
+    // textures when interpolation is set to "LINEAR". See FIXME above
+    // and bug #012.
+    //
+    // This work-around only active for 3D textures, as we can be
+    // fairly certain we have at least OpenGL 1.2 (to which was added
+    // both 3D textures and GL_CLAMP_TO_EDGE) if we get here. Besides,
+    // the seams can be very ugly with 3D textures, but are usually
+    // not easily visible with 2D textures, so there's less help in
+    // this.
+    wrapenum = GL_CLAMP_TO_EDGE;
+  }
+
   glTexParameteri(gltextypeenum, GL_TEXTURE_WRAP_S, wrapenum);
   glTexParameteri(gltextypeenum, GL_TEXTURE_WRAP_T, wrapenum);
-  if (gltextypeenum == GL_TEXTURE_3D) {
+  if (nrtexdims == 3) {
     glTexParameteri(gltextypeenum, GL_TEXTURE_WRAP_R, wrapenum);
   }
 
@@ -334,7 +344,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   }
 
-  if (gltextypeenum == GL_TEXTURE_2D) {
+  if (nrtexdims == 2) {
     glTexImage2D(gltextypeenum,
                  0,
                  colorformat,
@@ -345,6 +355,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
                  imgptr);
   }
   else {
+    assert(nrtexdims == 3);
     cc_glglue_glTexImage3D(glw,
                            gltextypeenum,
                            0,
@@ -538,7 +549,8 @@ CvrTextureObject::activateTexture(const SoGLRenderAction * action) const
 {
   const GLuint texid = this->getGLTexture(action);
 
-  const GLenum gltextypeenum = this->getGLTextureEnum();
+  const unsigned short nrtexdims = this->getNrOfTextureDimensions();
+  const GLenum gltextypeenum = (nrtexdims == 2) ? GL_TEXTURE_2D : GL_TEXTURE_3D;
 
   glEnable(gltextypeenum);
   glBindTexture(gltextypeenum, texid);
