@@ -1,4 +1,3 @@
-
 INCLUDES = -I$(top_srcdir)/lib
 
 if BUILD_WITH_MSVC
@@ -9,6 +8,7 @@ endif
 
 SOURCES = \
 	SoVolumeReader.cpp \
+	SoVRVolFileReader.cpp \
 	SoVRMemReader.cpp
 
 libreaders_la_SOURCES = $(SOURCES)
@@ -19,6 +19,7 @@ libreadersincdir = $(includedir)/VolumeViz/readers
 
 libreadersinc_HEADERS = \
 	SoVolumeReader.h \
+	SoVRVolFileReader.h \
 	SoVRMemReader.h
 
 readers.lst: $(readers_lst_OBJECTS)
