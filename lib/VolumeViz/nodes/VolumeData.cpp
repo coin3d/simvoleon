@@ -316,11 +316,11 @@ SbBool
 SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
                             SoVolumeData::DataType & type) const
 {
+  if (PRIVATE(this)->reader == NULL) { return FALSE; }
+
   dimensions = SbVec3s(PRIVATE(this)->dimensions);
-  assert(PRIVATE(this)->reader && "no reader!");
   data = PRIVATE(this)->reader->m_data;
   type = PRIVATE(this)->datatype;
-  // FIXME: how could this become FALSE for us?
   return TRUE;
 }
 
