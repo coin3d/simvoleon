@@ -15,19 +15,12 @@ FIXME
 
 
 #include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/elements/SoTransferFunctionElement.h>
+
+#include <string.h>
 #include <Inventor/actions/SoGLRenderAction.h>
-#include <memory.h>
-#include <Inventor/elements/SoGLCacheContextElement.h>
-
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
-
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#endif // HAVE_WINDOWS_H
-#include <GL/gl.h>
+#include <Inventor/errors/SoDebugError.h>
+#include <Inventor/system/gl.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
 
 
 // *************************************************************************
@@ -154,11 +147,21 @@ SoTransferFunction::transfer(const void * input,
     int * palCount = new int[numEntries];
     memset(palCount, 0, sizeof(int)*numEntries);
     for (i = 0; i < size[0]*size[1]; i++) {
+      int unpacked = PRIVATE(this)->unpack(input, numBits, i);
+      int idx = (unpacked << this->shift.getValue()) + this->offset.getValue();
 
-      // FIXME: Test if the index is out of bounds. 08282002 torbjorv.
-      int idx = 
-        (unsigned short) ((PRIVATE(this)->unpack(input, numBits, i) << shift.getValue()) + 
-                          offset.getValue());
+      if (idx >= numEntries) {
+#if 1 // debug
+        SoDebugError::postInfo("SoTransferFunction::transfer",
+                               "idx %d out-of-bounds [0, %d] "
+                               "(unpacked==%d, shift==%d, offset==%d)",
+                               idx, numEntries - 1,
+                               unpacked, this->shift.getValue(),
+                               this->offset.getValue());
+#endif // debug
+      }
+
+      assert(idx < numEntries);
 
       palCount[idx]++;
     }
@@ -207,9 +210,22 @@ SoTransferFunction::transfer(const void * input,
       new unsigned char[size[0] * size[1] * newNumBits / 8];
     memset(newTexture, 0, size[0] * size[1] * newNumBits / 8);
     for (i = 0; i < size[0]*size[1]; i++) {
-      int idx = 
-        (unsigned short)((PRIVATE(this)->unpack(input, numBits, i) << shift.getValue()) + 
-                         offset.getValue());
+
+      int unpacked = PRIVATE(this)->unpack(input, numBits, i);
+      int idx = (unpacked << this->shift.getValue()) + this->offset.getValue();
+
+      if (idx >= numEntries) {
+#if 1 // debug
+        SoDebugError::postInfo("SoTransferFunction::transfer",
+                               "idx %d out-of-bounds [0, %d] "
+                               "(unpacked==%d, shift==%d, offset==%d)",
+                               idx, numEntries - 1,
+                               unpacked, this->shift.getValue(),
+                               this->offset.getValue());
+#endif // debug
+      }
+
+      assert(idx < numEntries);
 
       idx = remap[idx];
       PRIVATE(this)->pack(newTexture, newNumBits, i, idx);
