@@ -1,3 +1,16 @@
+/**************************************************************************\
+ *
+ *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
+ *
+ *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
+ *  http:// www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
+ *
+\**************************************************************************/
+
+#include <VolumeViz/misc/SoVolumeDataSlice.h>
+#include <Inventor/misc/SoState.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
@@ -7,20 +20,8 @@
 #endif // HAVE_WINDOWS_H
 #include <GL/gl.h>
 
-/*
-Notes for documentation:
-* The slice's reader is set in the init-function. Only the pointer
-  is saved. If any of the reader's data is changed, the init-function
-  must be rerun to setup all the correct values. 
-
-* Describe the datastructure for pages. 
-
-*/
 
 
-#include <VolumeViz/misc/SoVolumeDataSlice.h>
-#include <Inventor/misc/SoState.h>
-#include <Inventor/actions/SoGLRenderAction.h>
 
 SoVolumeDataSlice::SoVolumeDataSlice()
 {
@@ -47,6 +48,8 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader,
                              SoVolumeRendering::Axis axis,
                              SbVec2s &pageSize)
 {
+  releaseAllPages();
+
   this->reader = reader;
   this->sliceIdx = sliceIdx;
   this->axis = axis;
@@ -86,9 +89,9 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader,
 
 
 /*
-Searches for a specified page in the slice. The page
-is identified by it's memorylocation (the pointer). If the
-page isn't found, nothing happens. 
+  Searches for a specified page in the slice. The page
+  is identified by it's memorylocation (the pointer). If the
+  page isn't found, nothing happens. 
 */
 void 
 SoVolumeDataSlice::releasePage(SoVolumeDataPage * page)
@@ -176,14 +179,24 @@ void SoVolumeDataSlice::releaseAllPages()
     }//for
 
   delete [] pages;
+  pages = NULL;
 }// releaseAllPages
 
+
+
+
 /*
-vertices specified in counterclockwise order. 
-v0 maps to lower left of slice. 
-v1 maps to lower right of slice.
-v2 maps to upper right of slice.
-v3 maps to upper left of slice.
+
+  Renders a arbitrary shaped quad. Automatically loads all pages 
+  needed for the given texturecoords. Texturecoords is in relative
+  coordinates [0, 1]. 
+
+  vertices specified in counterclockwise order. 
+  v0 maps to lower left of slice. 
+  v1 maps to lower right of slice.
+  v2 maps to upper right of slice.
+  v3 maps to upper left of slice.
+
 */
 void SoVolumeDataSlice::render(SoState * state,
                                SbVec3f &v0, 
@@ -200,8 +213,9 @@ void SoVolumeDataSlice::render(SoState * state,
   SbVec2f minUV, maxUV;
   textureCoords.getBounds(minUV, maxUV);
 
-  SbVec2f pageSizef = SbVec2f(float(this->pageSize[0])/float(dimensions[0]), 
-                              float(this->pageSize[1])/float(dimensions[1]));
+  SbVec2f pageSizef = 
+    SbVec2f(float(this->pageSize[0])/float(dimensions[0]), 
+            float(this->pageSize[1])/float(dimensions[1]));
 
   // Local page-UV-coordinates for the current quad to be rendered. 
   SbVec2f localMinUV, localMaxUV;                   
@@ -228,7 +242,8 @@ void SoVolumeDataSlice::render(SoState * state,
       localMaxUV[1] = 1.0;
 
       // Interpolating the row's endvertices
-      float k = float(globalMaxUV[1] - minUV[1])/float(maxUV[1] - minUV[1]);
+      float k = 
+        float(globalMaxUV[1] - minUV[1])/float(maxUV[1] - minUV[1]);
       endUpperLeft[0] = (1 - k)*v0[0] + k*v3[0];
       endUpperLeft[1] = (1 - k)*v0[1] + k*v3[1];
       endUpperLeft[2] = (1 - k)*v0[2] + k*v3[2];
@@ -262,7 +277,8 @@ void SoVolumeDataSlice::render(SoState * state,
         localMaxUV[0] = 1.0;
 
         // Interpolating the quad's rightmost vertices
-        float k = float(globalMaxUV[0] - minUV[0])/float(maxUV[0] - minUV[0]);
+        float k = 
+          float(globalMaxUV[0] - minUV[0])/float(maxUV[0] - minUV[0]);
         lowerRight = (1 - k)*endLowerLeft + k*endLowerRight;
         upperRight = (1 - k)*endUpperLeft + k*endUpperRight;
 
@@ -318,13 +334,12 @@ void SoVolumeDataSlice::render(SoState * state,
 
 
 /*
-Builds a page if it doesn't exist. Rebuilds it if it does exist. 
+  Builds a page if it doesn't exist. Rebuilds it if it does exist. 
 */
-
-// FIXME: Create support for different dataformats. torbjorv 08092002
-SoVolumeDataPage * SoVolumeDataSlice::buildPage(int col, 
-                                                int row,
-                                                SoTransferFunction * transferFunction)
+SoVolumeDataPage * 
+SoVolumeDataSlice::buildPage(int col, 
+                             int row,
+                             SoTransferFunction * transferFunction)
 {
   assert(reader);
   assert(transferFunction);

@@ -1,3 +1,11 @@
+/**************************************************************************\
+ *
+ *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
+ *
+ *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
+ *  http:// www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
+ *
+\**************************************************************************/
 #if HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
@@ -49,10 +57,10 @@ void SoVolumeDataPage::setActivePage(long tick)
 
 
 /*
-If no palette specified, this function assumes RGBA data. If a palette
-is specified, the input data should be indexes into the palette. 
-The function uses the palette's size to decide whether the indices are
-byte or short. 
+  If no palette specified, this function assumes RGBA data. If a palette
+  is specified, the input data should be indexes into the palette. 
+  The function uses the palette's size to decide whether the indices are
+  byte or short. 
 */
 void SoVolumeDataPage::setData( Storage storage,
                                 unsigned char * bytes,
@@ -105,7 +113,8 @@ void SoVolumeDataPage::setData( Storage storage,
 
   // Creating OpenGL-texture
   if (storage & OPENGL) {
-    //FIXME: these functions is only supported in opengl 1.1... torbjorv 08052002
+    // FIXME: these functions is only supported in opengl 1.1... 
+    // torbjorv 08052002
     glGenTextures(1, &this->textureName);
     glBindTexture(GL_TEXTURE_2D, this->textureName);
 

@@ -1,3 +1,12 @@
+/**************************************************************************\
+ *
+ *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
+ *
+ *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
+ *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
+ *
+\**************************************************************************/
+
 #ifndef COIN_SOVOLUMEDATAPAGE_H
 #define COIN_SOVOLUMEDATAPAGE_H
 
@@ -20,7 +29,7 @@ public:
                 unsigned char * bytes,
                 const SbVec2s & size,
                 const float * palette = NULL,
-                int paletteFormat = GL_RGBA,
+                int paletteFormat = 0,
                 int paletteSize = 0);
 
   void release();

@@ -1,3 +1,12 @@
+/**************************************************************************\
+ *
+ *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
+ *
+ *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
+ *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
+ *
+\**************************************************************************/
+
 #ifndef COIN_SOVOLUMEDATASLICE_H
 #define COIN_SOVOLUMEDATASLICE_H
 

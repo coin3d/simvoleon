@@ -62,7 +62,8 @@ SoTransferFunctionElement::setTransferFunction(SoState * const state,
                           SoTransferFunction * transferFunction)
 {
   SoTransferFunctionElement * elem =
-    (SoTransferFunctionElement *) SoElement::getElement(state, classStackIndex);
+    (SoTransferFunctionElement *)SoElement::getElement(state, 
+                                                       classStackIndex);
   if (elem) {
     elem->transferFunction = transferFunction;
   }// if

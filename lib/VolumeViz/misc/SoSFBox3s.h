@@ -20,7 +20,12 @@ class SoSFBox3s : public SoSField {
 public:
   static void initClass(void);
 
-  void setValue(short xmin, short ymin, short zmin, short xmax, short ymax, short zmax);
+  void setValue(short xmin, 
+                short ymin, 
+                short zmin, 
+                short xmax, 
+                short ymax, 
+                short zmax);
   void setValue(const SbVec3s & minvec, const SbVec3s & maxvec);
   void getValue(SbBox3s & box);
 };

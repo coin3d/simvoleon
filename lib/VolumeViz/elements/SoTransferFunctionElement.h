@@ -32,7 +32,8 @@ public:
                                   SoTransferFunction * transferFunction);
 
   SoTransferFunction * getTransferFunction() const;
-  static const SoTransferFunctionElement * getInstance(SoState * const state);
+  static const SoTransferFunctionElement * 
+    getInstance(SoState * const state);
 
   virtual void print(FILE * file) const;
 

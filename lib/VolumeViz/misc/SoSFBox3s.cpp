@@ -88,7 +88,12 @@ SoSFBox3s::writeValue(SoOutput * out) const
   Set value of vector.
 */
 void
-SoSFBox3s::setValue(short xmin, short ymin, short zmin, short xmax, short ymax, short zmax)
+SoSFBox3s::setValue(short xmin, 
+                    short ymin, 
+                    short zmin, 
+                    short xmax, 
+                    short ymax, 
+                    short zmax)
 {
   this->setValue(SbBox3s(xmin, ymin, zmin, xmax, ymax, zmax));
 }
