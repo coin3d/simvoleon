@@ -163,6 +163,10 @@ SoTransferFunction::transfer(const uint8_t * input,
                              SoVolumeData::DataType inputdatatype,
                              const SbVec2s & size) const
 {
+  // FIXME: I have a simple idea for (immensely?) speeding up transfer
+  // of 8-bit and 16-bit volume data transfer: dynamically set up an
+  // index array, so each transfer is done only once. 20021124 mortene.
+
   assert(inputdatatype == SoVolumeData::RGBA ||
          inputdatatype == SoVolumeData::UNSIGNED_BYTE ||
          inputdatatype == SoVolumeData::UNSIGNED_SHORT);
