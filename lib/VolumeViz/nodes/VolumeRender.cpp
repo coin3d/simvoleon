@@ -148,6 +148,7 @@ public:
   unsigned int calculateNrOf3DSlices(SoGLRenderAction * action, const SbVec3s & dimensions);
   SbBool use3DTexturing(const cc_glglue * glglue) const;
 
+  static SbBool debug3DTextureTiming(void);
   static void setupPerformanceTestTextures(GLuint * texture3did,
                                            GLuint * texture2dids,
                                            const cc_glglue * glglue);
@@ -178,6 +179,19 @@ private:
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
+
+SbBool
+SoVolumeRenderP::debug3DTextureTiming(void)
+{
+  // Debug envvar used for keeping the 3D and 2D textured polygons
+  // visibly in the buffer.
+  static int keeptestgfx = -1;
+  if (keeptestgfx == -1) {
+    const char * env = coin_getenv("CVR_DEBUG_3DTEX_PERFORMANCE");
+    keeptestgfx = env && (atoi(env) > 0);
+  }
+  return keeptestgfx ? TRUE : FALSE;
+}
 
 // *************************************************************************
 
@@ -604,10 +618,15 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     assert(FALSE && "Rendering method not implemented/supported.");
   }
 
+
 done:
-#if 0 // debug, useful for doing many 3d-to-2d-texture-performance comparisons 
-  (void)SoVolumeRenderP::performanceTest(cc_glglue_instance(action->getCacheContext()));
-#endif // debug
+
+  // Enable this to do many 3d-to-2d-texture-performance tests.
+  if (SoVolumeRenderP::debug3DTextureTiming()) {
+    const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
+    (void)SoVolumeRenderP::performanceTest(glw);
+  }
+
   state->pop();
 }
 
@@ -974,6 +993,10 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
   // random coordinates for the polygons, as long as there are
   // relatively few of them. Should perhaps instead render a fixed set
   // of quite large polygons? 20040711 mortene.
+  //
+  // UPDATE: on a system with accelerated 3D-texturing, I get 3d-to-2d
+  // ratios between 1.16 and 3.26, and "normalized" (i.e. on 5-second
+  // runs) at 1.8. 20040712 mortene.
 
   unsigned int i;
   const float xp = (rand() * 5.0f) / RAND_MAX;
@@ -1130,15 +1153,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glLoadIdentity();
   glTranslatef(0.0f, 0.0f, -15.0f);
 
-  // Debug envvar used for keeping the 3D and 2D textured polygons
-  // visibly in the buffer.
-  static int keeptestgfx = -1;
-  if (keeptestgfx == -1) {
-    const char * env = coin_getenv("CVR_DEBUG_3DTEX_PERFORMANCE");
-    keeptestgfx = env && (atoi(env) > 0);
-  }
-
-  if (keeptestgfx) {
+  if (SoVolumeRenderP::debug3DTextureTiming()) {
     glClearColor(0, 0, 1, 0);
     glClear(GL_COLOR_BUFFER_BIT);
   }
@@ -1158,7 +1173,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   const double average2dtime = SoVolumeRenderP::getAveragePerformanceTime(timelist2d);
 
   // Write back framebuffer
-  if (!keeptestgfx) {
+  if (!SoVolumeRenderP::debug3DTextureTiming()) {
     // FIXME: missing glRasterPos() call here? 20040711 mortene.
     glDrawPixels(viewport[2], viewport[3], GL_RGBA, GL_UNSIGNED_BYTE, framebuf);
   }
