@@ -34,7 +34,7 @@ Cvr2DTexPage::Cvr2DTexPage(void)
 {
   this->subpagesize = SbVec2s(64, 64);
   this->subpages = NULL;
-  this->axis = SoOrthoSlice::Z;
+  this->axis = 2; // Z-axis
   this->sliceIdx = 0;
   this->dataType = SoVolumeData::RGBA;
   this->reader = NULL;
@@ -48,7 +48,7 @@ Cvr2DTexPage::~Cvr2DTexPage()
 
 
 void Cvr2DTexPage::init(SoVolumeReader * reader,
-                        int sliceidx, SoOrthoSlice::Axis axis,
+                        int sliceidx, unsigned int axis,
                         const SbVec2s & subpagetexsize)
 {
   assert(subpagetexsize[0] > 0 && subpagetexsize[1] > 0);
@@ -68,21 +68,25 @@ void Cvr2DTexPage::init(SoVolumeReader * reader,
   assert(dim[1] > 0);
   assert(dim[2] > 0);
 
-  switch (axis) {
-    case SoOrthoSlice::X:
-      this->dimensions[0] = dim[2];
-      this->dimensions[1] = dim[1];
-      break;
+  switch (this->axis) {
+  case 0: // X-axis
+    this->dimensions[0] = dim[2];
+    this->dimensions[1] = dim[1];
+    break;
 
-    case SoOrthoSlice::Y:
-      this->dimensions[0] = dim[0];
-      this->dimensions[1] = dim[2];
-      break;
+  case 1: // Y-axis
+    this->dimensions[0] = dim[0];
+    this->dimensions[1] = dim[2];
+    break;
 
-    case SoOrthoSlice::Z:
-      this->dimensions[0] = dim[0];
-      this->dimensions[1] = dim[1];
-      break;
+  case 2: // Z-axis
+    this->dimensions[0] = dim[0];
+    this->dimensions[1] = dim[1];
+    break;
+
+  default:
+    assert(FALSE);
+    break;
   }
 
   this->nrcolumns = (this->dimensions[0] + this->subpagesize[0] - 1) / this->subpagesize[0];
@@ -320,9 +324,9 @@ Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
   unsigned char * texture = new unsigned char[texturebuffersize];
 
   SoVolumeReader::Axis ax =
-    this->axis == SoOrthoSlice::X ?
-    SoVolumeReader::X : (this->axis == SoOrthoSlice::Y ?
-                         SoVolumeReader::Y : SoVolumeReader::Z);
+    this->axis == 0 ? SoVolumeReader::X :
+    (this->axis == 1 ? SoVolumeReader::Y : SoVolumeReader::Z);
+
   this->reader->getSubSlice(subSlice, this->sliceIdx, texture, ax);
 
   uint32_t * transferredTexture = transferfunc->transfer(texture,

@@ -4,7 +4,6 @@
 #include <Inventor/SbVec2s.h>
 #include <Inventor/misc/SoState.h>
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
-#include <VolumeViz/nodes/SoOrthoSlice.h>
 #include <VolumeViz/readers/SoVolumeReader.h>
 
 class SoTransferFunction;
@@ -17,7 +16,7 @@ public:
   ~Cvr2DTexPage();
 
   void init(SoVolumeReader * reader, int sliceIdx,
-            SoOrthoSlice::Axis axis, const SbVec2s & pageSize);
+            unsigned int axis, const SbVec2s & pageSize);
 
   void render(SoState * state, const SbVec3f & origo,
               const SbVec3f & horizspan, const SbVec3f & verticalspan,
@@ -46,7 +45,7 @@ private:
   class Cvr2DTexSubPageItem ** subpages;
   SoVolumeReader * reader;
 
-  SoOrthoSlice::Axis axis;
+  unsigned int axis;
   int sliceIdx;
   SbVec2s subpagesize;
   SbVec2s dimensions;
