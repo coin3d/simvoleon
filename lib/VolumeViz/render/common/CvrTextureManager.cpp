@@ -41,6 +41,8 @@
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 
+// FIXME: static objects which needs to run their constructors are not
+// portable. Ouch. 20040715 mortene.
 static SbDict texturedict;
 
 enum TEXTURETYPE {
@@ -148,20 +150,20 @@ CvrTextureManager::getTextureObject(SoGLRenderAction * action,
 void
 CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
 {
-  CvrTextureObject * nocast = (CvrTextureObject *) texobject; 
-  if (!nocast->unref()) { // unref returned FALSE ==> 'refcounter <= 0' 
+  if (texobject->getRefCount() == 1) { // about to be destructed
     void * ptr;
     texturedict.find((unsigned long) texobject, ptr);    
     assert(ptr && "Trying to remove a CvrTextureObject which has not been registered!");    
+
     GLuint tmp[1];
     tmp[0] = texobject->getOpenGLTextureId();
     glDeleteTextures(1, tmp);
 
     // Update total memory usage status
-    const SbBool palette = ((nocast->getTypeId() == CvrPaletteTexture::getClassTypeId()));
-    const SbBool tex3d = ((nocast->getTypeId() == Cvr3DRGBATexture::getClassTypeId()) ||
-                          (nocast->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()));
-
+    const SbBool palette = ((texobject->getTypeId() == CvrPaletteTexture::getClassTypeId()));
+    const SbBool tex3d = ((texobject->getTypeId() == Cvr3DRGBATexture::getClassTypeId()) ||
+                          (texobject->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()));
+    
     // FIXME: This must be fixed the day we support 16 or 24 bits
     // textures. (20040625 handegar)
     const int voxelsize = palette ? 1 : 4;
@@ -169,14 +171,16 @@ CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
 
     if (tex3d) {         
       SbVec3s size;
-      if (palette) size = ((Cvr3DPaletteTexture *) nocast)->dimensions;
-      else size = ((Cvr3DRGBATexture *) nocast)->dimensions;
+      // FIXME: crap design, dimensions data should be in
+      // superclass. 20040715 mortene.
+      if (palette) size = ((const Cvr3DPaletteTexture *)texobject)->dimensions;
+      else size = ((const Cvr3DRGBATexture *)texobject)->dimensions;
       nrtexels = size[0] * size[1] * size[2];
     }
     else {
       SbVec2s size;
-      if (palette) size = ((Cvr2DPaletteTexture *) nocast)->dimensions;
-      else size = ((Cvr2DRGBATexture *) nocast)->dimensions;
+      if (palette) size = ((const Cvr2DPaletteTexture *)texobject)->dimensions;
+      else size = ((const Cvr2DRGBATexture *)texobject)->dimensions;
       nrtexels = size[0] * size[1];
     }
 
@@ -184,8 +188,9 @@ CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
     CvrTextureManager::totaltexturesize -= nrtexels * voxelsize;
 
     delete ((textureobj *) ptr);
-    delete nocast;    
   }
+
+  texobject->unref();
 }
 
 

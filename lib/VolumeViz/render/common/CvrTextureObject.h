@@ -40,11 +40,11 @@ public:
   void setTextureCompressed(SbBool flag);
   void setOpenGLTextureId(GLuint textureid);
 
-  void ref();
-  SbBool unref();
+  uint32_t getRefCount(void) const;
+  void ref(void) const;
+  void unref(void) const;
 
 private:
-
   // Constructor and destructor is private as only the texture manager
   // is allowed to create and remove TextureObjects.
   CvrTextureObject();
@@ -53,15 +53,15 @@ private:
   static SoType classTypeId;
   GLuint opengltextureid;
   SbBool iscompressed;
-  int refcounter;
+  uint32_t refcounter;
 
+  // FIXME: this reeks of bad design. 20040715 mortene.
   friend class CvrTextureManager;
   friend class CvrRGBATexture;
   friend class CvrPaletteTexture;
   // FIXME: This should be removed as soon as the 2D texture support is
   // implemented in the texture manager. (20040628 handegar)
   friend class Cvr2DTexPage;
-
 };
 
 #endif // !COIN_CVRTEXTUREOBJECT_H

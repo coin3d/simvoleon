@@ -91,17 +91,26 @@ CvrTextureObject::textureCompressed() const
   return this->iscompressed;
 }
 
-void
-CvrTextureObject::ref()
+// *************************************************************************
+
+uint32_t
+CvrTextureObject::getRefCount(void) const
 {
-  this->refcounter++;
+  return this->refcounter;
 }
 
-SbBool 
-CvrTextureObject::unref()
+void
+CvrTextureObject::ref(void) const
 {
-  this->refcounter--;
-  if (refcounter <= 0) // last unref?
-    return FALSE;
-  return TRUE;
+  ((CvrTextureObject *)this)->refcounter++;
 }
+
+void 
+CvrTextureObject::unref(void) const
+{
+  assert(this->refcounter > 0);
+  ((CvrTextureObject *)this)->refcounter--;
+  if (this->refcounter) { delete this; }
+}
+
+// *************************************************************************
