@@ -39,6 +39,7 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/SoPickedPoint.h>
 #include <Inventor/actions/SoRayPickAction.h>
+#include <Inventor/actions/SoSearchAction.h>
 
 #include <VolumeViz/details/SoVolumeDetail.h>
 #include <VolumeViz/misc/CvrUtil.h>
@@ -46,6 +47,7 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 
 // *************************************************************************
 
@@ -65,6 +67,9 @@ public:
                             unsigned int voxelvalue,
                             uint8_t rgba[4]);
   
+  void setVoxelValue(const SbVec3s & voxelpos, uint8_t value, 
+                     const CvrVoxelBlockElement * elem);
+
   class VoxelInfo {
   public:
     SbVec3f voxelcoord;
@@ -254,15 +259,16 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
   // by the ray.
   const SbVec3f rayvec = (rayend - raystart);
   const float minvoxdim = SbMin(voxelsize[0], SbMin(voxelsize[1], voxelsize[2]));
-  const unsigned int maxvoxinray = (unsigned int)(rayvec.length() / minvoxdim + 1);
-  const SbVec3f stepvec = rayvec / maxvoxinray;
+  const unsigned int maxvoxinray = (unsigned int)(rayvec.length() / minvoxdim + 1);  
+  const SbVec3f stepvec = (rayvec / maxvoxinray) / 2; 
   const SbBox3s voxelbounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
 
   SbVec3s ijk, lastijk(-1, -1, -1);
   SbVec3f objectcoord = raystart;
   SoPickedPoint * pickedpoint = NULL;
   CvrCLUT * clut = NULL;
-    
+  SbBool opaquevoxelhit = FALSE;
+
   while (TRUE) {
     // FIXME: we're not hitting the voxels in an exact manner with the
     // intersection testing (it seems we're slightly off in the
@@ -288,29 +294,48 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
       if (CvrUtil::debugRayPicks()) {
         SoDebugError::postInfo("SoVolumeDetail::rayPick",
                                "ijk=<%d, %d, %d>", ijk[0], ijk[1], ijk[2]);
-      }
-
-      if (pickedpoint == NULL) {
-        pickedpoint = action->addIntersection(objectcoord);
-        // if NULL, something else is obstructing the view to the
-        // volume, the app programmer only want the nearest, and we
-        // don't need to continue our intersection tests
-        if (pickedpoint == NULL) return;
+      }    
+      
+      clut = CvrVoxelChunk::getCLUT(transferfunctionelement);
+      clut->ref();
+      uint8_t rgba[4];
+      const uint32_t voxelvalue = vbelem->getVoxelValue(ijk);      
+      clut->lookupRGBA(voxelvalue, rgba);
+     
+      if (pickedpoint == NULL) {                
+        if (rgba[3] != 0) {
+          pickedpoint = action->addIntersection(objectcoord);        
+          opaquevoxelhit = TRUE;
+          // if NULL, something else is obstructing the view to the
+          // volume, the app programmer only want the nearest, and we
+          // don't need to continue our intersection tests
+          if (pickedpoint == NULL) return;
+        }
         // FIXME: should fill in the normal vector of the pickedpoint:
         //  ->setObjectNormal(<voxcube-side-normal>);
         // 20030320 mortene.       
-        pickedpoint->setDetail(this, caller);        
-
-        clut = CvrVoxelChunk::getCLUT(transferfunctionelement);
-        clut->ref();
       }
 
-      const uint32_t voxelvalue = vbelem->getVoxelValue(ijk);      
-      uint8_t rgba[4];
-      clut->lookupRGBA(voxelvalue, rgba);      
+
+      if (CvrUtil::debugRayPicks()) { // Draw a voxel-line through the volume
+        static uint8_t raypickdebugcounter = 0;
+        PRIVATE(this)->setVoxelValue(ijk, 255 - (raypickdebugcounter++ & 2), vbelem);
+        if (pickedpoint) {
+          SoPath * path = pickedpoint->getPath();          
+          SoSearchAction sa;
+          sa.setType(SoVolumeData::getClassTypeId());
+          sa.setInterest(SoSearchAction::LAST);
+          sa.apply(path);          
+          SoPath * result = sa.getPath();
+          assert(result && "Could not find a SoVolumeData node in path.");
+          SoVolumeData * vd = (SoVolumeData *) result->getTail();
+          vd->touch(); // Update volume data
+        }
+      }
+
       PRIVATE(this)->addVoxelIntersection(objectcoord, ijk, voxelvalue, rgba);
       lastijk = ijk;      
-
+      
     }
     else if (CvrUtil::debugRayPicks()) {
       SoDebugError::postInfo("SoVolumeDetail::rayPick", "duplicate");
@@ -320,7 +345,19 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
   }
  
   if (clut) clut->unref();
-
+  
+  if (pickedpoint) {   
+    if (opaquevoxelhit) { 
+      // Visible voxels were hit
+      pickedpoint->setDetail(this, caller); 
+    } 
+    else {
+      // No visible voxels were hit. Truncate voxel list.
+      PRIVATE(this)->voxelinfolist.truncate(0); 
+      action->reset();
+    } 
+  } 
+  
 }
 
 void
@@ -339,6 +376,40 @@ SoVolumeDetailP::addVoxelIntersection(const SbVec3f & voxelcoord,
 }
 
 // *************************************************************************
+
+
+// For debugging purposes
+void
+SoVolumeDetailP::setVoxelValue(const SbVec3s & voxelpos, uint8_t value, 
+                               const CvrVoxelBlockElement * elem)
+{
+
+  SbVec3s voxelcubedims = elem->getVoxelCubeDimensions();
+
+  assert(voxelpos[0] < voxelcubedims[0]);
+  assert(voxelpos[1] < voxelcubedims[1]);
+  assert(voxelpos[2] < voxelcubedims[2]);
+
+  uint8_t * voxptr = (uint8_t *) elem->getVoxels(); // Cast the const away
+
+  int advance = 0;
+  const unsigned int dim[3] = { // so we don't overflow a short
+    voxelcubedims[0], voxelcubedims[1],  voxelcubedims[2]
+  };
+  advance += voxelpos[2] * dim[0] * dim[1];
+  advance += voxelpos[1] * dim[0];
+  advance += voxelpos[0];
+
+  advance *= elem->getBytesPrVoxel();
+  voxptr += advance;
+
+  switch (elem->getBytesPrVoxel()) {
+  case 1: *voxptr = value; break;
+  case 2: *((uint16_t *)voxptr) = value; break;
+  default: assert(FALSE); break;
+  }
+
+}
 
 #undef PRIVATE
 #undef PUBLIC
