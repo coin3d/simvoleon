@@ -269,7 +269,6 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue)
                               strlen(cvrclut_palettelookupprogram2d), cvrclut_palettelookupprogram2d);
   else assert(FALSE && "Unknown texture type.");
 
-
   // FIXME: Maybe a wrapper for catching fragment program errors
   // should be a part of GLUE... (20031204 handegar)
   GLint errorPos;
@@ -388,13 +387,25 @@ CvrCLUT::activate(const cc_glglue * glw) const
   // FIXME: should probably check if all is ok by using
   // PROXY_TEXTURE_2D first.
 
-  cc_glglue_glColorTable(glw,
-                         GL_TEXTURE_2D, /* target */
-                         GL_RGBA, /* GL internalformat */
-                         this->nrentries, /* nr of paletteentries */
-                         GL_RGBA, /* palette entry format */
-                         GL_UNSIGNED_BYTE, /* palette entry unit type */
-                         this->glcolors); /* data ptr */
+  if (this->texturetype == CvrCLUT::TEXTURE3D) {
+    cc_glglue_glColorTable(glw,
+                           GL_TEXTURE_3D, /* target */
+                           GL_RGBA, /* GL internalformat */
+                           this->nrentries, /* nr of paletteentries */
+                           GL_RGBA, /* palette entry format */
+                           GL_UNSIGNED_BYTE, /* palette entry unit type */
+                           this->glcolors); /* data ptr */
+  }
+  else if(this->texturetype == CvrCLUT::TEXTURE2D) {
+    cc_glglue_glColorTable(glw,
+                           GL_TEXTURE_2D, /* target */
+                           GL_RGBA, /* GL internalformat */
+                           this->nrentries, /* nr of paletteentries */
+                           GL_RGBA, /* palette entry format */
+                           GL_UNSIGNED_BYTE, /* palette entry unit type */
+                           this->glcolors); /* data ptr */
+  } 
+  else { assert(FALSE && "Unknown texture type!"); }
 
   // Error checking.
 
@@ -409,10 +420,10 @@ CvrCLUT::activate(const cc_glglue * glw) const
     if (warn) {
       warn = FALSE;
       SoDebugError::postWarning("CvrCLUT::activate",
-                                "glColorTable(GL_TEXTURE_2D, ...) caused "
+                                "glColorTable(GL_TEXTURE_2D/3D, ...) caused "
                                 "glGetError()==0x%x (dec==%d)",
                                 err, err);
-
+      
       // This matches the driver on ASK.trh.sim.no.
       const char * VERSION_GL = "1.1.28 PT";
       const char * VENDOR = "3Dlabs";
@@ -433,8 +444,14 @@ CvrCLUT::activate(const cc_glglue * glw) const
 
   // Sanity check.
   GLint actualsize;
-  cc_glglue_glGetColorTableParameteriv(glw, GL_TEXTURE_2D,
-                                       GL_COLOR_TABLE_WIDTH, &actualsize);
+  if (this->texturetype == CvrCLUT::TEXTURE3D) {
+    cc_glglue_glGetColorTableParameteriv(glw, GL_TEXTURE_3D, GL_COLOR_TABLE_WIDTH, &actualsize);
+  }
+  else if(this->texturetype == CvrCLUT::TEXTURE2D) {
+    cc_glglue_glGetColorTableParameteriv(glw, GL_TEXTURE_2D, GL_COLOR_TABLE_WIDTH, &actualsize);
+  }
+  else { assert(FALSE && "Unknown texture type!"); }
+
   assert(actualsize == (GLint)this->nrentries);
 }
 
