@@ -18,7 +18,10 @@ public:
                   const float * palette = NULL, int palettesize = 0);
   ~Cvr2DTexSubPage();
 
-  void render(const SbVec3f & upleft, SbVec3f widthvec, SbVec3f heightvec) const;
+  enum Interpolation { NEAREST, LINEAR };
+
+  void render(const SbVec3f & upleft, SbVec3f widthvec, SbVec3f heightvec,
+              Interpolation interpolation) const;
 
   static unsigned int totalNrOfTexels(void);
   static unsigned int totalTextureMemoryUsed(void);
@@ -27,7 +30,7 @@ private:
   void transferTex2GL(SoGLRenderAction * action, const uint8_t * textureimg,
                       int palettesize, const float * palette);
 
-  void activateTexture(void) const;
+  void activateTexture(Interpolation interpolation) const;
 
   GLuint texturename[1];
   static GLuint emptyimgname[1];

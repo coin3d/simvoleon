@@ -205,7 +205,8 @@ void
 Cvr2DTexPage::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
                      const SbVec3f & horizspan, const SbVec3f & verticalspan,
-                     const SbVec2f & spacescale)
+                     const SbVec2f & spacescale,
+                     Cvr2DTexSubPage::Interpolation interpolation)
 {
   // Find the "local 3D-space" size of each subpage.
 
@@ -216,7 +217,6 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
   SbVec3f subpageheight = verticalspan;
   subpageheight.normalize();
   subpageheight *= this->subpagesize[1] * spacescale[1];
-
 
   // Render all subpages making up the full page.
 
@@ -240,7 +240,8 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
       // optimization measure (both for rendering speed and texture
       // memory usage). 20021121 mortene.
 
-      pageitem->page->render(upleft, subpagewidth, subpageheight);
+      pageitem->page->render(upleft, subpagewidth, subpageheight,
+                             interpolation);
 
     }
   }

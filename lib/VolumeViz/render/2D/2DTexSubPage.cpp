@@ -128,7 +128,7 @@ Cvr2DTexSubPage::~Cvr2DTexSubPage()
 // FIXME: Some magic has to be done to make this one work with OpenGL 1.0.
 // torbjorv 08052002
 void
-Cvr2DTexSubPage::activateTexture(void) const
+Cvr2DTexSubPage::activateTexture(Interpolation interpolation) const
 {
   if (this->texturename[0] == 0) {
     glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
@@ -137,7 +137,18 @@ Cvr2DTexSubPage::activateTexture(void) const
 
   glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
 
-#if CVR_DEBUG
+  GLenum interp = 0;
+  switch (interpolation) {
+  case NEAREST: interp = GL_NEAREST; break;
+  case LINEAR: interp = GL_LINEAR; break;
+  default: assert(FALSE); break;
+  }
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp);
+  assert(glGetError() == GL_NO_ERROR);
+
+#if CVR_DEBUG && 0 // debug
   // FIXME: glAreTexturesResident() is OpenGL 1.1 only. 20021119 mortene.
   GLboolean residences[1];
   GLboolean resident = glAreTexturesResident(1, this->texturename, residences);
@@ -146,10 +157,6 @@ Cvr2DTexSubPage::activateTexture(void) const
                               "texture %d not resident", this->texturename);
     Cvr2DTexSubPage::detectedtextureswapping = TRUE;
   }
-#endif // CVR_DEBUG
-
-#if CVR_DEBUG && 0 // debug: for GL texture things
-  glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
 #endif // debug
 }
 
@@ -315,25 +322,15 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
     assert(glGetError() == GL_NO_ERROR);
-
-    // FIXME: investigate if this is really what we want. 20021120 mortene.
-    //
-    // FIXME: should at least provide an envvar to set GL_LINEAR
-    // instead, for testing purposes. 20021121 mortene.
-    //
-    // FIXME: update, looks like this should be controlled from
-    // SoVolumeRender::interpolation field. 20021124 mortene.
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    assert(glGetError() == GL_NO_ERROR);
   }
 }
 
 void
 Cvr2DTexSubPage::render(const SbVec3f & upleft,
-                        SbVec3f widthvec, SbVec3f heightvec) const
+                        SbVec3f widthvec, SbVec3f heightvec,
+                        Interpolation interpolation) const
 {
-  this->activateTexture();
+  this->activateTexture(interpolation);
 
   glBegin(GL_QUADS);
   glColor4f(1, 1, 1, 1);

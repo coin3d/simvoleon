@@ -7,6 +7,7 @@
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/SbTime.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
@@ -142,7 +143,8 @@ CvrPageHandler::comparePageSize(const SbVec3s & currsubpagesize)
 }
 
 void
-CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices)
+CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
+                       Cvr2DTexSubPage::Interpolation interpolation)
 {
   SoState * state = action->getState();
 
@@ -282,6 +284,8 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices)
   // FIXME: what's this good for? 20021128 mortene.
   glDisable(GL_CULL_FACE);
 
+  SbTime renderstart = SbTime::getTimeOfDay(); // for debugging
+
   for (unsigned int i = 0; i < numslices; i++) {
     // Find nearest integer page idx (as number of pages to render
     // need not match the number of actual volume data pages).
@@ -302,10 +306,19 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices)
     // better rendering quality of the volume.
     Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
     origo[AXISIDX] = depth;
-    page->render(action, origo, horizspan, verticalspan, QUADSCALE);
+    page->render(action, origo, horizspan, verticalspan, QUADSCALE,
+                 interpolation);
 
     depth += depthprslice;
   }
+
+#if CVR_DEBUG && 0 // debug
+  SbTime renderend = SbTime::getTimeOfDay();
+  SbTime rendertime = renderend - renderstart;
+  SoDebugError::postInfo("CvrPageHandler::render",
+                         "all slices along axis %d in %f seconds",
+                         AXISIDX, rendertime.getValue());
+#endif // debug
 
   glPopAttrib();
 }

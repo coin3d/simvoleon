@@ -224,7 +224,14 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     int numslices = PRIVATE(this)->calculateNrOfSlices(action, dimensions);
     if (numslices == 0) return;
 
-    PRIVATE(this)->pagehandler->render(action, numslices);
+    Cvr2DTexSubPage::Interpolation interp;
+    switch (this->interpolation.getValue()) {
+    case NEAREST: interp = Cvr2DTexSubPage::NEAREST; break;
+    case LINEAR: interp = Cvr2DTexSubPage::LINEAR; break;
+    default: assert(FALSE && "invalid value in interpolation field"); break;
+    }
+
+    PRIVATE(this)->pagehandler->render(action, numslices, interp);
   }
 }
 
