@@ -64,8 +64,8 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                                  const SbVec2s & texsize,
                                  const float * palette, int palettesize)
 {
-  // Number of bytes pr texel. FIXME: should be counted in bits. 20021128 mortene.
-  this->texmultfactor = 0.0f;
+  // Will contain number of bits pr texel.
+  this->texmultfactor = 0;
 
   assert(pagesize[0] >= 0);
   assert(pagesize[1] >= 0);
@@ -112,7 +112,7 @@ Cvr2DTexSubPage::~Cvr2DTexSubPage()
     Cvr2DTexSubPage::nroftexels -= nrtexels;
 
     unsigned int freetexmem = (unsigned int)
-      (float(nrtexels) * this->texmultfactor);
+      (float(nrtexels) * float(this->texmultfactor) / 8.0f);
     assert(freetexmem <= Cvr2DTexSubPage::texmembytes);
     Cvr2DTexSubPage::texmembytes -= freetexmem;
 
@@ -201,7 +201,7 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
   // Uploading standard RGBA-texture
   if (palette == NULL) {
     colorformat = 4;
-    this->texmultfactor = 4.0f; // 8 bits each R, G, B & A
+    this->texmultfactor = 32; // 8 bits each R, G, B & A
   }
   // Uploading paletted texture
   else {
@@ -233,27 +233,27 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     switch (actualPaletteSize) {
     case 2:
       colorformat = GL_COLOR_INDEX1_EXT;
-      this->texmultfactor = 1.0f / 8.0f; // 1 bit pr texel
+      this->texmultfactor = 1;
       break;
 
     case 4:
       colorformat = GL_COLOR_INDEX2_EXT;
-      this->texmultfactor = 1.0f / 4.0f; // 2 bits pr texel
+      this->texmultfactor = 2;
       break;
 
     case 16:
       colorformat = GL_COLOR_INDEX4_EXT;
-      this->texmultfactor = 1.0 / 2.0f; // 4 bits pr texel
+      this->texmultfactor = 4;
       break;
 
     case 256:
       colorformat = GL_COLOR_INDEX8_EXT;
-      this->texmultfactor = 1.0f; // 8 bits pr texel
+      this->texmultfactor = 8;
       break;
 
     case 65536:
       colorformat = GL_COLOR_INDEX16_EXT;
-      this->texmultfactor = 2.0f;  // 16 bits pr texel
+      this->texmultfactor = 16;
       break;
 
     default:
@@ -266,7 +266,7 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
   }
 
   const int nrtexels = this->texdims[0] * this->texdims[1];
-  const int texmem = int(float(nrtexels) * this->texmultfactor);
+  const int texmem = int(float(nrtexels) * float(this->texmultfactor) / 8.0f);
 
   // FIXME: limits should be stored in a global texture manager class
   // or some such. 20021121 mortene.
