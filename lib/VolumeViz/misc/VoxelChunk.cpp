@@ -17,6 +17,7 @@
 #include <Inventor/misc/SoState.h>
 
 #include <assert.h>
+#include <string.h> // memcpy()
 
 uint32_t CvrVoxelChunk::transfertable[256];
 SbBool CvrVoxelChunk::transferdone[256];

@@ -15,6 +15,8 @@
 
 #include <Inventor/errors/SoDebugError.h>
 
+#include <string.h> // memcpy()
+
 
 class SoVRMemReaderP {
 public:
