@@ -4,13 +4,15 @@
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/events/SoMouseButtonEvent.h>
 #include <Inventor/nodes/SoCoordinate3.h>
+#include <Inventor/nodes/SoCube.h>
+#include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoEventCallback.h>
+#include <Inventor/nodes/SoLightModel.h>
 #include <Inventor/nodes/SoPickStyle.h>
 #include <Inventor/nodes/SoPointSet.h>
 #include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoDrawStyle.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
 #include "utility.h"
@@ -97,6 +99,24 @@ main(int argc, char ** argv)
   SoEventCallback * ecb = new SoEventCallback;
   ecb->addEventCallback(SoMouseButtonEvent::getClassTypeId(), event_cb, viewer);
   root->addChild(ecb);
+
+  SoSeparator * cubeframe = new SoSeparator;
+  root->addChild(cubeframe);
+
+  SoLightModel * lm = new SoLightModel;
+  lm->model = SoLightModel::BASE_COLOR;
+  cubeframe->addChild(lm);
+
+  SoDrawStyle * drawstyle = new SoDrawStyle;
+  drawstyle->style = SoDrawStyle::LINES;
+  drawstyle->lineWidth = 3;
+  cubeframe->addChild(drawstyle);
+
+  SoPickStyle * pickstyle = new SoPickStyle;
+  pickstyle->style = SoPickStyle::UNPICKABLE;
+  cubeframe->addChild(pickstyle);
+
+  cubeframe->addChild(new SoCube);
 
   SbVec3s dim(64, 64, 64);
   void * voxels = generateRGBAVoxelSet(dim);
