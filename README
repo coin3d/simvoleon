@@ -1,18 +1,16 @@
 NAME
 
-[to be decided]
+SimVoleon
 
-CoinVolution ?
-SimVoleon ?
-Coin VoxelSphere | SIM VoxelSphere
 
 BRIEF DESCRIPTION
 
-[stub]
+A volume rendering library for Coin.
+
 
 HOMEPAGE
 
-<URL:http://www.coin3d.org>
+<none yet>
 
 
 LICENSE
@@ -22,5 +20,5 @@ LICENSE
 
 MAIN DEVELOPERS
 
-Torbjørn Vik
 Morten Eriksen
+Torbjørn Vik
