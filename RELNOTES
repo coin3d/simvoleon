@@ -9,7 +9,7 @@ The changes described here are issues that might have an effect on the
 compatibility of your source code when upgrading the library.
 
 
-SIM Voleon 1.1.0
+SIM Voleon 2.0.0
 ================
 
 * A major semantic change was made from version 1.0.0: data was
@@ -28,10 +28,25 @@ SIM Voleon 1.1.0
   release (i.e. SIM Voleon release 2.0.0).
 
 
+* Another major semantic change from 1.0.0: the unit dimensions of a
+  volume set by SoVolumeData::setVolumeData() will be normalized to be
+  within a 2x2x2 cube (unless overridden with
+  SoVolumeData::setVolumeSize()), and not be set to match the voxel
+  dimensions, as was previously done.
+
+
 * SoVolumeDataElement obsoleted.
 
   This element is no longer used, and will be removed from the public
   interface from the next major release. It is unlikely that any
+  client code was using this element, but if so, get in touch at
+  <coin-support@coin3d.org> to get information about how to handle
+  this change.
+
+
+* SoTransferFunctionElement no longer part of public API.
+
+  This element will most likely be obsoleted. It is unlikely that any
   client code was using this element, but if so, get in touch at
   <coin-support@coin3d.org> to get information about how to handle
   this change.

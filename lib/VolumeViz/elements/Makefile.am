@@ -16,10 +16,10 @@ RegularSources = \
 	VoxelBlockElement.cpp \
 	TransferFunctionElement.cpp
 
-PublicHeaders = \
-	SoTransferFunctionElement.h
+PublicHeaders = 
 
 PrivateHeaders = \
+	SoTransferFunctionElement.h \
 	CvrCompressedTexturesElement.h \
 	CvrGLInterpolationElement.h \
 	CvrPalettedTexturesElement.h \
