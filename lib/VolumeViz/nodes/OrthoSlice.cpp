@@ -25,7 +25,6 @@ public:
   static void renderBox(SoGLRenderAction * action, SbBox3f box);
 
   void getPageGeometry(SoVolumeData * volumedata, SbVec3f & origo, SbVec3f & horizspan, SbVec3f & verticalspan) const;
-  void getPageOrigo(SoVolumeData * volumedata, SbVec3f & origo) const;
   
 private:
   SoOrthoSlice * master;
@@ -94,7 +93,10 @@ SoOrthoSlice::affectsState(void) const
 }
 
 void
-SoOrthoSliceP::getPageOrigo(SoVolumeData * volumedata, SbVec3f & origo) const
+SoOrthoSliceP::getPageGeometry(SoVolumeData * volumedata,
+                               SbVec3f & origo,
+                               SbVec3f & horizspan,
+                               SbVec3f & verticalspan) const
 {
   SbBox3f spacesize = volumedata->getVolumeSize();
   SbVec3f spacemin, spacemax;
@@ -127,31 +129,6 @@ SoOrthoSliceP::getPageOrigo(SoVolumeData * volumedata, SbVec3f & origo) const
   case SoOrthoSlice::Z: origo = SbVec3f(qmin[0], qmax[1], depth); break;
   default: assert(FALSE); break;
   }
-}
-
-void
-SoOrthoSliceP::getPageGeometry(SoVolumeData * volumedata,
-                               SbVec3f & origo,
-                               SbVec3f & horizspan,
-                               SbVec3f & verticalspan) const
-{
-  this->getPageOrigo(volumedata, origo);
-
-  SbBox3f spacesize = volumedata->getVolumeSize();
-  SbVec3f spacemin, spacemax;
-  spacesize.getBounds(spacemin, spacemax);
-
-  const int axis = PUBLIC(this)->axis.getValue();
-
-  const SbBox2f QUAD = (axis == SoOrthoSlice::Z) ?
-    SbBox2f(spacemin[0], spacemin[1], spacemax[0], spacemax[1]) :
-    ((axis == SoOrthoSlice::X) ?
-     SbBox2f(spacemin[2], spacemin[1], spacemax[2], spacemax[1]) :
-     // then it's along Y
-     SbBox2f(spacemin[0], spacemin[2], spacemax[0], spacemax[2]));
-
-  SbVec2f qmax, qmin;
-  QUAD.getBounds(qmin, qmax);
 
   const float width = qmax[0] - qmin[0];
   const float height = qmax[1] - qmin[1];
@@ -174,12 +151,6 @@ SoOrthoSliceP::getPageGeometry(SoVolumeData * volumedata,
     break;
   default: assert(FALSE); break;
   }
-
-  SbVec3s dimensions;
-  void * data;
-  SoVolumeData::DataType type;
-  SbBool ok = volumedata->getVolumeData(dimensions, data, type);
-  assert(ok);
 
   const SbVec3f SCALE((spacemax[0] - spacemin[0]) / dimensions[0],
                       (spacemax[1] - spacemin[1]) / dimensions[1],
