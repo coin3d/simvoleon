@@ -1,0 +1,5 @@
+Technical and other support issues for the SIM Voleon library is
+handled through the same support channels as for the Coin library,
+see:
+
+    http://www.coin3d.org/support/

@@ -1,0 +1,8 @@
+The SIM Voleon development source code is kept in a CVS repository, in
+the same manner as other publicly available projects from Systems in
+Motion. For instructions on how to access our public CVS repository,
+see:
+
+    http://www.coin3d.org/getting_started/download/cvs-access/
+
+The SIM Voleon source code repository is named "SimVoleon".

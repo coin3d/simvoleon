@@ -31,3 +31,12 @@ rendering.
 This makes it a straight-forward task to add basic volume rendering to
 your application, and the data can easily be manipulated through
 existing interaction features, like manipulators, viewers and widgets.
+
+Highlighted features:
+
+    * Easy integration with Coin3D applications
+    * 3D texture support using viewport-aligned slicing
+    * 2D texture support using object-aligned slicing
+    * Volume data is separated into optimal subcubes enabling large datasets
+    * Dynamic color lookup tables for voxel colors
+    * Maximum intensity projection through hardware acceleration
