@@ -1,4 +1,4 @@
-all: examine simple8bit readvol raypick rgbload changingdataset
+all: examine simple8bit readvol raypick rgbload changingdataset orthoslicer
 
 ## 
 
@@ -9,6 +9,9 @@ READVOL_OBJECTS = \
 
 EXAMINE_OBJECTS = \
         examine.o utility.o
+
+ORTHOSLICER_OBJECTS = \
+        orthoslicer.o utility.o
 
 SIMPLE8BIT_OBJECTS = \
         simple8bit.o utility.o
@@ -26,6 +29,7 @@ clean:
 	rm -f rgbload $(RGBLOAD_OBJECTS) rgbload.cpp \
               raypick $(RAYPICK_OBJECTS) raypick.cpp \
               examine $(EXAMINE_OBJECTS) examine.cpp \
+              orthoslicer $(ORTHOSLICER_OBJECTS) orthoslicer.cpp \
               simple8bit $(SIMPLE8BIT_OBJECTS) simple8bit.cpp \
               changingdataset $(CHANGINGDATASET_OBJECTS) changingdataset.cpp \
               readvol $(READVOL_OBJECTS) readvol.cpp \
@@ -82,6 +86,17 @@ examine.o: examine.cpp
 
 examine: $(EXAMINE_OBJECTS)
 	soqt-config --link $@ $(EXAMINE_OBJECTS) -lSimVoleon
+
+## ``orthoslicer'' example
+
+orthoslicer.cpp: orthoslicer.cpp.in
+	@soqt-config --ac-subst $<
+
+orthoslicer.o: orthoslicer.cpp
+	soqt-config --compile $<
+
+orthoslicer: $(ORTHOSLICER_OBJECTS)
+	soqt-config --link $@ $(ORTHOSLICER_OBJECTS) -lSimVoleon
 
 ## ``simple8bit'' example
 
