@@ -17,6 +17,7 @@
 
 #include <VolumeViz/readers/SoVRVolFileReader.h>
 #include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/errors/SoDebugError.h>
@@ -153,9 +154,22 @@ SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber,
   subslice.getSize(width, height);
 
   unsigned int axisidx = (axis == X) ? 0 : ((axis == Y) ? 1 : 2);
-  CvrUtil::buildSubPage(axisidx,
-                        (const uint8_t *)this->m_data, (uint8_t *)data,
-                        slicenumber, subslice, width, type, dims);
+
+  CvrVoxelChunk::UnitSize vctype;
+  switch (type) {
+  case SoVolumeData::UNSIGNED_BYTE: vctype = CvrVoxelChunk::UINT_8; break;
+  case SoVolumeData::UNSIGNED_SHORT: vctype = CvrVoxelChunk::UINT_16; break;
+  case SoVolumeData::RGBA: vctype = CvrVoxelChunk::UINT_32; break;
+  default: assert(FALSE); break;
+  }
+
+  CvrVoxelChunk * output = 
+    CvrUtil::buildSubPage(CvrVoxelChunk(dims, vctype, this->m_data),
+                          axisidx, slicenumber, subslice, width);
+  // FIXME: interface of buildSubPage() should be improved to avoid this.
+  // 20021203 mortene.
+  (void)memcpy(data, output->getBuffer(), output->bufferSize());
+  delete output;
 }
 
 void

@@ -3,6 +3,7 @@
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/render/2D/CvrTextureObject.h>
@@ -296,14 +297,6 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   SbBox2s subpagecut = SbBox2s(subpagemin, subpagemax);
   
-  // FIXME: this will be 4 times larger than necessary for
-  // UNSIGNED_BYTE type data. 20021125 mortene.
-  const unsigned int slicebufsize = this->subpagesize[0] * this->subpagesize[1] * 4;
-  uint8_t * slicebuf = new uint8_t[slicebufsize];
-  // FIXME: this should not really be necessary, but we have to do it
-  // now, as we don't handle subsets in transferfunction. 20021127 mortene.
-  (void)memset(slicebuf, 0x77, slicebufsize);
-
   SoState * state = action->getState();
   const SoVolumeDataElement * vdelement = SoVolumeDataElement::getInstance(state);
   assert(vdelement != NULL);
@@ -316,9 +309,22 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   SbBool ok = voldatanode->getVolumeData(vddims, dataptr, type);
   assert(ok);
 
-  CvrUtil::buildSubPage(this->axis, (const uint8_t *)dataptr, slicebuf,
-                        this->sliceIdx, subpagecut, this->subpagesize[0],
-                        type, vddims);
+  CvrVoxelChunk::UnitSize vctype;
+  switch (type) {
+  case SoVolumeData::UNSIGNED_BYTE: vctype = CvrVoxelChunk::UINT_8; break;
+  case SoVolumeData::UNSIGNED_SHORT: vctype = CvrVoxelChunk::UINT_16; break;
+  case SoVolumeData::RGBA: vctype = CvrVoxelChunk::UINT_32; break;
+  default: assert(FALSE); break;
+  }
+  
+  CvrVoxelChunk * input = new CvrVoxelChunk(vddims, vctype, dataptr);
+  CvrVoxelChunk * slice =
+    CvrUtil::buildSubPage(*input,
+                          this->axis, this->sliceIdx,
+                          subpagecut, this->subpagesize[0]);
+  delete input;
+
+  uint8_t * slicebuf = (uint8_t *)slice->getBuffer();
 
 #if 0 // DEBUG: dump slice parts before slicebuf transformation to bitmap files.
   SbString s;
@@ -342,10 +348,13 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // fail to match dimensions perfectly with 2^n values). 20021125 mortene.
 
   SbBool invisible;
-  CvrTextureObject * texobj =
-    transferfunc->transfer(slicebuf, this->dataType, this->subpagesize,
-                           invisible);
-  delete[] slicebuf;
+  CvrTextureObject * texobj = transferfunc->transfer(slice, invisible);
+
+  // FIXME: could cache slices -- would speed up regeneration when
+  // textures have to be invalidated. But this would take lots of
+  // memory (exactly twice as much as for just the original
+  // dataset). 20021203 mortene.
+  delete slice;
 
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("Cvr2DTexPage::buildSubPage",

@@ -12,6 +12,7 @@
 
 class SbVec2s;
 class CvrTextureObject;
+class CvrVoxelChunk;
 
 
 class SoTransferFunction : public SoVolumeRendering {
@@ -64,9 +65,7 @@ private:
 
   // FIXME: clean up interface. 20021106 mortene.
   friend class Cvr2DTexPage;
-  CvrTextureObject * transfer(const uint8_t * input,
-                              SoVolumeData::DataType inputdatatype,
-                              const SbVec2s & size, SbBool & invisible) const;
+  CvrTextureObject * transfer(const CvrVoxelChunk * input, SbBool & invisible) const;
 };
 
 #endif // !COIN_SOTRANSFERFUNCTION_H

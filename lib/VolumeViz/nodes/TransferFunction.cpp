@@ -15,6 +15,7 @@
 #include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrGIMPGradient.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/render/2D/CvrTextureObject.h>
 
 // *************************************************************************
@@ -175,9 +176,7 @@ compileRGBABigEndian(const uint8_t red, const uint8_t green,
 // The "invisible" flag will be set according to whether or not
 // there's at least one texel that's not fully transparent.
 CvrTextureObject *
-SoTransferFunction::transfer(const uint8_t * input, 
-                             SoVolumeData::DataType inputdatatype,
-                             const SbVec2s & size,
+SoTransferFunction::transfer(const CvrVoxelChunk * input, 
                              SbBool & invisible) const
 {
   // FIXME: about the "invisible" flag: this should really be an
@@ -197,16 +196,15 @@ SoTransferFunction::transfer(const uint8_t * input,
     PRIVATE(this)->transfertablenodeid = this->getNodeId();
   }
 
-  assert(inputdatatype == SoVolumeData::RGBA ||
-         inputdatatype == SoVolumeData::UNSIGNED_BYTE ||
-         inputdatatype == SoVolumeData::UNSIGNED_SHORT);
-
   static int endianness = COIN_HOST_IS_UNKNOWNENDIAN;
   if (endianness == COIN_HOST_IS_UNKNOWNENDIAN) {
     endianness = coin_host_get_endianness();
     assert(endianness != COIN_HOST_IS_UNKNOWNENDIAN && "weird hardware!");
   }
 
+  // FIXME: only handles 2D textures yet. 20021203 mortene.
+  assert(input->getDimensions()[2] == 1);
+  SbVec2s size(input->getDimensions()[0], input->getDimensions()[1]);
   CvrTextureObject * texobj = new CvrTextureObject(size);
   uint32_t * output = texobj->getRGBABuffer();
 
@@ -214,14 +212,14 @@ SoTransferFunction::transfer(const uint8_t * input,
   invisible = TRUE;
 
   // Handling RGBA inputdata. Just forwarding to output
-  if (inputdatatype == SoVolumeData::RGBA) {
-    (void)memcpy(output, input, nrelements * sizeof(uint32_t));
+  if (input->getUnitSize() == CvrVoxelChunk::UINT_32) {
+    (void)memcpy(output, input->getBuffer(), nrelements * sizeof(uint32_t));
     // FIXME: set the "invisible" flag correctly according to actual
     // input. 20021129 mortene.
     invisible = FALSE;
   }
 
-  else if (inputdatatype == SoVolumeData::UNSIGNED_BYTE) {
+  else if (input->getUnitSize() == CvrVoxelChunk::UINT_8) {
     int colormaptype = this->colorMapType.getValue();
     int nrcomponents = 1;
     switch (colormaptype) {
@@ -248,8 +246,9 @@ SoTransferFunction::transfer(const uint8_t * input,
     int32_t shiftval = this->shift.getValue();
     int32_t offsetval = this->offset.getValue();
 
+    const uint8_t * inputbytebuffer = input->getBuffer8();
     for (unsigned int j=0; j < nrelements; j++) {
-      const uint8_t voldataidx = input[j];
+      const uint8_t voldataidx = inputbytebuffer[j];
 
       if (PRIVATE(this)->transferdone[voldataidx]) {
         output[j] = PRIVATE(this)->transfertable[voldataidx];
@@ -321,7 +320,7 @@ SoTransferFunction::transfer(const uint8_t * input,
     }
   }
 
-  else if (inputdatatype == SoVolumeData::UNSIGNED_SHORT) {
+  else if (input->getUnitSize() == CvrVoxelChunk::UINT_16) {
     assert(FALSE && "not yet implemented");
 
     // FIXME: this is of course completely wrong -- the data should be
@@ -332,7 +331,7 @@ SoTransferFunction::transfer(const uint8_t * input,
     invisible = FALSE;
 
     uint32_t * outp = (uint32_t *)output;
-    const uint16_t * inp = (const uint16_t *)input;
+    const uint16_t * inp = input->getBuffer16();
 
     if (endianness == COIN_HOST_IS_LITTLEENDIAN) {
       for (unsigned int j=0; j < nrelements; j++) {
