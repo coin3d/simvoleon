@@ -66,7 +66,7 @@ private:
   ~CvrCLUT();
   void commonConstructor(void);
   void regenerateGLColorData(void);
-  void initFragmentProgram(const cc_glglue * glue);
+  static void initFragmentProgram(const cc_glglue * glue);
   void initPaletteTexture(const cc_glglue * glue);
 
   unsigned int nrentries;
@@ -87,9 +87,8 @@ private:
 
   SbBool palettehaschanged;
   SbBool usefragmentprogramlookup;
-  SbBool fragmentprograminitialized;
   GLuint palettelookuptexture;
-  GLuint palettelookupprogramid[2];
+  static GLuint fragmentprogramid[2];
 
   int refcount;
   friend class nop; // to avoid g++ compiler warning on the private constructor

@@ -72,6 +72,10 @@ static const char * palettelookupprogram_modulate =
 static const char * palettelookupprogram_replace =
 "MOV result.color, R0";
 
+// FIXME: fragment programs should be bound to a specific GL context,
+// and remade for each new context. 20041103 mortene.
+GLuint CvrCLUT::fragmentprogramid[2] = { 0, 0 };
+
 // *************************************************************************
 
 // colormap values are between 0 and 255
@@ -118,7 +122,6 @@ void
 CvrCLUT::commonConstructor(void)
 {
   this->usefragmentprogramlookup = FALSE;
-  this->fragmentprograminitialized = FALSE;
   this->palettehaschanged = TRUE;
   this->palettelookuptexture = 0;
 
@@ -140,7 +143,6 @@ CvrCLUT::CvrCLUT(const CvrCLUT & clut)
   this->nrcomponents = clut.nrcomponents;
   this->datatype = clut.datatype;
   this->usefragmentprogramlookup = clut.usefragmentprogramlookup;
-  this->fragmentprograminitialized = clut.fragmentprograminitialized;
   this->palettehaschanged = clut.palettehaschanged;
   this->palettelookuptexture = clut.palettelookuptexture;
 
@@ -269,7 +271,6 @@ void
 CvrCLUT::initFragmentProgram(const cc_glglue * glue)
 {
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
-
   // FIXME: What about mutiple GL contexts (as with
   // soshape_bumpmap.cpp for example)?? Each context would need its
   // own programs. (20040312 handegar)
@@ -278,11 +279,11 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue)
   // context. 20040716 mortene.
 
   // Two programs, one each for 2D textures and 3D textures.
-  cc_glglue_glGenPrograms(glue, 2, this->palettelookupprogramid);
+  cc_glglue_glGenPrograms(glue, 2, CvrCLUT::fragmentprogramid);
 
   for (int i=CvrCLUT::TEXTURE2D; i <= CvrCLUT::TEXTURE3D; i++) {
     cc_glglue_glBindProgram(glue, GL_FRAGMENT_PROGRAM_ARB,
-                            this->palettelookupprogramid[i]);
+                            CvrCLUT::fragmentprogramid[i]);
 
     // Setup fragment program according to texture type.
 
@@ -304,7 +305,7 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue)
     if (err) {
       GLint errorPos;
       glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorPos);
-      SoDebugError::postWarning("CvrCLUT::initFragmentPrograms",
+      SoDebugError::postWarning("CvrCLUT::initFragmentProgram",
                                 "Error in fragment program! (byte pos: %d) '%s'.\n",
                                 errorPos, glGetString(GL_PROGRAM_ERROR_STRING_ARB));
     }
@@ -377,10 +378,14 @@ CvrCLUT::activate(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
       ((CvrCLUT*)this)->palettehaschanged = FALSE;
     }
 
-    if (!this->fragmentprograminitialized) {
-      ((CvrCLUT*)this)->initFragmentProgram(glw);
-      ((CvrCLUT*)this)->fragmentprograminitialized = TRUE;
+    if (CvrCLUT::fragmentprogramid[0] == 0) {
+      CvrCLUT::initFragmentProgram(glw);
     }
+
+    printf("this->palettelookuptexture==%d, "
+           "this->palettelookupprogramid[texturetype]==%d\n",
+           this->palettelookuptexture,
+           CvrCLUT::fragmentprogramid[texturetype]);
 
     // FIXME: What should we do if unit #1 is already taken? (20040310 handegar)
     cc_glglue_glActiveTexture(glw, GL_TEXTURE1);
@@ -389,7 +394,7 @@ CvrCLUT::activate(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
 
     cc_glglue_glActiveTexture(glw, GL_TEXTURE0);
     cc_glglue_glBindProgram(glw, GL_FRAGMENT_PROGRAM_ARB,
-                            this->palettelookupprogramid[texturetype]);
+                            CvrCLUT::fragmentprogramid[texturetype]);
 
     glEnable(GL_FRAGMENT_PROGRAM_ARB);
 
