@@ -12,7 +12,7 @@ endif
 # Adding in a dummy C++ source code file to "trick" Automake to set
 # us up with C++ $CXXLD for linking (and not the default C $CCLD).
 libSimVoleon_la_SOURCES = dummy.cpp
-simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES = dummy.cpp
+simvoleon_lib_SOURCES = dummy.cpp
 
 libSimVoleon_la_LIBADD = \
         details/libdetails.la \
@@ -22,7 +22,7 @@ libSimVoleon_la_LIBADD = \
         readers/libreaders.la \
 	render/2D/lib2Drender.la
 
-simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD = \
+simvoleon_lib_LIBADD = \
         details/details.lst \
         elements/elements.lst \
         misc/misc.lst \
@@ -41,11 +41,11 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@.lib: Makefile \
 	rm -f "$$basename.dll" "$$basename.lib"; \
 	echo "Linking $$basename.lib..."; \
 	echo $(CC) $(LDFLAGS) $(LIBFLAGS) \
-	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS) \
-	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD) $(LIBS); \
+	  $(simvoleon_lib_OBJECTS) \
+	  $(simvoleon_lib_LIBADD) $(LIBS); \
 	$(CC) $(LDFLAGS) $(LIBFLAGS) \
-	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS) \
-	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD) $(LIBS);
+	  $(simvoleon_lib_OBJECTS) \
+	  $(simvoleon_lib_LIBADD) $(LIBS);
 
 # **************************************************************************
 
