@@ -61,8 +61,6 @@ public:
     this->parentnodeid = master->getNodeId();
   }
 
-  void setPalette(const CvrCLUT * c);
-
   Cvr3DTexCube * cube;
   const CvrCLUT * clut;
   SoFaceSet * clipgeometryfaceset;
@@ -95,7 +93,6 @@ SoVolumeFaceSet::SoVolumeFaceSet(void)
 
 SoVolumeFaceSet::~SoVolumeFaceSet(void)
 {
-  if (PRIVATE(this)->clut) { PRIVATE(this)->clut->unref(); }
   if (PRIVATE(this)->clipgeometryfaceset) { PRIVATE(this)->clipgeometryfaceset->unref(); }
   delete PRIVATE(this)->cube;
   delete PRIVATE(this);
@@ -107,18 +104,6 @@ SoVolumeFaceSet::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoVolumeFaceSet, SoFaceSet, "SoFaceSet");
 }
-
-void
-SoVolumeFaceSetP::setPalette(const CvrCLUT * c)
-{
-  assert(c != NULL);
-
-  if (this->clut) { this->clut->unref(); }
-  this->clut = c;
-  this->clut->ref();  
-  this->cube->setPalette(c);
-}
-
 
 void
 SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
@@ -208,7 +193,7 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
 
     const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
     const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
-    if (PRIVATE(this)->clut != c) { PRIVATE(this)->setPalette(c); }
+    if (PRIVATE(this)->clut != c) { PRIVATE(this)->cube->setPalette(c); }
     
     // Fetch texture quality
     float texturequality = SoTextureQualityElement::get(state);
@@ -300,7 +285,7 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
 
     for (int i=0;i<6;++i) {
       state->push();       
-      // FIXME: It would have been nice with a 'remove' or a 'replace'
+      // FIXME: It would have been nice to have a 'remove' or a 'replace'
       // method in the SoClipPlaneElement so that we wouldn't have to
       // push and pop the state. (20040630 handegar)
       SoClipPlaneElement::add(state, this, cubeplanes[i]);    
