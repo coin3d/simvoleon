@@ -19,7 +19,7 @@
  *
  *  See <URL:http://www.coin3d.org/> for more information.
  *
- *  Systems in Motion, Teknobyen, Abels Gate 5, 7030 Trondheim, NORWAY.
+ *  Systems in Motion, Postboks 1283, Pirsenteret, 7462 Trondheim, NORWAY.
  *  <URL:http://www.sim.no/>.
  *
 \**************************************************************************/
