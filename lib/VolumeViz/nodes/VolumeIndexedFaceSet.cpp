@@ -233,6 +233,8 @@ SoVolumeIndexedFaceSet::GLRender(SoGLRenderAction * action)
                         nindices, tindices, mindices, numindices,
                         sendNormals, normalCacheUsed);
 
+    if (normals == NULL) glDisable(GL_LIGHTING);
+
     PRIVATE(this)->cube->renderIndexedFaceSet(action, origo, interp, 
                                               coords->getArrayPtr3(), 
                                               cindices, numindices); 
@@ -244,7 +246,23 @@ SoVolumeIndexedFaceSet::GLRender(SoGLRenderAction * action)
   
   // Render the geometry which are outside the volume cube as polygons.
   if (this->clipGeometry.getValue()) {
-           
+    
+    // Is there a clipplane left for us to use?
+    GLint maxclipplanes = 0;
+    glGetIntegerv(GL_MAX_CLIP_PLANES, &maxclipplanes);    
+    const SoClipPlaneElement * elem = SoClipPlaneElement::getInstance(state);
+    if (elem->getNum() > (maxclipplanes-1)) {
+      static SbBool flag = FALSE;
+      if (!flag) {
+        flag = TRUE;
+        SoDebugError::postWarning("SoVolumeIndexedFaceSet::GLRender", 
+                                  "\"clipGeometry TRUE\": Not enough clip planes available. (max=%d)", 
+                                  maxclipplanes);
+      }
+      state->pop();
+      return;
+    }
+
     if (PRIVATE(this)->parentnodeid != this->getNodeId()) { // Changed recently?
       int i=0;
       for (i=0;i<this->coordIndex.getNum();++i)
@@ -298,7 +316,7 @@ SoVolumeIndexedFaceSet::GLRender(SoGLRenderAction * action)
       PRIVATE(this)->clipgeometryfaceset->GLRender(action);
       state->pop();
     }    
-    return; // State is already pop'ed. Return.
+    return; // State is already popped. Return.
   }
 
   state->pop();
