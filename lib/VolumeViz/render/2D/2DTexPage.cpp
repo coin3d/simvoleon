@@ -231,13 +231,23 @@ void
 Cvr2DTexPage::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
                      const SbVec3f & horizspan, const SbVec3f & verticalspan,
+                     const SbVec2f & spacescale,
                      long tick)
 {
-  SbVec3f subpagewidth = horizspan / this->nrcolumns;
-  SbVec3f subpageheight = verticalspan / this->nrrows;
+  // Find the "local 3D-space" size of each subpage.
+
+  SbVec3f subpagewidth = horizspan;
+  subpagewidth.normalize();
+  subpagewidth *= this->subpagesize[0] * spacescale[0];
+
+  SbVec3f subpageheight = verticalspan;
+  subpageheight.normalize();
+  subpageheight *= this->subpagesize[1] * spacescale[1];
+
+
+  // Render all subpages making up the full page.
 
   for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
-
     for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
 
       Cvr2DTexSubPage * page = NULL;
@@ -246,14 +256,14 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
       assert(pageitem != NULL);
       assert(pageitem->page != NULL);
 
-      SbVec3f lowleft = origo +
-        // horizontal shift to correct column, renders left-to-right
+      SbVec3f upleft = origo +
+        // horizontal shift to correct column
         subpagewidth * colidx +
-        // vertical shift to correct row, renders top-to-bottom
-        subpageheight * (this->nrrows - rowidx - 1);
+        // vertical shift to correct row
+        subpageheight * rowidx;
 
+      SbVec3f lowleft = upleft + subpageheight;
       SbVec3f lowright = lowleft + subpagewidth;
-      SbVec3f upleft = lowleft + subpageheight;
       SbVec3f upright = upleft + subpagewidth;
 
       // FIXME: should do view frustum culling on each page as an
@@ -262,6 +272,7 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
 
       pageitem->page->render(lowleft, lowright, upleft, upright);
       pageitem->lasttick = tick;
+
     }
   }
 }
@@ -318,6 +329,9 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // UNSIGNED_BYTE type data. 20021125 mortene.
   const unsigned int slicebufsize = this->subpagesize[0] * this->subpagesize[1] * 4;
   uint8_t * slicebuf = new uint8_t[slicebufsize];
+  // FIXME: this should not really be necessary, but we have to do it
+  // now, as we don't handle subsets neither in transferfunction nor
+  // by the border-textures. 20021127 mortene.
   (void)memset(slicebuf, 0x00, slicebufsize);
 
   SoState * state = action->getState();

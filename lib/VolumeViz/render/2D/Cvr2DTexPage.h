@@ -20,6 +20,7 @@ public:
 
   void render(SoGLRenderAction * action, const SbVec3f & origo,
               const SbVec3f & horizspan, const SbVec3f & verticalspan,
+              const SbVec2f & spacescale,
               long tick);
 
   Cvr2DTexSubPage * getLRUSubPage(long & tick);

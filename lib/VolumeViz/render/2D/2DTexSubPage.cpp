@@ -331,6 +331,10 @@ Cvr2DTexSubPage::render(const SbVec3f & lowleft, const SbVec3f & lowright,
   // in the opposite direction (top-to-bottom) from what the Y axis in
   // the OpenGL coordinate system uses (bottom-to-top).
 
+ // Disabled, we now draw the full quad polygon, with the
+ // out-of-bounds texture parts fully transparent. Keeping the code,
+ // as we should change this back again later.
+#if 0
   glTexCoord2f(0.0f, this->texmaxcoords[1]);
   glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
 
@@ -342,6 +346,19 @@ Cvr2DTexSubPage::render(const SbVec3f & lowleft, const SbVec3f & lowright,
 
   glTexCoord2f(0.0f, 0.0f);
   glVertex3f(upleft[0], upleft[1], upleft[2]);
+#else
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
+
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(lowright[0], lowright[1], lowright[2]);
+
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(upright[0], upright[1], upright[2]);
+
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(upleft[0], upleft[1], upleft[2]);
+#endif
 
   glEnd();
 

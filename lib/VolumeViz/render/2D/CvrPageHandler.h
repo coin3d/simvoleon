@@ -28,10 +28,6 @@ private:
 
   Cvr2DTexPage * getSlice(const unsigned int AXISIDX, unsigned int sliceidx);
 
-  void renderOnePage(SoGLRenderAction * action, Cvr2DTexPage * page,
-                     const SbBox2f & quad, float depth,
-                     const unsigned int AXISIDX);
-
   Cvr2DTexPage ** slices[3];
   unsigned int voldatadims[3];
   unsigned int subpagesize[3];
