@@ -391,25 +391,6 @@ SoVolumeRender::initClass(void)
   SO_ENABLE(SoGetBoundingBoxAction, SoVolumeDataElement);
 }
 
-void
-SoVolumeRenderP::getTransformFromVolumeBoxDimensions(const SoVolumeDataElement * vd,
-                                                     SbMatrix & m)
-{
-  const SbVec3s voxcubedims = vd->getVoxelCubeDimensions();
-  const SoVolumeData * node = vd->getVolumeData();
-  const SbBox3f localbox = node->getVolumeSize();
-
-  const SbVec3f
-    localspan((localbox.getMax()[0] - localbox.getMin()[0]) / voxcubedims[0],
-              (localbox.getMax()[1] - localbox.getMin()[1]) / voxcubedims[1],
-              (localbox.getMax()[2] - localbox.getMin()[2]) / voxcubedims[2]);
-
-  const SbVec3f localtrans =
-    (localbox.getMax() - localbox.getMin()) / 2.0f + localbox.getMin();
-
-  m.setTransform(localtrans, SbRotation::identity(), localspan);
-}
-
 // doc in super
 void
 SoVolumeRender::GLRender(SoGLRenderAction * action)
@@ -496,7 +477,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   // *** so state->pop() is done before returning.
 
   SbMatrix volumetransform;
-  SoVolumeRenderP::getTransformFromVolumeBoxDimensions(volumedataelement, volumetransform);
+  CvrUtil::getTransformFromVolumeBoxDimensions(volumedataelement, volumetransform);
   SoModelMatrixElement::mult(state, this, volumetransform);
 
   int rendermethod, storagehint;
@@ -1281,7 +1262,7 @@ SoVolumeRenderP::calculateNrOf3DSlices(SoGLRenderAction * action,
     numslices = int(complexity * 2.0f * numslices);
   }
   else if (control == SoVolumeRender::MANUAL) {
-    numslices = PUBLIC(this)->numSlices.getValue();
+    numslices = PUBLIC(this)->numSlices.getValue() + 1;
   }
   else if (control == SoVolumeRender::AUTOMATIC) {
     numslices = int(complexity * 2.0f * PUBLIC(this)->numSlices.getValue());
@@ -1295,8 +1276,6 @@ SoVolumeRenderP::calculateNrOf3DSlices(SoGLRenderAction * action,
   SoDebugError::postInfo("SoVolumeRenderP::calculateNrOf3DSlices",
                          "numslices == %d", numslices);
 #endif // debug
-
-  numslices = SbMax(64, numslices); // Anything below 64 slices looks ugly for 3D textures.
 
   return numslices;
 }
