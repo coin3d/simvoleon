@@ -88,12 +88,18 @@ Cvr3DTexCube::Cvr3DTexCube(SoVolumeReader * reader)
   this->nrdepths = (this->dimensions[2] + this->subcubesize[2] - 1) / this->subcubesize[2];
 
   this->rendersubcubeoutline = FALSE;
-  const char * envstr = coin_getenv("CVR_SUBCUBE_FRAMES");
-  if (envstr) { this->rendersubcubeoutline = atoi(envstr) > 0 ? TRUE : FALSE; }
+  const char * framesenvstr = coin_getenv("CVR_SUBCUBE_FRAMES");
+  if (framesenvstr) { this->rendersubcubeoutline = atoi(framesenvstr) > 0 ? TRUE : FALSE; }
 
   this->abortfunc = NULL;
   this->abortfuncdata = NULL;
 
+  // FIXME: Remove this option when we bump the major version
+  // number. (20040615 handegar)
+  this->flipvolumerendering = FALSE; // Render the 'old' way?, ie. the wrong way.
+  const char * flipvolumeenvstr = coin_getenv("CVR_FLIP_Y_AXIS");
+  if (flipvolumeenvstr) { this->flipvolumerendering = atoi(flipvolumeenvstr) > 0 ? TRUE : FALSE; }
+ 
 }
 
 Cvr3DTexCube::~Cvr3DTexCube()
@@ -336,16 +342,28 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
     }
   }
 
-  // NOTE: Building subcubes 'upwards' so that the Y orientation will
-  // be equal to the 2D slice rendering (the voxelchunks are also
-  // flipped).
-
-  SbVec3s subcubemin(col * this->subcubesize[0],
-                     this->dimensions[1] - (row + 1) * this->subcubesize[1],
-                     depth * this->subcubesize[2]);
-  SbVec3s subcubemax((col + 1) * this->subcubesize[0],
-                     this->dimensions[1] - row * this->subcubesize[1],
-                     (depth + 1) * this->subcubesize[2]);
+  SbVec3s subcubemin, subcubemax;
+  if (this->flipvolumerendering) {    
+    // NOTE: Building subcubes 'upwards' so that the Y orientation will
+    // be equal to the 2D slice rendering (the voxelchunks are also
+    // flipped).
+    // FIXME: Remove this option when we bump the major
+    // version number. (20040615 handegar)
+    subcubemin = SbVec3s(col * this->subcubesize[0],
+                         this->dimensions[1] - (row + 1) * this->subcubesize[1],
+                         depth * this->subcubesize[2]);
+    subcubemax = SbVec3s((col + 1) * this->subcubesize[0],
+                         this->dimensions[1] - row * this->subcubesize[1],
+                         (depth + 1) * this->subcubesize[2]);    
+  } 
+  else {
+    subcubemin = SbVec3s(col * this->subcubesize[0],
+                         row * this->subcubesize[1],
+                         depth * this->subcubesize[2]);
+    subcubemax = SbVec3s((col + 1) * this->subcubesize[0],
+                         (row + 1) * this->subcubesize[1],
+                         (depth + 1) * this->subcubesize[2]);
+  }
 
   // Crop subcube size
   subcubemax[0] = SbMin(subcubemax[0], this->dimensions[0]);

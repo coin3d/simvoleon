@@ -49,13 +49,11 @@ public:
 
 private:
   class Cvr3DTexSubCubeItem * getSubCube(SoState * state, int col, int row, int depth);
-
   class Cvr3DTexSubCubeItem * buildSubCube(SoGLRenderAction * action,
-                                           int col, int row, int depth);
-   
+                                           int col, int row, int depth);   
+
   void releaseAllSubCubes(void);
   void releaseSubCube(const int row, const int col, const int depth);
-
   int calcSubCubeIdx(int row, int col, int depth) const;
   void calculateOptimalSubCubeSize();
 
@@ -68,6 +66,7 @@ private:
   int nrcolumns;
   int nrrows;
   int nrdepths;
+  SbBool flipvolumerendering; // Shall we flip the Y-axis? Controlled by an envvar.
 
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
   void * abortfuncdata;
