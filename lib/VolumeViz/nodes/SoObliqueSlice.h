@@ -1,7 +1,9 @@
 #ifndef COIN_SOOBLIQUESLICE_H
 #define COIN_SOOBLIQUESLICE_H
 
-#include <Inventor/nodes/SoNode.h>
+#include <Inventor/nodes/SoShape.h>
+#include <Inventor/fields/SoSFPlane.h>
+#include <Inventor/fields/SoSFEnum.h>
 
 
 class SoObliqueSlice : public SoShape {
@@ -11,6 +13,7 @@ class SoObliqueSlice : public SoShape {
 
 public:
   static void initClass(void);
+  SoObliqueSlice(void);
 
   enum Interpolation { NEAREST, LINEAR };
   enum AlphaUse { ALPHA_AS_IS, ALPHA_OPAQUE, ALPHA_BINARY };
@@ -19,7 +22,17 @@ public:
   SoSFEnum interpolation;
   SoSFEnum alphaUse;
 
-  SoObliqueSlice();
+protected:
+  ~SoObliqueSlice();
+
+  virtual void GLRender(SoGLRenderAction * action);
+  virtual void rayPick(SoRayPickAction * action);
+  virtual void generatePrimitives(SoAction * action);
+  virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
+
+private:
+  friend class SoObliqueSliceP;
+  class SoObliqueSliceP * pimpl;
 };
 
 #endif // !COIN_SOOBLIQUESLICE_H

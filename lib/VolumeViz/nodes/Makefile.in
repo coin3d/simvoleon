@@ -109,6 +109,7 @@ SOURCES = \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
 	OrthoSlice.cpp \
+	ObliqueSlice.cpp \
 	ROI.cpp
 
 
@@ -137,14 +138,15 @@ nodes_lst_AR = $(AR) cru
 nodes_lst_LIBADD =
 am_nodes_lst_OBJECTS = TransferFunction.$(OBJEXT) VolumeData.$(OBJEXT) \
 	VolumeRender.$(OBJEXT) VolumeRendering.$(OBJEXT) \
-	OrthoSlice.$(OBJEXT) ROI.$(OBJEXT)
+	OrthoSlice.$(OBJEXT) ObliqueSlice.$(OBJEXT) ROI.$(OBJEXT)
 nodes_lst_OBJECTS = $(am_nodes_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
 am_libnodes_la_OBJECTS = TransferFunction.lo VolumeData.lo \
-	VolumeRender.lo VolumeRendering.lo OrthoSlice.lo ROI.lo
+	VolumeRender.lo VolumeRendering.lo OrthoSlice.lo \
+	ObliqueSlice.lo ROI.lo
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -153,9 +155,10 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/OrthoSlice.Plo $(DEPDIR)/OrthoSlice.Po \
-@AMDEP_TRUE@	$(DEPDIR)/ROI.Plo $(DEPDIR)/ROI.Po \
-@AMDEP_TRUE@	$(DEPDIR)/TransferFunction.Plo \
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/ObliqueSlice.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/ObliqueSlice.Po $(DEPDIR)/OrthoSlice.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/OrthoSlice.Po $(DEPDIR)/ROI.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/ROI.Po $(DEPDIR)/TransferFunction.Plo \
 @AMDEP_TRUE@	$(DEPDIR)/TransferFunction.Po \
 @AMDEP_TRUE@	$(DEPDIR)/VolumeData.Plo $(DEPDIR)/VolumeData.Po \
 @AMDEP_TRUE@	$(DEPDIR)/VolumeRender.Plo \
@@ -187,6 +190,7 @@ SOURCES = \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
 	OrthoSlice.cpp \
+	ObliqueSlice.cpp \
 	ROI.cpp
 
 
@@ -227,6 +231,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ObliqueSlice.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ObliqueSlice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/OrthoSlice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/OrthoSlice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ROI.Plo@am__quote@

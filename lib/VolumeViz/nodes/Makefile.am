@@ -14,6 +14,7 @@ SOURCES = \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
 	OrthoSlice.cpp \
+	ObliqueSlice.cpp \
 	ROI.cpp
 
 libnodes_la_SOURCES = $(SOURCES)
