@@ -28,14 +28,21 @@ private:
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
 
+// FIXME: move these to an SimVolution-internal accessible
+// class. (They are now "extern"-imported into VRVolFileReader.cpp.)
+// 20021125 mortene.
+
 void buildSubSliceX(const void * input, void * output,
                     const int pageidx, const SbBox2s & cutslice,
+                    const unsigned short destwidth,
                     const SoVolumeData::DataType type, const SbVec3s & dim);
 void buildSubSliceY(const void * input, void * output,
                     const int pageidx, const SbBox2s & cutslice,
+                    const unsigned short destwidth,
                     const SoVolumeData::DataType type, const SbVec3s & dim);
 void buildSubSliceZ(const void * input, void * output,
                     const int pageidx, const SbBox2s & cutslice,
+                    const unsigned short destwidth,
                     const SoVolumeData::DataType type, const SbVec3s & dim);
 
 
@@ -73,21 +80,27 @@ void SoVRMemReader::getSubSlice(SbBox2s &subslice,
                                 void * data,
                                 Axis axis)
 {
+  short width, height;
+  subslice.getSize(width, height);
+
   switch (axis) {
     case X:
       buildSubSliceX(this->m_data, data, sliceNumber, subslice,
+                     width,
                      PRIVATE(this)->dataType,
                      PRIVATE(this)->dimensions);
       break;
 
     case Y:
       buildSubSliceY(this->m_data, data, sliceNumber, subslice,
+                     width,
                      PRIVATE(this)->dataType,
                      PRIVATE(this)->dimensions);
       break;
 
     case Z:
       buildSubSliceZ(this->m_data, data, sliceNumber, subslice,
+                     width,
                      PRIVATE(this)->dataType,
                      PRIVATE(this)->dimensions);
       break;
@@ -125,6 +138,7 @@ buildSubSliceX(const void * input,
                void * output,
                const int pageidx,
                const SbBox2s & cutslice,
+               const unsigned short destwidth,
                const SoVolumeData::DataType type,
                const SbVec3s & dim)
 {
@@ -174,6 +188,7 @@ buildSubSliceY(const void * input,
                void * output,
                const int pageidx,
                const SbBox2s & cutslice,
+               const unsigned short destwidth,
                const SoVolumeData::DataType type,
                const SbVec3s & dim)
 {
@@ -213,6 +228,7 @@ void
 buildSubSliceZ(const void * input, void * output,
                const int pageidx,
                const SbBox2s & cutslice,
+               const unsigned short destwidth,
                const SoVolumeData::DataType type,
                const SbVec3s & dim)
 {

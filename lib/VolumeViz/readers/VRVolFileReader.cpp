@@ -43,14 +43,18 @@ extern const char * coin_getenv(const char *);
 }
 
 // FIXME: refactor properly. 20021110 mortene.
+
 extern void buildSubSliceX(const void * input, void * output,
-                           int sliceIdx, const SbBox2s & subSlice,
+                           const int pageidx, const SbBox2s & cutslice,
+                           const unsigned short destwidth,
                            const SoVolumeData::DataType type, const SbVec3s & dim);
 extern void buildSubSliceY(const void * input, void * output,
-                           int sliceIdx, const SbBox2s & subSlice,
+                           const int pageidx, const SbBox2s & cutslice,
+                           const unsigned short destwidth,
                            const SoVolumeData::DataType type, const SbVec3s & dim);
 extern void buildSubSliceZ(const void * input, void * output,
-                           int sliceIdx, const SbBox2s & subSlice,
+                           const int pageidx, const SbBox2s & cutslice,
+                           const unsigned short destwidth,
                            const SoVolumeData::DataType type, const SbVec3s & dim);
 
 // *************************************************************************
@@ -146,8 +150,8 @@ SoVRVolFileReader::getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
 }
 
 void
-SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data,
-                               Axis axis)
+SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber,
+                               void * data, Axis axis)
 {
   assert(PRIVATE(this)->valid);
 
@@ -165,17 +169,20 @@ SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data,
                          ssmin[0], ssmin[1], ssmax[0], ssmax[1]);
 #endif // debug
 
+  short width, height;
+  subslice.getSize(width, height);
+
   switch (axis) {
     case X:
-      buildSubSliceX(this->m_data, data, slicenumber, subslice, type, dims);
+      buildSubSliceX(this->m_data, data, slicenumber, subslice, width, type, dims);
       break;
 
     case Y:
-      buildSubSliceY(this->m_data, data, slicenumber, subslice, type, dims);
+      buildSubSliceY(this->m_data, data, slicenumber, subslice, width, type, dims);
       break;
 
     case Z:
-      buildSubSliceZ(this->m_data, data, slicenumber, subslice, type, dims);
+      buildSubSliceZ(this->m_data, data, slicenumber, subslice, width, type, dims);
       break;
   }
 }
@@ -193,6 +200,8 @@ SoVRVolFileReader::setUserData(void * data)
 
   FILE * f = fopen(filename, "rb");
   assert(f && "couldn't open file");
+  // FIXME: move relevant code to
+  // SoVolumeReader::getBuffer(). 20021125 mortene.
   size_t gotnrbytes = fread(this->m_data, 1, filesize, f);
   assert(gotnrbytes == filesize);
 #if 1 // debug

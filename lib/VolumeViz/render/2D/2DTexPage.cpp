@@ -1,7 +1,9 @@
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -10,6 +12,25 @@
 
 #include <limits.h>
 #include <string.h>
+
+
+// *************************************************************************
+
+// FIXME: move these to an SimVolution-internal accessible class.
+// 20021125 mortene.
+
+extern void buildSubSliceX(const void * input, void * output,
+                           const int pageidx, const SbBox2s & cutslice,
+                           const unsigned short destwidth,
+                           const SoVolumeData::DataType type, const SbVec3s & dim);
+extern void buildSubSliceY(const void * input, void * output,
+                           const int pageidx, const SbBox2s & cutslice,
+                           const unsigned short destwidth,
+                           const SoVolumeData::DataType type, const SbVec3s & dim);
+extern void buildSubSliceZ(const void * input, void * output,
+                           const int pageidx, const SbBox2s & cutslice,
+                           const unsigned short destwidth,
+                           const SoVolumeData::DataType type, const SbVec3s & dim);
 
 // *************************************************************************
 
@@ -298,8 +319,8 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   }
 
   SbVec2s subpagemin(col * this->subpagesize[0], row * this->subpagesize[1]);
-  SbVec2s subpagemax((col + 1) * this->subpagesize[0] /* FIXME: - 1? */,
-                     (row + 1) * this->subpagesize[1]); /* FIXME: - 1? */
+  SbVec2s subpagemax((col + 1) * this->subpagesize[0],
+                     (row + 1) * this->subpagesize[1]);
   subpagemax[0] = SbMin(subpagemax[0], this->dimensions[0]);
   subpagemax[1] = SbMin(subpagemax[1], this->dimensions[1]);
 
@@ -312,17 +333,43 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   SbBox2s subpagecut = SbBox2s(subpagemin, subpagemax);
   
-  int texturebuffersize = this->subpagesize[0] * this->subpagesize[1] * 4;
-  unsigned char * texture = new unsigned char[texturebuffersize];
-  (void)memset(texture, 0x00, texturebuffersize);
+  // FIXME: this will be 4 times larger than necessary for
+  // UNSIGNED_BYTE type data. 20021125 mortene.
+  const unsigned int slicebufsize = this->subpagesize[0] * this->subpagesize[1] * 4;
+  unsigned char * slicebuf = new unsigned char[slicebufsize];
+  (void)memset(slicebuf, 0x00, slicebufsize);
 
-  SoVolumeReader::Axis ax =
-    this->axis == 0 ? SoVolumeReader::X :
-    (this->axis == 1 ? SoVolumeReader::Y : SoVolumeReader::Z);
+  SoState * state = action->getState();
+  const SoVolumeDataElement * vdelement = SoVolumeDataElement::getInstance(state);
+  assert(vdelement != NULL);
+  SoVolumeData * voldatanode = vdelement->getVolumeData();
+  assert(voldatanode != NULL);
 
-  this->reader->getSubSlice(subpagecut, this->sliceIdx, texture, ax);
+  SbVec3s vddims;
+  void * dataptr;
+  SoVolumeData::DataType type;
+  SbBool ok = voldatanode->getVolumeData(vddims, dataptr, type);
+  assert(ok);
 
-#if 0 // DEBUG: dump slice parts before texture transformation to bitmap files.
+  switch (this->axis) {
+  case 0:
+    buildSubSliceX(dataptr, slicebuf, this->sliceIdx, subpagecut, this->subpagesize[0], type, vddims);
+    break;
+
+  case 1:
+    buildSubSliceY(dataptr, slicebuf, this->sliceIdx, subpagecut, this->subpagesize[0], type, vddims);
+    break;
+
+  case 2:
+    buildSubSliceZ(dataptr, slicebuf, this->sliceIdx, subpagecut, this->subpagesize[0], type, vddims);
+    break;
+
+  default:
+    assert(FALSE);
+    break;
+  }
+
+#if 0 // DEBUG: dump slice parts before slicebuf transformation to bitmap files.
   SbString s;
   s.sprintf("/tmp/pretransfslice-%04d-%03d-%03d.pgm", this->sliceIdx, row, col);
   FILE * f = fopen(s.getString(), "w");
@@ -331,7 +378,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
                 this->subpagesize[0], this->subpagesize[1]);
 
   for (int i=0; i < this->subpagesize[0] * this->subpagesize[1]; i++) {
-    fprintf(f, "%d\n", texture[i]);
+    fprintf(f, "%d\n", slicebuf[i]);
   }
   fclose(f);
 #endif // DEBUG
@@ -343,10 +390,10 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // actually covered by texture (volume data does more often than not
   // fail to match dimensions perfectly with 2^n values). 20021125 mortene.
 
-  uint32_t * transferredTexture = transferfunc->transfer(texture,
-                                                         this->dataType,
-                                                         this->subpagesize);
-  delete[] texture;
+  uint32_t * texture =
+    transferfunc->transfer(slicebuf, this->dataType, this->subpagesize);
+
+  delete[] slicebuf;
 
 #if 0 // DEBUG: dump all transfered textures to bitmap files.
   SbString s;
@@ -357,7 +404,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
                 this->subpagesize[0], this->subpagesize[1]);
 
   for (int i=0; i < this->subpagesize[0] * this->subpagesize[1]; i++) {
-    uint32_t rgba = transferredTexture[i];
+    uint32_t rgba = texture[i];
     fprintf(f, "%d %d %d\n",
             rgba & 0xff, (rgba & 0xff00) >> 8,  (rgba & 0xff0000) >> 16);
   }
@@ -369,11 +416,10 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   int paletteSize = 0;
 
   Cvr2DTexSubPage * page =
-    new Cvr2DTexSubPage(action,
-                        (const uint8_t *)transferredTexture, this->subpagesize,
+    new Cvr2DTexSubPage(action, (const uint8_t *)texture, this->subpagesize,
                         palette, paletteSize);
 
-  delete[] transferredTexture;
+  delete[] texture;
   delete[] palette;
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
