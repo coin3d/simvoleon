@@ -4,16 +4,6 @@
   \ingroup volviz
 */
 
-/*
-FIXME
-
-  LUTs for all the predefined enums must be implemented. 
-
-  The different ColorMapTypes must be implemented. Currently, only RGBA
-  is supported.
-*/
-
-
 #include <VolumeViz/nodes/SoTransferFunction.h>
 
 #include <string.h>
@@ -223,7 +213,7 @@ SoTransferFunction::transfer(const void * input,
       }
     }
     else {
-      // FIXME: augh! 20021113 mortene.
+      // FIXME: augh! Must be fixed before release. 20021113 mortene.
       assert(FALSE && "only little-endian platforms during development");
     }
 
@@ -534,6 +524,8 @@ SoTransferFunctionP::readGIMPGradient(const char * buf)
   return gg;
 }
 
+// Fills out a 256-value array of integer values, by iterating over
+// the colors of the GIMP gradient.
 void
 SoTransferFunctionP::convertGIMPGradient2IntArray(const struct GIMPGradient * gg,
                                                   uint8_t intgradient[256][4])
@@ -543,7 +535,7 @@ SoTransferFunctionP::convertGIMPGradient2IntArray(const struct GIMPGradient * gg
   float middle_RGBA[4];
 
   for (int i=0; i < 256; i++) {
-    float gradpos = 1.0f / float(256) * i;
+    float gradpos = (1.0f / 256.0f) * float(i);
 
     // Advance to correct segment, if necessary.
     while ((segment == NULL) || (gradpos > segment->right)) {
@@ -578,11 +570,12 @@ SoTransferFunctionP::convertGIMPGradient2IntArray(const struct GIMPGradient * gg
     for (int k=0; k < 4; k++) {
       float changeperunit = float(right_RGBA[k] - left_RGBA[k]) / (right - left);
       float add = changeperunit * (gradpos - left);
-      intgradient[i][k] = int((left_RGBA[k] + add) * 255.0f);
+      intgradient[i][k] = uint8_t((left_RGBA[k] + add) * 255.0f);
     }
   }
 }
 
+// Initialize all 256-value predefined colormaps.
 void
 SoTransferFunctionP::initPredefGradients(void)
 {
