@@ -23,6 +23,10 @@
 
 #include <VolumeViz/render/common/CvrTextureObject.h>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <assert.h>
 #include <limits.h>
 
