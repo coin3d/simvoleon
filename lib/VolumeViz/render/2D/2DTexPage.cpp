@@ -207,35 +207,6 @@ Cvr2DTexPage::releaseAllSubPages(void)
   this->subpages = NULL;
 }
 
-
-
-void
-Cvr2DTexPage::renderGLQuad(const SbVec3f & lowleft, const SbVec3f & lowright,
-                           const SbVec3f & upleft, const SbVec3f & upright)
-{
-  glBegin(GL_QUADS);
-  glColor4f(1, 1, 1, 1);
-
-  // Texturecoords are set up so the texture is flipped in the
-  // Y-direction, as the volume data and texture map data are oriented
-  // in the opposite direction (top-to-bottom) from what the Y axis in
-  // the OpenGL coordinate system uses (bottom-to-top).
-
-  glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
-
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(lowright[0], lowright[1], lowright[2]);
-
-  glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(upright[0], upright[1], upright[2]);
-
-  glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(upleft[0], upleft[1], upleft[2]);
-
-  glEnd();
-}
-
 // Fetching the current transfer function from the state stack.
 SoTransferFunction *
 Cvr2DTexPage::getTransferFunc(SoGLRenderAction * action)
@@ -272,9 +243,6 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
       assert(pageitem != NULL);
       assert(pageitem->page != NULL);
 
-      pageitem->page->activate();
-      pageitem->lasttick = tick;
-
       SbVec3f lowleft = origo +
         // horizontal shift to correct column, renders left-to-right
         subpagewidth * colidx +
@@ -289,7 +257,8 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
       // optimization measure (both for rendering speed and texture
       // memory usage). 20021121 mortene.
 
-      this->renderGLQuad(lowleft, lowright, upleft, upright);
+      pageitem->page->render(lowleft, lowright, upleft, upright);
+      pageitem->lasttick = tick;
     }
   }
 }
@@ -304,12 +273,20 @@ Cvr2DTexPage::calcSubPageIdx(int row, int col) const
   return (row * this->nrcolumns) + col;
 }
 
-/*!
-  Builds a page if it doesn't exist. Rebuilds it if it does exist.
-*/
+// Builds a page if it doesn't exist. Rebuilds it if it does exist.
 Cvr2DTexSubPageItem *
 Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 {
+  // FIXME: optimalization idea; detect fully transparent subpages,
+  // and handle specifically. 20021124 mortene.
+
+  // FIXME: optimalization idea; crop textures for 100%
+  // transparency. 20021124 mortene.
+
+  // FIXME: optimalization idea; detect 100% similar neighboring
+  // pages, and make pages able to map to several "slice indices". Not
+  // sure if this can be much of a gain -- but look into it. 20021124 mortene.
+
   assert(this->getSubPage(action, col, row) == NULL);
 
   // First Cvr2DTexSubPage ever in this slice?

@@ -109,7 +109,7 @@ Cvr2DTexSubPage::~Cvr2DTexSubPage()
 // FIXME: Some magic has to be done to make this one work with OpenGL 1.0.
 // torbjorv 08052002
 void
-Cvr2DTexSubPage::activate(void) const
+Cvr2DTexSubPage::activateTexture(void) const
 {
   if (this->texturename[0] == 0) {
     glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
@@ -123,7 +123,7 @@ Cvr2DTexSubPage::activate(void) const
   GLboolean residences[1];
   GLboolean resident = glAreTexturesResident(1, this->texturename, residences);
   if (!resident) {
-    SoDebugError::postWarning("Cvr2DTexSubPage::activate",
+    SoDebugError::postWarning("Cvr2DTexSubPage::activateTexture",
                               "texture %d not resident", this->texturename);
     Cvr2DTexSubPage::detectedtextureswapping = TRUE;
   }
@@ -306,6 +306,62 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     assert(glGetError() == GL_NO_ERROR);
+  }
+}
+
+void
+Cvr2DTexSubPage::render(const SbVec3f & lowleft, const SbVec3f & lowright,
+                        const SbVec3f & upleft, const SbVec3f & upright) const
+{
+  this->activateTexture();
+
+  glBegin(GL_QUADS);
+  glColor4f(1, 1, 1, 1);
+
+  // Texturecoords are set up so the texture is flipped in the
+  // Y-direction, as the volume data and texture map data are oriented
+  // in the opposite direction (top-to-bottom) from what the Y axis in
+  // the OpenGL coordinate system uses (bottom-to-top).
+
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
+
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(lowright[0], lowright[1], lowright[2]);
+
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(upright[0], upright[1], upright[2]);
+
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(upleft[0], upleft[1], upleft[2]);
+
+  glEnd();
+
+
+  // This is a debugging backdoor: if the environment variable
+  // CVR_SUBPAGE_FRAMES is set to a positive integer, a lineset will
+  // be drawn around the border of each page.
+
+  static int showsubpageframes = -1;
+  if (showsubpageframes == -1) {
+    const char * envstr = coin_getenv("CVR_SUBPAGE_FRAMES");
+    if (envstr) { showsubpageframes = atoi(envstr) > 0 ? 1 : 0; }
+    else showsubpageframes = 0;
+  }
+
+  if (showsubpageframes) {
+    glDisable(GL_TEXTURE_2D);
+    glLineStipple(1, 0xffff);
+    glLineWidth(2);
+
+    glBegin(GL_LINE_LOOP);
+    glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
+    glVertex3f(lowright[0], lowright[1], lowright[2]);
+    glVertex3f(upright[0], upright[1], upright[2]);
+    glVertex3f(upleft[0], upleft[1], upleft[2]);
+    glEnd();
+
+    glEnable(GL_TEXTURE_2D);
   }
 }
 

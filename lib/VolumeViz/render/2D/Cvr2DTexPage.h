@@ -39,11 +39,6 @@ private:
 
   SoTransferFunction * getTransferFunc(SoGLRenderAction * action);
 
-  void renderGLQuad(const SbVec3f & lowerLeft,
-                    const SbVec3f & lowerRight,
-                    const SbVec3f & upperLeft,
-                    const SbVec3f & upperRight);
-
   class Cvr2DTexSubPageItem ** subpages;
   SoVolumeReader * reader;
 

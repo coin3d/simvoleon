@@ -2,6 +2,7 @@
 #define COIN_CVR2DTEXSUBPAGE_H
 
 #include <Inventor/SbVec2s.h>
+#include <Inventor/SbVec3f.h>
 #include <Inventor/misc/SoState.h>
 #include <Inventor/system/gl.h>
 
@@ -15,7 +16,8 @@ public:
                   const float * palette = NULL, int palettesize = 0);
   ~Cvr2DTexSubPage();
 
-  void activate(void) const;
+  void render(const SbVec3f & lowerLeft, const SbVec3f & lowerRight,
+              const SbVec3f & upperLeft, const SbVec3f & upperRight) const;
 
   static unsigned int totalNrOfTexels(void);
   static unsigned int totalTextureMemoryUsed(void);
@@ -23,6 +25,8 @@ public:
 private:
   void transferTex2GL(SoGLRenderAction * action, const uint8_t * textureimg,
                       int palettesize, const float * palette);
+
+  void activateTexture(void) const;
 
   GLuint texturename[1];
   static GLuint emptyimgname[1];
