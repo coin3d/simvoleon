@@ -63,6 +63,7 @@ CvrPageHandler::CvrPageHandler(const SoGLRenderAction * action)
   this->slices[2] = NULL;
 
   this->clut = NULL;
+  this->voxelblockelementnodeid = 0;
 }
 
 CvrPageHandler::~CvrPageHandler()
@@ -211,10 +212,21 @@ CvrPageHandler::render(const SoGLRenderAction * action, unsigned int numslices,
 
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
 
-
-  // FIXME: should have an assert-check that the volume dimensions
-  // hasn't changed versus our this->voldatadims. 20040719 mortene.
-
+  // Has the dataelement changed since last time?
+  // FIXME: Is this test too strict? Not all components in the voxel
+  // block element will demand a reconstruction of the 2D pages
+  // (20040806 handegar)
+  if (this->voxelblockelementnodeid != vbelem->getNodeId()) {
+    // release all pages   
+    this->releaseSlices(0);
+    this->releaseSlices(1);
+    this->releaseSlices(2);    
+    const SbVec3s & dims = vbelem->getVoxelCubeDimensions();
+    this->voldatadims[0] = dims[0];
+    this->voldatadims[1] = dims[1];
+    this->voldatadims[2] = dims[2];
+    this->voxelblockelementnodeid = vbelem->getNodeId();
+  }
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);

@@ -77,6 +77,7 @@ private:
   unsigned int voldatadims[3];
 
   uint32_t transferfuncid;
+  uint32_t voxelblockelementnodeid;
   const CvrCLUT * clut;
 };
 
