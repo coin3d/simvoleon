@@ -1,0 +1,55 @@
+Check out
+=========
+
+        VolVis 2002 (part of IEEE Vis2002):
+        <URL:http://www.cs.sunysb.edu/~volvis02/>.
+
+Not read yet
+============
+
+vis_stipple.pdf:
+
+        Lu, A., Morris, C., Ebert, D., Rheingans, P., Hansen, C.,
+        "Non-Photorealistic Volume Rendering Using Stippling
+        Techniques," IEEE Visualization 2002 to appear, 2002.
+
+        Awarded "Best Paper" at IEEE Vis2002
+        (<URL:http://vis.computer.org/vis2002/>).
+
+        Test-application is available (no source code):
+        <URL:http://www.ecn.purdue.edu/purpl/projects/dl_stipple.htm>.
+
+
+kniss_volumeshading02.pdf: (from Purdue University)
+
+        Kniss, J., Premoze, S., Hansen, C., Ebert, D., "Interactive
+        Translucent Volume Rendering and Procedural Modeling," IEEE
+        Visualization 2002 to appear, 2002.
+
+
+tvcg_vol8_2002.pdf: (from Purdue University)
+        Ebert, D., Morris, C., Rheingan, P., Yoo, T., "Designing
+        Effective Transfer Functions for Volume Rendering from
+        Photographics Volumes," IEEE Transactions on Visualization and
+        Computer Graphics, Vol 8., No 3., 2002
+
+
+vissym2002.pdf: (from Purdue University)
+        Morris, C., and Ebert, D., "Direct Photographic Volume
+        Rendering Using Multi-Dimensional Color-Based Transfer
+        Functions," VisSym2002: Joint Eurographics - IEEE TCCG
+        Symposium on Visualization, May 2002
+
+
+tvcg_vol7_volume_ill_2001.pdf: (from Purdue University)
+        Rheingan, P., Ebert. D., "Volume Illustration:
+        Non-Photorealistic Rendering of Volume Models," IEEE
+        Transactions on Visualization and Computer Graphics, Vol. 7,
+        No. 3, 2001.
+
+
+vissym00.ps.gz: (from Purdue University)
+        Ebert, D., McClanahan, T., Rheingans, P., Yoo, T., "Direct
+        Volume Rendering from Photographic Data," VisSym 2000: Joint
+        EUROG RAPHICS - IEEE TCCG Symposium on Visualization, May
+        2000.
