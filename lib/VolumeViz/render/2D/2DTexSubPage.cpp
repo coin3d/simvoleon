@@ -53,76 +53,62 @@
 
 
 
-
-Cvr2DTexSubPage::Cvr2DTexSubPage(void)
+Cvr2DTexSubPage::Cvr2DTexSubPage(const uint8_t * textureimg,
+                                 const SbVec2s & size,
+                                 const float * palette, int palettesize)
 {
-  this->size = SbVec2s(0, 0);
-  this->format = 0;
+  this->texdims = size;
+
   this->lastuse = 0;
-  this->transferFunctionId = 0;
-  this->data = NULL;
-  this->palette = NULL;
-  this->paletteFormat = 0;
-  this->paletteSize = 0;
   this->numBytesHW = 0;
+
+  this->transferTex2GL(textureimg, palettesize, palette);
 }
 
 
 Cvr2DTexSubPage::~Cvr2DTexSubPage()
 {
-  this->release();
+  glDeleteTextures(1, this->texturename);
+  this->numBytesHW = 0;
 }
 
 
 // FIXME: Some magic has to be done to make this one work with OpenGL 1.0.
 // torbjorv 08052002
-void Cvr2DTexSubPage::setActivePage(long tick)
+void
+Cvr2DTexSubPage::activate(void) const
 {
-  glBindTexture(GL_TEXTURE_2D, this->textureName);
-  this->lastuse = tick;
+  glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
 }
 
-
-
-/*!
-  If no palette specified, this function assumes RGBA data. If a
-  palette is specified, the input data should be indices into the
-  palette.  The function uses the palette's size to decide whether the
-  indices are byte or short.
-*/
-void Cvr2DTexSubPage::setData(unsigned char * bytes,
-                              const SbVec2s & size,
-                              const float * palette,
-                              int paletteFormat,
-                              int paletteSize)
+// If no palette specified, this function assumes RGBA data. If a
+// palette is specified, the input data should be indices into the
+// palette.  The function uses the palette's size to decide whether
+// the indices are byte or short.
+void
+Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
+                                int palettesize, const float * palette)
 {
-  this->release();
-
-  this->size = size;
-  this->paletteFormat = paletteFormat;
-  this->paletteSize = paletteSize;
-
-
   const cc_glglue * glue = cc_glglue_instance(0); // FIXME: need cache context here
 
   // FIXME: these functions is only supported in opengl 1.1...
   // torbjorv 08052002
-  glGenTextures(1, &this->textureName);
-  glBindTexture(GL_TEXTURE_2D, this->textureName);
+  glGenTextures(1, this->texturename);
+  glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
 
   // Uploading standard RGBA-texture
   if (palette == NULL) {
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  4,
-                 size[0],
-                 size[1],
+                 this->texdims[0],
+                 this->texdims[1],
                  0,
                  GL_RGBA,
                  GL_UNSIGNED_BYTE,
-                 bytes);
+                 textureimg);
 
-    this->numBytesHW += size[0]*size[1]*4;
+    this->numBytesHW += this->texdims[0] * this->texdims[1] * 4;
   }
   // Uploading paletted texture
   else {
@@ -134,13 +120,13 @@ void Cvr2DTexSubPage::setData(unsigned char * bytes,
 
     // Check size of indices
     int format = GL_UNSIGNED_BYTE;
-    if (paletteSize > 256)
+    if (palettesize > 256)
       format = GL_UNSIGNED_SHORT;
 
     // Setting palette
     cc_glglue_glColorTableEXT(glue, GL_TEXTURE_2D,
                               GL_RGBA,
-                              paletteSize,
+                              palettesize,
                               GL_RGBA,
                               GL_FLOAT,
                               palette);
@@ -151,25 +137,25 @@ void Cvr2DTexSubPage::setData(unsigned char * bytes,
                                             GL_COLOR_TABLE_WIDTH_EXT,
                                             &actualPaletteSize);
 
-    this->numBytesHW += actualPaletteSize*4*4;
+    this->numBytesHW += actualPaletteSize * 4 * 4;
 
 
     int internalFormat;
     switch (actualPaletteSize) {
     case     2: internalFormat = GL_COLOR_INDEX1_EXT;
-      this->numBytesHW += size[0]*size[1]/8;
+      this->numBytesHW += this->texdims[0] * this->texdims[1] / 8;
       break;
     case     4: internalFormat = GL_COLOR_INDEX2_EXT;
-      this->numBytesHW += size[0]*size[1]/4;
+      this->numBytesHW += this->texdims[0] * this->texdims[1] / 4;
       break;
     case    16: internalFormat = GL_COLOR_INDEX4_EXT;
-      this->numBytesHW += size[0]*size[1]/2;
+      this->numBytesHW += this->texdims[0] * this->texdims[1] / 2;
       break;
     case   256: internalFormat = GL_COLOR_INDEX8_EXT;
-      this->numBytesHW += size[0]*size[1];
+      this->numBytesHW += this->texdims[0] * this->texdims[1];
       break;
     case 65536: internalFormat = GL_COLOR_INDEX16_EXT;
-      this->numBytesHW += size[0]*size[1]*2;
+      this->numBytesHW += this->texdims[0] * this->texdims[1] * 2;
       break;
     default:
       // FIXME: this can indeed hit, try for instance SYN_64.vol. If
@@ -185,12 +171,12 @@ void Cvr2DTexSubPage::setData(unsigned char * bytes,
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  internalFormat,
-                 size[0],
-                 size[1],
+                 this->texdims[0],
+                 this->texdims[1],
                  0,
                  GL_COLOR_INDEX,
                  format,
-                 bytes);
+                 textureimg);
 
   }
 
@@ -213,24 +199,4 @@ void Cvr2DTexSubPage::setData(unsigned char * bytes,
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-}
-
-void
-Cvr2DTexSubPage::release(void)
-{
-  if (this->textureName != 0)
-    glDeleteTextures(1, &(this->textureName));
-
-  delete[] this->data;
-  delete[] this->palette;
-
-  this->size = SbVec2s(0, 0);
-  this->format = 0;
-  this->lastuse = 0;
-  this->transferFunctionId = 0;
-  this->data = NULL;
-  this->palette = NULL;
-  this->paletteFormat = 0;
-  this->paletteSize = 0;
-  this->numBytesHW = 0;
 }

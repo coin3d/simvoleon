@@ -2,7 +2,7 @@
 
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
-
+#include <limits.h>
 
 // *************************************************************************
 
@@ -21,6 +21,8 @@ public:
 
   Cvr2DTexSubPage * page;
   Cvr2DTexSubPageItem * next, * prev;
+  uint32_t transferfuncid;
+  long lasttick;
 };
 
 // *************************************************************************
@@ -151,13 +153,15 @@ Cvr2DTexPage::getLRUSubPage(void)
   assert(this->subpages != NULL);
 
   Cvr2DTexSubPage * LRUPage = NULL;
+  long lowesttick = LONG_MAX;
 
   const int NRPAGES = this->numCols * this->numRows;
   for (int i = 0; i < NRPAGES; i++) {
     Cvr2DTexSubPageItem * pitem = this->subpages[i];
     while (pitem != NULL) {
-      if ((LRUPage == NULL) || (pitem->page->lastuse < LRUPage->lastuse)) {
+      if (pitem->lasttick < lowesttick) {
         LRUPage = pitem->page;
+        lowesttick = pitem->lasttick;
       }
       pitem = pitem->next;
     }
@@ -295,9 +299,15 @@ void Cvr2DTexPage::render(SoState * state,
       }
 
       // rendering
-      Cvr2DTexSubPage * page = this->getSubPage(col, row, transferfunc);
-      if (page == NULL) { page = this->buildSubPage(col, row, transferfunc); }
-      page->setActivePage(tick);
+
+      Cvr2DTexSubPage * page = NULL;
+      Cvr2DTexSubPageItem * pageitem = this->getSubPage(col, row, transferfunc);
+      if (pageitem == NULL) { pageitem = this->buildSubPage(col, row, transferfunc); }
+      assert(pageitem != NULL);
+      assert(pageitem->page != NULL);
+
+      pageitem->page->activate();
+      pageitem->lasttick = tick;
 
       glBegin(GL_QUADS);
       glColor4f(1, 1, 1, 1);
@@ -352,34 +362,19 @@ Cvr2DTexPage::calcSubPageIdx(int row, int col) const
 /*!
   Builds a page if it doesn't exist. Rebuilds it if it does exist.
 */
-Cvr2DTexSubPage *
+Cvr2DTexSubPageItem *
 Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
 {
   assert(this->reader);
   assert(transferfunc);
 
-  // Does the page exist already?
-  Cvr2DTexSubPage * page = this->getSubPage(col, row, transferfunc);
-  if (!page) {
-    // First Cvr2DTexSubPage ever in this slice?
-    if (this->subpages == NULL) {
-      int nrpages = this->numCols * this->numRows;
-      this->subpages = new Cvr2DTexSubPageItem*[nrpages];
-      for (int i=0; i < nrpages; i++) { this->subpages[i] = NULL; }
-    }
+  assert(this->getSubPage(col, row, transferfunc) == NULL);
 
-    page = new Cvr2DTexSubPage;
-    Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
-
-    Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
-    if (p == NULL) {
-      this->subpages[this->calcSubPageIdx(row, col)] = pitem;
-    }
-    else {
-      while (p->next != NULL) { p = p->next; }
-      p->next = pitem;
-      pitem->prev = p;
-    }
+  // First Cvr2DTexSubPage ever in this slice?
+  if (this->subpages == NULL) {
+    int nrpages = this->numCols * this->numRows;
+    this->subpages = new Cvr2DTexSubPageItem*[nrpages];
+    for (int i=0; i < nrpages; i++) { this->subpages[i] = NULL; }
   }
 
   SbBox2s subSlice = SbBox2s(col * this->pageSize[0],
@@ -401,30 +396,35 @@ Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
                                                          this->pageSize);
   delete[] texture;
 
+  // FIXME: paletted textures not supported yet. 20021119 mortene.
   float * palette = NULL;
-  int paletteDataType = 0;
   int paletteSize = 0;
 
-  // FIXME: paletted textures not supported yet. 20021119 mortene.
-
-  page->setData((unsigned char *)transferredTexture,
-                this->pageSize,
-                palette, paletteDataType, paletteSize);
-
-  // FIXME: this is used to invalidate a page (as far as I can see),
-  // but AFAICT there is no code for actually cleaning it out (or is
-  // that handled automatically by the LRU
-  // algos?). Investigate. 20021111 mortene.
-  page->transferFunctionId = transferfunc->getNodeId();
+  Cvr2DTexSubPage * page =
+    new Cvr2DTexSubPage((const uint8_t *)transferredTexture, this->pageSize,
+                        palette, paletteSize);
 
   delete[] transferredTexture;
   delete[] palette;
+
+  Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
+  pitem->transferfuncid = transferfunc->getNodeId();
+
+  Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
+  if (p == NULL) {
+    this->subpages[this->calcSubPageIdx(row, col)] = pitem;
+  }
+  else {
+    while (p->next != NULL) { p = p->next; }
+    p->next = pitem;
+    pitem->prev = p;
+  }
 
   this->numTexels += this->pageSize[0] * this->pageSize[1];
   this->numPages++;
   this->numBytesHW += page->numBytesHW;
 
-  return page;
+  return pitem;
 }
 
 
@@ -615,8 +615,9 @@ SoTransferFunctionP::pack(void * data, int numbits, int index, int val)
 
 #endif // TMP DISABLED code
 
-Cvr2DTexSubPage *
-Cvr2DTexPage::getSubPage(int col, int row, SoTransferFunction * transferfunc)
+Cvr2DTexSubPageItem *
+Cvr2DTexPage::getSubPage(int col, int row,
+                         SoTransferFunction * transferfunc)
 {
   if (this->subpages == NULL) return NULL;
 
@@ -626,9 +627,9 @@ Cvr2DTexPage::getSubPage(int col, int row, SoTransferFunction * transferfunc)
   Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
 
   while (p != NULL) {
-    if (p->page->transferFunctionId == transferfunc->getNodeId()) break;
+    if (p->transferfuncid == transferfunc->getNodeId()) break;
     p = p->next;
   }
 
-  return p ? p->page : NULL;
+  return p;
 }

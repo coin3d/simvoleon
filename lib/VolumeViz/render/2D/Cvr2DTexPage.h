@@ -15,12 +15,6 @@ public:
   Cvr2DTexPage(void);
   ~Cvr2DTexPage();
 
-  Cvr2DTexSubPage * getSubPage(int col, int row,
-                               SoTransferFunction * transferfunc);
-
-  Cvr2DTexSubPage * buildSubPage(int col, int row,
-                                 SoTransferFunction * transferfunc);
-
   void init(SoVolumeReader * reader, int sliceIdx,
             SoOrthoSlice::Axis axis, const SbVec2s & pageSize);
 
@@ -40,6 +34,12 @@ public:
   int numBytesHW;
 
 private:
+  class Cvr2DTexSubPageItem * getSubPage(int col, int row,
+                                         SoTransferFunction * transferfunc);
+
+  class Cvr2DTexSubPageItem * buildSubPage(int col, int row,
+                                           SoTransferFunction * transferfunc);
+
   void releaseLRUSubPage(void);
   void releaseAllSubPages(void);
 
