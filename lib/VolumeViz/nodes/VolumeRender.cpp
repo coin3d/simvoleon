@@ -6,6 +6,11 @@
 #include <Inventor/system/gl.h>
 #include <Inventor/SbLine.h>
 #include <Inventor/SbPlane.h>
+#include <Inventor/elements/SoLazyElement.h>
+#include <Inventor/elements/SoGLTextureEnabledElement.h>
+#include <Inventor/elements/SoGLTexture3EnabledElement.h>
+#include <Inventor/bundles/SoMaterialBundle.h>
+#include <Inventor/C/tidbits.h>
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
@@ -34,6 +39,8 @@ public:
     delete this->pagehandler;
   }
 
+  void rayPickDebug(SoGLRenderAction * action);
+
   unsigned int calculateNrOfSlices(SoGLRenderAction * action,
                                    const SbVec3s & dimensions);
 
@@ -42,12 +49,27 @@ public:
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
   void * abortfuncdata;
 
+  SbList<SbVec3f> raypicklines; // debug
+
 private:
   SoVolumeRender * master;
 };
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
+
+static SbBool
+cvr_debug_raypicks(void)
+{
+  // If this environment flag is set, render the ray pick lines (for
+  // debugging purposes).
+  static int CVR_DEBUG_RAYPICKS = -1;
+  if (CVR_DEBUG_RAYPICKS == -1) {
+    const char * env = coin_getenv("CVR_DEBUG_RAYPICKS");
+    CVR_DEBUG_RAYPICKS = env && (atoi(env) > 0);
+  }
+  return (CVR_DEBUG_RAYPICKS == 0) ? FALSE : TRUE;
+}
 
 unsigned int
 SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
@@ -236,6 +258,8 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 {
   if (!this->shouldGLRender(action)) return;
 
+  if (cvr_debug_raypicks()) { PRIVATE(this)->rayPickDebug(action); }
+
   SoState * state = action->getState();
 
   // Fetching the current volumedata
@@ -352,11 +376,11 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
   fprintf(stdout, "maxcorner: "); maxcorner.print(stdout); fprintf(stdout, "\n"); fflush(stdout);
 
   SbPlane sides[6] = {
-    SbPlane(SbVec3f(0, 0, -1), mincorner[2]), // front face
+    SbPlane(SbVec3f(0, 0, 1), mincorner[2]), // front face
     SbPlane(SbVec3f(0, 0, 1), maxcorner[2]), // back face
-    SbPlane(SbVec3f(-1, 0, 0), mincorner[0]), // left face
+    SbPlane(SbVec3f(1, 0, 0), mincorner[0]), // left face
     SbPlane(SbVec3f(1, 0, 0), maxcorner[0]), // right face
-    SbPlane(SbVec3f(0, -1, 0), mincorner[1]), // bottom face
+    SbPlane(SbVec3f(0, 1, 0), mincorner[1]), // bottom face
     SbPlane(SbVec3f(0, 1, 0), maxcorner[1]) // top face
   };
 
@@ -367,17 +391,13 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
   for (unsigned int i=0; i < (sizeof(sides) / sizeof(sides[0])); i++) {
     SbVec3f intersectpt;
     if (sides[i].intersect(ray, intersectpt)) {
-      intersectpt.print(stdout); fprintf(stdout, "\n"); fflush(stdout);
-
       const int axisidx0 = cmpindices[i / 2][0];
       const int axisidx1 = cmpindices[i / 2][1];
-      printf("axisidx = %d, %d\n", axisidx0, axisidx1);
 
       if ((intersectpt[axisidx0] >= mincorner[axisidx0]) &&
           (intersectpt[axisidx0] <= maxcorner[axisidx0]) &&
           (intersectpt[axisidx1] >= mincorner[axisidx1]) &&
           (intersectpt[axisidx1] <= maxcorner[axisidx1])) {
-        printf("hit!\n");
         intersects[nrintersect++] = intersectpt;
         // Break if we happen to hit more than three sides (could
         // perhaps happen in borderline cases).
@@ -387,10 +407,22 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
   }
 
 
-  // Borderline case, ignore.
+  // Borderline case, ignore pick attempt.
   if (nrintersect < 2) { return; }
 
   assert(nrintersect == 2);
+
+  // Sort so first index is the one closest to ray start.
+  if ((ray.getPosition() - intersects[0]).sqrLength() >
+      (ray.getPosition() - intersects[1]).sqrLength()) {
+    SbSwap(intersects[0], intersects[1]);
+  }
+
+  if (cvr_debug_raypicks()) {
+    PRIVATE(this)->raypicklines.append(intersects[0]);
+    PRIVATE(this)->raypicklines.append(intersects[1]);
+    this->touch(); // smash caches and re-render with line(s)
+  }
 
 //       if (action->isBetweenPlanes(intersectpt)) {
 //       SoPickedPoint * pp = action->addIntersection(intersectpt);
@@ -471,4 +503,37 @@ SoVolumeRender::setAbortCallback(SoVolumeRenderAbortCB * func, void * userdata)
 {
   PRIVATE(this)->abortfunc = func;
   PRIVATE(this)->abortfuncdata = userdata;
+}
+
+// Will render the intersection lines for all ray picks attempted so
+// far. For debugging purposes only.
+void
+SoVolumeRenderP::rayPickDebug(SoGLRenderAction * action)
+{
+  SoState * state = action->getState();
+  state->push();
+
+  static SoColorPacker * cp = new SoColorPacker;
+  static SbColor linecol(1, 1, 0);
+  SoLazyElement::setDiffuse(state, PUBLIC(this), 1, &linecol, cp);
+
+  // disable lighting
+  SoLazyElement::setLightModel(state, SoLazyElement::BASE_COLOR);
+  // disable texture mapping
+  SoGLTextureEnabledElement::set(state, PUBLIC(this), FALSE);
+  SoGLTexture3EnabledElement::set(state, PUBLIC(this), FALSE);
+
+  SoMaterialBundle mb(action);
+  mb.sendFirst(); // set current color
+
+  for (int i=0; i < this->raypicklines.getLength(); i += 2) {
+    const SbVec3f & v0 = this->raypicklines[i];
+    const SbVec3f & v1 = this->raypicklines[i + 1];
+    glBegin(GL_LINES);
+    glVertex3f(v0[0], v0[1], v0[2]);
+    glVertex3f(v1[0], v1[1], v1[2]);
+    glEnd();
+  }
+
+  state->pop();
 }
