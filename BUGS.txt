@@ -244,3 +244,12 @@
     20040817 mortene.
 
 ========================================================================
+
+016 SoVolumeSkin ray-picks should generate an SoVolumeSkinDetail.
+
+    ..to be compatible with TGS VolumeViz. Not yet implemented in SIM
+    Voleon, should be taken care of.
+
+    20040902 mortene.
+ 
+========================================================================
