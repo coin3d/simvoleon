@@ -84,7 +84,7 @@ public:
                                   void * userdata);
 
 private:
-  void renderSlices(const SoGLRenderAction * action);
+  void renderSlices(const SoGLRenderAction * action, SbBool wireframe);
   void renderBBox(void) const;
 
   void activateCLUT(const SoGLRenderAction * action); 
@@ -109,7 +109,6 @@ private:
   SbList <SbVec3f *> texcoordlist;
 
   SbPlane clipplanes[6];
-
 };
 
 #endif // !SIMVOLEON_CVR3DTEXSUBPAGE_H

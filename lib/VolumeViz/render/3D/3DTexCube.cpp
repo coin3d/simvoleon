@@ -208,8 +208,21 @@ Cvr3DTexCube::renderResult(const SoGLRenderAction * action,
 // represented by this object. Loads all the cubes needed.
 void
 Cvr3DTexCube::render(const SoGLRenderAction * action,
-                     const unsigned int numslices)
+                     unsigned int numslices)
 {
+  // For debugging purposes, make it possible to override the number
+  // of slices to render with an envvar:
+  static unsigned int forcednumslices = UINT_MAX;
+  if (forcednumslices == UINT_MAX) {
+    const char * env = coin_getenv("CVR_DEBUG_MAX_SLICES");
+    int num = 0;
+    if (env) { num = atoi(env); }
+    assert(num >= 0);
+    forcednumslices = num;
+  }
+  if (forcednumslices != 0) { numslices = forcednumslices; }
+
+
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
 
   SoState * state = action->getState();

@@ -30,20 +30,14 @@
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/SbClip.h>
-#include <Inventor/SbColor.h>
+#include <Inventor/SbMatrix.h>
+#include <Inventor/SbViewVolume.h>
 #include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/elements/SoLazyElement.h>
-#include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/errors/SoDebugError.h>
-#include <Inventor/projectors/SbPlaneProjector.h>
 
-#include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
-#include <VolumeViz/render/common/Cvr3DRGBATexture.h>
-#include <VolumeViz/render/common/CvrPaletteTexture.h>
-#include <VolumeViz/render/common/CvrRGBATexture.h>
 
 // *************************************************************************
 
@@ -300,7 +294,6 @@ Cvr3DTexSubCube::intersectSlice(const SbViewVolume & viewvolume,
                                 const float viewdistance,
                                 const SbMatrix & m)
 {
-
   SbClip cubeclipper(this->subcube_clipperCB, this);
   cubeclipper.reset();
 
@@ -331,7 +324,6 @@ Cvr3DTexSubCube::intersectSlice(const SbViewVolume & viewvolume,
   cubeclipper.addVertex(d);
 
   this->clipPolygonAgainstCube(cubeclipper);
-
 }
 
 // Internal method
@@ -371,34 +363,23 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper)
     this->texcoordlist.truncate(0);
     
     this->volumeslices.append(slice);
-    return;
   }
-
-  return;
-
 }
 
 // *************************************************************************
 
 void
-Cvr3DTexSubCube::renderSlices(const SoGLRenderAction * action)
+Cvr3DTexSubCube::renderSlices(const SoGLRenderAction * action, SbBool wireframe)
 {
-  // FIXME: A separate method for rendering sorted tris should be
-  // made. This would be useful for the facesets. (20040630 handegar)
-
-  if (CvrUtil::doDebugging() && FALSE) {
-    SoDebugError::postInfo("Cvr3DTexSubCube::render",
-                           "slices==%d", this->volumeslices.getLength());
+  if (wireframe) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   }
-
-  if (this->volumeslices.getLength() == 0)
-    return;
-
-  // Texture binding/activation must happen before setting the
-  // palette, or the previous palette will be used.
-  this->textureobject->activateTexture(action);
-  if (this->textureobject->isPaletted())  // Switch on palette rendering
-    this->activateCLUT(action);
+  else {
+    // Texture binding/activation must happen before setting the
+    // palette, or the previous palette will be used.
+    this->textureobject->activateTexture(action);
+    if (this->textureobject->isPaletted()) { this->activateCLUT(action); }
+  }
 
   if (CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -406,44 +387,62 @@ Cvr3DTexSubCube::renderSlices(const SoGLRenderAction * action)
   // FIXME: Maybe we should build a vertex array instead of making
   // glVertex3f calls. Would probably give a performance
   // boost. (20040312 handegar)
+  //
+  // COMMENT 20040804 mortene: sounds unlikely to be a significant
+  // bottleneck, IMHO.
 
-  for(int i=this->volumeslices.getLength()-1;i>=0;--i) {
+  for (int i = this->volumeslices.getLength()-1; i >= 0; --i) {
+    struct subcube_slice & slice = this->volumeslices[i];
 
     glBegin(GL_TRIANGLE_FAN);
-    for (int j=0;j<this->volumeslices[i].vertex.getLength(); ++j) {
-      glTexCoord3fv(this->volumeslices[i].texcoord[j].getValue());
-      glVertex3fv(this->volumeslices[i].vertex[j].getValue());
+    for (int j = 0; j < slice.vertex.getLength() ; ++j) {
+      glTexCoord3fv(slice.texcoord[j].getValue());
+      glVertex3fv(slice.vertex[j].getValue());
     }
     glEnd();
 
-    this->volumeslices[i].vertex.truncate(0);
-    this->volumeslices[i].texcoord.truncate(0);
+    slice.vertex.truncate(0);
+    slice.texcoord.truncate(0);
 
     assert(glGetError() == GL_NO_ERROR);
   }
 
   this->volumeslices.truncate(0);
 
-  if (this->textureobject->isPaletted()) // Switch OFF palette rendering
+  if (!wireframe && this->textureobject->isPaletted()) {
     this->deactivateCLUT(action);
-
+  }
 }
 
 void
 Cvr3DTexSubCube::render(const SoGLRenderAction * action)
 {
-  // 0: as usual, 1: with slice wireframes, 2: only wireframes
+  // FIXME: A separate method for rendering sorted tris should be
+  // made. This would be useful for the facesets. (20040630 handegar)
+  //
+  // COMMENT 20040804 mortene: I don't understand this FIXME, please
+  // elaborate.
+
+  if (CvrUtil::doDebugging() && FALSE) {
+    SoDebugError::postInfo("Cvr3DTexSubCube::render",
+                           "slices==%d", this->volumeslices.getLength());
+  }
+
+  // FIXME: can this actually ever happen (without it being a bug)?
+  // If so, please explain how, in a code comment. 20040804 mortene.
+  if (this->volumeslices.getLength() == 0) { return; }
+
+  // 0: as usual, 1: added box wireframes, 2: only slice wireframes
   const unsigned int renderstyle = CvrUtil::debugRenderStyle();
 
-  if (renderstyle != 2) { this->renderSlices(action); }
-  if (renderstyle != 0) { this->renderBBox(); }
+  this->renderSlices(action, renderstyle == 2);
+  if (renderstyle == 1) { this->renderBBox(); }
 }
 
 // For debugging purposes
 void
 Cvr3DTexSubCube::renderBBox(void) const
 {
-
   glDisable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_TEXTURE_2D);
@@ -462,7 +461,6 @@ Cvr3DTexSubCube::renderBBox(void) const
   glVertex3fv((this->origo + SbVec3f(0, this->dimensions[1], this->dimensions[2])).getValue());
   glVertex3fv((this->origo + SbVec3f(0, 0, this->dimensions[2])).getValue());
   glEnd();
-
 }
 
 // *************************************************************************

@@ -24,21 +24,18 @@
  *
 \**************************************************************************/
 
-#include <Inventor/SbBox2f.h>
-#include <Inventor/SbVec3f.h>
-#include <Inventor/SbVec3s.h>
-
-#include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoObliqueSlice.h>
 
 // *************************************************************************
 
 class Cvr3DTexCube;
+class CvrCLUT;
 class SoVolumeReader;
 class SoVolumeData;
 class SoState;
 class SoGLRenderAction;
+class SbVec3f;
 
 // *************************************************************************
 

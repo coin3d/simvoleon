@@ -41,8 +41,7 @@ public:
   enum NonindexedSetType { FACE_SET, TRIANGLESTRIP_SET };
   enum IndexedSetType { INDEXEDFACE_SET, INDEXEDTRIANGLESTRIP_SET };
 
-  void render(const SoGLRenderAction * action, 
-              const unsigned int numslices);
+  void render(const SoGLRenderAction * action, unsigned int numslices);
 
   void renderObliqueSlice(const SoGLRenderAction * action,
                           const SbPlane plane);

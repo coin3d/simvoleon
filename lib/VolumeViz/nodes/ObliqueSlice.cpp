@@ -54,24 +54,22 @@
 
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/actions/SoRayPickAction.h>
-#include <Inventor/errors/SoDebugError.h>
-#include <Inventor/elements/SoLazyElement.h>
-#include <Inventor/elements/SoGLLazyElement.h>
+#include <Inventor/SbBox3s.h>
 #include <Inventor/SbRotation.h>
 #include <Inventor/SoPickedPoint.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/actions/SoRayPickAction.h>
+#include <Inventor/elements/SoGLLazyElement.h>
+#include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
+#include <Inventor/errors/SoDebugError.h>
 
 #include <VolumeViz/details/SoObliqueSliceDetail.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/render/3D/Cvr3DTexCube.h>
-#include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
 #include <VolumeViz/render/3D/CvrCubeHandler.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
 // *************************************************************************
