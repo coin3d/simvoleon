@@ -36,7 +36,7 @@
   \sa SoVolumeFaceSet, SoVolumeRender, SoOrthoSlice, SoObliqueSlice
   \sa SoVolumeIndexedTriangleStripSet, SoVolumeTriangleStripSet
 
-  \since SIM Voleon 1.1
+  \since SIM Voleon 2.0
 */
 
 // *************************************************************************

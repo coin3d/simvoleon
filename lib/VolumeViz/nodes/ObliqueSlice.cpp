@@ -45,7 +45,7 @@
   \sa SoVolumeTriangleStripSet, SoVolumeIndexedTriangleStripSet, 
   \sa SoVolumeIndexedFaceSet, SoVolumeFaceSet 
 
-  \since SIM Voleon 1.1
+  \since SIM Voleon 2.0
 */
 
 // *************************************************************************

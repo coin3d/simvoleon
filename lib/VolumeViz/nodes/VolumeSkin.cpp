@@ -37,7 +37,7 @@
 
   \sa SoVolumeRender, SoTransferFunction, SoOrthoSlice
 
-  \since SIM Voleon 1.1
+  \since SIM Voleon 2.0
 */
 
 // *************************************************************************
