@@ -18,20 +18,6 @@
 
 
 static void
-changeTransferColormap(void * d, SoSensor * sensor)
-{
-  SoTransferFunction * tf = (SoTransferFunction *)d;
-
-  int newval= (tf->predefColorMap.getValue() + 1);
-  newval %= (SoTransferFunction::SEISMIC + 1);
-  if (newval == 0) newval = SoTransferFunction::GREY;
-
-  SoDebugError::postInfo("changeTransferColormap", "newval==%d", newval);
-
-  tf->predefColorMap = newval;
-}
-
-static void
 setColorMapALPHA(SoMFFloat * cmap)
 {
   cmap->setNum(256);
@@ -119,10 +105,7 @@ main(int argc, char ** argv)
 
   root->addChild(voldata);
 
-  // Add TransferFunction (color map) to scene graph
   SoTransferFunction * transfunc = new SoTransferFunction();
-  if (argc == 3) transfunc->predefColorMap = atoi(argv[2]); // XXX
-//   transfunc->reMap(64, 192);
   root->addChild(transfunc);
 
   TransferFunctionHandler * tfdia = new TransferFunctionHandler(transfunc);
@@ -145,12 +128,6 @@ main(int argc, char ** argv)
   So@Gui@ExaminerViewer * ex = new So@Gui@ExaminerViewer(window);
   ex->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
   ex->setSceneGraph(root);
-
-#if 0
-  SoTimerSensor sensor(changeTransferColormap, transfunc);
-  sensor.setInterval(10);
-  sensor.schedule();
-#endif
 
   ex->show();
   So@Gui@::show(window);
