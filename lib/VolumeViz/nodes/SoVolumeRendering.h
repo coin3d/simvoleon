@@ -32,7 +32,7 @@
 class SIMVOLEON_DLL_API SoVolumeRendering : public SoNode {
   typedef SoNode inherited;
 
-  SO_NODE_HEADER(SoVolumeRendering);
+  SO_NODE_ABSTRACT_HEADER(SoVolumeRendering);
 
 public:
   static void init(void);

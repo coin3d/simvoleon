@@ -276,7 +276,7 @@
 
 // *************************************************************************
 
-SO_NODE_SOURCE(SoVolumeRendering);
+SO_NODE_ABSTRACT_SOURCE(SoVolumeRendering);
 
 // *************************************************************************
 
@@ -359,7 +359,7 @@ SoVolumeRendering::init(void)
 void
 SoVolumeRendering::initClass(void)
 {
-  SO_NODE_INIT_CLASS(SoVolumeRendering, SoNode, "SoNode");
+  SO_NODE_INIT_ABSTRACT_CLASS(SoVolumeRendering, SoNode, "SoNode");
 }
 
 SoVolumeRendering::HW_SupportStatus
