@@ -1,7 +1,7 @@
 
 INCLUDES = -I$(top_srcdir)/lib
 
-SUBDIRS = details elements nodes readers misc .
+SUBDIRS = elements nodes readers misc .
 
 if BUILD_WITH_MSVC
 lib_LIBRARIES = VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib
@@ -12,7 +12,6 @@ endif
 libVolumeViz_la_SOURCES =
 
 libVolumeViz_la_LIBADD = \
-        details/libdetails.la \
         elements/libelements.la \
 	nodes/libnodes.la \
         readers/libreaders.la \
@@ -25,7 +24,6 @@ libVolumeViz_la_LDFLAGS = \
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES =
 
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD = \
-        details/details.lst \
         elements/elements.lst \
         nodes/nodes.lst \
         readers/readers.lst \
@@ -81,7 +79,6 @@ uninstall-local:
 	done; \
 	incbasedir="$(DESTDIR)$(includedir)/VolumeViz"; \
 	for dir in \
-	  "$$incbasedir/details" \
 	  "$$incbasedir/elements" \
 	  "$$incbasedir/nodes" \
 	  "$$incbasedir/readers" \
