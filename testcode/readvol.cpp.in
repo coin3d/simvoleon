@@ -7,12 +7,15 @@
 #include <Inventor/nodes/SoLightModel.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoTransformSeparator.h>
 #include <Inventor/nodes/SoScale.h>
+#include <Inventor/nodes/SoEventCallback.h>
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/sensors/SoTimerSensor.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/manips/SoClipPlaneManip.h>
+#include <Inventor/events/SoKeyboardEvent.h>
 
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
@@ -56,6 +59,21 @@ setColorMapRGBA(SoMFFloat * cmap)
   }
 }
 
+static const char * MANIPSWITCH = "manipswitch";
+
+static void
+event_cb(void * userdata, SoEventCallback * node)
+{
+  // Switch manip in/out of scene graph with 'm'.
+  if (SO_KEY_PRESS_EVENT(node->getEvent(), M)) {
+    SoSwitch * manipswitch = (SoSwitch *)
+      SoBase::getNamedBase(MANIPSWITCH, SoSwitch::getClassTypeId());
+    assert(manipswitch);
+    const int val = manipswitch->whichChild.getValue();
+    manipswitch->whichChild = (val == SO_SWITCH_NONE) ? SO_SWITCH_ALL : SO_SWITCH_NONE;
+  }
+}
+
 int
 main(int argc, char ** argv)
 {
@@ -67,8 +85,13 @@ main(int argc, char ** argv)
   @WIDGET@ window = So@Gui@::init(argv[0]);
   SoVolumeRendering::init();
 
-  SoSeparator *root = new SoSeparator;
+  SoSeparator * root = new SoSeparator;
   root->ref();
+
+  // To catch keypresses.
+  SoEventCallback * event = new SoEventCallback;
+  root->addChild(event);
+  event->addEventCallback(SoKeyboardEvent::getClassTypeId(), event_cb, NULL);
 
   SoVRVolFileReader * filereader = new SoVRVolFileReader;
   filereader->setUserData(argv[1]);
@@ -81,11 +104,6 @@ main(int argc, char ** argv)
   // Add VolumeData to scene graph
   SoVolumeData * voldata = new SoVolumeData();
   voldata->setReader(filereader);
-  // FIXME: if setVolumeSize() is not invoked, no default is set, it
-  // seems. 20021120 mortene.
-//   voldata->setVolumeSize(SbBox3f(-1, -1, -1, 1, 1, 1));
-//   voldata->setVolumeSize(SbBox3f(-2, -2, -1, 2, 2, 1));
-//   voldata->setVolumeSize(SbBox3f(-160, -160, -17, 160, 160, 17));
 
   { // Show bounding box.
     SoSeparator * bboxsep = new SoSeparator;
@@ -146,10 +164,16 @@ main(int argc, char ** argv)
 
     SoTranslation * trans = new SoTranslation;
     trans->translation.setValue(- dx / 2.0f, 0, 0);
+
+    // Use a group node above the manip to make it simple to switch it
+    // in and out of the graph.
+    SoSwitch * manipswitch = new SoSwitch;
+    manipswitch->whichChild = SO_SWITCH_NONE;
+    manipswitch->setName(MANIPSWITCH); // Name it so we can easily grab it.
+    sep->addChild(manipswitch);
     
-    // XXX
-//     SoClipPlaneManip * clipplane = new SoClipPlaneManip;
-//     sep->addChild(clipplane);
+    SoClipPlaneManip * clipplane = new SoClipPlaneManip;
+    manipswitch->addChild(clipplane);
   }
 
   // Add VolumeRender to scene graph
