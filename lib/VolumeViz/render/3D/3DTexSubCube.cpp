@@ -303,7 +303,7 @@ Cvr3DTexSubCube::intersectSlice(const SbViewVolume & viewvolume,
 
   // FIXME: Can we rewrite this to support viewport shells for proper
   // perspective? (20040227 handegar)
-  // NOTE: If viewport shells is to be support, a separate method
+  // NOTE: If viewport shells is to be supported, a separate method
   // must be added for the standard ObliqueSlice rendering.
 
   SbVec3f a, b, c, d;
