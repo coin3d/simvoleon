@@ -45,8 +45,8 @@ public:
   // need it. 20021107 mortene.
   //
   // FIXME: these really indicate the number of bytes pr voxel in
-  // internal storage. Should at least set up synonym enum values that
-  // reflects this fact better. 20021111 mortene.
+  // internal storage. Should at least set up synonymous enum values
+  // that reflects this fact better. 20021111 mortene.
   enum DataType { UNSIGNED_BYTE, UNSIGNED_SHORT, RGBA };
 
   SoSFString fileName;

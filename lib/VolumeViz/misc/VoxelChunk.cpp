@@ -219,7 +219,8 @@ CvrVoxelChunk::usePaletteTextures(SoGLRenderAction * action)
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
 
   // Check if paletted textures is wanted by the app programmer.
-  SbBool usepalettetex = volumedatanode->usePalettedTexture.getValue();
+  const SbBool apiusepalette = volumedatanode->usePalettedTexture.getValue();
+  SbBool usepalettetex = apiusepalette;
 
   const char * env;
   static int force_paletted = -1; // "-1" means "undecided"
@@ -232,14 +233,21 @@ CvrVoxelChunk::usePaletteTextures(SoGLRenderAction * action)
   if (force_rgba) usepalettetex = FALSE;
 
   // If we requested paletted textures, does OpenGL support them?
-  // (FIXME: one more thing to check versus OpenGL is that the
-  // palette size can fit.)
-  usepalettetex = usepalettetex && cc_glglue_has_paletted_textures(glw);
+  //
+  // (FIXME: one more thing to check versus OpenGL is that the palette
+  // size can fit. 2003???? mortene.)
+  const SbBool haspalettetextures = cc_glglue_has_paletted_textures(glw);
+  usepalettetex = usepalettetex && haspalettetextures;
 
   static SbBool first = TRUE;
   if (first && CvrUtil::doDebugging()) {
     SoDebugError::postInfo("CvrVoxelChunk::usePaletteTextures",
-                           "returns %s", usepalettetex ? "TRUE" : "FALSE");
+                           "returns %d (SoVolumeData::usePalettedTexture==%d, "
+                           "force_paletted==%d, force_rgba==%d, "
+                           "OpenGL-has-palette-textures==%d)",
+                           usepalettetex,
+                           apiusepalette, force_paletted, force_rgba,
+                           haspalettetextures);
     first = FALSE;
   }
 
