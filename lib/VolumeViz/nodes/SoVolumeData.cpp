@@ -158,7 +158,19 @@ MEMORY MANAGEMENT
 
 
 
-READERS
+RENDERING
+
+  A SoVolumeRender is nothing but a SoROI which renders the entire
+  volume. And this is how it should be implemented. But this is not
+  how it is implemented now. :) The GLRender-function for both SoROI
+  and SoVolumeRender is more or less identical, and they should share
+  some common render function capable of rendering an entire
+  volume. This should in turn use a slice rendering-function similar
+  to SoVolumeDataSlice::render.
+
+
+
+VOLUMEREADERS
 
   Currently, only a reader of memory provided data is implemented
   (SoVRMemReader). SoVolumeData uses the interface specified with
@@ -170,17 +182,34 @@ READERS
   be run over again.  This requirement differs from TGS as their
   implementation loads all data once specified a reader (I guess).
 
+  The TGS interface for SoVolumeReader contains a function getSubSlice
+  with the following definition:
 
+  void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data)
+                  
+  It returns a subslice within a specified slice along the z-axis. This 
+  means that the responsibility for building slices along X and Y-axis 
+  lies within the reader-client.When generating textures along either 
+  x- or y-axis, this requires a significant number of iterations, one 
+  for each slice along the z-axis. This will in turn trigger plenty 
+  filereads at different disklocations, and your disk's heads will have 
+  a disco showdown the Travolta way. I've extended the interface as 
+  following:
 
-RENDERING
+  void getSubSlice(SbBox2s &subSlice, 
+                   int sliceNumber, 
+                   void * data,
+                   SoVolumeRendering::Axis axis = SoVolumeRendering::Z)
 
-  A SoVolumeRender is nothing but a SoROI which renders the entire
-  volume. And this is how it should be implemented. But this is not
-  how it is implemented now. :) The GLRender-function for both SoROI
-  and SoVolumeRender is more or less identical, and they should share
-  some common render function capable of rendering an entire
-  volume. This should in turn use a slice rendering-function similar
-  to SoVolumeDataSlice::render.
+  This moves the responsibility for building slices to the reader. 
+  It makes it possible to exploit fileformats with possible clever
+  data layout, and if the fileformat/input doesn't provide intelligent
+  organization, it still wouldn't be any slower. The only drawback is 
+  that some functionality would be duplicated among several readers 
+  and making them more complicated.
+
+  The consequences is that readers developed for TGS's implementation 
+  would not work with ours, but the opposite should work just fine.
 
 
 
@@ -196,9 +225,54 @@ TODO
 
 REFACTORING
 
-  - hva jeg synes er mest gjenbrukbart ved en refaktorering
+  Rumours has it that parts of this library will be refactored and 
+  extracted into a more or less external c-library. This is a 
+  very good idea, and it is already partially implemented through
+  SoVolumeDataPage and SoVolumeDataSlice. This library should be as 
+  decoupled from Coin as possible, but it would be a lot of work to 
+  build a completely standalone one. An intermediate layer between 
+  the lib and Coin would be required, responsible for translating all
+  necessary datastructures (i.e. readers and transferfunctions), 
+  functioncalls and opengl/coin-states. 
+  
+  The interface of the library should be quite simple and would 
+  probably require the following:
+  * A way to support the library with data and data characteristics. 
+    Should be done by providing the lib with pointers to 
+    SoVolumeReader-objects. 
+  * Renderingfunctionality. Volumerendering and slicerendering, 
+    specifying location in space, texturecoordinates in the volume and
+    transferfunction.
+  * Functionality to specify maximum resource usage by the lib. 
+  * Preferred storage- and rendering-technique. 
+
+  etc etc...
+
+  Conclusion: This interface came out quite obvious. :) And it will 
+  end up a lot like the existing one, except that most of the code in
+  SoVolumeData will be pushed into this lib. As mentioned, the lib
+  will rely heavily on different Coin-classes, especially SoState, 
+  SoVolumeReader and SoTransferFunction and must be designed to fit
+  with these.
+
+  The renderingcode is totally independent of the dataformats of 
+  textures. (RGBA, paletted etc), and may be reused with great ease 
+  whereever needed in the new lib. This code is located in 
+  SoVolumeDataSlice::Render and i.e. SoVolumeRender::GLRender. 
+  I actually spent quite some time implementing the slicerendering, 
+  getting all the interpolation correct when switching from one page 
+  to another within the same arbitrary shaped quad. 
+  SoVolumeRender::GLRender is more straightforward, but it should be 
+  possible to reuse the same loop for all three axis rendering the code 
+  more elegant. And it's all about the looks, isn't it? 
+
+  All headerfiles are copied from TGS reference manual, and should be 
+  consistent with the TGS VolumeViz-interface (see "VOLUMEREADERS").
 
 
+
+  
+  torbjorv 08292002
 */
 
 // *************************************************************************
