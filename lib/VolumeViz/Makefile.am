@@ -1,13 +1,19 @@
 # Note misc/ must be built after nodes/gradients/.
 SUBDIRS = C caches details elements nodes misc readers render .
 
+# **************************************************************************
+
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
+
+# **************************************************************************
 
 if BUILD_WITH_MSVC
 lib_LIBRARIES = simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.lib
 else
 lib_LTLIBRARIES = libSimVoleon@SUFFIX@.la
 endif
+
+# **************************************************************************
 
 # Adding in a dummy C++ source code file to "trick" Automake to set
 # us up with C++ $CXXLD for linking (and not the default C $CCLD).
@@ -54,6 +60,14 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.lib: Makefile \
 	$(CC) $(LDFLAGS) $(LIBFLAGS) \
 	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS) \
 	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD) $(LIBS);
+
+
+# **************************************************************************
+
+CLEANFILES = \
+	simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.pdb \
+	simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.dll \
+	simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.exp
 
 # **************************************************************************
 
@@ -110,3 +124,4 @@ uninstall-local:
 	done; \
 	:
 
+# **************************************************************************

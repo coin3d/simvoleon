@@ -190,10 +190,16 @@ voleon_src_dir = @voleon_src_dir@
 # Note misc/ must be built after nodes/gradients/.
 SUBDIRS = C caches details elements nodes misc readers render .
 
+
+# **************************************************************************
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
+
+# **************************************************************************
 @BUILD_WITH_MSVC_TRUE@lib_LIBRARIES = simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.lib
 @BUILD_WITH_MSVC_FALSE@lib_LTLIBRARIES = libSimVoleon@SUFFIX@.la
+
+# **************************************************************************
 
 # Adding in a dummy C++ source code file to "trick" Automake to set
 # us up with C++ $CXXLD for linking (and not the default C $CCLD).
@@ -229,6 +235,14 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
 libSimVoleon@SUFFIX@_la_LDFLAGS = \
 	-no-undefined \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
+
+
+
+# **************************************************************************
+CLEANFILES = \
+	simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.pdb \
+	simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.dll \
+	simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.exp
 
 subdir = lib/VolumeViz
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -598,6 +612,7 @@ install-strip:
 mostlyclean-generic:
 
 clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
 
 distclean-generic:
 	-rm -f Makefile $(CONFIG_CLEAN_FILES)
@@ -742,6 +757,8 @@ uninstall-local:
 	  fi \
 	done; \
 	:
+
+# **************************************************************************
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
