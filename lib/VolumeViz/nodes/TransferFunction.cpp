@@ -74,6 +74,60 @@ private:
 
 // *************************************************************************
 
+/*!
+  \enum SoTransferFunction::PredefColorMap
+  Predefined color transfer funcions of size 256.
+*/
+/*!
+  \var SoTransferFunction::PredefColorMap SoTransferFunction::NONE
+  \var SoTransferFunction::PredefColorMap SoTransferFunction::GREY
+  Default
+  \var SoTransferFunction::PredefColorMap SoTransferFunction::GRAY
+  Same as GREY
+  \var SoTransferFunction::PredefColorMap SoTransferFunction::TEMPERATURE
+  \var SoTransferFunction::PredefColorMap SoTransferFunction::PYSICS
+  \var SoTransferFunction::PredefColorMap SoTransferFunction::STANDARD
+  \var SoTransferFunction::PredefColorMap SoTransferFunction::GLOW
+  \var SoTransferFunction::PredefColorMap SoTransferFunction::BLUE_RED
+  \var SoTransferFunction::PredefColorMap SoTransferFunction::SEISMIC
+*/
+
+/*!
+  \enum SoTransferFunction::ColorMapType
+  Type of colormap array.
+*/
+/*!
+  \var SoTransferFunction::ColormapType SoTransferFunction::ALPHA
+  Each color entry in the transfer function has only one component.
+  \var SoTransferFunction::ColormapType SoTransferFunction::LUM_ALPHA
+  Each entry has to components, ie. two floats.
+  \var SoTransferFunction::ColormapType SoTransferFunction::RGBA
+  Four floats are used to specify each color of the transfer function.
+*/
+
+/*!
+  \var SoSFInt32 SoTransferFunction::offset
+  See the SoTransferFunction::shift field.
+*/
+
+/*!
+  \var SoSFInt32 SoTransferFunction::shift
+  Used to shift the transfer function before assigning voxel value.
+  \code
+  voxelvalue = (datavalue << shift) + offset
+  \endcode
+*/
+
+/*!
+  \var SoMFFloat SoTransferFunction::colorMap
+  An array of floats describing the transfer function. Each value must
+  be normalized to [0..1]. The array must contain 256 colors. The
+  number of floats for each color depends on the
+  SoTransferFunction::ColorMapType setting.
+*/
+
+// *************************************************************************
+
 SoTransferFunction::SoTransferFunction(void)
 {
   SO_NODE_CONSTRUCTOR(SoTransferFunction);
