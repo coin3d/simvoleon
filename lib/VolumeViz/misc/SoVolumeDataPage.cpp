@@ -20,6 +20,10 @@ SoVolumeDataPage::SoVolumeDataPage()
   this->storage = NOT_LOADED;
   this->lastuse = 0;
   this->transferFunctionId = 0;
+  this->data = NULL;
+  this->palette = NULL;
+  this->paletteFormat = 0;
+  this->paletteSize = 0;
   this->nextPage = NULL;
 }// constructor
 
@@ -28,6 +32,7 @@ SoVolumeDataPage::~SoVolumeDataPage()
 {
   glDeleteTextures(1, &textureName);
   delete [] data;
+  delete [] palette;
   delete nextPage;
   nextPage = NULL;
 }// destructor
@@ -39,6 +44,8 @@ void SoVolumeDataPage::setActivePage(long tick)
 {
   glBindTexture(GL_TEXTURE_2D, this->textureName);
   this->lastuse = tick;
+
+  int err = glGetError();
 }// setActivePage
 
 
@@ -79,7 +86,8 @@ void SoVolumeDataPage::setData( Storage storage,
 
   if (storage & OPENGL) {
     //FIXME: these functions is only supported in opengl 1.1... torbjorv 08052002
-    glEnable(GL_TEXTURE_2D);
+//    glEnable(GL_TEXTURE_2D);
+//    glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
     glGenTextures(1, &this->textureName);
     glBindTexture(GL_TEXTURE_2D, this->textureName);
 
@@ -99,9 +107,40 @@ void SoVolumeDataPage::setData( Storage storage,
 
     // Uploading paletted texture
     else {
+
+      int err;
+
+      switch (paletteSize) {
+        case   2: __asm nop
+                  break;
+        case   4: __asm nop
+                  break;
+        case  16: __asm nop
+                  break;
+        case 256: __asm nop
+                  break;
+        default:  __asm nop
+                  break;
+      }// switch
+
+      glColorTableEXT(GL_TEXTURE_2D, 
+                      GL_RGBA, 
+                      paletteSize,
+                      GL_RGBA,
+                      GL_FLOAT,
+                      palette);
+
+      err = glGetError();
+
+
+      int actualPaletteSize;
+      glGetColorTableParameterivEXT(GL_TEXTURE_2D, 
+                                    GL_COLOR_TABLE_WIDTH_EXT, 
+                                    &actualPaletteSize);
+
       int internalFormat;
       int format = GL_UNSIGNED_BYTE;
-      switch (paletteSize) {
+      switch (actualPaletteSize) {
         case   2: internalFormat = GL_COLOR_INDEX1_EXT;
                   break;
         case   4: internalFormat = GL_COLOR_INDEX2_EXT;
@@ -115,20 +154,9 @@ void SoVolumeDataPage::setData( Storage storage,
                   break;
       }// switch
 
-      int err;
-
-      glColorTableEXT(GL_TEXTURE_2D, 
-                      GL_RGBA8, 
-                      paletteSize,
-                      GL_RGBA,
-                      GL_FLOAT,
-                      palette);
-
-      err = glGetError();
-
       glTexImage2D(GL_TEXTURE_2D, 
                    0,
-                   GL_RGBA,
+                   internalFormat,
                    size[0],
                    size[1],
                    0,
@@ -137,6 +165,7 @@ void SoVolumeDataPage::setData( Storage storage,
                    bytes);
 
       err = glGetError();
+
     }//else
 
 
