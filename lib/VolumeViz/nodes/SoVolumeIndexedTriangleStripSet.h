@@ -47,7 +47,6 @@ protected:
   ~SoVolumeIndexedTriangleStripSet();
 
   virtual void GLRender(SoGLRenderAction *action);
-  virtual void rayPick(SoRayPickAction * action);
 
 private:  
   friend class SoVolumeIndexedTriangleStripSetP;

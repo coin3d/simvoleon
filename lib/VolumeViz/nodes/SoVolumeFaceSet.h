@@ -47,7 +47,6 @@ protected:
   ~SoVolumeFaceSet();
 
   virtual void GLRender(SoGLRenderAction *action);
-  virtual void rayPick(SoRayPickAction * action);
 
 private:  
   friend class SoVolumeFaceSetP;
