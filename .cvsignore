@@ -1,0 +1,13 @@
+Makefile
+stamp-h
+config.status
+config.cache
+config.h
+config.log
+libtool
+stamp-h1.in
+stamp-h2.in
+stamp-h1
+coin-config
+.deps
+autom4te.cache
