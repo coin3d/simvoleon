@@ -412,7 +412,10 @@ Cvr3DTexCube::renderObliqueSlice(const SoGLRenderAction * action,
 
   const float dist = plane.getDistanceFromOrigin();
   SbVec3f z = plane.getNormal();
-  SbVec3f y(z[2], -z[1], z[0]);
+  // Dummy vector based on the normal. Must not be equal to the normal
+  // (or in the opposite direction). This will cause the normalization
+  // of 'x' and 'z.cross(x)' to fail.
+  SbVec3f y(z[1], -z[2], z[0]);
   SbVec3f x = y.cross(z);
   x.normalize();
   y = z.cross(x);
