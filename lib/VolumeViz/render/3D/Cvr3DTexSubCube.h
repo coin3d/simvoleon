@@ -60,14 +60,22 @@ public:
   SbBool isPaletted(void) const;
   void setPalette(const CvrCLUT * newclut);
 
-  SbBool checkIntersectionSlice(SbVec3f const & cubeorigo, 
+  SbBool checkIntersectionSlice(const SbVec3f & cubeorigo, 
                                 const SbViewVolume & viewvolume, 
-                                float viewdistance, SbMatrix);
-  SbBool checkIntersectionIndexedFaceSet(SbVec3f const & cubeorigo, 
+                                const float viewdistance, 
+                                const SbMatrix);
+
+  SbBool checkIntersectionFaceSet(const SbVec3f & cubeorigo, 
+                                  const SbVec3f * vertexlist,
+                                  const int * numVertices,
+                                  const unsigned int length,
+                                  const SbMatrix m);
+
+  SbBool checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo, 
                                          const SbVec3f * vertexlist,
                                          const int * indices,
                                          const unsigned int numindices,
-                                         SbMatrix m);
+                                         const SbMatrix m);
 
   static void * subcube_clipperCB(const SbVec3f & v0, void * vdata0, 
                                   const SbVec3f & v1, void * vdata1,

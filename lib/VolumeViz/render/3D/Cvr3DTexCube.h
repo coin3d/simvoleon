@@ -37,20 +37,24 @@ public:
   ~Cvr3DTexCube();
   
   void render(SoGLRenderAction * action, const SbVec3f & origo,
-              Cvr3DTexSubCube::Interpolation interpolation,
+              const Cvr3DTexSubCube::Interpolation interpolation,
               const unsigned int numslices);
 
   void renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & origo,
-                          Cvr3DTexSubCube::Interpolation interpolation,
+                          const Cvr3DTexSubCube::Interpolation interpolation,
                           const SbPlane plane);
  
   void renderIndexedFaceSet(SoGLRenderAction * action, const SbVec3f & origo,
-                            Cvr3DTexSubCube::Interpolation interpolation,
+                            const Cvr3DTexSubCube::Interpolation interpolation,
                             const SbVec3f * vertexarray,
                             const int * indices,
                             const unsigned int numindices);
 
-
+  void renderFaceSet(SoGLRenderAction * action, const SbVec3f & origo,
+                     const Cvr3DTexSubCube::Interpolation interpolation,
+                     const SbVec3f * vertexarray,
+                     const int * numVertices,
+                     const unsigned int listlength);
 
   void setPalette(const CvrCLUT * c);
   const CvrCLUT * getPalette(void) const;
@@ -68,6 +72,9 @@ private:
   void releaseSubCube(const int row, const int col, const int depth);
   int calcSubCubeIdx(int row, int col, int depth) const;
   void calculateOptimalSubCubeSize();
+  void renderResult(SoGLRenderAction * action, 
+                    Cvr3DTexSubCube::Interpolation interpolation, 
+                    SbList <Cvr3DTexSubCubeItem *> subcubelist);
 
   class Cvr3DTexSubCubeItem ** subcubes;
 

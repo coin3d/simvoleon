@@ -188,12 +188,30 @@ Cvr3DTexCube::calculateOptimalSubCubeSize()
 }
 
 
+// Called by all the 'render*()' methods after the intersection test.
+void
+Cvr3DTexCube::renderResult(SoGLRenderAction * action, 
+                           Cvr3DTexSubCube::Interpolation interpolation,
+                           SbList <Cvr3DTexSubCubeItem *> subcubelist)
+{  
+  // Render all subcubes.
+  for (int i=0;i<subcubelist.getLength();++i)
+    subcubelist[i]->cube->render(action, interpolation);
+  // Draw lines around each subcube if requested by the 'CVR_SUBCUBE_FRAMES' envvar.
+  if (this->rendersubcubeoutline) {
+    for (int i=0;i<subcubelist.getLength();++i)
+      subcubelist[i]->cube->renderBBox(action, i);
+  }
+  subcubelist.truncate(0);
+}
+
+
 // Renders arbitrary positioned quad, textured for the cube (slice)
 // represented by this object. Loads all the cubes needed.
 void
 Cvr3DTexCube::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
-                     Cvr3DTexSubCube::Interpolation interpolation,
+                     const Cvr3DTexSubCube::Interpolation interpolation,
                      const unsigned int numslices)
 {
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
@@ -281,18 +299,8 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
         subcubelist.getLength(),
         sizeof(Cvr3DTexSubCubeItem *),
         subcube_qsort_compare);
-
-  // Render all subcubes.
-  for (int i=0;i<subcubelist.getLength();++i)
-    subcubelist[i]->cube->render(action, interpolation);
-
-  // Draw lines around each subcube if requested by the 'CVR_SUBCUBE_FRAMES' envvar.
-  if (this->rendersubcubeoutline) {
-    for (int i=0;i<subcubelist.getLength();++i)
-      subcubelist[i]->cube->renderBBox(action, i);
-  }
-
-  subcubelist.truncate(0);
+ 
+  renderResult(action, interpolation, subcubelist);
 
 }
 
@@ -300,7 +308,7 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
 // plane. Loads all the subcubes needed.
 void 
 Cvr3DTexCube::renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & origo,
-                                 Cvr3DTexSubCube::Interpolation interpolation,
+                                 const Cvr3DTexSubCube::Interpolation interpolation,
                                  const SbPlane plane)
 {
 
@@ -312,7 +320,6 @@ Cvr3DTexCube::renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & orig
   SbVec3f subcubeheight = SbVec3f(0, this->subcubesize[1], 0);
   SbVec3f subcubedepth = SbVec3f(0, 0, this->subcubesize[2]);
 
- 
   const float dist = plane.getDistanceFromOrigin();
   SbVec3f z = plane.getNormal();
   SbVec3f y(z[2], -z[1], z[0]);
@@ -365,25 +372,15 @@ Cvr3DTexCube::renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & orig
     }
   }
 
-  // Render all subcubes.
-  for (int i=0;i<subcubelist.getLength();++i)
-    subcubelist[i]->cube->render(action, interpolation);
-
-   // Draw lines around each subcube if requested by the 'CVR_SUBCUBE_FRAMES' envvar.
-  if (this->rendersubcubeoutline) {    
-    glColor3f(1.0f, 1.0f, 1.0f);
-    for (int i=0;i<subcubelist.getLength();++i)
-      subcubelist[i]->cube->renderBBox(action, i);
-  }
-  
-  subcubelist.truncate(0);
+  renderResult(action, interpolation, subcubelist);
 
 }
 
-// Renders a faceset inside the volume. Loads all the subcubes needed.
+// Renders a indexed faceset inside the volume. Loads all the subcubes needed.
 void 
-Cvr3DTexCube::renderIndexedFaceSet(SoGLRenderAction * action, const SbVec3f & origo,
-                                   Cvr3DTexSubCube::Interpolation interpolation,
+Cvr3DTexCube::renderIndexedFaceSet(SoGLRenderAction * action, 
+                                   const SbVec3f & origo,
+                                   const Cvr3DTexSubCube::Interpolation interpolation,
                                    const SbVec3f * vertexarray,
                                    const int * indices,
                                    const unsigned int numindices)
@@ -426,23 +423,62 @@ Cvr3DTexCube::renderIndexedFaceSet(SoGLRenderAction * action, const SbVec3f & or
       }
     }
   }
-
-  // Render all subcubes.
-  for (int i=0;i<subcubelist.getLength();++i)
-    subcubelist[i]->cube->render(action, interpolation);
-
-   // Draw lines around each subcube if requested by the 'CVR_SUBCUBE_FRAMES' envvar.
-  if (this->rendersubcubeoutline) {    
-    glColor3f(1.0f, 1.0f, 1.0f);
-    for (int i=0;i<subcubelist.getLength();++i)
-      subcubelist[i]->cube->renderBBox(action, i);
-  }
   
-  subcubelist.truncate(0);
+  renderResult(action, interpolation, subcubelist);
 
 }
 
+// Renders a faceset inside the volume. Loads all the subcubes needed.
+void 
+Cvr3DTexCube::renderFaceSet(SoGLRenderAction * action, 
+                            const SbVec3f & origo,
+                            const Cvr3DTexSubCube::Interpolation interpolation,
+                            const SbVec3f * vertexarray,
+                            const int * numVertices,
+                            const unsigned int listlength)
+{
 
+  const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
+  
+  SoState * state = action->getState();
+  
+  SbVec3f subcubewidth = SbVec3f(this->subcubesize[0], 0, 0);
+  SbVec3f subcubeheight = SbVec3f(0, this->subcubesize[1], 0);
+  SbVec3f subcubedepth = SbVec3f(0, 0, this->subcubesize[2]);
+
+  SbList <Cvr3DTexSubCubeItem *> subcubelist;
+
+  for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
+    for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
+      for (int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
+
+        Cvr3DTexSubCube * cube = NULL;
+        Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
+
+        if (cubeitem == NULL) { cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx); }
+        assert(cubeitem != NULL);
+
+        if (cubeitem->invisible) continue;
+        assert(cubeitem->cube != NULL);
+        
+        SbVec3f subcubeorigo = origo +
+          subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
+        
+        cubeitem->cube->checkIntersectionFaceSet(subcubeorigo, 
+                                                 vertexarray,
+                                                 numVertices,
+                                                 listlength,
+                                                 SoModelMatrixElement::get(state).inverse());
+        
+        subcubelist.append(cubeitem);
+
+      }
+    }
+  }
+  
+  renderResult(action, interpolation, subcubelist);
+  
+}
 
 
 int

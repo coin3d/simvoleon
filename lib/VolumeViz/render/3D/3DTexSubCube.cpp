@@ -220,14 +220,42 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
 
 }
 
-
 // Check if this cube is intersected by a faceset.
 SbBool 
-Cvr3DTexSubCube::checkIntersectionIndexedFaceSet(SbVec3f const & cubeorigo, 
+Cvr3DTexSubCube::checkIntersectionFaceSet(const SbVec3f & cubeorigo, 
+                                          const SbVec3f * vertexlist,
+                                          const int * numVertices,
+                                          const unsigned int length,
+                                          const SbMatrix m)
+{
+  
+  SbClip cubeclipper(this->subcube_clipperCB, this);
+  this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
+  cubeclipper.reset();
+  
+  SbVec3f a;
+  unsigned int idx = 0;
+  for (unsigned int i=0;i<length;++i) {
+    for (int j=0;j<numVertices[i];++j) {
+      m.multVecMatrix(vertexlist[idx++], a);
+      cubeclipper.addVertex(a);
+    }
+    this->clipPolygonAgainstCube(cubeclipper, cubeorigo);    
+    cubeclipper.reset();
+  }
+
+  return TRUE;
+
+}
+
+
+// Check if this cube is intersected by an indexed faceset.
+SbBool 
+Cvr3DTexSubCube::checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo, 
                                                  const SbVec3f * vertexlist,
                                                  const int * indices,
                                                  const unsigned int numindices,
-                                                 SbMatrix m)
+                                                 const SbMatrix m)
 {
   
   SbClip cubeclipper(this->subcube_clipperCB, this);
@@ -252,9 +280,10 @@ Cvr3DTexSubCube::checkIntersectionIndexedFaceSet(SbVec3f const & cubeorigo,
 
 // Check if this cube is intersected by the viewport aligned clip plane.
 SbBool 
-Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo, 
+Cvr3DTexSubCube::checkIntersectionSlice(const SbVec3f & cubeorigo, 
                                         const SbViewVolume & viewvolume, 
-                                        float viewdistance, SbMatrix m)
+                                        const float viewdistance, 
+                                        const SbMatrix m)
 {
   
   SbClip cubeclipper(this->subcube_clipperCB, this);
@@ -277,8 +306,6 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
   m.multVecMatrix(c, c);
   m.multVecMatrix(d, d);
 
-  // No need to add texture coords as they will always be calculated
-  // at the new intersection points.  
   cubeclipper.addVertex(a);
   cubeclipper.addVertex(b);
   cubeclipper.addVertex(c);
