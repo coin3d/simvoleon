@@ -12,6 +12,8 @@ internal funding.
 
     We've had external requests for this.
 
+    This would be an API extension versus what TGS VolumeViz offers.
+
     20040729 mortene.
 
 ============================================================================
@@ -38,6 +40,10 @@ internal funding.
     
     20040730 handegar
 
+
+    UPDATE 20040917 mortene: Kristian Eide is working on this in the
+    autumn of 2004 for his diploma thesis.
+
 ============================================================================
 
 002 Better rendering performance by using the "big image" scaling from
@@ -59,14 +65,16 @@ internal funding.
 
 003 Support for "roaming" inside large volumes.
 
-    Implement support for the TGS's SoROI node, to make it possible to
-    use larger volumes than what is really supported by the available
-    memory and rendering resources on the host machine.
+    Implement support for the TGS VolumeViz SoROI node, to make it
+    possible to use larger volumes than what is really supported by
+    the available memory and rendering resources on the host machine.
 
     Will need a bit of internal redesign of some interfaces, as we can
     no longer just pass around a pointer to the full voxel
     block. Also, to support this properly, we would need to be able to
-    read parts of volume data files.
+    read parts of volume data files, by "roaming" a read-window on the
+    file, instead of just pulling it in as one large chunk on start-up
+    as we do now.
 
     20040729 mortene.
 
@@ -84,14 +92,14 @@ internal funding.
 
     This can be done in various "stages" of complexity: first of all,
     we should support it for co-planar slices in 3D-textures normal to
-    the view direction (this is the extent of what TGS
-    supports).
+    the view direction (this is the extent of what TGS VolumeViz
+    supports, according to their API doc).
 
     Next, it would be really cool if we clipped the polygons against
     each other, so rendering of partly transparent "volume-mapped"
     polygons in any direction would always look correct against each
-    other. This would probably be difficult to always behave with
-    decent performance, though.
+    other. This would probably be non-trivial to do with decent
+    performance.
 
     20040729 mortene.
 
@@ -102,9 +110,9 @@ internal funding.
     Currently, these are simply downsampled to 8-bit data. Should
     handle 16-bit voxel values "natively".
 
-    Need to investigate to what degree something like this is
-    supported both by RGBA and paletted textures from OpenGL's
-    perspective.
+    Among other things, we need to investigate to what degree
+    something like this is supported both by RGBA and paletted
+    textures from OpenGL's perspective.
 
     20040729 mortene.
 
@@ -114,6 +122,8 @@ internal funding.
 
     For dumping SoVolumeData (memory) contents to file, in various
     formats.
+
+    This would be an API extension versus what TGS VolumeViz offers.
 
     20040917 mortene, suggested by Kristofer Tingdahl.
 
