@@ -1,7 +1,7 @@
 
-m4_define([VOLUMEVIZ_MAJOR], [1])
-m4_define([VOLUMEVIZ_MINOR], [0])
-m4_define([VOLUMEVIZ_MICRO], [0])
+m4_define([SIMVOLEON_MAJOR], [1])
+m4_define([SIMVOLEON_MINOR], [0])
+m4_define([SIMVOLEON_MICRO], [0])
 
 # this is bogus, but policy has not been set for this yet
 m4_define([SC_ABI_CURRENT], [1])
@@ -9,7 +9,7 @@ m4_define([SC_ABI_AGE], [0])
 m4_define([SC_ABI_REVISION], [0])
 
 
-AC_INIT([VolumeViz], [1.0.0], [coin-bugs@coin3d.org])
+AC_INIT([SimVoleon], [1.0.0], [coin-bugs@coin3d.org])
 
 AC_CONFIG_SRCDIR(lib/VolumeViz/nodes/VolumeRendering.cpp)
 AC_CONFIG_AUX_DIR(cfg)
@@ -22,7 +22,7 @@ AC_CANONICAL_SYSTEM
 SIM_AC_SETUP_MSVC_IFELSE([], [
   case $host in
   *-cygwin)
-    AC_MSG_ERROR([You need Microsoft Visual C++ to build VolumeViz on Cygwin])
+    AC_MSG_ERROR([You need Microsoft Visual C++ to build SimVoleon on Cygwin])
     ;;
   esac
 ])
@@ -39,28 +39,28 @@ fi
 
 AM_CONDITIONAL(BUILD_WITH_MSVC, $BUILD_WITH_MSVC)
 
-AC_SUBST([VOLUMEVIZ_MAJOR_VERSION], [VOLUMEVIZ_MAJOR])
-AC_SUBST([VOLUMEVIZ_MINOR_VERSION], [VOLUMEVIZ_MINOR])
-AC_SUBST([VOLUMEVIZ_MICRO_VERSION], [VOLUMEVIZ_MICRO])
-AC_SUBST([VOLUMEVIZ_VERSION], [VOLUMEVIZ_MAJOR.VOLUMEVIZ_MINOR.VOLUMEVIZ_MICRO])
+AC_SUBST([SIMVOLEON_MAJOR_VERSION], [SIMVOLEON_MAJOR])
+AC_SUBST([SIMVOLEON_MINOR_VERSION], [SIMVOLEON_MINOR])
+AC_SUBST([SIMVOLEON_MICRO_VERSION], [SIMVOLEON_MICRO])
+AC_SUBST([SIMVOLEON_VERSION], [SIMVOLEON_MAJOR.SIMVOLEON_MINOR.SIMVOLEON_MICRO])
 
-VERSION=$VOLUMEVIZ_VERSION
+VERSION=$SIMVOLEON_VERSION
 
-SC_MAJOR=$VOLUMEVIZ_MAJOR_VERSION
+SC_MAJOR=$SIMVOLEON_MAJOR_VERSION
 
 # Libtool versioning
 AC_SUBST([LT_CURRENT], [SC_ABI_CURRENT])
 AC_SUBST([LT_REVISION], [SC_ABI_REVISION])
 AC_SUBST([LT_AGE], [SC_ABI_AGE])
 
-AC_DEFINE_UNQUOTED([VOLUMEVIZ_MAJOR_VERSION], [$VOLUMEVIZ_MAJOR_VERSION],
-  [define this to the libVolumeViz major version number])
-AC_DEFINE_UNQUOTED([VOLUMEVIZ_MINOR_VERSION], [$VOLUMEVIZ_MINOR_VERSION],
-  [define this to the libVolumeViz minor version number])
-AC_DEFINE_UNQUOTED([VOLUMEVIZ_MICRO_VERSION], [$VOLUMEVIZ_MICRO_VERSION],
-  [define this to the libVolumeViz release version number])
-AC_DEFINE_UNQUOTED([VOLUMEVIZ_VERSION], ["$VOLUMEVIZ_VERSION"],
-  [define this to the full libVolumeViz major.minor.micro version number])
+AC_DEFINE_UNQUOTED([SIMVOLEON_MAJOR_VERSION], [$SIMVOLEON_MAJOR_VERSION],
+  [define this to the libSimVoleon major version number])
+AC_DEFINE_UNQUOTED([SIMVOLEON_MINOR_VERSION], [$SIMVOLEON_MINOR_VERSION],
+  [define this to the libSimVoleon minor version number])
+AC_DEFINE_UNQUOTED([SIMVOLEON_MICRO_VERSION], [$SIMVOLEON_MICRO_VERSION],
+  [define this to the libSimVoleon release version number])
+AC_DEFINE_UNQUOTED([SIMVOLEON_VERSION], ["$SIMVOLEON_VERSION"],
+  [define this to the full libSimVoleon major.minor.micro version number])
 
 # *******************************************************************
 # Miscellaneous options and initializations.
@@ -78,7 +78,7 @@ AC_LANG_CPLUSPLUS
 
 # *******************************************************************
 
-AM_INIT_AUTOMAKE(VolumeViz, $VERSION)
+AM_INIT_AUTOMAKE(SimVoleon, $VERSION)
 
 #  Default to not building a static library. Can be overridden by the
 #  user with --enable-static.
@@ -141,13 +141,13 @@ SIM_AC_PROFILING_SUPPORT
 SIM_AC_COMPILER_WARNINGS
 
 case $enable_static in
-yes | true)  VOLUMEVIZ_STATIC=true;;
-*)           VOLUMEVIZ_STATIC=false;;
+yes | true)  SIMVOLEON_STATIC=true;;
+*)           SIMVOLEON_STATIC=false;;
 esac
 
 case $enable_shared in
-yes | true)  VOLUMEVIZ_STATIC=false;;
-*)           VOLUMEVIZ_STATIC=true;;
+yes | true)  SIMVOLEON_STATIC=false;;
+*)           SIMVOLEON_STATIC=true;;
 esac
 
 AC_MSG_CHECKING([for strcasecmp() function])
@@ -204,43 +204,43 @@ if $BUILD_WITH_MSVC; then
   rm -f vc60.pdb
   LIBFLAGS="$LIBFLAGS $sim_ac_msvcrt_LIBLDFLAGS"
   LIBS="$LIBS $sim_ac_msvcrt_LIBLIBS"
-  if $VOLUMEVIZ_STATIC; then :; else
-    CPPFLAGS="-DVOLUMEVIZ_MAKE_DLL $CPPFLAGS"
-    VOLUMEVIZ_EXTRA_CPPFLAGS="$VOLUMEVIZ_EXTRA_CPPFLAGS -DVOLUMEVIZ_DLL"
+  if $SIMVOLEON_STATIC; then :; else
+    CPPFLAGS="-DSIMVOLEON_MAKE_DLL $CPPFLAGS"
+    SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS -DSIMVOLEON_DLL"
   fi
-  debugfile="`pwd`/lib/VolumeViz/VolumeViz${SC_MAJOR}.pdb"
+  debugfile="`pwd`/lib/VolumeViz/SimVoleon${SC_MAJOR}.pdb"
   debugfile=`cygpath -w "$debugfile" | sed 's,\\\\,\\\\\\\\,g'`
-  if $VOLUMEVIZ_STATIC; then
-    SIM_AC_CONFIGURATION_SETTING([VolumeViz build type], [static .lib])
+  if $SIMVOLEON_STATIC; then
+    SIM_AC_CONFIGURATION_SETTING([SimVoleon build type], [static .lib])
     LIBFLAGS="-LIB $LIBFLAGS"
-    LIBFLAGS="$LIBFLAGS /OUT:VolumeViz$SC_MAJOR.lib"
-    VOLUMEVIZ_EXTRA_CPPFLAGS="-I$includedir"
-    VOLUMEVIZ_EXTRA_LDFLAGS="-L$libdir"
-    VOLUMEVIZ_EXTRA_LIBS=
+    LIBFLAGS="$LIBFLAGS /OUT:SimVoleon$SC_MAJOR.lib"
+    SIMVOLEON_EXTRA_CPPFLAGS="-I$includedir"
+    SIMVOLEON_EXTRA_LDFLAGS="-L$libdir"
+    SIMVOLEON_EXTRA_LIBS=
   else
     LIBFLAGS="-DLL /INCREMENTAL:NO $LIBFLAGS"
     case $enable_symbols in
     no | false)
-      SIM_AC_CONFIGURATION_SETTING([VolumeViz build type],
+      SIM_AC_CONFIGURATION_SETTING([SimVoleon build type],
                                    [dynamic .dll, no symbols])
       LIBFLAGS="$LIBFLAGS /RELEASE"
       ;;
     *)
-      SIM_AC_CONFIGURATION_SETTING([VolumeViz build type],
+      SIM_AC_CONFIGURATION_SETTING([SimVoleon build type],
                                    [dynamic .dll + .pdb])
       CFLAGS="/Fd$debugfile $CFLAGS"
       CXXFLAGS="/Fd$debugfile $CXXFLAGS"
-      LIBFLAGS="$LIBFLAGS /DEBUG /PDB:VolumeViz$VOLUMEVIZ_MAJOR_VERSION.pdb"
+      LIBFLAGS="$LIBFLAGS /DEBUG /PDB:SimVoleon$SIMVOLEON_MAJOR_VERSION.pdb"
       ;;
     esac
 
-    LIBFLAGS="$LIBFLAGS /OUT:VolumeViz$SC_MAJOR.dll"
+    LIBFLAGS="$LIBFLAGS /OUT:SimVoleon$SC_MAJOR.dll"
   fi
   SIM_AC_CONFIGURATION_SETTING([C library type], [$sim_ac_msvcrt])
 
-  VOLUMEVIZ_EXTRA_LIBS="-lVolumeViz$SC_MAJOR $VOLUMEVIZ_EXTRA_LIBS"
+  SIMVOLEON_EXTRA_LIBS="-lSimVoleon$SC_MAJOR $SIMVOLEON_EXTRA_LIBS"
 else
-  VOLUMEVIZ_EXTRA_LIBS="-lVolumeViz $VOLUMEVIZ_EXTRA_LIBS"
+  SIMVOLEON_EXTRA_LIBS="-lSimVoleon $SIMVOLEON_EXTRA_LIBS"
 fi
 
 

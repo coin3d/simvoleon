@@ -58,7 +58,7 @@ TransferFunctionHandler.o: TransferFunctionHandler.cpp SoTransferFunction_ctrl.h
 	soqt-config --compile $<
 
 readvol: $(READVOL_OBJECTS)
-	soqt-config --link $@ $(READVOL_OBJECTS) -lVolumeViz
+	soqt-config --link $@ $(READVOL_OBJECTS) -lSimVoleon
 
 ## ``examine'' example
 
@@ -69,7 +69,7 @@ examine.o: examine.cpp
 	soqt-config --compile $<
 
 examine: $(EXAMINE_OBJECTS)
-	soqt-config --link $@ $(EXAMINE_OBJECTS) -lVolumeViz
+	soqt-config --link $@ $(EXAMINE_OBJECTS) -lSimVoleon
 
 ## ``raypick'' example
 
@@ -80,6 +80,6 @@ raypick.o: raypick.cpp
 	soqt-config --compile $<
 
 raypick: $(RAYPICK_OBJECTS)
-	soqt-config --link $@ $(RAYPICK_OBJECTS) -lVolumeViz
+	soqt-config --link $@ $(RAYPICK_OBJECTS) -lSimVoleon
 
 ## end
