@@ -13,6 +13,7 @@ SOURCES = \
 	VolumeData.cpp \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
+	OrthoSlice.cpp \
 	ROI.cpp
 
 libnodes_la_SOURCES = $(SOURCES)

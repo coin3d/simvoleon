@@ -108,6 +108,7 @@ SOURCES = \
 	VolumeData.cpp \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
+	OrthoSlice.cpp \
 	ROI.cpp
 
 
@@ -135,14 +136,15 @@ LIBRARIES = $(noinst_LIBRARIES)
 nodes_lst_AR = $(AR) cru
 nodes_lst_LIBADD =
 am_nodes_lst_OBJECTS = TransferFunction.$(OBJEXT) VolumeData.$(OBJEXT) \
-	VolumeRender.$(OBJEXT) VolumeRendering.$(OBJEXT) ROI.$(OBJEXT)
+	VolumeRender.$(OBJEXT) VolumeRendering.$(OBJEXT) \
+	OrthoSlice.$(OBJEXT) ROI.$(OBJEXT)
 nodes_lst_OBJECTS = $(am_nodes_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
 am_libnodes_la_OBJECTS = TransferFunction.lo VolumeData.lo \
-	VolumeRender.lo VolumeRendering.lo ROI.lo
+	VolumeRender.lo VolumeRendering.lo OrthoSlice.lo ROI.lo
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -151,7 +153,8 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/ROI.Plo $(DEPDIR)/ROI.Po \
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/OrthoSlice.Plo $(DEPDIR)/OrthoSlice.Po \
+@AMDEP_TRUE@	$(DEPDIR)/ROI.Plo $(DEPDIR)/ROI.Po \
 @AMDEP_TRUE@	$(DEPDIR)/TransferFunction.Plo \
 @AMDEP_TRUE@	$(DEPDIR)/TransferFunction.Po \
 @AMDEP_TRUE@	$(DEPDIR)/VolumeData.Plo $(DEPDIR)/VolumeData.Po \
@@ -183,6 +186,7 @@ SOURCES = \
 	VolumeData.cpp \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
+	OrthoSlice.cpp \
 	ROI.cpp
 
 
@@ -223,6 +227,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/OrthoSlice.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/OrthoSlice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ROI.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ROI.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TransferFunction.Plo@am__quote@

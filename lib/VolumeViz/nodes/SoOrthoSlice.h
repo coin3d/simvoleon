@@ -15,12 +15,13 @@ class SoOrthoSlice : public SoShape {
 public:
   static void initClass(void);
 
+  SoOrthoSlice(void);
+
   enum Axis { X, Y, Z };
   enum Interpolation { NEAREST, LINEAR };
   enum AlphaUse { ALPHA_AS_IS, ALPHA_OPAQUE, ALPHA_BINARY };
   enum ClippingSide { FRONT, BACK };
 
-  SoOrthoSlice(void);
   virtual SbBool affectsState(void) const;
 
   SoSFUInt32 sliceNumber;
@@ -29,6 +30,18 @@ public:
   SoSFEnum alphaUse;
   SoSFEnum clippingSide;
   SoSFBool clipping;
+
+protected:
+  ~SoOrthoSlice();
+
+  virtual void GLRender(SoGLRenderAction * action);
+  virtual void rayPick(SoRayPickAction * action);
+  virtual void generatePrimitives(SoAction * action);
+  virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
+
+private:
+  friend class SoOrthoSliceP;
+  class SoOrthoSliceP * pimpl;
 };
 
 #endif // !COIN_SOORTHOSLICE_H
