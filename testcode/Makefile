@@ -1,4 +1,4 @@
-all: examine simple8bit readvol raypick rgbload
+all: examine simple8bit readvol raypick rgbload changingdataset
 
 ## 
 
@@ -13,6 +13,9 @@ EXAMINE_OBJECTS = \
 SIMPLE8BIT_OBJECTS = \
         simple8bit.o utility.o
 
+CHANGINGDATASET_OBJECTS = \
+        changingdataset.o
+
 RAYPICK_OBJECTS = \
         raypick.o utility.o
 
@@ -24,6 +27,7 @@ clean:
               raypick $(RAYPICK_OBJECTS) raypick.cpp \
               examine $(EXAMINE_OBJECTS) examine.cpp \
               simple8bit $(SIMPLE8BIT_OBJECTS) simple8bit.cpp \
+              changingdataset $(CHANGINGDATASET_OBJECTS) changingdataset.cpp \
               readvol $(READVOL_OBJECTS) readvol.cpp \
               moc_TransferFunctionHandler.cpp \
               SoTransferFunction_ctrl.h SoTransferFunction_ctrl.cpp moc_SoTransferFunction_ctrl.cpp
@@ -89,6 +93,17 @@ simple8bit.o: simple8bit.cpp
 
 simple8bit: $(SIMPLE8BIT_OBJECTS)
 	soqt-config --link $@ $(SIMPLE8BIT_OBJECTS) -lSimVoleon
+
+## ``changingdataset'' example
+
+changingdataset.cpp: changingdataset.cpp.in
+	@soqt-config --ac-subst $<
+
+changingdataset.o: changingdataset.cpp
+	soqt-config --compile $<
+
+changingdataset: $(CHANGINGDATASET_OBJECTS)
+	soqt-config --link $@ $(CHANGINGDATASET_OBJECTS) -lSimVoleon
 
 ## ``raypick'' example
 

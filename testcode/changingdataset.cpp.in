@@ -1,0 +1,100 @@
+#include <Inventor/@Gui@/So@Gui@.h>
+#include <Inventor/@Gui@/viewers/So@Gui@ExaminerViewer.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/sensors/SoTimerSensor.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/nodes/SoVolumeRendering.h>
+
+static float
+unit_rand(void)
+{
+  return float(rand()) / float(RAND_MAX - 1);
+}
+
+static void
+addRandom8bitVoxels(uint8_t * voxels, SbVec3s & dim, const int num)
+{
+  for (int i=0; i < num; i++) {
+    SbVec3f v(unit_rand(), unit_rand(), unit_rand());
+    assert(v[0] < 1.0f && v[1] < 1.0f && v[2] < 1.0f);
+
+    const int nx = int(dim[0] * v[0]);
+    const int ny = int(dim[1] * v[1]);
+    const int nz = int(dim[2] * v[2]);
+
+    const int memposition = nz*dim[0]*dim[1] + ny*dim[0] + nx;
+    voxels[memposition] = (uint8_t)(255.0 * unit_rand());
+  }
+}
+
+
+// This function is called 20 times each second. 
+static void
+timersensorcallback(void * data, SoSensor *)
+{
+  SoVolumeData * voldata = (SoVolumeData *)data;
+  SbVec3s dim;
+  void * voxeldata;
+  SoVolumeData::DataType type;
+  SbBool ok = voldata->getVolumeData(dim, voxeldata, type);
+  assert(ok);
+
+  const size_t blocksize = dim[0] * dim[1] * dim[2];
+  (void)memset(voxeldata, 0, blocksize);
+
+  addRandom8bitVoxels((uint8_t *)voxeldata, dim, 500);
+
+  (void)fprintf(stdout, "data changed\n");
+  voldata->touch();
+}
+
+int
+main(int argc, char ** argv)
+{
+  @WIDGET@ window = So@Gui@::init(argv[0]);
+  SoVolumeRendering::init();
+
+  SoSeparator * root = new SoSeparator;
+  root->ref();
+
+  SbVec3s dim = SbVec3s(64, 64, 64);
+  const size_t blocksize = dim[0] * dim[1] * dim[2];
+  uint8_t * voxels = new uint8_t[blocksize];
+  (void)memset(voxels, 0, blocksize);
+  addRandom8bitVoxels(voxels, dim, 500);
+
+  // Add SoVolumeData to scene graph
+  SoVolumeData * volumedata = new SoVolumeData();
+  volumedata->setVolumeData(dim, voxels, SoVolumeData::UNSIGNED_BYTE);
+  root->addChild(volumedata);
+
+  // Add TransferFunction (color map) to scene graph
+  SoTransferFunction * transfunc = new SoTransferFunction();
+  root->addChild(transfunc);
+
+  // Add VolumeRender to scene graph
+  SoVolumeRender * volrend = new SoVolumeRender();
+  volrend->interpolation = SoVolumeRender::NEAREST;
+  root->addChild(volrend);
+
+  // Timer sensor
+  SoTimerSensor * timer = new SoTimerSensor(timersensorcallback, volumedata);
+  timer->setInterval(3);
+  timer->schedule();
+
+  So@Gui@ExaminerViewer * viewer = new So@Gui@ExaminerViewer(window);
+  viewer->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
+  viewer->setSceneGraph(root);
+
+  viewer->show();
+  So@Gui@::show(window);
+  So@Gui@::mainLoop();
+  delete viewer;
+
+  root->unref();
+  delete[] voxels;
+
+  return 0;
+}
