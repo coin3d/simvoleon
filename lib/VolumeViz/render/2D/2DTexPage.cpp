@@ -1,6 +1,3 @@
-// From torbjorv's dictionary: a "slice" is "one complete cut through
-// the volume, normal to an axis".
-
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 
 #include <Inventor/errors/SoDebugError.h>
@@ -32,7 +29,7 @@ public:
 Cvr2DTexPage::Cvr2DTexPage(void)
 {
   this->pageSize = SbVec2s(32, 32);
-  this->pages = NULL;
+  this->subpages = NULL;
   this->axis = SoOrthoSlice::Z;
   this->numPages = 0;
   this->numTexels = 0;
@@ -45,17 +42,17 @@ Cvr2DTexPage::Cvr2DTexPage(void)
 Cvr2DTexPage::~Cvr2DTexPage()
 {
   this->reader = NULL;
-  this->releaseAllPages();
+  this->releaseAllSubPages();
 }
 
 
 void Cvr2DTexPage::init(SoVolumeReader * reader, int sliceIdx,
-                             SoOrthoSlice::Axis axis,
-                             const SbVec2s & pageSize)
+                        SoOrthoSlice::Axis axis,
+                        const SbVec2s & pageSize)
 {
   assert(pageSize[0] > 0 && pageSize[1] > 0);
 
-  this->releaseAllPages();
+  this->releaseAllSubPages();
 
   this->reader = reader;
   this->sliceIdx = sliceIdx;
@@ -107,14 +104,14 @@ void Cvr2DTexPage::init(SoVolumeReader * reader, int sliceIdx,
   Release resources used by a page in the slice.
 */
 void
-Cvr2DTexPage::releasePage(Cvr2DTexSubPage * page)
+Cvr2DTexPage::releaseSubPage(Cvr2DTexSubPage * page)
 {
   assert(page != NULL);
-  assert(this->pages != NULL);
+  assert(this->subpages != NULL);
 
   const int NRPAGES = this->numCols * this->numRows;
   for (int i = 0; i < NRPAGES; i++) {
-    Cvr2DTexSubPageItem * p = this->pages[i];
+    Cvr2DTexSubPageItem * p = this->subpages[i];
     if (p == NULL) continue; // skip this, continue with for-loop
 
     while ((p != NULL) && (p->page != page)) { p = p->next; }
@@ -126,7 +123,7 @@ Cvr2DTexPage::releasePage(Cvr2DTexSubPage * page)
 
     if (p->next) { p->next->prev = p->prev; }
     if (p->prev) { p->prev->next = p->next; }
-    else { this->pages[i] = p->next; }
+    else { this->subpages[i] = p->next; }
 
     delete p->page;
     delete p;
@@ -137,27 +134,27 @@ Cvr2DTexPage::releasePage(Cvr2DTexSubPage * page)
 
 
 
-void Cvr2DTexPage::releaseLRUPage(void)
+void Cvr2DTexPage::releaseLRUSubPage(void)
 {
-  assert(this->pages != NULL);
+  assert(this->subpages != NULL);
 
-  Cvr2DTexSubPage * LRUPage = this->getLRUPage();
+  Cvr2DTexSubPage * LRUPage = this->getLRUSubPage();
   assert(LRUPage != NULL);
-  this->releasePage(LRUPage);
+  this->releaseSubPage(LRUPage);
 }
 
 
 
 Cvr2DTexSubPage *
-Cvr2DTexPage::getLRUPage(void)
+Cvr2DTexPage::getLRUSubPage(void)
 {
-  assert(this->pages != NULL);
+  assert(this->subpages != NULL);
 
   Cvr2DTexSubPage * LRUPage = NULL;
 
   const int NRPAGES = this->numCols * this->numRows;
   for (int i = 0; i < NRPAGES; i++) {
-    Cvr2DTexSubPageItem * pitem = this->pages[i];
+    Cvr2DTexSubPageItem * pitem = this->subpages[i];
     while (pitem != NULL) {
       if ((LRUPage == NULL) || (pitem->page->lastuse < LRUPage->lastuse)) {
         LRUPage = pitem->page;
@@ -170,12 +167,12 @@ Cvr2DTexPage::getLRUPage(void)
 
 
 void
-Cvr2DTexPage::releaseAllPages(void)
+Cvr2DTexPage::releaseAllSubPages(void)
 {
-  if (this->pages == NULL) return;
+  if (this->subpages == NULL) return;
 
   for (int i = 0; i < this->numCols * this->numRows; i++) {
-    Cvr2DTexSubPageItem * pitem = this->pages[i];
+    Cvr2DTexSubPageItem * pitem = this->subpages[i];
     if (pitem == NULL) continue;
 
     do {
@@ -185,11 +182,11 @@ Cvr2DTexPage::releaseAllPages(void)
       delete prev;
     } while (pitem != NULL);
 
-    this->pages[i] = NULL;
+    this->subpages[i] = NULL;
   }
 
-  delete[] this->pages;
-  this->pages = NULL;
+  delete[] this->subpages;
+  this->subpages = NULL;
 }
 
 
@@ -208,11 +205,11 @@ void Cvr2DTexPage::render(SoState * state,
                                const SbVec3f & v0, const SbVec3f & v1,
                                const SbVec3f & v2, const SbVec3f & v3,
                                const SbBox2f & textureCoords,
-                               SoTransferFunction * transferFunction,
+                               SoTransferFunction * transferfunc,
                                long tick)
 {
   assert(this->reader);
-  assert(transferFunction);
+  assert(transferfunc);
 
   SbVec2f minUV, maxUV;
   textureCoords.getBounds(minUV, maxUV);
@@ -298,8 +295,8 @@ void Cvr2DTexPage::render(SoState * state,
       }
 
       // rendering
-      Cvr2DTexSubPage * page = this->getPage(col, row, transferFunction);
-      if (page == NULL) { page = this->buildPage(col, row, transferFunction); }
+      Cvr2DTexSubPage * page = this->getSubPage(col, row, transferfunc);
+      if (page == NULL) { page = this->buildSubPage(col, row, transferfunc); }
       page->setActivePage(tick);
 
       glBegin(GL_QUADS);
@@ -332,17 +329,17 @@ void Cvr2DTexPage::render(SoState * state,
 
 
 int
-Cvr2DTexPage::calcPageIdx(int row, int col) const
+Cvr2DTexPage::calcSubPageIdx(int row, int col) const
 {
 #if 1 // FIXME: base this on a compiler variable ("COINVOL_DEBUG" or something). 20021117 mortene.
   if (! ((row >= 0) && (row < this->numRows))) {
-    SoDebugError::post("Cvr2DTexPage::calcPageIdx",
+    SoDebugError::post("Cvr2DTexPage::calcSubPageIdx",
                        "row %d out of bounds, this->numRows==%d",
                        row, this->numRows);
     assert(FALSE);
   }
   if (! ((col >= 0) && (col < this->numCols))) {
-    SoDebugError::post("Cvr2DTexPage::calcPageIdx",
+    SoDebugError::post("Cvr2DTexPage::calcSubPageIdx",
                        "col %d out of bounds, this->numCols==%d",
                        col, this->numCols);
     assert(FALSE);
@@ -356,28 +353,27 @@ Cvr2DTexPage::calcPageIdx(int row, int col) const
   Builds a page if it doesn't exist. Rebuilds it if it does exist.
 */
 Cvr2DTexSubPage *
-Cvr2DTexPage::buildPage(int col, int row,
-                             SoTransferFunction * transferFunction)
+Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
 {
   assert(this->reader);
-  assert(transferFunction);
+  assert(transferfunc);
 
   // Does the page exist already?
-  Cvr2DTexSubPage * page = this->getPage(col, row, transferFunction);
+  Cvr2DTexSubPage * page = this->getSubPage(col, row, transferfunc);
   if (!page) {
     // First Cvr2DTexSubPage ever in this slice?
-    if (this->pages == NULL) {
+    if (this->subpages == NULL) {
       int nrpages = this->numCols * this->numRows;
-      this->pages = new Cvr2DTexSubPageItem*[nrpages];
-      for (int i=0; i < nrpages; i++) { this->pages[i] = NULL; }
+      this->subpages = new Cvr2DTexSubPageItem*[nrpages];
+      for (int i=0; i < nrpages; i++) { this->subpages[i] = NULL; }
     }
 
     page = new Cvr2DTexSubPage;
     Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
 
-    Cvr2DTexSubPageItem * p = this->pages[this->calcPageIdx(row, col)];
+    Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
     if (p == NULL) {
-      this->pages[this->calcPageIdx(row, col)] = pitem;
+      this->subpages[this->calcSubPageIdx(row, col)] = pitem;
     }
     else {
       while (p->next != NULL) { p = p->next; }
@@ -400,9 +396,9 @@ Cvr2DTexPage::buildPage(int col, int row,
                          SoVolumeReader::Y : SoVolumeReader::Z);
   reader->getSubSlice(subSlice, sliceIdx, texture, ax);
 
-  uint32_t * transferredTexture = transferFunction->transfer(texture,
-                                                             this->dataType,
-                                                             this->pageSize);
+  uint32_t * transferredTexture = transferfunc->transfer(texture,
+                                                         this->dataType,
+                                                         this->pageSize);
   delete[] texture;
 
   float * palette = NULL;
@@ -411,8 +407,7 @@ Cvr2DTexPage::buildPage(int col, int row,
 
   // FIXME: paletted textures not supported yet. 20021119 mortene.
 
-  page->setData(Cvr2DTexSubPage::OPENGL,
-                (unsigned char *)transferredTexture,
+  page->setData((unsigned char *)transferredTexture,
                 this->pageSize,
                 palette, paletteDataType, paletteSize);
 
@@ -420,7 +415,7 @@ Cvr2DTexPage::buildPage(int col, int row,
   // but AFAICT there is no code for actually cleaning it out (or is
   // that handled automatically by the LRU
   // algos?). Investigate. 20021111 mortene.
-  page->transferFunctionId = transferFunction->getNodeId();
+  page->transferFunctionId = transferfunc->getNodeId();
 
   delete[] transferredTexture;
   delete[] palette;
@@ -621,17 +616,17 @@ SoTransferFunctionP::pack(void * data, int numbits, int index, int val)
 #endif // TMP DISABLED code
 
 Cvr2DTexSubPage *
-Cvr2DTexPage::getPage(int col, int row,
-                      SoTransferFunction * transferFunction)
+Cvr2DTexPage::getSubPage(int col, int row, SoTransferFunction * transferfunc)
 {
-  if (this->pages == NULL) return NULL;
+  if (this->subpages == NULL) return NULL;
 
-  assert((col < this->numCols) && (row < this->numRows));
+  assert((col >= 0) && (col < this->numCols));
+  assert((row >= 0) && (row < this->numRows));
 
-  Cvr2DTexSubPageItem * p = this->pages[this->calcPageIdx(row, col)];
+  Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
 
   while (p != NULL) {
-    if (p->page->transferFunctionId == transferFunction->getNodeId()) break;
+    if (p->page->transferFunctionId == transferfunc->getNodeId()) break;
     p = p->next;
   }
 

@@ -15,11 +15,11 @@ public:
   Cvr2DTexPage(void);
   ~Cvr2DTexPage();
 
-  Cvr2DTexSubPage * getPage(int col, int row,
-                             SoTransferFunction * transferFunction);
+  Cvr2DTexSubPage * getSubPage(int col, int row,
+                               SoTransferFunction * transferfunc);
 
-  Cvr2DTexSubPage * buildPage(int col, int row,
-                               SoTransferFunction * transferFunction);
+  Cvr2DTexSubPage * buildSubPage(int col, int row,
+                                 SoTransferFunction * transferfunc);
 
   void init(SoVolumeReader * reader, int sliceIdx,
             SoOrthoSlice::Axis axis, const SbVec2s & pageSize);
@@ -28,10 +28,10 @@ public:
               const SbVec3f & v0, const SbVec3f & v1,
               const SbVec3f & v2, const SbVec3f & v3,
               const SbBox2f & textureCoords,
-              SoTransferFunction * transferFunction, long tick);
+              SoTransferFunction * transferfunc, long tick);
 
-  Cvr2DTexSubPage * getLRUPage(void);
-  void releasePage(Cvr2DTexSubPage *page);
+  Cvr2DTexSubPage * getLRUSubPage(void);
+  void releaseSubPage(Cvr2DTexSubPage *page);
 
   // FIXME: must be public, since they are used from
   // SoVolumeData. 20021106 mortene.
@@ -40,12 +40,12 @@ public:
   int numBytesHW;
 
 private:
-  void releaseLRUPage(void);
-  void releaseAllPages(void);
+  void releaseLRUSubPage(void);
+  void releaseAllSubPages(void);
 
-  int calcPageIdx(int row, int col) const;
+  int calcSubPageIdx(int row, int col) const;
 
-  class Cvr2DTexSubPageItem ** pages;
+  class Cvr2DTexSubPageItem ** subpages;
   SoVolumeReader * reader;
 
   SoOrthoSlice::Axis axis;

@@ -10,15 +10,8 @@ public:
   Cvr2DTexSubPage(void);
   ~Cvr2DTexSubPage();
 
-  enum Storage {
-    NOT_LOADED = 0x0,
-    MEMORY = 0x1,
-    OPENGL = 0x2
-  };
-
   void setActivePage(long tick);
-  void setData(Storage storage,
-               unsigned char * bytes,
+  void setData(unsigned char * bytes,
                const SbVec2s & size,
                const float * palette = NULL,
                int paletteFormat = 0,
@@ -26,17 +19,14 @@ public:
 
   void release(void);
 
-  // FIXME: must be public, since they are used from
-  // SoVolumeData. 20021106 mortene.
+  // FIXME: must be public, since used from SoVolumeData. 20021106 mortene.
   unsigned long lastuse;
 
-  // FIXME: must be public, since they are used from
-  // Cvr2DTexPage. 20021106 mortene.
+  // FIXME: must be public, since used from Cvr2DTexPage. 20021106 mortene.
   int numBytesHW;
   uint32_t transferFunctionId;
 
 private:
-  Storage storage; 
   int format, paletteFormat, paletteSize; 
   unsigned char * palette;
   unsigned char * data;
