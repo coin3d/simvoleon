@@ -36,7 +36,8 @@ public:
 
   static SbBool useFlippedYAxis(void);
   static SbBool dontModulateTextures(void);
-
+  static SbBool force2DTextureRendering(void);
+  
   static uint32_t crc32(uint8_t * buf, unsigned int len);
 
   static void getTransformFromVolumeBoxDimensions(const SoVolumeDataElement * vd,

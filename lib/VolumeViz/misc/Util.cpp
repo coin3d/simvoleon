@@ -86,6 +86,18 @@ CvrUtil::dontModulateTextures(void)
   return (flag == 0) ? FALSE : TRUE;
 }
 
+// Shall we force 2D texture rendering?
+SbBool
+CvrUtil::force2DTextureRendering(void)
+{
+ static int flag = -1;
+  if (flag == -1) {
+    const char * envstr = coin_getenv("CVR_FORCE_2D_TEXTURES");
+    flag = envstr && (atoi(envstr) > 0);
+  }
+  return (flag == 0) ? FALSE : TRUE;
+}
+
 static uint32_t crc32_precalc_table[] = {
   0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
   0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
