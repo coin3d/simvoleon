@@ -40,12 +40,16 @@ main(int argc, char ** argv)
 
   SoVRVolFileReader * filereader = new SoVRVolFileReader;
   filereader->setUserData(argv[1]);
-  exit(1); // XXX
 
+  SbBox3f size;
+  SoVolumeData::DataType type;
+  SbVec3s dim;
+  filereader->getDataChar(size, type, dim);
+  
   // Add VolumeData to scene graph
   SoVolumeData * pVolData = new SoVolumeData();
-//   pVolData->setVolumeData(dim, (unsigned char *)pData, SoVolumeData::RGBA);
-//   pVolData->setVolumeSize(SbBox3f(-1, -1, -1, 1, 1, 1));
+  pVolData->setReader(filereader);
+  pVolData->setVolumeSize(SbBox3f(-1, -1, -1, 1, 1, 1));
 
   root->addChild(pVolData);
 
