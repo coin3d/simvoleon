@@ -25,6 +25,8 @@
 \**************************************************************************/
 
 #include <Inventor/SbBasic.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
+
 
 
 class CvrUtil {
@@ -36,6 +38,10 @@ public:
   static SbBool dontModulateTextures(void);
 
   static uint32_t crc32(uint8_t * buf, unsigned int len);
+
+  static void getTransformFromVolumeBoxDimensions(const SoVolumeDataElement * vd,
+                                                  SbMatrix & m);
+
 };
 
 #endif // !COIN_CVRUTIL_H

@@ -21,9 +21,14 @@
  *
 \**************************************************************************/
 
+#include <string.h>
+
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
-#include <string.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+
+#include <Inventor/SbRotation.h>
+#include <Inventor/SbLinear.h>
 #include <Inventor/C/tidbits.h>
 
 // Returns a value indicating whether or not to spit out debugging
@@ -140,4 +145,32 @@ CvrUtil::crc32(uint8_t * buf, unsigned int len)
   uint32_t crc = 0xffffffff;
   for (unsigned int i = 0; i < len; i++) { crc = updc32(buf[i], crc); }
   return crc;
+}
+
+void
+CvrUtil::getTransformFromVolumeBoxDimensions(const SoVolumeDataElement * vd,
+                                             SbMatrix & m)
+{
+  const SbVec3s voxcubedims = vd->getVoxelCubeDimensions();
+  const SoVolumeData * node = vd->getVolumeData();
+  const SbBox3f localbox = node->getVolumeSize();
+
+  const SbVec3f
+    localspan((localbox.getMax()[0] - localbox.getMin()[0]) / voxcubedims[0],
+              (localbox.getMax()[1] - localbox.getMin()[1]) / voxcubedims[1],
+              (localbox.getMax()[2] - localbox.getMin()[2]) / voxcubedims[2]);
+
+  const SbVec3f localtrans =
+    (localbox.getMax() - localbox.getMin()) / 2.0f + localbox.getMin();
+
+#if 0 // debug, remove when 3D textures have been confirmed to work
+  printf("voxcubedims: <%d, %d, %d>\n", voxcubedims[0], voxcubedims[1], voxcubedims[2]);
+  printf("localbox: <%f, %f, %f> -> <%f, %f, %f>\n",
+         localbox.getMin()[0], localbox.getMin()[1], localbox.getMin()[2],
+         localbox.getMax()[0], localbox.getMax()[1], localbox.getMax()[2]);
+  printf("localspan: "); localspan.print(stdout); printf("\n");
+  printf("localtrans: "); localtrans.print(stdout); printf("\n");
+#endif // debug
+
+  m.setTransform(localtrans, SbRotation::identity(), localspan);
 }
