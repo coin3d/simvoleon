@@ -1,6 +1,8 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/elements/SoGLClipPlaneElement.h>
+#include <Inventor/elements/SoLazyElement.h>
+#include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/SoPickedPoint.h>
 #include <Inventor/system/gl.h>
@@ -72,6 +74,8 @@ public:
   Cvr2DTexPage * getPage(const int axis, const int slice, SoVolumeData * v);
   SbPlane getSliceAsPlane(SoAction * action) const;
   SbBool confirmValidInContext(SoState * state) const;
+
+  SoColorPacker colorpacker;
 
 private:
   SbList<CachedPage*> cachedpages[3];
@@ -240,9 +244,47 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   SoState * state = action->getState();
   if (!PRIVATE(this)->confirmValidInContext(state)) { return; }
 
-  // FIXME: need to make sure we're not cached in a renderlist
+  state->push();
 
-  // FIXME: rendering needs to be delayed to get order correctly.
+  // FIXME: just delaying rendering to a later render pass like below
+  // will get rendering of SoOrthoSlice instances correct versus
+  // non-transparent geometry in the scene, but several ortho slices
+  // overlapping will come out a lot worse than with this
+  // disabled. (Because depthbuffer-testing is disabled..?)
+  //
+  // To get everything to be internally correct, all faces from
+  // SimVoleon should be clipped against each other before rendered.
+  //
+  // 20031030 mortene.
+#if 0
+  // Use SoShape::shouldGLRender() to automatically handle multi-pass
+  // rendering to get transparency correct, plus it should also make
+  // bounding box rendering and view frustum culling work as expected.
+  //
+  // First invoke SoLazyElement::setMaterials(), so we are not faulty
+  // getting short-cutted due to a fully transparent current material
+  // on the state-stack.
+
+  const SbColor col(1, 1, 1); // dummy value
+  // fully opaque, since the textures contain the transparency (and we
+  // don't want it to accumulate):
+  const float trans = 0.01f;
+  SoLazyElement::setMaterials(state, this,
+			      SoLazyElement::ALL_COLOR_MASK |
+			      SoLazyElement::TRANSPARENCY_MASK,
+			      &PRIVATE(this)->colorpacker,
+			      &col, 1, &trans, 1,
+			      col, col, col, 0.2f, TRUE);
+  
+  const SbBool shouldrender = this->shouldGLRender(action);
+  if (!shouldrender) {
+    state->pop();
+    return;
+  }
+#endif
+
+  // Make sure we're not cached in a renderlist.
+  SoCacheElement::invalidate(state);
 
   SbBox3f slicebox;
   SbVec3f dummy;
@@ -299,6 +341,8 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   // Common clipping plane handling. Do this after rendering, so the
   // slice itself isn't clipped.
   SoOrthoSlice::doAction(action);
+
+  state->pop();
 }
 
 Cvr2DTexPage *
