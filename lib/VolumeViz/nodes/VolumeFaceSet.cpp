@@ -199,7 +199,11 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glEnable(GL_TEXTURE_3D);
     glEnable(GL_DEPTH_TEST);
-       
+
+    // FIXME: Should there be support for other blending methods aswell? (20040630 handegar)
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);       
+
     if (!PRIVATE(this)->cube) { PRIVATE(this)->cube = new Cvr3DTexCube(volumedata->getReader()); }
 
     const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
@@ -216,7 +220,7 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
     
     const SoCoordinateElement * coords;
     const SbVec3f * normals;
-    SbBool neednormals;
+    SbBool neednormals = FALSE;
      
     this->getVertexData(state, coords, normals, neednormals);
     
@@ -224,7 +228,7 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
     
     PRIVATE(this)->cube->renderFaceSet(action, origo, interp, 
                                        coords->getArrayPtr3(), 
-                                       this->numVertices.getValues(0),
+                                       this->numVertices.getValues(this->startIndex.getValue()),
                                        this->numVertices.getNum());
     glPopAttrib();
 
@@ -262,9 +266,9 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
     SbPlane cubeplanes[6];
     SbVec3f a, b, c;
     
-    // FIXME: Its really not needed to calculate the clip planes each
-    // frame unless the volume has changed. This should be
-    // optimized.(20040629 handegar)
+    // FIXME: Its really not necessary to calculate the clip planes
+    // for each frame unless the volume has changed. This should be
+    // optimized somehow.(20040629 handegar)
     volumetransform.multVecMatrix(SbVec3f(origo + SbVec3f(0.0f, dims[1], 0.0f)), a);
     volumetransform.multVecMatrix(SbVec3f(origo + SbVec3f(0.0f, dims[1], dims[2])), b);
     volumetransform.multVecMatrix(SbVec3f(origo + SbVec3f(dims[0], dims[1], 0.0f)), c);    
@@ -296,6 +300,9 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
 
     for (int i=0;i<6;++i) {
       state->push();       
+      // FIXME: It would have been nice with a 'remove' or a 'replace'
+      // method in the SoClipPlaneElement so that we wouldn't have to
+      // push and pop the state. (20040630 handegar)
       SoClipPlaneElement::add(state, this, cubeplanes[i]);    
       PRIVATE(this)->clipgeometryfaceset->GLRender(action);
       state->pop();
