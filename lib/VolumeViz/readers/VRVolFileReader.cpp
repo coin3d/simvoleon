@@ -219,7 +219,7 @@ SoVRVolFileReader::setUserData(void * data)
   volh->rotZ = coin_hton_float(0.0f);
 
   const int copylen =
-    SbMin(sizeof(struct vol_header), volh->header_length) - 2 * sizeof(uint32_t);
+    SbMin((uint32_t)sizeof(struct vol_header), volh->header_length) - 2 * sizeof(uint32_t);
 
   (void)memcpy(&(volh->width),
                (uint8_t *)this->m_data + (2 * sizeof(uint32_t)),
