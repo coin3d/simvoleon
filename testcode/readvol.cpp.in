@@ -117,7 +117,6 @@ main(int argc, char ** argv)
 
   root->addChild(voldata);
 
-#if 1 // FIXME: handle missing transferfunction. 20021117 mortene.
   // Add TransferFunction (color map) to scene graph
   SoTransferFunction *transfunc = new SoTransferFunction();
   if (argc == 3) transfunc->predefColorMap = atoi(argv[2]); // XXX
@@ -125,13 +124,14 @@ main(int argc, char ** argv)
   root->addChild(transfunc);
 
   transfunc->predefColorMap = SoTransferFunction::NONE;
+
 //   transfunc->colorMapType = SoTransferFunction::ALPHA;
 //   setColorMapALPHA(&transfunc->colorMap);
 //   transfunc->colorMapType = SoTransferFunction::LUM_ALPHA;
 //   setColorMapLUMALPHA(&transfunc->colorMap);
   transfunc->colorMapType = SoTransferFunction::RGBA;
   setColorMapRGBA(&transfunc->colorMap);
-#endif
+
 
   // Add VolumeRender to scene graph
   SoVolumeRender * volrendnode = new SoVolumeRender();
