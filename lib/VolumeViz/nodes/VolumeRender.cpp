@@ -119,8 +119,8 @@ static const char * texture3d_in_software[] = {
 };
 
 // number of successive test times number of triangels to render each test.
-static const unsigned int VOLUMERENDER_PERFORMANCETEST_TIMES = 5;
-static const unsigned int VOLUMERENDER_PERFORMANCETEST_TRIANGLES = 10;
+static const unsigned int VOLUMERENDER_PERFORMANCETEST_TIMES = 10;
+static const unsigned int VOLUMERENDER_PERFORMANCETEST_TRIANGLES = 5;
 
 // *************************************************************************
 
@@ -990,51 +990,44 @@ SoVolumeRenderP::setupPerformanceTestTextures(GLuint * texture3did,
   delete volumedataset;
 }
 
+static inline void
+render_textured_triangle(const SbVec3f * v)
+{
+  glBegin(GL_TRIANGLES);
+  glTexCoord3f(0.0f, 0.0f, 0.0f);
+  glVertex3fv(v[0].getValue());
+  glTexCoord3f(1.0f, 0.0f, 0.0f);
+  glVertex3fv(v[1].getValue());
+  glTexCoord3f(0.0f, 1.0f, 1.0f);
+  glVertex3fv(v[2].getValue());
+  glEnd();
+}
+
 void
 SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
                                             SbList<double> & timelist2d,
                                             GLuint * texture3did,
                                             GLuint * texture2dids)
 {
-  // FIXME: the ratio of 3D-to-2D texture performance varies wildly,
-  // at least for me on a RIVA TNT2 card, with a factor of about 5x
-  // (i.e. 3D texturing is reported to be from ~40x to ~200x slower
-  // than 2D texturing). Investigate why this happens, and improve
-  // test. 20040711 mortene.
-  //
-  // UPDATE: increasing the number of tests (to run for an excessive
-  // ~5 seconds) "normalizes" the values (to be between 140 and
-  // 160). This might indicate that it is not a good idea to use
-  // random coordinates for the polygons, as long as there are
-  // relatively few of them. Should perhaps instead render a fixed set
-  // of quite large polygons? 20040711 mortene.
-  //
-  // UPDATE: on a system with accelerated 3D-texturing, I get 3d-to-2d
-  // ratios between 1.16 and 3.26, and "normalized" (i.e. on 5-second
-  // runs) at 1.8. 20040712 mortene.
-
-  unsigned int i;
   // All the rendered triangles should have the same size to prevent
-  // un-even measurements.
-  const float xp = -1.0f;
-  const float yp = 1.0f;
-  const float zp = 0.0f;
+  // un-even measurements, which could happen if we set up random
+  // coordinates in "fluke" cases where a string of polygons all have
+  // excessively small screen space. This would bias the measurements
+  // to give too small values for the 3d-to-2d ratio on systems
+  // without 3d-texturing in hardware.
+  const SbVec3f v[3] = {
+    SbVec3f(-0.2f, -0.2f, 0), SbVec3f(0.2f, -0.2f, 0), SbVec3f(0.2f, 0.2f, 0)
+  };
 
   // 3D texture
   SbTime t = SbTime::getTimeOfDay();
 
   glDisable(GL_TEXTURE_2D);
   glEnable(GL_TEXTURE_3D);
+  unsigned int i;
   for (i = 0; i < VOLUMERENDER_PERFORMANCETEST_TRIANGLES; ++i) {
     glBindTexture(GL_TEXTURE_3D, texture3did[0]);
-    glBegin(GL_TRIANGLES);
-    glTexCoord3f(0.0f, 0.0f, 0.0f);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glTexCoord3f(1.0f, 0.0f, 0.0f);
-    glVertex3f(xp, 0.0f, zp);
-    glTexCoord3f(0.0f, 1.0f, 1.0f);
-    glVertex3f(xp, -yp, zp);
-    glEnd();
+    render_textured_triangle(v);
   }
 
   glFinish();
@@ -1048,14 +1041,7 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
   glEnable(GL_TEXTURE_2D);
   for (i = 0; i < VOLUMERENDER_PERFORMANCETEST_TRIANGLES; ++i) {
     glBindTexture(GL_TEXTURE_2D, texture2dids[i & 1]); // Flip between two textures
-    glBegin(GL_TRIANGLES);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(xp, 0.0f, zp);
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(xp, -yp, zp);  
-    glEnd();
+    render_textured_triangle(v);
   }
 
   glFinish();
@@ -1110,6 +1096,10 @@ double
 SoVolumeRenderP::performanceTest(const cc_glglue * glue)
 {
   const SbTime t = SbTime::getTimeOfDay();
+  if (CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("SoVolumeRenderP::performanceTest",
+                           "start at %f", t.getValue());
+  }
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
@@ -1151,7 +1141,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   // The following is a substitute for gluPerspective(...)
   const float fovy = 45.0f;
   const float zNear = 0.1f;
-  const float zFar = 100.0f;
+  const float zFar = 10.0f;
   const float aspect = (float) viewport[2] / (float) viewport[3];
   const double radians = fovy / 2 * M_PI / 180;
   const double deltaZ = zFar - zNear;
@@ -1173,7 +1163,8 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  glTranslatef(0.7f, 0.5f, -0.5f); // The tris should take up most of the screen area.
+  glTranslatef(0, 0, -0.5f); // Move camera a bit, so polygons can be
+                             // rendered at z=0.
 
   if (SoVolumeRenderP::debug3DTextureTiming()) {
     glClearColor(0, 0, 1, 0);
@@ -1191,12 +1182,18 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
     SoVolumeRenderP::renderPerformanceTestScene(timelist3d, timelist2d,
                                                 texture3did, texture2dids);
 
+    const SbTime now = SbTime::getTimeOfDay();
+    if (CvrUtil::doDebugging()) {
+      SoDebugError::postInfo("SoVolumeRenderP::performanceTest",
+                             "run %u done at %f", i, now.getValue());
+    }
+
     // Don't run the test for more than half a second.
-    if (((SbTime::getTimeOfDay() - starttime).getValue()) > 0.5f) { break; }
+    if (((now - starttime).getValue()) > .5f) { break; }
   }
 
   if (CvrUtil::doDebugging()) {
-    SoDebugError::postInfo("SoVolumeRenderP::getAveragePerformanceTime",
+    SoDebugError::postInfo("SoVolumeRenderP::performanceTest",
                            "managed %d runs", timelist2d.getLength());
   }
 
