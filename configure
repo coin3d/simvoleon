@@ -1726,6 +1726,8 @@ LT_REVISION=0
 LT_AGE=0
 
 
+#  These are for lib/VolumeViz/C/basic.h and lib/VolumeViz/Makefile.am.
+
 
 cat >>confdefs.h <<_ACEOF
 #define SIMVOLEON_MAJOR_VERSION $SIMVOLEON_MAJOR_VERSION
@@ -3566,7 +3568,7 @@ fi;
 
 
 
-		    		    		    ac_config_headers="$ac_config_headers config.h"
+		    		    		    ac_config_headers="$ac_config_headers lib/config.h"
 
 
 # *******************************************************************
@@ -5466,7 +5468,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5469 "configure"' > conftest.$ac_ext
+  echo '#line 5471 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -6002,7 +6004,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:6005: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:6007: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -7795,7 +7797,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7798 "configure"
+#line 7800 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -7893,7 +7895,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7896 "configure"
+#line 7898 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9900,7 +9902,7 @@ exec_prefix=$sim_ac_save_exec_prefix
 # unset sim_ac_eval_uniq
 
 
-ac_config_files="$ac_config_files Makefile lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile"
+ac_config_files="$ac_config_files Makefile lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -10386,6 +10388,7 @@ do
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "lib/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
   "lib/VolumeViz/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/Makefile" ;;
+  "lib/VolumeViz/C/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/C/Makefile" ;;
   "lib/VolumeViz/details/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/details/Makefile" ;;
   "lib/VolumeViz/elements/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/elements/Makefile" ;;
   "lib/VolumeViz/misc/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/misc/Makefile" ;;
@@ -10395,7 +10398,7 @@ do
   "lib/VolumeViz/render/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/Makefile" ;;
   "lib/VolumeViz/render/2D/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/2D/Makefile" ;;
   "default-1" ) CONFIG_COMMANDS="$CONFIG_COMMANDS default-1" ;;
-  "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
+  "lib/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS lib/config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}
    { (exit 1); exit 1; }; };;
@@ -10966,8 +10969,8 @@ done; }
   fi
   # Run the commands associated with the file.
   case $ac_file in
-    config.h ) # update the timestamp
-echo timestamp >"./stamp-h1"
+    lib/config.h ) # update the timestamp
+echo timestamp >"lib/stamp-h1"
  ;;
   esac
 done

@@ -100,7 +100,7 @@ sim_ac_coin_configcmd = @sim_ac_coin_configcmd@
 SUBDIRS = 2D
 subdir = lib/VolumeViz/render
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/config.h
+CONFIG_HEADER = $(top_builddir)/lib/config.h
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =
 

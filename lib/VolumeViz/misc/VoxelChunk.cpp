@@ -9,13 +9,13 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
-#include <../nodes/gradients/GREY.h>
-#include <../nodes/gradients/TEMPERATURE.h>
-#include <../nodes/gradients/PHYSICS.h>
-#include <../nodes/gradients/STANDARD.h>
-#include <../nodes/gradients/GLOW.h>
-#include <../nodes/gradients/BLUE_RED.h>
-#include <../nodes/gradients/SEISMIC.h>
+#include <VolumeViz/nodes/gradients/GREY.h>
+#include <VolumeViz/nodes/gradients/TEMPERATURE.h>
+#include <VolumeViz/nodes/gradients/PHYSICS.h>
+#include <VolumeViz/nodes/gradients/STANDARD.h>
+#include <VolumeViz/nodes/gradients/GLOW.h>
+#include <VolumeViz/nodes/gradients/BLUE_RED.h>
+#include <VolumeViz/nodes/gradients/SEISMIC.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>

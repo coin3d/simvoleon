@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir)/lib
+DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
 if BUILD_WITH_MSVC
 noinst_LIBRARIES = misc.lst

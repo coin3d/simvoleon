@@ -97,7 +97,7 @@ am__quote = @am__quote@
 install_sh = @install_sh@
 sim_ac_coin_configcmd = @sim_ac_coin_configcmd@
 
-INCLUDES = -I$(top_srcdir)/lib
+DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = misc.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libmisc.la
@@ -114,7 +114,7 @@ libmisc_la_SOURCES = $(SOURCES)
 misc_lst_SOURCES = $(SOURCES)
 subdir = lib/VolumeViz/misc
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/config.h
+CONFIG_HEADER = $(top_builddir)/lib/config.h
 CONFIG_CLEAN_FILES =
 LIBRARIES = $(noinst_LIBRARIES)
 
@@ -131,7 +131,6 @@ am_libmisc_la_OBJECTS = VoxelChunk.lo CLUT.lo Util.lo GIMPGradient.lo
 libmisc_la_OBJECTS = $(am_libmisc_la_OBJECTS)
 
 DEFS = @DEFS@
-DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@

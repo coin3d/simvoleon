@@ -1,7 +1,7 @@
-INCLUDES = -I$(top_srcdir)/lib
-
 # Note misc/ must be built after nodes/gradients/.
-SUBDIRS = details elements nodes misc readers render .
+SUBDIRS = C details elements nodes misc readers render .
+
+DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
 if BUILD_WITH_MSVC
 lib_LIBRARIES = simvoleon@SIMVOLEON_MAJOR_VERSION@.lib

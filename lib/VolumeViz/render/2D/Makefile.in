@@ -97,7 +97,7 @@ am__quote = @am__quote@
 install_sh = @install_sh@
 sim_ac_coin_configcmd = @sim_ac_coin_configcmd@
 
-INCLUDES = -I$(top_srcdir)/lib
+DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = 2Drender.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = lib2Drender.la
@@ -117,7 +117,7 @@ lib2Drender_la_SOURCES = $(SOURCES)
 2Drender_lst_SOURCES = $(SOURCES)
 subdir = lib/VolumeViz/render/2D
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/config.h
+CONFIG_HEADER = $(top_builddir)/lib/config.h
 CONFIG_CLEAN_FILES =
 LIBRARIES = $(noinst_LIBRARIES)
 
@@ -137,7 +137,6 @@ am_lib2Drender_la_OBJECTS = PageHandler.lo 2DTexSubPage.lo 2DTexPage.lo \
 lib2Drender_la_OBJECTS = $(am_lib2Drender_la_OBJECTS)
 
 DEFS = @DEFS@
-DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@

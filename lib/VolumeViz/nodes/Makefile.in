@@ -99,7 +99,7 @@ sim_ac_coin_configcmd = @sim_ac_coin_configcmd@
 
 SUBDIRS = gradients
 
-INCLUDES = -I$(top_srcdir)/lib
+DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = nodes.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libnodes.la
@@ -131,7 +131,7 @@ libnodesinc_HEADERS = \
 
 subdir = lib/VolumeViz/nodes
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
-CONFIG_HEADER = $(top_builddir)/config.h
+CONFIG_HEADER = $(top_builddir)/lib/config.h
 CONFIG_CLEAN_FILES =
 LIBRARIES = $(noinst_LIBRARIES)
 
@@ -151,7 +151,6 @@ am_libnodes_la_OBJECTS = TransferFunction.lo VolumeData.lo \
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 
 DEFS = @DEFS@
-DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@

@@ -49,6 +49,8 @@ AC_SUBST([LT_CURRENT], [SC_ABI_CURRENT])
 AC_SUBST([LT_REVISION], [SC_ABI_REVISION])
 AC_SUBST([LT_AGE], [SC_ABI_AGE])
 
+#  These are for lib/VolumeViz/C/basic.h and lib/VolumeViz/Makefile.am.
+
 AC_DEFINE_UNQUOTED([SIMVOLEON_MAJOR_VERSION], [$SIMVOLEON_MAJOR_VERSION],
   [define this to the libSimVoleon major version number])
 AC_DEFINE_UNQUOTED([SIMVOLEON_MINOR_VERSION], [$SIMVOLEON_MINOR_VERSION],
@@ -76,7 +78,7 @@ AM_INIT_AUTOMAKE(SimVoleon, $VERSION)
 AM_DISABLE_STATIC
 
 #  Files to cram results from the configure tests into.
-AM_CONFIG_HEADER(config.h)
+AM_CONFIG_HEADER(lib/config.h)
 
 # *******************************************************************
 # Compiler checking.
@@ -204,6 +206,7 @@ AC_OUTPUT([
         Makefile
         lib/Makefile
         lib/VolumeViz/Makefile
+        lib/VolumeViz/C/Makefile
 	lib/VolumeViz/details/Makefile
 	lib/VolumeViz/elements/Makefile
 	lib/VolumeViz/misc/Makefile
