@@ -109,7 +109,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 # Adding in a dummy C++ source code file to "trick" Automake to set
 # us up with C++ $CXXLD for linking (and not the default C $CCLD).
 libSimVoleon_la_SOURCES = dummy.cpp
-simvoleon_lib_SOURCES = dummy.cpp
+simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES = dummy.cpp
 
 libSimVoleon_la_LIBADD = \
         details/libdetails.la \
@@ -120,7 +120,7 @@ libSimVoleon_la_LIBADD = \
 	render/2D/lib2Drender.la
 
 
-simvoleon_lib_LIBADD = \
+simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD = \
         details/details.lst \
         elements/elements.lst \
         misc/misc.lst \
@@ -140,11 +140,12 @@ CONFIG_CLEAN_FILES =
 LIBRARIES = $(lib_LIBRARIES)
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_AR = $(AR) cru
-simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD =
-simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES = \
-	simvoleon@SIMVOLEON_MAJOR_VERSION@.lib.c
+simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_DEPENDENCIES = \
+	details/details.lst elements/elements.lst misc/misc.lst \
+	nodes/nodes.lst readers/readers.lst render/2D/2Drender.lst
+am_simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS = dummy.$(OBJEXT)
 simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS = \
-	simvoleon@SIMVOLEON_MAJOR_VERSION@.lib.$(OBJEXT)
+	$(am_simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
 libSimVoleon_la_DEPENDENCIES = details/libdetails.la \
@@ -158,16 +159,7 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/dummy.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/simvoleon@SIMVOLEON_MAJOR_VERSION@.lib.Po
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
-	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-CFLAGS = @CFLAGS@
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/dummy.Plo $(DEPDIR)/dummy.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -177,7 +169,7 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 CXXFLAGS = @CXXFLAGS@
-DIST_SOURCES = simvoleon@SIMVOLEON_MAJOR_VERSION@.lib.c \
+DIST_SOURCES = $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES) \
 	$(libSimVoleon_la_SOURCES)
 
 RECURSIVE_TARGETS = info-recursive dvi-recursive install-info-recursive \
@@ -186,12 +178,12 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive install-info-recursive \
 	uninstall-recursive check-recursive installcheck-recursive
 DIST_COMMON = Makefile.am Makefile.in
 DIST_SUBDIRS = $(SUBDIRS)
-SOURCES = simvoleon@SIMVOLEON_MAJOR_VERSION@.lib.c $(libSimVoleon_la_SOURCES)
+SOURCES = $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES) $(libSimVoleon_la_SOURCES)
 
 all: all-recursive
 
 .SUFFIXES:
-.SUFFIXES: .c .cpp .lo .o .obj
+.SUFFIXES: .cpp .lo .o .obj
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -265,29 +257,10 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/dummy.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/simvoleon@SIMVOLEON_MAJOR_VERSION@.lib.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/dummy.Po@am__quote@
 
 distclean-depend:
 	-rm -rf $(DEPDIR)
-
-.c.o:
-@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-	$(COMPILE) -c `test -f $< || echo '$(srcdir)/'`$<
-
-.c.obj:
-@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-	$(COMPILE) -c `( test -f $< || echo -n '$(srcdir)/'; echo -n $< ) | xargs cygpath -w`
-
-.c.lo:
-@AMDEP_TRUE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-	$(LTCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
-CCDEPMODE = @CCDEPMODE@
 
 .cpp.o:
 @AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
@@ -530,17 +503,17 @@ uninstall-info: uninstall-info-recursive
 
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@.lib: Makefile \
-  $(simvoleon_lib_OBJECTS) \
-  $(simvoleon_lib_DEPENDENCIES)
+  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS) \
+  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_DEPENDENCIES)
 	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@"; \
 	rm -f "$$basename.dll" "$$basename.lib"; \
 	echo "Linking $$basename.lib..."; \
 	echo $(CC) $(LDFLAGS) $(LIBFLAGS) \
-	  $(simvoleon_lib_OBJECTS) \
-	  $(simvoleon_lib_LIBADD) $(LIBS); \
+	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS) \
+	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD) $(LIBS); \
 	$(CC) $(LDFLAGS) $(LIBFLAGS) \
-	  $(simvoleon_lib_OBJECTS) \
-	  $(simvoleon_lib_LIBADD) $(LIBS);
+	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS) \
+	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD) $(LIBS);
 
 # **************************************************************************
 
