@@ -59,12 +59,6 @@ CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, UnitSize type,
     this->voxelbuffer = buffer;
     this->destructbuffer = FALSE;
   }
-
-  static SbBool init_static = TRUE;
-  if (init_static) {
-    init_static = FALSE;
-    CvrVoxelChunk::initPredefGradients();
-  }
 }
 
 CvrVoxelChunk::~CvrVoxelChunk()
@@ -134,6 +128,12 @@ CvrVoxelChunk::getUnitSize(void) const
 CvrCLUT *
 CvrVoxelChunk::makeCLUT(const SoTransferFunctionElement * tfelement)
 {
+  static SbBool init_predefs = TRUE;
+  if (init_predefs) {
+    init_predefs = FALSE;
+    CvrVoxelChunk::initPredefGradients();
+  }
+
   SoTransferFunction * transferfunc = tfelement->getTransferFunction();
   assert(transferfunc != NULL);
 
