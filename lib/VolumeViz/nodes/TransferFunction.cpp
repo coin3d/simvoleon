@@ -300,6 +300,8 @@ SoTransferFunction::initClass(void)
   SO_ENABLE(SoPickAction, SoTransferFunctionElement);
 }
 
+// *************************************************************************
+
 void
 SoTransferFunction::doAction(SoAction * action)
 {
@@ -359,3 +361,35 @@ SoTransferFunction::reMap(int low, int high)
   this->remapLow = l;
   this->remapHigh = h;
 }
+
+// *************************************************************************
+
+SbBool
+SoTransferFunction::hasTransparency(void) const
+{
+  if (this->remapLow.getValue() > 0) { return TRUE; }
+  if (this->remapHigh.getValue() < ((2 << 16) - 1)) { return TRUE; }
+
+  const int maptype = this->predefColorMap.getValue();
+  if (maptype == SoTransferFunction::NONE) {
+    switch (this->colorMapType.getValue()) {
+      // FIXME: scan this->colorMap to get an exact result. 20041008 mortene.
+    case SoTransferFunction::ALPHA: return TRUE;
+    case SoTransferFunction::LUM_ALPHA: return TRUE;
+    case SoTransferFunction::RGBA: return TRUE;
+    default:
+      // this is an error, but probably reported elsewhere, so don't
+      // bother with a warning
+      return TRUE;
+    }
+  }
+
+  if (maptype == SoTransferFunction::GRAY ||
+      maptype == SoTransferFunction::SEISMIC) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+// *************************************************************************

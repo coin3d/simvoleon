@@ -66,7 +66,7 @@ public:
   SoMFFloat colorMap;
 
   void reMap(int low, int high);
-
+  SbBool hasTransparency(void) const;
 
 protected:
   ~SoTransferFunction();
