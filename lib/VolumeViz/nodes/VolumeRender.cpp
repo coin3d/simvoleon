@@ -90,30 +90,34 @@ SoVolumeRender::initClass(void)
 void
 SoVolumeRender::GLRender(SoGLRenderAction *action)
 {
+  if (!this->shouldGLRender(action)) return;
+
   SoState * state = action->getState();
-  if (!shouldGLRender(action)) return;
 
   // Fetching the current volumedata
-  const SoVolumeDataElement * volumeDataElement;
-  volumeDataElement = SoVolumeDataElement::getInstance(state);
-  assert(volumeDataElement);
-  SoVolumeData * volumeData = volumeDataElement->getVolumeData();
+  const SoVolumeDataElement * volumedataelement =
+    SoVolumeDataElement::getInstance(state);
+  assert(volumedataelement != NULL); // FIXME: handle gracefully. 20021111 mortene.
 
-  // Fetching the current transferFunction
-  const SoTransferFunctionElement * transferFunctionElement;
-  transferFunctionElement = SoTransferFunctionElement::getInstance(state);
-  assert(transferFunctionElement);
-  SoTransferFunction * transferFunction =
-    transferFunctionElement->getTransferFunction();
+  SoVolumeData * volumedata = volumedataelement->getVolumeData();
 
-  // Calculating a camvec from camera to center of object
+  // Fetching the current transfer function.
+  const SoTransferFunctionElement * transferfunctionelement =
+    SoTransferFunctionElement::getInstance(state);
+  assert(transferfunctionelement != NULL); // FIXME: handle gracefully. 20021111 mortene.
+
+  SoTransferFunction * transferfunction =
+    transferfunctionelement->getTransferFunction();
+
+  // Calculating a camvec from camera to center of object.
   const SbMatrix & mm = SoModelMatrixElement::get(state);
   SbMatrix imm = mm.inverse();
 
   SbVec3f camvec;
   const SbViewVolume & vv = SoViewVolumeElement::get(state);
 
-  if (0 && vv.getProjectionType() == SbViewVolume::PERSPECTIVE) {
+  if (/* FIXME: ??? 20021111 mortene: */ 0 &&
+      vv.getProjectionType() == SbViewVolume::PERSPECTIVE) {
     SbVec3f worldpos(0.0f, 0.0f, 0.0f);
     mm.multVecMatrix(worldpos, worldpos);
     camvec = vv.getProjectionPoint() - worldpos;
@@ -128,6 +132,59 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   abstoviewer[0] = fabs(camvec[0]);
   abstoviewer[1] = fabs(camvec[1]);
   abstoviewer[2] = fabs(camvec[2]);
+
+  // FIXME: Implement use of the
+  // numSlicesControl-field. torbjorv 07112002
+
+  // Commonly used variables
+  SbVec3f min, max;
+  SbBox3f volumeSize = volumedata->getVolumeSize();
+  volumeSize.getBounds(min, max);
+  SbVec3s dimensions = volumedata->getDimensions();
+  float depth;
+  float depthAdder;
+
+  int numslices = this->numSlices.getValue();
+  // Default value is zero, so treat it as "hey, you choose, Mr
+  // VolumeViz Library" from the application programmer.
+  if (numslices == 0) numslices = 10;
+
+  SbBool renderalongX =
+    (abstoviewer[0] >= abstoviewer[1]) &&
+    (abstoviewer[0] >= abstoviewer[2]);
+
+  SbBool renderalongY =
+    (abstoviewer[1] >= abstoviewer[0]) &&
+    (abstoviewer[1] >= abstoviewer[2]);
+
+  SbBool renderalongZ =
+    (abstoviewer[2] >= abstoviewer[0]) &&
+    (abstoviewer[2] >= abstoviewer[1]);
+
+  assert(((renderalongX ? 1 : 0) +
+          (renderalongY ? 1 : 0) +
+          (renderalongZ ? 1 : 0)) == 1);
+
+  enum Axis { X = 0, Y = 1, Z = 2 };
+  const int AXISIDX = (renderalongX ? X : (renderalongY ? Y : Z));
+
+  // Render in reverse order?
+  if (camvec[AXISIDX] < 0)  {
+    depthAdder = -(max[AXISIDX] - min[AXISIDX]) / numslices;
+    depth = max[AXISIDX];
+  }
+  else {
+    depthAdder = (max[AXISIDX] - min[AXISIDX]) / numslices;
+    depth = min[AXISIDX];
+  }
+
+  // FIXME: is it really correct to use same quad for both X-way and
+  // Y-way rendering? Seems bogus. 20021111 mortene.
+  const SbBox2f QUAD = renderalongZ ?
+    SbBox2f(min[0], min[1], max[0], max[1]) :
+    SbBox2f(min[1], min[2], max[1], max[2]);
+
+  const SbBox2f TEXTURECOORDS = SbBox2f(0.0, 0.0, 1.0, 1.0);
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
@@ -157,143 +214,35 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
   glDisable(GL_CULL_FACE);
 
-  // FIXME: Implement use of the
-  // numSlicesControl-field. torbjorv 07112002
+  // Rendering slices
+  for (int i = 0; i < numslices; i++) {
+    // FIXME: multiplying with dimensions looks
+    // funny.. investigate. 20021111 mortene.
+    int imageIdx =
+      (int)((float(i)/float(numslices)) * float(dimensions[AXISIDX]));
 
-  // FIXME: Clean up the use of states for textures, lighting,
-  // culling, blendfunc (restore previous states).
-  // torbjorv 07122002
-
-  // FIXME:
-
-
-  // Commonly used variables
-  SbVec3f min, max;
-  SbBox3f volumeSize = volumeData->getVolumeSize();
-  volumeSize.getBounds(min, max);
-  SbVec3s dimensions = volumeData->getDimensions();
-  float depth;
-  float depthAdder;
-
-  int numslices = this->numSlices.getValue();
-  // Default value is zero, so treat it as "hey, you choose" from the
-  // application programmer.
-  if (numslices == 0) numslices = 10;
-
-  // Render along X-axis
-  if ((abstoviewer[0] >= abstoviewer[1]) &&
-      (abstoviewer[0] >= abstoviewer[2])) {
-
-    // Render in reverse order?
-    if (camvec[0] < 0)  {
-      depthAdder = -(max[0] - min[0]) / numslices;
-      depth = max[0];
-    }
-    else {
-      depthAdder = (max[0] - min[0]) / numslices;
-      depth = min[0];
+    // Are we rendering in in reverse order?
+    if (depthAdder < 0) {
+      imageIdx =
+        (int)((float(numslices - 1) / float(numslices)) *
+              dimensions[AXISIDX]) - imageIdx;
     }
 
-    // Rendering slices
-    for (int i = 0; i < numslices; i++) {
-      int imageIdx =
-        (int)((float(i)/float(numslices)) * float(dimensions[0]));
-
-      // Are we rendering in in reverse order?
-      if (depthAdder < 0)
-        imageIdx =
-          (int)((float(numslices - 1) / numslices) *
-                dimensions[0]) - imageIdx;
-
-      volumeData->renderOrthoSliceX(state,
-                                    SbBox2f(min[1],
-                                            min[2],
-                                            max[1],
-                                            max[2]),
-                                    depth,
-                                    imageIdx,
-                                    SbBox2f(0.0, 0.0, 1.0, 1.0),
-                                    transferFunction);
-
-      depth += depthAdder;
+    if (renderalongX) {
+      volumedata->renderOrthoSliceX(state, QUAD, depth, imageIdx,
+                                    TEXTURECOORDS, transferfunction);
     }
-  }
-
-  // Render along Y-axis
-  else if ((abstoviewer[1] >= abstoviewer[0]) &&
-           (abstoviewer[1] >= abstoviewer[2])) {
-
-    // Render in reverse order?
-    if (camvec[1] < 0)  {
-      depthAdder = -(max[1] - min[1]) / numslices;
-      depth = max[1];
+    else if (renderalongY) {
+      volumedata->renderOrthoSliceY(state, QUAD, depth, imageIdx,
+                                    TEXTURECOORDS, transferfunction);
     }
-    else {
-      depthAdder = (max[1] - min[1]) / numslices;
-      depth = min[1];
+    else if (renderalongZ) {
+      volumedata->renderOrthoSliceZ(state, QUAD, depth, imageIdx,
+                                    TEXTURECOORDS, transferfunction);
     }
+    else assert(FALSE);
 
-    // Rendering slices
-    for (int i = 0; i < numslices; i++) {
-      int imageIdx =
-        (int)((float(i)/float(numslices))*float(dimensions[1]));
-
-      // Are we rendering in in reverse order?
-      if (depthAdder < 0)
-        imageIdx =
-          (int)((float(numslices - 1) / numslices) *
-                dimensions[1]) - imageIdx;
-
-      volumeData->renderOrthoSliceY(state,
-                                    SbBox2f(min[1],
-                                            min[2],
-                                            max[1],
-                                            max[2]),
-                                    depth,
-                                    imageIdx,
-                                    SbBox2f(0.0, 0.0, 1.0, 1.0),
-                                    transferFunction);
-
-      depth += depthAdder;
-    }
-  }
-  // Render along Z-axis
-  else if ((abstoviewer[2] >= abstoviewer[0]) &&
-           (abstoviewer[2] >= abstoviewer[1])) {
-
-    // Render in reverse order?
-    if (camvec[2] < 0)  {
-      depthAdder = -(max[2] - min[2]) / numslices;
-      depth = max[2];
-    }
-    else {
-      depthAdder = +(max[2] - min[2]) / numslices;
-      depth = min[2];
-    }
-
-    // Rendering slices
-    for (int i = 0; i < numslices; i++) {
-      int imageIdx
-        = (int)((float(i)/float(numslices))*float(dimensions[2]));
-
-      // Are we rendering in in reverse order?
-      if (camvec[2] < 0)
-        imageIdx =
-          (int)((float(numslices - 1) / numslices) *
-                dimensions[2]) - imageIdx;
-
-      volumeData->renderOrthoSliceZ(state,
-                                    SbBox2f(min[0],
-                                            min[1],
-                                            max[0],
-                                            max[1]),
-                                    depth,
-                                    imageIdx,
-                                    SbBox2f(0.0, 0.0, 1.0, 1.0),
-                                    transferFunction);
-
-      depth += depthAdder;
-    }
+    depth += depthAdder;
   }
 
   glPopAttrib();
