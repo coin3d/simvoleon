@@ -61,8 +61,17 @@
 005 SoVolumeData::setPageSize() ignored for 3D texturing.
 
     3D texturing just uses the max allowed by OpenGL. Should follow
-    what is forced by the API.
+    what is forced by the API, for several good reasons.
 
     20040623 mortene.
+
+========================================================================
+
+006 Support for SoVolumeRender::viewAlignedSlices not implemented.
+
+    At least one potential client would use this. Should be simple to
+    fix.
+
+    20040702 mortene.
 
 ========================================================================
