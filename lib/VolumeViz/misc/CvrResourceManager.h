@@ -60,6 +60,7 @@ private:
   SbList<GLuint> dyingtextureids;
   void GLContextMadeCurrent(uint32_t contextid);
   static void GLContextMadeCurrentCB(void * closure, uint32_t contextid);
+  static void GLContextDestructionCB(uint32_t ctxtid, void * userdata);
 };
 
 // *************************************************************************

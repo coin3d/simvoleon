@@ -24,6 +24,7 @@
 #include <VolumeViz/misc/CvrResourceManager.h>
 
 #include <Inventor/elements/SoGLCacheContextElement.h>
+#include <Inventor/misc/SoContextHandler.h>
 
 // *************************************************************************
 
@@ -35,8 +36,9 @@ CvrResourceManager *
 CvrResourceManager::getInstance(uint32_t ctxid)
 {
   if (CvrResourceManager::managers == NULL) {
-    CvrResourceManager::managers = new SbDict;
     // FIXME: this causes a static mem-leak. 20041111 mortene.
+    CvrResourceManager::managers = new SbDict;
+    SoContextHandler::addContextDestructionCallback(CvrResourceManager::GLContextDestructionCB, NULL);
   }
 
   const unsigned long key = (unsigned long)ctxid;
@@ -46,9 +48,6 @@ CvrResourceManager::getInstance(uint32_t ctxid)
     value = new CvrResourceManager(ctxid);
     const SbBool newentry = CvrResourceManager::managers->enter(key, value);
     assert(newentry);
-
-    // FIXME: insert callback to catch context destruction
-    // event. 20041111 mortene.
   }
   return (CvrResourceManager *)value;
 }
@@ -135,6 +134,30 @@ void
 CvrResourceManager::GLContextMadeCurrentCB(void * closure, uint32_t contextid)
 {
   ((CvrResourceManager *)closure)->GLContextMadeCurrent(contextid);
+}
+
+// *************************************************************************
+
+void
+CvrResourceManager::GLContextDestructionCB(uint32_t contextid, void * userdata)
+{
+  CvrResourceManager * rm = CvrResourceManager::getInstance(contextid);
+
+  while (rm->cblist.getLength()) {
+    int len = rm->cblist.getLength();
+    int idx = len - 1;
+    struct cb * cbstruct = &(rm->cblist[idx]);
+    cbstruct->func(cbstruct->closure, contextid);
+    if (len == rm->cblist.getLength()) { rm->remove(cbstruct->resourceholder); }
+  }
+
+  // Clean out any resources recently added.
+  rm->GLContextMadeCurrent(contextid);
+
+  const unsigned long key = (unsigned long)contextid;
+  const SbBool ok = CvrResourceManager::managers->remove(key);
+  assert(ok);
+  delete rm;
 }
 
 // *************************************************************************
