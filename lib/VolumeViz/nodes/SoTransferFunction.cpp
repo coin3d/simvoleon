@@ -56,6 +56,8 @@ private:
 
 SoTransferFunction::SoTransferFunction(void)
 {
+  SO_NODE_CONSTRUCTOR(SoTransferFunction);
+
   PRIVATE(this) = new SoTransferFunctionP(this);
 
   SO_NODE_DEFINE_ENUM_VALUE(PredefColorMap, NONE);
