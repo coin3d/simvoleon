@@ -159,6 +159,10 @@ Cvr3DTexCube::calculateOptimalSubCubeSize()
 
   GLint maxsize;
   glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxsize);
+  if (CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("Cvr3DTexCube::calculateOptimalSubCubeSize",
+                           "GL_MAX_3D_TEXTURE_SIZE==%d", maxsize);
+  }
 
   short forcedsubcubesize = 0;
   const char * envstr = coin_getenv("CVR_FORCE_SUBCUBE_SIZE");
