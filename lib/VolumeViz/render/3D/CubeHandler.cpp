@@ -33,7 +33,6 @@
 #include <Inventor/elements/SoGLLazyElement.h>
 
 #include <VolumeViz/render/3D/CvrCubeHandler.h>
-
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/readers/SoVolumeReader.h>
@@ -131,6 +130,7 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
   glDisable(GL_LIGHTING);
+  glEnable(GL_TEXTURE_3D);
 
   // FIXME: how does the blending cooperate with the other geometry in
   // a Coin scene graph? Do we need to delay rendering? 20021109 mortene.

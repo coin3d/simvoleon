@@ -34,6 +34,7 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
+#include <Inventor/bundles/SoMaterialBundle.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -414,6 +415,8 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
       else colorformat = GL_COMPRESSED_INTENSITY_ARB;
     }
     
+    GLCMD(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE));
+
     GLCMD(glTexImage2D(GL_TEXTURE_2D,
                  0,
                  colorformat,
@@ -471,8 +474,8 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
   this->activateTexture(interpolation);
   if (this->ispaletted) { this->activateCLUT(action); }
 
-  glBegin(GL_QUADS);
-  glColor4f(1, 1, 1, 1);
+  SoMaterialBundle mb((SoGLRenderAction *) action);
+  mb.sendFirst();
 
   // Scale span of GL quad to match the visible part of the
   // texture. (Border subpages shouldn't show all of the texture, if
@@ -492,6 +495,8 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
   // Y-direction, as the volume data and texture map data are oriented
   // in the opposite direction (top-to-bottom) from what the Y axis in
   // the OpenGL coordinate system uses (bottom-to-top).
+
+  glBegin(GL_QUADS);
 
   glTexCoord2f(0.0f, this->texmaxcoords[1]);
   glVertex3f(lowleft[0], lowleft[1], lowleft[2]);

@@ -34,11 +34,15 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
+#include <Inventor/bundles/SoMaterialBundle.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
+#include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/projectors/SbPlaneProjector.h>
+#include <Inventor/SbColor.h>
+
 
 // *************************************************************************
 
@@ -296,6 +300,7 @@ Cvr3DTexSubCube::transferTex3GL(SoGLRenderAction * action,
     GLCMD(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrapenum));
     assert(glGetError() == GL_NO_ERROR);
 
+ 
     void * imgptr = NULL;
     if (this->ispaletted) imgptr = ((CvrPaletteTexture *)texobj)->getIndex8Buffer();
     else imgptr = ((CvrRGBATexture *)texobj)->getRGBABuffer();
@@ -318,6 +323,8 @@ Cvr3DTexSubCube::transferTex3GL(SoGLRenderAction * action,
       else colorformat = GL_COMPRESSED_INTENSITY_ARB;
     }
       
+    GLCMD(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE));
+
     cc_glglue_glTexImage3D(glw,
                            GL_TEXTURE_3D,
                            0,
@@ -478,13 +485,13 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
   if (this->ispaletted) // Switch ON palette rendering
     this->activateCLUT(action);
 
+  SoMaterialBundle mb((SoGLRenderAction *) action);
+  mb.sendFirst();
+  
   // FIXME: Maybe we should build a vertex array instead of making
   // glVertex3f calls. Would probably give a performance
   // gain. (20040312 handegar)
-  
-  glColor4f(1.0f, 1.0f, 1.0f, 1.0f);    
-  glEnable(GL_TEXTURE_3D);  
-
+ 
   for(int i=this->volumeslices.getLength()-1;i>=0;--i) {   
     
     glBegin(GL_TRIANGLE_FAN);
@@ -493,7 +500,7 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
       glVertex3fv(this->volumeslices[i].vertex[j].getValue());      
     }
     glEnd();
-           
+    
     this->volumeslices[i].vertex.truncate(0);
     this->volumeslices[i].texcoord.truncate(0);
 

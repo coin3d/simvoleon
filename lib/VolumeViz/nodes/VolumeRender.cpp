@@ -384,6 +384,8 @@ SoVolumeRender::initClass(void)
   SO_ENABLE(SoRayPickAction, SoVolumeDataElement);
   SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
   SO_ENABLE(SoRayPickAction, SoModelMatrixElement);
+  SO_ENABLE(SoGLRenderAction, SoLazyElement);
+
 }
 
 void

@@ -202,6 +202,7 @@ SoOrthoSlice::initClass(void)
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoGLClipPlaneElement);
   SO_ENABLE(SoGLRenderAction, SoModelMatrixElement);
+  SO_ENABLE(SoGLRenderAction, SoLazyElement);
 
   SO_ENABLE(SoPickAction, SoVolumeDataElement);
   SO_ENABLE(SoPickAction, SoTransferFunctionElement);
