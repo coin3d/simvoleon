@@ -44,7 +44,9 @@ private:
   void releaseLRUPage(void);
   void releaseAllPages(void);
 
-  SoVolumeDataPage ** pages;
+  int calcPageIdx(int row, int col) const;
+
+  class SoVolumeDataPageItem ** pages;
   SoVolumeReader * reader;
 
   SoOrthoSlice::Axis axis;

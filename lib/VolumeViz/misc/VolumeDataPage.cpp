@@ -1,3 +1,6 @@
+// From torbjorv's dictionary: a "page" is "a segment of a
+// slice". (See VolumeDataSlice.cpp.)
+
 #include <VolumeViz/misc/SoVolumeDataPage.h>
 
 #include <Inventor/C/glue/gl.h>
@@ -65,7 +68,6 @@ SoVolumeDataPage::SoVolumeDataPage(void)
   this->palette = NULL;
   this->paletteFormat = 0;
   this->paletteSize = 0;
-  this->nextPage = NULL;
   this->numBytesHW = 0;
   this->numBytesSW = 0;
 }
@@ -74,7 +76,6 @@ SoVolumeDataPage::SoVolumeDataPage(void)
 SoVolumeDataPage::~SoVolumeDataPage()
 {
   this->release();
-  delete this->nextPage;
 }
 
 
@@ -150,15 +151,15 @@ void SoVolumeDataPage::setData(Storage storage,
 
      // Uploading standard RGBA-texture
     if (palette == NULL) {
-      glTexImage2D( GL_TEXTURE_2D,
-                    0,
-                    4,
-                    size[0],
-                    size[1],
-                    0,
-                    GL_RGBA,
-                    GL_UNSIGNED_BYTE,
-                    bytes);
+      glTexImage2D(GL_TEXTURE_2D,
+                   0,
+                   4,
+                   size[0],
+                   size[1],
+                   0,
+                   GL_RGBA,
+                   GL_UNSIGNED_BYTE,
+                   bytes);
 
       numBytesHW += size[0]*size[1]*4;
     }
@@ -251,9 +252,8 @@ void SoVolumeDataPage::setData(Storage storage,
 
 }
 
-
-
-void SoVolumeDataPage::release(void)
+void
+SoVolumeDataPage::release(void)
 {
   if (this->textureName != 0)
     glDeleteTextures(1, &(this->textureName));

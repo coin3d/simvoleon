@@ -34,7 +34,6 @@ public:
   // SoVolumeDataSlice. 20021106 mortene.
   int numBytesHW;
   int numBytesSW;
-  SoVolumeDataPage * nextPage;
   uint32_t transferFunctionId;
 
 private:
