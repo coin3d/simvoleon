@@ -23,8 +23,8 @@
 
 // FIXME: not yet implemented. 20040505 mortene.
 
-#include <VolumeViz/nodes/SoObliqueSlice.h>
 
+#include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/errors/SoDebugError.h>
@@ -43,6 +43,9 @@
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
+#include <VolumeViz/nodes/SoObliqueSlice.h>
+
+
 // *************************************************************************
 
 SO_NODE_SOURCE(SoObliqueSlice);
@@ -58,6 +61,7 @@ public:
   }
 
   CvrCubeHandler * cubehandler;
+  SbBool force2dtextures;
 
 private:
   SoObliqueSlice * master;
@@ -86,6 +90,12 @@ SoObliqueSlice::SoObliqueSlice(void)
   SO_NODE_ADD_FIELD(plane, (SbPlane(SbVec3f(0, 0, 1), 0)));
   SO_NODE_ADD_FIELD(interpolation, (LINEAR));
   SO_NODE_ADD_FIELD(alphaUse, (ALPHA_BINARY));
+
+  // Shall we force 2D texture slicing?
+  const char * envstr = coin_getenv("CVR_FORCE_2D_TEXTURES");
+  if (envstr) { PRIVATE(this)->force2dtextures = atoi(envstr) > 0 ? TRUE : FALSE; }
+  else PRIVATE(this)->force2dtextures = 0;
+
 }
 
 SoObliqueSlice::~SoObliqueSlice()
@@ -188,7 +198,7 @@ SoObliqueSlice::GLRender(SoGLRenderAction * action)
   storagehint = volumedata->storageHint.getValue();
   if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
     const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
-    if (cc_glglue_has_3d_textures(glue)) {
+    if (cc_glglue_has_3d_textures(glue) && !PRIVATE(this)->force2dtextures) {
       rendermethod = SoObliqueSlice::TEXTURE3D;
     }
   }
