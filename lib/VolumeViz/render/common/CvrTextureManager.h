@@ -36,29 +36,6 @@ class CvrTextureManager {
 
 public:
 
-  // 3D texture
-  static const CvrTextureObject * getTextureObject(const SoGLRenderAction * action,
-                                                   SoVolumeData * voldata,
-                                                   SbVec3s texsize,
-                                                   SbBox3s cutbox);
-
-  static void finalizeTextureObject(const CvrTextureObject * textureobject);
-
-private:
-  static unsigned int totalNrOfTexels(void);
-  static unsigned int totalTextureMemoryUsed(void);
-
-  static CvrTextureObject * new3DTextureObject(const SoGLRenderAction * action,
-                                               SoVolumeData * voldata,
-                                               SbVec3s texsize,
-                                               SbBox3s cutcube);
-
-  static void transferTex3GL(const SoGLRenderAction * action,
-                             CvrTextureObject * texobj,
-                             const SbVec3s & texdims);
-
-  static unsigned int totaltexturesize;
-  static unsigned int totalnumberoftexels;
 };
 
 #endif // ! SIMVOLEON_CVRTEXTUREMANAGER_H

@@ -28,10 +28,18 @@
 #include <Inventor/SbVec3s.h>
 #include <Inventor/system/gl.h>
 
+class SoGLRenderAction;
+class SoVolumeData;
+class SbBox3s;
+
 // *************************************************************************
 
 class CvrTextureObject {
 public:
+  static const CvrTextureObject * create(const SoGLRenderAction * action,
+                                         const SbVec3s & texsize,
+                                         const SbBox3s & cutcube);
+
   static void initClass(void);
 
   virtual SoType getTypeId(void) const = 0;
@@ -43,10 +51,14 @@ public:
 
   const SbVec3s & getDimensions(void) const;
 
-  GLuint getOpenGLTextureId(void) const; 
+  GLuint getGLTexture(const SoGLRenderAction * action) const;
+
+  // FIXME: these need to go -- a CvrTextureObject can have several GL
+  // textures bound to it, some compressed, some not. 20040716 mortene.
   SbBool textureCompressed() const;
   void setTextureCompressed(SbBool flag);
-  void setOpenGLTextureId(GLuint textureid);
+
+  virtual SbBool isPaletted(void) const = 0;
 
   virtual void blankUnused(const SbVec3s & texsize) const = 0;
 
@@ -57,15 +69,16 @@ protected:
   virtual ~CvrTextureObject();
 
 private:
+  SbBool findGLTexture(const SoGLRenderAction * action, GLuint & texid) const;
+  static CvrTextureObject * new3DTextureObject(const SoGLRenderAction * action,
+                                               const SoVolumeData * voldata,
+                                               const SbVec3s & texsize,
+                                               const SbBox3s & cutcube);
+
   static SoType classTypeId;
-  GLuint opengltextureid;
   SbBool iscompressed;
   SbVec3s dimensions;
   uint32_t refcounter;
-
-  // FIXME: This should be removed as soon as the 2D texture support is
-  // implemented in the texture manager. (20040628 handegar)
-  friend class Cvr2DTexPage;
 };
 
 #endif // !COIN_CVRTEXTUREOBJECT_H

@@ -602,7 +602,7 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
   assert(voldatanode != NULL);
   
   const SbVec3s texsize(subcubemax - subcubemin);
-  const CvrTextureObject * texobj = CvrTextureManager::getTextureObject(action, voldatanode, texsize, subcubecut);  
+  const CvrTextureObject * texobj = CvrTextureObject::create(action, texsize, subcubecut);  
   SbBool invisible = FALSE;
   if (texobj == NULL)
     invisible = TRUE;

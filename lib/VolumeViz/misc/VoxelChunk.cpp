@@ -319,8 +319,12 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, SbBool & invisible) c
   // or 2-pixel width, and the driver will eventually crash. (We're
   // talking ~ a few tens of such textures, plus 1000-2000 other
   // textures, as seen on freya.trh.sim.no.)  20031031 mortene.
+  //
   // UPDATE: Im not sure if this applies to 3D textures aswell, but
   // we'll keep it just on case. (20040315 handegar)
+  //
+  // UPDATE: freya is now running an ATI card, so I can't easily track
+  // this down any further. 20040716 mortene.
 #if 0
   const SbVec3s texsize(coin_next_power_of_two(size[0] - 1),
                         coin_next_power_of_two(size[1] - 1),
@@ -534,6 +538,9 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, SbBool & invisible) c
   // or 2-pixel width, and the driver will eventually crash. (We're
   // talking ~ a few tens of such textures, plus 1000-2000 other
   // textures, as seen on freya.trh.sim.no.)  20031031 mortene.
+  //
+  // UPDATE: freya is now running an ATI card, so I can't easily track
+  // this down any further. 20040716 mortene.
 #if 0
   const SbVec2s texsize(coin_next_power_of_two(size[0] - 1),
                         coin_next_power_of_two(size[1] - 1));

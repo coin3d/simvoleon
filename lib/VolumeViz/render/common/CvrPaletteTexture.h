@@ -43,6 +43,8 @@ public:
   void setCLUT(const CvrCLUT * table);
   const CvrCLUT * getCLUT(void) const;
 
+  virtual SbBool isPaletted(void) const { return TRUE; }
+
 protected:
   CvrPaletteTexture(const SbVec3s & size);
   virtual ~CvrPaletteTexture();

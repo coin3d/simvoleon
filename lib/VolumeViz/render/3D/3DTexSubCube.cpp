@@ -44,7 +44,6 @@
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
 #include <VolumeViz/render/common/CvrRGBATexture.h>
-#include <VolumeViz/render/common/CvrTextureManager.h>
 
 // *************************************************************************
 
@@ -54,23 +53,18 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
                                  const SbVec3s & originaltexsize,
                                  const SbBool compresstextures)
 {
-  this->ispaletted = FALSE;
   this->clut = NULL;
 
   assert(cubesize[0] >= 0);
   assert(cubesize[1] >= 0);
   assert(cubesize[2] >= 0);
-  
+
   this->dimensions = cubesize;
   this->origo = SbVec3f(0, 0, 0); // Default value
 
-  // Actual dimensions of texture bitmap memory block.  
-  this->texdims = texobj->getDimensions();
-
   if (texobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()) {
-    this->clut = ((Cvr3DPaletteTexture *)texobj)->getCLUT();
+    this->clut = ((CvrPaletteTexture *)texobj)->getCLUT();
     this->clut->ref();
-    this->ispaletted = TRUE;
   }
 
   this->textureobject = texobj;
@@ -78,10 +72,10 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
   this->originaltexsize = originaltexsize;
 }
 
-
 Cvr3DTexSubCube::~Cvr3DTexSubCube()
-{ 
-  CvrTextureManager::finalizeTextureObject(this->textureobject);
+{
+  this->textureobject->unref();
+
   if (this->clut) this->clut->unref();
 }
 
@@ -90,13 +84,12 @@ Cvr3DTexSubCube::~Cvr3DTexSubCube()
 SbBool
 Cvr3DTexSubCube::isPaletted(void) const
 {
-  return this->ispaletted;
+  return this->textureobject->isPaletted();
 }
 
 void
 Cvr3DTexSubCube::setPalette(const CvrCLUT * newclut)
 {
-
   assert(newclut != NULL);
 
   if (this->clut) { this->clut->unref(); }
@@ -108,13 +101,15 @@ Cvr3DTexSubCube::setPalette(const CvrCLUT * newclut)
 
 // *************************************************************************
 
+// FIXME: second argument should be passed on state stack. 20040716 mortene.
 void
-Cvr3DTexSubCube::activateTexture(Interpolation interpolation) const
+Cvr3DTexSubCube::activateTexture(const SoGLRenderAction * action, Interpolation interpolation) const
 {
+  const GLuint texid = this->textureobject->getGLTexture(action);
 
   glEnable(GL_TEXTURE_3D);
-  glBindTexture(GL_TEXTURE_3D, this->textureobject->getOpenGLTextureId());
-  
+  glBindTexture(GL_TEXTURE_3D, texid);
+
   GLenum interp = 0;
   switch (interpolation) {
   case NEAREST: interp = GL_NEAREST; break;
@@ -181,7 +176,7 @@ Cvr3DTexSubCube::activateCLUT(const SoGLRenderAction * action)
 {
   assert(this->clut != NULL);
 
-  // FIXME: should check if the same clut is already current 
+  // FIXME: should check if the same clut is already current
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
   this->clut->activate(glw);
 }
@@ -191,45 +186,46 @@ Cvr3DTexSubCube::deactivateCLUT(const SoGLRenderAction * action)
 {
   assert(this->clut != NULL);
 
-  // FIXME: should check if the same clut is already current 
+  // FIXME: should check if the same clut is already current
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
   this->clut->deactivate(glw);
 }
 
-void * 
-Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0, 
+void *
+Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
                                    const SbVec3f & v1, void * vdata1,
                                    const SbVec3f & newvertex,
                                    void * userdata)
 {
-  
+
   Cvr3DTexSubCube * obj = (Cvr3DTexSubCube *) userdata;
   SbVec3f dist = SbVec3f(newvertex - obj->origo);
-    
-  const float tmp1 = obj->dimensions[0] + (obj->texdims[0] - obj->originaltexsize[0]);
-  const float tmp2 = obj->dimensions[1] + (obj->texdims[1] - obj->originaltexsize[1]);
-  const float tmp3 = obj->dimensions[2] + (obj->texdims[2] - obj->originaltexsize[2]);
- 
+
+  const SbVec3s texdims = obj->textureobject->getDimensions();
+
+  const float tmp1 = obj->dimensions[0] + (texdims[0] - obj->originaltexsize[0]);
+  const float tmp2 = obj->dimensions[1] + (texdims[1] - obj->originaltexsize[1]);
+  const float tmp3 = obj->dimensions[2] + (texdims[2] - obj->originaltexsize[2]);
+
   SbVec3f * texcoord = new SbVec3f(dist[0]/tmp1, dist[1]/tmp2, dist[2]/tmp3);
-  
+
   obj->texcoordlist.append(texcoord);
   return (void *) texcoord;
-
 }
 
 // Check if this cube is intersected by a faceset.
-SbBool 
-Cvr3DTexSubCube::checkIntersectionFaceSet(const SbVec3f & cubeorigo, 
+SbBool
+Cvr3DTexSubCube::checkIntersectionFaceSet(const SbVec3f & cubeorigo,
                                           const SbVec3f * vertexlist,
                                           const int * numVertices,
                                           const unsigned int length,
                                           const SbMatrix & m)
 {
-  
+
   SbClip cubeclipper(this->subcube_clipperCB, this);
   this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
-  
+
   SbVec3f a;
   unsigned int idx = 0;
   for (unsigned int i=0;i<length;++i) {
@@ -237,7 +233,7 @@ Cvr3DTexSubCube::checkIntersectionFaceSet(const SbVec3f & cubeorigo,
       m.multVecMatrix(vertexlist[idx++], a);
       cubeclipper.addVertex(a);
     }
-    this->clipPolygonAgainstCube(cubeclipper, cubeorigo);    
+    this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
     cubeclipper.reset();
   }
 
@@ -246,18 +242,18 @@ Cvr3DTexSubCube::checkIntersectionFaceSet(const SbVec3f & cubeorigo,
 }
 
 // Check if this cube is intersected by a triangle strip set.
-SbBool 
-Cvr3DTexSubCube::checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo, 
+SbBool
+Cvr3DTexSubCube::checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo,
                                                    const SbVec3f * vertexlist,
                                                    const int * numVertices,
                                                    const unsigned int length,
                                                    const SbMatrix & m)
 {
-  
+
   SbClip cubeclipper(this->subcube_clipperCB, this);
   this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
-  
+
   SbVec3f a;
   unsigned int idx = 0;
   for (unsigned int i=0;i<length;++i) {
@@ -268,15 +264,15 @@ Cvr3DTexSubCube::checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo,
       m.multVecMatrix(vertexlist[idx++], a);
       cubeclipper.addVertex(a);
       if (counter == 2) {
-        this->clipPolygonAgainstCube(cubeclipper, cubeorigo);    
+        this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
         cubeclipper.reset();
 
         if (j == (numVertices[i] - 1)) break; // Strip finished.
 
-        counter = 0;       
-        j -= 2; 
+        counter = 0;
+        j -= 2;
         idx -= 2;
-      } 
+      }
       else counter++;
 
     }
@@ -287,66 +283,66 @@ Cvr3DTexSubCube::checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo,
 }
 
 // Check if this cube is intersected by an indexed triangle strip set.
-SbBool 
-Cvr3DTexSubCube::checkIntersectionIndexedTriangleStripSet(const SbVec3f & cubeorigo, 
+SbBool
+Cvr3DTexSubCube::checkIntersectionIndexedTriangleStripSet(const SbVec3f & cubeorigo,
                                                           const SbVec3f * vertexlist,
                                                           const int * indices,
                                                           const unsigned int numindices,
                                                           const SbMatrix & m)
 {
-  
+
   SbClip cubeclipper(this->subcube_clipperCB, this);
   this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
-  
+
   SbVec3f a;
   int counter = 0;
   for (unsigned int i=0;i<numindices;++i) {
     if (indices[i] == -1) {
       counter = 0;
       continue;
-    } 
-    else {     
+    }
+    else {
       m.multVecMatrix(vertexlist[indices[i]], a);
       cubeclipper.addVertex(a);
       if (counter == 2) {
-        this->clipPolygonAgainstCube(cubeclipper, cubeorigo);    
-        cubeclipper.reset();        
+        this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
+        cubeclipper.reset();
         if ((i >= numindices) || indices[i+1] == -1) continue;
-        counter = 0;       
-        i -= 2; 
-      } 
+        counter = 0;
+        i -= 2;
+      }
       else counter++;
-    }    
+    }
   }
-  
+
   return TRUE;
 
 }
 
 
 // Check if this cube is intersected by an indexed faceset.
-SbBool 
-Cvr3DTexSubCube::checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo, 
+SbBool
+Cvr3DTexSubCube::checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo,
                                                  const SbVec3f * vertexlist,
                                                  const int * indices,
                                                  const unsigned int numindices,
                                                  const SbMatrix & m)
 {
-  
+
   SbClip cubeclipper(this->subcube_clipperCB, this);
   this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
-  
+
   SbVec3f a;
   for (unsigned int i=0;i<numindices;++i) {
-    if (indices[i] != -1) {    
+    if (indices[i] != -1) {
       m.multVecMatrix(vertexlist[indices[i]], a);
       cubeclipper.addVertex(a);
     } else { // Index == -1. Clip polygon.
       this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
       cubeclipper.reset();
-    }   
+    }
   }
 
   return this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
@@ -355,13 +351,13 @@ Cvr3DTexSubCube::checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo,
 
 
 // Check if this cube is intersected by the viewport aligned clip plane.
-SbBool 
-Cvr3DTexSubCube::checkIntersectionSlice(const SbVec3f & cubeorigo, 
-                                        const SbViewVolume & viewvolume, 
-                                        const float viewdistance, 
+SbBool
+Cvr3DTexSubCube::checkIntersectionSlice(const SbVec3f & cubeorigo,
+                                        const SbViewVolume & viewvolume,
+                                        const float viewdistance,
                                         const SbMatrix & m)
 {
-  
+
   SbClip cubeclipper(this->subcube_clipperCB, this);
   this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
@@ -376,7 +372,7 @@ Cvr3DTexSubCube::checkIntersectionSlice(const SbVec3f & cubeorigo,
   b = viewvolume.getPlanePoint(viewdistance, SbVec2f( 2.0f,  2.0f));
   c = viewvolume.getPlanePoint(viewdistance, SbVec2f( 2.0f, -2.0f));
   d = viewvolume.getPlanePoint(viewdistance, SbVec2f(-2.0f, -2.0f));
-  
+
   m.multVecMatrix(a, a);
   m.multVecMatrix(b, b);
   m.multVecMatrix(c, c);
@@ -400,11 +396,11 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cu
     polygon *before* this function is called to have an effect.
   */
 
-  // Clockwise direction for all planes  
+  // Clockwise direction for all planes
   // Back plane
-  cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f), 
+  cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f),
                            cubeorigo,
-                           cubeorigo + SbVec3f(this->dimensions[0], 0.0f, 0.0f))); 
+                           cubeorigo + SbVec3f(this->dimensions[0], 0.0f, 0.0f)));
   // Front plane
   cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(this->dimensions[0], 0.0f, this->dimensions[2]),
                            cubeorigo + SbVec3f(0.0f, 0.0f, this->dimensions[2]),
@@ -423,7 +419,7 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cu
                            cubeorigo + SbVec3f(this->dimensions[0], 0.0f, this->dimensions[2])));
   // Left plane
   cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(0.0f, 0.0f, this->dimensions[2]),
-                           cubeorigo, 
+                           cubeorigo,
                            cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f)));
 
   int i=0;
@@ -432,10 +428,10 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cu
   if (result > 0) {
     subcube_slice slice;
 
-    for (i=0;i<result;i++) {       
-     
+    for (i=0;i<result;i++) {
+
       SbVec3f vert;
-      cubeclipper.getVertex(i, vert);  
+      cubeclipper.getVertex(i, vert);
       slice.vertex.append(vert);
 
       SbVec3f * tmp = (SbVec3f *) cubeclipper.getVertexData(i);
@@ -443,16 +439,16 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cu
       SbVec3f texcoord(tmp->getValue());
       slice.texcoord.append(texcoord);
     }
-    
+
     for (i=0;i<this->texcoordlist.getLength();++i)
       delete this->texcoordlist[i];
-    
+
     this->texcoordlist.truncate(0);
     this->volumeslices.append(slice);
-    
+
     return TRUE;
   }
-  
+
   return FALSE;
 
 }
@@ -462,36 +458,35 @@ void
 Cvr3DTexSubCube::render(const SoGLRenderAction * action,
                         Interpolation interpolation)
 {
-
   // FIXME: A separate method for rendering sorted tris should be
   // made. This would be useful for the facesets. (20040630 handegar)
 
-  if (this->volumeslices.getLength() == 0) 
+  if (this->volumeslices.getLength() == 0)
     return;
 
   // Texture binding/activation must happen before setting the
   // palette, or the previous palette will be used.
-  this->activateTexture(interpolation);
-   
-  if (this->ispaletted)  // Switch on palette rendering
+  this->activateTexture(action, interpolation);
+
+  if (this->textureobject->isPaletted())  // Switch on palette rendering
     this->activateCLUT(action);
-      
+
   if (CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
- 
+
   // FIXME: Maybe we should build a vertex array instead of making
   // glVertex3f calls. Would probably give a performance
   // boost. (20040312 handegar)
- 
-  for(int i=this->volumeslices.getLength()-1;i>=0;--i) {   
+
+  for(int i=this->volumeslices.getLength()-1;i>=0;--i) {
 
     glBegin(GL_TRIANGLE_FAN);
     for (int j=0;j<this->volumeslices[i].vertex.getLength(); ++j) {
       glTexCoord3fv(this->volumeslices[i].texcoord[j].getValue());
-      glVertex3fv(this->volumeslices[i].vertex[j].getValue());      
+      glVertex3fv(this->volumeslices[i].vertex[j].getValue());
     }
     glEnd();
-    
+
     this->volumeslices[i].vertex.truncate(0);
     this->volumeslices[i].texcoord.truncate(0);
 
@@ -499,17 +494,17 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
   }
 
   this->volumeslices.truncate(0);
-  
-  if (this->ispaletted) // Switch OFF palette rendering
+
+  if (this->textureobject->isPaletted()) // Switch OFF palette rendering
     this->deactivateCLUT(action);
-  
+
 }
 
 // For debugging purposes
 void
 Cvr3DTexSubCube::renderBBox(const SoGLRenderAction * action, int counter)
 {
- 
+
   glDisable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_TEXTURE_2D);
@@ -531,6 +526,11 @@ Cvr3DTexSubCube::renderBBox(const SoGLRenderAction * action, int counter)
 
 }
 
+// *************************************************************************
+
+// FIXME: these definitely look like an indication of bad design, in
+// client code. 20040716 mortene.
+
 float
 Cvr3DTexSubCube::getDistanceFromCamera(void) const
 {
@@ -543,3 +543,4 @@ Cvr3DTexSubCube::setDistanceFromCamera(float dist)
   this->distancefromcamera = dist;
 }
 
+// *************************************************************************

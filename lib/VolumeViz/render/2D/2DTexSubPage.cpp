@@ -84,10 +84,13 @@ Cvr2DTexSubPage::resourceCleanerS(void * owner, uint32_t ctxid, void * resource,
 
 // *************************************************************************
 
+// FIXME: first argument should be const. 20040716 mortene.
 Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
                                  const SbVec2s & pagesize,
                                  const SbVec2s & texsize,
+                                 // FIXME: this should be on the state
+                                 // stack. 20040716 mortene.
                                  const SbBool compresstextures)
 {
   // We're using the GL resource handler, so plug in our deletion
@@ -110,7 +113,7 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
   this->texobj->ref();
 
   const SbVec3s dims = this->texobj->getDimensions();
-  assert((dims[2] == 1) && "Cannot initialize a 2D texture cube with a 3D texture object");
+  assert((dims[2] == 1) && "Cannot initialize a 2D-texture subpage with a 3D-texture object");
   this->texdims.setValue(dims[0], dims[1]);
 
   // Calculates part of texture to show.

@@ -38,6 +38,8 @@ public:
 
   virtual uint32_t * getRGBABuffer(void) const;
 
+  virtual SbBool isPaletted(void) const { return FALSE; }
+
 protected:
   CvrRGBATexture(const SbVec3s & size);
   virtual ~CvrRGBATexture();

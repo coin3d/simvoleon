@@ -52,6 +52,7 @@ public:
   void render(const SoGLRenderAction * action, Interpolation interpolation);
   void renderBBox(const SoGLRenderAction * action, int counter); // Debug method
 
+  // FIXME: do these need to be private? Investigate. 20040716 mortene.
   SbBool isPaletted(void) const;
   void setPalette(const CvrCLUT * newclut);
 
@@ -93,8 +94,7 @@ public:
   void setDistanceFromCamera(float dist);
 
 private:
-   
-  void activateTexture(Interpolation interpolation) const;
+  void activateTexture(const SoGLRenderAction * action, Interpolation interpolation) const;
   void activateCLUT(const SoGLRenderAction * action); 
   void deactivateCLUT(const SoGLRenderAction * action); 
  
@@ -107,7 +107,6 @@ private:
   SbVec3s originaltexsize;
   SbVec3f dimensions;
   SbVec3f origo;
-  SbBool ispaletted;
 
   float distancefromcamera;
 
