@@ -23,6 +23,7 @@ FIXME
 #include <VolumeViz/nodes/SoROI.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/errors/SoDebugError.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/sensors/SoFieldSensor.h>
@@ -122,6 +123,17 @@ SoROI::initClass(void)
 void 
 SoROI::GLRender(SoGLRenderAction *action)
 {
+#if 1
+  SoDebugError::postWarning("SoROI::GLRender",
+                            "not implemented yet");
+#else
+  // FIXME: now defunct, due to reorganization and refactoring of
+  // interfaces this depends on. The code never really worked, though,
+  // so no big loss.
+  //
+  // When implementing "proper", should probably share code with
+  // SoVolumeRender node's GLRender(). 20021121 mortene.
+
   SoState * state = action->getState();
 
   // Fetching the current volumedata
@@ -350,6 +362,7 @@ SoROI::GLRender(SoGLRenderAction *action)
   }
 
   glPopAttrib();
+#endif
 }
 
 
