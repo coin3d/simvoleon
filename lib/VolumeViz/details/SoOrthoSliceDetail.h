@@ -13,6 +13,7 @@ class SoOrthoSliceDetail : public SoDetail {
   SO_DETAIL_HEADER(SoOrthoSliceDetail);
 
 public:
+  static void initClass(void);
   SoOrthoSliceDetail(void);
   virtual ~SoOrthoSliceDetail();
  
@@ -21,9 +22,6 @@ public:
   SbVec3f & getValueObjectPos(void);
   SbVec3f & getValueDataPos(void);
   unsigned int getValue(void);
-
-private:
-  static void initClass(void);
 };
 
 #endif // !COIN_SOORTHOSLICEDETAIL_H

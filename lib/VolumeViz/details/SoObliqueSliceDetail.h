@@ -13,6 +13,7 @@ class SoObliqueSliceDetail : public SoDetail {
   SO_DETAIL_HEADER(SoObliqueSliceDetail);
 
 public:
+  static void initClass(void);
   SoObliqueSliceDetail(void);
   virtual ~SoObliqueSliceDetail();
  
@@ -21,9 +22,6 @@ public:
   SbVec3f & getValueObjectPos(void);
   SbVec3f & getValueDataPos(void);
   unsigned int getValue(void);
-
-private:
-  static void initClass(void);
 };
 
 #endif // !COIN_SOOBLIQUESLICEDETAIL_H

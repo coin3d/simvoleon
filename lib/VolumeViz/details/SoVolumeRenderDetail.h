@@ -13,6 +13,7 @@ class SoVolumeRenderDetail : public SoDetail {
   SO_DETAIL_HEADER(SoVolumeRenderDetail);
 
 public:
+  static void initClass(void);
   SoVolumeRenderDetail(void);
   virtual ~SoVolumeRenderDetail();
  
@@ -27,9 +28,6 @@ public:
   SbBool getFirstNonTransparentValue(unsigned int * value,
                                      SbVec3s * pos = 0, SbVec3f * objpos = 0,
                                      SbBool flag = FALSE);
-
-private:
-  static void initClass(void);
 };
 
 #endif // !COIN_SOVOLUMERENDERDETAIL_H
