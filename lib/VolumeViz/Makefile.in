@@ -181,7 +181,8 @@ libSimVoleon@SUFFIX@_la_LIBADD = \
 	misc/libmisc.la \
 	nodes/libnodes.la \
 	readers/libreaders.la \
-	render/2D/lib2Drender.la
+	render/2D/lib2Drender.la \
+	render/Pointset/libpointsetrender.la
 
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
@@ -190,7 +191,8 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
 	misc/misc.lst \
 	nodes/nodes.lst \
 	readers/readers.lst \
-	render/2D/2Drender.lst
+	render/2D/2Drender.lst \
+	render/Pointset/pointsetrender.lst
 
 
 libSimVoleon@SUFFIX@_la_LDFLAGS = \
@@ -207,7 +209,8 @@ LIBRARIES = $(lib_LIBRARIES)
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_AR = $(AR) cru
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_DEPENDENCIES = \
 	details/details.lst elements/elements.lst misc/misc.lst \
-	nodes/nodes.lst readers/readers.lst render/2D/2Drender.lst
+	nodes/nodes.lst readers/readers.lst render/2D/2Drender.lst \
+	render/Pointset/pointsetrender.lst
 am_simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS = \
 	dummy.$(OBJEXT)
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS = \
@@ -216,7 +219,8 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 
 libSimVoleon@SUFFIX@_la_DEPENDENCIES = details/libdetails.la \
 	elements/libelements.la misc/libmisc.la nodes/libnodes.la \
-	readers/libreaders.la render/2D/lib2Drender.la
+	readers/libreaders.la render/2D/lib2Drender.la \
+	render/Pointset/libpointsetrender.la
 am_libSimVoleon@SUFFIX@_la_OBJECTS = dummy.lo
 libSimVoleon@SUFFIX@_la_OBJECTS = $(am_libSimVoleon@SUFFIX@_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
