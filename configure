@@ -3682,7 +3682,7 @@ fi
 
 
 # Define the identity of the package.
- PACKAGE=SimVoleon
+ PACKAGE=SIMVoleon
  VERSION=$VERSION
 
 
@@ -21938,8 +21938,8 @@ echo "$as_me: error: could not compile and link against Coin" >&2;}
 fi
 
 
-  echo "$as_me:$LINENO: checking if Coin version is >= 2.0.0" >&5
-echo $ECHO_N "checking if Coin version is >= 2.0.0... $ECHO_C" >&6
+  echo "$as_me:$LINENO: checking if Coin version is >= 2.3.0" >&5
+echo $ECHO_N "checking if Coin version is >= 2.3.0... $ECHO_C" >&6
   cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -21954,6 +21954,12 @@ main ()
 #if (COIN_MAJOR_VERSION < 2)
       #error hepp
       #endif
+      #if (COIN_MAJOR_VERSION == 2)
+        #if (COIN_MINOR_VERSION < 3)
+        #error hepp
+        #endif
+      #endif
+
   ;
   return 0;
 }
@@ -21978,68 +21984,10 @@ sed 's/^/| /' conftest.$ac_ext >&5
 
 echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
-      { { echo "$as_me:$LINENO: error: SimVoleon needs Coin v2.0.0 or newer." >&5
-echo "$as_me: error: SimVoleon needs Coin v2.0.0 or newer." >&2;}
+      { { echo "$as_me:$LINENO: error: SIM Voleon needs Coin v2.3.0 or newer." >&5
+echo "$as_me: error: SIM Voleon needs Coin v2.3.0 or newer." >&2;}
    { (exit 1); exit 1; }; }
 
-
-fi
-rm -f conftest.$ac_objext conftest.$ac_ext
-
-  # *******************************************************************
-  # The ARB fragment programs uses recent parts of the cc_glglue
-  # interface in Coin, so check for that.
-  #
-  # FIXME: should not depend on such a recent Coin version (in fact,
-  # none has been officially released yet). The better solution is to
-  # make cc_glglue importable into other projects -- it is also needed
-  # in SIM Scenery, for instance. 20040505 mortene.
-
-  echo "$as_me:$LINENO: checking if Coin provides fragment program interface" >&5
-echo $ECHO_N "checking if Coin provides fragment program interface... $ECHO_C" >&6
-  cat >conftest.$ac_ext <<_ACEOF
-#line $LINENO "configure"
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-#include <Inventor/C/glue/gl.h>
-int
-main ()
-{
-(void)cc_glglue_has_arb_fragment_program(NULL);
-      cc_glglue_glProgramString(NULL, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, 1, NULL);
-
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext
-if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
-  (eval $ac_compile) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-         { ac_try='test -s conftest.$ac_objext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-
-cat >>confdefs.h <<\_ACEOF
-#define HAVE_ARB_FRAGMENT_PROGRAM
-_ACEOF
-
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
 
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
@@ -22078,9 +22026,9 @@ if $BUILD_WITH_MSVC; then
   if $SIMVOLEON_STATIC; then
 
 if test x"${sim_ac_configuration_settings+set}" = x"set"; then
-  sim_ac_configuration_settings="$sim_ac_configuration_settings|SimVoleon build type:static .lib"
+  sim_ac_configuration_settings="$sim_ac_configuration_settings|SIM Voleon build type:static .lib"
 else
-  sim_ac_configuration_settings="SimVoleon build type:static .lib"
+  sim_ac_configuration_settings="SIM Voleon build type:static .lib"
 fi
 
     LIBFLAGS="-LIB $LIBFLAGS"
@@ -22091,9 +22039,9 @@ fi
     no | false)
 
 if test x"${sim_ac_configuration_settings+set}" = x"set"; then
-  sim_ac_configuration_settings="$sim_ac_configuration_settings|SimVoleon build type:dynamic .dll, no symbols"
+  sim_ac_configuration_settings="$sim_ac_configuration_settings|SIM Voleon build type:dynamic .dll, no symbols"
 else
-  sim_ac_configuration_settings="SimVoleon build type:dynamic .dll, no symbols"
+  sim_ac_configuration_settings="SIM Voleon build type:dynamic .dll, no symbols"
 fi
 
       LIBFLAGS="$LIBFLAGS /RELEASE"
@@ -22101,9 +22049,9 @@ fi
     *)
 
 if test x"${sim_ac_configuration_settings+set}" = x"set"; then
-  sim_ac_configuration_settings="$sim_ac_configuration_settings|SimVoleon build type:dynamic .dll + .pdb"
+  sim_ac_configuration_settings="$sim_ac_configuration_settings|SIM Voleon build type:dynamic .dll + .pdb"
 else
-  sim_ac_configuration_settings="SimVoleon build type:dynamic .dll + .pdb"
+  sim_ac_configuration_settings="SIM Voleon build type:dynamic .dll + .pdb"
 fi
 
       CFLAGS="/Fd$debugfile -g $CFLAGS"
@@ -22344,9 +22292,9 @@ SIMVOLEON_DSP_DEFS=
 if $sim_ac_make_dsp; then
 
 if test x"${sim_ac_configuration_settings+set}" = x"set"; then
-  sim_ac_configuration_settings="$sim_ac_configuration_settings|SimVoleon build type:msvc .dsp"
+  sim_ac_configuration_settings="$sim_ac_configuration_settings|SIM Voleon build type:msvc .dsp"
 else
-  sim_ac_configuration_settings="SimVoleon build type:msvc .dsp"
+  sim_ac_configuration_settings="SIM Voleon build type:msvc .dsp"
 fi
 
 

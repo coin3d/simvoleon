@@ -1,8 +1,5 @@
 /* lib/config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* define to use Coin cc_glglue fragment program interface */
-#undef HAVE_ARB_FRAGMENT_PROGRAM
-
 /* Define if assert() uses __builtin_expect() */
 #undef HAVE_ASSERT_WITH_BUILTIN_EXPECT
 
