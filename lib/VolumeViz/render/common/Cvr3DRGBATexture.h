@@ -37,6 +37,7 @@ public:
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
+  virtual GLenum getGLTextureEnum(void) const { return GL_TEXTURE_3D; }
   virtual uint32_t * getRGBABuffer(void) const;
   void blankUnused(const SbVec3s & texsize) const;
 

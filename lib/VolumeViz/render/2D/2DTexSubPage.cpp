@@ -66,22 +66,8 @@
 
 // *************************************************************************
 
-unsigned int Cvr2DTexSubPage::nroftexels = 0;
-unsigned int Cvr2DTexSubPage::texmembytes = 0;
 GLuint Cvr2DTexSubPage::emptyimgname[1] = { 0 };
 SbBool Cvr2DTexSubPage::detectedtextureswapping = FALSE;
-
-// *************************************************************************
-
-// Callback function for the GL resource handler.
-SbBool
-Cvr2DTexSubPage::resourceCleanerS(void * owner, uint32_t ctxid, void * resource, void * closure)
-{
-  struct Cvr2DTexSubPage::GLResource * res = (struct Cvr2DTexSubPage::GLResource *)resource;
-  glDeleteTextures(1, &(res->texid));
-  delete res;
-  return TRUE;
-}
 
 // *************************************************************************
 
@@ -91,13 +77,8 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                                  const SbVec2s & pagesize,
                                  const SbVec2s & texsize)
 {
-  // We're using the GL resource handler, so plug in our deletion
-  // callback.
-  cvr_rc_add_deletion_func(this, Cvr2DTexSubPage::resourceCleanerS, NULL);
-
   this->bitspertexel = 0;
   this->clut = NULL;
-  this->ispaletted = FALSE;
 
   assert(pagesize[0] >= 0);
   assert(pagesize[1] >= 0);
@@ -112,13 +93,13 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
 
   const SbVec3s dims = this->texobj->getDimensions();
   assert((dims[2] == 1) && "Cannot initialize a 2D-texture subpage with a 3D-texture object");
-  this->texdims.setValue(dims[0], dims[1]);
+  const SbVec2s texdims(dims[0], dims[1]);
 
   // Calculates part of texture to show.
   this->texmaxcoords = SbVec2f(1.0f, 1.0f);
-  if (this->texdims != texsize) {
-    this->texmaxcoords[0] = float(texsize[0]) / float(this->texdims[0]);
-    this->texmaxcoords[1] = float(texsize[1]) / float(this->texdims[1]);
+  if (texdims != texsize) {
+    this->texmaxcoords[0] = float(texsize[0]) / float(texdims[0]);
+    this->texmaxcoords[1] = float(texsize[1]) / float(texdims[1]);
   }
 
   // Calculates part of GL quad to show.
@@ -143,32 +124,6 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
 Cvr2DTexSubPage::~Cvr2DTexSubPage()
 {
   this->texobj->unref();
-
-  // Notify GL resource handler that all our resources should be
-  // tagged dead, and destructed the next time the GL context is made
-  // current.
-  cvr_rc_tag_resources_dead(this);
-
-  // FIXME: move resource usage information to resource handler
-  // (cvr_rc_*) interface. 20040715 mortene.
-#if 0 // disabled
-  const unsigned int nrtexels = this->texdims[0] * this->texdims[1];
-  assert(nrtexels <= Cvr2DTexSubPage::nroftexels);
-  Cvr2DTexSubPage::nroftexels -= nrtexels;
-
-  unsigned int freetexmem = (unsigned int)
-    (float(nrtexels) * float(this->bitspertexel) / 8.0f);
-  assert(freetexmem <= Cvr2DTexSubPage::texmembytes);
-  Cvr2DTexSubPage::texmembytes -= freetexmem;
-
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("Cvr2DTexSubPage::~Cvr2DTexSubPage",
-                         "nroftexels => %d, texmembytes => %d",
-                         Cvr2DTexSubPage::nroftexels,
-                         Cvr2DTexSubPage::texmembytes);
-#endif // debug
-#endif // disabled
-
   if (this->clut) this->clut->unref();
 }
 
@@ -177,7 +132,7 @@ Cvr2DTexSubPage::~Cvr2DTexSubPage()
 SbBool
 Cvr2DTexSubPage::isPaletted(void) const
 {
-  return this->ispaletted;
+  return this->texobj->isPaletted();
 }
 
 void
@@ -190,31 +145,18 @@ Cvr2DTexSubPage::setPalette(const CvrCLUT * newclut)
 
 // *************************************************************************
 
+// FIXME: this is as good as identical to the same function in
+// Cvr3DTexSubCube, so move to CvrTextureObject. 20040720 mortene.
 void
 Cvr2DTexSubPage::activateTexture(const SoGLRenderAction * action,
+                                 // FIXME: pass interpolation info on
+                                 // the stack. 20040720 mortene.
                                  Interpolation interpolation) const
 {
-  uint32_t glctxid = action->getCacheContext();
-  void * resource;
-  const SbBool found = cvr_rc_find_resource(glctxid, (void *)this, &resource);
+  const GLuint texid = this->texobj->getGLTexture(action);
 
-  struct Cvr2DTexSubPage::GLResource * res = NULL;
-  if (!found) { 
-    // FIXME: makeGLTexture() should really be const. 20040715 mortene.
-    res = ((Cvr2DTexSubPage *)this)->makeGLTexture(action);
-  }
-  else {
-    res = (struct Cvr2DTexSubPage::GLResource *)resource;
-  }
-
-  if (res == NULL) {
-    // Texture could not be found nor made. A warning should have been
-    // displayed somewhere deeper down in the call-chain, so we simply
-    // return.
-    return;
-  }
-
-  glBindTexture(GL_TEXTURE_2D, res->texid);
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, texid);
 
   GLenum interp = 0;
   switch (interpolation) {
@@ -223,10 +165,9 @@ Cvr2DTexSubPage::activateTexture(const SoGLRenderAction * action,
   default: assert(FALSE); break;
   }
 
-  // FIXME: why are we using float version of glTexParameter here? All
-  // arguments looks like ints..? 20031027 mortene.
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp);
+
   assert(glGetError() == GL_NO_ERROR);
 
 #if CVR_DEBUG && 0 // debug
@@ -306,10 +247,6 @@ Cvr2DTexSubPage::bindTexMemFullImage(const cc_glglue * glw)
                GL_UNSIGNED_BYTE,
                tex_image.pixel_data);
 
-  const int texels = tex_image.width * tex_image.height;
-  Cvr2DTexSubPage::nroftexels += texels;
-  Cvr2DTexSubPage::texmembytes += texels * tex_image.bytes_per_pixel;
-
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -318,193 +255,10 @@ Cvr2DTexSubPage::bindTexMemFullImage(const cc_glglue * glw)
 #endif
 }
 
-// If no palette specified, this function assumes RGBA data. If a
-// palette is specified, the input data should be indices into the
-// palette.  The function uses the palette's size to decide whether
-// the indices are byte or short.
-//
-// FIXME: this function should be const. 20040715 mortene.
-struct Cvr2DTexSubPage::GLResource *
-Cvr2DTexSubPage::makeGLTexture(const SoGLRenderAction * action)
-{
-  const uint32_t glctx = action->getCacheContext();
-  const cc_glglue * glw = cc_glglue_instance(glctx);
+// *************************************************************************
 
-  // FIXME: emptyimgname not yet bound to a specific context. Should
-  // anyway find a better way to flag that no texture can be
-  // made. 20040715 mortene.
-#if 0 // disabled
-  if (Cvr2DTexSubPage::emptyimgname[0] == 0) {
-    Cvr2DTexSubPage::bindTexMemFullImage(glw);
-  }
-#endif
-
-  int colorformat;
-
-  this->ispaletted = this->texobj->getTypeId() == Cvr2DPaletteTexture::getClassTypeId();
-  // only knows two types
-  assert(this->ispaletted || this->texobj->getTypeId() == Cvr2DRGBATexture::getClassTypeId());
-
-  // For uploading standard RGBA-texture
-  if (!this->ispaletted) {
-    colorformat = 4;
-    this->bitspertexel = 32; // 8 bits each R, G, B & A
-  }
-  // For uploading paletted texture
-  else {
-    colorformat = GL_COLOR_INDEX8_EXT;
-    this->bitspertexel = 8;
-    if (this->clut) this->clut->unref();
-    this->clut = ((CvrPaletteTexture *)this->texobj)->getCLUT();
-    this->clut->ref();
-  }
-
-  const int nrtexels = this->texdims[0] * this->texdims[1];
-  const int texmem = int(float(nrtexels) * float(this->bitspertexel) / 8.0f);
-
-  // This is a debugging backdoor to test stuff with no limits on how
-  // much texture memory we can use.
-
-  // FIXME: there are no restrictions on texture memory yet -- it
-  // needs support in other areas of the library. So until proper
-  // resource handling is in place, anything goes. 20030324 mortene.
-
-//   static int unlimited_texmem = -1;
-  static int unlimited_texmem = 1;
-  if (unlimited_texmem == -1) {
-    const char * envstr = coin_getenv("CVR_UNLIMITED_TEXMEM");
-    if (envstr) { unlimited_texmem = atoi(envstr) > 0 ? 1 : 0; }
-    else unlimited_texmem = 0;
-  }
-
-
-  // FIXME: limits should be stored in a global texture manager class
-  // or some such. 20021121 mortene.
-  if (!unlimited_texmem &&
-      (//Cvr2DTexSubPage::detectedtextureswapping ||
-       ((nrtexels + Cvr2DTexSubPage::nroftexels) > (16*1024*1024)) ||
-       ((texmem + Cvr2DTexSubPage::texmembytes) > (64*1024*1024)))) {
-#if CVR_DEBUG && 1 // debug
-    static SbBool first = TRUE;
-    if (first) {
-      SoDebugError::postInfo("Cvr2DTexSubPage::makeGLTexture",
-                             "filled up textures, nrtexels==%d, texmembytes==%d",
-                             Cvr2DTexSubPage::nroftexels,
-                             Cvr2DTexSubPage::texmembytes);
-      first = FALSE;
-    }
-#endif // debug
-
-    return NULL;
-  }
-
-
-  Cvr2DTexSubPage::nroftexels += nrtexels;
-  Cvr2DTexSubPage::texmembytes += texmem;
-
-  // FIXME: glGenTextures() / glBindTexture() / glDeleteTextures()
-  // are only supported in opengl >= 1.1, should have a fallback for
-  // 1.0 drivers, like we have in Coin, where we can use display
-  // lists instead. 20040715 mortene.
-
-  struct Cvr2DTexSubPage::GLResource * res = new struct Cvr2DTexSubPage::GLResource;
-  glGenTextures(1, &(res->texid));
-  assert(glGetError() == GL_NO_ERROR);
-
-  cvr_rc_bind_resource(glctx, this, res);
-
-  glBindTexture(GL_TEXTURE_2D, res->texid);
-  assert(glGetError() == GL_NO_ERROR);
-
-  void * imgptr = NULL;
-  if (this->ispaletted) imgptr = ((Cvr2DPaletteTexture *)this->texobj)->getIndex8Buffer();
-  else imgptr = ((Cvr2DRGBATexture *)this->texobj)->getRGBABuffer();
-
-  // debugging: keep this around until the peculiar NVidia bug with
-  // 1- or 2-pixel width textures has been analyzed.
-  //
-  // FIXME: need to find out what the hell this problem is. 20031031 mortene.
-#if 0
-  printf("glTexImage2D() args: dims==<%d,%d>, ispaletted==%d, imgptr==%p\n",
-         this->texdims[0], this->texdims[1], this->ispaletted, imgptr);
-
-  static int allnum = 0;
-  allnum++;
-  if (this->texdims[0]==1 || this->texdims[1]==1) {
-    static int num = 0;
-    num++;
-    printf("numero %d/%d, nroftexels==%d, texmembytes==%d\n",
-           num, allnum,
-           Cvr2DTexSubPage::nroftexels,
-           Cvr2DTexSubPage::texmembytes);
-  }
-  else {
-    printf("numero %d, nroftexels==%d, texmembytes==%d\n",
-           allnum,
-           Cvr2DTexSubPage::nroftexels,
-           Cvr2DTexSubPage::texmembytes);
-  }
-#endif // debugging
-   
-
-  // FIXME: Combining texture compression and GL_COLOR_INDEX doesnt
-  // seem to work on NVIDIA cards (tested on GeForceFX 5600 &
-  // GeForce2 MX) (20040316 handegar)
-  int palettetype = GL_COLOR_INDEX;
-
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
-  if (cc_glglue_has_arb_fragment_program(glw))
-    palettetype = GL_LUMINANCE;    
-#endif // HAVE_ARB_FRAGMENT_PROGRAM
-
-  SoState * state = action->getState();
-
-  // FIXME: Is this way of compressing textures OK? (20040303 handegar)
-  if (cc_glue_has_texture_compression(glw) && 
-      (palettetype != GL_COLOR_INDEX) &&
-      CvrCompressedTexturesElement::get(state)) {
-    if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
-    else colorformat = GL_COMPRESSED_INTENSITY_ARB;
-  }
-
-  if (!CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
-    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    
-  glTexImage2D(GL_TEXTURE_2D,
-               0,
-               colorformat,
-               this->texdims[0],
-               this->texdims[1],
-               0,
-               this->ispaletted ? palettetype : GL_RGBA,
-               GL_UNSIGNED_BYTE,
-               imgptr);
-                 
-  assert(glGetError() == GL_NO_ERROR);
-
-  GLint wrapenum = GL_CLAMP;
-  // FIXME: avoid using GL_CLAMP_TO_EDGE, since it may not be
-  // available on all drivers. (Notably, it is missing from the
-  // Microsoft OpenGL 1.1 software renderer, which is often used for
-  // offscreen rendering on MSWin systems.)
-  //
-  // Let this code be disabled for a while, and fix any visual
-  // artifacts showing up -- preferably *without* re-enabling the
-  // use of GL_CLAMP_TO_EDGE again. Eventually, we should simply
-  // just remove the below disabled code, if we find that we can
-  // actually do without it.
-  //
-  // 20040714 mortene.
-#if 0
-  if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
-#endif
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
-  assert(glGetError() == GL_NO_ERROR);
-
-  return res;
-}
+// FIXME: this is common with 3DTexSubCube -- move to
+// CvrTextureObject? 20040720 mortene.
 
 void
 Cvr2DTexSubPage::activateCLUT(const SoGLRenderAction * action)
@@ -527,6 +281,7 @@ Cvr2DTexSubPage::deactivateCLUT(const SoGLRenderAction * action)
   this->clut->deactivate(glw);
 }
 
+// *************************************************************************
 
 void
 Cvr2DTexSubPage::render(const SoGLRenderAction * action,
@@ -538,7 +293,7 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
   // Texture binding/activation must happen before setting the
   // palette, or the previous palette will be used.
   this->activateTexture(action, interpolation);
-  if (this->ispaletted) { this->activateCLUT(action); }
+  if (this->isPaletted()) { this->activateCLUT(action); }
 
   // Scale span of GL quad to match the visible part of the
   // texture. (Border subpages shouldn't show all of the texture, if
@@ -579,7 +334,7 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
   glEnd();
 
 
-  if (this->ispaletted) // Switch OFF palette rendering
+  if (this->isPaletted()) // Switch OFF palette rendering
     this->deactivateCLUT(action);
 
   // This is a debugging backdoor: if the environment variable
@@ -607,17 +362,4 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
 
     glEnable(GL_TEXTURE_2D);
   }
-
-}
-
-unsigned int
-Cvr2DTexSubPage::totalNrOfTexels(void)
-{
-  return Cvr2DTexSubPage::nroftexels;
-}
-
-unsigned int
-Cvr2DTexSubPage::totalTextureMemoryUsed(void)
-{
-  return Cvr2DTexSubPage::texmembytes;
 }

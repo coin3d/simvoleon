@@ -22,9 +22,12 @@
 \**************************************************************************/
 
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
-#include <VolumeViz/misc/CvrCLUT.h>
-#include <Inventor/SbName.h>
+
 #include <assert.h>
+#include <Inventor/SbName.h>
+#include <VolumeViz/misc/CvrCLUT.h>
+
+// *************************************************************************
 
 // Don't set value explicitly to SoType::badType(), to avoid a bug in
 // Sun CC v4.0. (Bitpattern 0x0000 equals SoType::badType()).

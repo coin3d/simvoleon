@@ -267,74 +267,30 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
                          subpagemax[0], subpagemax[1]);
 #endif // debug
 
-  SbBox2s subpagecut = SbBox2s(subpagemin, subpagemax);
-  
-  SoState * state = action->getState();
-  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
-
-  const SbVec3s & vddims = vbelem->getVoxelCubeDimensions();
-  const uint8_t * dataptr = vbelem->getVoxels();
-  const unsigned int bytesprvoxel = vbelem->getBytesPrVoxel();
-  
-  // FIXME: improve buildSubPage() interface to fix this roundabout
-  // way of calling it. 20021206 mortene.
-  CvrVoxelChunk * input = new CvrVoxelChunk(vddims, bytesprvoxel, dataptr);
-  CvrVoxelChunk * slice =
-    input->buildSubPage(this->axis, this->sliceidx, subpagecut);
-  delete input;
-
-#if 0 // DEBUG: dump slice parts before slicebuf transformation to bitmap files.
-  SbString s;
-  s.sprintf("/tmp/pretransfslice-%04d-%03d-%03d.pgm", this->sliceidx, row, col);
-  slice->dumpToPPM(s.getString());
-#endif // DEBUG
-
-  // FIXME: optimalization measure; should be able to save on texture
-  // memory by not using full pages where only parts of them are
-  // actually covered by texture (volume data does more often than not
-  // fail to match dimensions perfectly with 2^n values). 20021125 mortene.
-
-  SbBool invisible;
-  CvrTextureObject * texobj = slice->transfer2D(action, invisible);
-  texobj->ref();
-
-  // FIXME: could cache slices -- would speed up regeneration when
-  // textures have to be invalidated. But this would take lots of
-  // memory (exactly twice as much as for just the original
-  // dataset). 20021203 mortene.
-  delete slice;
-
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("Cvr2DTexPage::buildSubPage",
-                         "detected invisible page at [%d, %d]", row, col);
-#endif // debug
+  const SbBox2s subpagecut(subpagemin, subpagemax);
 
   // Size of the texture that we're actually using. Will be less than
   // this->subpagesize on datasets where dimensions are not all power
   // of two, or where dimensions are smaller than this->subpagesize.
   const SbVec2s texsize(subpagemax - subpagemin);
 
-  // Must clear the unused texture area to prevent artifacts due to
-  // inaccuracies when calculating texture coords.
-   texobj->blankUnused(SbVec3s(texsize[0], texsize[1], 1));
-
-#if 0 // DEBUG: dump all transfered textures to bitmap files.
-  SbString s;
-  s.sprintf("/tmp/posttransftex-%04d-%03d-%03d.ppm", this->sliceidx, row, col);
-  texobj->dumpToPPM(s.getString());
-#endif // DEBUG
+  const CvrTextureObject * texobj =
+    CvrTextureObject::create(action, texsize, subpagecut,
+                             this->axis, this->sliceidx);
+  // if NULL is returned, it means all voxels are fully transparent
 
   Cvr2DTexSubPage * page = NULL;
-  if (!invisible) {
+  if (texobj) {
     page = new Cvr2DTexSubPage(action, texobj, this->subpagesize, texsize);
     page->setPalette(this->clut);
   }
 
-  texobj->unref();
+  SoState * state = action->getState();
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
   pitem->volumedataid = vbelem->getNodeId();
-  pitem->invisible = invisible;
+  pitem->invisible = (texobj == NULL);
 
   const int idx = this->calcSubPageIdx(row, col);
   this->subpages[idx] = pitem;

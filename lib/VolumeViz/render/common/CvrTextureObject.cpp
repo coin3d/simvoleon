@@ -24,10 +24,14 @@
 #include <VolumeViz/render/common/CvrTextureObject.h>
 
 #include <assert.h>
+#include <limits.h>
+
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/SbName.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/SbVec2s.h>
+#include <Inventor/SbBox2s.h>
 
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
@@ -63,7 +67,6 @@ CvrTextureObject::initClass(void)
   Cvr2DPaletteTexture::initClass();
   Cvr3DRGBATexture::initClass();
   Cvr3DPaletteTexture::initClass();
-
 }
 
 CvrTextureObject::CvrTextureObject(const SbVec3s & size)
@@ -160,12 +163,17 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   const unsigned int texmem = (unsigned int)(nrtexels * bitspertexel / 8);
 #endif
 
+  // FIXME: glGenTextures() / glBindTexture() / glDeleteTextures() are
+  // only supported in opengl >= 1.1, should have a fallback for 1.0
+  // drivers, like we have in Coin, where we can use display lists
+  // instead. 20040715 mortene.
   glGenTextures(1, &texid);
   assert(glGetError() == GL_NO_ERROR);
 
-  // FIXME: fix for 2D textures. 20040716 mortene.
-  glEnable(GL_TEXTURE_3D);
-  glBindTexture(GL_TEXTURE_3D, texid);
+  const GLenum gltextypeenum = this->getGLTextureEnum();
+
+  glEnable(gltextypeenum);
+  glBindTexture(gltextypeenum, texid);
   assert(glGetError() == GL_NO_ERROR);
 
   GLint wrapenum = GL_CLAMP;
@@ -184,10 +192,12 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
 #if 0
   if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
 #endif
-  // FIXME: fix for 2D textures. 20040716 mortene.
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrapenum);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, wrapenum);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrapenum);
+  glTexParameteri(gltextypeenum, GL_TEXTURE_WRAP_S, wrapenum);
+  glTexParameteri(gltextypeenum, GL_TEXTURE_WRAP_T, wrapenum);
+  if (gltextypeenum == GL_TEXTURE_3D) {
+    glTexParameteri(gltextypeenum, GL_TEXTURE_WRAP_R, wrapenum);
+  }
+
   assert(glGetError() == GL_NO_ERROR);
 
   void * imgptr = NULL;
@@ -223,19 +233,32 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
     else colorformat = GL_COMPRESSED_INTENSITY_ARB;
   }
 
-  if (!CvrUtil::dontModulateTextures()) // Is texture modulation disabled by an envvar?
+  // By default we modulate textures with the material settings.
+  if (!CvrUtil::dontModulateTextures()) {
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  }
 
-  // FIXME: fix for 2D textures. 20040716 mortene.
-  cc_glglue_glTexImage3D(glw,
-                         GL_TEXTURE_3D,
-                         0,
-                         colorformat,
-                         texdims[0], texdims[1], texdims[2],
-                         0,
-                         this->isPaletted() ? palettetype : GL_RGBA,
-                         GL_UNSIGNED_BYTE,
-                         imgptr);
+  if (gltextypeenum == GL_TEXTURE_2D) {
+    glTexImage2D(gltextypeenum,
+                 0,
+                 colorformat,
+                 texdims[0], texdims[1],
+                 0,
+                 this->isPaletted() ? palettetype : GL_RGBA,
+                 GL_UNSIGNED_BYTE,
+                 imgptr);
+  }
+  else {
+    cc_glglue_glTexImage3D(glw,
+                           gltextypeenum,
+                           0,
+                           colorformat,
+                           texdims[0], texdims[1], texdims[2],
+                           0,
+                           this->isPaletted() ? palettetype : GL_RGBA,
+                           GL_UNSIGNED_BYTE,
+                           imgptr);
+  }
 
   assert(glGetError() == GL_NO_ERROR);
 
@@ -268,22 +291,21 @@ CvrTextureObject::unref(void) const
 
 // *************************************************************************
 
-// FIXME: the code below this point has been moved over from
-// CvrTextureManager, and should be fixed up. 20040716 mortene.
-
-enum TEXTURETYPE {
-  TEXTURE2D,
-  TEXTURE3D
-};
-
-// FIXME: remove this -- write comparison functions into
-// CvrTextureObject. 20040716 mortene.
+// FIXME: remove this? Write comparison functions into
+// CvrTextureObject? 20040716 mortene.
 
 struct textureobj {
-  uint32_t voldataid; // This will change if volume-data has been modified by the user.
-  TEXTURETYPE texturetype;
-  SbBox3s cutcube;
+  uint32_t voldataid; // This will change if volume-data is modified
+                      // in any way.
+
   CvrTextureObject * object;
+
+  // For 3D textures:
+  SbBox3s cutcube;
+  // For 2D textures:
+  SbBox2s cutslice;
+  unsigned int axisidx;
+  int pageidx;
 };
 
 // *************************************************************************
@@ -303,10 +325,17 @@ get_texturedict(void)
 // *************************************************************************
 
 static textureobj *
-find_textureobject_3D(const uint32_t voldataid, const SbBox3s cutcube)
+find_textureobject(const uint32_t voldataid,
+                   const SbBox3s cutcube,
+                   const SbBox2s & cutslice,
+                   const unsigned int axisidx,
+                   const int pageidx)
 {
   SbPList keylist;
   SbPList valuelist;
+
+  // FIXME: traversing as a list is too slow with 2D textures!
+  // 20040720 mortene.
   get_texturedict()->makePList(keylist, valuelist);
 
   for (int i=0;i<valuelist.getLength();++i) {
@@ -322,8 +351,11 @@ find_textureobject_3D(const uint32_t voldataid, const SbBox3s cutcube)
         // be compatible with anything from Coin 2.0 and upwards).
         (obj->cutcube.getMin() == cutcube.getMin()) &&
         (obj->cutcube.getMax() == cutcube.getMax()) &&
-        (obj->texturetype == TEXTURE3D))
+        (obj->cutslice == cutslice) &&
+        (obj->axisidx == axisidx) &&
+        (obj->pageidx == pageidx)) {
       return obj;
+    }
   }
 
   return NULL;
@@ -341,58 +373,73 @@ CvrTextureObject::create(const SoGLRenderAction * action,
                          const SbVec3s & texsize,
                          const SbBox3s & cutcube)
 {
-  SoState * state = action->getState();
-  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
-  assert(vbelem != NULL);
+  const SbBox2s dummy; // constructor initializes it to an empty box
+  return CvrTextureObject::newTextureObject(action, texsize, cutcube, dummy, UINT_MAX, INT_MAX);
+}
 
-  textureobj * obj = find_textureobject_3D(vbelem->getNodeId(), cutcube);
+const CvrTextureObject *
+CvrTextureObject::create(const SoGLRenderAction * action,
+                         const SbVec2s & texsize,
+                         const SbBox2s & cutslice,
+                         const unsigned int axisidx,
+                         const int pageidx)
+{
+  const SbVec3s tex(texsize[0], texsize[1], 1);
+  const SbBox3s dummy; // constructor initializes it to an empty box
 
-  if (obj != NULL) {
-    // FIXME: make to work for 2D textures aswell. 20040716 mortene.
-    assert((obj->texturetype == TEXTURE3D) && "Type != TEXTURE3D. Invalid texture type!");
-    return obj->object;
-  }
-
-  CvrTextureObject * newobj =
-    CvrTextureObject::new3DTextureObject(action, texsize, cutcube);
-
-  obj = new textureobj;
-  obj->object = newobj;
-  obj->voldataid = vbelem->getNodeId();
-  obj->cutcube = cutcube;
-  // FIXME: make to work for 2D textures aswell. 20040716 mortene.
-  obj->texturetype = TEXTURE3D;
-  get_texturedict()->enter((unsigned long) newobj, (void *) obj);
-
-  return newobj;
+  return CvrTextureObject::newTextureObject(action, tex, dummy, cutslice, axisidx, pageidx);
 }
 
 CvrTextureObject *
-CvrTextureObject::new3DTextureObject(const SoGLRenderAction * action,
-                                     const SbVec3s & texsize,
-                                     const SbBox3s & cutcube)
+CvrTextureObject::newTextureObject(const SoGLRenderAction * action,
+                                   const SbVec3s & texsize,
+                                   const SbBox3s & cutcube,
+                                   const SbBox2s & cutslice,
+                                   const unsigned int axisidx,
+                                   const int pageidx)
 {
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
   assert(vbelem != NULL);
 
+  textureobj * obj = find_textureobject(vbelem->getNodeId(),
+                                        /* for 3d: */ cutcube,
+                                        /* for 2d: */ cutslice, axisidx, pageidx);
+  if (obj != NULL) { return obj->object; }
+
   const SbVec3s & vddims = vbelem->getVoxelCubeDimensions();
   const void * dataptr = vbelem->getVoxels();
 
+  const SbBool is2d = (axisidx != UINT_MAX);
+
+  // FIXME: improve buildSubPage() interface to fix this roundabout
+  // way of calling it. 20021206 mortene.
   CvrVoxelChunk * input =
     new CvrVoxelChunk(vddims, vbelem->getBytesPrVoxel(), dataptr);
-
-  CvrVoxelChunk * cubechunk = input->buildSubCube(cutcube);
+  CvrVoxelChunk * cubechunk;
+  if (is2d) { cubechunk = input->buildSubPage(axisidx, pageidx, cutslice); }
+  else { cubechunk = input->buildSubCube(cutcube); }
   delete input;
 
   SbBool invisible = FALSE;
-  CvrTextureObject * newtexobj = cubechunk->transfer3D(action, invisible);
+  CvrTextureObject * newtexobj;
+  if (is2d) { newtexobj = cubechunk->transfer2D(action, invisible); }
+  else { newtexobj = cubechunk->transfer3D(action, invisible); }
 
-  if (invisible) // Is the cubechunk completely transparent?
-    return NULL; // FIXME: NULL return is not handled in caller. 20040716 mortene.
+  // If completely transparent
+  if (invisible) { return NULL; }
 
   // Must clear unused texture area to prevent artifacts due to
   // floating point inaccuracies when calculating texture coords.
   newtexobj->blankUnused(texsize);
+
+  obj = new textureobj;
+  obj->object = newtexobj;
+  obj->voldataid = vbelem->getNodeId();
+  obj->cutcube = cutcube;
+  obj->cutslice = cutslice;
+  obj->axisidx = axisidx;
+  obj->pageidx = pageidx;
+  get_texturedict()->enter((unsigned long)newtexobj, (void *)obj);
 
   return newtexobj;
 }

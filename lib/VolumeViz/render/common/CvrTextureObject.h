@@ -29,7 +29,9 @@
 #include <Inventor/system/gl.h>
 
 class SoGLRenderAction;
+class SbBox2s;
 class SbBox3s;
+class SbVec2s;
 
 // *************************************************************************
 
@@ -38,6 +40,13 @@ public:
   static const CvrTextureObject * create(const SoGLRenderAction * action,
                                          const SbVec3s & texsize,
                                          const SbBox3s & cutcube);
+
+
+  static const CvrTextureObject * create(const SoGLRenderAction * action,
+                                         const SbVec2s & texsize,
+                                         const SbBox2s & cutcube,
+                                         const unsigned int axisidx,
+                                         const int pageidx);
 
   static void initClass(void);
 
@@ -54,6 +63,7 @@ public:
 
   virtual SbBool isPaletted(void) const = 0;
   virtual void blankUnused(const SbVec3s & texsize) const = 0;
+  virtual GLenum getGLTextureEnum(void) const = 0;
 
 protected:
   // Constructor and destructor is protected as instances should be
@@ -63,9 +73,12 @@ protected:
 
 private:
   SbBool findGLTexture(const SoGLRenderAction * action, GLuint & texid) const;
-  static CvrTextureObject * new3DTextureObject(const SoGLRenderAction * action,
-                                               const SbVec3s & texsize,
-                                               const SbBox3s & cutcube);
+  static CvrTextureObject * newTextureObject(const SoGLRenderAction * action,
+                                             const SbVec3s & texsize,
+                                             const SbBox3s & cutcube,
+                                             const SbBox2s & cutslice,
+                                             const unsigned int axisidx,
+                                             const int pageidx);
 
   static SoType classTypeId;
   SbVec3s dimensions;

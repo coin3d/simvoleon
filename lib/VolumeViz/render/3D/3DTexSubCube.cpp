@@ -103,6 +103,9 @@ Cvr3DTexSubCube::setPalette(const CvrCLUT * newclut)
 // *************************************************************************
 
 // FIXME: second argument should be passed on state stack. 20040716 mortene.
+//
+// FIXME: almost identical with 2DTexSubPage's ditto, should be
+// possible to share. 20040719 mortene.
 void
 Cvr3DTexSubCube::activateTexture(const SoGLRenderAction * action, Interpolation interpolation) const
 {
@@ -171,6 +174,10 @@ Cvr3DTexSubCube::activateTexture(const SoGLRenderAction * action, Interpolation 
 #endif // debug
 }
 
+// *************************************************************************
+
+// FIXME: almost identical with 2DTexSubPage's ditto, should be
+// possible to share. 20040719 mortene.
 
 void
 Cvr3DTexSubCube::activateCLUT(const SoGLRenderAction * action)
@@ -191,6 +198,8 @@ Cvr3DTexSubCube::deactivateCLUT(const SoGLRenderAction * action)
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
   this->clut->deactivate(glw);
 }
+
+// *************************************************************************
 
 void *
 Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
@@ -454,6 +463,7 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cu
 
 }
 
+// *************************************************************************
 
 void
 Cvr3DTexSubCube::render(const SoGLRenderAction * action,
