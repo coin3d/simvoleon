@@ -377,16 +377,10 @@ CvrTextureObject::new3DTextureObject(const SoGLRenderAction * action,
 
   const SbVec3s & vddims = vbelem->getVoxelCubeDimensions();
   const void * dataptr = vbelem->getVoxels();
-  CvrVoxelBlockElement::VoxelSize size = vbelem->getType();
 
-  CvrVoxelChunk::UnitSize vctype;
-  switch (size) {
-  case CvrVoxelBlockElement::UINT_8: vctype = CvrVoxelChunk::UINT_8; break;
-  case CvrVoxelBlockElement::UINT_16: vctype = CvrVoxelChunk::UINT_16; break;
-  default: assert(FALSE); break;
-  }
+  CvrVoxelChunk * input =
+    new CvrVoxelChunk(vddims, vbelem->getBytesPrVoxel(), dataptr);
 
-  CvrVoxelChunk * input = new CvrVoxelChunk(vddims, vctype, dataptr);
   CvrVoxelChunk * cubechunk = input->buildSubCube(cutcube);
   delete input;
 

@@ -274,18 +274,11 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   const SbVec3s & vddims = vbelem->getVoxelCubeDimensions();
   const uint8_t * dataptr = vbelem->getVoxels();
-  CvrVoxelBlockElement::VoxelSize size = vbelem->getType();
-
-  CvrVoxelChunk::UnitSize vctype;
-  switch (size) {
-  case CvrVoxelBlockElement::UINT_8: vctype = CvrVoxelChunk::UINT_8; break;
-  case CvrVoxelBlockElement::UINT_16: vctype = CvrVoxelChunk::UINT_16; break;
-  default: assert(FALSE); break;
-  }
+  const unsigned int bytesprvoxel = vbelem->getBytesPrVoxel();
   
   // FIXME: improve buildSubPage() interface to fix this roundabout
   // way of calling it. 20021206 mortene.
-  CvrVoxelChunk * input = new CvrVoxelChunk(vddims, vctype, dataptr);
+  CvrVoxelChunk * input = new CvrVoxelChunk(vddims, bytesprvoxel, dataptr);
   CvrVoxelChunk * slice =
     input->buildSubPage(this->axis, this->sliceidx, subpagecut);
   delete input;

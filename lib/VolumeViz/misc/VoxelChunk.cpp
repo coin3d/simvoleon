@@ -68,23 +68,23 @@ SbDict * CvrVoxelChunk::CLUTdict = NULL;
 
 // Allocates an uninitialized buffer for storing enough voxel data to
 // fit into the given dimensions with space per voxel allocated
-// according to the UnitSize type.
+// according to the second argument.
 //
 // If the "buffer" argument is non-NULL, will not allocate a buffer,
 // but rather just use that pointer. It is then the caller's
 // responsibility to a) not destruct that buffer before this instance
 // is destructed, and b) to deallocate the buffer data.
-CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, UnitSize type,
+CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, unsigned int size,
                              const void * buffer)
 {
 
   assert(dimensions[0] > 0);
   assert(dimensions[1] > 0);
   assert(dimensions[2] > 0);
-  assert(type == UINT_8 || type == UINT_16);
+  assert(size == 1 || size == 2);
 
   this->dimensions = dimensions;
-  this->unitsize = type;
+  this->unitsize = size;
 
   if (buffer == NULL) {
     this->voxelbuffer = new uint8_t[this->bufferSize()];
@@ -119,21 +119,21 @@ CvrVoxelChunk::getBuffer(void) const
 
 // Returns the buffer start pointer. Convenience method to return the
 // pointer casted to the correct size. Don't use this method unless
-// the unitsize type is UINT_8.
+// there's 1 byte pr voxel.
 const uint8_t *
 CvrVoxelChunk::getBuffer8(void) const
 {
-  assert(this->unitsize == UINT_8);
+  assert(this->unitsize == 1);
   return (uint8_t *)this->voxelbuffer;
 }
 
 // Returns the buffer start pointer. Convenience method to return the
 // pointer casted to the correct size. Don't use this method unless
-// the unitsize type is UINT_16.
+// there're two bytes pr voxel.
 const uint16_t *
 CvrVoxelChunk::getBuffer16(void) const
 {
-  assert(this->unitsize == UINT_16);
+  assert(this->unitsize == 2);
   return (uint16_t *)this->voxelbuffer;
 }
 
@@ -143,7 +143,7 @@ CvrVoxelChunk::getDimensions(void) const
   return this->dimensions;
 }
 
-CvrVoxelChunk::UnitSize
+unsigned int
 CvrVoxelChunk::getUnitSize(void) const
 {
   return this->unitsize;
@@ -336,7 +336,7 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, SbBool & invisible) c
   invisible = TRUE;
   CvrTextureObject * texobj = NULL;
 
-  if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
+  if (this->getUnitSize() == 1) {
     CvrRGBATexture * rgbatex = NULL;
     CvrPaletteTexture * palettetex = NULL;
 
@@ -434,11 +434,12 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, SbBool & invisible) c
     clut->unref();
   }
 
-  else if (this->getUnitSize() == CvrVoxelChunk::UINT_16) {
+  // 16 bits pr voxel:
+  else if (this->getUnitSize() == 2) {
     // --
     // FIXME: This is not a proper solution! Fix later. (20040311 handegar)
     // --
-    SoDebugError::postWarning("transfer3D", "UINT_16 unit size is not properly implemented "
+    SoDebugError::postWarning("transfer3D", "16 bits pr voxel unit size is not properly implemented "
                               "yet. Voxels will therefore be scaled down to 8 bits.");
 
     CvrPaletteTexture * palettetex = NULL;
@@ -551,7 +552,7 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, SbBool & invisible) c
 
   CvrTextureObject * texobj = NULL;
 
-  if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
+  if (this->getUnitSize() == 1) {
     CvrRGBATexture * rgbatex = NULL;
     CvrPaletteTexture * palettetex = NULL;
 
@@ -624,8 +625,8 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, SbBool & invisible) c
     clut->unref();
   }
 
-  else if (this->getUnitSize() == CvrVoxelChunk::UINT_16) {
-    assert(FALSE && "UINT_16 unit size not yet implemented");
+  else if (this->getUnitSize() == 2) {
+    assert(FALSE && "16 bits pr voxel unit size not yet implemented");
   }
 
   else {

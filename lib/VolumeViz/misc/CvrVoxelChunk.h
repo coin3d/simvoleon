@@ -34,14 +34,11 @@ class CvrCLUT;
 class SoTransferFunctionElement;
 class SbBox2s;
 
+// *************************************************************************
 
 class CvrVoxelChunk {
 public:
-  // Note that enum values matches nr of bytes pr voxel. Don't change this.
-  // FIXME: remove this, use enum from CvrVoxelBlockElement instead. 20040719 mortene.
-  enum UnitSize { UINT_8 = 1, UINT_16 = 2 };
-
-  CvrVoxelChunk(const SbVec3s & dimensions, UnitSize type,
+  CvrVoxelChunk(const SbVec3s & dimensions, unsigned int bytesprvoxel,
                 const void * buffer = NULL);
   ~CvrVoxelChunk();
 
@@ -52,7 +49,7 @@ public:
   unsigned int bufferSize(void) const;
 
   const SbVec3s & getDimensions(void) const;
-  UnitSize getUnitSize(void) const;
+  unsigned int getUnitSize(void) const;
 
   CvrTextureObject * transfer2D(const SoGLRenderAction * action, SbBool & invisible) const;
   CvrTextureObject * transfer3D(const SoGLRenderAction * action, SbBool & invisible) const;
@@ -83,7 +80,9 @@ private:
   SbBool destructbuffer;
   const void * voxelbuffer;
   SbVec3s dimensions;
-  UnitSize unitsize;
+  unsigned int unitsize;
 };
+
+// *************************************************************************
 
 #endif // !COIN_CVRVOXELCHUNK_H

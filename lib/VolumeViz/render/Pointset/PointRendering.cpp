@@ -60,10 +60,9 @@ PointRendering::render(SoGLRenderAction * action)
 
   const SbVec3s & dimension = vbelem->getVoxelCubeDimensions();
   const void * data = vbelem->getVoxels();
-  CvrVoxelBlockElement::VoxelSize type = vbelem->getType();
   
   // FIXME: support 16-bit data. 20040220 mortene.
-  assert(type == CvrVoxelBlockElement::UINT_8 && "unsupported datatype");
+  assert((vbelem->getBytesPrVoxel() == 1) && "unsupported datatype");
   const uint8_t * voxels = (const uint8_t *)data;
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);

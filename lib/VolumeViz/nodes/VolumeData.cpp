@@ -483,17 +483,17 @@ SoVolumeData::getPageSize(void) const
 void
 SoVolumeData::doAction(SoAction * action)
 {
-  CvrVoxelBlockElement::VoxelSize s;
+  unsigned int bytesprvoxel;
   switch (PRIVATE(this)->datatype) {
-  case UNSIGNED_BYTE: s = CvrVoxelBlockElement::UINT_8; break;
-  case UNSIGNED_SHORT: s = CvrVoxelBlockElement::UINT_16; break;
+  case UNSIGNED_BYTE: bytesprvoxel = 1; break;
+  case UNSIGNED_SHORT: bytesprvoxel = 2; break;
   default: assert(FALSE); break;
   }
 
   const uint8_t * voxels = (const uint8_t *)
     (PRIVATE(this)->reader ? PRIVATE(this)->reader->m_data : NULL);
 
-  CvrVoxelBlockElement::set(action->getState(), this, s,
+  CvrVoxelBlockElement::set(action->getState(), this, bytesprvoxel,
                             PRIVATE(this)->dimensions, voxels,
                             this->getVolumeSize());
 }

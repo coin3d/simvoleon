@@ -35,14 +35,11 @@ class CvrVoxelBlockElement : public SoReplacedElement {
   SO_ELEMENT_HEADER(CvrVoxelBlockElement);
 
 public:
-  // Note that enum values matches nr of bytes pr voxel. Don't change this.
-  enum VoxelSize { UINT_8 = 1, UINT_16 = 2 };
-
-  static void set(SoState * state, SoNode * node, VoxelSize type,
+  static void set(SoState * state, SoNode * node, unsigned int bytesprvoxel,
                   const SbVec3s & voxelcubedims, const uint8_t * voxels,
                   const SbBox3f & unitdimensionsbox);
 
-  VoxelSize getType(void) const;
+  unsigned int getBytesPrVoxel(void) const;
   const SbVec3s & getVoxelCubeDimensions(void) const;
   const uint8_t * getVoxels(void) const;
 
@@ -74,7 +71,7 @@ protected:
   virtual ~CvrVoxelBlockElement();
 
 private:
-  VoxelSize type;
+  unsigned int bytesprvoxel;
   SbVec3s voxelcubedims;
   const uint8_t * voxels;
   SbBox3f unitdimensionsbox;

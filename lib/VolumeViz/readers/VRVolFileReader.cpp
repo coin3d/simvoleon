@@ -199,16 +199,16 @@ SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data)
                          ssmin[0], ssmin[1], ssmax[0], ssmax[1]);
 #endif // debug
 
-  CvrVoxelChunk::UnitSize vctype;
+  unsigned int bytesprvoxel;
   switch (type) {
-  case SoVolumeData::UNSIGNED_BYTE: vctype = CvrVoxelChunk::UINT_8; break;
-  case SoVolumeData::UNSIGNED_SHORT: vctype = CvrVoxelChunk::UINT_16; break;
+  case SoVolumeData::UNSIGNED_BYTE: bytesprvoxel = 1; break;
+  case SoVolumeData::UNSIGNED_SHORT: bytesprvoxel = 2; break;
   default: assert(FALSE); break;
   }
 
   // FIXME: interface of buildSubPage() should be improved to avoid
   // this roundabout way of clipping out a slice.  20021203 mortene.
-  CvrVoxelChunk vc(dims, vctype, this->m_data);
+  CvrVoxelChunk vc(dims, bytesprvoxel, this->m_data);
   CvrVoxelChunk * output = vc.buildSubPage(2 /* Z */, slicenumber, subslice);
   (void)memcpy(data, output->getBuffer(), output->bufferSize());
   delete output;

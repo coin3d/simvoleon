@@ -55,7 +55,7 @@ CvrVoxelBlockElement::init(SoState * state)
   inherited::init(state);
 
   // Default values.
-  this->type = CvrVoxelBlockElement::UINT_8;
+  this->bytesprvoxel = 1;
   this->voxelcubedims.setValue(0, 0, 0);
   this->voxels = NULL;
 }
@@ -78,7 +78,7 @@ CvrVoxelBlockElement::matches(const SoElement * element) const
   return
     inherited::matches(element) &&
     elem->nodeId == this->nodeId &&
-    elem->type == this->type &&
+    elem->bytesprvoxel == this->bytesprvoxel &&
     elem->voxelcubedims == this->voxelcubedims &&
     elem->voxels == this->voxels &&
     elem->unitdimensionsbox == this->unitdimensionsbox;
@@ -100,8 +100,10 @@ CvrVoxelBlockElement::copyMatchInfo(void) const
 // *************************************************************************
 
 void
-CvrVoxelBlockElement::set(SoState * state, SoNode * node, VoxelSize type,
-                          const SbVec3s & voxelcubedims, const uint8_t * voxels,
+CvrVoxelBlockElement::set(SoState * state, SoNode * node,
+                          unsigned int bytesprvoxel,
+                          const SbVec3s & voxelcubedims,
+                          const uint8_t * voxels,
                           const SbBox3f & unitdimensionsbox)
 {
   CvrVoxelBlockElement * elem = (CvrVoxelBlockElement *)
@@ -109,7 +111,7 @@ CvrVoxelBlockElement::set(SoState * state, SoNode * node, VoxelSize type,
   assert(elem);
 
   elem->nodeId = node->getNodeId();
-  elem->type = type;
+  elem->bytesprvoxel = bytesprvoxel;
   elem->voxelcubedims = voxelcubedims;
   elem->voxels = voxels;
   elem->unitdimensionsbox = unitdimensionsbox;
@@ -117,10 +119,10 @@ CvrVoxelBlockElement::set(SoState * state, SoNode * node, VoxelSize type,
 
 // *************************************************************************
 
-CvrVoxelBlockElement::VoxelSize
-CvrVoxelBlockElement::getType(void) const
+unsigned int
+CvrVoxelBlockElement::getBytesPrVoxel(void) const
 {
-  return this->type;
+  return this->bytesprvoxel;
 }
 
 const SbVec3s &
@@ -250,8 +252,8 @@ CvrVoxelBlockElement::getPageGeometry(const int axis, const int slicenr,
 
 // *************************************************************************
 
-  // FIXME: this function is also present in SoVolumeData.  Refactor
-  // to common util function. 20040719 mortene.
+// FIXME: this function is also present in SoVolumeData.  Refactor
+// to common util function. 20040719 mortene.
 
 uint32_t
 CvrVoxelBlockElement::getVoxelValue(const SbVec3s & voxelpos) const
@@ -270,18 +272,14 @@ CvrVoxelBlockElement::getVoxelValue(const SbVec3s & voxelpos) const
   advance += voxelpos[1] * dim[0];
   advance += voxelpos[0];
 
-  switch (this->type) {
-  case UINT_8: break;
-  case UINT_16: advance *= 2; break;
-  default: assert(FALSE); break;
-  }
+  advance *= this->bytesprvoxel;
 
   voxptr += advance;
 
   uint32_t val = 0;
-  switch (this->type) {
-  case UINT_8: val = *voxptr; break;
-  case UINT_16: val = *((uint16_t *)voxptr); break;
+  switch (this->bytesprvoxel) {
+  case 1: val = *voxptr; break;
+  case 2: val = *((uint16_t *)voxptr); break;
   default: assert(FALSE); break;
   }
   return val;

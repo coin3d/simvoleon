@@ -752,7 +752,6 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
   SbVec3s ijk, lastijk(-1, -1, -1);
 
   const SbBox3s voxelbounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
-  const CvrVoxelBlockElement::VoxelSize voxeltype = vbelem->getType();
 
   SoPickedPoint * pp = NULL;
   SoVolumeRenderDetail * detail = NULL;
