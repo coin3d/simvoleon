@@ -368,10 +368,10 @@ INPUT                  = \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/details/OrthoSliceDetail.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/details/SoVolumeRenderDetail.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/details/VolumeRenderDetail.cpp \
-@path_tag@@voleon_src_dir@/lib/VolumeViz/elements/SoTransferFunctionElement.h \
-@path_tag@@voleon_src_dir@/lib/VolumeViz/elements/TransferFunctionElement.cpp \
-@path_tag@@voleon_src_dir@/lib/VolumeViz/elements/SoVolumeDataElement.h \
-@path_tag@@voleon_src_dir@/lib/VolumeViz/elements/VolumeDataElement.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/details/SoVolumeDetail.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/details/VolumeDetail.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/details/SoVolumeSkinDetail.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/details/VolumeSkinDetail.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoObliqueSlice.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/ObliqueSlice.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoOrthoSlice.h \
