@@ -246,7 +246,13 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   const int axisidx = this->axis.getValue();
   const int slicenr = this->sliceNumber.getValue();
 
-  Cvr2DTexPage * texpage = PRIVATE(this)->getPage(axisidx, slicenr, volumedata);
+  // FIXME: investigate why this seems necessary (at least with the
+  // RIMS application). 20031023 mortene.
+  const short ydim = volumedataelement->getVoxelCubeDimensions()[Y];
+  Cvr2DTexPage * texpage =
+    PRIVATE(this)->getPage(axisidx,
+                           (axisidx == Y) ? ((ydim - 1) - slicenr) : slicenr,
+                           volumedata);
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   CvrCLUT * c = new CvrCLUT(*CvrVoxelChunk::getCLUT(tfelement));
