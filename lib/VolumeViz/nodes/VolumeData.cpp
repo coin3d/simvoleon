@@ -100,6 +100,27 @@
 */
 
 /*!
+  \var SoSFBool SoVolumeData::useSharedPalettedTexture
+
+  Indicate whether or not to share texture palettes.
+
+  Sharing of texture palettes is useful for slightly better
+  utilization of graphics card memory.
+
+  Default value is \c TRUE. Apart from debugging purposes, there is
+  really no good reason to set this field to \c FALSE.
+
+  NOTE: the actions of switching this flag has not been properly
+  implemented in Coin yet, its value is simply ignored.
+
+  \since SIM Voleon 2.0
+  \since TGS VolumeViz ?.?
+*/
+// FIXME: implement support for useSharedPalettedTexture, then update
+// above doc. Should also try to figure out when this field was added
+// to TGS VolumeViz. 20041007 mortene.
+
+/*!
   \var SoSFBool SoVolumeData::useCompressedTexture
 
   Indicate whether or not to use compressed textures, if supported by
@@ -215,6 +236,9 @@ SoVolumeData::SoVolumeData(void)
   SO_NODE_ADD_FIELD(fileName, (SoVolumeDataP::UNDEFINED_FILE));
   SO_NODE_ADD_FIELD(storageHint, (SoVolumeData::AUTO));
   SO_NODE_ADD_FIELD(usePalettedTexture, (TRUE));
+  // FIXME: implement support for this field, it is currently
+  // ignored. 20041007 mortene.
+  SO_NODE_ADD_FIELD(useSharedPalettedTexture, (TRUE));
   SO_NODE_ADD_FIELD(useCompressedTexture, (TRUE));
 
   SO_NODE_ADD_FIELD(volumeboxmin, (SbVec3f(FLT_MAX, FLT_MAX, FLT_MAX)));
@@ -653,30 +677,39 @@ SoVolumeData::getHistogram(int & length, int *& histogram)
   return TRUE;
 }
 
-/****************** UNIMPLEMENTED FUNCTIONS ******************************/
-// FIXME: Implement these functions. torbjorv 08282002
-
+// *************************************************************************
 
 SbBool
 SoVolumeData::getMinMax(int & minval, int & maxval)
 {
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::getMinMax",
+                     "not yet implemented -- just a stub");
   return FALSE;
 }
 
 SoVolumeData *
 SoVolumeData::subSetting(const SbBox3s &region)
-{ return NULL; }
+{
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::subSetting",
+                     "not yet implemented -- just a stub");
+  return NULL;
+}
 
 void
 SoVolumeData::updateRegions(const SbBox3s *region, int num)
-{}
+{
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::updateRegions",
+                     "not yet implemented -- just a stub");
+}
 
 SoVolumeData *
 SoVolumeData::reSampling(const SbVec3s &dimensions,
                          SoVolumeData::SubMethod subMethod,
                          SoVolumeData::OverMethod overMethod)
 { 
-
   SoVolumeData * newdataset = new SoVolumeData;
   
   // Creating a temporary dataset which will hold the result
@@ -718,33 +751,59 @@ SoVolumeData::reSampling(const SbVec3s &dimensions,
 
 void
 SoVolumeData::enableSubSampling(SbBool enable)
-{}
+{
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::enableSubSampling",
+                     "not yet implemented -- just a stub");
+}
 
 void
 SoVolumeData::enableAutoSubSampling(SbBool enable)
-{}
+{
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::enableAutoSubSampling",
+                     "not yet implemented -- just a stub");
+}
 
 void
 SoVolumeData::enableAutoUnSampling(SbBool enable)
-{}
+{
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::enableAutoUnSampling",
+                     "not yet implemented -- just a stub");
+}
 
 void
-SoVolumeData::unSample()
-{}
+SoVolumeData::unSample(void)
+{
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::unSample",
+                     "not yet implemented -- just a stub");
+}
 
 void
 SoVolumeData::setSubSamplingMethod(SubMethod method)
-{}
+{
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::setSubSamplingMethod",
+                     "not yet implemented -- just a stub");
+}
 
 void
 SoVolumeData::setSubSamplingLevel(const SbVec3s &ROISampling,
                     const SbVec3s &secondarySampling)
-{}
+{
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::setSubSamplingLevel",
+                     "not yet implemented -- just a stub");
+}
 
 void 
 SoVolumeDataP::overSample(SbVec3s dimensions, SoVolumeData::OverMethod subMethod, void * data)
 {
-  assert(FALSE && "Oversampling not implemented yet.");
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::overSample",
+                     "not yet implemented -- just a stub");
 }
 
 void 

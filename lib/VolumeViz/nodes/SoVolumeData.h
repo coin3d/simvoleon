@@ -72,6 +72,7 @@ public:
   SoSFString fileName;
   SoSFEnum storageHint;
   SoSFBool usePalettedTexture;
+  SoSFBool useSharedPalettedTexture;
   SoSFBool useCompressedTexture;
 
   void setVolumeData(const SbVec3s & dimension, void * data,
