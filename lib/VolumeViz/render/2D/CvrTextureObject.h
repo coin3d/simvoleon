@@ -2,19 +2,24 @@
 #define COIN_CVRTEXTUREOBJECT_H
 
 #include <Inventor/SbVec2s.h>
+#include <Inventor/SoType.h>
 
 
 class CvrTextureObject {
 public:
-  CvrTextureObject(const SbVec2s & size);
-  ~CvrTextureObject();
+  static void initClass(void);
 
-  uint32_t * getRGBABuffer(void) const;
+  CvrTextureObject(const SbVec2s & size);
+  virtual ~CvrTextureObject();
+
   const SbVec2s & getDimensions(void) const;
+
+  virtual SoType getTypeId(void) const = 0;
+  static SoType getClassTypeId(void);
 
 private:
   SbVec2s dimensions;
-  uint32_t * rgbabuffer;
+  static SoType classTypeId;
 };
 
 #endif // !COIN_CVRTEXTUREOBJECT_H

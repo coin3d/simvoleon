@@ -1,5 +1,6 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
-#include <VolumeViz/render/2D/CvrTextureObject.h>
+#include <VolumeViz/render/2D/CvrRGBATexture.h>
+#include <VolumeViz/render/2D/CvrPaletteTexture.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/misc/CvrGIMPGradient.h>
@@ -15,6 +16,7 @@
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/misc/SoState.h>
+#include <Inventor/errors/SoDebugError.h>
 
 #include <assert.h>
 #include <string.h> // memcpy()
@@ -192,14 +194,15 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
 
   const SbVec2s texsize(coin_next_power_of_two(size[0] - 1),
                         coin_next_power_of_two(size[1] - 1));
-  CvrTextureObject * texobj = new CvrTextureObject(texsize);
 
-  uint32_t * output = texobj->getRGBABuffer();
+  CvrRGBATexture * texobj = new CvrRGBATexture(texsize);
 
   invisible = TRUE;
 
-  // Handling RGBA inputdata. Just forwarding to output
+  // Handling RGBA inputdata. Just forwarding to output.
   if (this->getUnitSize() == CvrVoxelChunk::UINT_32) {
+    uint32_t * output = texobj->getRGBABuffer();
+
     for (unsigned int y = 0; y < (unsigned int)size[1]; y++) {
       (void)memcpy(&output[texsize[0] * y],
                    &(this->getBuffer32()[size[0] * y]),
@@ -212,19 +215,10 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
   }
 
   else if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
-    int colormaptype = transferfunc->colorMapType.getValue();
-    int nrcomponents = 1;
-    switch (colormaptype) {
-    case SoTransferFunction::ALPHA: nrcomponents = 1; break;
-    case SoTransferFunction::LUM_ALPHA: nrcomponents = 2; break;
-    case SoTransferFunction::RGBA: nrcomponents = 4; break;
-    default: assert(FALSE && "invalid SoTransferFunction::colorMapType value"); break;
-    }
-
-    const float * colormap = transferfunc->colorMap.getValues(0);
-    int nrcols = transferfunc->colorMap.getNum() / nrcomponents;
-    // FIXME: a bit strict this, should warn instead. 20021119 mortene.
-    assert((transferfunc->colorMap.getNum() % nrcomponents) == 0);
+    const float * colormap = NULL;
+    int nrcols = 0;
+    int colormaptype = 0;
+    int nrcomponents = 0;
 
     uint8_t * predefmap = NULL;
     const int predefmapidx = transferfunc->predefColorMap.getValue();
@@ -233,6 +227,20 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
 
     if (predefmapidx != SoTransferFunction::NONE) {
       predefmap = &(CvrVoxelChunk::PREDEFGRADIENTS[predefmapidx][0][0]);
+    }
+    else {
+      colormap = transferfunc->colorMap.getValues(0);
+      nrcols = transferfunc->colorMap.getNum() / nrcomponents;
+      // FIXME: a bit strict this, should warn instead. 20021119 mortene.
+      assert((transferfunc->colorMap.getNum() % nrcomponents) == 0);
+
+      colormaptype = transferfunc->colorMapType.getValue();
+      switch (colormaptype) {
+      case SoTransferFunction::ALPHA: nrcomponents = 1; break;
+      case SoTransferFunction::LUM_ALPHA: nrcomponents = 2; break;
+      case SoTransferFunction::RGBA: nrcomponents = 4; break;
+      default: assert(FALSE && "invalid SoTransferFunction::colorMapType value"); break;
+      }
     }
 
     int32_t shiftval = transferfunc->shift.getValue();
@@ -243,6 +251,7 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
                                          transparencythresholds[1]);
 
     const uint8_t * inputbytebuffer = this->getBuffer8();
+    uint32_t * output = texobj->getRGBABuffer();
 
     for (unsigned int y=0; y < (unsigned int)size[1]; y++) {
       for (unsigned int x=0; x < (unsigned int)size[0]; x++) {

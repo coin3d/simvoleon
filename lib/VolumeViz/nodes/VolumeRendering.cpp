@@ -16,6 +16,8 @@
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoROI.h>
+#include <VolumeViz/render/2D/CvrTextureObject.h>
+
 #include <Inventor/actions/SoGLRenderAction.h>
 
 
@@ -73,6 +75,10 @@ SoVolumeRendering::init(void)
   SoTransferFunction::initClass();
 
   SoVolumeRender::initClass();
+
+  // Internal classes follows:
+
+  CvrTextureObject::initClass();
 }
 
 void

@@ -106,6 +106,8 @@ SOURCES = \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
 	2DTexPage.cpp Cvr2DTexPage.h \
 	TextureObject.cpp CvrTextureObject.h \
+	RGBATexture.cpp CvrRGBATexture.h \
+	PaletteTexture.cpp CvrPaletteTexture.h \
 	TexManager.cpp CvrTexManager.h
 
 
@@ -122,6 +124,7 @@ LIBRARIES = $(noinst_LIBRARIES)
 2Drender_lst_LIBADD =
 am_2Drender_lst_OBJECTS = PageHandler.$(OBJEXT) 2DTexSubPage.$(OBJEXT) \
 	2DTexPage.$(OBJEXT) TextureObject.$(OBJEXT) \
+	RGBATexture.$(OBJEXT) PaletteTexture.$(OBJEXT) \
 	TexManager.$(OBJEXT)
 2Drender_lst_OBJECTS = $(am_2Drender_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
@@ -129,7 +132,7 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 lib2Drender_la_LDFLAGS =
 lib2Drender_la_LIBADD =
 am_lib2Drender_la_OBJECTS = PageHandler.lo 2DTexSubPage.lo 2DTexPage.lo \
-	TextureObject.lo TexManager.lo
+	TextureObject.lo RGBATexture.lo PaletteTexture.lo TexManager.lo
 lib2Drender_la_OBJECTS = $(am_lib2Drender_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -141,8 +144,12 @@ depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 @AMDEP_TRUE@DEP_FILES = $(DEPDIR)/2DTexPage.Plo $(DEPDIR)/2DTexPage.Po \
 @AMDEP_TRUE@	$(DEPDIR)/2DTexSubPage.Plo \
 @AMDEP_TRUE@	$(DEPDIR)/2DTexSubPage.Po $(DEPDIR)/PageHandler.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/PageHandler.Po $(DEPDIR)/TexManager.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/TexManager.Po $(DEPDIR)/TextureObject.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/PageHandler.Po \
+@AMDEP_TRUE@	$(DEPDIR)/PaletteTexture.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/PaletteTexture.Po \
+@AMDEP_TRUE@	$(DEPDIR)/RGBATexture.Plo $(DEPDIR)/RGBATexture.Po \
+@AMDEP_TRUE@	$(DEPDIR)/TexManager.Plo $(DEPDIR)/TexManager.Po \
+@AMDEP_TRUE@	$(DEPDIR)/TextureObject.Plo \
 @AMDEP_TRUE@	$(DEPDIR)/TextureObject.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -168,6 +175,8 @@ SOURCES = \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
 	2DTexPage.cpp Cvr2DTexPage.h \
 	TextureObject.cpp CvrTextureObject.h \
+	RGBATexture.cpp CvrRGBATexture.h \
+	PaletteTexture.cpp CvrPaletteTexture.h \
 	TexManager.cpp CvrTexManager.h
 
 
@@ -218,6 +227,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/2DTexSubPage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/PageHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/PageHandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/PaletteTexture.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/PaletteTexture.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/RGBATexture.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/RGBATexture.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TexManager.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TexManager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TextureObject.Plo@am__quote@

@@ -1,5 +1,6 @@
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
-#include <VolumeViz/render/2D/CvrTextureObject.h>
+#include <VolumeViz/render/2D/CvrRGBATexture.h>
+#include <VolumeViz/render/2D/CvrPaletteTexture.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
@@ -360,6 +361,10 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
     assert(glGetError() == GL_NO_ERROR);
 
+    // FIXME: must be changed when we support paletted
+    // textures. 20021210 mortene.
+    assert(texobj->getTypeId() == CvrRGBATexture::getClassTypeId());
+
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  colorformat,
@@ -370,7 +375,7 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
                  bytes_pr_unit,
                  // FIXME: must be changed when we support paletted
                  // textures. 20021206 mortene.
-                 texobj->getRGBABuffer());
+                 ((CvrRGBATexture *)texobj)->getRGBABuffer());
     assert(glGetError() == GL_NO_ERROR);
 
     GLint wrapenum = GL_CLAMP;

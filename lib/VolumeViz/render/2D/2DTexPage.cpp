@@ -6,7 +6,8 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/render/2D/CvrTextureObject.h>
+#include <VolumeViz/render/2D/CvrRGBATexture.h>
+#include <VolumeViz/render/2D/CvrPaletteTexture.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
@@ -336,8 +337,6 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   fclose(f);
 #endif // DEBUG
 
-  SoTransferFunction * transferfunc = this->getTransferFunc(action);
-
   // FIXME: optimalization measure; should be able to save on texture
   // memory by not using full pages where only parts of them are
   // actually covered by texture (volume data does more often than not
@@ -362,7 +361,10 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // of two, or where dimensions are smaller than this->subpagesize.
   const SbVec2s texsize(subpagemax - subpagemin);
 
-  uint32_t * texture = texobj->getRGBABuffer();
+  // FIXME: must be changed when we support paletted
+  // textures. 20021210 mortene.
+  assert(texobj->getTypeId() == CvrRGBATexture::getClassTypeId());
+  uint32_t * texture = ((CvrRGBATexture *)texobj)->getRGBABuffer();
 
   // Blank out unused texture parts, to make sure we don't get any
   // artifacts due to fp-inaccuracies when rendering.
@@ -412,6 +414,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   delete texobj;
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
+  SoTransferFunction * transferfunc = this->getTransferFunc(action);
   pitem->transferfuncid = transferfunc->getNodeId();
   pitem->invisible = invisible;
 

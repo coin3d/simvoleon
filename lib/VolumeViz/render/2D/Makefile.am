@@ -11,6 +11,8 @@ SOURCES = \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
 	2DTexPage.cpp Cvr2DTexPage.h \
 	TextureObject.cpp CvrTextureObject.h \
+	RGBATexture.cpp CvrRGBATexture.h \
+	PaletteTexture.cpp CvrPaletteTexture.h \
 	TexManager.cpp CvrTexManager.h
 
 lib2Drender_la_SOURCES = $(SOURCES)
