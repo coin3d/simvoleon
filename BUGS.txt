@@ -159,18 +159,6 @@ for suggestions for major improvements and new features.
 
 ========================================================================
 
-013 Using many sub-cubes for a texture slows down visualization to a
-    crawl.
-
-    Happens on my box even with just 25 sub-cubes, as for LOBSTER.VOL
-    (5x5x1 sub-cubes at the default 64x64x64 pagesize).
-
-    This is a critical bug.
-
-    20040723 mortene.
-
-========================================================================
-
 015 Potentially inefficient utilization of texture memory when using
     3D textures.
 
