@@ -43,12 +43,14 @@ public:
 protected:
   ~SoVolumeRender();
 
+  enum RenderingMethod { TEXTURE3D, TEXTURE2D, NOTIMPLEMENTED };
+
   virtual void GLRender(SoGLRenderAction * action);
   virtual void rayPick(SoRayPickAction * action);
   virtual void generatePrimitives(SoAction * action);
   virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
 
-private:
+private:  
   friend class SoVolumeRenderP;
   class SoVolumeRenderP * pimpl;
 };

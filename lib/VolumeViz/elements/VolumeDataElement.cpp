@@ -117,6 +117,23 @@ SoVolumeDataElement::objectCoordsToIJK(const SbVec3f & objectpos) const
 }
 
 void
+SoVolumeDataElement::getCubeGeometry(SbVec3f & origo,
+                                     SbVec3f & cubescale) const
+{
+
+  SbBox3f spacesize = this->nodeptr->getVolumeSize(); 
+  origo = spacesize.getMin();
+  SbVec3s dimensions = this->getVoxelCubeDimensions();
+ 
+  float dx, dy, dz;
+  spacesize.getSize(dx, dy, dz);
+  cubescale = SbVec3f(dx / ((float) dimensions[0]), 
+                      dy / ((float) dimensions[1]),
+                      dz / ((float) dimensions[2]));
+
+}
+
+void
 SoVolumeDataElement::getPageGeometry(const int axis, const int slicenr,
                                      SbVec3f & origo,
                                      SbVec3f & horizspan,
@@ -136,12 +153,8 @@ SoVolumeDataElement::getPageGeometry(const int axis, const int slicenr,
   SbVec2f qmax, qmin;
   QUAD.getBounds(qmin, qmax);
 
-  SbVec3s dimensions;
-  void * data;
-  SoVolumeData::DataType type;
-  SbBool ok = this->nodeptr->getVolumeData(dimensions, data, type);
-  assert(ok);
-
+  SbVec3s dimensions = this->getVoxelCubeDimensions();
+ 
   const float depthprslice = (spacemax[axis] - spacemin[axis]) / dimensions[axis];
   const float depth = spacemin[axis] + slicenr * depthprslice;
 
@@ -192,4 +205,5 @@ SoVolumeDataElement::getPageGeometry(const int axis, const int slicenr,
   horizspan *= QUADSCALE[0];
   verticalspan.normalize();
   verticalspan *= QUADSCALE[1];
+
 }

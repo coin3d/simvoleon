@@ -514,6 +514,7 @@ SoOrthoSlice::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
     (bmin[axisidx] + (depth / dimensions[axisidx]) * slice);
 
   vdbox.setBounds(bmin, bmax);
+
   box.extendBy(vdbox);
   center = vdbox.getCenter();
 }

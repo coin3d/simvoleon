@@ -1,23 +1,46 @@
 // This datatype is a color lookup table.
 
 #include <assert.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <Inventor/SbBasic.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/errors/SoDebugError.h>
+#include <Inventor/C/glue/gl.h>
 
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
+
+// FIXME: This one should be defined by the configuration
+// script.  (20040315 handegar)
+#define HAVE_ARB_FRAGMENT_PROGRAM
+
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+static const char * cvrclut_palettelookupprogram3d = 
+"!!ARBfp1.0\n"
+"TEMP R0;\n"
+"TEX R0.x, fragment.texcoord[0], texture[0], 3D;\n"
+"TEX R0, R0.x, texture[1], 1D;\n"
+"MOV result.color, R0;\n"
+"END\n";
+static const char * cvrclut_palettelookupprogram2d = 
+"!!ARBfp1.0\n"
+"TEMP R0;\n"
+"TEX R0.x, fragment.texcoord[0], texture[0], 2D;\n"
+"TEX R0, R0.x, texture[1], 1D;\n"
+"MOV result.color, R0;\n"
+"END\n";
+#endif
 
 
 // colormap values are between 0 and 255
 CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap)
 {
+
   this->nrentries = nrcols;
   this->nrcomponents = 4;
   this->datatype = INTS;
+  this->texturetype = CvrCLUT::TEXTURE2D; // Default
 
   const int blocksize = this->nrentries * this->nrcomponents;
   this->int_entries = new uint8_t[blocksize];
@@ -36,9 +59,11 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap)
 CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
                  const float * colormap)
 {
+
   this->nrentries = nrcols;
   this->nrcomponents = nrcomponents;
   this->datatype = FLOATS;
+  this->texturetype = CvrCLUT::TEXTURE2D; // Default
 
   const int blocksize = this->nrentries * this->nrcomponents;
   const int copysize = blocksize * sizeof(float);
@@ -53,6 +78,13 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
 void
 CvrCLUT::commonConstructor(void)
 {
+
+  this->usefragmentprogramlookup = FALSE;
+  this->fragmentprograminitialized = FALSE;
+  this->palettehaschanged = TRUE;
+  this->palettelookuptexture = 0;
+  this->texturetype = CvrCLUT::TEXTURE2D; // Default
+
   this->refcount = 0;
 
   this->transparencythresholds[0] = 0;
@@ -67,9 +99,15 @@ CvrCLUT::commonConstructor(void)
 // Copy constructor.
 CvrCLUT::CvrCLUT(const CvrCLUT & clut)
 {
+
   this->nrentries = clut.nrentries;
   this->nrcomponents = clut.nrcomponents;
   this->datatype = clut.datatype;
+  this->texturetype = clut.texturetype;
+  this->usefragmentprogramlookup = clut.usefragmentprogramlookup;
+  this->fragmentprograminitialized = clut.fragmentprograminitialized;
+  this->palettehaschanged = clut.palettehaschanged;
+  this->palettelookuptexture = clut.palettelookuptexture;
 
   const int blocksize = this->nrentries * this->nrcomponents;
 
@@ -187,9 +225,133 @@ CvrCLUT::setTransparencyThresholds(uint32_t low, uint32_t high)
   this->regenerateGLColorData();
 }
 
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+void
+CvrCLUT::initFragmentProgram(const cc_glglue * glue)
+{
+  
+  // FIXME: What about mutiple GL contexts (as with
+  // soshape_bumpmap.cpp for example)?? Each context would need its
+  // own programs. (20040312 handegar)
+
+  cc_glglue_glGenPrograms(glue, 1, &this->palettelookupprogramid); 
+  cc_glglue_glBindProgram(glue, GL_FRAGMENT_PROGRAM_ARB, this->palettelookupprogramid);
+
+  if (this->texturetype == CvrCLUT::TEXTURE3D)
+    cc_glglue_glProgramString(glue, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
+                              strlen(cvrclut_palettelookupprogram3d), cvrclut_palettelookupprogram3d);
+  else if(this->texturetype == CvrCLUT::TEXTURE2D)
+    cc_glglue_glProgramString(glue, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
+                              strlen(cvrclut_palettelookupprogram2d), cvrclut_palettelookupprogram2d);
+  else assert(FALSE && "Unknown texture type.");
+
+
+  // FIXME: Maybe a wrapper for catching fragment program errors
+  // should be a part of GLUE... (20031204 handegar)
+  GLint errorPos;
+  GLenum err = glGetError();
+  if (err) {
+    glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorPos);
+    SoDebugError::postWarning("CvrCLUT::initFragmentPrograms",
+                              "Error in fragment program! (byte pos: %d) '%s'.\n",
+                              errorPos, glGetString(GL_PROGRAM_ERROR_STRING_ARB));    
+  }
+  
+}
+#endif
+
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+void
+CvrCLUT::initPaletteTexture(const cc_glglue * glue)
+{
+  
+  if (this->palettelookuptexture != 0) 
+    glDeleteTextures(1, &this->palettelookuptexture);
+  
+  glGenTextures(1, &this->palettelookuptexture);
+  glEnable(GL_TEXTURE_1D);
+  glBindTexture(GL_TEXTURE_1D, this->palettelookuptexture);
+  
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+  
+  assert(this->nrentries == 256 && "Palette lookup using fragment program will "
+         "not work if palette size is != 256");
+
+  glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA8, this->nrentries, 0, GL_RGBA, 
+               GL_UNSIGNED_BYTE, (GLvoid *) this->glcolors);
+
+}
+#endif
+
+void
+CvrCLUT::deactivate(const cc_glglue * glw) const
+{
+
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+  if (!this->usefragmentprogramlookup) 
+    return;
+  
+  glDisable(GL_FRAGMENT_PROGRAM_ARB);
+  cc_glglue_glActiveTexture(glw, GL_TEXTURE1);
+  glDisable(GL_TEXTURE_1D);
+  cc_glglue_glActiveTexture(glw, GL_TEXTURE0);
+#endif
+
+}
+
+
 void
 CvrCLUT::activate(const cc_glglue * glw) const
 {
+  
+  // FIXME: The GeForceFX generation does not support palette texture
+  // properly in hardware any longer. These cards should use fragment
+  // programs instead. The palette extension will come up in the
+  // extension list, but we should avoid using it. (20040310 handegar)
+
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+  // FIXME: We should maybe do a better test than this (Ie. not base
+  // the test on glue) (20040310 handegar)
+  if (cc_glglue_has_arb_fragment_program(glw)) {
+
+    ((CvrCLUT*)this)->usefragmentprogramlookup = TRUE;
+    
+    // Shall we upload a new palette texture?
+    if (this->palettehaschanged) {
+      // Casting away the const'ness...      
+      ((CvrCLUT*)this)->initPaletteTexture(glw);
+      ((CvrCLUT*)this)->palettehaschanged = FALSE;
+    }
+
+    if (!this->fragmentprograminitialized) {
+      ((CvrCLUT*)this)->initFragmentProgram(glw);
+      ((CvrCLUT*)this)->fragmentprograminitialized = TRUE;
+    }
+    
+    // FIXME: What should we do if unit #1 is already taken? (20040310 handegar)
+    cc_glglue_glActiveTexture(glw, GL_TEXTURE1);
+    glEnable(GL_TEXTURE_1D);
+    glBindTexture(GL_TEXTURE_1D, this->palettelookuptexture);
+      
+    cc_glglue_glActiveTexture(glw, GL_TEXTURE0);  
+    cc_glglue_glBindProgram(glw, GL_FRAGMENT_PROGRAM_ARB, this->palettelookupprogramid);
+    
+    glEnable(GL_FRAGMENT_PROGRAM_ARB);
+    
+    return;
+  }
+#endif
+
+  // FIXME: Is this check necessary? It *should* have been done earlier
+  // in VoxelChunk.cpp (20040310 handegar)
+  if (!cc_glglue_has_paletted_textures(glw)) {
+    SoDebugError::postWarning("CvrCLUT::activate", 
+                              "Trying to use the palette texture extension, but it is not supported.");
+    return;
+  }
+
   // FIXME: should only need to do this once somewhere else
   glEnable(GL_COLOR_TABLE);
 
@@ -270,6 +432,12 @@ CvrCLUT::setAlphaUse(AlphaUse policy)
 }
 
 void
+CvrCLUT::setTextureType(TextureType type)
+{
+  this->texturetype = type;
+}
+
+void
 CvrCLUT::regenerateGLColorData(void)
 {
   for (unsigned int idx = 0; idx < this->nrentries; idx++) {
@@ -320,4 +488,7 @@ CvrCLUT::regenerateGLColorData(void)
     default: assert(FALSE); break;
     }
   }
+
+  this->palettehaschanged = TRUE;
+
 }

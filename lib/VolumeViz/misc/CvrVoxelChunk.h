@@ -2,6 +2,7 @@
 #define COIN_CVRVOXELCHUNK_H
 
 #include <Inventor/SbVec3s.h>
+#include <Inventor/SbBox3s.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 
 class CvrTextureObject;
@@ -30,8 +31,9 @@ public:
   const SbVec3s & getDimensions(void) const;
   UnitSize getUnitSize(void) const;
 
-  CvrTextureObject * transfer(SoGLRenderAction * action, SbBool & invisible) const;
-
+  CvrTextureObject * transfer2D(SoGLRenderAction * action, SbBool & invisible) const;
+  CvrTextureObject * transfer3D(SoGLRenderAction * action, SbBool & invisible) const;
+  
   void dumpToPPM(const char * filename) const;
 
   // FIXME: move to CvrCLUT?
@@ -39,6 +41,8 @@ public:
 
   CvrVoxelChunk * buildSubPage(const unsigned int axisidx, const int pageidx,
                                const SbBox2s & cutslice);
+
+  CvrVoxelChunk * buildSubCube(const SbBox3s & cubecut);
 
 private:
   CvrVoxelChunk * buildSubPageX(const int pageidx, const SbBox2s & cutslice);

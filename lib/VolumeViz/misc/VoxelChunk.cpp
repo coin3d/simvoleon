@@ -1,6 +1,10 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
-#include <VolumeViz/render/2D/CvrRGBATexture.h>
-#include <VolumeViz/render/2D/CvrPaletteTexture.h>
+#include <VolumeViz/render/common/CvrRGBATexture.h>
+#include <VolumeViz/render/common/CvrPaletteTexture.h>
+#include <VolumeViz/render/common/Cvr2DRGBATexture.h>
+#include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
+#include <VolumeViz/render/common/Cvr3DRGBATexture.h>
+#include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
@@ -18,7 +22,6 @@
 #include <VolumeViz/nodes/gradients/SEISMIC.h>
 
 #include <Inventor/C/tidbits.h>
-#include <Inventor/C/glue/gl.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/misc/SoState.h>
 #include <Inventor/errors/SoDebugError.h>
@@ -36,13 +39,14 @@ SbDict * CvrVoxelChunk::CLUTdict = NULL;
 // fit into the given dimensions with space per voxel allocated
 // according to the UnitSize type.
 //
-// If the "buffer" argument is non-NULL, will nto allocate a buffer,
+// If the "buffer" argument is non-NULL, will not allocate a buffer,
 // but rather just use that pointer. It is then the caller's
 // responsibility to a) not destruct that buffer before this instance
 // is destructed, and b) to deallocate the buffer data.
 CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, UnitSize type,
                              void * buffer)
 {
+
   assert(dimensions[0] > 0);
   assert(dimensions[1] > 0);
   assert(dimensions[2] > 0);
@@ -225,8 +229,13 @@ CvrVoxelChunk::usePaletteTextures(SoGLRenderAction * action)
   const char * env;
   static int force_paletted = -1; // "-1" means "undecided"
   static int force_rgba = -1;
-  if (force_paletted == -1) { force_paletted = (env = coin_getenv("CVR_FORCE_PALETTED_TEXTURES")) && (atoi(env) > 0); }
-  if (force_rgba == -1) { force_rgba = (env = coin_getenv("CVR_FORCE_RGBA_TEXTURES")) && (atoi(env) > 0); }
+
+  if (force_paletted == -1) { 
+    force_paletted = (env = coin_getenv("CVR_FORCE_PALETTED_TEXTURES")) && (atoi(env) > 0); 
+  }
+  if (force_rgba == -1) { 
+    force_rgba = (env = coin_getenv("CVR_FORCE_RGBA_TEXTURES")) && (atoi(env) > 0); 
+  }
   assert(!(force_paletted && force_rgba)); // both at the same time can't be done, silly
 
   if (force_paletted) usepalettetex = TRUE;
@@ -254,14 +263,214 @@ CvrVoxelChunk::usePaletteTextures(SoGLRenderAction * action)
   return usepalettetex;
 }
 
+CvrTextureObject *
+CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
+{
+
+  // FIXME: about the "invisible" flag: this should really be an
+  // SbBox2s that indicates which part of the output buffer is
+  // non-fully-transparent. This could be used to optimize texture
+  // rendering. 20021201 mortene.
+
+  // FIXME: in addition to the "invisible" area, we could keep an
+  // "opaqueness" area, to make it possible to optimize rendering by
+  // occlusion culling. 20021201 mortene.
+
+  SoState * state = action->getState();
+  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+  assert(tfelement != NULL);
+  const SoTransferFunction * transferfunc = tfelement->getTransferFunction();
+  assert(transferfunc != NULL);
+
+  const SbVec3s size(this->dimensions[0], this->dimensions[1], this->dimensions[2]);
+
+
+
+  // FIXME: this is just a temporary fix for what seems like a really
+  // weird and nasty NVidia driver bug; allocate enough textures of 1-
+  // or 2-pixel width, and the driver will eventually crash. (We're
+  // talking ~ a few tens of such textures, plus 1000-2000 other
+  // textures, as seen on freya.trh.sim.no.)  20031031 mortene.
+  // UPDATE: Im not sure if this applies to 3D textures aswell, but
+  // we'll keep it just on case. (20040315 handegar)
+#if 0
+  const SbVec3s texsize(coin_next_power_of_two(size[0] - 1),
+                        coin_next_power_of_two(size[1] - 1),
+                        coin_next_power_of_two(size[2] - 1));
+#else
+  const SbVec3s texsize(SbMax((uint32_t)4, coin_next_power_of_two(size[0] - 1)),
+                        SbMax((uint32_t)4, coin_next_power_of_two(size[1] - 1)),
+                        SbMax((uint32_t)4, coin_next_power_of_two(size[2] - 1)));
+#endif
+
+  invisible = TRUE;
+  CvrTextureObject * texobj = NULL;
+
+  // Handling RGBA inputdata. Just forwarding to output.
+  if (this->getUnitSize() == CvrVoxelChunk::UINT_32) {
+    Cvr3DRGBATexture * rgbatex = new Cvr3DRGBATexture(texsize);
+    texobj = rgbatex;
+    uint32_t * output = rgbatex->getRGBABuffer();
+
+    // FIXME: we should really have support routines for converting
+    // "raw" RGBA inputdata into paletted data
+    for (unsigned int z = 0; z < (unsigned int) size[2]; z++) {
+      for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
+        (void)memcpy(&output[(texsize[0] * y) + (texsize[0]*texsize[1]*z)], 
+                     &(this->getBuffer32()[(size[0] * y) + (size[0] * size[1] * z)]), 
+                     size[0] * sizeof(uint32_t));
+      }
+    }
+      
+    // FIXME: set the "invisible" flag correctly according to actual
+    // input. 20021129 mortene.
+    invisible = FALSE;
+  }
+  else if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
+    CvrRGBATexture * rgbatex = NULL;
+    CvrPaletteTexture * palettetex = NULL;
+    
+    const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
+    clut->ref();
+    
+    SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
+    
+    if (usepalettetex) {
+      palettetex = new Cvr3DPaletteTexture(texsize);
+      palettetex->setCLUT(clut);
+      texobj = palettetex;
+    }
+    else {
+      rgbatex = new Cvr3DRGBATexture(texsize);
+      texobj = rgbatex;
+    }
+
+    const int32_t shiftval = transferfunc->shift.getValue();
+    const int32_t offsetval = transferfunc->offset.getValue();
+
+    const uint8_t * inputbytebuffer = this->getBuffer8();
+
+    if (palettetex) { // paletted texture
+      uint8_t * output = palettetex->getIndex8Buffer();
+            
+      for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
+        for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
+          for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
+            // Flpping y axis.
+            const int voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
+            const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;     
+            assert(voxelidx <= (size[0] * size[1] * size[2]));
+            assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
+            const uint8_t voldataidx = inputbytebuffer[voxelidx];            
+            output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
+          }
+        }
+      }
+      
+      // FIXME: should set the ''invisible'' flag correctly to
+      // optimize the amount of the available fill-rate of the gfx
+      // card we're using.
+      //
+      // Note that it's not straightforward to use this optimalization
+      // for paletted textures, because we want to be able to change
+      // the palette on the fly without having to regenerate texture
+      // blocks / slices (i.e.: something that _was_ invisible could
+      // become visible upon changing the palette, and vice versa).
+      //
+      // Should still fix it, though, as it can have a _major_
+      // impact. Try for instance the 3DHEAD.VOL set in RGBA texture
+      // mode versus palette texture mode -- the former has ~ 2X-3X
+      // better framerate.
+      invisible = FALSE;
+    }
+    else { // RGBA texture
+      uint32_t * rgbaquadruplets = rgbatex->getRGBABuffer();
+      uint8_t * output = (uint8_t *)rgbaquadruplets;
+
+      for (unsigned int z = 0; z < (unsigned int) size[2]; z++) {
+        for (unsigned int y=0; y < (unsigned int) size[1]; y++) {
+          for (unsigned int x=0; x < (unsigned int) size[0]; x++) {
+            // Flpping y axis.
+            const int voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
+            const int texelidx = (z * (texsize[0]*texsize[1])) + (y * texsize[0]) + x;
+            const uint8_t voldataidx = inputbytebuffer[voxelidx];
+            const uint8_t colidx = (voldataidx << shiftval) + offsetval;
+   
+            clut->lookupRGBA(colidx, &output[texelidx * 4]);
+            invisible = invisible && (output[texelidx * 4 + 3] == 0x00);
+          }
+        }
+      }
+    }
+    clut->unref();
+  }
+  
+  else if (this->getUnitSize() == CvrVoxelChunk::UINT_16) {
+    // --
+    // FIXME: This is not a proper solution! Fix later. (20040311 handegar)
+    // --
+    SoDebugError::postWarning("transfer3D", "UINT_16 unit size is not properly implemented "
+                              "yet. Voxels will therefore be scaled down to 8 bits.");    
+    
+    CvrPaletteTexture * palettetex = NULL;    
+    const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
+    clut->ref();
+    
+    SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
+    
+    if (usepalettetex) {
+      palettetex = new Cvr3DPaletteTexture(texsize);
+      palettetex->setCLUT(clut);
+      texobj = palettetex;
+    }
+    else {
+      assert(FALSE && "16 bits RGBA textures are not supported.");
+    }
+    
+    const int32_t shiftval = transferfunc->shift.getValue();
+    const int32_t offsetval = transferfunc->offset.getValue();
+    
+    const uint16_t * inputbytebuffer = this->getBuffer16();
+    
+    if (palettetex) { // paletted texture
+      uint8_t * output = palettetex->getIndex8Buffer();
+      
+      for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
+        for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
+          for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
+            // Flpping y axis.
+            const int voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
+            const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;     
+            assert(voxelidx <= (size[0] * size[1] * size[2]));
+            assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
+            // FIXME: Quick hack! Shifting down a 16 bit word to a byte. (20040311 handegar)
+            const uint8_t voldataidx = (inputbytebuffer[voxelidx] >> 8);
+            output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
+          }
+        }
+      }
+      
+      invisible = FALSE;
+      
+    }
+
+  }
+  else {
+    assert(FALSE && "Unknown voxel unit size.");
+  }
+
+  return texobj;
+
+}
+
 /*!
-  Transfers voxel data to a texture.
+  Transfers voxel data to a 2D texture.
 
   The "invisible" flag will be set according to whether or not there's
   at least one texel that's not fully transparent.
 */
 CvrTextureObject *
-CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
+CvrVoxelChunk::transfer2D(SoGLRenderAction * action, SbBool & invisible) const
 {
   // FIXME: about the "invisible" flag: this should really be an
   // SbBox2s that indicates which part of the output buffer is
@@ -303,7 +512,7 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
 
   // Handling RGBA inputdata. Just forwarding to output.
   if (this->getUnitSize() == CvrVoxelChunk::UINT_32) {
-    CvrRGBATexture * rgbatex = new CvrRGBATexture(texsize);
+    Cvr2DRGBATexture * rgbatex = new Cvr2DRGBATexture(texsize);
     texobj = rgbatex;
     uint32_t * output = rgbatex->getRGBABuffer();
 
@@ -331,12 +540,12 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
     SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
 
     if (usepalettetex) {
-      palettetex = new CvrPaletteTexture(texsize);
+      palettetex = new Cvr2DPaletteTexture(texsize);
       palettetex->setCLUT(clut);
       texobj = palettetex;
     }
     else {
-      rgbatex = new CvrRGBATexture(texsize);
+      rgbatex = new Cvr2DRGBATexture(texsize);
       texobj = rgbatex;
     }
 
@@ -395,12 +604,13 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
   }
 
   else if (this->getUnitSize() == CvrVoxelChunk::UINT_16) {
-    assert(FALSE && "not yet implemented");
+    assert(FALSE && "UINT_16 unit size not yet implemented");
   }
 
   else {
     assert(FALSE && "unknown unit size");
   }
+
 
   return texobj;
 }
@@ -499,9 +709,9 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
 
   const int zAdd = dim[0] * dim[1];
 
-  const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
+  const int nrhorizvoxels = ssmax[0] - ssmin[0];
   assert(nrhorizvoxels > 0);
-  const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
+  const int nrvertvoxels = ssmax[1] - ssmin[1];
   assert(nrvertvoxels > 0);
 
   const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
@@ -514,13 +724,13 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
   uint8_t * inputbytebuffer = (uint8_t *)this->getBuffer();
   uint8_t * outputbytebuffer = (uint8_t *)output->getBuffer();
 
-  for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
+  for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
     const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
     const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
     uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
 
     // FIXME: should optimize this loop. 20021125 mortene.
-    for (unsigned int horizidx = 0; horizidx < nrhorizvoxels; horizidx++) {
+    for (int horizidx = 0; horizidx < nrhorizvoxels; horizidx++) {
       *dstptr++ = *srcptr++;
       if (voxelsize > 1) *dstptr++ = *srcptr++;
       if (voxelsize == 4) { *dstptr++ = *srcptr++; *dstptr++ = *srcptr++; }
@@ -571,9 +781,9 @@ CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by usi
 
   const SbVec3s dim = this->getDimensions();
 
-  const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
+  const int nrhorizvoxels = ssmax[0] - ssmin[0];
   assert(nrhorizvoxels > 0);
-  const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
+  const int nrvertvoxels = ssmax[1] - ssmin[1];
   assert(nrvertvoxels > 0);
 
   const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
@@ -586,7 +796,7 @@ CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by usi
   uint8_t * inputbytebuffer = (uint8_t *)this->getBuffer();
   uint8_t * outputbytebuffer = (uint8_t *)output->getBuffer();
 
-  for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
+  for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
     const unsigned int inoffset = staticoffset + (rowidx * dim[0] * dim[1]);
     const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
 
@@ -611,9 +821,9 @@ CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by usi
 
   const SbVec3s dim = this->getDimensions();
 
-  const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
+  const int nrhorizvoxels = ssmax[0] - ssmin[0];
   assert(nrhorizvoxels > 0);
-  const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
+  const int nrvertvoxels = ssmax[1] - ssmin[1];
   assert(nrvertvoxels > 0);
 
   const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
@@ -626,13 +836,49 @@ CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by usi
   uint8_t * inputbytebuffer = (uint8_t *)this->getBuffer();
   uint8_t * outputbytebuffer = (uint8_t *)output->getBuffer();
 
-  for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
+  for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
     const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
     const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
-
     uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
-
     (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
+  }
+
+  return output;
+}
+
+CvrVoxelChunk *
+CvrVoxelChunk::buildSubCube(const SbBox3s & cutcube)
+{
+
+  SbVec3s ccmin, ccmax;
+  cutcube.getBounds(ccmin, ccmax);
+  const SbVec3s dim = this->getDimensions();
+ 
+  const int nrhorizvoxels = ccmax[0] - ccmin[0];
+  const int nrvertvoxels = ccmax[1] - ccmin[1];
+  const int nrdepthvoxels = ccmax[2] - ccmin[2];
+  
+  assert(nrhorizvoxels > 0);
+  assert(nrvertvoxels > 0);
+  assert(nrdepthvoxels > 0);
+
+  const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, nrdepthvoxels);
+  CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, this->getUnitSize());
+
+  const unsigned int staticoffset = (ccmin[2] * dim[0] * dim[1]) + (ccmin[1] * dim[0]) + ccmin[0];
+
+  const unsigned int voxelsize = this->getUnitSize();
+  uint8_t * inputbytebuffer = (uint8_t *)this->getBuffer();
+  uint8_t * outputbytebuffer = (uint8_t *)output->getBuffer();
+
+  for (int depthidx = 0; depthidx < nrdepthvoxels; depthidx++) {
+    for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
+      const unsigned int inoffset = staticoffset + (rowidx * dim[0]) + (depthidx * dim[0]*dim[1]);
+      const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);      
+      uint8_t * dstptr = &(outputbytebuffer[((depthidx * nrhorizvoxels * nrvertvoxels) + (nrhorizvoxels * rowidx)) * voxelsize]);      
+      (void) memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
+
+    }
   }
 
   return output;

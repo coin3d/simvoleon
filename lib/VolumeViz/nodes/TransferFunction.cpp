@@ -15,7 +15,7 @@
 #include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
-#include <VolumeViz/render/2D/CvrTextureObject.h>
+#include <VolumeViz/render/common/CvrTextureObject.h>
 
 // *************************************************************************
 

@@ -21,20 +21,26 @@ public:
   void setTransparencyThresholds(uint32_t low, uint32_t high);
 
   void activate(const cc_glglue * glw) const;
+  void deactivate(const cc_glglue * glw) const;
   void lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const;
 
   // Note: must match the enum in SoOrthoSlice.
   enum AlphaUse { ALPHA_AS_IS = 0, ALPHA_OPAQUE = 1, ALPHA_BINARY = 2 };
+  enum TextureType { TEXTURE2D, TEXTURE3D };
 
   void setAlphaUse(AlphaUse policy);
+  void setTextureType(TextureType type);
 
 private:
   ~CvrCLUT();
   void commonConstructor(void);
   void regenerateGLColorData(void);
+  void initFragmentProgram(const cc_glglue * glue);
+  void initPaletteTexture(const cc_glglue * glue);
 
   unsigned int nrentries;
   unsigned int nrcomponents;
+
 
   enum DataType { INTS, FLOATS } datatype;
   union {
@@ -47,6 +53,13 @@ private:
   AlphaUse alphapolicy;
 
   uint8_t * glcolors;
+
+  SbBool palettehaschanged;
+  SbBool usefragmentprogramlookup;
+  SbBool fragmentprograminitialized;
+  GLuint palettelookuptexture;
+  GLuint palettelookupprogramid;
+  TextureType texturetype;
 
   int refcount;
   friend class nop; // to avoid g++ compiler warning on the private constructor

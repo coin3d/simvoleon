@@ -130,7 +130,7 @@
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
 #include <VolumeViz/details/SoObliqueSliceDetail.h>
-#include <VolumeViz/render/2D/CvrTextureObject.h>
+#include <VolumeViz/render/common/CvrTextureObject.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>
 
