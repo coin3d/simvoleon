@@ -2,10 +2,12 @@
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/elements/SoGLClipPlaneElement.h>
 #include <Inventor/errors/SoDebugError.h>
+#include <Inventor/SoPickedPoint.h>
 #include <Inventor/system/gl.h>
 
 #include <VolumeViz/nodes/SoOrthoSlice.h>
 
+#include <VolumeViz/details/SoOrthoSliceDetail.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
@@ -69,6 +71,8 @@ public:
   static void renderBox(SoGLRenderAction * action, SbBox3f box);
 
   Cvr2DTexPage * getPage(const int axis, const int slice, SoVolumeData * v);
+
+  SbPlane getSliceAsPlane(SoAction * action) const;
 
 private:
   SbList<CachedPage*> cachedpages[3];
@@ -140,28 +144,44 @@ SoOrthoSlice::affectsState(void) const
   return this->clipping.getValue();
 }
 
+SbPlane
+SoOrthoSliceP::getSliceAsPlane(SoAction * action) const
+{
+  // Find the plane definition.
+  const SoVolumeDataElement * volumedataelement =
+    SoVolumeDataElement::getInstance(action->getState());
+  assert(volumedataelement != NULL);
+
+  // Note that the following code could be made faster by just setting
+  // the planenormal to point along the correct axis, and find the
+  // slice world coordinate point. This would be simple, as an
+  // SoOrthoSlice is guaranteed to be normal to one of the principal
+  // axes.
+  //
+  // Using the SoVolumeDataElement::getPageGeometry() method is rather
+  // convenient, though.
+
+  SbVec3f origo, horizspan, verticalspan;
+  volumedataelement->getPageGeometry(PUBLIC(this)->axis.getValue(),
+                                     PUBLIC(this)->sliceNumber.getValue(),
+                                     origo, horizspan, verticalspan);
+
+  SbVec3f planenormal = horizspan.cross(verticalspan);
+  if (PUBLIC(this)->clippingSide.getValue() == SoOrthoSlice::BACK) {
+    planenormal.negate();
+  }
+
+  return SbPlane(planenormal, origo);
+}
+
 // Doc from superclass.
 void
 SoOrthoSlice::doAction(SoAction * action)
 {
-  SoState * state = action->getState();
-
   // The clipping is common for all action traversal.
   if (this->clipping.getValue()) {
-    // Find the plane definition.
-    const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-    assert(volumedataelement != NULL);
-
-    SbVec3f origo, horizspan, verticalspan;
-    volumedataelement->getPageGeometry(this->axis.getValue(),
-                                       this->sliceNumber.getValue(),
-                                       origo, horizspan, verticalspan);
-
-    SbVec3f planenormal = horizspan.cross(verticalspan);
-    if (this->clippingSide.getValue() == SoOrthoSlice::BACK) { planenormal.negate(); }
-    const SbPlane sliceplane(planenormal, origo);
-
-    SoClipPlaneElement::add(state, this, sliceplane);
+    SoClipPlaneElement::add(action->getState(), this,
+                            PRIVATE(this)->getSliceAsPlane(action));
   }
 }
 
@@ -258,8 +278,44 @@ SoOrthoSliceP::getPage(const int axis, const int slice, SoVolumeData * voldata)
 void
 SoOrthoSlice::rayPick(SoRayPickAction * action)
 {
-  // FIXME: implement pick
-  {
+  if (!this->shouldRayPick(action)) return;
+
+  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(action->getState());
+  assert(volumedataelement != NULL);
+  const SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  if (volumedata == NULL) { return; }
+
+
+  this->computeObjectSpaceRay(action);
+  const SbLine & ray = action->getLine();
+
+  const SbPlane sliceplane = PRIVATE(this)->getSliceAsPlane(action);
+
+  SbVec3f intersection;
+  if (sliceplane.intersect(ray, intersection) && // returns FALSE if parallel
+      action->isBetweenPlanes(intersection)) {
+
+    SbVec3s ijk = volumedataelement->objectCoordsToIJK(intersection);
+
+    const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+    const SbBox3s voxcubebounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
+
+    if (voxcubebounds.intersect(ijk)) {
+
+      SoPickedPoint * pp = action->addIntersection(intersection);
+      // if NULL, something else is obstructing the view to the
+      // volume, the app programmer only want the nearest, and we
+      // don't need to continue our intersection tests
+      if (pp == NULL) return;
+      pp->setObjectNormal(sliceplane.getNormal());
+
+      SoOrthoSliceDetail * detail = new SoOrthoSliceDetail;
+      pp->setDetail(detail, this);
+
+      detail->objectcoords = intersection;
+      detail->ijkcoords = ijk;
+      detail->voxelvalue = volumedata->getVoxelValue(ijk);
+    }
   }
 
   // Common clipping plane handling.
@@ -270,6 +326,15 @@ void
 SoOrthoSlice::generatePrimitives(SoAction * action)
 {
   // FIXME: implement
+
+#if CVR_DEBUG && 1 // debug
+  static SbBool warn = TRUE;
+  if (warn) {
+    SoDebugError::postInfo("SoOrthoSlice::generatePrimitives",
+                           "not yet implemented");
+    warn = FALSE;
+  }
+#endif // debug
 }
 
 // doc in super
