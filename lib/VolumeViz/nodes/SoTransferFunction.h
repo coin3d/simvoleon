@@ -6,10 +6,6 @@
 #include <Inventor/fields/SoSFInt32.h>
 #include <Inventor/fields/SoMFFloat.h>
 
-// FIXME: get rid of this when private method is actually made
-// private. 20021107 mortene.
-#include <VolumeViz/nodes/SoVolumeData.h>
-
 class SbVec2s;
 class CvrTextureObject;
 class CvrVoxelChunk;
