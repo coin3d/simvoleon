@@ -202,12 +202,10 @@ RegularSources = \
 	PageSizeElement.cpp \
 	StorageHintElement.cpp \
 	VoxelBlockElement.cpp \
-	VolumeDataElement.cpp \
 	TransferFunctionElement.cpp
 
 
 PublicHeaders = \
-	SoVolumeDataElement.h \
 	SoTransferFunctionElement.h
 
 
@@ -248,7 +246,7 @@ am__objects_1 = CompressedTexturesElement.$(OBJEXT) \
 	GLInterpolationElement.$(OBJEXT) \
 	PalettedTexturesElement.$(OBJEXT) PageSizeElement.$(OBJEXT) \
 	StorageHintElement.$(OBJEXT) VoxelBlockElement.$(OBJEXT) \
-	VolumeDataElement.$(OBJEXT) TransferFunctionElement.$(OBJEXT)
+	TransferFunctionElement.$(OBJEXT)
 am_elements_lst_OBJECTS = $(am__objects_1)
 elements_lst_OBJECTS = $(am_elements_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
@@ -257,7 +255,7 @@ libelements_la_LDFLAGS =
 libelements_la_LIBADD =
 am__objects_3 = CompressedTexturesElement.lo GLInterpolationElement.lo \
 	PalettedTexturesElement.lo PageSizeElement.lo \
-	StorageHintElement.lo VoxelBlockElement.lo VolumeDataElement.lo \
+	StorageHintElement.lo VoxelBlockElement.lo \
 	TransferFunctionElement.lo
 am_libelements_la_OBJECTS = $(am__objects_3)
 libelements_la_OBJECTS = $(am_libelements_la_OBJECTS)
@@ -275,8 +273,6 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/StorageHintElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/TransferFunctionElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/TransferFunctionElement.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/VolumeDataElement.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/VolumeDataElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VoxelBlockElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/VoxelBlockElement.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -343,8 +339,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StorageHintElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunctionElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunctionElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeDataElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeDataElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VoxelBlockElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VoxelBlockElement.Po@am__quote@
 

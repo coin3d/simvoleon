@@ -14,11 +14,9 @@ RegularSources = \
 	PageSizeElement.cpp \
 	StorageHintElement.cpp \
 	VoxelBlockElement.cpp \
-	VolumeDataElement.cpp \
 	TransferFunctionElement.cpp
 
 PublicHeaders = \
-	SoVolumeDataElement.h \
 	SoTransferFunctionElement.h
 
 PrivateHeaders = \
