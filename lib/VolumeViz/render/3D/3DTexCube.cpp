@@ -70,21 +70,17 @@ Cvr3DTexCube::Cvr3DTexCube(SoVolumeReader * reader)
   this->subcubes = NULL;
 
   this->subcubesize = SbVec3s(0, 0, 0);
-  calculateOptimalSubCubeSize();
-
-  this->reader = reader;
+  this->calculateOptimalSubCubeSize();
 
   SbVec3s dim;
   SbBox3f size;
   SoVolumeData::DataType dummy;
-  this->reader->getDataChar(size, dummy, dim);
+  reader->getDataChar(size, dummy, dim);
 
   assert(dim[0] > 0);
   assert(dim[1] > 0);
   assert(dim[2] > 0);
-
-  float width, height, depth;
-  size.getSize(width, height, depth);
+ 
   this->dimensions = dim;
 
   this->nrcolumns = (this->dimensions[0] + this->subcubesize[0] - 1) / this->subcubesize[0];
@@ -182,45 +178,37 @@ Cvr3DTexCube::calculateOptimalSubCubeSize()
 void
 Cvr3DTexCube::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
-                     const SbVec3f & cubespan,
+                     const SbVec3f & cubescale,
                      Cvr3DTexSubCube::Interpolation interpolation,
-                     unsigned int numslices)
+                     const unsigned int numslices)
 {
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
 
   SoState * state = action->getState();
  
-  SbVec3f subcubewidth = SbVec3f(cubespan[0] * this->subcubesize[0], 0, 0);
-  SbVec3f subcubeheight = SbVec3f(0, cubespan[1] * this->subcubesize[1], 0);
-  SbVec3f subcubedepth = SbVec3f(0, 0, cubespan[2] * this->subcubesize[2]);
+  SbVec3f subcubewidth = SbVec3f(cubescale[0] * this->subcubesize[0], 0, 0);
+  SbVec3f subcubeheight = SbVec3f(0, cubescale[1] * this->subcubesize[1], 0);
+  SbVec3f subcubedepth = SbVec3f(0, 0, cubescale[2] * this->subcubesize[2]);
 
   SbViewVolume viewvolume = SoViewVolumeElement::get(action->getState());
   SbViewVolume viewvolumeinv = viewvolume;
   viewvolumeinv.transform(SoModelMatrixElement::get(state).inverse());
 
   SbBox3f bbox(origo, origo +                
-               SbVec3f(this->dimensions[0], this->dimensions[1], this->dimensions[2]));
+               SbVec3f(cubescale[0]*this->dimensions[0], 
+                       cubescale[1]*this->dimensions[1], 
+                       cubescale[2]*this->dimensions[2]));
   bbox.transform(SoModelMatrixElement::get(state));
-
   float dx, dy, dz;
-  bbox.getSize(dx, dy, dz);
-
-  const float bboxradius = sqrtf(dx * dy * dz) / 2.0f;
+  bbox.getSize(dx, dy, dz);   
+  const float bboxradius = SbVec3f(dx, dy, dz).length() * 0.5f;
+  
   const SbPlane camplane = viewvolume.getPlane(0.0f);
   const SbVec3f bboxcenter = bbox.getCenter();
-
   const float neardistance = SbAbs(camplane.getDistance(bboxcenter)) + bboxradius;
   const float fardistance = SbAbs(camplane.getDistance(bboxcenter)) - bboxradius;
   const float distancedelta = (fardistance - neardistance) / numslices;
-
-  /*
-  printf("origo: %f, %f, %f\n", origo[0], origo[1], origo[2]);
-  printf("bbsize: %f, %f, %f\n", dx, dy, dz);
-  printf("cubescale: %f, %f, %f\n", cubespan[0], cubespan[1], cubespan[2]);
-  printf("near: %f, far: %f, delta: %f radius: %f\n", 
-         neardistance, fardistance, distancedelta, bboxradius);
-  */
- 
+   
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
 
   for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
@@ -229,57 +217,59 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
 
         Cvr3DTexSubCube * cube = NULL;
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
+
         if (cubeitem == NULL) {
-          cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx, cubespan);
+          cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx, cubescale);        
         }
         assert(cubeitem != NULL);
-        if (cubeitem->invisible) continue;
+
+        if (cubeitem->invisible) 
+          continue;
         assert(cubeitem->cube != NULL);
-
            
-        SbVec3f subcubeorigo = origo + // horizontal shift to correct column
-          subcubewidth * colidx + // vertical shift to correct row
-          subcubeheight * rowidx + // depth shift
-          subcubedepth * depthidx;
+        SbVec3f subcubeorigo = origo + 
+          subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
 
-        const SbVec3f subcubecenter = subcubeorigo +
-          (subcubewidth/2 + subcubeheight/2 + subcubedepth/2);
+        SbBox3f subbbox(subcubeorigo, subcubeorigo + subcubeheight + subcubewidth + subcubedepth);   
 
-        const float cubedist = (viewvolumeinv.getProjectionPoint() - subcubecenter).length();
-        const float cubeplanedist = SbAbs(camplane.getDistance(subcubecenter));
+        const float cubecameradist = (viewvolumeinv.getProjectionPoint() - 
+                                      subbbox.getCenter()).length();
+        cubeitem->cube->setDistanceFromCamera(cubecameradist);
 
-        SbVec3f a, b, c;
-        SoModelMatrixElement::get(state).multVecMatrix(subcubewidth, a);
-        SoModelMatrixElement::get(state).multVecMatrix(subcubeheight, b);
-        SoModelMatrixElement::get(state).multVecMatrix(subcubedepth, c);
-        const float cuberadius = ((a + b + c).length()/2);
-
-        cubeitem->cube->setDistanceFromCamera(cubedist);
-
-        for (unsigned int i=0;i<numslices;++i) {
-          // Check if the cutplane intersect the bounding sphere of the cube at all.
+        subbbox.transform(SoModelMatrixElement::get(state));
+        float sdx, sdy, sdz;
+        subbbox.getSize(sdx, sdy, sdz);        
+        const float cuberadius = SbVec3f(sdx, sdy, sdz).length() * 0.5f;
+        const float cubecenterdist = SbAbs(camplane.getDistance(subbbox.getCenter()));
+       
+        for (unsigned int i=0; i<numslices; ++i) {
           const float dist = fardistance - i*distancedelta;
-          if (dist > (cubeplanedist+cuberadius)) break; // We have passed the cube.
-          if (dist < (cubeplanedist-cuberadius)) continue; // We havent reached the cube yet.
+          if (dist > (cubecenterdist+cuberadius)) break; // We have passed the cube.
+          if (dist < (cubecenterdist-cuberadius)) continue; // We haven't reached the cube yet.
+
           cubeitem->cube->checkIntersectionSlice(subcubeorigo, viewvolume, dist,
                                                  SoModelMatrixElement::get(state).inverse());
-        }
 
+        }
+        
         subcubelist.append(cubeitem);
 
       }
     }
   }
 
+  // Sort rendering order of the subcubes depending on the distance to
+  // the camera.
   qsort((void *) subcubelist.getArrayPtr(),
         subcubelist.getLength(),
         sizeof(Cvr3DTexSubCubeItem *),
         subcube_qsort_compare);
 
+  // Render all subcubes.
   for (int i=0;i<subcubelist.getLength();++i)
     subcubelist[i]->cube->render(action, interpolation);
 
-  // Draw lines around each subcube.
+  // Draw lines around each subcube if requested by the 'CVR_SUBCUBE_FRAMES' envvar.
   if (this->rendersubcubeoutline) {
     for (int i=0;i<subcubelist.getLength();++i)
       subcubelist[i]->cube->renderBBox(action, i);
@@ -331,7 +321,7 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
   }
 
   // NOTE: Building subcubes 'upwards' so that the Y orientation will
-  // be equal as the 2D slice rendering (the voxelchunks are also
+  // be equal to the 2D slice rendering (the voxelchunks are also
   // flipped).
 
   SbVec3s subcubemin(col * this->subcubesize[0],

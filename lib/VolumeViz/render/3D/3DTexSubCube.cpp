@@ -390,27 +390,25 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
 
   // FIXME: Can we rewrite this to support viewport shells for proper
   // perspective? (20040227 handegar)
-  // FIXME: One should take aspect ratio into account here! (20040312 handegar)
 
   SbVec3f a, b, c, d;
-  a = viewvolume.getPlanePoint(viewdistance, SbVec2f(-1.0f,  1.0f));
-  b = viewvolume.getPlanePoint(viewdistance, SbVec2f( 1.0f,  1.0f));
-  c = viewvolume.getPlanePoint(viewdistance, SbVec2f( 1.0f, -1.0f));
-  d = viewvolume.getPlanePoint(viewdistance, SbVec2f(-1.0f, -1.0f));
+  a = viewvolume.getPlanePoint(viewdistance, SbVec2f(-2.0f,  2.0f));
+  b = viewvolume.getPlanePoint(viewdistance, SbVec2f( 2.0f,  2.0f));
+  c = viewvolume.getPlanePoint(viewdistance, SbVec2f( 2.0f, -2.0f));
+  d = viewvolume.getPlanePoint(viewdistance, SbVec2f(-2.0f, -2.0f));
+  
   m.multVecMatrix(a, a);
   m.multVecMatrix(b, b);
   m.multVecMatrix(c, c);
   m.multVecMatrix(d, d);
+  
   cubeclipper.addVertex(a);
   cubeclipper.addVertex(b);
   cubeclipper.addVertex(c);
   cubeclipper.addVertex(d);
-  
-
 
   // ClockWise direction for all planes
   
-
   // Back plane
   cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f), 
                            cubeorigo,
@@ -436,8 +434,6 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
                            cubeorigo, 
                            cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f)));
 
-
- 
 
   int i=0;
   const int result = cubeclipper.getNumVertices();
@@ -504,8 +500,8 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
     this->volumeslices[i].texcoord.truncate(0);
 
     assert(glGetError() == GL_NO_ERROR);
-
   }
+
   this->volumeslices.truncate(0);
 
   if (this->ispaletted) // Switch OFF palette rendering

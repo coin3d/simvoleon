@@ -39,7 +39,7 @@ public:
   void render(SoGLRenderAction * action, const SbVec3f & origo,
               const SbVec3f & cubespan,
               Cvr3DTexSubCube::Interpolation interpolation,
-              unsigned int numslices);
+              const unsigned int numslices);
   
   void setPalette(const CvrCLUT * c);
   const CvrCLUT * getPalette(void) const;
@@ -58,7 +58,6 @@ private:
   void calculateOptimalSubCubeSize();
 
   class Cvr3DTexSubCubeItem ** subcubes;
-  SoVolumeReader * reader;
 
   SbVec3s subcubesize;
   SbVec3s dimensions;
