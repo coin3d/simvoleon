@@ -66,8 +66,6 @@ public:
 protected:
   ~SoVolumeRender();
 
-  enum RenderingMethod { TEXTURE3D, TEXTURE2D, NOTIMPLEMENTED };
-
   virtual void GLRender(SoGLRenderAction * action);
   virtual void rayPick(SoRayPickAction * action);
   virtual void generatePrimitives(SoAction * action);

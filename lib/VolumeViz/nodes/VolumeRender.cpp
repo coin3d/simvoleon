@@ -67,9 +67,21 @@
 
 // *************************************************************************
 
+// FIXME: not so sure the below whitelist and blacklist is such a good
+// idea after all. There seems to be a realistic possibility for false
+// positives or negatives.
+//
+// Should at least cut them down to these cards we have had hands-on
+// experience with. Should also extend the driver identification
+// strings to be more exacting, to minimize the potential for false
+// positives and negatives.
+//
+// 20040708 mortene.
+
 // Whitelist of GL_RENDERER substrings for cards which does 3D
 // textures in hardware.
 static const char * texture3d_in_hardware[] = {
+#if 0 // tmp disabled, see above FIXME
   "GeForce FX",    // 5200 .. 5950
   "GeForce3",
   "GeForce4 Ti",
@@ -83,6 +95,7 @@ static const char * texture3d_in_hardware[] = {
   "MOBILITY RADEON ",
   "Fire GL",       // I persume these highend cards do 3D textures in HW
   "Wildcat VP",    // 560, 870, 970.
+#endif // tmp disabled
   NULL
 };
 
@@ -90,6 +103,7 @@ static const char * texture3d_in_hardware[] = {
 // textures, but only in software (i.e. not feasible for volume
 // rendering).
 static const char * texture3d_in_software[] = {
+#if 0 // tmp disabled, see above FIXME
   "GeForce2",
   "GeForce4 MX",
   "Geforce4 440 GO",
@@ -97,6 +111,7 @@ static const char * texture3d_in_software[] = {
   "Geforce4 420 GO",
   "RAGE 128",
   "Mesa Windows",
+#endif // tmp disabled
   NULL
 };
 
@@ -152,6 +167,8 @@ public:
   // debug
   void rayPickDebug(SoGLRenderAction * action);
   SbList <SbVec3f> raypicklines;
+
+  enum RenderingMethod { TEXTURE3D, TEXTURE2D, NOTIMPLEMENTED };
 
 private:
   SoVolumeRender * master;
@@ -398,6 +415,18 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   // FIXME: this makes rendering a bit slower, so we should perhaps
   // keep a flag around to know whether or not this is actually
   // necessary. 20040212 mortene.
+  //
+  // FIXME: we really shouldn't do it like this, we should rather let
+  // SoShape::shouldGLRender() handle it automatically -- there could
+  // be bad side effects from doing it like this (what will for
+  // instance happen if there is transparent materials or textures
+  // from graph traversal? Do we get pushed onto the delayed path list
+  // of the action twice?).
+  // 
+  // To have SoShape::shouldGLRender() handle it automatically, we
+  // need to "fake" transparency onto the state stack, e.g. by pushing
+  // a material element. Investigate the SoShape::shouldGLRender()
+  // code to find out exactly how. 20040707 mortene.
   if (!action->isRenderingDelayedPaths()) {
     action->addDelayedPath(action->getCurPath()->copy());
     return;
@@ -486,13 +515,13 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     goto done;
   }
 
-  rendermethod = SoVolumeRender::TEXTURE2D; // this is the default
+  rendermethod = SoVolumeRenderP::TEXTURE2D; // this is the default
   storagehint = volumedata->storageHint.getValue();
   if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
     const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
     if (cc_glglue_has_3d_textures(glue) && !CvrUtil::force2DTextureRendering()) {
       if (PRIVATE(this)->use3DTexturing(glue)) {
-        rendermethod = SoVolumeRender::TEXTURE3D;
+        rendermethod = SoVolumeRenderP::TEXTURE3D;
       }
     }
   }
@@ -500,12 +529,12 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     // Do nothing. 2D texturing is the default.
   }
   else {
-    rendermethod = SoVolumeRender::NOTIMPLEMENTED;
+    rendermethod = SoVolumeRenderP::NOTIMPLEMENTED;
   }
 
 
   // viewport-aligned 3D textures
-  if (rendermethod == SoVolumeRender::TEXTURE3D) {
+  if (rendermethod == SoVolumeRenderP::TEXTURE3D) {
 
     const int numslices = PRIVATE(this)->calculateNrOf3DSlices(action, voxcubedims);
     if (numslices == 0) goto done;
@@ -535,7 +564,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 
   }
   // axis-aligned 2D textures
-  else if (rendermethod == SoVolumeRender::TEXTURE2D) {
+  else if (rendermethod == SoVolumeRenderP::TEXTURE2D) {
     // let model matrix contain *all* scaling, so the render code can
     // simply work with a unit cube:
     SoModelMatrixElement::scaleBy(state, this, SbVec3f(voxcubedims[0], voxcubedims[1], voxcubedims[2]));
