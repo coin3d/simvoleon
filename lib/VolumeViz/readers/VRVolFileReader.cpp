@@ -17,6 +17,8 @@
 
 #include <VolumeViz/readers/SoVRVolFileReader.h>
 #include <Inventor/errors/SoDebugError.h>
+#include <errno.h>
+#include <string.h>
 
 struct vol_header {
   uint32_t magic_number;
@@ -35,6 +37,7 @@ struct vol_header {
 extern "C" {
 extern uint32_t coin_hton_uint32(uint32_t value);
 extern uint32_t coin_ntoh_uint32(uint32_t value);
+extern const char * coin_getenv(const char *);
 }
 
 // FIXME: refactor properly. 20021110 mortene.
@@ -57,31 +60,52 @@ class SoVRVolFileReaderP {
 public:
 
   SoVRVolFileReaderP(void) {
-    this->dataType = SoVolumeData::UNSIGNED_BYTE;
-    this->dimensions = SbVec3s(0, 0, 0);
+    this->valid = FALSE;
   }
 
-  SbVec3s dimensions;
-  SoVolumeData::DataType dataType;
-
   static void debugDumpHeader(struct vol_header * vh);
+  static SbBool debugFileRead(void);
+  SoVolumeData::DataType dataType(void);
 
   struct vol_header volh;
   SbString description;
+  SbBool valid;
 };
+
+/* Return value of CVR_DEBUG_IMPORT environment variable. */
+SbBool
+SoVRVolFileReaderP::debugFileRead(void)
+{
+  static int d = -1;
+  if (d == -1) {
+    const char * val = coin_getenv("CVR_DEBUG_IMPORT");
+    d = val ? atoi(val) : 0;
+  }
+  return (d > 0) ? TRUE : FALSE;
+}
+
+SoVolumeData::DataType
+SoVRVolFileReaderP::dataType(void)
+{
+  switch (this->volh.bits_per_voxel) {
+  case 8: return SoVolumeData::UNSIGNED_BYTE;
+  case 16: return SoVolumeData::UNSIGNED_SHORT;
+  default: assert(FALSE && "unhandled voxel-size"); break;
+  }
+}
 
 void
 SoVRVolFileReaderP::debugDumpHeader(struct vol_header * vh)
 {
   SoDebugError::postInfo("SoVRVolFileReaderP::debugDumpHeader",
                          "magic_number==0x%08x, "
-                         "header_length==%d, "
+                         "header_length==%d (sizeof(struct vol_header)==%d), "
                          "width==%d, height==%d, images==%d, "
                          "bits_per_voxel==%d, index_bits==%d, "
                          "scaleX==%f, scaleY==%f, scaleZ==%f, "
                          "rotX==%f, rotY==%f, rotZ==%f",
                          vh->magic_number,
-                         vh->header_length,
+                         vh->header_length, sizeof(struct vol_header),
                          vh->width, vh->height, vh->images,
                          vh->bits_per_voxel, vh->index_bits,
                          vh->scaleX, vh->scaleY, vh->scaleZ,
@@ -105,10 +129,14 @@ void
 SoVRVolFileReader::getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
                                SbVec3s & dim)
 {
-  type = PRIVATE(this)->dataType;
-  dim = PRIVATE(this)->dimensions;
+  assert(PRIVATE(this)->valid);
+
+  type = PRIVATE(this)->dataType();
 
   struct vol_header * volh = &(PRIVATE(this)->volh);
+
+  dim.setValue(volh->width, volh->height, volh->images);
+
   SbVec3f voldims(volh->width * volh->scaleX,
                   volh->height * volh->scaleY,
                   volh->images * volh->scaleZ);
@@ -119,23 +147,23 @@ void
 SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data,
                                Axis axis)
 {
+  assert(PRIVATE(this)->valid);
+
+  struct vol_header * volh = &(PRIVATE(this)->volh);
+  SbVec3s dims(volh->width, volh->height, volh->images);
+  SoVolumeData::DataType type = PRIVATE(this)->dataType();
+
   switch (axis) {
     case X:
-      buildSubSliceX(this->m_data, data, slicenumber, subslice,
-                     PRIVATE(this)->dataType,
-                     PRIVATE(this)->dimensions);
+      buildSubSliceX(this->m_data, data, slicenumber, subslice, type, dims);
       break;
 
     case Y:
-      buildSubSliceY(this->m_data, data, slicenumber, subslice,
-                     PRIVATE(this)->dataType,
-                     PRIVATE(this)->dimensions);
+      buildSubSliceY(this->m_data, data, slicenumber, subslice, type, dims);
       break;
 
     case Z:
-      buildSubSliceZ(this->m_data, data, slicenumber, subslice,
-                     PRIVATE(this)->dataType,
-                     PRIVATE(this)->dimensions);
+      buildSubSliceZ(this->m_data, data, slicenumber, subslice, type, dims);
       break;
   }
 }
@@ -237,7 +265,7 @@ SoVRVolFileReader::setUserData(void * data)
   assert(filesize >= minsize);
 
 
-  PRIVATE(this)->dimensions = SbVec3s(volh->width, volh->height, volh->images);
+  PRIVATE(this)->valid = TRUE;
 }
 
 // *************************************************************************
