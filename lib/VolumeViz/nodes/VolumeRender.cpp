@@ -67,8 +67,8 @@
 
 // *************************************************************************
 
-// List of GL_RENDERER substrings for cards which does 3D textures in
-// hardware.
+// Whitelist of GL_RENDERER substrings for cards which does 3D
+// textures in hardware.
 static const char * texture3d_in_hardware[] = {
   "GeForce FX",    // 5200 .. 5950
   "GeForce3",
@@ -86,8 +86,9 @@ static const char * texture3d_in_hardware[] = {
   NULL
 };
 
-// List of GL_RENDERER substrings for hardware which does 3D textures,
-// but only in software (i.e. not feasible for volume rendering).
+// Blacklist of GL_RENDERER substrings for hardware which does 3D
+// textures, but only in software (i.e. not feasible for volume
+// rendering).
 static const char * texture3d_in_software[] = {
   "GeForce2",
   "GeForce4 MX",
@@ -1160,10 +1161,16 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
     do3dtextures = 1;
     return TRUE;
   }
-  
+
+  // Setting this environment variable forces the code below to skip
+  // the whitelist / blacklist checking, and instead always run the
+  // performance test.
+  envstr = coin_getenv("CVR_NO_3D_ACCELERATION_CHECKLISTS");
+  const SbBool skiptests = (envstr && (atoi(envstr) > 0)) ? TRUE : FALSE;
+
   static const GLubyte * rendererstring = glGetString(GL_RENDERER);
   unsigned int i=0;
-  while (texture3d_in_hardware[i]) {
+  while (!skiptests && texture3d_in_hardware[i]) {
     const char * loc = strstr((const char *)rendererstring,
                               texture3d_in_hardware[i++]);
     if (loc != NULL) {
@@ -1183,7 +1190,7 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
   }
 
   i=0;
-  while (texture3d_in_software[i]) {
+  while (!skiptests && texture3d_in_software[i]) {
     const char * loc = strstr((const char *)rendererstring,
                               texture3d_in_software[i++]);
     if (CvrUtil::doDebugging() && loc) {
