@@ -145,6 +145,8 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
 {
   // FIXME: need to make sure we're not cached in a renderlist
 
+  // FIXME: rendering needs to be delayed to get order correctly.
+
   SbBox3f slicebox;
   SbVec3f dummy;
   this->computeBBox(action, slicebox, dummy);
@@ -171,9 +173,19 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   volumedataelement->getPageGeometry(axisidx, slicenr,
                                      origo, horizspan, verticalspan);
 
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+  glDisable(GL_LIGHTING);
+  glEnable(GL_TEXTURE_2D);
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
   page->render(action, origo, horizspan, verticalspan,
                // FIXME: ugly cast
                (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue());
+
+  glPopAttrib();
 }
 
 Cvr2DTexPage *
@@ -187,13 +199,8 @@ SoOrthoSliceP::getPage(const int axis, const int slice)
 
   CachedPage * cp = this->cachedpages[axis][slice];
   if (cp) {
-    if (cp->isValid(PUBLIC(this))) {
-      page = cp->getPage();
-    }
-    else {
-      delete cp;
-      cp = NULL;
-    }
+    if (cp->isValid(PUBLIC(this))) { page = cp->getPage(); }
+    else { delete cp; cp = NULL; }
   }
 
   if (!cp) {
