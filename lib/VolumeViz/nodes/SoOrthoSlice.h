@@ -17,7 +17,7 @@ public:
 
   SoOrthoSlice(void);
 
-  enum Axis { X, Y, Z };
+  enum Axis { X = 0, Y, Z };
   enum Interpolation { NEAREST, LINEAR };
   enum AlphaUse { ALPHA_AS_IS, ALPHA_OPAQUE, ALPHA_BINARY };
   enum ClippingSide { FRONT, BACK };

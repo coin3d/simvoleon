@@ -1,8 +1,12 @@
 #include <VolumeViz/nodes/SoOrthoSlice.h>
+
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <Inventor/errors/SoDebugError.h>
+#include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 
 // *************************************************************************
 
@@ -17,6 +21,8 @@ public:
     this->master = master;
   }
 
+  static void renderBox(SoGLRenderAction * action, SbBox3f box);
+  
 private:
   SoOrthoSlice * master;
 };
@@ -80,14 +86,21 @@ SoOrthoSlice::initClass(void)
 SbBool
 SoOrthoSlice::affectsState(void) const
 {
-  // FIXME: should return FALSE when clipping plane is inactive
-  return TRUE;
+  return this->clipping.getValue();
 }
 
 void
 SoOrthoSlice::GLRender(SoGLRenderAction * action)
 {
   // FIXME: implement
+  SoDebugError::postInfo("SoOrthoSlice::GLRender", "hola");
+
+  SbBox3f slicebox;
+  SbVec3f dummy;
+  this->computeBBox(action, slicebox, dummy);
+
+  // debug
+  SoOrthoSliceP::renderBox(action, slicebox);
 }
 
 void
@@ -106,18 +119,95 @@ SoOrthoSlice::generatePrimitives(SoAction * action)
 void
 SoOrthoSlice::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
-#if 0 // FIXME: code from SoVolumeRender, needs slight adjustments
   SoState * state = action->getState();
 
   const SoVolumeDataElement * volumedataelement =
     SoVolumeDataElement::getInstance(state);
-
   if (volumedataelement == NULL) return;
-
   SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  if (volumedata == NULL) return;
 
   SbBox3f vdbox = volumedata->getVolumeSize();
+  SbVec3f bmin, bmax;
+  vdbox.getBounds(bmin, bmax);
+
+  SbVec3s dimensions;
+  void * data;
+  SoVolumeData::DataType type;
+  SbBool ok = volumedata->getVolumeData(dimensions, data, type);
+  assert(ok);
+
+  const int axisidx = (int)axis.getValue();
+  const int slice = this->sliceNumber.getValue();
+  const float depth = (float)fabs(bmax[axisidx] - bmin[axisidx]);
+
+  bmin[axisidx] = bmax[axisidx] =
+    (bmin[axisidx] + (depth / dimensions[axisidx]) * slice);
+
+  vdbox.setBounds(bmin, bmax);
   box.extendBy(vdbox);
   center = vdbox.getCenter();
-#endif
 }
+
+// *************************************************************************
+
+void
+SoOrthoSliceP::renderBox(SoGLRenderAction * action, SbBox3f box)
+{
+  SbVec3f bmin, bmax;
+  box.getBounds(bmin, bmax);
+
+  // FIXME: push attribs
+
+  glDisable(GL_TEXTURE_2D);
+  glLineStipple(1, 0xffff);
+  glLineWidth(2);
+
+  glBegin(GL_LINES);
+
+  glVertex3f(bmin[0], bmin[1], bmin[2]);
+  glVertex3f(bmin[0], bmin[1], bmax[2]);
+
+  glVertex3f(bmax[0], bmin[1], bmin[2]);
+  glVertex3f(bmax[0], bmin[1], bmax[2]);
+
+  glVertex3f(bmax[0], bmax[1], bmin[2]);
+  glVertex3f(bmax[0], bmax[1], bmax[2]);
+
+  glVertex3f(bmin[0], bmax[1], bmin[2]);
+  glVertex3f(bmin[0], bmax[1], bmax[2]);
+
+
+  glVertex3f(bmin[0], bmin[1], bmin[2]);
+  glVertex3f(bmax[0], bmin[1], bmin[2]);
+
+  glVertex3f(bmin[0], bmin[1], bmax[2]);
+  glVertex3f(bmax[0], bmin[1], bmax[2]);
+
+  glVertex3f(bmin[0], bmax[1], bmax[2]);
+  glVertex3f(bmax[0], bmax[1], bmax[2]);
+
+  glVertex3f(bmin[0], bmax[1], bmin[2]);
+  glVertex3f(bmax[0], bmax[1], bmin[2]);
+
+
+  glVertex3f(bmin[0], bmin[1], bmin[2]);
+  glVertex3f(bmin[0], bmax[1], bmin[2]);
+
+  glVertex3f(bmin[0], bmin[1], bmax[2]);
+  glVertex3f(bmin[0], bmax[1], bmax[2]);
+
+  glVertex3f(bmax[0], bmin[1], bmax[2]);
+  glVertex3f(bmax[0], bmax[1], bmax[2]);
+
+  glVertex3f(bmax[0], bmin[1], bmin[2]);
+  glVertex3f(bmax[0], bmax[1], bmin[2]);
+
+  glEnd();
+
+  // FIXME: pop attribs
+
+  glEnable(GL_TEXTURE_2D);
+}
+
+// *************************************************************************
