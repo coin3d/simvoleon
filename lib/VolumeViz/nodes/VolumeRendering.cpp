@@ -174,6 +174,7 @@
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoOrthoSlice.h>
 #include <VolumeViz/nodes/SoObliqueSlice.h>
+#include <VolumeViz/nodes/SoVolumeFaceSet.h>
 #include <VolumeViz/nodes/SoVolumeIndexedFaceSet.h>
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
@@ -238,6 +239,8 @@ SoVolumeRendering::init(void)
   SoVolumeRender::initClass();
   SoOrthoSlice::initClass();
   SoObliqueSlice::initClass();
+
+  SoVolumeFaceSet::initClass();
   SoVolumeIndexedFaceSet::initClass();
 
   SoVolumeRenderDetail::initClass();

@@ -14,6 +14,7 @@ SOURCES = \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
 	ObliqueSlice.cpp \
+	VolumeFaceSet.cpp \
 	VolumeIndexedFaceSet.cpp \
 	OrthoSlice.cpp 
 
@@ -32,6 +33,7 @@ libnodesinc_HEADERS = \
 	SoTransferFunction.h \
 	SoVolumeData.h \
 	SoVolumeRender.h \
+	SoVolumeFaceSet.h \
 	SoVolumeIndexedFaceSet.h \
 	SoVolumeRendering.h 
 
