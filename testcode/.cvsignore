@@ -1,7 +1,6 @@
-SoTransferFunction_ctrl.cpp
-SoTransferFunction_ctrl.h
-moc_SoTransferFunction_ctrl.cpp
-moc_TransferFunctionHandler.cpp
+moc_*.cpp
+*_ctrl.cpp
+*_ctrl.h
 readvol
 readvol.cpp
 rgbload
@@ -16,11 +15,3 @@ changingdataset
 changingdataset.cpp
 orthoslicer
 orthoslicer.cpp
-SoOrthoSlice_ctrl.cpp
-SoOrthoSlice_ctrl.h
-moc_OrthoSliceHandler.cpp
-moc_SoOrthoSlice_ctrl.cpp
-SoVolumeRender_ctrl.cpp
-SoVolumeRender_ctrl.h
-moc_VolumeRenderHandler.cpp
-moc_SoVolumeRender_ctrl.cpp
