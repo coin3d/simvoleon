@@ -151,6 +151,8 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
                          dimensions[0], dimensions[1], dimensions[2]);
 #endif // debug
 
+  // Figures out which axis we are closest to be looking along.
+
   SbBool renderalongX =
     (abstoviewer[0] >= abstoviewer[1]) &&
     (abstoviewer[0] >= abstoviewer[2]);
@@ -209,11 +211,19 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     depth = volmin[AXISIDX];
   }
 
-  // FIXME: is it really correct to use same quad for both X-way and
-  // Y-way rendering? Seems bogus. 20021111 mortene.
   const SbBox2f QUAD = renderalongZ ?
     SbBox2f(volmin[0], volmin[1], volmax[0], volmax[1]) :
-    SbBox2f(volmin[1], volmin[2], volmax[1], volmax[2]);
+    (renderalongX ?
+     SbBox2f(volmin[2], volmin[1], volmax[2], volmax[1]) :
+     SbBox2f(volmin[0], volmin[2], volmax[0], volmax[2]));
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("SoVolumeRender::GLRender",
+                         "QUAD=[%f, %f] - [%f, %f] (AXISIDX==%d)",
+                         QUAD.getMin()[0], QUAD.getMin()[1],
+                         QUAD.getMax()[0], QUAD.getMax()[1],
+                         AXISIDX);
+#endif // debug
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
