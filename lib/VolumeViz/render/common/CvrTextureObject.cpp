@@ -110,7 +110,7 @@ CvrTextureObject::unref(void) const
 {
   assert(this->refcounter > 0);
   ((CvrTextureObject *)this)->refcounter--;
-  if (this->refcounter) { delete this; }
+  if (this->refcounter == 0) { delete this; }
 }
 
 // *************************************************************************
