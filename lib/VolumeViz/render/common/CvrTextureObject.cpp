@@ -260,9 +260,10 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   state->push();
   SoCacheElement::set(state, cache);
 
-  // Default values is for RGBA-texture:
-  int colorformat = 4;
-  unsigned int bitspertexel = 32;  // 8 bits each R, G, B & A
+  // If texture is non-paletted, the "internalformat" argument for
+  // glTexImage[2|3]D() should be the number of components:
+  GLenum colorformat = 4;
+  unsigned int bitspertexel = colorformat * 8;  // 8 bits each R, G, B & A
   if (this->isPaletted()) {
     colorformat = GL_COLOR_INDEX8_EXT;
     bitspertexel = 8;
@@ -289,6 +290,13 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   glEnable(gltextypeenum);
   glBindTexture(gltextypeenum, texid);
   assert(glGetError() == GL_NO_ERROR);
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("CvrTextureObject::getGLTexture",
+                         "glBindTexture(%s, %u)",
+                         (gltextypeenum == GL_TEXTURE_2D) ? "GL_TEXTURE_2D" : "GL_TEXTURE_3D",
+                         texid); 
+#endif // debug
 
   const uint32_t glctxid = action->getCacheContext();
   const cc_glglue * glw = cc_glglue_instance(glctxid);
@@ -331,7 +339,10 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   else imgptr = ((CvrRGBATexture *)this)->getRGBABuffer();
 
 
-  int palettetype = GL_COLOR_INDEX;
+  GLenum palettetype = GL_COLOR_INDEX;
+
+  // FIXME: this is terrible -- whether fragment program is used or
+  // not should be checked in some other way. 20041029 mortene.
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
   if (cc_glglue_has_arb_fragment_program(glw)) { palettetype = GL_LUMINANCE; }
 #endif // HAVE_ARB_FRAGMENT_PROGRAM
@@ -342,12 +353,17 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   //
   // FIXME: check if that is a general GL limitation. (I seem to
   // remember it is.) 20040716 mortene.
+  //
+  // FIXME: CvrCompressedTexturesElement should be FALSE if we're
+  // using paletted textures, I believe, and if so, this should be an
+  // assert, not an "if". 20041029 mortene.
   if (cc_glue_has_texture_compression(glw) &&
       (palettetype != GL_COLOR_INDEX) &&
       // Important to check this last, as we want to avoid getting an
       // unnecessary cache dependency:
       CvrCompressedTexturesElement::get(state)) {
     if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
+    // FIXME: why the setting below? Check. 20041029 mortene.
     else colorformat = GL_COMPRESSED_INTENSITY_ARB;
   }
 
@@ -529,7 +545,11 @@ CvrTextureObject::create(const SoGLRenderAction * action,
 
   // If completely transparent, and not in palette mode, we need not
   // bother with a texture object for this slice/brick at all:
-  if (invisible && !paletted) { return NULL; }
+  if (invisible && !paletted) {
+    // FIXME: we get grave mem-leaks by just returning here, I
+    // believe. Audit code in this function. 20041029 mortene.
+    return NULL;
+  }
 
   // Must clear unused texture area to prevent artifacts due to
   // floating point inaccuracies when calculating texture coords.
@@ -575,6 +595,13 @@ CvrTextureObject::activateTexture(const SoGLRenderAction * action) const
 
   glEnable(gltextypeenum);
   glBindTexture(gltextypeenum, texid);
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("CvrTextureObject::activeTexture",
+                         "glBindTexture(%s, %u)",
+                         (gltextypeenum == GL_TEXTURE_2D) ? "GL_TEXTURE_2D" : "GL_TEXTURE_3D",
+                         texid); 
+#endif // debug
 
   const GLenum interp = CvrGLInterpolationElement::get(action->getState());
   glTexParameteri(gltextypeenum, GL_TEXTURE_MAG_FILTER, interp);

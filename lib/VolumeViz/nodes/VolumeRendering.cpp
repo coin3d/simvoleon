@@ -203,7 +203,7 @@
   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-engine.png" align=right>
 
   SIM Voleon does currently support loading of VOL files, which is a
-  format introduces by the book <i>"Introduction To Volume
+  format introduced by the book <i>"Introduction To Volume
   Rendering"</i>, by Lichtenbelt, Crane and Naqvi (Hewlett-Packard /
   Prentice Hall), <i>ISBN 0-13-861683-3</i>. (See the
   SoVRVolFileReader class doc for info). Support for more file-formats
