@@ -15,50 +15,6 @@
     <property name="caption">
         <string>SoOrthoSlice control</string>
     </property>
-    <widget class="QComboBox">
-        <item>
-            <property name="text">
-                <string>X</string>
-            </property>
-        </item>
-        <item>
-            <property name="text">
-                <string>Y</string>
-            </property>
-        </item>
-        <item>
-            <property name="text">
-                <string>Z</string>
-            </property>
-        </item>
-        <property name="name">
-            <cstring>predefCombo</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>196</x>
-                <y>50</y>
-                <width>292</width>
-                <height>27</height>
-            </rect>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>TextLabel4</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>70</x>
-                <y>17</y>
-                <width>120</width>
-                <height>27</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>sliceNumber</string>
-        </property>
-    </widget>
     <widget class="QLabel">
         <property name="name">
             <cstring>TextLabel5</cstring>
@@ -73,19 +29,6 @@
         </property>
         <property name="text">
             <string>axis</string>
-        </property>
-    </widget>
-    <widget class="QLineEdit">
-        <property name="name">
-            <cstring>sliceNumberEdit</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>196</x>
-                <y>17</y>
-                <width>292</width>
-                <height>27</height>
-            </rect>
         </property>
     </widget>
     <widget class="QLabel">
@@ -104,29 +47,6 @@
             <string>interpolation</string>
         </property>
     </widget>
-    <widget class="QComboBox">
-        <item>
-            <property name="text">
-                <string>NEAREST</string>
-            </property>
-        </item>
-        <item>
-            <property name="text">
-                <string>LINEAR</string>
-            </property>
-        </item>
-        <property name="name">
-            <cstring>colormapCombo</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>196</x>
-                <y>84</y>
-                <width>292</width>
-                <height>27</height>
-            </rect>
-        </property>
-    </widget>
     <widget class="QLabel">
         <property name="name">
             <cstring>TextLabel6_2</cstring>
@@ -141,6 +61,74 @@
         </property>
         <property name="text">
             <string>alphaUse</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>TextLabel6_2_2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>71</x>
+                <y>212</y>
+                <width>120</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>clippingSide</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>TextLabel4</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>70</x>
+                <y>17</y>
+                <width>120</width>
+                <height>27</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>sliceNumber</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>sliceNumberEdit</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>196</x>
+                <y>17</y>
+                <width>292</width>
+                <height>27</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QComboBox">
+        <item>
+            <property name="text">
+                <string>NEAREST</string>
+            </property>
+        </item>
+        <item>
+            <property name="text">
+                <string>LINEAR</string>
+            </property>
+        </item>
+        <property name="name">
+            <cstring>interpolationCombo</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>196</x>
+                <y>84</y>
+                <width>292</width>
+                <height>27</height>
+            </rect>
         </property>
     </widget>
     <widget class="QComboBox">
@@ -160,12 +148,56 @@
             </property>
         </item>
         <property name="name">
-            <cstring>colormapCombo_2</cstring>
+            <cstring>alphaUseCombo</cstring>
         </property>
         <property name="geometry">
             <rect>
                 <x>196</x>
                 <y>121</y>
+                <width>292</width>
+                <height>27</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QCheckBox">
+        <property name="name">
+            <cstring>clippingCheckBox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>73</x>
+                <y>183</y>
+                <width>105</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>clipping</string>
+        </property>
+    </widget>
+    <widget class="QComboBox">
+        <item>
+            <property name="text">
+                <string>X</string>
+            </property>
+        </item>
+        <item>
+            <property name="text">
+                <string>Y</string>
+            </property>
+        </item>
+        <item>
+            <property name="text">
+                <string>Z</string>
+            </property>
+        </item>
+        <property name="name">
+            <cstring>axisCombo</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>196</x>
+                <y>50</y>
                 <width>292</width>
                 <height>27</height>
             </rect>
@@ -183,7 +215,7 @@
             </property>
         </item>
         <property name="name">
-            <cstring>colormapCombo_2_2</cstring>
+            <cstring>clippingSideCombo</cstring>
         </property>
         <property name="geometry">
             <rect>
@@ -192,38 +224,6 @@
                 <width>292</width>
                 <height>27</height>
             </rect>
-        </property>
-    </widget>
-    <widget class="QCheckBox">
-        <property name="name">
-            <cstring>CheckBox1</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>73</x>
-                <y>183</y>
-                <width>105</width>
-                <height>22</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>clipping</string>
-        </property>
-    </widget>
-    <widget class="QLabel">
-        <property name="name">
-            <cstring>TextLabel6_2_2</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>71</x>
-                <y>212</y>
-                <width>120</width>
-                <height>27</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>clippingSide</string>
         </property>
     </widget>
 </widget>

@@ -17,7 +17,11 @@ public:
 
 private slots:
   void sliceNumberEditUpdate(void);
-//   void predefColorMapUpdate(int idx);
+  void axisUpdate(int idx);
+  void interpolationUpdate(int idx);
+  void alphaUseUpdate(int idx);
+  void clippingCheckBoxUpdate(int idx);
+  void clippingSideUpdate(int idx);
 
 private:
   void initGUI(void);

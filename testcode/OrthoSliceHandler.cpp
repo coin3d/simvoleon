@@ -5,6 +5,7 @@
 #include <qvalidator.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
+#include <qcheckbox.h>
 
 
 OrthoSliceHandler::OrthoSliceHandler(SoOrthoSlice * node, QWidget * parent)
@@ -42,22 +43,76 @@ OrthoSliceHandler::initGUI(void)
   QObject::connect(this->ctrl->sliceNumberEdit, SIGNAL(returnPressed()),
                    this, SLOT(sliceNumberEditUpdate()));
 
-//   // predefColorMap combobox
+  // axis combobox
 
-//   this->ctrl->predefCombo->setCurrentItem(this->node->predefColorMap.getValue());
+  this->ctrl->axisCombo->setCurrentItem(this->node->axis.getValue());
 
-//   QObject::connect(this->ctrl->predefCombo, SIGNAL(activated(int)),
-//                    this, SLOT(predefColorMapUpdate(int)));
+  QObject::connect(this->ctrl->axisCombo, SIGNAL(activated(int)),
+                   this, SLOT(axisUpdate(int)));
+
+  // interpolation combobox
+
+  this->ctrl->interpolationCombo->setCurrentItem(this->node->interpolation.getValue());
+
+  QObject::connect(this->ctrl->interpolationCombo, SIGNAL(activated(int)),
+                   this, SLOT(interpolationUpdate(int)));
+
+  // alphaUse combobox
+
+  this->ctrl->alphaUseCombo->setCurrentItem(this->node->alphaUse.getValue());
+
+  QObject::connect(this->ctrl->alphaUseCombo, SIGNAL(activated(int)),
+                   this, SLOT(alphaUseUpdate(int)));
+
+  // clipping checkbox
+
+  this->ctrl->clippingCheckBox->setChecked(this->node->clipping.getValue());
+
+  QObject::connect(this->ctrl->clippingCheckBox, SIGNAL(stateChanged(int)),
+                   this, SLOT(clippingCheckBoxUpdate(int)));
+
+  // clippingSide combobox
+
+  this->ctrl->clippingSideCombo->setCurrentItem(this->node->clippingSide.getValue());
+
+  QObject::connect(this->ctrl->clippingSideCombo, SIGNAL(activated(int)),
+                   this, SLOT(clippingSideUpdate(int)));
 }
 
-// void
-// OrthoSliceHandler::predefColorMapUpdate(int idx)
-// {
-//   this->node->predefColorMap = idx;
-// }
 
 void
 OrthoSliceHandler::sliceNumberEditUpdate(void)
 {
   this->node->sliceNumber = this->ctrl->sliceNumberEdit->text().toInt();
+}
+
+void
+OrthoSliceHandler::axisUpdate(int idx)
+{
+  this->node->axis = idx;
+}
+
+void
+OrthoSliceHandler::interpolationUpdate(int idx)
+{
+  this->node->interpolation = idx;
+}
+
+void
+OrthoSliceHandler::alphaUseUpdate(int idx)
+{
+  this->node->alphaUse = idx;
+}
+
+void
+OrthoSliceHandler::clippingCheckBoxUpdate(int idx)
+{
+  if (idx == QButton::NoChange) return;
+  this->node->clipping = (idx == QButton::On) ? TRUE : FALSE;
+}
+
+void
+OrthoSliceHandler::clippingSideUpdate(int idx)
+{
+  this->node->clippingSide = idx;
 }
