@@ -3,13 +3,12 @@ m4_define([SIMVOLEON_MAJOR], [1])
 m4_define([SIMVOLEON_MINOR], [0])
 m4_define([SIMVOLEON_MICRO], [0])
 
-# this is bogus, but policy has not been set for this yet
-m4_define([SC_ABI_CURRENT], [1])
-m4_define([SC_ABI_AGE], [0])
-m4_define([SC_ABI_REVISION], [0])
+# Converted to Libtool versioning.
+m4_define([SC_ABI_CURRENT], [m4_eval((SIMVOLEON_MAJOR*20)+SIMVOLEON_MINOR)])
+m4_define([SC_ABI_REVISION], [SIMVOLEON_MICRO])
+m4_define([SC_ABI_AGE], [SIMVOLEON_MINOR])
 
-
-AC_INIT([SimVoleon], [1.0.0], [coin-bugs@coin3d.org])
+AC_INIT([SimVoleon], [SIMVOLEON_MAJOR.SIMVOLEON_MINOR.SIMVOLEON_MICRO], [coin-support@coin3d.org])
 
 AC_CONFIG_SRCDIR(lib/VolumeViz/nodes/VolumeRendering.cpp)
 AC_CONFIG_AUX_DIR(cfg)
@@ -19,7 +18,13 @@ AC_CONFIG_AUX_DIR(cfg)
 
 AC_CANONICAL_SYSTEM
 
+SIM_AC_MSVC_DSP_ENABLE_OPTION
+
+# If the Microsoft Visual C++ cl.exe compiler is available, set us up for
+# compiling with it and to generate an MSWindows .dll file.
+
 SIM_AC_SETUP_MSVCPP_IFELSE
+AM_CONDITIONAL(BUILD_WITH_MSVC, $BUILD_WITH_MSVC)
 
 if $BUILD_WITH_MSVC; then
   SIM_AC_SETUP_MSVCRT([
@@ -29,9 +34,8 @@ if $BUILD_WITH_MSVC; then
     LDFLAGS="$CFLAGS $sim_ac_msvcrt_LDFLAGS"
     LIBS="$CXXFLAGS $sim_ac_msvcrt_LIBS"
   ])
+  AC_SUBST([SIMVOLEON_MSVC_LIBC], [$sim_ac_msvcrt])
 fi
-
-AM_CONDITIONAL(BUILD_WITH_MSVC, $BUILD_WITH_MSVC)
 
 AC_SUBST([SIMVOLEON_MAJOR_VERSION], [SIMVOLEON_MAJOR])
 AC_SUBST([SIMVOLEON_MINOR_VERSION], [SIMVOLEON_MINOR])
@@ -39,8 +43,6 @@ AC_SUBST([SIMVOLEON_MICRO_VERSION], [SIMVOLEON_MICRO])
 AC_SUBST([SIMVOLEON_VERSION], [SIMVOLEON_MAJOR.SIMVOLEON_MINOR.SIMVOLEON_MICRO])
 
 VERSION=$SIMVOLEON_VERSION
-
-SC_MAJOR=$SIMVOLEON_MAJOR_VERSION
 
 # Libtool versioning
 AC_SUBST([LT_CURRENT], [SC_ABI_CURRENT])
@@ -55,11 +57,6 @@ AC_DEFINE_UNQUOTED([SIMVOLEON_MICRO_VERSION], [$SIMVOLEON_MICRO_VERSION],
   [define this to the libSimVoleon release version number])
 AC_DEFINE_UNQUOTED([SIMVOLEON_VERSION], ["$SIMVOLEON_VERSION"],
   [define this to the full libSimVoleon major.minor.micro version number])
-
-# *******************************************************************
-# Miscellaneous options and initializations.
-
-volumeviz_build_dir=`pwd`
 
 # **************************************************************************
 #  Locate C++ compiler and set C++ as the default language to use
@@ -93,21 +90,7 @@ SIM_AC_COMPILER_CPLUSPLUS_FATAL_ERRORS
 
 # *******************************************************************
 
-AC_CHECK_HEADERS([windows.h unistd.h ctype.h sys/types.h dirent.h])
-
-#  Check for pthread (required for multithreaded streaming sound)
-SIM_AC_CHECK_PTHREAD([
-  CPPFLAGS="$CPPFLAGS $sim_ac_pthread_cppflags"
-  LDFLAGS="$LDFLAGS $sim_ac_pthread_ldflags"
-  LIBS="$sim_ac_pthread_libs $LIBS"
-  AC_DEFINE(HAVE_PTHREAD, 1, [pthread extensions available])
-  SIM_AC_CONFIGURATION_SETTING([pthread support], [Yes])
-], 
-[
-  AC_MSG_WARN([pthread is needed for multithreaded streaming sound])
-  SIM_AC_CONFIGURATION_SETTING([pthread support], [No])
-]
-)
+AC_CHECK_HEADERS([unistd.h sys/types.h])
 
 #  Turn off default maintainer make-rules -- use ./bootstrap instead.
 AM_MAINTAINER_MODE
@@ -116,10 +99,8 @@ if $BUILD_WITH_MSVC; then
   RANLIB=true
   export RANLIB
 else
-
-#  Initialize libtool
-AC_PROG_LIBTOOL
-
+  #  Initialize libtool
+  AC_PROG_LIBTOOL
 fi
 
 SIM_AC_COMPILE_DEBUG([
@@ -144,53 +125,11 @@ yes | true)  SIMVOLEON_STATIC=false;;
 *)           SIMVOLEON_STATIC=true;;
 esac
 
-AC_MSG_CHECKING([for strcasecmp() function])
-AC_TRY_LINK([
-#include <string.h>
-], [
-  (void)strcasecmp(NULL, NULL);
-], [
-  AC_MSG_RESULT([yes])
-  AC_DEFINE([HAVE_STRCASECMP],, [Define to use BSD4.3 strncasecmp()])
-], [
-  AC_MSG_RESULT([no])
-])
-
-
-AC_MSG_CHECKING([for strcmpi() function])
-AC_TRY_LINK([
-#include <string.h>
-], [
-  (void)strcmpi(NULL, NULL);
-], [
-  AC_MSG_RESULT([yes])
-  AC_DEFINE([HAVE_STRCMPI],, [Define to use strcmpi()])
-], [
-  AC_MSG_RESULT([no])
-])
-
-SIM_AC_COMPILE_DEBUG([
-#  CPPFLAGS="$CPPFLAGS"
-], [
-#  CPPFLAGS="$CPPFLAGS -DNDEBUG"
-])
-
-if test x"${with_inventor+set}" = x"set" &&
-   test x"${with_inventor}" != x"no"; then
-  SIM_AC_HAVE_INVENTOR_IFELSE([
-    CPPFLAGS="$sim_ac_inventor_cppflags $CPPFLAGS"
-    LDFLAGS="$sim_ac_inventor_ldflags $LDFLAGS"
-    LIBS="$sim_ac_inventor_libs $LIBS"
-  ], [AC_MSG_ERROR(couldn't compile and link against Open Inventor)])
-  SIM_AC_CONFIGURATION_SETTING([Open Inventor brand], [SGI/TGS Inventor])
-else
-  SIM_AC_HAVE_COIN_IFELSE([
-    CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
-    LDFLAGS="$LDFLAGS $sim_ac_coin_ldflags"
-    LIBS="$sim_ac_coin_libs $LIBS"
-  ], [AC_MSG_ERROR(couldn't compile and link against Coin)])
-  SIM_AC_CONFIGURATION_SETTING([Open Inventor brand], [Coin])
-fi
+SIM_AC_HAVE_COIN_IFELSE([
+  CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
+  LDFLAGS="$LDFLAGS $sim_ac_coin_ldflags"
+  LIBS="$sim_ac_coin_libs $LIBS"
+], [AC_MSG_ERROR(couldn't compile and link against Coin)])
 
 AC_SUBST([LIBFLAGS], [])
 
@@ -202,12 +141,12 @@ if $BUILD_WITH_MSVC; then
     CPPFLAGS="-DSIMVOLEON_MAKE_DLL $CPPFLAGS"
     SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS -DSIMVOLEON_DLL"
   fi
-  debugfile="`pwd`/lib/VolumeViz/SimVoleon${SC_MAJOR}.pdb"
+  debugfile="`pwd`/lib/VolumeViz/SimVoleon${SIMVOLEON_MAJOR_VERSION}.pdb"
   debugfile=`cygpath -w "$debugfile" | sed 's,\\\\,\\\\\\\\,g'`
   if $SIMVOLEON_STATIC; then
     SIM_AC_CONFIGURATION_SETTING([SimVoleon build type], [static .lib])
     LIBFLAGS="-LIB $LIBFLAGS"
-    LIBFLAGS="$LIBFLAGS /OUT:SimVoleon$SC_MAJOR.lib"
+    LIBFLAGS="$LIBFLAGS /OUT:SimVoleon$SIMVOLEON_MAJOR_VERSION.lib"
     SIMVOLEON_EXTRA_CPPFLAGS="-I$includedir"
     SIMVOLEON_EXTRA_LDFLAGS="-L$libdir"
     SIMVOLEON_EXTRA_LIBS=
@@ -228,11 +167,11 @@ if $BUILD_WITH_MSVC; then
       ;;
     esac
 
-    LIBFLAGS="$LIBFLAGS /OUT:SimVoleon$SC_MAJOR.dll"
+    LIBFLAGS="$LIBFLAGS /OUT:SimVoleon$SIMVOLEON_MAJOR_VERSION.dll"
   fi
   SIM_AC_CONFIGURATION_SETTING([C library type], [$sim_ac_msvcrt])
 
-  SIMVOLEON_EXTRA_LIBS="-lSimVoleon$SC_MAJOR $SIMVOLEON_EXTRA_LIBS"
+  SIMVOLEON_EXTRA_LIBS="-lSimVoleon$SIMVOLEON_MAJOR_VERSION $SIMVOLEON_EXTRA_LIBS"
 else
   SIMVOLEON_EXTRA_LIBS="-lSimVoleon $SIMVOLEON_EXTRA_LIBS"
 fi
@@ -263,4 +202,3 @@ SIM_AC_CONFIGURATION_SUMMARY
 echo ""
 echo "Now, run 'make' and 'make install' to install $PACKAGE"
 echo ""
-
