@@ -58,9 +58,9 @@
 static const char * palettelookupprogram =
 "!!ARBfp1.0\n"
 "TEMP R0;\n"
-"TEX R0.x, fragment.texcoord[0], texture[0], \%s;\n"
+"TEX R0.x, fragment.texcoord[0], texture[0], %s;\n"
 "TEX R0, R0.x, texture[1], 1D;\n"
-"\%s;\n"
+"%s;\n"
 "END\n";
 static const char * palettelookupprogram_modulate =
 "MUL result.color, state.material.diffuse, R0";
