@@ -7,16 +7,17 @@
 #include <VolumeViz/nodes/SoVolumeData.h>
 
 #include <Inventor/SbVec3s.h>
+#include <Inventor/actions/SoCallbackAction.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/actions/SoGetBoundingBoxAction.h>
+#include <Inventor/actions/SoPickAction.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
+#include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
-#include <VolumeViz/render/2D/Cvr2DTexPage.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
-
-#include <Inventor/errors/SoDebugError.h>
-
+#include <VolumeViz/render/2D/Cvr2DTexPage.h>
+#include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 #include <limits.h>
 
 
@@ -36,14 +37,14 @@ DATA STRUCTURES
 
   As several different rendering nodes may share the same volume data
   node, a sharing mechanism for in-memory data is implemented. The
-  volume is partitioned into slices along each of the three axes, and
-  each slice is segmented into pages. Each page is identified by it's
-  slice number and it's (x,y) position in the slice. Even though
+  volume is partitioned into pages along each of the three axes, and
+  each page is segmented into subpages. Each subpage is identified by it's
+  page number and it's (x,y) position in the page. Even though
   different rendering nodes may share the same volume data, they may
-  have individual transfer functions. A page shared by two rendering
+  have individual transfer functions. A subpage shared by two rendering
   nodes with different transfer functions cannot share the same
-  in-memory page. A page is therefore also identified by the nodeId of
-  it's transfer functions.  All pages with same coordinates (sliceIdx,
+  in-memory subpage. A subpage is therefore also identified by the nodeId of
+  it's transfer functions.  All subpages with same coordinates (sliceIdx,
   x, y) but different transfer functions are saved as a linked list.
 
 
@@ -53,21 +54,21 @@ LRU-system
   To support large sets of volume data, a simple memory management
   system is implemented. The scene graph's VolumeData-node contains a
   logical clock that's incremented for each run through it's
-  GLRender. All in-memory pages are tagged with a timestamp at the
+  GLRender. All in-memory subpages are tagged with a timestamp at the
   time they're loaded. The VolumeData-node has a max limit for the
   amount of HW/SW memory it should occupy, and whenever it exceeds
-  this limit it throws out the page with the oldest timestamp. A
-  simple LRU-cache, in other words. Of course, all pages' timestamps
+  this limit it throws out the subpage with the oldest timestamp. A
+  simple LRU-cache, in other words. Of course, all subpages' timestamps
   are "touched" (updated) whenever they're rendered.
 
   The data structures does not work perfectly together with the
-  LRU-cache.  Whenever a page is to be deallocated, a search through
-  all slices and pages is required. The monitors for bytes allocated
-  by in-memory pages are updated in a very non-elegant way (study i.e.
+  LRU-cache.  Whenever a subpage is to be deallocated, a search through
+  all pages and subpages is required. The monitors for bytes allocated
+  by in-memory subpages are updated in a very non-elegant way (study i.e.
   SoVolumeData::renderOrthoSlice()).
 
-  Some sort of page manager system could be implemented to solve this
-  problem by storing all pages in a "flat" structure. This would look
+  Some sort of subpage manager system could be implemented to solve this
+  problem by storing all subpages in a "flat" structure. This would look
   nicer, but would be slower as long as (sliceIdx, x, y) can't be used
   as direct indices into the tables.
 
@@ -75,7 +76,7 @@ LRU-system
 
 USER INTERACTION
 
-  As for now, the implementation loads only the pages that are needed
+  As for now, the implementation loads only the subpages that are needed
   for the current position of a SoROI/SoVolumeRender-node. Due to
   significant overhead when loading data and squeezing them through a
   transfer function, the user experiences major delays in the visual
@@ -84,7 +85,7 @@ USER INTERACTION
   two elements (LOAD_MAX, LOAD_DYNAMIC). Currently, LOAD_DYNAMIC is
   the only one implemented of the StorageHints, and is set as
   default. By using LOAD_MAX, the specified available memory should be
-  filled to it's maximum. Pages should be selected in an intelligent
+  filled to it's maximum. Subpages should be selected in an intelligent
   way, depending on the location of possible SoROI-nodes (load the
   surrounding area). This should in most cases speed up the visual
   feedback.
@@ -115,7 +116,7 @@ RENDERING
   how it is implemented now. :) The GLRender-function for both SoROI
   and SoVolumeRender is more or less identical, and they should share
   some common render function capable of rendering an entire
-  volume. This should in turn use a slice rendering-function similar
+  volume. This should in turn use a page rendering-function similar
   to Cvr2DTexPage::render.
 
 
@@ -137,11 +138,11 @@ VOLUMEREADERS
 
   void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data)
 
-  It returns a subslice within a specified slice along the z-axis. This
-  means that the responsibility for building slices along X and Y-axis
+  It returns a subpage within a specified page along the z-axis. This
+  means that the responsibility for building pages along X and Y-axis
   lies within the reader-client.When generating textures along either
   x- or y-axis, this requires a significant number of iterations, one
-  for each slice along the z-axis. This will in turn trigger plenty
+  for each page along the z-axis. This will in turn trigger plenty
   filereads at different disklocations, and your disk's heads will have
   a disco showdown the Travolta way. I've extended the interface as
   following:
@@ -151,7 +152,7 @@ VOLUMEREADERS
                    void * data,
                    SoOrthoSlice::Axis axis = SoOrthoSlice::Z)
 
-  This moves the responsibility for building slices to the reader.
+  This moves the responsibility for building pages to the reader.
   It makes it possible to exploit fileformats with possible clever
   data layout, and if the fileformat/input doesn't provide intelligent
   organization, it still wouldn't be any slower. The only drawback is
@@ -190,7 +191,7 @@ REFACTORING
   * A way to support the library with data and data characteristics.
     Should be done by providing the lib with pointers to
     SoVolumeReader-objects.
-  * Renderingfunctionality. Volumerendering and slicerendering,
+  * Renderingfunctionality. Volumerendering and pagerendering,
     specifying location in space, texturecoordinates in the volume and
     transferfunction.
   * Functionality to specify maximum resource usage by the lib.
@@ -209,8 +210,8 @@ REFACTORING
   textures. (RGBA, paletted etc), and may be reused with great ease
   whereever needed in the new lib. This code is located in
   Cvr2DTexPage::Render and i.e. SoVolumeRender::GLRender.
-  I actually spent quite some time implementing the slicerendering,
-  getting all the interpolation correct when switching from one page
+  I actually spent quite some time implementing the pagerendering,
+  getting all the interpolation correct when switching from one subpage
   to another within the same arbitrary shaped quad.
   SoVolumeRender::GLRender is more straightforward, but it should be
   possible to reuse the same loop for all three axis rendering the code
@@ -262,14 +263,18 @@ public:
 
   ~SoVolumeDataP()
   {
-    delete this->VRMemReader;
     this->releaseAllSlices();
+
+    delete this->VRMemReader;
+    // FIXME: should really delete "this->reader", but that leads to
+    // SEGFAULT now (reader and VRMemReader can be the same pointer.)
+    // 20021120 mortene.
   }
 
   SbVec3s dimensions;
   SbBox3f volumeSize;
   SbVec3s pageSize;
-  SoVolumeData::DataType dataType;
+  SoVolumeData::DataType datatype;
 
   SoVRMemReader * VRMemReader;
   SoVolumeReader * reader;
@@ -292,7 +297,7 @@ public:
   void managePages(void);
   void releaseLRUPage(void);
 
-  SbBool check2n(int n);
+  SbBool isPowerOfTwo(unsigned int x);
 
 private:
   SoVolumeData * master;
@@ -338,51 +343,62 @@ SoVolumeData::initClass(void)
   SO_NODE_INIT_CLASS(SoVolumeData, SoVolumeRendering, "SoVolumeRendering");
 
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
+  SO_ENABLE(SoCallbackAction, SoVolumeDataElement);
+  SO_ENABLE(SoGetBoundingBoxAction, SoVolumeDataElement);
+  SO_ENABLE(SoPickAction, SoVolumeDataElement);
 }
 
 void
 SoVolumeData::setVolumeSize(const SbBox3f & size)
 {
   PRIVATE(this)->volumeSize = size;
+
+  // FIXME: try to get rid of this, should only store one
+  // copy. 20021120 mortene.
   if (PRIVATE(this)->VRMemReader)
     PRIVATE(this)->VRMemReader->setVolumeSize(size);
 }
 
 SbBox3f &
-SoVolumeData::getVolumeSize(void)
+SoVolumeData::getVolumeSize(void) const
 {
   return PRIVATE(this)->volumeSize;
 }
 
-
-SbVec3s &
-SoVolumeData::getDimensions(void)
-{
-  return PRIVATE(this)->dimensions;
-}
-
-
 // FIXME: If size != 2^n these functions should extend to the nearest
 // accepted size.  torbjorv 07292002
 void
-SoVolumeData::setVolumeData(const SbVec3s &dimensions,
+SoVolumeData::setVolumeData(const SbVec3s & dimensions,
                             void * data,
                             SoVolumeData::DataType type)
 {
-
   PRIVATE(this)->VRMemReader = new SoVRMemReader;
   PRIVATE(this)->VRMemReader->setData(dimensions,
                                       data,
                                       PRIVATE(this)->volumeSize,
                                       type);
+
   this->setReader(PRIVATE(this)->VRMemReader);
 
+  // FIXME: why the comparisons? 20021120 mortene.
   if (PRIVATE(this)->pageSize[0] > dimensions[0])
     PRIVATE(this)->pageSize[0] = dimensions[0];
   if (PRIVATE(this)->pageSize[1] > dimensions[1])
     PRIVATE(this)->pageSize[1] = dimensions[1];
   if (PRIVATE(this)->pageSize[2] > dimensions[2])
     PRIVATE(this)->pageSize[2] = dimensions[2];
+
+  PRIVATE(this)->datatype = type;
+}
+
+SbBool
+SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
+                            SoVolumeData::DataType & type) const
+{
+  dimensions = SbVec3s(PRIVATE(this)->dimensions);
+  data = PRIVATE(this)->reader->m_data;
+  type = PRIVATE(this)->datatype;
+  return TRUE;
 }
 
 void
@@ -398,9 +414,9 @@ SoVolumeData::setPageSize(const SbVec3s & insize)
 
   // FIXME: when can this possibly hit? On any valid input data?
   // Investigate. 20021119 mortene.
-  assert(PRIVATE(this)->check2n(size[0]));
-  assert(PRIVATE(this)->check2n(size[1]));
-  assert(PRIVATE(this)->check2n(size[2]));
+  assert(PRIVATE(this)->isPowerOfTwo(size[0]));
+  assert(PRIVATE(this)->isPowerOfTwo(size[1]));
+  assert(PRIVATE(this)->isPowerOfTwo(size[2]));
 
   // FIXME: make sure this boundary condition is tested
   // properly. 20021119 mortene.
@@ -438,11 +454,38 @@ SoVolumeData::setPageSize(const SbVec3s & insize)
 }
 
 void
-SoVolumeData::GLRender(SoGLRenderAction * action)
+SoVolumeData::doAction(SoAction * action)
 {
   SoVolumeDataElement::setVolumeData(action->getState(), this, this);
-  PRIVATE(this)->tick++;
 }
+
+void
+SoVolumeData::GLRender(SoGLRenderAction * action)
+{
+  // FIXME: shouldn't this be part of SoVolumeRender? 20021120 mortene.
+  PRIVATE(this)->tick++;
+
+  this->doAction(action);
+}
+
+void
+SoVolumeData::callback(SoCallbackAction * action)
+{
+  this->doAction(action);
+}
+
+void
+SoVolumeData::getBoundingBox(SoGetBoundingBoxAction * action)
+{
+  this->doAction(action);
+}
+
+void
+SoVolumeData::pick(SoPickAction * action)
+{
+  this->doAction(action);
+}
+
 
 void
 SoVolumeData::renderOrthoSlice(SoState * state,
@@ -460,29 +503,28 @@ SoVolumeData::renderOrthoSlice(SoState * state,
   Cvr2DTexPage * slice =
     PRIVATE(this)->getSlice((SoVolumeDataP::Axis)axis, sliceIdx);
 
-  SbVec3f v0, v1, v2, v3;
+  SbVec3f v[4];
   if (axis == SoVolumeDataP::X) {
-    v0 = SbVec3f(depth, min[1], min[0]);
-    v1 = SbVec3f(depth, min[1], max[0]);
-    v2 = SbVec3f(depth, max[1], max[0]);
-    v3 = SbVec3f(depth, max[1], min[0]);
+    v[0] = SbVec3f(depth, min[1], min[0]);
+    v[1] = SbVec3f(depth, min[1], max[0]);
+    v[2] = SbVec3f(depth, max[1], max[0]);
+    v[3] = SbVec3f(depth, max[1], min[0]);
   }
   else if (axis == SoVolumeDataP::Y) {
-    v0 = SbVec3f(min[0], depth, min[1]);
-    v1 = SbVec3f(max[0], depth, min[1]);
-    v2 = SbVec3f(max[0], depth, max[1]);
-    v3 = SbVec3f(min[0], depth, max[1]);
+    v[0] = SbVec3f(min[0], depth, min[1]);
+    v[1] = SbVec3f(max[0], depth, min[1]);
+    v[2] = SbVec3f(max[0], depth, max[1]);
+    v[3] = SbVec3f(min[0], depth, max[1]);
   }
   else if (axis == SoVolumeDataP::Z) {
-    v0 = SbVec3f(min[0], min[1], depth);
-    v1 = SbVec3f(max[0], min[1], depth);
-    v2 = SbVec3f(max[0], max[1], depth);
-    v3 = SbVec3f(min[0], max[1], depth);
+    v[0] = SbVec3f(min[0], min[1], depth);
+    v[1] = SbVec3f(max[0], min[1], depth);
+    v[2] = SbVec3f(max[0], max[1], depth);
+    v[3] = SbVec3f(min[0], max[1], depth);
   }
   else assert(FALSE);
 
-  slice->render(state, v0, v1, v2, v3, textureCoords, transferFunction,
-                PRIVATE(this)->tick);
+  slice->render(state, v, textureCoords, transferFunction, PRIVATE(this)->tick);
 
   PRIVATE(this)->managePages();
 }
@@ -525,7 +567,7 @@ SoVolumeData::setReader(SoVolumeReader * reader)
   PRIVATE(this)->reader = reader;
 
   reader->getDataChar(PRIVATE(this)->volumeSize,
-                      PRIVATE(this)->dataType,
+                      PRIVATE(this)->datatype,
                       PRIVATE(this)->dimensions);
 }
 
@@ -594,23 +636,10 @@ SoVolumeDataP::getSlice(const SoVolumeDataP::Axis AXISIDX, int sliceidx)
   return this->slices[AXISIDX][sliceidx];
 }
 
-// FIXME: Perhaps there already is a function somewhere in C or Coin
-// that can test this easily?  31082002 torbjorv
 SbBool
-SoVolumeDataP::check2n(int n)
+SoVolumeDataP::isPowerOfTwo(unsigned int x)
 {
-  for (int i = 0; i < (int) (sizeof(int)*8); i++) {
-
-    if (n & 1) {
-      if (n != 1)
-        return FALSE;
-      else
-        return TRUE;
-    }
-
-    n >>= 1;
-  }
-  return TRUE;
+  return (x != 0) && ((x & (x - 1)) == 0);
 }
 
 void
@@ -687,11 +716,6 @@ SoVolumeDataP::managePages(void)
 /****************** UNIMPLEMENTED FUNCTIONS ******************************/
 // FIXME: Implement these functions. torbjorv 08282002
 
-
-SbBool
-SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
-                            SoVolumeData::DataType & type)
-{ return FALSE; }
 
 SoVolumeReader *
 SoVolumeData::getReader()

@@ -59,10 +59,12 @@ public:
 
   void setVolumeData(const SbVec3s & dimension, void * data,
                      SoVolumeData::DataType type = SoVolumeData::UNSIGNED_BYTE);
+  SbBool getVolumeData(SbVec3s & dimension, void *& data,
+                       SoVolumeData::DataType & type) const;
 
   void setVolumeSize(const SbBox3f & size);
-  SbBox3f & getVolumeSize(void);
-  SbVec3s & getDimensions(void);
+  SbBox3f & getVolumeSize(void) const;
+
 
   // FIXME: this (and perhaps much of the rest of the class) is not
   // part of the TGS VolumeViz API. 20021108 mortene.
@@ -84,9 +86,6 @@ public:
 
   // FIXME: The following functions are still to be implemented.
   // torbjorv 07122002
-  SbBool getVolumeData(SbVec3s & dimension, void *& data,
-                       SoVolumeData::DataType & type);
-
 
   SoVolumeReader * getReader(void);
   SbBool getMinMax(int & min, int & max);
@@ -107,7 +106,12 @@ public:
 
 protected:
   ~SoVolumeData();
-  void GLRender(SoGLRenderAction * action);
+
+  virtual void doAction(SoAction * action);
+  virtual void GLRender(SoGLRenderAction * action);
+  virtual void callback(SoCallbackAction * action);
+  virtual void getBoundingBox(SoGetBoundingBoxAction * action);
+  virtual void pick(SoPickAction * action);
 
 private:
   friend class SoVolumeDataP;
