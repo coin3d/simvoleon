@@ -9505,6 +9505,13 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 fi
 
 
+# Used to discern between private and public header files, among other
+# things.
+
+CPPFLAGS="$CPPFLAGS -DSIMVOLEON_INTERNAL"
+
+# *******************************************************************
+
 case $enable_static in
 yes | true)  SIMVOLEON_STATIC=true;;
 *)           SIMVOLEON_STATIC=false;;

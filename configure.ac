@@ -121,6 +121,13 @@ SIM_AC_EXCEPTION_HANDLING
 SIM_AC_PROFILING_SUPPORT
 SIM_AC_COMPILER_WARNINGS
 
+# Used to discern between private and public header files, among other
+# things.
+
+CPPFLAGS="$CPPFLAGS -DSIMVOLEON_INTERNAL"
+
+# *******************************************************************
+
 case $enable_static in
 yes | true)  SIMVOLEON_STATIC=true;;
 *)           SIMVOLEON_STATIC=false;;
