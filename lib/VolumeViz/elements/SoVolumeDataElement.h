@@ -3,6 +3,7 @@
 
 #include <Inventor/elements/SoReplacedElement.h>
 #include <Inventor/SbVec3s.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 
 class SoVolumeData;
 class SbVec3f;
@@ -25,7 +26,10 @@ public:
   // The following public functions are convenience methods,
   // collecting common code working on SoVolumeData instances.
 
-  SbVec3s objectToIJKCoordinates(const SbVec3f & objectpos) const;
+  const SbVec3s getVoxelCubeDimensions(void) const;
+  SoVolumeData::DataType getVoxelDataType(void) const;
+
+  SbVec3s objectCoordsToIJK(const SbVec3f & objectpos) const;
 
   void getPageGeometry(const int axis, const int slicenr,
                        SbVec3f & origo,

@@ -11,6 +11,7 @@
 
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/misc/CvrUtil.h>
 
 
 SO_ELEMENT_SOURCE(SoVolumeDataElement);
@@ -41,9 +42,7 @@ SoVolumeDataElement::setVolumeData(SoState * const state, SoNode * const node,
   SoVolumeDataElement * elem = (SoVolumeDataElement *)
     SoElement::getElement(state, SoVolumeDataElement::classStackIndex);
 
-  if (elem) {
-    elem->nodeptr = newvoldata;
-  }
+  if (elem) { elem->nodeptr = newvoldata; }
 }
 
 
@@ -61,8 +60,30 @@ SoVolumeDataElement::getInstance(SoState * const state)
                                          SoVolumeDataElement::classStackIndex);
 }
 
+const SbVec3s
+SoVolumeDataElement::getVoxelCubeDimensions(void) const
+{
+  SbVec3s voxeldims;
+  void * discardptr;
+  SoVolumeData::DataType discard;
+  SbBool ok = this->nodeptr->getVolumeData(voxeldims, discardptr, discard);
+  assert(ok);
+  return voxeldims;
+}
+
+SoVolumeData::DataType
+SoVolumeDataElement::getVoxelDataType(void) const
+{
+  SbVec3s discard;
+  void * discardptr;
+  SoVolumeData::DataType type;
+  SbBool ok = this->nodeptr->getVolumeData(discard, discardptr, type);
+  assert(ok);
+  return type;
+}
+
 SbVec3s
-SoVolumeDataElement::objectToIJKCoordinates(const SbVec3f & objectpos) const
+SoVolumeDataElement::objectCoordsToIJK(const SbVec3f & objectpos) const
 {
   SbVec3s voxeldims;
   void * voxelptr;
@@ -80,17 +101,17 @@ SoVolumeDataElement::objectToIJKCoordinates(const SbVec3f & objectpos) const
     ijk[i] = (short)(normcoord * voxeldims[i]);
   }
 
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("SoVolumeDataElement::objectToIJKCoordinates",
-                         "objectpos==<%f, %f, %f>, volumesize== <%f, %f, %f>, "
-                         "mincorner==<%f, %f, %f>, voxeldims==<%d, %d, %d> ==>"
-                         " ijk==<%d, %d, %d>",
-                         objectpos[0], objectpos[1], objectpos[2],
-                         size[0], size[1], size[2],
-                         mincorner[0], mincorner[1], mincorner[2],
-                         voxeldims[0], voxeldims[1], voxeldims[2],
-                         ijk[0], ijk[1], ijk[2]);
-#endif // debug
+  if (CvrUtil::debugRayPicks()) {
+    SoDebugError::postInfo("SoVolumeDataElement::objectCoordsToIJK",
+                           "objectpos==<%f, %f, %f>, volumesize== <%f, %f, %f>, "
+                           "mincorner==<%f, %f, %f>, voxeldims==<%d, %d, %d> "
+                           "==> ijk==<%d, %d, %d>",
+                           objectpos[0], objectpos[1], objectpos[2],
+                           size[0], size[1], size[2],
+                           mincorner[0], mincorner[1], mincorner[2],
+                           voxeldims[0], voxeldims[1], voxeldims[2],
+                           ijk[0], ijk[1], ijk[2]);
+  }
 
   return ijk;
 }
