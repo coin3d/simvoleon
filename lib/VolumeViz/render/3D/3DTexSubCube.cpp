@@ -49,6 +49,7 @@
 
 Cvr3DTexSubCube::Cvr3DTexSubCube(const SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
+                                 const SbVec3f & cubeorigo,
                                  const SbVec3f & cubesize,
                                  const SbVec3s & originaltexsize)
 {
@@ -59,7 +60,6 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(const SoGLRenderAction * action,
   assert(cubesize[2] >= 0);
 
   this->dimensions = cubesize;
-  this->origo = SbVec3f(0, 0, 0); // Default value
 
   if (texobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()) {
     this->clut = ((CvrPaletteTexture *)texobj)->getCLUT();
@@ -71,12 +71,34 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(const SoGLRenderAction * action,
 
   this->distancefromcamera = 0;
   this->originaltexsize = originaltexsize;
+  
+  // Calculate clipplanes
+  this->clipplanes[0] = SbPlane(cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f),
+                                cubeorigo,
+                                cubeorigo + SbVec3f(this->dimensions[0], 0.0f, 0.0f));
+  this->clipplanes[1] = SbPlane(cubeorigo + SbVec3f(this->dimensions[0], 0.0f, this->dimensions[2]),
+                                cubeorigo + SbVec3f(0.0f, 0.0f, this->dimensions[2]),
+                                cubeorigo + SbVec3f(0.0f, this->dimensions[1], this->dimensions[2]));
+  this->clipplanes[2] = SbPlane(cubeorigo + SbVec3f(this->dimensions[0], 0.0f, 0.0f),
+                                cubeorigo,
+                                cubeorigo + SbVec3f(0.0f, 0.0f,  this->dimensions[2]));
+  this->clipplanes[3] = SbPlane(cubeorigo + SbVec3f(0.0f, this->dimensions[1], this->dimensions[2]),
+                                cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f),
+                                cubeorigo + SbVec3f(this->dimensions[0], this->dimensions[1], 0.0f));
+  this->clipplanes[4] = SbPlane(cubeorigo + SbVec3f(this->dimensions[0], this->dimensions[1], 0.0f),
+                                cubeorigo + SbVec3f(this->dimensions[0], 0.0f, 0.0f),
+                                cubeorigo + SbVec3f(this->dimensions[0], 0.0f, this->dimensions[2]));
+  this->clipplanes[5] = SbPlane(cubeorigo + SbVec3f(0.0f, 0.0f, this->dimensions[2]),
+                                cubeorigo,
+                                cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f));
+  
+  this->origo = cubeorigo;
+
 }
 
 Cvr3DTexSubCube::~Cvr3DTexSubCube()
 {
   this->textureobject->unref();
-
   if (this->clut) this->clut->unref();
 }
 
@@ -135,10 +157,10 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
 {
 
   Cvr3DTexSubCube * obj = (Cvr3DTexSubCube *) userdata;
-  SbVec3f dist = SbVec3f(newvertex - obj->origo);
+  SbVec3f dist = newvertex - obj->origo;
 
   const SbVec3s texdims = obj->textureobject->getDimensions();
-
+  
   const float tmp1 = obj->dimensions[0] + (texdims[0] - obj->originaltexsize[0]);
   const float tmp2 = obj->dimensions[1] + (texdims[1] - obj->originaltexsize[1]);
   const float tmp3 = obj->dimensions[2] + (texdims[2] - obj->originaltexsize[2]);
@@ -150,16 +172,14 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
 }
 
 // Check if this cube is intersected by a faceset.
-SbBool
-Cvr3DTexSubCube::checkIntersectionFaceSet(const SbVec3f & cubeorigo,
-                                          const SbVec3f * vertexlist,
-                                          const int * numVertices,
-                                          const unsigned int length,
-                                          const SbMatrix & m)
+void
+Cvr3DTexSubCube::intersectFaceSet(const SbVec3f * vertexlist,
+                                  const int * numVertices,
+                                  const unsigned int length,
+                                  const SbMatrix & m)
 {
 
   SbClip cubeclipper(this->subcube_clipperCB, this);
-  this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
 
   SbVec3f a;
@@ -169,25 +189,21 @@ Cvr3DTexSubCube::checkIntersectionFaceSet(const SbVec3f & cubeorigo,
       m.multVecMatrix(vertexlist[idx++], a);
       cubeclipper.addVertex(a);
     }
-    this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
+    this->clipPolygonAgainstCube(cubeclipper);
     cubeclipper.reset();
   }
-
-  return TRUE;
 
 }
 
 // Check if this cube is intersected by a triangle strip set.
-SbBool
-Cvr3DTexSubCube::checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo,
-                                                   const SbVec3f * vertexlist,
-                                                   const int * numVertices,
-                                                   const unsigned int length,
-                                                   const SbMatrix & m)
+void
+Cvr3DTexSubCube::intersectTriangleStripSet(const SbVec3f * vertexlist,
+                                           const int * numVertices,
+                                           const unsigned int length,
+                                           const SbMatrix & m)
 {
 
   SbClip cubeclipper(this->subcube_clipperCB, this);
-  this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
 
   SbVec3f a;
@@ -200,7 +216,7 @@ Cvr3DTexSubCube::checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo,
       m.multVecMatrix(vertexlist[idx++], a);
       cubeclipper.addVertex(a);
       if (counter == 2) {
-        this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
+        this->clipPolygonAgainstCube(cubeclipper);
         cubeclipper.reset();
 
         if (j == (numVertices[i] - 1)) break; // Strip finished.
@@ -213,22 +229,17 @@ Cvr3DTexSubCube::checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo,
 
     }
   }
-
-  return TRUE;
-
 }
 
 // Check if this cube is intersected by an indexed triangle strip set.
-SbBool
-Cvr3DTexSubCube::checkIntersectionIndexedTriangleStripSet(const SbVec3f & cubeorigo,
-                                                          const SbVec3f * vertexlist,
-                                                          const int * indices,
-                                                          const unsigned int numindices,
-                                                          const SbMatrix & m)
+void
+Cvr3DTexSubCube::intersectIndexedTriangleStripSet(const SbVec3f * vertexlist, 
+                                                  const int * indices,
+                                                  const unsigned int numindices,
+                                                  const SbMatrix & m)
 {
 
   SbClip cubeclipper(this->subcube_clipperCB, this);
-  this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
 
   SbVec3f a;
@@ -242,7 +253,7 @@ Cvr3DTexSubCube::checkIntersectionIndexedTriangleStripSet(const SbVec3f & cubeor
       m.multVecMatrix(vertexlist[indices[i]], a);
       cubeclipper.addVertex(a);
       if (counter == 2) {
-        this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
+        this->clipPolygonAgainstCube(cubeclipper);
         cubeclipper.reset();
         if ((i >= numindices) || indices[i+1] == -1) continue;
         counter = 0;
@@ -252,22 +263,18 @@ Cvr3DTexSubCube::checkIntersectionIndexedTriangleStripSet(const SbVec3f & cubeor
     }
   }
 
-  return TRUE;
-
 }
 
 
 // Check if this cube is intersected by an indexed faceset.
-SbBool
-Cvr3DTexSubCube::checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo,
-                                                 const SbVec3f * vertexlist,
-                                                 const int * indices,
-                                                 const unsigned int numindices,
-                                                 const SbMatrix & m)
+void
+Cvr3DTexSubCube::intersectIndexedFaceSet(const SbVec3f * vertexlist,
+                                         const int * indices,
+                                         const unsigned int numindices,
+                                         const SbMatrix & m)
 {
 
   SbClip cubeclipper(this->subcube_clipperCB, this);
-  this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
 
   SbVec3f a;
@@ -276,26 +283,24 @@ Cvr3DTexSubCube::checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo,
       m.multVecMatrix(vertexlist[indices[i]], a);
       cubeclipper.addVertex(a);
     } else { // Index == -1. Clip polygon.
-      this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
+      this->clipPolygonAgainstCube(cubeclipper);
       cubeclipper.reset();
     }
   }
 
-  return this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
+  this->clipPolygonAgainstCube(cubeclipper);
 
 }
 
 
 // Check if this cube is intersected by the viewport aligned clip plane.
-SbBool
-Cvr3DTexSubCube::checkIntersectionSlice(const SbVec3f & cubeorigo,
-                                        const SbViewVolume & viewvolume,
-                                        const float viewdistance,
-                                        const SbMatrix & m)
+void
+Cvr3DTexSubCube::intersectSlice(const SbViewVolume & viewvolume,
+                                const float viewdistance,
+                                const SbMatrix & m)
 {
 
   SbClip cubeclipper(this->subcube_clipperCB, this);
-  this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
 
   // FIXME: Can we rewrite this to support viewport shells for proper
@@ -304,10 +309,15 @@ Cvr3DTexSubCube::checkIntersectionSlice(const SbVec3f & cubeorigo,
   // must be added for the standard ObliqueSlice rendering.
 
   SbVec3f a, b, c, d;
-  a = viewvolume.getPlanePoint(viewdistance, SbVec2f(-2.0f,  2.0f));
-  b = viewvolume.getPlanePoint(viewdistance, SbVec2f( 2.0f,  2.0f));
-  c = viewvolume.getPlanePoint(viewdistance, SbVec2f( 2.0f, -2.0f));
-  d = viewvolume.getPlanePoint(viewdistance, SbVec2f(-2.0f, -2.0f));
+  static const SbVec2f p1(-2.0f,  2.0f);
+  static const SbVec2f p2( 2.0f,  2.0f);
+  static const SbVec2f p3( 2.0f, -2.0f);
+  static const SbVec2f p4(-2.0f, -2.0f);
+
+  a = viewvolume.getPlanePoint(viewdistance, p1);
+  b = viewvolume.getPlanePoint(viewdistance, p2);
+  c = viewvolume.getPlanePoint(viewdistance, p3);
+  d = viewvolume.getPlanePoint(viewdistance, p4);
 
   m.multVecMatrix(a, a);
   m.multVecMatrix(b, b);
@@ -319,73 +329,51 @@ Cvr3DTexSubCube::checkIntersectionSlice(const SbVec3f & cubeorigo,
   cubeclipper.addVertex(c);
   cubeclipper.addVertex(d);
 
-  return this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
+  this->clipPolygonAgainstCube(cubeclipper);
 
 }
 
 // Internal method
-SbBool
-Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cubeorigo)
+void
+Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper)
 {
   /*
     NB!: the 'cubeclipper' object must have been initialized with a
     polygon *before* this function is called to have an effect.
   */
 
-  // Clockwise direction for all planes
-  // Back plane
-  cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f),
-                           cubeorigo,
-                           cubeorigo + SbVec3f(this->dimensions[0], 0.0f, 0.0f)));
-  // Front plane
-  cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(this->dimensions[0], 0.0f, this->dimensions[2]),
-                           cubeorigo + SbVec3f(0.0f, 0.0f, this->dimensions[2]),
-                           cubeorigo + SbVec3f(0.0f, this->dimensions[1], this->dimensions[2])));
-  // Bottom plane
-  cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(this->dimensions[0], 0.0f, 0.0f),
-                           cubeorigo,
-                           cubeorigo + SbVec3f(0.0f, 0.0f,  this->dimensions[2])));
-  // Top plane
-  cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(0.0f, this->dimensions[1], this->dimensions[2]),
-                           cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f),
-                           cubeorigo + SbVec3f(this->dimensions[0], this->dimensions[1], 0.0f)));
-  // Right plane
-  cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(this->dimensions[0], this->dimensions[1], 0.0f),
-                           cubeorigo + SbVec3f(this->dimensions[0], 0.0f, 0.0f),
-                           cubeorigo + SbVec3f(this->dimensions[0], 0.0f, this->dimensions[2])));
-  // Left plane
-  cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(0.0f, 0.0f, this->dimensions[2]),
-                           cubeorigo,
-                           cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f)));
+  cubeclipper.clip(this->clipplanes[0]);
+  cubeclipper.clip(this->clipplanes[1]);
+  cubeclipper.clip(this->clipplanes[2]);
+  cubeclipper.clip(this->clipplanes[3]);
+  cubeclipper.clip(this->clipplanes[4]);
+  cubeclipper.clip(this->clipplanes[5]); 
 
   int i=0;
   const int result = cubeclipper.getNumVertices();
 
   if (result > 0) {
     subcube_slice slice;
-
+    SbVec3f vert;
+    
     for (i=0;i<result;i++) {
-
-      SbVec3f vert;
       cubeclipper.getVertex(i, vert);
       slice.vertex.append(vert);
-
-      SbVec3f * tmp = (SbVec3f *) cubeclipper.getVertexData(i);
-      if (tmp == NULL) { tmp = (SbVec3f *) subcube_clipperCB(vert, NULL, vert, NULL, vert, this); }
-      SbVec3f texcoord(tmp->getValue());
-      slice.texcoord.append(texcoord);
+      SbVec3f * texcoord = (SbVec3f *) cubeclipper.getVertexData(i);
+      if (!texcoord) 
+        texcoord = (SbVec3f *) subcube_clipperCB(vert, NULL, vert, NULL, vert, this);
+      slice.texcoord.append(SbVec3f(texcoord->getValue()));
     }
-
+    
     for (i=0;i<this->texcoordlist.getLength();++i)
       delete this->texcoordlist[i];
-
     this->texcoordlist.truncate(0);
+    
     this->volumeslices.append(slice);
-
-    return TRUE;
+    return;
   }
 
-  return FALSE;
+  return;
 
 }
 

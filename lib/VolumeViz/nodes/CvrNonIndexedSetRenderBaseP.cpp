@@ -150,8 +150,7 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
                                                 Cvr3DTexCube::FACE_SET :
                                                 Cvr3DTexCube::TRIANGLESTRIP_SET);
 
-  this->cube->renderNonindexedSet(action, origo,
-                                  vertexarray,
+  this->cube->renderNonindexedSet(action, vertexarray,
                                   numVertices.getValues(this->master->startIndex.getValue()),
                                   numVertices.getNum(),
                                   type);

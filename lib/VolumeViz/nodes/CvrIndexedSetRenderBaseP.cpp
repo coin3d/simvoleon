@@ -158,8 +158,7 @@ CvrIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
                                              Cvr3DTexCube::INDEXEDFACE_SET :
                                              Cvr3DTexCube::INDEXEDTRIANGLESTRIP_SET);
 
-  this->cube->renderIndexedSet(action, origo, vertexarray,
-                               cindices, numindices, type);
+  this->cube->renderIndexedSet(action, vertexarray, cindices, numindices, type);
 
   glPopAttrib();
 

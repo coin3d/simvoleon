@@ -26,6 +26,7 @@
 
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbVec3f.h>
+#include <Inventor/SbPlane.h>
 #include <Inventor/lists/SbList.h>
 
 class SbClip;
@@ -42,7 +43,8 @@ class Cvr3DTexSubCube {
 public:
   Cvr3DTexSubCube(const SoGLRenderAction * action,
                   const CvrTextureObject * texobj,
-                  const SbVec3f & cubesize, 
+                  const SbVec3f & cubeorigo,
+                  const SbVec3f & cubesize,
                   const SbVec3s & texsize);
   ~Cvr3DTexSubCube();
 
@@ -53,34 +55,29 @@ public:
   SbBool isPaletted(void) const;
   void setPalette(const CvrCLUT * newclut);
 
-  SbBool checkIntersectionSlice(const SbVec3f & cubeorigo, 
-                                const SbViewVolume & viewvolume, 
-                                const float viewdistance, 
-                                const SbMatrix &);
+  void intersectSlice(const SbViewVolume & viewvolume, 
+                      const float viewdistance, 
+                      const SbMatrix &);
 
-  SbBool checkIntersectionFaceSet(const SbVec3f & cubeorigo, 
-                                  const SbVec3f * vertexlist,
-                                  const int * numVertices,
-                                  const unsigned int length,
-                                  const SbMatrix & m);
+  void intersectFaceSet(const SbVec3f * vertexlist,
+                        const int * numVertices,
+                        const unsigned int length,
+                        const SbMatrix & m);
 
-  SbBool checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo, 
-                                           const SbVec3f * vertexlist,
-                                           const int * numVertices,
-                                           const unsigned int length,
-                                           const SbMatrix & m);
+  void intersectTriangleStripSet(const SbVec3f * vertexlist,
+                                 const int * numVertices,
+                                 const unsigned int length,
+                                 const SbMatrix & m);
+  
+  void intersectIndexedFaceSet(const SbVec3f * vertexlist,
+                               const int * indices,
+                               const unsigned int numindices,
+                               const SbMatrix & m);
 
-  SbBool checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo, 
-                                         const SbVec3f * vertexlist,
-                                         const int * indices,
-                                         const unsigned int numindices,
-                                         const SbMatrix & m);
-
-  SbBool checkIntersectionIndexedTriangleStripSet(const SbVec3f & cubeorigo, 
-                                                  const SbVec3f * vertexlist,
-                                                  const int * indices,
-                                                  const unsigned int numindices,
-                                                  const SbMatrix & m);
+  void intersectIndexedTriangleStripSet(const SbVec3f * vertexlist,
+                                        const int * indices,
+                                        const unsigned int numindices,
+                                        const SbMatrix & m);
 
   static void * subcube_clipperCB(const SbVec3f & v0, void * vdata0, 
                                   const SbVec3f & v1, void * vdata1,
@@ -94,7 +91,7 @@ private:
   void activateCLUT(const SoGLRenderAction * action); 
   void deactivateCLUT(const SoGLRenderAction * action); 
  
-  SbBool clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cubeorigo);
+  void clipPolygonAgainstCube(SbClip & cubeclipper);
 
   const CvrTextureObject * textureobject;
   const CvrCLUT * clut;
@@ -113,6 +110,9 @@ private:
 
   SbList <subcube_slice> volumeslices;
   SbList <SbVec3f *> texcoordlist;
+
+  SbPlane clipplanes[6];
+
 };
 
 #endif // !SIMVOLEON_CVR3DTEXSUBPAGE_H

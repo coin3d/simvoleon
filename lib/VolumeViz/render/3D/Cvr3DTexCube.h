@@ -41,21 +41,19 @@ public:
   enum NonindexedSetType { FACE_SET, TRIANGLESTRIP_SET };
   enum IndexedSetType { INDEXEDFACE_SET, INDEXEDTRIANGLESTRIP_SET };
 
-  void render(const SoGLRenderAction * action, const SbVec3f & origo,
+  void render(const SoGLRenderAction * action, 
               const unsigned int numslices);
 
   void renderObliqueSlice(const SoGLRenderAction * action,
-                          const SbVec3f & origo,
                           const SbPlane plane);
  
-  void renderIndexedSet(const SoGLRenderAction * action, const SbVec3f & origo,
+  void renderIndexedSet(const SoGLRenderAction * action,
                         const SbVec3f * vertexarray,
                         const int * indices,
                         const unsigned int numindices,
                         const enum IndexedSetType type);
 
   void renderNonindexedSet(const SoGLRenderAction * action,
-                           const SbVec3f & origo,
                            const SbVec3f * vertexarray,
                            const int * numVertices,
                            const unsigned int listlength,
@@ -71,6 +69,7 @@ public:
 private:
   class Cvr3DTexSubCubeItem * getSubCube(SoState * state, int col, int row, int depth);
   class Cvr3DTexSubCubeItem * buildSubCube(const SoGLRenderAction * action,
+                                           const SbVec3f & origo,
                                            int col, int row, int depth);   
 
   void releaseAllSubCubes(void);
@@ -85,6 +84,7 @@ private:
 
   SbVec3s subcubesize;
   SbVec3s dimensions;
+  SbVec3f origo;
 
   SbBool rendersubcubeoutline;
   int nrcolumns;

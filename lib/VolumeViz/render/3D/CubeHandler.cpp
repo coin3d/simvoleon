@@ -53,7 +53,6 @@ CvrCubeHandler::CvrCubeHandler(void)
 
 CvrCubeHandler::~CvrCubeHandler()
 {
-  if (this->clut) { this->clut->unref(); }
   delete this->volumecube;
 }
 
@@ -87,10 +86,6 @@ CvrCubeHandler::setPalette(const CvrCLUT * c)
 {
   assert(this->volumecube && "'volumecube' object is not initialized.");
   assert(c != NULL);
-
-  if (this->clut) { this->clut->unref(); }
-  this->clut = c;
-  this->clut->ref();  
   this->volumecube->setPalette(c);
 }
 
@@ -186,11 +181,9 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   }
 
   assert(glGetError() == GL_NO_ERROR);
-  const SbVec3s & dims = vbelem->getVoxelCubeDimensions();
-  SbVec3f origo(-((float) dims[0]) / 2.0f, -((float) dims[1]) / 2.0f, -((float) dims[2]) / 2.0f);
 
   if (abortfunc != NULL) { this->volumecube->setAbortCallback(abortfunc, abortcbdata); }
-  this->volumecube->render(action, origo, numslices);
+  this->volumecube->render(action, numslices);
 
   glPopAttrib();
 }
@@ -239,11 +232,8 @@ CvrCubeHandler::renderObliqueSlice(SoGLRenderAction * action,
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   assert(glGetError() == GL_NO_ERROR);
-  
-  const SbVec3s & dims = vbelem->getVoxelCubeDimensions();
-  SbVec3f origo(-((float) dims[0]) / 2.0f, -((float) dims[1]) / 2.0f, -((float) dims[2]) / 2.0f);
-
-  this->volumecube->renderObliqueSlice(action, origo, plane);
+   
+  this->volumecube->renderObliqueSlice(action, plane);
 
   glPopAttrib();
 }
