@@ -197,22 +197,25 @@ buildSubSliceY(const void * input,
   uint8_t * input8bits = (uint8_t *)input;
   uint8_t * output8bits = (uint8_t *)output;
 
+  assert(pageidx >= 0);
+  assert(pageidx < dim[1]);
+
   SbVec2s ssmin, ssmax;
   cutslice.getBounds(ssmin, ssmax);
-
-  int yOffset = pageidx * dim[0];
 
   const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
   assert(nrhorizvoxels > 0);
   const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
   assert(nrvertvoxels > 0);
 
+  const unsigned int staticoffset =
+    (ssmin[1] * dim[0] * dim[1]) + (pageidx * dim[0]) + ssmin[0];
+
   const unsigned int voxelsize = datatype2bytesize(type);
 
   for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
-    const unsigned int inoffset =
-      (yOffset + (ssmin[1] + rowidx) * dim[0] * dim[1] + ssmin[0]) * voxelsize;
-    const uint8_t * srcptr = &(input8bits[inoffset]);
+    const unsigned int inoffset = staticoffset + (rowidx * dim[0] * dim[1]);
+    const uint8_t * srcptr = &(input8bits[inoffset * voxelsize]);
 
     // FIXME: nrhorizvoxels here should be actual width of
     // subpages, in case it's not 2^n. 20021125 mortene.
@@ -243,13 +246,14 @@ buildSubSliceZ(const void * input, void * output,
   const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
   assert(nrvertvoxels > 0);
 
-  const int zOffset = pageidx * dim[0] * dim[1];
+  const unsigned int staticoffset =
+    (pageidx * dim[0] * dim[1]) + (ssmin[1] * dim[0]) + ssmin[0];
 
   const unsigned int voxelsize = datatype2bytesize(type);
 
   for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
-    const unsigned int inoffset = (zOffset + (ssmin[1] + rowidx) * dim[0] + ssmin[0]) * voxelsize;
-    const uint8_t * srcptr = &(input8bits[inoffset]);
+    const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
+    const uint8_t * srcptr = &(input8bits[inoffset * voxelsize]);
 
     // FIXME: nrhorizvoxels here should be actual width of
     // subpages, in case it's not 2^n. 20021125 mortene.
