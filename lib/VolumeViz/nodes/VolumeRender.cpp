@@ -1066,6 +1066,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
 
   glViewport(0, 0, (GLuint) viewportsize[2], (GLuint) viewportsize[3]);
   glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
   glLoadIdentity();
 
   // The following is a substutute for gluPerspective(...)
@@ -1090,7 +1091,9 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   m[3][3] = 0;
   glMultMatrixd(&m[0][0]); // Finished
   
+  glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
   glLoadIdentity();
   glTranslatef(0.0f, 0.0f, -15.0f);
 
@@ -1121,6 +1124,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glDeleteTextures(1, texture3did);
   glDeleteTextures(2, texture2dids);
   
+  glPopMatrix();
   glPopAttrib();
   return average3dtime / average2dtime;
 
