@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simvoleon2", "simvoleon2.vcproj", "{5E0E1770-0828-42DB-82D9-1F5949F5B791}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simvoleon2", "simvoleon2.vcproj", "{077F77CE-A67B-4A7C-9B79-DCAAE39E7801}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -9,10 +9,10 @@ Global
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{5E0E1770-0828-42DB-82D9-1F5949F5B791}.Debug.ActiveCfg = Debug|Win32
-		{5E0E1770-0828-42DB-82D9-1F5949F5B791}.Debug.Build.0 = Debug|Win32
-		{5E0E1770-0828-42DB-82D9-1F5949F5B791}.Release.ActiveCfg = Release|Win32
-		{5E0E1770-0828-42DB-82D9-1F5949F5B791}.Release.Build.0 = Release|Win32
+		{077F77CE-A67B-4A7C-9B79-DCAAE39E7801}.Debug.ActiveCfg = Debug|Win32
+		{077F77CE-A67B-4A7C-9B79-DCAAE39E7801}.Debug.Build.0 = Debug|Win32
+		{077F77CE-A67B-4A7C-9B79-DCAAE39E7801}.Release.ActiveCfg = Release|Win32
+		{077F77CE-A67B-4A7C-9B79-DCAAE39E7801}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
