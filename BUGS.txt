@@ -224,13 +224,13 @@
 ========================================================================
 
 016 Rendering SoObliqueSlice, SoOrthoSlice and SoVolume*Set nodes
-    using SoDrawStyle::LINES is not optimal as the volume texture has
-    to be loaded.
+    using SoDrawStyle::LINES is not optimal as the volume texture is
+    loaded.
 
     SIMVoleon should not be forced to load volume textures when
-    only rendering in LINES mode. The LINES rendering is now done by
-    3DTexSubCube/2DTexSubPage which automatically loads the texture
-    when initialized.
+    rendering in LINES mode. The LINES rendering is now done by the
+    3DTexSubCube/2DTexSubPage class which automatically loads the
+    texture when initialized.
     
     20040907 handegar.
 
