@@ -270,20 +270,23 @@ SoVolumeSkin::generatePrimitives(SoAction * action)
 #endif // debug
 }
 
+
 // doc in super
 void
 SoVolumeSkin::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
-  const CvrVoxelBlockElement * vbelem =
-    CvrVoxelBlockElement::getInstance(action->getState());
+  SoState * state = action->getState();
+
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
   if (vbelem == NULL) { return; }
 
-  const SbVec3s & dims = vbelem->getVoxelCubeDimensions();
+  const SbBox3f & vdbox = vbelem->getUnitDimensionsBox();
+  if (vdbox.isEmpty()) { return; }
 
-  center = SbVec3f(0, 0, 0);
-  box.extendBy(SbVec3f(-dims[0]/2.0f, -dims[1]/2.0f, -dims[2]/2.0f));
-  box.extendBy(SbVec3f(dims[0]/2.0f, dims[1]/2.0f, dims[2]/2.0f));
+  box.extendBy(vdbox);
+  center = vdbox.getCenter();
 }
+
 
 void
 SoVolumeSkin::rayPick(SoRayPickAction * action)
