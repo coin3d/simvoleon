@@ -100,7 +100,7 @@ main(int argc, char ** argv)
   SoTransferFunction * transfunc = new SoTransferFunction();
   root->addChild(transfunc);
 
-  TransferFunctionHandler * tfdia = new TransferFunctionHandler(transfunc);
+  TransferFunctionHandler * tfdia = new TransferFunctionHandler(transfunc, 0, 255);
 
   // Add SoOrthoSlice to scene graph
   SoOrthoSlice * orthoslice = new SoOrthoSlice();

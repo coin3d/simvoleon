@@ -8,6 +8,7 @@
 
 
 TransferFunctionHandler::TransferFunctionHandler(SoTransferFunction * node,
+                                                 int remaplow, int remaphigh,
                                                  QWidget * parent)
 {
   this->node = node;
@@ -19,8 +20,8 @@ TransferFunctionHandler::TransferFunctionHandler(SoTransferFunction * node,
   this->ctrl = new SoTransferFunction_ctrl(parent);
   this->ctrl->show();
 
-  this->remap[0] = 0;
-  this->remap[1] = 255;
+  this->remap[0] = remaplow;
+  this->remap[1] = remaphigh;
 
   this->initGUI();
 }

@@ -117,9 +117,11 @@ main(int argc, char ** argv)
   root->addChild(voldata);
 
   SoTransferFunction * transfunc = new SoTransferFunction();
+  const int remaplow = 1, remaphigh = 255;
+  transfunc->reMap(remaplow, remaphigh);
   root->addChild(transfunc);
 
-  TransferFunctionHandler * tfdia = new TransferFunctionHandler(transfunc);
+  TransferFunctionHandler * tfdia = new TransferFunctionHandler(transfunc, remaplow, remaphigh);
 
 //   transfunc->predefColorMap = SoTransferFunction::NONE;
 
@@ -152,7 +154,6 @@ main(int argc, char ** argv)
 
   // Add VolumeRender to scene graph
   SoVolumeRender * volrendnode = new SoVolumeRender();
-  volrendnode->interpolation = SoVolumeRender::NEAREST;
 
   volrendnode->numSlicesControl = SoVolumeRender::MANUAL;
   volrendnode->numSlices = 40;

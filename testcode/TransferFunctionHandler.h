@@ -12,7 +12,9 @@ class TransferFunctionHandler : QObject
   Q_OBJECT
 
 public:
-  TransferFunctionHandler(SoTransferFunction * node, QWidget * parent = NULL);
+  TransferFunctionHandler(SoTransferFunction * node,
+                          int remaplow, int remaphigh,
+                          QWidget * parent = NULL);
   ~TransferFunctionHandler();
 
 private slots:
