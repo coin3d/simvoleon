@@ -7805,8 +7805,6 @@ if test x"$enable_warnings" = x"yes"; then
     ## 1174: "The function was declared but never referenced."
     ## 1209: "The controlling expression is constant." (kill warning on
     ##       if (0), assert(FALSE), etc).
-    ## 1355: Kill warnings on extra semicolons (which happens with some
-    ##       of the Coin macros).
     ## 1375: Non-virtual destructors in base classes.
     ## 3201: Unused argument to a function.
     ## 1110: "Statement is not reachable" (the Lex/Flex generated code in
@@ -7818,7 +7816,7 @@ if test x"$enable_warnings" = x"yes"; then
     ## 1169: External/internal linkage conflicts with a previous declaration.
     ##       We get this for the "friend operators" in SbString.h
 
-    sim_ac_bogus_warnings="-woff 3115,3262,1174,1209,1355,1375,3201,1110,1506,1169,1210"
+    sim_ac_bogus_warnings="-woff 3115,3262,1174,1209,1375,3201,1110,1506,1169,1210"
 
     case $CC in
     cc | "cc "* | CC | "CC "* )
