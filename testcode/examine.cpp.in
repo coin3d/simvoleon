@@ -11,8 +11,8 @@
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/manips/SoTrackballManip.h>
 #include <Inventor/nodes/SoDrawStyle.h>
+#include <Inventor/nodes/SoPickStyle.h>
 #include <Inventor/nodes/SoLightModel.h>
-#include <math.h>
 
 
 void setDot(int *pData,
@@ -98,11 +98,18 @@ main(int argc, char ** argv)
   lm->model = SoLightModel::BASE_COLOR;
   root->addChild(lm);
 
-  SoDrawStyle *drawStyle = new SoDrawStyle;
+  SoSeparator * cubeframe = new SoSeparator;
+  root->addChild(cubeframe);
+
+  SoDrawStyle * drawStyle = new SoDrawStyle;
   drawStyle->style = SoDrawStyle::LINES;
-  //   root->addChild(new SoTrackballManip);
-  root->addChild(drawStyle);
-  root->addChild(new SoCube);
+  cubeframe->addChild(drawStyle);
+
+  SoPickStyle * pickstyle = new SoPickStyle;
+  pickstyle->style = SoPickStyle::UNPICKABLE;
+  cubeframe->addChild(pickstyle);
+
+  cubeframe->addChild(new SoCube);
 
   // Read the data (application supplied function)
   SbVec3s dim = SbVec3s(64, 64, 64);

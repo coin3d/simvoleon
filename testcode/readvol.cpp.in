@@ -3,6 +3,7 @@
 #include <Inventor/nodes/SoCube.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
 #include <Inventor/nodes/SoDrawStyle.h>
+#include <Inventor/nodes/SoPickStyle.h>
 #include <Inventor/nodes/SoLightModel.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoSeparator.h>
@@ -88,9 +89,13 @@ main(int argc, char ** argv)
     lm->model = SoLightModel::BASE_COLOR;
     bboxsep->addChild(lm);
 
-    SoDrawStyle *drawStyle = new SoDrawStyle;
-    drawStyle->style = SoDrawStyle::LINES;
-    bboxsep->addChild(drawStyle);
+    SoDrawStyle * drawstyle = new SoDrawStyle;
+    drawstyle->style = SoDrawStyle::LINES;
+    bboxsep->addChild(drawstyle);
+
+    SoPickStyle * pickstyle = new SoPickStyle;
+    pickstyle->style = SoPickStyle::UNPICKABLE;
+    bboxsep->addChild(pickstyle);
 
     SoCube * volcage = new SoCube;
     const SbBox3f volspan = voldata->getVolumeSize();
