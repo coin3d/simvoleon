@@ -96,10 +96,15 @@
   \ingroup volviz
 
   The sole purpose of this class is really just to initialize the
-  volume rendering framework.
+  volume rendering framework, and to provide a convenient method for
+  the application programmer to make queries about the capabilities of
+  the underlying visualization library.
+
+  This class should never have been a node class, as it has no
+  distinguishing features in that regard. We duplicate this design
+  flaw for the sake of being compatible with code written for the TGS
+  VolumeViz extension library.
 */
-// FIXME: simplest programming example here on how to use the
-// vol-rendering. 20021106 mortene.
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
