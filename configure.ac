@@ -201,12 +201,12 @@ if $BUILD_WITH_MSVC; then
     CPPFLAGS="-DSIMVOLEON_MAKE_DLL $CPPFLAGS"
     SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS -DSIMVOLEON_DLL"
   fi
-  debugfile="`pwd`/lib/VolumeViz/simvoleon${SIMVOLEON_MAJOR_VERSION}.pdb"
+  debugfile="`pwd`/lib/VolumeViz/simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.pdb"
   debugfile=`cygpath -w "$debugfile" | sed 's,\\\\,\\\\\\\\,g'`
   if $SIMVOLEON_STATIC; then
     SIM_AC_CONFIGURATION_SETTING([SimVoleon build type], [static .lib])
     LIBFLAGS="-LIB $LIBFLAGS"
-    LIBFLAGS="$LIBFLAGS /OUT:simvoleon$SIMVOLEON_MAJOR_VERSION.lib"
+    LIBFLAGS="$LIBFLAGS /OUT:simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.lib"
   else
     LIBFLAGS="-DLL /INCREMENTAL:NO $LIBFLAGS"
     case $enable_symbols in
@@ -220,17 +220,17 @@ if $BUILD_WITH_MSVC; then
                                    [dynamic .dll + .pdb])
       CFLAGS="/Fd$debugfile -g $CFLAGS"
       CXXFLAGS="/Fd$debugfile -g $CXXFLAGS"
-      LIBFLAGS="$LIBFLAGS /DEBUG /PDB:simvoleon$SIMVOLEON_MAJOR_VERSION.pdb"
+      LIBFLAGS="$LIBFLAGS /DEBUG /PDB:simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.pdb"
       ;;
     esac
 
-    LIBFLAGS="$LIBFLAGS /OUT:simvoleon$SIMVOLEON_MAJOR_VERSION.dll"
+    LIBFLAGS="$LIBFLAGS /OUT:simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.dll"
   fi
   SIM_AC_CONFIGURATION_SETTING([C library type], [$sim_ac_msvcrt])
 
-  SIMVOLEON_EXTRA_LIBS="-lsimvoleon$SIMVOLEON_MAJOR_VERSION $SIMVOLEON_EXTRA_LIBS"
+  SIMVOLEON_EXTRA_LIBS="-lsimvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX} $SIMVOLEON_EXTRA_LIBS"
 else
-  SIMVOLEON_EXTRA_LIBS="-lSimVoleon $SIMVOLEON_EXTRA_LIBS"
+  SIMVOLEON_EXTRA_LIBS="-lSimVoleon${SUFFIX} $SIMVOLEON_EXTRA_LIBS"
 fi
 
 # *******************************************************************
@@ -267,7 +267,6 @@ AC_OUTPUT([
 	lib/VolumeViz/readers/Makefile
 	lib/VolumeViz/render/Makefile
 	lib/VolumeViz/render/2D/Makefile
-	testcode/Makefile
 ])
 
 # *******************************************************************

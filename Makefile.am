@@ -10,8 +10,10 @@ DISTCLEANFILES = \
 	simvoleon-@CONFIG@.cfg
 
 EXTRA_DIST = \
-	simvoleon.cfg.in \
-	testcode/Makefile.in
+	simvoleon.cfg.in
+
+m4datadir = $(datadir)/aclocal
+dist_m4data_DATA = cfg/simvoleon.m4
 
 cfgdatadir = $(datadir)/Coin/conf
 cfgdata_DATA = simvoleon-@CONFIG@.cfg

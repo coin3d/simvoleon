@@ -167,15 +167,15 @@ SUBDIRS = C details elements nodes misc readers render .
 
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
-@BUILD_WITH_MSVC_TRUE@lib_LIBRARIES = simvoleon@SIMVOLEON_MAJOR_VERSION@.lib
-@BUILD_WITH_MSVC_FALSE@lib_LTLIBRARIES = libSimVoleon.la
+@BUILD_WITH_MSVC_TRUE@lib_LIBRARIES = simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.lib
+@BUILD_WITH_MSVC_FALSE@lib_LTLIBRARIES = libSimVoleon@SUFFIX@.la
 
 # Adding in a dummy C++ source code file to "trick" Automake to set
 # us up with C++ $CXXLD for linking (and not the default C $CCLD).
-libSimVoleon_la_SOURCES = dummy.cpp
-simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES = dummy.cpp
+libSimVoleon@SUFFIX@_la_SOURCES = dummy.cpp
+simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = dummy.cpp
 
-libSimVoleon_la_LIBADD = \
+libSimVoleon@SUFFIX@_la_LIBADD = \
         details/libdetails.la \
         elements/libelements.la \
 	misc/libmisc.la \
@@ -184,7 +184,7 @@ libSimVoleon_la_LIBADD = \
 	render/2D/lib2Drender.la
 
 
-simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD = \
+simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
         details/details.lst \
         elements/elements.lst \
         misc/misc.lst \
@@ -193,7 +193,7 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD = \
 	render/2D/2Drender.lst
 
 
-libSimVoleon_la_LDFLAGS = \
+libSimVoleon@SUFFIX@_la_LDFLAGS = \
 	-no-undefined \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
@@ -204,20 +204,21 @@ CONFIG_HEADER = $(top_builddir)/lib/config.h
 CONFIG_CLEAN_FILES =
 LIBRARIES = $(lib_LIBRARIES)
 
-simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_AR = $(AR) cru
-simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_DEPENDENCIES = \
+simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_AR = $(AR) cru
+simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_DEPENDENCIES = \
 	details/details.lst elements/elements.lst misc/misc.lst \
 	nodes/nodes.lst readers/readers.lst render/2D/2Drender.lst
-am_simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS = dummy.$(OBJEXT)
-simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS = \
-	$(am_simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS)
+am_simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS = \
+	dummy.$(OBJEXT)
+simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS = \
+	$(am_simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libSimVoleon_la_DEPENDENCIES = details/libdetails.la \
+libSimVoleon@SUFFIX@_la_DEPENDENCIES = details/libdetails.la \
 	elements/libelements.la misc/libmisc.la nodes/libnodes.la \
 	readers/libreaders.la render/2D/lib2Drender.la
-am_libSimVoleon_la_OBJECTS = dummy.lo
-libSimVoleon_la_OBJECTS = $(am_libSimVoleon_la_OBJECTS)
+am_libSimVoleon@SUFFIX@_la_OBJECTS = dummy.lo
+libSimVoleon@SUFFIX@_la_OBJECTS = $(am_libSimVoleon@SUFFIX@_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/dummy.Plo ./$(DEPDIR)/dummy.Po
@@ -229,8 +230,8 @@ LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-DIST_SOURCES = $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES) \
-	$(libSimVoleon_la_SOURCES)
+DIST_SOURCES = $(simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES) \
+	$(libSimVoleon@SUFFIX@_la_SOURCES)
 
 RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	ps-recursive install-info-recursive uninstall-info-recursive \
@@ -239,7 +240,7 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	check-recursive installcheck-recursive
 DIST_COMMON = Makefile.am Makefile.in
 DIST_SUBDIRS = $(SUBDIRS)
-SOURCES = $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES) $(libSimVoleon_la_SOURCES)
+SOURCES = $(simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES) $(libSimVoleon@SUFFIX@_la_SOURCES)
 
 all: all-recursive
 
@@ -308,8 +309,8 @@ clean-libLTLIBRARIES:
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
-libSimVoleon.la: $(libSimVoleon_la_OBJECTS) $(libSimVoleon_la_DEPENDENCIES) 
-	$(CXXLINK) -rpath $(libdir) $(libSimVoleon_la_LDFLAGS) $(libSimVoleon_la_OBJECTS) $(libSimVoleon_la_LIBADD) $(LIBS)
+libSimVoleon@SUFFIX@.la: $(libSimVoleon@SUFFIX@_la_OBJECTS) $(libSimVoleon@SUFFIX@_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(libdir) $(libSimVoleon@SUFFIX@_la_LDFLAGS) $(libSimVoleon@SUFFIX@_la_OBJECTS) $(libSimVoleon@SUFFIX@_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -638,23 +639,23 @@ uninstall-info: uninstall-info-recursive
 	uninstall-recursive
 
 
-simvoleon@SIMVOLEON_MAJOR_VERSION@.lib: Makefile \
-  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS) \
-  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_DEPENDENCIES)
-	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@"; \
+simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.lib: Makefile \
+  $(simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS) \
+  $(simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_DEPENDENCIES)
+	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@"; \
 	rm -f "$$basename.dll" "$$basename.lib"; \
 	echo "Linking $$basename.lib..."; \
 	echo $(CC) $(LDFLAGS) $(LIBFLAGS) \
-	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS) \
-	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD) $(LIBS); \
+	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS) \
+	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD) $(LIBS); \
 	$(CC) $(LDFLAGS) $(LIBFLAGS) \
-	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS) \
-	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD) $(LIBS);
+	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS) \
+	  $(simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD) $(LIBS);
 
 # **************************************************************************
 
-@BUILD_WITH_MSVC_TRUE@install-exec-local: simvoleon@SIMVOLEON_MAJOR_VERSION@.lib
-@BUILD_WITH_MSVC_TRUE@	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@"; \
+@BUILD_WITH_MSVC_TRUE@install-exec-local: simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.lib
+@BUILD_WITH_MSVC_TRUE@	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@"; \
 @BUILD_WITH_MSVC_TRUE@	for ext in dll pdb; do \
 @BUILD_WITH_MSVC_TRUE@	  file="$$basename.$$ext"; \
 @BUILD_WITH_MSVC_TRUE@	  if test -s "$$file"; then \
@@ -666,7 +667,7 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@.lib: Makefile \
 @BUILD_WITH_MSVC_FALSE@install-exec-local:
 
 install-data-local:
-	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@"; \
+	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@"; \
 	for ext in lib; do \
 	  file="$$basename.$$ext"; \
 	  if test -s "$$file"; then \
@@ -677,7 +678,7 @@ install-data-local:
 	done
 
 uninstall-local:
-	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@"; \
+	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@"; \
 	for file in \
 	  "$(DESTDIR)$(bindir)/$$basename.dll" \
 	  "$(DESTDIR)$(bindir)/$$basename.pdb" \

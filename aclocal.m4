@@ -339,7 +339,7 @@ $1
 #
 # SIM_AC_ERROR( ERROR [, ERROR ...] )
 #   Fetches the error messages from the error message file and displays
-#   them on stderr.
+#   them on stderr. The configure process will subsequently exit.
 #
 # SIM_AC_WITH_ERROR( WITHARG )
 #   Invokes AC_MSG_ERROR in a consistent way for problems with the --with-*
@@ -1849,6 +1849,12 @@ AC_CACHE_VAL([lt_cv_sys_max_cmd_len], [dnl
     lt_cv_sys_max_cmd_len=8192;
     ;;
 
+  mks*)
+    # this test is apparently horribly slow on MKS systems (and results
+    # in 1024, while 8192 should work fine).  We therefore just set it
+    # directly, as for cygwin/mingw...
+    lt_cv_sys_max_cmd_len=8192;
+    ;;
  *)
     # If test is not a shell built-in, we'll probably end up computing a
     # maximum length that is only half of the actual maximum length, but
@@ -3831,7 +3837,7 @@ test -z "${LDCXX+set}" || LD=$LDCXX
 CC=${CXX-"c++"}
 compiler=$CC
 _LT_AC_TAGVAR(compiler, $1)=$CC
-cc_basename=`$echo X"$compiler" | $Xsed -e 's%^.*/%%'`
+cc_basename=`$echo X"$compiler" | $Xsed -e 's%^.*/%%' -e 's%[ \t]*$%%'`
 
 # We don't want -fno-exception wen compiling C++ code, so set the
 # no_builtin_flag separately
@@ -4196,7 +4202,9 @@ case $host_os in
 	  _LT_AC_TAGVAR(archive_cmds, $1)='$LD -b +h $soname -o $lib $linker_flags $libobjs $deplibs'
 	  ;;
 	*)
-	  _LT_AC_TAGVAR(archive_cmds, $1)='$CC -b ${wl}+h ${wl}$soname ${wl}+b ${wl}$install_libdir -o $lib $predep_objects $libobjs $deplibs $postdep_objects $compiler_flags'
+	# larsa 2003-08-07 - added "${wl}-a,shared"
+	# _LT_AC_TAGVAR(archive_cmds, $1)='$CC -b ${wl}+h ${wl}$soname ${wl}+b ${wl}$install_libdir -o $lib $predep_objects $libobjs $deplibs $postdep_objects $compiler_flags'
+	  _LT_AC_TAGVAR(archive_cmds, $1)='$CC -b ${wl}+h ${wl}$soname ${wl}+b ${wl}$install_libdir -o $lib ${wl}-a,shared $predep_objects $libobjs $deplibs $postdep_objects $compiler_flags'
 	  ;;
 	esac
 	# Commands to make compiler produce verbose output that lists
@@ -7711,12 +7719,17 @@ AC_HELP_STRING([--with-coin=DIR], [give prefix location of Coin]),
     esac],
   [])
 
+case $build in
+*-mks ) sim_ac_pathsep=";" ;;
+* )     sim_ac_pathsep="${PATH_SEPARATOR}" ;;
+esac
+
 if $sim_ac_coin_desired; then
   sim_ac_path=$PATH
   test -z "$sim_ac_coin_extrapath" || ## search in --with-coin path
-    sim_ac_path="$sim_ac_coin_extrapath/bin${PATH_SEPARATOR}$sim_ac_path"
+    sim_ac_path="$sim_ac_coin_extrapath/bin${sim_ac_pathsep}$sim_ac_path"
   test x"$prefix" = xNONE ||          ## search in --prefix path
-    sim_ac_path="$sim_ac_path${PATH_SEPARATOR}$prefix/bin"
+    sim_ac_path="$sim_ac_path${sim_ac_pathsep}$prefix/bin"
 
   AC_PATH_PROG(sim_ac_coin_configcmd, coin-config, false, $sim_ac_path)
 
@@ -7740,30 +7753,52 @@ if $sim_ac_coin_desired; then
     sim_ac_coin_msvcrt=`$sim_ac_coin_configcmd --msvcrt 2>/dev/null`
     sim_ac_coin_cflags=`$sim_ac_coin_configcmd --cflags 2>/dev/null`
     AC_CACHE_CHECK(
-      [whether libCoin is available],
+      [if we can compile and link with the Coin library],
       sim_cv_coin_avail,
       [sim_ac_save_cppflags=$CPPFLAGS
+      sim_ac_save_cxxflags=$CXXFLAGS
       sim_ac_save_ldflags=$LDFLAGS
       sim_ac_save_libs=$LIBS
       CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
+      CXXFLAGS="$CXXFLAGS $sim_ac_coin_cxxflags"
       LDFLAGS="$LDFLAGS $sim_ac_coin_ldflags"
       LIBS="$sim_ac_coin_libs $LIBS"
       AC_LANG_PUSH(C++)
+
       AC_TRY_LINK(
         [#include <Inventor/SoDB.h>],
         [SoDB::init();],
         [sim_cv_coin_avail=true],
         [sim_cv_coin_avail=false])
+
       AC_LANG_POP
       CPPFLAGS=$sim_ac_save_cppflags
+      CXXFLAGS=$sim_ac_save_cxxflags
       LDFLAGS=$sim_ac_save_ldflags
       LIBS=$sim_ac_save_libs
     ])
     sim_ac_coin_avail=$sim_cv_coin_avail
-  else
-    locations=`IFS="${PATH_SEPATATOR}"; for p in $sim_ac_path; do echo " -> $p/coin-config"; done`
+    if ! $sim_ac_coin_avail; then
+      AC_MSG_WARN([
+Compilation and/or linking with the Coin main library SDK failed, for
+unknown reason. If you are familiar with configure-based configuration
+and building, investigate the 'config.log' file for clues.
+
+If you can not figure out what went wrong, please forward the 'config.log'
+file to the email address <coin-support@coin3d.org> and ask for help by
+describing the situation where this failed.
+])
+    fi
+  else # no 'coin-config' found
+    locations=`IFS="${sim_ac_pathsep}"; for p in $sim_ac_path; do echo " -> $p/coin-config"; done`
     AC_MSG_WARN([cannot find 'coin-config' at any of these locations:
 $locations])
+    AC_MSG_WARN([
+Need to be able to run 'coin-config' to figure out how to build and link
+against the Coin library. To rectify this problem, you most likely need
+to a) install Coin if it has not been installed, b) add the Coin install
+bin/ directory to your PATH environment variable.
+])
   fi
 fi
 

@@ -174,9 +174,11 @@ DISTCLEANFILES = \
 
 
 EXTRA_DIST = \
-	simvoleon.cfg.in \
-	testcode/Makefile.in
+	simvoleon.cfg.in
 
+
+m4datadir = $(datadir)/aclocal
+dist_m4data_DATA = cfg/simvoleon.m4
 
 cfgdatadir = $(datadir)/Coin/conf
 cfgdata_DATA = simvoleon-@CONFIG@.cfg
@@ -184,9 +186,9 @@ subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/lib/config.h
-CONFIG_CLEAN_FILES = testcode/Makefile
+CONFIG_CLEAN_FILES =
 DIST_SOURCES =
-DATA = $(cfgdata_DATA)
+DATA = $(cfgdata_DATA) $(dist_m4data_DATA)
 
 
 RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
@@ -194,10 +196,11 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	all-recursive install-data-recursive install-exec-recursive \
 	installdirs-recursive install-recursive uninstall-recursive \
 	check-recursive installcheck-recursive
-DIST_COMMON = README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
-	Makefile.in NEWS aclocal.m4 cfg/config.guess cfg/config.sub \
-	cfg/depcomp cfg/install-sh cfg/ltmain.sh cfg/missing \
-	cfg/mkinstalldirs configure configure.ac
+DIST_COMMON = README $(dist_m4data_DATA) AUTHORS COPYING ChangeLog \
+	INSTALL Makefile.am Makefile.in NEWS aclocal.m4 \
+	cfg/config.guess cfg/config.sub cfg/depcomp cfg/install-sh \
+	cfg/ltmain.sh cfg/missing cfg/mkinstalldirs configure \
+	configure.ac
 DIST_SUBDIRS = $(SUBDIRS)
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -219,8 +222,6 @@ $(srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(srcdir)/configure.ac $(ACLOCAL_M4)
 
 $(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ configure.ac 
 	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
-testcode/Makefile: $(top_builddir)/config.status $(top_srcdir)/testcode/Makefile.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -248,6 +249,24 @@ uninstall-cfgdataDATA:
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
 	  echo " rm -f $(DESTDIR)$(cfgdatadir)/$$f"; \
 	  rm -f $(DESTDIR)$(cfgdatadir)/$$f; \
+	done
+dist_m4dataDATA_INSTALL = $(INSTALL_DATA)
+install-dist_m4dataDATA: $(dist_m4data_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(m4datadir)
+	@list='$(dist_m4data_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " $(dist_m4dataDATA_INSTALL) $$d$$p $(DESTDIR)$(m4datadir)/$$f"; \
+	  $(dist_m4dataDATA_INSTALL) $$d$$p $(DESTDIR)$(m4datadir)/$$f; \
+	done
+
+uninstall-dist_m4dataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_m4data_DATA)'; for p in $$list; do \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " rm -f $(DESTDIR)$(m4datadir)/$$f"; \
+	  rm -f $(DESTDIR)$(m4datadir)/$$f; \
 	done
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -390,7 +409,7 @@ distcleancheck_listfiles = find . -type f -print
 distdir: $(DISTFILES)
 	$(am__remove_distdir)
 	mkdir $(distdir)
-	$(mkinstalldirs) $(distdir)/bin $(distdir)/cfg $(distdir)/testcode
+	$(mkinstalldirs) $(distdir)/bin $(distdir)/cfg
 	@srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`; \
 	topsrcdirstrip=`echo "$(top_srcdir)" | sed 's|.|.|g'`; \
 	list='$(DISTFILES)'; for file in $$list; do \
@@ -505,7 +524,7 @@ check: $(BUILT_SOURCES)
 all-am: Makefile $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	$(mkinstalldirs) $(DESTDIR)$(cfgdatadir)
+	$(mkinstalldirs) $(DESTDIR)$(cfgdatadir) $(DESTDIR)$(m4datadir)
 
 install: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) install-recursive
@@ -551,7 +570,7 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-cfgdataDATA
+install-data-am: install-cfgdataDATA install-dist_m4dataDATA
 
 install-exec-am:
 
@@ -578,7 +597,8 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-cfgdataDATA uninstall-info-am
+uninstall-am: uninstall-cfgdataDATA uninstall-dist_m4dataDATA \
+	uninstall-info-am
 
 uninstall-info: uninstall-info-recursive
 
@@ -589,16 +609,18 @@ uninstall-info: uninstall-info-recursive
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am dvi-recursive info info-am info-recursive install \
 	install-am install-cfgdataDATA install-data install-data-am \
-	install-data-recursive install-exec install-exec-am \
-	install-exec-recursive install-info install-info-am \
-	install-info-recursive install-man install-recursive \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am installdirs-recursive maintainer-clean \
-	maintainer-clean-generic maintainer-clean-recursive mostlyclean \
-	mostlyclean-generic mostlyclean-libtool mostlyclean-recursive \
-	pdf pdf-am pdf-recursive ps ps-am ps-recursive tags \
-	tags-recursive uninstall uninstall-am uninstall-cfgdataDATA \
-	uninstall-info-am uninstall-info-recursive uninstall-recursive
+	install-data-recursive install-dist_m4dataDATA install-exec \
+	install-exec-am install-exec-recursive install-info \
+	install-info-am install-info-recursive install-man \
+	install-recursive install-strip installcheck installcheck-am \
+	installdirs installdirs-am installdirs-recursive \
+	maintainer-clean maintainer-clean-generic \
+	maintainer-clean-recursive mostlyclean mostlyclean-generic \
+	mostlyclean-libtool mostlyclean-recursive pdf pdf-am \
+	pdf-recursive ps ps-am ps-recursive tags tags-recursive \
+	uninstall uninstall-am uninstall-cfgdataDATA \
+	uninstall-dist_m4dataDATA uninstall-info-am \
+	uninstall-info-recursive uninstall-recursive
 
 
 simvoleon-@CONFIG@.cfg: config.status $(srcdir)/simvoleon.cfg.in

@@ -430,10 +430,10 @@ ac_unique_file="lib/VolumeViz/nodes/VolumeRendering.cpp"
 # Factoring default headers for most tests.
 ac_includes_default="\
 #include <stdio.h>
-#if HAVE_SYS_TYPES_H
+#ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
-#if HAVE_SYS_STAT_H
+#ifdef HAVE_SYS_STAT_H
 # include <sys/stat.h>
 #endif
 #if STDC_HEADERS
@@ -444,23 +444,23 @@ ac_includes_default="\
 #  include <stdlib.h>
 # endif
 #endif
-#if HAVE_STRING_H
-# if !STDC_HEADERS && HAVE_MEMORY_H
+#ifdef HAVE_STRING_H
+# if !STDC_HEADERS && defined(HAVE_MEMORY_H)
 #  include <memory.h>
 # endif
 # include <string.h>
 #endif
-#if HAVE_STRINGS_H
+#ifdef HAVE_STRINGS_H
 # include <strings.h>
 #endif
-#if HAVE_INTTYPES_H
+#ifdef HAVE_INTTYPES_H
 # include <inttypes.h>
 #else
 # if HAVE_STDINT_H
 #  include <stdint.h>
 # endif
 #endif
-#if HAVE_UNISTD_H
+#ifdef HAVE_UNISTD_H
 # include <unistd.h>
 #endif"
 
@@ -6008,6 +6008,12 @@ else
     lt_cv_sys_max_cmd_len=8192;
     ;;
 
+  mks*)
+    # this test is apparently horribly slow on MKS systems (and results
+    # in 1024, while 8192 should work fine).  We therefore just set it
+    # directly, as for cygwin/mingw...
+    lt_cv_sys_max_cmd_len=8192;
+    ;;
  *)
     # If test is not a shell built-in, we'll probably end up computing a
     # maximum length that is only half of the actual maximum length, but
@@ -6851,11 +6857,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6854: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6860: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6858: \$? = $ac_status" >&5
+   echo "$as_me:6864: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -7083,11 +7089,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7086: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7092: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7090: \$? = $ac_status" >&5
+   echo "$as_me:7096: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -7150,11 +7156,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7153: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7159: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7157: \$? = $ac_status" >&5
+   echo "$as_me:7163: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -9162,7 +9168,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9165 "configure"
+#line 9171 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9260,7 +9266,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9263 "configure"
+#line 9269 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10037,7 +10043,7 @@ test -z "${LDCXX+set}" || LD=$LDCXX
 CC=${CXX-"c++"}
 compiler=$CC
 compiler_CXX=$CC
-cc_basename=`$echo X"$compiler" | $Xsed -e 's%^.*/%%'`
+cc_basename=`$echo X"$compiler" | $Xsed -e 's%^.*/%%' -e 's% \t*$%%'`
 
 # We don't want -fno-exception wen compiling C++ code, so set the
 # no_builtin_flag separately
@@ -10591,7 +10597,9 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
 	  archive_cmds_CXX='$LD -b +h $soname -o $lib $linker_flags $libobjs $deplibs'
 	  ;;
 	*)
-	  archive_cmds_CXX='$CC -b ${wl}+h ${wl}$soname ${wl}+b ${wl}$install_libdir -o $lib $predep_objects $libobjs $deplibs $postdep_objects $compiler_flags'
+	# larsa 2003-08-07 - added "${wl}-a,shared"
+	# _LT_AC_TAGVAR(archive_cmds, CXX)='$CC -b ${wl}+h ${wl}$soname ${wl}+b ${wl}$install_libdir -o $lib $predep_objects $libobjs $deplibs $postdep_objects $compiler_flags'
+	  archive_cmds_CXX='$CC -b ${wl}+h ${wl}$soname ${wl}+b ${wl}$install_libdir -o $lib ${wl}-a,shared $predep_objects $libobjs $deplibs $postdep_objects $compiler_flags'
 	  ;;
 	esac
 	# Commands to make compiler produce verbose output that lists
@@ -11392,11 +11400,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11395: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11403: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:11399: \$? = $ac_status" >&5
+   echo "$as_me:11407: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -11459,11 +11467,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11462: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11470: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:11466: \$? = $ac_status" >&5
+   echo "$as_me:11474: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -12702,7 +12710,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12705 "configure"
+#line 12713 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12800,7 +12808,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12803 "configure"
+#line 12811 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13622,11 +13630,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13625: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13633: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13629: \$? = $ac_status" >&5
+   echo "$as_me:13637: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -13689,11 +13697,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13692: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13700: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13696: \$? = $ac_status" >&5
+   echo "$as_me:13704: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15629,11 +15637,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15632: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15640: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15636: \$? = $ac_status" >&5
+   echo "$as_me:15644: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -15861,11 +15869,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15864: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15872: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15868: \$? = $ac_status" >&5
+   echo "$as_me:15876: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -15928,11 +15936,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15931: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15939: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15935: \$? = $ac_status" >&5
+   echo "$as_me:15943: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17940,7 +17948,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 17943 "configure"
+#line 17951 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -18038,7 +18046,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18041 "configure"
+#line 18049 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -19853,12 +19861,17 @@ if test "${with_coin+set}" = set; then
     esac
 fi;
 
+case $build in
+*-mks ) sim_ac_pathsep=";" ;;
+* )     sim_ac_pathsep="${PATH_SEPARATOR}" ;;
+esac
+
 if $sim_ac_coin_desired; then
   sim_ac_path=$PATH
   test -z "$sim_ac_coin_extrapath" || ## search in --with-coin path
-    sim_ac_path="$sim_ac_coin_extrapath/bin${PATH_SEPARATOR}$sim_ac_path"
+    sim_ac_path="$sim_ac_coin_extrapath/bin${sim_ac_pathsep}$sim_ac_path"
   test x"$prefix" = xNONE ||          ## search in --prefix path
-    sim_ac_path="$sim_ac_path${PATH_SEPARATOR}$prefix/bin"
+    sim_ac_path="$sim_ac_path${sim_ac_pathsep}$prefix/bin"
 
   # Extract the first word of "coin-config", so it can be a program name with args.
 set dummy coin-config; ac_word=$2
@@ -19920,15 +19933,17 @@ fi
     sim_ac_coin_includedir=`$sim_ac_coin_configcmd --includedir 2>/dev/null`
     sim_ac_coin_msvcrt=`$sim_ac_coin_configcmd --msvcrt 2>/dev/null`
     sim_ac_coin_cflags=`$sim_ac_coin_configcmd --cflags 2>/dev/null`
-    echo "$as_me:$LINENO: checking whether libCoin is available" >&5
-echo $ECHO_N "checking whether libCoin is available... $ECHO_C" >&6
+    echo "$as_me:$LINENO: checking if we can compile and link with the Coin library" >&5
+echo $ECHO_N "checking if we can compile and link with the Coin library... $ECHO_C" >&6
 if test "${sim_cv_coin_avail+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   sim_ac_save_cppflags=$CPPFLAGS
+      sim_ac_save_cxxflags=$CXXFLAGS
       sim_ac_save_ldflags=$LDFLAGS
       sim_ac_save_libs=$LIBS
       CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
+      CXXFLAGS="$CXXFLAGS $sim_ac_coin_cxxflags"
       LDFLAGS="$LDFLAGS $sim_ac_coin_ldflags"
       LIBS="$sim_ac_coin_libs $LIBS"
       ac_ext=cc
@@ -19936,6 +19951,7 @@ ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
 
       cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
@@ -19973,6 +19989,7 @@ sed 's/^/| /' conftest.$ac_ext >&5
 sim_cv_coin_avail=false
 fi
 rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+
       ac_ext=cc
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -19980,6 +19997,7 @@ ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ex
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
       CPPFLAGS=$sim_ac_save_cppflags
+      CXXFLAGS=$sim_ac_save_cxxflags
       LDFLAGS=$sim_ac_save_ldflags
       LIBS=$sim_ac_save_libs
 
@@ -19987,12 +20005,44 @@ fi
 echo "$as_me:$LINENO: result: $sim_cv_coin_avail" >&5
 echo "${ECHO_T}$sim_cv_coin_avail" >&6
     sim_ac_coin_avail=$sim_cv_coin_avail
-  else
-    locations=`IFS="${PATH_SEPATATOR}"; for p in $sim_ac_path; do echo " -> $p/coin-config"; done`
+    if ! $sim_ac_coin_avail; then
+      { echo "$as_me:$LINENO: WARNING:
+Compilation and/or linking with the Coin main library SDK failed, for
+unknown reason. If you are familiar with configure-based configuration
+and building, investigate the 'config.log' file for clues.
+
+If you can not figure out what went wrong, please forward the 'config.log'
+file to the email address <coin-support@coin3d.org> and ask for help by
+describing the situation where this failed.
+" >&5
+echo "$as_me: WARNING:
+Compilation and/or linking with the Coin main library SDK failed, for
+unknown reason. If you are familiar with configure-based configuration
+and building, investigate the 'config.log' file for clues.
+
+If you can not figure out what went wrong, please forward the 'config.log'
+file to the email address <coin-support@coin3d.org> and ask for help by
+describing the situation where this failed.
+" >&2;}
+    fi
+  else # no 'coin-config' found
+    locations=`IFS="${sim_ac_pathsep}"; for p in $sim_ac_path; do echo " -> $p/coin-config"; done`
     { echo "$as_me:$LINENO: WARNING: cannot find 'coin-config' at any of these locations:
 $locations" >&5
 echo "$as_me: WARNING: cannot find 'coin-config' at any of these locations:
 $locations" >&2;}
+    { echo "$as_me:$LINENO: WARNING:
+Need to be able to run 'coin-config' to figure out how to build and link
+against the Coin library. To rectify this problem, you most likely need
+to a) install Coin if it has not been installed, b) add the Coin install
+bin/ directory to your PATH environment variable.
+" >&5
+echo "$as_me: WARNING:
+Need to be able to run 'coin-config' to figure out how to build and link
+against the Coin library. To rectify this problem, you most likely need
+to a) install Coin if it has not been installed, b) add the Coin install
+bin/ directory to your PATH environment variable.
+" >&2;}
   fi
 fi
 
@@ -20070,7 +20120,7 @@ if $BUILD_WITH_MSVC; then
     CPPFLAGS="-DSIMVOLEON_MAKE_DLL $CPPFLAGS"
     SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS -DSIMVOLEON_DLL"
   fi
-  debugfile="`pwd`/lib/VolumeViz/simvoleon${SIMVOLEON_MAJOR_VERSION}.pdb"
+  debugfile="`pwd`/lib/VolumeViz/simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.pdb"
   debugfile=`cygpath -w "$debugfile" | sed 's,\\\\,\\\\\\\\,g'`
   if $SIMVOLEON_STATIC; then
 
@@ -20081,7 +20131,7 @@ else
 fi
 
     LIBFLAGS="-LIB $LIBFLAGS"
-    LIBFLAGS="$LIBFLAGS /OUT:simvoleon$SIMVOLEON_MAJOR_VERSION.lib"
+    LIBFLAGS="$LIBFLAGS /OUT:simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.lib"
   else
     LIBFLAGS="-DLL /INCREMENTAL:NO $LIBFLAGS"
     case $enable_symbols in
@@ -20105,11 +20155,11 @@ fi
 
       CFLAGS="/Fd$debugfile -g $CFLAGS"
       CXXFLAGS="/Fd$debugfile -g $CXXFLAGS"
-      LIBFLAGS="$LIBFLAGS /DEBUG /PDB:simvoleon$SIMVOLEON_MAJOR_VERSION.pdb"
+      LIBFLAGS="$LIBFLAGS /DEBUG /PDB:simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.pdb"
       ;;
     esac
 
-    LIBFLAGS="$LIBFLAGS /OUT:simvoleon$SIMVOLEON_MAJOR_VERSION.dll"
+    LIBFLAGS="$LIBFLAGS /OUT:simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.dll"
   fi
 
 if test x"${sim_ac_configuration_settings+set}" = x"set"; then
@@ -20119,9 +20169,9 @@ else
 fi
 
 
-  SIMVOLEON_EXTRA_LIBS="-lsimvoleon$SIMVOLEON_MAJOR_VERSION $SIMVOLEON_EXTRA_LIBS"
+  SIMVOLEON_EXTRA_LIBS="-lsimvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX} $SIMVOLEON_EXTRA_LIBS"
 else
-  SIMVOLEON_EXTRA_LIBS="-lSimVoleon $SIMVOLEON_EXTRA_LIBS"
+  SIMVOLEON_EXTRA_LIBS="-lSimVoleon${SUFFIX} $SIMVOLEON_EXTRA_LIBS"
 fi
 
 # *******************************************************************
@@ -20330,7 +20380,7 @@ exec_prefix=$sim_ac_save_exec_prefix
 
 # *******************************************************************
 
-                                                                                                                                                      ac_config_files="$ac_config_files Makefile bin/Makefile bin/simvoleon-config lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile testcode/Makefile"
+                                                                                                                                            ac_config_files="$ac_config_files Makefile bin/Makefile bin/simvoleon-config lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -20914,7 +20964,6 @@ do
   "lib/VolumeViz/readers/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/readers/Makefile" ;;
   "lib/VolumeViz/render/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/Makefile" ;;
   "lib/VolumeViz/render/2D/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/2D/Makefile" ;;
-  "testcode/Makefile" ) CONFIG_FILES="$CONFIG_FILES testcode/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "lib/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS lib/config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
