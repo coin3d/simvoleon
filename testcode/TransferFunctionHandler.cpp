@@ -60,6 +60,26 @@ TransferFunctionHandler::initGUI(void)
   QObject::connect(this->ctrl->predefCombo, SIGNAL(activated(int)),
                    this, SLOT(predefColorMapUpdate(int)));
 
+
+  // "shift" & "offset" lineedits
+
+  v = new QIntValidator(-32767, 32767, new QObject);
+
+  this->ctrl->shiftEdit->setValidator(v);
+  this->ctrl->offsetEdit->setValidator(v);
+
+  s;
+  s.sprintf("%d", this->node->shift.getValue());
+  this->ctrl->shiftEdit->setText(s);
+  s.sprintf("%d", this->node->offset.getValue());
+  this->ctrl->offsetEdit->setText(s);
+
+  QObject::connect(this->ctrl->shiftEdit, SIGNAL(returnPressed()),
+                   this, SLOT(shiftEditUpdate()));
+
+  QObject::connect(this->ctrl->offsetEdit, SIGNAL(returnPressed()),
+                   this, SLOT(offsetEditUpdate()));
+
 }
 
 void
@@ -84,4 +104,16 @@ void
 TransferFunctionHandler::predefColorMapUpdate(int idx)
 {
   this->node->predefColorMap = idx;
+}
+
+void
+TransferFunctionHandler::shiftEditUpdate(void)
+{
+  this->node->shift = this->ctrl->shiftEdit->text().toInt();
+}
+
+void
+TransferFunctionHandler::offsetEditUpdate(void)
+{
+  this->node->offset = this->ctrl->offsetEdit->text().toInt();
 }

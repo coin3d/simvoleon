@@ -19,6 +19,8 @@ private slots:
   void lowEditUpdate(void);
   void highEditUpdate(void);
   void predefColorMapUpdate(int idx);
+  void shiftEditUpdate(void);
+  void offsetEditUpdate(void);
 
 private:
   void initGUI(void);
