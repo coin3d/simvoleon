@@ -129,9 +129,10 @@ void SoVolumeDataPage::setData(Storage storage,
       (void)memcpy(this->palette, palette, sizeof(float)*paletteSize);
 
       switch (paletteFormat) {
-        case GL_RGBA:
-          numBytesSW += paletteSize*4;
-          break;
+      case GL_RGBA:
+        numBytesSW += paletteSize*4;
+        break;
+      default: assert(FALSE && "what should happen here?"); // FIXME: <-. 20021112 mortene.
       }
     }
   }
@@ -163,10 +164,13 @@ void SoVolumeDataPage::setData(Storage storage,
 
       numBytesHW += size[0]*size[1]*4;
     }
-
     // Uploading paletted texture
-    else if (cc_glglue_has_paletted_textures(glue)) {
-      // FIXME: what if the OpenGL extension is not available, pederb, 2002-10-29
+    else {
+      // FIXME: this limitation is of course not good, and should be
+      // lifted. It would BTW probably be better to check for this
+      // extension somewhere else before trying to make paletted
+      // textures. 20021112 mortene.
+      assert(cc_glglue_has_paletted_textures(glue) && "can't handle palette-textures");
 
       // Check size of indices
       int format = GL_UNSIGNED_BYTE;
@@ -208,7 +212,10 @@ void SoVolumeDataPage::setData(Storage storage,
                     numBytesHW += size[0]*size[1]*2;
                     break;
       default:
-        // FIXME: investigate if this can ever hit. 20021106 mortene.
+        // FIXME: this can indeed hit, try for instance SYN_64.vol. If
+        // some palette sizes are indeed unsupported by OpenGL, we
+        // should probably resize our palette to the nearest
+        // upward. 20021106 mortene.
         assert(FALSE && "unknown palette size");
         break;
       }
@@ -247,9 +254,6 @@ void SoVolumeDataPage::setData(Storage storage,
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
   }
-  else
-    this->textureName = 0;
-
 }
 
 void
