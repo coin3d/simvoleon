@@ -153,8 +153,6 @@ public:
   void rayPickDebug(SoGLRenderAction * action);
   SbList <SbVec3f> raypicklines;
 
-  SbBool force2dtextures;
-
 private:
   SoVolumeRender * master;
 };
@@ -361,11 +359,6 @@ SoVolumeRender::SoVolumeRender(void)
   SO_NODE_ADD_FIELD(numSlices, (0));
   SO_NODE_ADD_FIELD(viewAlignedSlices, (FALSE));
 
-  // Shall we force 2D texture slicing?
-  const char * envstr = coin_getenv("CVR_FORCE_2D_TEXTURES");
-  if (envstr) { PRIVATE(this)->force2dtextures = atoi(envstr) > 0 ? TRUE : FALSE; }
-  else PRIVATE(this)->force2dtextures = 0;
-
 }
 
 SoVolumeRender::~SoVolumeRender()
@@ -497,7 +490,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   storagehint = volumedata->storageHint.getValue();
   if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
     const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
-    if (cc_glglue_has_3d_textures(glue) && !PRIVATE(this)->force2dtextures) {
+    if (cc_glglue_has_3d_textures(glue) && !CvrUtil::force2DTextureRendering()) {
       if (PRIVATE(this)->use3DTexturing(glue)) {
         rendermethod = SoVolumeRender::TEXTURE3D;
       }
