@@ -9,6 +9,10 @@ public:
   CvrCLUT(const unsigned int nrcols, const uint8_t * colormap);
   CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
           const float * colormap);
+  CvrCLUT(const CvrCLUT & clut);
+
+  friend int operator==(const CvrCLUT & c1, const CvrCLUT & c2);
+  friend int operator!=(const CvrCLUT & c1, const CvrCLUT & c2);
 
   void ref(void) const;
   void unref(void) const;
@@ -20,7 +24,7 @@ public:
   void lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const;
 
   // Note: must match the enum in SoOrthoSlice.
-  enum AlphaUse { ALPHA_AS_IS, ALPHA_OPAQUE, ALPHA_BINARY };
+  enum AlphaUse { ALPHA_AS_IS = 0, ALPHA_OPAQUE = 1, ALPHA_BINARY = 2 };
 
   void setAlphaUse(AlphaUse policy);
 
@@ -37,6 +41,7 @@ private:
     uint8_t * int_entries;
     float * flt_entries;
   };
+  uint32_t crc32cmap;
 
   uint32_t transparencythresholds[2];
   AlphaUse alphapolicy;
@@ -46,5 +51,8 @@ private:
   int refcount;
   friend class nop; // to avoid g++ compiler warning on the private constructor
 };
+
+int operator==(const CvrCLUT & c1, const CvrCLUT & c2);
+int operator!=(const CvrCLUT & c1, const CvrCLUT & c2);
 
 #endif // !COIN_CVRCLUT_H
