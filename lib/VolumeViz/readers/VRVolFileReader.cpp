@@ -29,7 +29,14 @@
   the book «Introduction To Volume Rendering», by Lichtenbelt, Crane
   and Naqvi (Hewlett-Packard / Prentice Hall), ISBN 0-13-861683-3.
 
+  The format is just a simple header, before the voxels are laid out
+  in raw form.
+
   FIXME: describe format in detail. 20021108 mortene.
+
+  For information about how the data will be mapped to the world
+  coordinate system, see the documentation of
+  SoVolumeData::setVolumeData().
 */
 
 // *************************************************************************

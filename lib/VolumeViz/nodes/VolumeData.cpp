@@ -277,6 +277,13 @@ SoVolumeData::getVolumeSize(void) const
   The data block passed in to this function will not be freed when the
   node is destructed, or new data set -- that is considered the
   responsibility of the caller.
+
+  The input data will be mapped to the world coordinate system as
+  follows: increasing memory addresses will first be mapped to \e
+  increasing voxel positions along the \e X axis, row by row. The rows
+  will be mapped to \e decreasing positions along the \e Y axis,
+  making up slices. Slices will be mapped to \e increasing Z axis
+  positions.
 */
 void
 SoVolumeData::setVolumeData(const SbVec3s & dimensions,
