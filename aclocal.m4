@@ -71,43 +71,31 @@ AC_ARG_WITH([msvcrt],
     sim_ac_msvcrt=singlethread-static
     sim_ac_msvcrt_CFLAGS="/ML"
     sim_ac_msvcrt_CXXFLAGS="/ML"
-    sim_ac_msvcrt_LIBLDFLAGS=""
-    sim_ac_msvcrt_LIBLIBS=""
     ;;
   default-debug | singlethread-static-debug | mld | /mld | libcd | libcd\.lib )
     sim_ac_msvcrt=singlethread-static-debug
     sim_ac_msvcrt_CFLAGS="/MLd"
     sim_ac_msvcrt_CXXFLAGS="/MLd"
-    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
-    sim_ac_msvcrt_LIBLIBS="-llibcd"
     ;;
   multithread-static | mt | /mt | libcmt | libcmt\.lib )
     sim_ac_msvcrt=multithread-static
     sim_ac_msvcrt_CFLAGS="/MT"
     sim_ac_msvcrt_CXXFLAGS="/MT"
-    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
-    sim_ac_msvcrt_LIBLIBS="-llibcmt"
     ;;
   multithread-static-debug | mtd | /mtd | libcmtd | libcmtd\.lib )
     sim_ac_msvcrt=multithread-static-debug
     sim_ac_msvcrt_CFLAGS="/MTd"
     sim_ac_msvcrt_CXXFLAGS="/MTd"
-    sim_ac_msvcrt_LIBLDFLAGS="/NODEFAULTLIB:libc"
-    sim_ac_msvcrt_LIBLIBS="-llibcmtd"
     ;;
   multithread-dynamic | md | /md | msvcrt | msvcrt\.lib )
     sim_ac_msvcrt=multithread-dynamic
-    sim_ac_msvcrt_CFLAGS=""
-    sim_ac_msvcrt_CXXFLAGS=""
-    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
-    sim_ac_msvcrt_LIBLIBS="-lmsvcrt"
+    sim_ac_msvcrt_CFLAGS="/MD"
+    sim_ac_msvcrt_CXXFLAGS="/MD"
     ;;
   multithread-dynamic-debug | mdd | /mdd | msvcrtd | msvcrtd\.lib )
     sim_ac_msvcrt=multithread-dynamic-debug
     sim_ac_msvcrt_CFLAGS="/MDd"
     sim_ac_msvcrt_CXXFLAGS="/MDd"
-    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
-    sim_ac_msvcrt_LIBLIBS="-lmsvcrtd"
     ;;
   *)
     SIM_AC_ERROR([invalid-msvcrt])
@@ -147,7 +135,7 @@ sim_ac_message_file=$1
 ]) # SIM_AC_ERROR_MESSAGE_FILE
 
 AC_DEFUN([SIM_AC_ONE_MESSAGE], [
-: ${sim_ac_message_file=$ac_aux_dir/m4/errors.txt}
+: ${sim_ac_message_file=$ac_aux_dir/errors.txt}
 if test -f $sim_ac_message_file; then
   sim_ac_message="`sed -n -e '/^!$1$/,/^!/ { /^!/ d; p; }' <$sim_ac_message_file`"
   if test x"$sim_ac_message" = x""; then
@@ -4226,6 +4214,236 @@ AC_DEFUN([_AM_DIRNAME],
 ]) # _AM_DIRNAME
 
 # Usage:
+#   SIM_AC_COMPILE_DEBUG([ACTION-IF-DEBUG[, ACTION-IF-NOT-DEBUG]])
+#
+# Description:
+#   Let the user decide if compilation should be done in "debug mode".
+#   If compilation is not done in debug mode, all assert()'s in the code
+#   will be disabled.
+#
+#   Also sets enable_debug variable to either "yes" or "no", so the
+#   configure.in writer can add package-specific actions. Default is "yes".
+#   This was also extended to enable the developer to set up the two first
+#   macro arguments following the well-known ACTION-IF / ACTION-IF-NOT
+#   concept.
+#
+# Authors:
+#   Morten Eriksen, <mortene@sim.no>
+#   Lars J. Aas, <larsa@sim.no>
+#
+
+AC_DEFUN([SIM_AC_COMPILE_DEBUG], [
+AC_ARG_ENABLE(
+  [debug],
+  AC_HELP_STRING([--enable-debug], [compile in debug mode [[default=yes]]]),
+  [case "${enableval}" in
+    yes) enable_debug=true ;;
+    no)  enable_debug=false ;;
+    true | false) enable_debug=${enableval} ;;
+    *) AC_MSG_ERROR(bad value "${enableval}" for --enable-debug) ;;
+  esac],
+  [enable_debug=true])
+
+if $enable_debug; then
+  DSUFFIX=d
+  ifelse([$1], , :, [$1])
+else
+  DSUFFIX=
+  CPPFLAGS="$CPPFLAGS -DNDEBUG"
+  ifelse([$2], , :, [$2])
+fi
+AC_SUBST(DSUFFIX)
+])
+
+# Usage:
+#   SIM_AC_COMPILER_OPTIMIZATION
+#
+# Description:
+#   Let the user decide if optimization should be attempted turned off
+#   by stripping off an "-O[0-9]" option.
+# 
+#   Note: this macro must be placed after either AC_PROG_CC or AC_PROG_CXX
+#   in the configure.in script.
+#
+# FIXME: this is pretty much just a dirty hack. Unfortunately, this
+# seems to be the best we can do without fixing Autoconf to behave
+# properly wrt setting optimization options. 20011021 mortene.
+# 
+# Author: Morten Eriksen, <mortene@sim.no>.
+# 
+
+AC_DEFUN([SIM_AC_COMPILER_OPTIMIZATION], [
+AC_ARG_ENABLE(
+  [optimization],
+  AC_HELP_STRING([--enable-optimization],
+                 [allow compilers to make optimized code [[default=yes]]]),
+  [case "${enableval}" in
+    yes) sim_ac_enable_optimization=true ;;
+    no)  sim_ac_enable_optimization=false ;;
+    *) AC_MSG_ERROR(bad value "${enableval}" for --enable-optimization) ;;
+  esac],
+  [sim_ac_enable_optimization=true])
+
+if $sim_ac_enable_optimization; then
+  :
+else
+  CFLAGS="`echo $CFLAGS | sed 's/-O[[0-9]]*[[ ]]*//'`"
+  CXXFLAGS="`echo $CXXFLAGS | sed 's/-O[[0-9]]*[[ ]]*//'`"
+fi
+])
+
+# Usage:
+#   SIM_AC_COMPILER_CPLUSPLUS_FATAL_ERRORS
+#
+# Description:
+#   Check for the known causes that would make the current C++ compiler
+#   unusable for building Coin or Coin-related projects.
+#
+#   Exits the configure script if any of them fail.
+#
+
+AC_DEFUN([SIM_AC_COMPILER_CPLUSPLUS_FATAL_ERRORS], [
+  SIM_AC_COMPILER_INLINE_FOR
+  SIM_AC_COMPILER_SWITCH_IN_VIRTUAL_DESTRUCTOR
+  SIM_AC_COMPILER_CRAZY_GCC296_BUG
+])
+
+
+
+# Usage:
+#   SIM_AC_COMPILER_INLINE_FOR( [ACTION-IF-OK [, ACTION-IF-FAILS ] ] )
+#
+# Description:
+#   Check if the compiler supports for(;;){} loops inside inlined
+#   constructors.
+#
+#   This smokes out the useless HPUX 10.20 CC compiler.
+#
+
+AC_DEFUN([SIM_AC_COMPILER_INLINE_FOR], [
+
+AC_CACHE_CHECK(
+  [if the compiler handles for() loops in inlined constructors],
+  sim_cv_c_inlinefor,
+  [AC_TRY_COMPILE([
+class TestClass {
+public:
+  TestClass(int);
+};
+
+inline TestClass::TestClass(int) { for (int i=0; i<1; i++) i=0; }
+],
+                 [TestClass t(0);],
+                 [sim_cv_c_inlinefor=yes],
+                 [sim_cv_c_inlinefor=no])
+])
+
+if test x"$sim_cv_c_inlinefor" = x"yes"; then
+  ifelse([$1], , :, [$1])
+else
+  SIM_AC_ERROR([c--inlinefor])
+  $2
+fi
+])
+
+
+# Usage:
+#   SIM_AC_COMPILER_SWITCH_IN_VIRTUAL_DESTRUCTOR( [ACTION-IF-OK [, ACTION-IF-FAILS ] ] )
+#
+# Description:
+#   Check if the compiler crashes on switch() statements inside virtual
+#   destructors.
+#
+#   This smokes out a particular patch-level version of the CC compiler
+#   for Sun WorkShop 6 (update 1 C++ 5.2 Patch 109508-01 2001/01/31).
+#
+
+AC_DEFUN([SIM_AC_COMPILER_SWITCH_IN_VIRTUAL_DESTRUCTOR], [
+
+AC_CACHE_CHECK(
+  [if the compiler handles switch statements in virtual destructors],
+  sim_cv_c_virtualdestrswitch,
+  [AC_TRY_COMPILE([
+class hepp { virtual ~hepp(); };
+hepp::~hepp() { switch(0) { } }
+],
+[],
+                  [sim_cv_c_virtualdestrswitch=yes],
+                  [sim_cv_c_virtualdestrswitch=no])])
+
+if test x"$sim_cv_c_virtualdestrswitch" = x"yes"; then
+  ifelse([$1], , :, [$1])
+else
+  SIM_AC_ERROR([c--vdest])
+  $2
+fi
+])
+
+
+# Usage:
+#     SIM_AC_COMPILER_CRAZY_GCC296_BUG([ACTION-IF-OK [, ACTION-IF-FAILS ]])
+#
+# Description:
+#   Tries to smoke out some completely fubar bug in g++ of GCC 2.96
+#   (at least) when -O2 (or higher, probably) optimization on. The reason
+#   we check specifically for this bug is because this compiler version
+#   is pretty well spread because it was part of a Red Hat Linux release.
+#
+
+AC_DEFUN([SIM_AC_COMPILER_CRAZY_GCC296_BUG], [
+
+AC_CACHE_CHECK(
+  [if this is a version of GCC with a known nasty optimization bug],
+  sim_cv_c_gcctwonightysixbug,
+  [AC_TRY_RUN([
+#include <stdio.h>
+
+class myclass {
+public:
+  float value;
+  float & ref();
+};
+
+myclass
+hepp(const float v0, const float v1)
+{
+  myclass proj;
+
+  proj.ref() = 0.0f;
+  proj.ref() = -(v1+v0);
+
+  return proj;
+}
+
+float &
+myclass::ref()
+{
+  return this->value;
+}
+
+int
+main(void)
+{
+  myclass proj = hepp(2.0f, 4.0f);
+  return (proj.ref() < 0.0f) ? 0 : 1;
+}
+],
+  [sim_cv_c_gcctwonightysixbug=false],
+  [sim_cv_c_gcctwonightysixbug=true],
+  [sim_cv_c_gcctwonightysixbug=false
+   AC_MSG_WARN([can't check for GCC bug when cross-compiling, assuming it's ok])])
+])
+
+
+if $sim_cv_c_gcctwonightysixbug; then
+  SIM_AC_ERROR(c--gcc296bug)
+  $2
+else
+  ifelse([$1], , :, [$1])
+fi
+])
+
+# Usage:
 #  SIM_AC_CHECK_PTHREAD([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
 #
 #  Try to find the PTHREAD development system. If it is found, these
@@ -4276,6 +4494,20 @@ if test x"$with_pthread" != xno; then
                  [(void)pthread_create(0L, 0L, 0L, 0L);],
                  [sim_cv_lib_pthread_avail=true],
                  [sim_cv_lib_pthread_avail=false])])
+
+  if $sim_cv_lib_pthread_avail; then
+    AC_CACHE_CHECK(
+      [the struct timespec resolution],
+      sim_cv_lib_pthread_timespec_resolution,
+      [AC_TRY_COMPILE([#include <pthread.h>],
+                      [struct timespec timeout;
+                       timeout.tv_nsec = 0;],
+                      [sim_cv_lib_pthread_timespec_resolution=nsecs],
+                      [sim_cv_lib_pthread_timespec_resolution=usecs])])
+    if test x"$sim_cv_lib_pthread_timespec_resolution" = x"nsecs"; then
+      AC_DEFINE([HAVE_PTHREAD_TIMESPEC_NSEC], 1, [define if pthread's struct timespec uses nsecs and not usecs])
+    fi
+  fi
 
   if $sim_cv_lib_pthread_avail; then
     sim_ac_pthread_avail=yes
@@ -4400,85 +4632,6 @@ AC_DEFUN([AM_MAINTAINER_MODE],
 )
 
 # Usage:
-#   SIM_AC_COMPILE_DEBUG([ACTION-IF-DEBUG[, ACTION-IF-NOT-DEBUG]])
-#
-# Description:
-#   Let the user decide if compilation should be done in "debug mode".
-#   If compilation is not done in debug mode, all assert()'s in the code
-#   will be disabled.
-#
-#   Also sets enable_debug variable to either "yes" or "no", so the
-#   configure.in writer can add package-specific actions. Default is "yes".
-#   This was also extended to enable the developer to set up the two first
-#   macro arguments following the well-known ACTION-IF / ACTION-IF-NOT
-#   concept.
-#
-# Authors:
-#   Morten Eriksen, <mortene@sim.no>
-#   Lars J. Aas, <larsa@sim.no>
-#
-
-AC_DEFUN([SIM_AC_COMPILE_DEBUG], [
-AC_ARG_ENABLE(
-  [debug],
-  AC_HELP_STRING([--enable-debug], [compile in debug mode [[default=yes]]]),
-  [case "${enableval}" in
-    yes) enable_debug=true ;;
-    no)  enable_debug=false ;;
-    true | false) enable_debug=${enableval} ;;
-    *) AC_MSG_ERROR(bad value "${enableval}" for --enable-debug) ;;
-  esac],
-  [enable_debug=true])
-
-if $enable_debug; then
-  DSUFFIX=d
-  ifelse([$1], , :, [$1])
-else
-  DSUFFIX=
-  CPPFLAGS="$CPPFLAGS -DNDEBUG"
-  ifelse([$2], , :, [$2])
-fi
-AC_SUBST(DSUFFIX)
-])
-
-# Usage:
-#   SIM_AC_COMPILER_OPTIMIZATION
-#
-# Description:
-#   Let the user decide if optimization should be attempted turned off
-#   by stripping off an "-O[0-9]" option.
-# 
-#   Note: this macro must be placed after either AC_PROG_CC or AC_PROG_CXX
-#   in the configure.in script.
-#
-# FIXME: this is pretty much just a dirty hack. Unfortunately, this
-# seems to be the best we can do without fixing Autoconf to behave
-# properly wrt setting optimization options. 20011021 mortene.
-# 
-# Author: Morten Eriksen, <mortene@sim.no>.
-# 
-
-AC_DEFUN([SIM_AC_COMPILER_OPTIMIZATION], [
-AC_ARG_ENABLE(
-  [optimization],
-  AC_HELP_STRING([--enable-optimization],
-                 [allow compilers to make optimized code [[default=yes]]]),
-  [case "${enableval}" in
-    yes) sim_ac_enable_optimization=true ;;
-    no)  sim_ac_enable_optimization=false ;;
-    *) AC_MSG_ERROR(bad value "${enableval}" for --enable-optimization) ;;
-  esac],
-  [sim_ac_enable_optimization=true])
-
-if $sim_ac_enable_optimization; then
-  :
-else
-  CFLAGS="`echo $CFLAGS | sed 's/-O[[0-9]]*[[ ]]*//'`"
-  CXXFLAGS="`echo $CXXFLAGS | sed 's/-O[[0-9]]*[[ ]]*//'`"
-fi
-])
-
-# Usage:
 #   SIM_AC_DEBUGSYMBOLS
 #
 # Description:
@@ -4507,11 +4660,12 @@ AC_ARG_ENABLE(
 # FIXME: don't mangle options like -fno-gnu-linker and -fvolatile-global
 # 20020104 larsa
 if test x"$enable_symbols" = x"no"; then
-  # CPPFLAGS="`echo $CPPFLAGS | sed 's/-g[0-9]//'`"
-  CFLAGS="`echo $CFLAGS | sed 's/-g[0-9]?//'`"
-  CXXFLAGS="`echo $CXXFLAGS | sed 's/-g[0-9]?//'`"
+  # CPPFLAGS="`echo $CPPFLAGS | sed 's/-g\>//'`"
+  CFLAGS="`echo $CFLAGS | sed 's/-g\>//'`"
+  CXXFLAGS="`echo $CXXFLAGS | sed 's/-g\>//'`"
 fi
-])
+]) # SIM_AC_DEBUGSYMBOLS
+
 
 # Usage:
 #   SIM_AC_RTTI_SUPPORT
@@ -4967,7 +5121,9 @@ EOF
   AC_MSG_CHECKING([for Open Inventor library])
 
   for sim_ac_iv_cppflags_loop in "" "-DWIN32"; do
-    for sim_ac_iv_libcheck in $sim_ac_inventor_chk_libs; do
+    # Trying with no libraries first, as TGS Inventor uses pragmas in
+    # a header file to notify MSVC of what to link with.
+    for sim_ac_iv_libcheck in "" $sim_ac_inventor_chk_libs; do
       if test "x$sim_ac_inventor_libs" = "xUNRESOLVED"; then
         CPPFLAGS="$sim_ac_iv_cppflags_loop $sim_ac_inventor_cppflags $sim_ac_save_CPPFLAGS"
         LDFLAGS="$sim_ac_inventor_ldflags $sim_ac_save_LDFLAGS"
@@ -5043,6 +5199,38 @@ m4_do([popdef([cache_variable])],
 ]) # SIM_AC_HAVE_INVENTOR_NODE
 
 # **************************************************************************
+# SIM_AC_HAVE_INVENTOR_VRMLNODE( VRLMNODE, [ACTION-IF-FOUND] [, ACTION-IF-NOT-FOUND])
+#
+# Check whether or not the given VRMLNODE is available in the Open Inventor
+# development system.  If so, the HAVE_<VRMLNODE> define is set.
+#
+# Authors:
+#   Lars J. Aas  <larsa@sim.no>
+#   Morten Eriksen  <mortene@sim.no>
+
+AC_DEFUN([SIM_AC_HAVE_INVENTOR_VRMLNODE], 
+[m4_do([pushdef([cache_variable], sim_cv_have_oiv_[]AC_TOLOWER([$1])_vrmlnode)],
+       [pushdef([DEFINE_VARIABLE], HAVE_[]AC_TOUPPER([$1]))])
+AC_CACHE_CHECK(
+  [if the Open Inventor $1 VRML node is available],
+  cache_variable,
+  [AC_TRY_LINK(
+    [#include <Inventor/VRMLnodes/$1.h>],
+    [$1 * p = new $1;],
+    cache_variable=true,
+    cache_variable=false)])
+
+if $cache_variable; then
+  AC_DEFINE(DEFINE_VARIABLE, 1, [Define to enable use of the Open Inventor $1 VRML node])
+  $2
+else
+  ifelse([$3], , :, [$3])
+fi
+m4_do([popdef([cache_variable])],
+      [popdef([DEFINE_VARIABLE])])
+]) # SIM_AC_HAVE_INVENTOR_VRMLNODE
+
+# **************************************************************************
 # SIM_AC_HAVE_INVENTOR_FEATURE(MESSAGE, HEADERS, BODY, DEFINE
 #                              [, ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 #
@@ -5070,6 +5258,82 @@ fi
 m4_do([popdef([cache_variable])],
       [popdef([DEFINE_VARIABLE])])
 ]) # SIM_AC_HAVE_INVENTOR_FEATURE
+
+# **************************************************************************
+# SIM_AC_INVENTOR_EXTENSIONS( ACTION )
+#
+# This macro adds an "--with-iv-extensions=..." option to configure, that
+# enabes the configurer to enable extensions in third-party libraries to
+# be initialized by the library by default.  The configure-option argument
+# must be a comma-separated list of link library path options, link library
+# options and class-names.
+#
+# Sample usage is
+#   ./configure --with-iv-extension=-L/tmp/mynodes,-lmynodes,MyNode1,MyNode2
+#
+# TODO:
+#   * check if __declspec(dllimport) is needed on Cygwin
+
+AC_DEFUN([SIM_AC_INVENTOR_EXTENSIONS],
+[
+AC_ARG_WITH(
+  [iv-extensions],
+  [AC_HELP_STRING([--with-iv-extensions=extensions], [enable extra open inventor extensions])],
+  [sim_ac_iv_try_extensions=$withval])
+
+sim_ac_iv_extension_save_LIBS=$LIBS
+
+sim_ac_iv_extension_LIBS=
+sim_ac_iv_extension_LDFLAGS=
+sim_ac_iv_extension_decarations=
+sim_ac_iv_extension_initializations=
+
+sim_ac_iv_extensions=
+while test x"${sim_ac_iv_try_extensions}" != x""; do
+  sim_ac_iv_extension=`echo ,$sim_ac_iv_try_extensions | cut -d, -f2`
+  sim_ac_iv_try_extensions=`echo ,$sim_ac_iv_try_extensions | cut -d, -f3-`
+  case $sim_ac_iv_extension in
+  sim_ac_dummy ) # ignore
+    ;;
+  -L* ) # extension library path hint
+    sim_ac_iv_extension_LDFLAGS="$sim_ac_iv_extension_LDFLAGS $sim_ac_iv_extension"
+    ;;
+  -l* ) # extension library hint
+    LIBS="$sim_ac_iv_extension_save_LIBS $sim_ac_iv_extension_LIBS $sim_ac_iv_extension"
+    AC_MSG_CHECKING([for Open Inventor extension library $sim_ac_iv_extension])
+    AC_TRY_LINK([#include <Inventor/SoDB.h>], [SoDB::init();],
+      [sim_ac_iv_extension_LIBS="$sim_ac_iv_extension_LIBS $sim_ac_iv_extension"
+       AC_MSG_RESULT([linkable])],
+      [AC_MSG_RESULT([unlinkable - discarded])])
+    ;;
+  * )
+    AC_MSG_CHECKING([for Open Inventor extension $sim_ac_iv_extension])
+    AC_TRY_LINK(
+[#include <Inventor/SoDB.h>
+// hack up a declaration and see if the mangled name is found by the linker
+class $sim_ac_iv_extension {
+public:
+static void initClass(void);
+};], [
+  SoDB::init();
+  $sim_ac_iv_extension::initClass();
+], [
+  AC_MSG_RESULT([found])
+  sim_ac_iv_extensions="$sim_ac_iv_extensions COIN_IV_EXTENSION($sim_ac_iv_extension)"
+], [
+  AC_MSG_RESULT([not found])
+])
+    ;;
+  esac
+done
+
+AC_DEFINE_UNQUOTED([COIN_IV_EXTENSIONS], [$sim_ac_iv_extensions], [Open Inventor extensions])
+
+LIBS=$sim_ac_iv_extension_save_LIBS
+
+ifelse([$1], , :, [$1])
+
+]) # SIM_AC_INVENTOR_EXTENSIONS
 
 
 # Convenience macros SIM_AC_DEBACKSLASH and SIM_AC_DOBACKSLASH for
