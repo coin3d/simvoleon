@@ -17,6 +17,7 @@
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/render/2D/CvrPageHandler.h>
+#include <VolumeViz/render/Pointset/PointRendering.h>
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrCLUT.h>
@@ -363,11 +364,14 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   SoTransferFunction * transferfunction =
     transferfunctionelement->getTransferFunction();
   if (transferfunction == NULL) {
+    // FIXME: should instead just use a default
+    // transferfunction. Perhaps SoVolumeData (?) could place one the
+    // state stack? 20040220 mortene.
     static SbBool first = TRUE;
     if (first) {
       SoDebugError::post("SoVolumeRender::GLRender",
                          "no SoTransferFunction in scene graph before "
-                         "SoVolumeRender node");
+                         "SoVolumeRender node -- rendering aborted");
       first = FALSE;
     }
     return;
@@ -381,8 +385,8 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
                          voxcubedims[0], voxcubedims[1], voxcubedims[2]);
 #endif // debug
 
-  // FIXME: check that rendering should be done through 2D texture
-  // slices. 20021124 mortene.
+  // FIXME: rendering method should be controllable through the
+  // API. 20021124 mortene.
   if (1) {
     if (!PRIVATE(this)->pagehandler) {
       PRIVATE(this)->pagehandler =
@@ -412,6 +416,9 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     PRIVATE(this)->pagehandler->render(action, numslices, interp, composit,
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
+  }
+  else {
+    PointRendering::render(action);
   }
 }
 

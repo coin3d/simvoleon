@@ -20,7 +20,8 @@ libSimVoleon@SUFFIX@_la_LIBADD = \
 	misc/libmisc.la \
 	nodes/libnodes.la \
 	readers/libreaders.la \
-	render/2D/lib2Drender.la
+	render/2D/lib2Drender.la \
+	render/Pointset/libpointsetrender.la
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
 	details/details.lst \
@@ -28,7 +29,8 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
 	misc/misc.lst \
 	nodes/nodes.lst \
 	readers/readers.lst \
-	render/2D/2Drender.lst
+	render/2D/2Drender.lst \
+	render/Pointset/pointsetrender.lst
 
 libSimVoleon@SUFFIX@_la_LDFLAGS = \
 	-no-undefined \

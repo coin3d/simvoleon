@@ -267,6 +267,7 @@ AC_OUTPUT([
 	lib/VolumeViz/readers/Makefile
 	lib/VolumeViz/render/Makefile
 	lib/VolumeViz/render/2D/Makefile
+	lib/VolumeViz/render/Pointset/Makefile
 ])
 
 # *******************************************************************

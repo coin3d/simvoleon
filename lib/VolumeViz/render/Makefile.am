@@ -1,1 +1,1 @@
-SUBDIRS = 2D
+SUBDIRS = 2D Pointset
