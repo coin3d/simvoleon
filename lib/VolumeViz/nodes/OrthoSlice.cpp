@@ -261,6 +261,17 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   SoState * state = action->getState();
   if (!PRIVATE(this)->confirmValidInContext(state)) { return; }
 
+  // Render at the end, in case the volume is partly (or fully)
+  // transparent.
+  //
+  // FIXME: this makes rendering a bit slower, so we should perhaps
+  // keep a flag around to know whether or not this is actually
+  // necessary. 20040212 mortene.
+  if (!action->isRenderingDelayedPaths()) {
+    action->addDelayedPath(action->getCurPath()->copy());
+    return;
+  }
+
   state->push();
 
   // FIXME: just delaying rendering to a later render pass like below

@@ -321,6 +321,17 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 
   if (!this->shouldGLRender(action)) return;
 
+  // Render at the end, in case the volume is partly (or fully)
+  // transparent.
+  //
+  // FIXME: this makes rendering a bit slower, so we should perhaps
+  // keep a flag around to know whether or not this is actually
+  // necessary. 20040212 mortene.
+  if (!action->isRenderingDelayedPaths()) {
+    action->addDelayedPath(action->getCurPath()->copy());
+    return;
+  }
+
   if (CvrUtil::debugRayPicks()) { PRIVATE(this)->rayPickDebug(action); }
 
   SoState * state = action->getState();

@@ -39,37 +39,6 @@
 
 ========================================================================
 
-003 We do not render in delayed paths, which causes bad interaction with
-    other geometry when volumes are partly transparent:
-
--------------8<----------- [snip] ---------------8<----------- [snip] --
-#Inventor V2.1 ascii
-
-SoTransferFunction {
-   predefColorMap GREY
-}
-
-SoVolumeData {
-   fileName "/mnt/extra/mortene/volumedata/introduction_to_volume_rendering/SYN_64.VOL"
-}
-
-SoVolumeRender {
-}
-
-Translation {
-   translation 90 0 0
-}
-
-Sphere {
-   radius 45
-}
-
--------------8<----------- [snip] ---------------8<----------- [snip] --
-
-    <mortene@sim.no> 20040212.
-
-========================================================================
-
 Other stuff, just moved here before my 2003 summer vacation, from
 various paper notes around the office:
 
