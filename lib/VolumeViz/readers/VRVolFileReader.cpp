@@ -54,9 +54,12 @@
   within unit size 2, and the other dimensions will be scaled
   accordingly.
 
+  The scale vector (if present in the header) will subsequently be
+  used on the resulting normalized volume dimensions.
+
   You may use SoVolumeData::setVolumeSize() to force a different unit
   size box around the volume, or you can simply use the standard Coin
-  transformation nodes, like e.g. SoScale.
+  transformation nodes, like e.g. SoScale, to accomplish this.
 
   For more information about how the data will be mapped to the world
   coordinate system, see the documentation of
