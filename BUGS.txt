@@ -25,6 +25,9 @@
 
     <mortene@sim.no> 20030627.
 
+    UPDATE 20040212 mortene: handegar committed a fix for this, check
+    if it now works 100% correctly.
+
 ========================================================================
 
 002 When setting numSlices > actual depth, it seems more slices than
@@ -33,6 +36,37 @@
     This seems pointless. Investigate.
 
     <mortene@sim.no> 20030702.
+
+========================================================================
+
+003 We do not render in delayed paths, which causes bad interaction with
+    other geometry when volumes are partly transparent:
+
+-------------8<----------- [snip] ---------------8<----------- [snip] --
+#Inventor V2.1 ascii
+
+SoTransferFunction {
+   predefColorMap GREY
+}
+
+SoVolumeData {
+   fileName "/mnt/extra/mortene/volumedata/introduction_to_volume_rendering/SYN_64.VOL"
+}
+
+SoVolumeRender {
+}
+
+Translation {
+   translation 90 0 0
+}
+
+Sphere {
+   radius 45
+}
+
+-------------8<----------- [snip] ---------------8<----------- [snip] --
+
+    <mortene@sim.no> 20040212.
 
 ========================================================================
 
