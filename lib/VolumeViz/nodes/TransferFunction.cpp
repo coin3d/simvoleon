@@ -25,26 +25,14 @@ FIXME
 
 // *************************************************************************
 
-SO_NODE_SOURCE(SoTransferFunction);
+#include <gradients/GREY.h>
+#include <gradients/TEMPERATURE.h>
 
 // *************************************************************************
 
-static const char gradientbuffer_GREY[] =
-"GIMP Gradient\n"
-"1\n"
-"0.000000 0.689482 1.000000 "
-"1.000000 1.000000 1.000000 0.000000 "
-"1.000000 1.000000 1.000000 1.000000 "
-"0 0\n";
+SO_NODE_SOURCE(SoTransferFunction);
 
-static const char gradientbuffer_TEMPERATURE[] =
-"GIMP Gradient\n"
-"4\n"
-"0.000000 0.111018 0.242070 1.000000 1.000000 1.000000 1.000000 0.000000 0.000000 1.000000 1.000000 0 0\n"
-"0.242070 0.367696 0.456594 0.000000 0.000000 1.000000 1.000000 1.000000 0.000000 1.000000 1.000000 0 0\n"
-"0.456594 0.560518 0.664441 1.000000 0.000000 1.000000 1.000000 1.000000 0.000000 0.000000 1.000000 0 0\n"
-"0.664441 0.811352 1.000000 1.000000 0.000000 0.000000 1.000000 1.000000 1.000000 0.000000 1.000000 0 0\n";
-
+// *************************************************************************
 
 struct GIMPGradientSegment {
   float left, middle, right;
@@ -70,9 +58,13 @@ public:
 
   static uint8_t PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];
 
+  // FIXME: these two would better be refactored to be part of the
+  // GIMPGradient class. 20021113 mortene.
   static struct GIMPGradient * readGIMPGradient(const char * buffer);
   static void convertGIMPGradient2IntArray(const struct GIMPGradient * gg,
                                            uint8_t intgradient[256][4]);
+
+  static void initPredefGradients(void);
 
 private:
   SoTransferFunction * master;
@@ -127,27 +119,8 @@ SoTransferFunction::initClass(void)
   SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering, "SoVolumeRendering");
 
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
-  struct GIMPGradient * gg;
 
-  gg = SoTransferFunctionP::readGIMPGradient(gradientbuffer_GREY);
-  SoTransferFunctionP::convertGIMPGradient2IntArray(gg, SoTransferFunctionP::PREDEFGRADIENTS[GREY]);
-
-  gg = SoTransferFunctionP::readGIMPGradient(gradientbuffer_TEMPERATURE);
-  SoTransferFunctionP::convertGIMPGradient2IntArray(gg, SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE]);
-
-#if 0 // DEBUG: spits out a 256x1 image of the colormap.
-  FILE * f = fopen("/tmp/gradient.ppm", "w");
-  assert(f);
-  (void)fprintf(f, "P3\n256 1 255\n"); // width height maxcolval
-
-  for (int i=0; i < 256; i++) {
-    fprintf(f, "%d %d %d\n",
-            SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][i][0],
-            SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][i][1],
-            SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][i][2]);
-  }
-  fclose(f);
-#endif // DEBUG
+  SoTransferFunctionP::initPredefGradients();
 }
 
 void
@@ -230,8 +203,8 @@ SoTransferFunction::transfer(const void * input,
           outp[j] = 0x00000000;
         }
         else {
-          uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[GREY][inp[j]];
-//           uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][inp[j]];
+//           uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[GREY][inp[j]];
+          uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][inp[j]];
 
           outp[j] =
             (uint32_t(rgba[0]) << 0) | // red
@@ -607,5 +580,35 @@ SoTransferFunctionP::convertGIMPGradient2IntArray(const struct GIMPGradient * gg
       float add = changeperunit * (gradpos - left);
       intgradient[i][k] = int((left_RGBA[k] + add) * 255.0f);
     }
+  }
+}
+
+void
+SoTransferFunctionP::initPredefGradients(void)
+{
+  const char * gradientbufs[] = {
+    GREY_gradient, TEMPERATURE_gradient
+  };
+
+  for (unsigned int j=0; j < sizeof(gradientbufs)/sizeof(gradientbufs[0]); j++) {
+    struct GIMPGradient * gg =
+      SoTransferFunctionP::readGIMPGradient(gradientbufs[j]);
+    SoTransferFunctionP::convertGIMPGradient2IntArray(gg, SoTransferFunctionP::PREDEFGRADIENTS[j+1]);
+
+#if 0 // DEBUG: spits out a 256x1 image of the colormap.
+    SbString s;
+    s.sprintf("/tmp/gradient-%d.ppm", j + 1);
+    FILE * f = fopen(s.getString(), "w");
+    assert(f);
+    (void)fprintf(f, "P3\n256 1 255\n"); // width height maxcolval
+
+    for (int i=0; i < 256; i++) {
+      fprintf(f, "%d %d %d\n",
+              SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][i][0],
+              SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][i][1],
+              SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][i][2]);
+    }
+    fclose(f);
+#endif // DEBUG
   }
 }
