@@ -905,9 +905,8 @@ SoVolumeDataP::managePages(void)
 
 
 SbBool 
-SoVolumeData::getVolumeData(SbVec3s &dimensions, 
-                            void *&data, 
-                            SoVolumeData::DataType &type) 
+SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data, 
+                            SoVolumeData::DataType & type) 
 { return FALSE; }
 
 SoVolumeReader * 

@@ -34,32 +34,25 @@ public:
     MEMORY = 0x00000008,
     VOLUMEPRO = 0x00000010,
     TEX2D_SINGLE = 0x00000020,
+    // FIXME: why the extensions? 20021107 mortene.
     LOAD_MAX = 0x00000040,          // Builds as many pages as possible at
     DYNAMIC_LOADING = 0x00000080,   // Only loads the pages used
   };
 
-  enum SubMethod {
-    NEAREST,
-    MAX,
-    AVERAGE
-  };
+  enum SubMethod { NEAREST, MAX, AVERAGE };
+  enum OverMethod { NONE, CONSTANT, LINEAR, CUBIC };
 
-  enum OverMethod {
-    NONE,
-    CONSTANT,
-    LINEAR,
-    CUBIC
-  };
+  // FIXME: "RGBA" not part of TGS Inventor. Find out if we really
+  // need it. 20021107 mortene.
+  enum DataType { UNSIGNED_BYTE, UNSIGNED_SHORT, RGBA };
 
   SoSFString fileName;
   SoSFEnum storageHint;
   SoSFBool usePalettedTexture;
   SoSFBool useCompressedTexture;
 
-  void setVolumeData(const SbVec3s & dimension,
-                     const void * data,
-                     SoVolumeRendering::DataType type
-                     = SoVolumeRendering::UNSIGNED_BYTE);
+  void setVolumeData(const SbVec3s & dimension, const void * data,
+                     SoVolumeData::DataType type = SoVolumeData::UNSIGNED_BYTE);
 
   void setVolumeSize(const SbBox3f & size);
   SbBox3f & getVolumeSize(void);
@@ -93,9 +86,8 @@ public:
 
   // FIXME: The following functions are still to be implemented.
   // torbjorv 07122002
-  SbBool getVolumeData(SbVec3s & dimension,
-                       void *& data,
-                       SoVolumeRendering::DataType & type);
+  SbBool getVolumeData(SbVec3s & dimension, void *& data,
+                       SoVolumeData::DataType & type);
 
 
   SoVolumeReader * getReader(void);

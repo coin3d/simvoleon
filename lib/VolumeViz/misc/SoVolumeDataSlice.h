@@ -53,7 +53,7 @@ private:
   int numCols;
   int numRows;
 
-  SoVolumeRendering::DataType dataType;
+  SoVolumeData::DataType dataType;
 };
 
 #endif // !COIN_SOVOLUMEDATASLICE_H

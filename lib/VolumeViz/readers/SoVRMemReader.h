@@ -11,7 +11,7 @@ public:
 
   void setUserData(void * data);
 
-  void getDataChar(SbBox3f &size, SoVolumeRendering::DataType &type,
+  void getDataChar(SbBox3f &size, SoVolumeData::DataType &type,
                    SbVec3s &dim);
 
   void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data,
@@ -19,7 +19,7 @@ public:
 
   void setData(const SbVec3s &dimensions, const void *data,
                const SbBox3f &volumeSize,
-               SoVolumeRendering::DataType type = SoVolumeRendering::UNSIGNED_BYTE);
+               SoVolumeData::DataType type = SoVolumeData::UNSIGNED_BYTE);
 
   void setVolumeSize(const SbBox3f &size);
 

@@ -111,7 +111,7 @@ SoTransferFunction::GLRender(SoGLRenderAction * action)
 */
 void
 SoTransferFunction::transfer(const void * input, 
-                             SoVolumeRendering::DataType inputDataType,
+                             SoVolumeData::DataType inputDataType,
                              SbVec2s &size,
                              void *& output,
                              int &outputFormat,
@@ -120,7 +120,7 @@ SoTransferFunction::transfer(const void * input,
                              int &paletteSize)
 {
   // Handling RGBA inputdata. Just forwarding to output
-  if (inputDataType == SoVolumeRendering::RGBA) {
+  if (inputDataType == SoVolumeData::RGBA) {
     outputFormat = GL_RGBA;
     palette = NULL;
     paletteFormat = 0;
@@ -136,11 +136,11 @@ SoTransferFunction::transfer(const void * input,
 
     int numBits;
     switch(inputDataType) {
-      case SoVolumeRendering::UNSIGNED_BYTE: 
-        numBits = 8; 
-        break;
+    case SoVolumeData::UNSIGNED_BYTE: 
+      numBits = 8; 
+      break;
         
-    case SoVolumeRendering::UNSIGNED_SHORT:
+    case SoVolumeData::UNSIGNED_SHORT:
       numBits = 16;
       break;
     default:
@@ -196,10 +196,10 @@ SoTransferFunction::transfer(const void * input,
 
     // Deciding outputformat
     int newNumBits = 8;
-    outputFormat = UNSIGNED_BYTE;
+    outputFormat = SoVolumeData::UNSIGNED_BYTE;
     if (paletteSize > 256) {
       newNumBits = 16;
-      outputFormat = UNSIGNED_SHORT;
+      outputFormat = SoVolumeData::UNSIGNED_SHORT;
     }
 
     // Rebuilding texturedata

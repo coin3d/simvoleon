@@ -23,8 +23,8 @@ public:
   };
 
   enum HW_SupportStatus { NO, YES, UNKNOWN };
+
   enum Axis { X, Y, Z };
-  enum DataType { UNSIGNED_BYTE, UNSIGNED_SHORT, RGBA };
 
   HW_SupportStatus isSupported(HW_Feature feature);
 

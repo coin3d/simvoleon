@@ -18,12 +18,12 @@ public:
 
     data = NULL;
     dimensions = SbVec3s(0, 0, 0);
-    dataType = SoVolumeRendering::UNSIGNED_BYTE;
+    dataType = SoVolumeData::UNSIGNED_BYTE;
   }
 
   SbVec3s dimensions;
   const void * data;
-  SoVolumeRendering::DataType dataType;
+  SoVolumeData::DataType dataType;
   SbBox3f volumeSize;
 
   void buildSubSliceX(void * output, int sliceIdx, const SbBox2s &subSlice);
@@ -57,7 +57,7 @@ void SoVRMemReader::setUserData(void * data)
 }
 
 void SoVRMemReader::getDataChar(SbBox3f &size, 
-                                SoVolumeRendering::DataType &type, 
+                                SoVolumeData::DataType &type, 
                                 SbVec3s &dim)
 {
   size = PRIVATE(this)->volumeSize;
@@ -90,7 +90,7 @@ void
 SoVRMemReader::setData(const SbVec3s &dimensions, 
                        const void *data, 
                        const SbBox3f &volumeSize,
-                       SoVolumeRendering::DataType type)
+                       SoVolumeData::DataType type)
 {
   PRIVATE(this)->dimensions = dimensions;
   PRIVATE(this)->data = data;
@@ -137,7 +137,7 @@ SoVRMemReaderP::buildSubSliceX(void * output,
 
     switch (this->dataType) {
 
-      case SoVolumeRendering::UNSIGNED_BYTE:
+      case SoVolumeData::UNSIGNED_BYTE:
         while (zOffset < zLimit) {
           byteTexture[out] = byteData[zOffset];
           out ++;
@@ -145,7 +145,7 @@ SoVRMemReaderP::buildSubSliceX(void * output,
         }
         break;
 
-      case SoVolumeRendering::UNSIGNED_SHORT:
+      case SoVolumeData::UNSIGNED_SHORT:
         while (zOffset < zLimit) {
           shortTexture[out] = shortData[zOffset];
           out ++;
@@ -153,7 +153,7 @@ SoVRMemReaderP::buildSubSliceX(void * output,
         }
         break;
 
-      case SoVolumeRendering::RGBA:
+      case SoVolumeData::RGBA:
         while (zOffset < zLimit) {
           intTexture[out] = intData[zOffset];
           out ++;
@@ -200,7 +200,7 @@ SoVRMemReaderP::buildSubSliceY(void * output,
 
     switch (this->dataType) {
 
-      case SoVolumeRendering::UNSIGNED_BYTE:
+      case SoVolumeData::UNSIGNED_BYTE:
           while (xOffset < xLimit) {
             byteTexture[out] = byteData[xOffset];
             out++;
@@ -208,7 +208,7 @@ SoVRMemReaderP::buildSubSliceY(void * output,
           }
           break;
 
-      case SoVolumeRendering::UNSIGNED_SHORT:
+      case SoVolumeData::UNSIGNED_SHORT:
           while (xOffset < xLimit) {
             shortTexture[out] = shortData[xOffset];
             out++;
@@ -216,7 +216,7 @@ SoVRMemReaderP::buildSubSliceY(void * output,
           }
           break;
 
-      case SoVolumeRendering::RGBA:
+      case SoVolumeData::RGBA:
           while (xOffset < xLimit) {
             intTexture[out] = intData[xOffset];
             out++;
@@ -260,7 +260,7 @@ SoVRMemReaderP::buildSubSliceZ(void * output,
     int xLimit = max[0] + yOffset; 
 
     switch (this->dataType) {
-      case SoVolumeRendering::UNSIGNED_BYTE:
+      case SoVolumeData::UNSIGNED_BYTE:
         while (xOffset < xLimit) {
           byteTexture[out] = byteData[xOffset];
           out++;
@@ -268,7 +268,7 @@ SoVRMemReaderP::buildSubSliceZ(void * output,
         }
         break;
 
-      case SoVolumeRendering::UNSIGNED_SHORT:
+      case SoVolumeData::UNSIGNED_SHORT:
         while (xOffset < xLimit) {
           shortTexture[out] = shortData[xOffset];
           out++;
@@ -276,7 +276,7 @@ SoVRMemReaderP::buildSubSliceZ(void * output,
         }
         break;
 
-      case SoVolumeRendering::RGBA:
+      case SoVolumeData::RGBA:
         while (xOffset < xLimit) {
           intTexture[out] = intData[xOffset];
           out++;

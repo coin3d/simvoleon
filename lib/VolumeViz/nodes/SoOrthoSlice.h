@@ -17,8 +17,8 @@ public:
   enum AlphaUse { ALPHA_AS_IS, ALPHA_OPAQUE, ALPHA_BINARY };
   enum ClippingSide { FRONT, BACK };
 
-  SoOrthoSlice (void);
-  virtual SbBool affectsState (void) const;
+  SoOrthoSlice(void);
+  virtual SbBool affectsState(void) const;
 
   SoSFUInt32 sliceNumber;
   SoSFEnum axis;

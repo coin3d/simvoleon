@@ -22,7 +22,7 @@ SoVolumeDataSlice::SoVolumeDataSlice(void)
   this->numTexels = 0;
   this->sliceIdx = 0;
   this->reader = NULL;
-  this->dataType = SoVolumeRendering::RGBA;
+  this->dataType = SoVolumeData::RGBA;
 }
 
 

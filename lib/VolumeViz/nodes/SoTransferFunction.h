@@ -6,6 +6,10 @@
 #include <Inventor/fields/SoSFInt32.h>
 #include <Inventor/fields/SoMFFloat.h>
 
+// FIXME: get rid of this when private method is actually made
+// private. 20021107 mortene.
+#include <VolumeViz/nodes/SoVolumeData.h>
+
 class SbVec2s;
 
 
@@ -59,14 +63,13 @@ private:
 
   // FIXME: move to pimpl class. 20021106 mortene.
   void transfer(const void * input, 
-                SoVolumeRendering::DataType inputDataType,
+                SoVolumeData::DataType inputDataType,
                 SbVec2s & size,
                 void *& output,
                 int &outputFormat,
                 float *& palette,
                 int &paletteFormat,
                 int &paletteSize);
-
 };
 
 #endif // !COIN_SOTRANSFERFUNCTION_H

@@ -7,7 +7,7 @@
 #include <Inventor/SbBox3f.h>
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbBox2s.h>
-#include <VolumeViz/nodes/SoVolumeRendering.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 
 class SoVolumeReader {
 public:
@@ -15,9 +15,8 @@ public:
   virtual ~SoVolumeReader();
 
   virtual void setUserData(void * data);
-  virtual void getDataChar(SbBox3f &size,
-                           SoVolumeRendering::DataType &type,
-                           SbVec3s &dim) = 0;
+  virtual void getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
+                           SbVec3s & dim) = 0;
   virtual void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data,
                            SoVolumeRendering::Axis axis = SoVolumeRendering::Z)
     = 0;
