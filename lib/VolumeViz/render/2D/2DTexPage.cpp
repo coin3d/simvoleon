@@ -400,28 +400,21 @@ Cvr2DTexPage::buildPage(int col, int row,
                          SoVolumeReader::Y : SoVolumeReader::Z);
   reader->getSubSlice(subSlice, sliceIdx, texture, ax);
 
-  void * transferredTexture = NULL;
-  float * palette = NULL;
-  int paletteDataType;
-  int outputDataType;
-  int paletteSize;
-  transferFunction->transfer(texture,
-                             this->dataType,
-                             this->pageSize,
-                             transferredTexture,
-                             outputDataType,
-                             palette,
-                             paletteDataType,
-                             paletteSize);
-
+  uint32_t * transferredTexture = transferFunction->transfer(texture,
+                                                             this->dataType,
+                                                             this->pageSize);
   delete[] texture;
 
+  float * palette = NULL;
+  int paletteDataType = 0;
+  int paletteSize = 0;
+
+  // FIXME: paletted textures not supported yet. 20021119 mortene.
+
   page->setData(Cvr2DTexSubPage::OPENGL,
-                (unsigned char*)transferredTexture,
+                (unsigned char *)transferredTexture,
                 this->pageSize,
-                palette,
-                paletteDataType,
-                paletteSize);
+                palette, paletteDataType, paletteSize);
 
   // FIXME: this is used to invalidate a page (as far as I can see),
   // but AFAICT there is no code for actually cleaning it out (or is
@@ -429,7 +422,7 @@ Cvr2DTexPage::buildPage(int col, int row,
   // algos?). Investigate. 20021111 mortene.
   page->transferFunctionId = transferFunction->getNodeId();
 
-  delete[] ((char*) transferredTexture);
+  delete[] transferredTexture;
   delete[] palette;
 
   this->numTexels += this->pageSize[0] * this->pageSize[1];
@@ -439,6 +432,193 @@ Cvr2DTexPage::buildPage(int col, int row,
   return page;
 }
 
+
+// *******************************************************************
+
+// FIXME: tmp disabled all use of paletted (and compressed?)
+// textures. (The code wasn't working at all, as far as I could
+// see.) 20021112 mortene.
+
+#if 0 // This was in SoTransferFunction::transfer():
+
+  int numbits;
+  switch (inputdatatype) {
+  case SoVolumeData::UNSIGNED_BYTE: numbits = 8; break;
+        
+  case SoVolumeData::UNSIGNED_SHORT: numbits = 16; break;
+
+  default: assert(FALSE && "unknown input data type"); break;
+  }
+
+  int maxpalentries = 1 << numbits;
+
+  // Counting number of references to each palette entry     
+  SbBool * palcountarray = new SbBool[maxpalentries];
+  (void)memset(palcountarray, 0, sizeof(SbBool) * maxpalentries);
+
+  int nrpalentries = 0;
+
+  int32_t shift = this->shift.getValue(); // for optimized access in loop below
+  int32_t offset = this->offset.getValue();  // for optimized access in loop
+
+  int i;
+  for (i = 0; i < size[0]*size[1]; i++) {
+    int unpacked = PRIVATE(this)->unpack(input, numbits, i);
+    int idx = (unpacked << shift) + offset;
+
+    if (idx >= maxpalentries) {
+#if 1 // debug
+      SoDebugError::postInfo("SoTransferFunction::transfer",
+                             "idx %d out-of-bounds [0, %d] "
+                             "(unpacked==%d, shift==%d, offset==%d)",
+                             idx, maxpalentries - 1,
+                             unpacked, shift, offset);
+#endif // debug
+    }
+
+    assert(idx < maxpalentries);
+
+    if (palcountarray[idx] == FALSE) {
+      palcountarray[idx] = TRUE;
+      nrpalentries++;
+    }
+  }
+
+  // Creating remap-table and counting number of entries in new palette
+  int * remap = new int[maxpalentries];
+  int palidx = 0;
+  for (i = 0; i < maxpalentries; i++) {
+    if (palcountarray[i]) { remap[i] = palidx++; }
+    else { remap[i] = -1; }
+  }
+
+  // Calculating the new palette's size to a power of two.
+  palettesize = 2;
+  while (palettesize < nrpalentries) { palettesize <<= 1; }
+
+#if 0 // debug
+  SoDebugError::postInfo("SoTransferFunction::transfer",
+                         "nrpalentries==%d, palettesize==%d",
+                         nrpalentries, palettesize);
+#endif // debug
+
+  // Building new palette
+  // FIXME: convert this to a bytearray. 20021112 mortene.
+  palette = new float[palettesize*4]; // "*4" is to cover 1 byte each for RGBA
+  (void)memset(palette, 0, sizeof(float)*palettesize*4);
+  const float * oldPal = this->colorMap.getValues(0);
+#if 0 // debug
+  SoDebugError::postInfo("SoTransferFunction::transfer",
+                         "this->colorMap.getNum()==%d, maxpalentries==%d",
+                         this->colorMap.getNum(), maxpalentries);
+#endif // debug
+  // FIXME: the way we use this->colorMap here leaves much to be
+  // desired wrt both robustness and correctness. 20021112 mortene.
+  int tmp = 0;
+  for (i = 0; i < maxpalentries; i++) {
+    if (palcountarray[i]) {
+      // FIXME: out-of-bounds read on oldPal! 20021112 mortene.
+      (void)memcpy(&palette[tmp*4], &oldPal[i*4], sizeof(float)*4);
+      tmp++;
+    }
+  }
+
+  int newNumBits = 8;
+  if (palettesize > 256) { newNumBits = 16; }
+
+  // Rebuilding texturedata
+  unsigned char * newTexture = 
+    new unsigned char[size[0] * size[1] * newNumBits / 8];
+  memset(newTexture, 0, size[0] * size[1] * newNumBits / 8);
+
+  for (i = 0; i < size[0]*size[1]; i++) {
+
+    int unpacked = PRIVATE(this)->unpack(input, numbits, i);
+    int idx = (unpacked << shift) + offset;
+
+    if (idx >= maxpalentries) {
+#if 1 // debug
+      SoDebugError::postInfo("SoTransferFunction::transfer",
+                             "idx %d out-of-bounds [0, %d] "
+                             "(unpacked==%d, shift==%d, offset==%d)",
+                             idx, maxpalentries - 1,
+                             unpacked, shift, offset);
+#endif // debug
+    }
+
+    assert(idx < maxpalentries);
+
+    idx = remap[idx];
+    PRIVATE(this)->pack(newTexture, newNumBits, i, idx);
+  }
+  output = newTexture;
+  paletteFormat = GL_RGBA;
+
+  delete[] palcountarray;
+  delete[] remap;
+#endif // TMP DISABLED
+
+#if 0  // TMP DISABLED, helper functions for the disabled code above
+
+// Handles packed data for 1, 2, 4, 8 and 16 bits. Assumes 16-bit data
+// are stored in little-endian format (that is the x86-way,
+// right?). And MSB is the leftmost of the bitstream...? Think so.
+int 
+SoTransferFunctionP::unpack(const void * data, int numbits, int index)
+{
+  if (numbits == 8)
+    return (int)((char*)data)[index];
+
+  if (numbits == 16)
+    return (int)((short*)data)[index];
+
+
+  // Handling 1, 2 and 4 bit formats
+  int bitIndex = numbits*index;
+  int byteIndex = bitIndex/8;
+  int localBitIndex = 8 - bitIndex%8 - numbits;
+
+  char val = ((char*)data)[byteIndex];
+  val >>= localBitIndex;
+  val &= (1 << numbits) - 1;
+
+  return val;
+}
+
+
+
+// Saves the index specified in val with the specified number of bits,
+// at the specified index (not elementindex, not byteindex) in data.
+void 
+SoTransferFunctionP::pack(void * data, int numbits, int index, int val)
+{
+  if (val >= (1 << numbits))
+    val = (1 << numbits) - 1;
+
+  if (numbits == 8) {
+    ((char*)data)[index] = (char)val;
+  }
+  else 
+  if (numbits == 16) {
+    ((short*)data)[index] = (short)val;
+  }
+  else {
+    int bitIndex = numbits*index;
+    int byteIndex = bitIndex/8;
+    int localBitIndex = 8 - bitIndex%8 - numbits;
+
+    char byte = ((char*)data)[byteIndex];
+    char mask = (((1 << numbits) - 1) << localBitIndex) ^ -1;
+    byte &= mask;
+    val <<= localBitIndex;
+    byte |= val;
+    ((char*)data)[byteIndex] = byte;
+  }
+}
+
+// *******************************************************************
+
+#endif // TMP DISABLED code
 
 Cvr2DTexSubPage *
 Cvr2DTexPage::getPage(int col, int row,
