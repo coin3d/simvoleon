@@ -132,44 +132,6 @@
 
 ========================================================================
 
-011 'clipGeometry' polygons for the SoVolume[Face|triangle]Set family
-    are sometimes wrong.
-
-    When a faceset partly intersects a volume by 'going through' the
-    volume, some polygons goes missing.
-
-
-    This is an example where a cube is placed in the center of a flat
-    volume. The clip-geometry of the cube should appear on both sides
-    of the volume, not just on one side.
-
-    #Inventor V2.1 ascii
-
-    SoVolumeData { fileName "LOBSTER.VOL" }   
-    SoTransferFunction { predefColorMap SEISMIC }
-    SoVolumeIndexedFaceSet {
-      vertexProperty 
-      VertexProperty {
-         vertex [ -50 50 50,
-          -50 -50 50,
-          50 -50 50,
-          50 50 50,
-          -50 50 -50,
-          -50 -50 -50,
-          50 -50 -50,
-          50 50 -50 ]
-      }         
-      clipGeometry TRUE
-      coordIndex [ 0, 1, 2, 3, -1, 3, 2, 6,
-            7, -1, 7, 6, 5, 4, -1, 4,
-            5, 1, 0, -1, 0, 3, 7, 4,
-            -1, 1, 5, 6, 2, -1 ]    
-    }
-
-    20040722 handegar.
-
-========================================================================
-    
 012 There are seams between texture sub-cubes (3D textures) and
     texture sub-pages (2D textures) of a volume.
 
