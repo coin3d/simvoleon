@@ -279,8 +279,8 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   const unsigned int DEPTH = this->voldatadims[AXISIDX];
 
   SbVec3f origo, horizspan, verticalspan;
-
-  for (unsigned int i = 0; i < numslices; i++) {
+  
+  for (unsigned int i = 0; i <= numslices; i++) {
     // Find nearest integer page idx (as number of pages to render
     // need not match the number of actual volume data pages).
     const float fraction = float(i) / float(numslices); // fraction of rendering
@@ -304,11 +304,12 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
       // Pages along Y-axis is in opposite order of those along X- and
       // Z-axis.
-      if (AXISIDX == 1)  { pageidx = DEPTH - pageidx - 1; }
+      if (AXISIDX == 1) { pageidx = DEPTH - pageidx - 1; }
       // Note: even if this is the same page as the last one
       // (numSlices in SoVolumeRender can be larger than the actual
       // dimensions), we should still render it at the new depth, as
       // that can give better rendering quality of the volume.
+
       Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
 
       page->render(action, origo, horizspan, verticalspan, interpolation);
