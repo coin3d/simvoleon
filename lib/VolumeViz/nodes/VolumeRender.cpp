@@ -1,3 +1,5 @@
+// *************************************************************************
+
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -24,23 +26,24 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
+// *************************************************************************
 
-// List of GL_RENDERER substrings for hardware which does 3D textures
-// in hardware.
+// List of GL_RENDERER substrings for cards which does 3D textures in
+// hardware.
 static const char * texture3d_in_hardware[] = {
   "GeForce FX",    // 5200 .. 5950
-  "GeForce3", 
+  "GeForce3",
   "GeForce4 Ti",
   "Geforce4 4200 GO",
-  "Quadro FX", 
+  "Quadro FX",
   "Quadro4",
-  "Quadro DCC",    // Has the nFiniteFX engine, so I presume it has HW 3D textures.
+  "Quadro DCC",    // Has the nFiniteFX engine, so we assume it has HW 3D textures.
   "RADEON ",       // 7000 .. 9000
   "Radeon ",
   "RV250",         // A semi Radeon 8500
   "MOBILITY RADEON ",
   "Fire GL",       // I persume these highend cards do 3D textures in HW
-  "DeltaChrome",  
+  "DeltaChrome",
   "Xabre VGA",     // Not tested. Should perform as a GeForce4 Ti according to some reviews.
   "Volari Family", // Suppose to be the new loud in the CPU marked.
   "Wildcat VP",    // 560, 870, 970.
@@ -48,14 +51,14 @@ static const char * texture3d_in_hardware[] = {
 };
 
 // List of GL_RENDERER substrings for hardware which does 3D textures,
-// but only in software (ie. not feasible for volume rendering).
+// but only in software (i.e. not feasible for volume rendering).
 static const char * texture3d_in_software[] = {
   "GeForce2",
-  "GeForce4 MX", 
-  "Geforce4 440 GO",  
-  "Geforce4 460 GO",  
-  "Geforce4 420 GO",  
-  "RAGE 128", 
+  "GeForce4 MX",
+  "Geforce4 440 GO",
+  "Geforce4 460 GO",
+  "Geforce4 420 GO",
+  "RAGE 128",
   "Mesa Windows",
   "GLDirect Xabre",   // Not sure about this SciTech product.
   NULL
@@ -88,7 +91,7 @@ public:
 
   unsigned int calculateNrOf2DSlices(SoGLRenderAction * action, const SbVec3s & dimensions);
   unsigned int calculateNrOf3DSlices(SoGLRenderAction * action, const SbVec3s & dimensions);
-  SbBool lookup3DTextureCapabilitiesForGFXCard();
+  SbBool use3DTexturing(void) const;
 
   CvrPageHandler * pagehandler; // For 2D page rendering
   CvrCubeHandler * cubehandler; // For 3D cube rendering
@@ -99,7 +102,7 @@ public:
   // debug
   void rayPickDebug(SoGLRenderAction * action);
   SbList <SbVec3f> raypicklines;
-  
+
   SbBool force2dtextures;
 
 private:
@@ -108,127 +111,6 @@ private:
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
-
-SbBool 
-SoVolumeRenderP::lookup3DTextureCapabilitiesForGFXCard()
-{
-
-  // This check should only be done once.
-  static int sovolumerenderp_previousresult = -1; 
-  if (sovolumerenderp_previousresult == 1) return TRUE;
-  else if (sovolumerenderp_previousresult == 0) return FALSE;
-
-  // Shall we force 3D texturing?
-  const char * envstr = coin_getenv("CVR_FORCE_3D_TEXTURES");
-  int flag = 0;
-  if (envstr) { 
-    if (atoi(envstr) > 0) {
-      sovolumerenderp_previousresult = 1;
-      return TRUE;
-    }
-  }
-
-  static const char * rendererstring = (char *) glGetString(GL_RENDERER);
-  int i=0;
-  while (texture3d_in_hardware[i]) {
-    char * loc = strstr(rendererstring, texture3d_in_hardware[i++]);
-    if (loc != NULL) {
-      sovolumerenderp_previousresult = 1;
-      return TRUE;
-    }
-  }
-
-  i=0;
-  while (texture3d_in_software[i]) {    
-    char * loc = strstr(rendererstring, texture3d_in_software[i++]);
-    if (loc != NULL) {
-      SoDebugError::postWarning("SoVolumeRender", "Your GFX card ('%s') has 3D texture abilities, "
-                                "but these are not hardware accelerated. Using 2D textures instead. "
-                                "(If you wish to force 3D texturing, set the envvar "
-                                "CVR_FORCE_3D_TEXTURES=1)",
-                                rendererstring);
-      sovolumerenderp_previousresult = 0;
-      return FALSE;
-    }
-  }
-
-  // FIXME: What shall we do as default behaviour? The GPU *has* 3D
-  // texture support if we have reached this point. (20040316 handegar)
-
-  sovolumerenderp_previousresult = 1;
-  return TRUE;
-
-}
-
-unsigned int
-SoVolumeRenderP::calculateNrOf2DSlices(SoGLRenderAction * action,
-                                       const SbVec3s & dimensions)
-{
-  int numslices = 0;
-  const int control = PUBLIC(this)->numSlicesControl.getValue(); 
-  const unsigned int AXISIDX = this->pagehandler->getCurrentAxis(action);
-  
-  if ((control == SoVolumeRender::ALL) || 
-      (PUBLIC(this)->numSlices.getValue() <= 0)) {
-    numslices = dimensions[AXISIDX];
-  }
-  else if (control == SoVolumeRender::MANUAL) {
-    numslices = PUBLIC(this)->numSlices.getValue();
-  }
-  else if (control == SoVolumeRender::AUTOMATIC) {
-    const float complexity = PUBLIC(this)->getComplexityValue(action);
-    numslices = int(complexity * 2.0f * PUBLIC(this)->numSlices.getValue());
-    assert(numslices >= 0);
-  }
-  else {
-    assert(FALSE && "invalid numSlicesControl value");
-  }
-  
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("SoVolumeRenderP::calculateNrOf2DSlices",
-                         "numslices == %d", numslices);
-#endif // debug
-     
-  return numslices;
-}
-
-unsigned int
-SoVolumeRenderP::calculateNrOf3DSlices(SoGLRenderAction * action,
-                                       const SbVec3s & dimensions)
-{
-  int numslices = 0;
-  const int control = PUBLIC(this)->numSlicesControl.getValue(); 
-  const float complexity = PUBLIC(this)->getComplexityValue(action);  
-
-  if ((control == SoVolumeRender::ALL) || 
-      (PUBLIC(this)->numSlices.getValue() <= 0)) {
-    // 'Applying' the Nyquist theorem
-    numslices = (unsigned int) sqrt(double(dimensions[0]*dimensions[0] + 
-                                           dimensions[1]*dimensions[1] + 
-                                           dimensions[2]*dimensions[2])) * 2;    
-    numslices = int(complexity * 2.0f * numslices);
-  }
-  else if (control == SoVolumeRender::MANUAL) {
-    numslices = PUBLIC(this)->numSlices.getValue();
-  }
-  else if (control == SoVolumeRender::AUTOMATIC) {
-    numslices = int(complexity * 2.0f * PUBLIC(this)->numSlices.getValue());
-    assert(numslices >= 0);
-  }
-  else {
-    assert(FALSE && "invalid numSlicesControl value");
-  }
-  
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("SoVolumeRenderP::calculateNrOf3DSlices",
-                         "numslices == %d", numslices);
-#endif // debug
-
-  numslices = SbMax(64, numslices); // Anything below 64 slices looks ugly for 3D textures.
-     
-  return numslices;
-}
-
 
 // *************************************************************************
 
@@ -461,7 +343,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   // FIXME: need to make sure we're not cached in a renderlist
 
   if (!this->shouldGLRender(action)) return;
-  
+
   // Render at the end, in case the volume is partly (or fully)
   // transparent.
   //
@@ -531,7 +413,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   if (renderwithglpoints == -1) {
     const char * env = coin_getenv("CVR_FORCE_GLPOINTRENDERING");
     renderwithglpoints = env && (atoi(env) > 0);
-  }  
+  }
   if (renderwithglpoints) {
     PointRendering::render(action);
     return;
@@ -539,25 +421,26 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 
 
   const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
-  
-  int rendermethod = SoVolumeRender::TEXTURE2D; // Default  
-  const int storagehint = volumedata->storageHint.getValue(); 
+
+  int rendermethod = SoVolumeRender::TEXTURE2D; // Default
+  const int storagehint = volumedata->storageHint.getValue();
   if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
     if (cc_glglue_has_3d_textures(glue) && !PRIVATE(this)->force2dtextures) {
-      if (PRIVATE(this)->lookup3DTextureCapabilitiesForGFXCard()) 
+      if (PRIVATE(this)->use3DTexturing()) {
         rendermethod = SoVolumeRender::TEXTURE3D;
-    }        
+      }
+    }
   }
   else if(storagehint == SoVolumeData::TEX2D || storagehint == SoVolumeData::AUTO) {
-    // Do nothing. 2D textureing is default.
+    // Do nothing. 2D texturing is the default.
   }
   else {
     rendermethod = SoVolumeRender::NOTIMPLEMENTED;
   }
-  
 
-  // Using viewport aligned 3D textures
-  if (rendermethod == SoVolumeRender::TEXTURE3D) { 
+
+  // viewport-aligned 3D textures
+  if (rendermethod == SoVolumeRender::TEXTURE3D) {
 
     const int numslices = PRIVATE(this)->calculateNrOf3DSlices(action, voxcubedims);
     if (numslices == 0) return;
@@ -565,7 +448,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     if (!PRIVATE(this)->cubehandler) {
       PRIVATE(this)->cubehandler = new CvrCubeHandler(voxcubedims, volumedata->getReader());
     }
-   
+
     Cvr3DTexSubCube::Interpolation interp;
     switch (this->interpolation.getValue()) {
     case NEAREST: interp = Cvr3DTexSubCube::NEAREST; break;
@@ -580,14 +463,15 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     case SUM_INTENSITY: composit = CvrCubeHandler::SUM_INTENSITY; break;
     default: assert(FALSE && "invalid value in composition field"); break;
     }
-    
+
     PRIVATE(this)->cubehandler->render(action, numslices, interp, composit,
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
 
 
   }
-  else if (rendermethod == SoVolumeRender::TEXTURE2D){ // Using object aligned 2D textures
+  // axis-aligned 2D textures
+  else if (rendermethod == SoVolumeRender::TEXTURE2D) {
 
     const int numslices = PRIVATE(this)->calculateNrOf2DSlices(action, voxcubedims);
     if (numslices == 0) return;
@@ -595,7 +479,8 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     if (!PRIVATE(this)->pagehandler) {
       PRIVATE(this)->pagehandler = new CvrPageHandler(voxcubedims, volumedata->getReader());
       // FIXME: needs to be invalidated / deallocated when
-      // SoVolumeData get replaced by one with different voxcubedims
+      // SoVolumeData get replaced by one with different
+      // voxcubedims. handegar.
     }
 
     Cvr2DTexSubPage::Interpolation interp;
@@ -612,10 +497,10 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     case SUM_INTENSITY: composit = CvrPageHandler::SUM_INTENSITY; break;
     default: assert(FALSE && "invalid value in composition field"); break;
     }
-    
+
     PRIVATE(this)->pagehandler->render(action, numslices, interp, composit,
                                        PRIVATE(this)->abortfunc,
-                                       PRIVATE(this)->abortfuncdata);    
+                                       PRIVATE(this)->abortfuncdata);
   }
   else {
     assert(FALSE && "Rendering method not implemented/supported.");
@@ -909,3 +794,129 @@ SoVolumeRenderP::rayPickDebug(SoGLRenderAction * action)
 
   state->pop();
 }
+
+// *************************************************************************
+
+SbBool
+SoVolumeRenderP::use3DTexturing(void)
+{
+  // This check should only be done once.
+  static int do3dtextures = -1;
+
+  if (do3dtextures == 1) return TRUE;
+  else if (do3dtextures == 0) return FALSE;
+
+  // Shall we force 3D texturing?
+  const char * envstr = coin_getenv("CVR_FORCE_3D_TEXTURES");
+  if (envstr && (atoi(envstr) > 0)) {
+    do3dtextures = 1;
+    return TRUE;
+  }
+
+  static const GLubyte * rendererstring = glGetString(GL_RENDERER);
+  int i=0;
+  while (texture3d_in_hardware[i]) {
+    const char * loc = strstr(rendererstring, texture3d_in_hardware[i++]);
+    if (loc != NULL) {
+      do3dtextures = 1;
+      return TRUE;
+    }
+  }
+
+  i=0;
+  while (texture3d_in_software[i]) {
+    const char * loc = strstr(rendererstring, texture3d_in_software[i++]);
+    if (CvrUtil::doDebugging() && loc) {
+      SoDebugError::postWarning("SoVolumeRenderP::use3DTexturing",
+                                "Your GFX card ('%s') has 3D texture abilities, "
+                                "but these are not hardware accelerated. Using 2D textures instead. "
+                                "(If you wish to force 3D texturing, set the envvar "
+                                "CVR_FORCE_3D_TEXTURES=1)",
+                                rendererstring);
+      do3dtextures = 0;
+      return FALSE;
+    }
+  }
+
+  // FIXME: What shall we do as default behaviour? The GPU *has* 3D
+  // texture support if we have reached this point. (20040316 handegar)
+  //
+  // UPDATE: this is where we should do a performance check to see how
+  // 3D textures behaves versus the speed we're getting from 2D
+  // textures. If within a factor of 1/3 or something of the speed,
+  // choose 3D textures. 20040317 mortene.
+
+  do3dtextures = 1;
+  return TRUE;
+}
+
+unsigned int
+SoVolumeRenderP::calculateNrOf2DSlices(SoGLRenderAction * action,
+                                       const SbVec3s & dimensions)
+{
+  int numslices = 0;
+  const int control = PUBLIC(this)->numSlicesControl.getValue();
+  const unsigned int AXISIDX = this->pagehandler->getCurrentAxis(action);
+
+  if ((control == SoVolumeRender::ALL) ||
+      (PUBLIC(this)->numSlices.getValue() <= 0)) {
+    numslices = dimensions[AXISIDX];
+  }
+  else if (control == SoVolumeRender::MANUAL) {
+    numslices = PUBLIC(this)->numSlices.getValue();
+  }
+  else if (control == SoVolumeRender::AUTOMATIC) {
+    const float complexity = PUBLIC(this)->getComplexityValue(action);
+    numslices = int(complexity * 2.0f * PUBLIC(this)->numSlices.getValue());
+    assert(numslices >= 0);
+  }
+  else {
+    assert(FALSE && "invalid numSlicesControl value");
+  }
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("SoVolumeRenderP::calculateNrOf2DSlices",
+                         "numslices == %d", numslices);
+#endif // debug
+
+  return numslices;
+}
+
+unsigned int
+SoVolumeRenderP::calculateNrOf3DSlices(SoGLRenderAction * action,
+                                       const SbVec3s & dimensions)
+{
+  int numslices = 0;
+  const int control = PUBLIC(this)->numSlicesControl.getValue();
+  const float complexity = PUBLIC(this)->getComplexityValue(action);
+
+  if ((control == SoVolumeRender::ALL) ||
+      (PUBLIC(this)->numSlices.getValue() <= 0)) {
+    // 'Applying' the Nyquist theorem
+    numslices = (unsigned int) sqrt(double(dimensions[0]*dimensions[0] +
+                                           dimensions[1]*dimensions[1] +
+                                           dimensions[2]*dimensions[2])) * 2;
+    numslices = int(complexity * 2.0f * numslices);
+  }
+  else if (control == SoVolumeRender::MANUAL) {
+    numslices = PUBLIC(this)->numSlices.getValue();
+  }
+  else if (control == SoVolumeRender::AUTOMATIC) {
+    numslices = int(complexity * 2.0f * PUBLIC(this)->numSlices.getValue());
+    assert(numslices >= 0);
+  }
+  else {
+    assert(FALSE && "invalid numSlicesControl value");
+  }
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("SoVolumeRenderP::calculateNrOf3DSlices",
+                         "numslices == %d", numslices);
+#endif // debug
+
+  numslices = SbMax(64, numslices); // Anything below 64 slices looks ugly for 3D textures.
+
+  return numslices;
+}
+
+// *************************************************************************
