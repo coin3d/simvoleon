@@ -1,5 +1,5 @@
-#ifndef COIN_CVRVOXELCHUNK_H
-#define COIN_CVRVOXELCHUNK_H
+#ifndef SIMVOLEON_CVRVOXELCHUNK_H
+#define SIMVOLEON_CVRVOXELCHUNK_H
 
 /**************************************************************************\
  *
@@ -42,6 +42,8 @@ public:
                 const void * buffer = NULL);
   ~CvrVoxelChunk();
 
+  void transfer(const SoGLRenderAction * action, CvrTextureObject * texobj, SbBool & invisible) const;
+
   const void * getBuffer(void) const;
   const uint8_t * getBuffer8(void) const;
   const uint16_t * getBuffer16(void) const;
@@ -51,9 +53,6 @@ public:
   const SbVec3s & getDimensions(void) const;
   unsigned int getUnitSize(void) const;
 
-  CvrTextureObject * transfer2D(const SoGLRenderAction * action, SbBool & invisible) const;
-  CvrTextureObject * transfer3D(const SoGLRenderAction * action, SbBool & invisible) const;
-  
   void dumpToPPM(const char * filename) const;
 
   // FIXME: move to CvrCLUT?
@@ -65,14 +64,15 @@ public:
   CvrVoxelChunk * buildSubCube(const SbBox3s & cubecut);
 
 private:
+  void transfer2D(const SoGLRenderAction * action, CvrTextureObject * texobj, SbBool & invisible) const;
+  void transfer3D(const SoGLRenderAction * action, CvrTextureObject * texobj, SbBool & invisible) const;
+  
   CvrVoxelChunk * buildSubPageX(const int pageidx, const SbBox2s & cutslice);
   CvrVoxelChunk * buildSubPageY(const int pageidx, const SbBox2s & cutslice);
   CvrVoxelChunk * buildSubPageZ(const int pageidx, const SbBox2s & cutslice);
 
   static CvrCLUT * makeCLUT(const SoTransferFunctionElement * e);
   static SbDict * CLUTdict;
-
-  static SbBool usePaletteTextures(const SoGLRenderAction * action);
 
   static uint8_t PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];
   static void initPredefGradients(void);
@@ -85,4 +85,4 @@ private:
 
 // *************************************************************************
 
-#endif // !COIN_CVRVOXELCHUNK_H
+#endif // !SIMVOLEON_CVRVOXELCHUNK_H

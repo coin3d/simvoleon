@@ -232,63 +232,24 @@ CvrVoxelChunk::getCLUT(const SoTransferFunctionElement * tfelement)
   return clut;
 }
 
-SbBool
-CvrVoxelChunk::usePaletteTextures(const SoGLRenderAction * action)
+void
+CvrVoxelChunk::transfer(const SoGLRenderAction * action,
+                        CvrTextureObject * texobj, SbBool & invisible) const
 {
-  SoState * state = action->getState();
-  const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
-
-  // Check if paletted textures is wanted by the app programmer.
-  const SbBool apiusepalette = CvrPalettedTexturesElement::get(state);
-  SbBool usepalettetex = apiusepalette;
-
-  const char * env;
-  static int force_paletted = -1; // "-1" means "undecided"
-  static int force_rgba = -1;
-
-  if (force_paletted == -1) {
-    force_paletted = (env = coin_getenv("CVR_FORCE_PALETTED_TEXTURES")) && (atoi(env) > 0);
+  if ((texobj->getTypeId() == Cvr2DPaletteTexture::getClassTypeId()) ||
+      (texobj->getTypeId() == Cvr2DRGBATexture::getClassTypeId())) {
+    this->transfer2D(action, texobj, invisible);
   }
-  if (force_rgba == -1) {
-    force_rgba = (env = coin_getenv("CVR_FORCE_RGBA_TEXTURES")) && (atoi(env) > 0);
+  else {
+    this->transfer3D(action, texobj, invisible);
   }
-  assert(!(force_paletted && force_rgba)); // both at the same time can't be done, silly
-
-  if (force_paletted) usepalettetex = TRUE;
-  if (force_rgba) usepalettetex = FALSE;
-
-  // If we requested paletted textures, does OpenGL support them?
-  // Texture paletting can also be done with fragment
-  // programs. (E.g. ATI drivers don't have the palette-texture
-  // extension, but newer cards supports fragment programs.)
-  //
-  // (FIXME: one more thing to check versus OpenGL is that the palette
-  // size can fit. 2003???? mortene.)
-  const SbBool haspalettetextures = cc_glglue_has_paletted_textures(glw);
-  SbBool hasfragmentprogramsupport = FALSE;
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
-  hasfragmentprogramsupport = cc_glglue_has_arb_fragment_program(glw);
-#endif // HAVE_ARB_FRAGMENT_PROGRAM
-  usepalettetex = usepalettetex && (haspalettetextures || hasfragmentprogramsupport);
-
-  static SbBool first = TRUE;
-  if (first && CvrUtil::doDebugging()) {
-    SoDebugError::postInfo("CvrVoxelChunk::usePaletteTextures",
-                           "returns %d (SoVolumeData::usePalettedTexture==%d, "
-                           "force_paletted==%d, force_rgba==%d, "
-                           "OpenGL-has-palette-texture-extension==%d), "
-                           "OpenGL-has-fragment-programs==%d)",
-                           usepalettetex,
-                           apiusepalette, force_paletted, force_rgba,
-                           haspalettetextures, hasfragmentprogramsupport);
-    first = FALSE;
-  }
-
-  return usepalettetex;
 }
 
-CvrTextureObject *
-CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, SbBool & invisible) const
+// FIXME: handegar duplicated this from transfer2D(). Should merge
+// back the common code again. Grmbl. 20040721 mortene.
+void
+CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
+                          CvrTextureObject * texobj, SbBool & invisible) const
 {
 
   // FIXME: Only the CvrTextureManager should be allowed to create
@@ -334,26 +295,23 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, SbBool & invisible) c
 #endif
 
   invisible = TRUE;
-  CvrTextureObject * texobj = NULL;
+
+  CvrRGBATexture * rgbatex =
+    (texobj->getTypeId().isDerivedFrom(CvrRGBATexture::getClassTypeId())) ?
+    (CvrRGBATexture *)texobj : NULL;
+
+  CvrPaletteTexture * palettetex =
+    (texobj->getTypeId().isDerivedFrom(CvrPaletteTexture::getClassTypeId())) ?
+    (CvrPaletteTexture *)texobj : NULL;
+
+  assert((rgbatex && !palettetex) || (!rgbatex && palettetex));
 
   if (this->getUnitSize() == 1) {
-    CvrRGBATexture * rgbatex = NULL;
-    CvrPaletteTexture * palettetex = NULL;
 
     const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
     clut->ref();
 
-    SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
-
-    if (usepalettetex) {
-      palettetex = new Cvr3DPaletteTexture(texsize);
-      palettetex->setCLUT(clut);
-      texobj = palettetex;
-    }
-    else {
-      rgbatex = new Cvr3DRGBATexture(texsize);
-      texobj = rgbatex;
-    }
+    if (palettetex) { palettetex->setCLUT(clut); }
 
     const int32_t shiftval = transferfunc->shift.getValue();
     const int32_t offsetval = transferfunc->offset.getValue();
@@ -446,12 +404,8 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, SbBool & invisible) c
     const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
     clut->ref();
 
-    SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
-
-    if (usepalettetex) {
-      palettetex = new Cvr3DPaletteTexture(texsize);
+    if (palettetex) {
       palettetex->setCLUT(clut);
-      texobj = palettetex;
     }
     else {
       assert(FALSE && "16 bits RGBA textures are not supported.");
@@ -497,9 +451,6 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, SbBool & invisible) c
   else {
     assert(FALSE && "Unknown voxel unit size.");
   }
-
-  return texobj;
-
 }
 
 /*!
@@ -508,8 +459,9 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, SbBool & invisible) c
   The "invisible" flag will be set according to whether or not there's
   at least one texel that's not fully transparent.
 */
-CvrTextureObject *
-CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, SbBool & invisible) const
+void
+CvrVoxelChunk::transfer2D(const SoGLRenderAction * action,
+                          CvrTextureObject * texobj, SbBool & invisible) const
 {
   // FIXME: about the "invisible" flag: this should really be an
   // SbBox2s that indicates which part of the output buffer is
@@ -550,26 +502,22 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, SbBool & invisible) c
 
   invisible = TRUE;
 
-  CvrTextureObject * texobj = NULL;
+  CvrRGBATexture * rgbatex =
+    (texobj->getTypeId().isDerivedFrom(CvrRGBATexture::getClassTypeId())) ?
+    (CvrRGBATexture *)texobj : NULL;
+
+  CvrPaletteTexture * palettetex =
+    (texobj->getTypeId().isDerivedFrom(CvrPaletteTexture::getClassTypeId())) ?
+    (CvrPaletteTexture *)texobj : NULL;
+
+  assert((rgbatex && !palettetex) || (!rgbatex && palettetex));
 
   if (this->getUnitSize() == 1) {
-    CvrRGBATexture * rgbatex = NULL;
-    CvrPaletteTexture * palettetex = NULL;
 
     const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
     clut->ref();
 
-    SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
-
-    if (usepalettetex) {
-      palettetex = new Cvr2DPaletteTexture(SbVec3s(texsize[0], texsize[1], 1));
-      palettetex->setCLUT(clut);
-      texobj = palettetex;
-    }
-    else {
-      rgbatex = new Cvr2DRGBATexture(SbVec3s(texsize[0], texsize[1], 1));
-      texobj = rgbatex;
-    }
+    if (palettetex) { palettetex->setCLUT(clut); }
 
     const int32_t shiftval = transferfunc->shift.getValue();
     const int32_t offsetval = transferfunc->offset.getValue();
@@ -632,9 +580,6 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, SbBool & invisible) c
   else {
     assert(FALSE && "unknown unit size");
   }
-
-
-  return texobj;
 }
 
 // Initialize all predefined colormaps.

@@ -1,5 +1,5 @@
-#ifndef COIN_CVR2DPALETTETEXTURE_H
-#define COIN_CVR2DPALETTETEXTURE_H
+#ifndef SIMVOLEON_CVR2DPALETTETEXTURE_H
+#define SIMVOLEON_CVR2DPALETTETEXTURE_H
 
 /**************************************************************************\
  *
@@ -51,7 +51,7 @@ private:
 
   static SoType classTypeId;
 
-  friend class CvrVoxelChunk;
+  friend class CvrTextureObject;
 };
 
-#endif // !COIN_CVR2DPALETTETEXTURE_H
+#endif // !SIMVOLEON_CVR2DPALETTETEXTURE_H

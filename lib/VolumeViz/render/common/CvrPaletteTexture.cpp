@@ -36,6 +36,8 @@ SoType CvrPaletteTexture::classTypeId;
 SoType CvrPaletteTexture::getTypeId(void) const { return CvrPaletteTexture::classTypeId; }
 SoType CvrPaletteTexture::getClassTypeId(void) { return CvrPaletteTexture::classTypeId; }
 
+// *************************************************************************
+
 void
 CvrPaletteTexture::initClass(void)
 {
@@ -58,12 +60,16 @@ CvrPaletteTexture::~CvrPaletteTexture()
   if (this->indexbuffer) delete [] this->indexbuffer;
 }
 
+// *************************************************************************
+
 // Returns pointer to buffer with 8-bit indices.
 uint8_t *
 CvrPaletteTexture::getIndex8Buffer(void) const
 {
   return this->indexbuffer;
 }
+
+// *************************************************************************
 
 void
 CvrPaletteTexture::setCLUT(const CvrCLUT * table)
@@ -78,3 +84,5 @@ CvrPaletteTexture::getCLUT(void) const
 {
   return this->clut;
 }
+
+// *************************************************************************

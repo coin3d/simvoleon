@@ -1,5 +1,5 @@
-#ifndef COIN_CVRCLUT_H
-#define COIN_CVRCLUT_H
+#ifndef SIMVOLEON_CVRCLUT_H
+#define SIMVOLEON_CVRCLUT_H
 
 /**************************************************************************\
  *
@@ -24,11 +24,13 @@
  *
 \**************************************************************************/
 
-#include <Inventor/system/inttypes.h>
+#include <Inventor/SbBasic.h>
 #include <Inventor/system/gl.h>
 
 struct cc_glglue;
+class SoGLRenderAction;
 
+// *************************************************************************
 
 class CvrCLUT {
 public:
@@ -56,6 +58,8 @@ public:
 
   void setAlphaUse(AlphaUse policy);
   void setTextureType(TextureType type);
+
+  static SbBool usePaletteTextures(const SoGLRenderAction * action);
 
 private:
   ~CvrCLUT();
@@ -91,7 +95,11 @@ private:
   friend class nop; // to avoid g++ compiler warning on the private constructor
 };
 
+// *************************************************************************
+
 int operator==(const CvrCLUT & c1, const CvrCLUT & c2);
 int operator!=(const CvrCLUT & c1, const CvrCLUT & c2);
 
-#endif // !COIN_CVRCLUT_H
+// *************************************************************************
+
+#endif // !SIMVOLEON_CVRCLUT_H

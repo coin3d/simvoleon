@@ -32,10 +32,12 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/SbVec2s.h>
 #include <Inventor/SbBox2s.h>
+#include <Inventor/errors/SoDebugError.h>
 
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/render/common/Cvr2DRGBATexture.h>
@@ -55,6 +57,10 @@ SoType CvrTextureObject::getClassTypeId(void) { return CvrTextureObject::classTy
 
 // *************************************************************************
 
+SbDict * CvrTextureObject::instancedict = NULL;
+
+// *************************************************************************
+
 void
 CvrTextureObject::initClass(void)
 {
@@ -68,6 +74,9 @@ CvrTextureObject::initClass(void)
   Cvr2DPaletteTexture::initClass();
   Cvr3DRGBATexture::initClass();
   Cvr3DPaletteTexture::initClass();
+
+  // FIXME: leak, never deallocated. 20040721 mortene.
+  CvrTextureObject::instancedict = new SbDict;
 }
 
 CvrTextureObject::CvrTextureObject(const SbVec3s & size)
@@ -81,8 +90,35 @@ CvrTextureObject::CvrTextureObject(const SbVec3s & size)
   this->dimensions = size;
 }
 
+#if 0 // FIXME: this must be done in a callback for the resource
+      // handler. 20040720 mortene.
+  GLuint tmp[1];
+  tmp[0] = texobject->getOpenGLTextureId();
+  glDeleteTextures(1, tmp);
+#endif
+
 CvrTextureObject::~CvrTextureObject()
 {
+  cvr_rc_tag_resources_dead(this);
+
+  const unsigned long key = this->hashKey();
+  void * ptr;
+  const SbBool ok = CvrTextureObject::instancedict->find(key, ptr);
+  assert(ok);
+
+  // Calculated hash key is not guaranteed to be unique, so a list is
+  // stored in the hash, which we must do comparisons on the elements
+  // in.
+  SbList<CvrTextureObject *> * l = (SbList<CvrTextureObject *> *)ptr;
+  const int idx = l->find(this);
+  assert(idx != -1);
+  l->removeFast(idx);
+
+  if (l->getLength() == 0) {
+    delete l;
+    const SbBool ok = CvrTextureObject::instancedict->remove(key);
+    assert(ok);
+  }
 }
 
 // *************************************************************************
@@ -94,28 +130,6 @@ CvrTextureObject::getDimensions(void) const
 }
 
 // *************************************************************************
-
-#if 0 // FIXME: reenable this code, but integrated in this
-      // class. 20040716 mortene.
-void
-CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
-{
-  if (texobject->getRefCount() == 1) { // about to be destructed
-    GLuint tmp[1];
-    tmp[0] = texobject->getOpenGLTextureId();
-    glDeleteTextures(1, tmp);
-
-    void * ptr;
-    get_texturedict()->find((unsigned long)texobject, ptr);
-    assert(ptr && "Trying to remove a CvrTextureObject which has not been registered!");
-    const SbBool ok = get_texturedict()->remove((unsigned long)texobject);
-    assert(ok);
-    delete ((textureobj *)ptr);
-  }
-
-  texobject->unref();
-}
-#endif
 
 // FIXME: a GL texture for a CvrTextureObject is not only dependent on
 // the context, but also various things that are on the state stack
@@ -292,71 +306,22 @@ CvrTextureObject::unref(void) const
 
 // *************************************************************************
 
-// FIXME: remove this? Write comparison functions into
-// CvrTextureObject? 20040716 mortene.
-
-struct textureobj {
-  uint32_t voldataid; // This will change if volume-data is modified
-                      // in any way.
-
-  CvrTextureObject * object;
-
-  // For 3D textures:
-  SbBox3s cutcube;
-  // For 2D textures:
-  SbBox2s cutslice;
-  unsigned int axisidx;
-  int pageidx;
-};
-
-// *************************************************************************
-
-static SbDict *
-get_texturedict(void)
+CvrTextureObject *
+CvrTextureObject::findInstanceMatch(const struct CvrTextureObject::EqualityComparison & obj)
 {
-  static SbDict * texturedict = NULL;
+  const unsigned long key = CvrTextureObject::hashKey(obj);
+  void * ptr;
+  const SbBool ok = CvrTextureObject::instancedict->find(key, ptr);
+  if (!ok) { return NULL; }
 
-  if (texturedict == NULL) {
-    texturedict = new SbDict;
-    // FIXME: leak. 20040715 mortene.
-  }
-  return texturedict;
-}
+  // Calculated hash key is not guaranteed to be unique, so a list is
+  // stored in the hash, which we must do comparisons on the elements
+  // in.
+  SbList<CvrTextureObject *> * l = (SbList<CvrTextureObject *> *)ptr;
 
-// *************************************************************************
-
-static textureobj *
-find_textureobject(const uint32_t voldataid,
-                   const SbBox3s cutcube,
-                   const SbBox2s & cutslice,
-                   const unsigned int axisidx,
-                   const int pageidx)
-{
-  SbPList keylist;
-  SbPList valuelist;
-
-  // FIXME: traversing as a list is too slow with 2D textures!
-  // 20040720 mortene.
-  get_texturedict()->makePList(keylist, valuelist);
-
-  for (int i=0;i<valuelist.getLength();++i) {
-    void * ptr = valuelist[i];
-    textureobj * obj = (textureobj *) ptr;
-    // FIXME: this cmp operation is probably not strict
-    // enough. Audit. 20040716 mortene.
-    if ((obj->voldataid == voldataid) &&
-        // Note: we compare SbBox3s corner points for the cutcube
-        // instead of using the operator==() for SbBox3s, because the
-        // operator was forgotten for export to the DLL interface up
-        // until and including Coin version 2.3 (and SIM Voleon should
-        // be compatible with anything from Coin 2.0 and upwards).
-        (obj->cutcube.getMin() == cutcube.getMin()) &&
-        (obj->cutcube.getMax() == cutcube.getMax()) &&
-        (obj->cutslice == cutslice) &&
-        (obj->axisidx == axisidx) &&
-        (obj->pageidx == pageidx)) {
-      return obj;
-    }
+  for (int i = 0; i < l->getLength(); i++) {
+    CvrTextureObject * to = (*l)[i];
+    if (to->eqcmp == obj) { return to; }
   }
 
   return NULL;
@@ -375,7 +340,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
                          const SbBox3s & cutcube)
 {
   const SbBox2s dummy; // constructor initializes it to an empty box
-  return CvrTextureObject::newTextureObject(action, texsize, cutcube, dummy, UINT_MAX, INT_MAX);
+  return CvrTextureObject::create(action, texsize, cutcube, dummy, UINT_MAX, INT_MAX);
 }
 
 const CvrTextureObject *
@@ -388,26 +353,31 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   const SbVec3s tex(texsize[0], texsize[1], 1);
   const SbBox3s dummy; // constructor initializes it to an empty box
 
-  return CvrTextureObject::newTextureObject(action, tex, dummy, cutslice, axisidx, pageidx);
+  return CvrTextureObject::create(action, tex, dummy, cutslice, axisidx, pageidx);
 }
 
+// The common create function, used for both 2D and 3D cuts of the
+// volume.
 CvrTextureObject *
-CvrTextureObject::newTextureObject(const SoGLRenderAction * action,
-                                   const SbVec3s & texsize,
-                                   const SbBox3s & cutcube,
-                                   const SbBox2s & cutslice,
-                                   const unsigned int axisidx,
-                                   const int pageidx)
+CvrTextureObject::create(const SoGLRenderAction * action,
+                         /* common: */ const SbVec3s & texsize,
+                         /* 3D only: */ const SbBox3s & cutcube,
+                         /* 2D only: */ const SbBox2s & cutslice, const unsigned int axisidx, const int pageidx)
 {
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
   assert(vbelem != NULL);
 
-  textureobj * obj = find_textureobject(vbelem->getNodeId(),
-                                        /* for 3d: */ cutcube,
-                                        /* for 2d: */ cutslice, axisidx, pageidx);
-  if (obj != NULL) { return obj->object; }
+  struct CvrTextureObject::EqualityComparison incoming = {
+    vbelem->getNodeId(),
+    /* for 3d: */ cutcube,
+    /* for 2d: */ cutslice, axisidx, pageidx
+  };
 
-  const SbVec3s & vddims = vbelem->getVoxelCubeDimensions();
+  CvrTextureObject * obj = CvrTextureObject::findInstanceMatch(incoming);
+  if (obj) { return obj; }
+
+
+  const SbVec3s & voxdims = vbelem->getVoxelCubeDimensions();
   const void * dataptr = vbelem->getVoxels();
 
   const SbBool is2d = (axisidx != UINT_MAX);
@@ -415,16 +385,23 @@ CvrTextureObject::newTextureObject(const SoGLRenderAction * action,
   // FIXME: improve buildSubPage() interface to fix this roundabout
   // way of calling it. 20021206 mortene.
   CvrVoxelChunk * input =
-    new CvrVoxelChunk(vddims, vbelem->getBytesPrVoxel(), dataptr);
+    new CvrVoxelChunk(voxdims, vbelem->getBytesPrVoxel(), dataptr);
   CvrVoxelChunk * cubechunk;
   if (is2d) { cubechunk = input->buildSubPage(axisidx, pageidx, cutslice); }
   else { cubechunk = input->buildSubCube(cutcube); }
   delete input;
 
+  const SbBool paletted = CvrCLUT::usePaletteTextures(action);
   SbBool invisible = FALSE;
+
   CvrTextureObject * newtexobj;
-  if (is2d) { newtexobj = cubechunk->transfer2D(action, invisible); }
-  else { newtexobj = cubechunk->transfer3D(action, invisible); }
+  // FIXME: use SoType::createInstance() for the below stuff. 20040721 mortene.
+  if (is2d && paletted) { newtexobj = new Cvr2DPaletteTexture(texsize); }
+  else if (is2d) { newtexobj = new Cvr2DRGBATexture(texsize); }
+  else if (paletted) { newtexobj = new Cvr3DPaletteTexture(texsize); }
+  else { newtexobj = new Cvr3DRGBATexture(texsize); }
+
+  cubechunk->transfer(action, newtexobj, invisible);
 
   // If completely transparent
   if (invisible) { return NULL; }
@@ -433,14 +410,27 @@ CvrTextureObject::newTextureObject(const SoGLRenderAction * action,
   // floating point inaccuracies when calculating texture coords.
   newtexobj->blankUnused(texsize);
 
-  obj = new textureobj;
-  obj->object = newtexobj;
-  obj->voldataid = vbelem->getNodeId();
-  obj->cutcube = cutcube;
-  obj->cutslice = cutslice;
-  obj->axisidx = axisidx;
-  obj->pageidx = pageidx;
-  get_texturedict()->enter((unsigned long)newtexobj, (void *)obj);
+  // We'll self-destruct when the SoVolumeData node is changed.
+  //
+  // FIXME: need to implement the self-destruction mechanism. Should
+  // attach an SoNodeSensor to the node, have a
+  // "about-to-be-destroyed" callback for the owners/auditors of
+  // newtexobj, etc etc. 20040721 mortene.
+  newtexobj->eqcmp = incoming;
+
+  const unsigned long key = newtexobj->hashKey();
+  void * ptr;
+  const SbBool ok = CvrTextureObject::instancedict->find(key, ptr);
+  SbList<CvrTextureObject *> * l;
+  if (ok) {
+    l = (SbList<CvrTextureObject *> *)ptr;
+  }
+  else {
+    l = new SbList<CvrTextureObject *>;
+    const SbBool newentry = CvrTextureObject::instancedict->enter(key, l);
+    assert(newentry);
+  }
+  l->append(newtexobj);
 
   return newtexobj;
 }
@@ -509,6 +499,58 @@ CvrTextureObject::activateTexture(const SoGLRenderAction * action) const
   // 20021201 mortene.
 
 #endif // debug
+}
+
+// *************************************************************************
+
+unsigned long
+CvrTextureObject::hashKey(void) const
+{
+  return CvrTextureObject::hashKey(this->eqcmp);
+}
+
+unsigned long
+CvrTextureObject::hashKey(const struct CvrTextureObject::EqualityComparison & obj)
+{
+  unsigned long key = obj.sovolumedata_id;
+
+  if (obj.axisidx != UINT_MAX) { key += obj.axisidx; }
+  if (obj.pageidx != INT_MAX) { key += obj.pageidx; }
+
+  SbBox3s empty3;
+  if (obj.cutcube.getMin() != empty3.getMin()) {
+    short v[6];
+    obj.cutcube.getBounds(v[0], v[1], v[2], v[3], v[4], v[5]);
+    for (unsigned int i = 0; i < 6; i++) { key += v[i]; }
+  }
+
+  SbBox2s empty2;
+  if (obj.cutslice != empty2) {
+    short v[4];
+    obj.cutslice.getBounds(v[0], v[1], v[2], v[3]);
+    for (unsigned int i = 0; i < 4; i++) { key += v[i]; }
+  }
+
+  return key;
+}
+
+// *************************************************************************
+
+int
+CvrTextureObject::EqualityComparison::operator==(const CvrTextureObject::EqualityComparison & obj)
+{
+  return
+    (this->sovolumedata_id == obj.sovolumedata_id) &&
+    // Note: we compare SbBox3s corner points for the cutcube instead
+    // of using the operator==() for SbBox3s, because the operator was
+    // forgotten for export to the DLL interface up until and
+    // including Coin version 2.3 (and SIM Voleon should be compatible
+    // with anything from Coin 2.0 and upwards).
+    (this->cutcube.getMin() == obj.cutcube.getMin()) &&
+    (this->cutcube.getMax() == obj.cutcube.getMax()) &&
+    (this->cutslice == obj.cutslice) &&
+    (this->axisidx == obj.axisidx) &&
+    (this->pageidx == obj.pageidx);
 }
 
 // *************************************************************************

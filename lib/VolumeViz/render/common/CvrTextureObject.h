@@ -26,11 +26,11 @@
 
 #include <Inventor/SoType.h>
 #include <Inventor/SbVec3s.h>
+#include <Inventor/SbBox2s.h>
+#include <Inventor/SbBox3s.h>
 #include <Inventor/system/gl.h>
 
 class SoGLRenderAction;
-class SbBox2s;
-class SbBox3s;
 class SbVec2s;
 
 // *************************************************************************
@@ -44,7 +44,7 @@ public:
 
   static const CvrTextureObject * create(const SoGLRenderAction * action,
                                          const SbVec2s & texsize,
-                                         const SbBox2s & cutcube,
+                                         const SbBox2s & cutslice,
                                          const unsigned int axisidx,
                                          const int pageidx);
 
@@ -73,18 +73,36 @@ protected:
 
 private:
   SbBool findGLTexture(const SoGLRenderAction * action, GLuint & texid) const;
-  static CvrTextureObject * newTextureObject(const SoGLRenderAction * action,
-                                             const SbVec3s & texsize,
-                                             const SbBox3s & cutcube,
-                                             const SbBox2s & cutslice,
-                                             const unsigned int axisidx,
-                                             const int pageidx);
+  static CvrTextureObject * create(const SoGLRenderAction * action,
+                                   const SbVec3s & texsize,
+                                   const SbBox3s & cutcube,
+                                   const SbBox2s & cutslice,
+                                   const unsigned int axisidx,
+                                   const int pageidx);
 
   GLuint getGLTexture(const SoGLRenderAction * action) const;
 
   static SoType classTypeId;
   SbVec3s dimensions;
   uint32_t refcounter;
+  static SbDict * instancedict;
+
+  struct EqualityComparison {
+    uint32_t sovolumedata_id;
+    // FIXME: messy, next data should be part of subclasses. 20040721 mortene.
+    // for 3D cuts:
+    SbBox3s cutcube;
+    // these are for 2D cuts:
+    SbBox2s cutslice;
+    unsigned int axisidx;
+    int pageidx;
+
+    int operator==(const struct EqualityComparison & cmp);
+  } eqcmp;
+
+  static CvrTextureObject * findInstanceMatch(const struct CvrTextureObject::EqualityComparison & cmp);
+  unsigned long CvrTextureObject::hashKey(void) const;
+  static unsigned long hashKey(const struct CvrTextureObject::EqualityComparison & cmp);
 };
 
 #endif // !SIMVOLEON_CVRTEXTUREOBJECT_H

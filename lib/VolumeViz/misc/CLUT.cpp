@@ -25,6 +25,8 @@
 
 // *************************************************************************
 
+#include <VolumeViz/misc/CvrCLUT.h>
+
 #include <assert.h>
 #include <string.h>
 
@@ -32,13 +34,16 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <Inventor/SbBasic.h>
-#include <Inventor/C/tidbits.h>
-#include <Inventor/errors/SoDebugError.h>
 #include <Inventor/C/glue/gl.h>
+#include <Inventor/C/tidbits.h>
+#include <Inventor/SbBasic.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/errors/SoDebugError.h>
 
-#include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/elements/CvrPalettedTexturesElement.h>
 #include <VolumeViz/misc/CvrUtil.h>
+
+class SoState;
 
 // *************************************************************************
 
@@ -545,3 +550,62 @@ CvrCLUT::regenerateGLColorData(void)
 
   this->palettehaschanged = TRUE;
 }
+
+// *************************************************************************
+
+SbBool
+CvrCLUT::usePaletteTextures(const SoGLRenderAction * action)
+{
+  SoState * state = action->getState();
+  const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
+
+  // Check if paletted textures is wanted by the app programmer.
+  const SbBool apiusepalette = CvrPalettedTexturesElement::get(state);
+  SbBool usepalettetex = apiusepalette;
+
+  const char * env;
+  static int force_paletted = -1; // "-1" means "undecided"
+  static int force_rgba = -1;
+
+  if (force_paletted == -1) {
+    force_paletted = (env = coin_getenv("CVR_FORCE_PALETTED_TEXTURES")) && (atoi(env) > 0);
+  }
+  if (force_rgba == -1) {
+    force_rgba = (env = coin_getenv("CVR_FORCE_RGBA_TEXTURES")) && (atoi(env) > 0);
+  }
+  assert(!(force_paletted && force_rgba)); // both at the same time can't be done, silly
+
+  if (force_paletted) usepalettetex = TRUE;
+  if (force_rgba) usepalettetex = FALSE;
+
+  // If we requested paletted textures, does OpenGL support them?
+  // Texture paletting can also be done with fragment
+  // programs. (E.g. ATI drivers don't have the palette-texture
+  // extension, but newer cards supports fragment programs.)
+  //
+  // (FIXME: one more thing to check versus OpenGL is that the palette
+  // size can fit. 2003???? mortene.)
+  const SbBool haspalettetextures = cc_glglue_has_paletted_textures(glw);
+  SbBool hasfragmentprogramsupport = FALSE;
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+  hasfragmentprogramsupport = cc_glglue_has_arb_fragment_program(glw);
+#endif // HAVE_ARB_FRAGMENT_PROGRAM
+  usepalettetex = usepalettetex && (haspalettetextures || hasfragmentprogramsupport);
+
+  static SbBool first = TRUE;
+  if (first && CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("CvrCLUT::usePaletteTextures",
+                           "returns %d (SoVolumeData::usePalettedTexture==%d, "
+                           "force_paletted==%d, force_rgba==%d, "
+                           "OpenGL-has-palette-texture-extension==%d), "
+                           "OpenGL-has-fragment-programs==%d)",
+                           usepalettetex,
+                           apiusepalette, force_paletted, force_rgba,
+                           haspalettetextures, hasfragmentprogramsupport);
+    first = FALSE;
+  }
+
+  return usepalettetex;
+}
+
+// *************************************************************************

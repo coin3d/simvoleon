@@ -46,6 +46,9 @@ public:
               const SbVec3f & upleft, SbVec3f widthvec, SbVec3f heightvec);
 
   SbBool isPaletted(void) const;
+
+  // FIXME: this should just be picked up from the state stack, and
+  // handled by the CvrTextureObject subclasses. 20040721 mortene.
   void setPalette(const CvrCLUT * newclut);
 
 private:

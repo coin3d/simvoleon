@@ -43,7 +43,7 @@ Cvr2DRGBATexture::initClass(void)
 {
   assert(Cvr2DRGBATexture::classTypeId == SoType::badType());
   Cvr2DRGBATexture::classTypeId =
-    SoType::createType(CvrTextureObject::getClassTypeId(), "Cvr2DRGBATexture");
+    SoType::createType(CvrRGBATexture::getClassTypeId(), "Cvr2DRGBATexture");
 }
 
 Cvr2DRGBATexture::Cvr2DRGBATexture(const SbVec3s & size)

@@ -1,5 +1,5 @@
-#ifndef COIN_CVR3DRGBATEXTURE_H
-#define COIN_CVR3DRGBATEXTURE_H
+#ifndef SIMVOLEON_CVR3DRGBATEXTURE_H
+#define SIMVOLEON_CVR3DRGBATEXTURE_H
 
 /**************************************************************************\
  *
@@ -49,8 +49,7 @@ private:
   static SoType classTypeId;
 
   // FIXME: most likely an indication of bad design. 20040715 mortene.
-  friend class CvrVoxelChunk;
-  friend class CvrTextureManager;
+  friend class CvrTextureObject;
 };
 
-#endif // !COIN_CVR3DRGBATEXTURE_H
+#endif // !SIMVOLEON_CVR3DRGBATEXTURE_H

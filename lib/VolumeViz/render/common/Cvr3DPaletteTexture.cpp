@@ -43,7 +43,7 @@ Cvr3DPaletteTexture::initClass(void)
 {
   assert(Cvr3DPaletteTexture::classTypeId == SoType::badType());
   Cvr3DPaletteTexture::classTypeId =
-    SoType::createType(CvrTextureObject::getClassTypeId(), "Cvr3DPaletteTexture");
+    SoType::createType(CvrPaletteTexture::getClassTypeId(), "Cvr3DPaletteTexture");
 }
 
 Cvr3DPaletteTexture::Cvr3DPaletteTexture(const SbVec3s & size)
