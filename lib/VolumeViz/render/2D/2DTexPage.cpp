@@ -140,7 +140,8 @@ void Cvr2DTexPage::releaseLRUSubPage(void)
 {
   assert(this->subpages != NULL);
 
-  Cvr2DTexSubPage * LRUPage = this->getLRUSubPage();
+  long tick;
+  Cvr2DTexSubPage * LRUPage = this->getLRUSubPage(tick);
   assert(LRUPage != NULL);
   this->releaseSubPage(LRUPage);
 }
@@ -148,7 +149,7 @@ void Cvr2DTexPage::releaseLRUSubPage(void)
 
 
 Cvr2DTexSubPage *
-Cvr2DTexPage::getLRUSubPage(void)
+Cvr2DTexPage::getLRUSubPage(long & tick)
 {
   assert(this->subpages != NULL);
 
@@ -166,6 +167,7 @@ Cvr2DTexPage::getLRUSubPage(void)
       pitem = pitem->next;
     }
   }
+  tick = lowesttick;
   return LRUPage;
 }
 
@@ -409,6 +411,7 @@ Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
   pitem->transferfuncid = transferfunc->getNodeId();
+  pitem->lasttick = LONG_MAX; // avoid getting it swapped right out again
 
   Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
   if (p == NULL) {

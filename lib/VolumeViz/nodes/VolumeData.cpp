@@ -17,6 +17,7 @@
 
 #include <Inventor/errors/SoDebugError.h>
 
+#include <limits.h>
 
 
 /*
@@ -614,34 +615,38 @@ SoVolumeDataP::releaseLRUPage(void)
                          this->numTexels, this->numBytesHW);
 #endif // debug
 
-  Cvr2DTexSubPage * LRUPage = NULL;
-  Cvr2DTexPage * LRUSlice = NULL;
+  Cvr2DTexSubPage * lru_subpage = NULL;
+  Cvr2DTexPage * lru_page = NULL;
+  long lowesttick = LONG_MAX;
 
   // Searching for least recently used page.
 
   for (int dim=0; dim < 3; dim++) {
     if (this->slices[dim]) {
       for (int i = 0; i < this->dimensions[dim]; i++) {
-        if (this->slices[dim][i]) {
-          Cvr2DTexSubPage * tmppage = this->slices[dim][i]->getLRUSubPage();
-          SbBool newlow = (LRUPage == NULL);
-          if (!newlow) { newlow = tmppage && (tmppage->lastuse < LRUPage->lastuse); }
+        Cvr2DTexPage * page = this->slices[dim][i];
+        if (page) {
+          long tickval;
+          Cvr2DTexSubPage * subpage = page->getLRUSubPage(tickval);
+          SbBool newlow = (lru_subpage == NULL);
+          if (!newlow) { newlow = subpage && (lowesttick > tickval); }
           if (newlow) {
-            LRUSlice = this->slices[dim][i];
-            LRUPage = tmppage;
+            lru_page = page;
+            lru_subpage = subpage;
+            lowesttick = tickval;
           }
         }
       }
     }
   }
 
-  this->numTexels -= LRUSlice->numTexels;
-  this->numBytesHW -= LRUSlice->numBytesHW;
+  this->numTexels -= lru_page->numTexels;
+  this->numBytesHW -= lru_page->numBytesHW;
 
-  LRUSlice->releaseSubPage(LRUPage);
+  lru_page->releaseSubPage(lru_subpage);
 
-  this->numTexels += LRUSlice->numTexels;
-  this->numBytesHW += LRUSlice->numBytesHW;
+  this->numTexels += lru_page->numTexels;
+  this->numBytesHW += lru_page->numBytesHW;
 
 #if 1 // debug
   SoDebugError::postInfo("SoVolumeDataP::releaseLRUPage",

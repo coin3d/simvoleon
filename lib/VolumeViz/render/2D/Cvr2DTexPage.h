@@ -24,7 +24,7 @@ public:
               const SbBox2f & textureCoords,
               SoTransferFunction * transferfunc, long tick);
 
-  Cvr2DTexSubPage * getLRUSubPage(void);
+  Cvr2DTexSubPage * getLRUSubPage(long & tick);
   void releaseSubPage(Cvr2DTexSubPage *page);
 
   // FIXME: must be public, since they are used from

@@ -59,7 +59,6 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(const uint8_t * textureimg,
 {
   this->texdims = size;
 
-  this->lastuse = 0;
   this->numBytesHW = 0;
 
   this->transferTex2GL(textureimg, palettesize, palette);

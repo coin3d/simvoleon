@@ -14,9 +14,6 @@ public:
 
   void activate(void) const;
 
-  // FIXME: must be public, since used from SoVolumeData. 20021106 mortene.
-  unsigned long lastuse;
-
   // FIXME: must be public, since used from Cvr2DTexPage. 20021106 mortene.
   int numBytesHW;
 
