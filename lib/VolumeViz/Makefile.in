@@ -98,7 +98,7 @@ sim_ac_coin_configcmd = @sim_ac_coin_configcmd@
 
 INCLUDES = -I$(top_srcdir)/lib
 
-SUBDIRS = elements nodes readers render .
+SUBDIRS = elements misc nodes readers render .
 
 @BUILD_WITH_MSVC_TRUE@lib_LIBRARIES = VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib
 @BUILD_WITH_MSVC_FALSE@lib_LTLIBRARIES = libVolumeViz.la

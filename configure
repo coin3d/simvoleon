@@ -10099,7 +10099,7 @@ exec_prefix=$sim_ac_save_exec_prefix
 # unset sim_ac_eval_uniq
 
 
-ac_config_files="$ac_config_files Makefile lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile"
+ac_config_files="$ac_config_files Makefile lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -10585,9 +10585,10 @@ do
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "lib/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
   "lib/VolumeViz/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/Makefile" ;;
+  "lib/VolumeViz/elements/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/elements/Makefile" ;;
+  "lib/VolumeViz/misc/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/misc/Makefile" ;;
   "lib/VolumeViz/nodes/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/nodes/Makefile" ;;
   "lib/VolumeViz/nodes/gradients/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/nodes/gradients/Makefile" ;;
-  "lib/VolumeViz/elements/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/elements/Makefile" ;;
   "lib/VolumeViz/readers/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/readers/Makefile" ;;
   "lib/VolumeViz/render/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/Makefile" ;;
   "lib/VolumeViz/render/2D/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/2D/Makefile" ;;
