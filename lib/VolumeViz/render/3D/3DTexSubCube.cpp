@@ -39,7 +39,6 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/projectors/SbPlaneProjector.h>
 
-//#define HAVE_ARB_FRAGMENT_PROGRAM
 // *************************************************************************
 
 // debugging: keep this around until the peculiar NVidia bug with
