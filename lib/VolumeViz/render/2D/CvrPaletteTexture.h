@@ -3,6 +3,8 @@
 
 #include <VolumeViz/render/2D/CvrTextureObject.h>
 
+class CvrCLUT;
+
 
 class CvrPaletteTexture : public CvrTextureObject {
 public:
@@ -14,7 +16,15 @@ public:
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
+  uint8_t * getIndex8Buffer(void) const;
+  void setCLUT(const CvrCLUT * table);
+  const CvrCLUT * getCLUT(void) const;
+
+  virtual void dumpToPPM(const char * filename) const;
+
 private:
+  uint8_t * indexbuffer;
+  const CvrCLUT * clut;
   static SoType classTypeId;
 };
 
