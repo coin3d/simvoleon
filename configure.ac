@@ -98,10 +98,14 @@ AM_MAINTAINER_MODE
 if $BUILD_WITH_MSVC; then
   RANLIB=true
   export RANLIB
-else
-  #  Initialize libtool
-  AC_PROG_LIBTOOL
 fi
+
+# Initialize libtool.
+#
+# FIXME: this must be done even when we're not using libtool (as when
+# building with MSVC++), because that's where at least the enable_static
+# and enable_shared flags are set up. 20030324 mortene.
+AC_PROG_LIBTOOL
 
 SIM_AC_COMPILE_DEBUG([
   CPPFLAGS="$CPPFLAGS -DCVR_DEBUG=1"
