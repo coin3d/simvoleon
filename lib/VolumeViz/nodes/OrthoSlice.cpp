@@ -147,6 +147,19 @@ int SoOrthoSliceP::debug = -1;
 */
 
 /*!
+  \var SoSFEnum SoOrthoSlice::alphaUse
+
+  Decides how to handle the alpha values of the slice. If set to
+  SoOrthoSlice::ALPHA_AS_IS, slice will be rendered as a regular
+  texture. When set to SoOrthoSlice::ALPHA_BINARY, all texels with
+  alpha != 0 will become opaque. If set to SoOrthoSlice::ALPHA_OPAQUE, all
+  texels will be opaque, independent of original alpha value.
+
+  Default value is SoOrthoSlice::ALPHA_BINARY.
+*/
+  
+
+/*!
   \var SoSFUInt32 SoOrthoSlice::sliceNumber
 
   Decides where the slice will be made through the volume.
