@@ -31,6 +31,7 @@ SoVolumeDataSlice::SoVolumeDataSlice()
   this->numTexels = 0;
   this->sliceIdx = 0;
   this->reader;
+  this->dataType = SoVolumeRendering::RGBA;
 }// constructor
 
 
@@ -53,8 +54,7 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader,
 
   SbVec3s dim;
   SbBox3f size;
-  SoVolumeRendering::DataType type;
-  reader->getDataChar(size, type, dim);
+  reader->getDataChar(size, this->dataType, dim);
 
   switch (axis) {
     case SoVolumeRendering::X: 
@@ -189,10 +189,7 @@ void SoVolumeDataSlice::render(SoState * state,
                                long tick)
 {
   assert(reader);
-
-  // FIXME: Enable this when the transferfunctions are implemented.
-  // 08092002 torbjorv
-  // assert(transferFunction);
+  assert(transferFunction);
 
   SbVec2f minUV, maxUV;
   textureCoords.getBounds(minUV, maxUV);
@@ -291,7 +288,6 @@ void SoVolumeDataSlice::render(SoState * state,
       glVertex3f(upperRight[0], upperRight[1], upperRight[2]);    
       glTexCoord2f(localMinUV[0], localMaxUV[1]);
       glVertex3f(upperLeft[0], upperLeft[1], upperLeft[2]);    
-
       glEnd();
 
       globalMinUV[0] = globalMaxUV[0]; 
@@ -325,9 +321,7 @@ SoVolumeDataPage * SoVolumeDataSlice::buildPage(int col,
                                                 SoTransferFunction * transferFunction)
 {
   assert(reader);
-  // FIXME: Enable this when the transferfunctions are implemented.
-  // 08092002 torbjorv
-  // assert(transferFunction);
+  assert(transferFunction);
 
   // Does the page exist already?
   SoVolumeDataPage * page = getPage(col, row, transferFunction);
@@ -356,21 +350,41 @@ SoVolumeDataPage * SoVolumeDataSlice::buildPage(int col,
 
 
 
-  unsigned char * RGBATexture = new unsigned char[pageSize[0]*pageSize[1]*4];
+  // FIXME: Check type of inputdata about here. 12082002 torbjorv
 
+  void * transferredTexture = NULL;
+  float * palette = NULL;
+  int paletteDataType;
+  int outputDataType;
+  int paletteSize;
+  unsigned char * texture = new unsigned char[pageSize[0]*pageSize[1]*4];
   reader->getSubSlice(subSlice, 
                       sliceIdx, 
-                      RGBATexture, 
+                      texture, 
                       axis);
 
-    
-  page->setData(SoVolumeDataPage::OPENGL,
-                RGBATexture, 
-                SbVec2s(pageSize[0], pageSize[1]), 
-                4,
-                GL_RGBA);
+  transferFunction->transfer(texture,
+                             this->dataType,
+                             pageSize,
+                             transferredTexture,
+                             outputDataType,
+                             palette,
+                             paletteDataType,
+                             paletteSize);
 
-  delete [] RGBATexture;
+  delete [] texture;
+   
+  page->setData(SoVolumeDataPage::OPENGL,
+                (unsigned char*)transferredTexture, 
+                pageSize, 
+                palette,
+                paletteDataType,
+                paletteSize);
+
+  page->transferFunctionId = transferFunction->getNodeId();
+
+  delete [] transferredTexture;
+  delete [] palette;
 
   pages[row*this->numCols + col] = page;
 
@@ -399,12 +413,10 @@ SoVolumeDataSlice::getPage(int col,
 
   SoVolumeDataPage * p = pages[row*this->numCols + col];
 
-
-  // FIXME: Enable these lines as soon as the transferfunctions are implemented.
-/*  while (p != NULL) {
+  while (p != NULL) {
     if (p->transferFunctionId == transferFunction->getNodeId()) break;
     p = p->nextPage;
-  }//while*/
+  }//while
 
   return p;
 }//getPage

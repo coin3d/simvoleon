@@ -11,6 +11,7 @@
 #include <VolumeViz/misc/SoVolumeDataPage.h>
 #include <Inventor/misc/SoState.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <VolumeViz/nodes/SoVolumeRendering.h>
 
 SoVolumeDataPage::SoVolumeDataPage()
 {
@@ -42,51 +43,113 @@ void SoVolumeDataPage::setActivePage(long tick)
 
 
 
+/*
+If no palette specified, this function assumes RGBA data. If a palette
+is specified, the input data should be indexes into the palette. 
+The function uses the palette's size to decide whether the indices are
+byte or short. 
+*/
 void SoVolumeDataPage::setData( Storage storage,
                                 unsigned char * bytes,
                                 const SbVec2s & size,
-                                const int numcomponents,
-                                const int format,
-                                const float quality,
-                                const int border)
+                                const float * palette,
+                                int paletteFormat,
+                                int paletteSize)
 {
   this->size = size;
-  this->format = format;
   this->storage = storage;
   this->lastuse = 0;
+  this->paletteFormat = paletteFormat;
+  this->paletteSize = paletteSize;
 
+  // Possible creating an in-memory copy of all data
   if (storage & MEMORY) {
-    this->data = new unsigned char[size[0]*size[1]*numcomponents];
-    memcpy(this->data, bytes, size[0]*size[1]*numcomponents);
+    this->data = new unsigned char[size[0]*size[1]*4];
+    memcpy(this->data, bytes, size[0]*size[1]*4);
+
+    if (palette != NULL) {
+      this->palette = new unsigned char[sizeof(unsigned char)*paletteSize];
+      memcpy(this->palette, palette, sizeof(float)*paletteSize);
+    }// if
   }// if
-  else
+  else {
     this->data = NULL;
+    this->palette = NULL;
+  }// else
 
   if (storage & OPENGL) {
     //FIXME: these functions is only supported in opengl 1.1... torbjorv 08052002
+    glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &this->textureName);
     glBindTexture(GL_TEXTURE_2D, this->textureName);
-    glTexImage2D( GL_TEXTURE_2D, 
-                  0,
-                  numcomponents,
-                  size[0], 
-                  size[1],
-                  border,
-                  format,
-                  GL_UNSIGNED_BYTE,
-                  bytes);
 
 
-      // FIXME: Okay. I tried. This GLWrapper-thingy must be spawned right 
-      // out of hell. I'm really not able to compile it. But these lines 
-      // need to be fixed for OpenGL 1.0 support. torbjorv 03082002
+    // Uploading standard RGBA-texture
+    if (palette == NULL) {
+      glTexImage2D( GL_TEXTURE_2D, 
+                    0,
+                    4,
+                    size[0], 
+                    size[1],
+                    0,
+                    GL_RGBA,
+                    GL_UNSIGNED_BYTE,
+                    bytes);
+    }// if
 
-//    GLenum clamping;
-//      const GLWrapper_t * glw = GLWRAPPER_FROM_STATE(state);
-//      if (glw->hasTextureEdgeClamp) 
-//        clamping = GL_CLAMP_TO_EDGE;
-//      else
-//        (GLenum) GL_CLAMP;
+    // Uploading paletted texture
+    else {
+      int internalFormat;
+      int format = GL_UNSIGNED_BYTE;
+      switch (paletteSize) {
+        case   2: internalFormat = GL_COLOR_INDEX1_EXT;
+                  break;
+        case   4: internalFormat = GL_COLOR_INDEX2_EXT;
+                  break;
+        case  16: internalFormat = GL_COLOR_INDEX4_EXT;
+                  break;
+        case 256: internalFormat = GL_COLOR_INDEX8_EXT;
+                  break;
+        default:  internalFormat = GL_COLOR_INDEX16_EXT;
+                  format = GL_UNSIGNED_SHORT;
+                  break;
+      }// switch
+
+      int err;
+
+      glColorTableEXT(GL_TEXTURE_2D, 
+                      GL_RGBA8, 
+                      paletteSize,
+                      GL_RGBA,
+                      GL_FLOAT,
+                      palette);
+
+      err = glGetError();
+
+      glTexImage2D(GL_TEXTURE_2D, 
+                   0,
+                   GL_RGBA,
+                   size[0],
+                   size[1],
+                   0,
+                   GL_COLOR_INDEX,
+                   format,
+                   bytes);
+
+      err = glGetError();
+    }//else
+
+
+    // FIXME: Okay. I tried. This GLWrapper-thingy must be spawned right 
+    // out of hell. I'm really not able to compile it. But these lines 
+    // need to be fixed for OpenGL 1.0 support. torbjorv 03082002
+
+    // GLenum clamping;
+    // const GLWrapper_t * glw = GLWRAPPER_FROM_STATE(state);
+    // if (glw->hasTextureEdgeClamp) 
+    //   clamping = GL_CLAMP_TO_EDGE;
+    // else
+    //   (GLenum) GL_CLAMP;
 
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);

@@ -44,9 +44,11 @@ public:
   SoVolumeReader * reader;
 
   SoVolumeRendering::Axis axis;
+  SoVolumeRendering::DataType dataType;
   int sliceIdx;
   SbVec2s pageSize;
   SbVec2s dimensions;
+  
 
   int numTexels;
   int numPages;

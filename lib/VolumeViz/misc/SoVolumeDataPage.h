@@ -19,14 +19,14 @@ public:
   void setData( Storage storage,
                 unsigned char * bytes,
                 const SbVec2s & size,
-                const int numcomponents,
-                const int format,
-                const float quality = 0.5f,
-                const int border = 0);
+                const float * palette = NULL,
+                int paletteFormat = GL_RGBA,
+                int paletteSize = 0);
 
 
   Storage storage; 
-  int format; 
+  int format, paletteFormat, paletteSize; 
+  unsigned char * palette;
   unsigned char * data;
   unsigned int textureName;
   unsigned long lastuse;
