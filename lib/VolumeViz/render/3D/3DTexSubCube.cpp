@@ -343,35 +343,55 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper)
     polygon *before* this function is called to have an effect.
   */
 
-  cubeclipper.clip(this->clipplanes[0]);
-  cubeclipper.clip(this->clipplanes[1]);
-  cubeclipper.clip(this->clipplanes[2]);
-  cubeclipper.clip(this->clipplanes[3]);
-  cubeclipper.clip(this->clipplanes[4]);
-  cubeclipper.clip(this->clipplanes[5]); 
+  for (unsigned int j=0; j < 6; j++) {
+    cubeclipper.clip(this->clipplanes[j]);
+  }
 
-  int i=0;
-  const int result = cubeclipper.getNumVertices();
+  const unsigned int result = cubeclipper.getNumVertices();
 
-  if (result > 0) {
+  if (result >= 3) {
     subcube_slice slice;
     SbVec3f vert;
     
-    for (i=0;i<result;i++) {
+    for (unsigned int i=0; i < result; i++) {
       cubeclipper.getVertex(i, vert);
+      // FIXME: this will alloc lots of memory each frame, which
+      // probably affects performance. 20041007 mortene.
       slice.vertex.append(vert);
       SbVec3f * texcoord = (SbVec3f *) cubeclipper.getVertexData(i);
-      if (!texcoord) 
-        texcoord = (SbVec3f *) subcube_clipperCB(vert, NULL, vert, NULL, vert, this);
-      slice.texcoord.append(SbVec3f(texcoord->getValue()));
+      if (!texcoord) {
+        // There is no texture coordinate if a vertex of the polygon
+        // set up for the SbClip instance was inside the subcube, so
+        // we calculate it by this little hack.
+        texcoord = (SbVec3f *)
+          Cvr3DTexSubCube::subcube_clipperCB(vert, NULL, vert, NULL, vert, this);
+      }
+      // FIXME: this will alloc lots of memory each frame, which
+      // probably affects performance. 20041007 mortene.
+      slice.texcoord.append(*texcoord);
     }
     
-#if 0 // debug code, to figure out the max length of the list, for better init
+#if 0 // debug
     static unsigned int maxlen = 0;
-    unsigned int l = this->texcoordlist.getLength();
+    static unsigned int maxresult = 0;
+    static float avglen = 0;
+    static float alllen = 0;
+    static unsigned int nrruns = 0;
+
+    const unsigned int l = this->texcoordlist.getLength();
+    alllen += l;
+    nrruns++;
+    avglen = alllen / nrruns;
+    if (l > 20) {
+      printf("texcoordlist length==%u (vertices==%u)\n", l, result);
+    }
     if (l > maxlen) {
       maxlen = l;
-      printf("texcoordlist max length: %d\n", maxlen);
+      printf("texcoordlist max length: %d (avglen==%f)\n", maxlen, avglen);
+    }
+    if (result > maxresult) {
+      maxresult = result;
+      printf("result max==%u (texcoordlist len==%u)\n", maxresult, l);
     }
 #endif // debug
 
