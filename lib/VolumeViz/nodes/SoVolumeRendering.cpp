@@ -16,6 +16,7 @@
 #include <VolumeViz/misc/SoVolumeDataPage.h>
 #include <VolumeViz/misc/SoVolumeDataSlice.h>
 #include <VolumeViz/nodes/SoROI.h>
+#include <Inventor/actions/SoGLRenderAction.h>
 
 
 // *************************************************************************
@@ -85,6 +86,9 @@ SoVolumeRendering::initClass(void)
   SoROI::initClass();
   SoTransferFunction::initClass();
   SoTransferFunctionElement::initClass();
+
+  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }// initClass
 
 

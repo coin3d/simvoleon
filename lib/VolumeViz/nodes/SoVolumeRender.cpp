@@ -87,15 +87,7 @@ SoVolumeRender::SoVolumeRender(void)
   SO_NODE_ADD_FIELD(numSlicesControl, (SoVolumeRender::ALL));
   SO_NODE_ADD_FIELD(numSlices, (10));
   SO_NODE_ADD_FIELD(viewAlignedSlices, (FALSE));
-
-  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
-  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }//Constructor
-
-
-
-
-
 
 /*!
   Destructor.
@@ -169,8 +161,18 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   glDisable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  // FIXME: add proper transparency test. For now I've just disabled
+  // blending and enabled glAlphaTest instead (looks better, and delayed
+  // rendering is not required). pederb, 2002-11-04
+  // glEnable(GL_BLEND);
+  // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  // this is to enable alpha test
+  glAlphaFunc(GL_GREATER, 0.5f);
+  glEnable(GL_ALPHA_TEST);
+
+
   glDisable(GL_CULL_FACE);
 
   // FIXME: Implement use of the 
@@ -179,6 +181,8 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   // FIXME: Clean up the use of states for textures, lighting,
   // culling, blendfunc (restore previous states). 
   // torbjorv 07122002
+
+  // FIXME: 
 
 
   // Commonly used variables
