@@ -40,6 +40,9 @@ protected:
 private:
   friend class SoVolumeReaderP;
   class SoVolumeReaderP * pimpl;
+
+  // FIXME: ugly design. 20021120 mortene.
+  friend class SoVolumeData; // For m_data access.
 };
 
 #endif // !COIN_SOVOLUMEREADER_H
