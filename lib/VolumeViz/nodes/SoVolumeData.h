@@ -63,26 +63,15 @@ public:
   SbBox3f & getVolumeSize(void);
   SbVec3s & getDimensions(void);
 
-  // FIXME: these (and probably much of the rest of the class) are not
+  // FIXME: this (and perhaps much of the rest of the class) is not
   // part of the TGS VolumeViz API. 20021108 mortene.
-  void renderOrthoSliceX(SoState * state,
-                         const SbBox2f & quad,
-                         float x,
-                         int sliceIdx,
-                         const SbBox2f & textureCoords,
-                         SoTransferFunction * transferFunction);
-  void renderOrthoSliceY(SoState * state,
-                         const SbBox2f & quad,
-                         float y,
-                         int sliceIdx,
-                         const SbBox2f & textureCoords,
-                         SoTransferFunction * transferFunction);
-  void renderOrthoSliceZ(SoState * state,
-                         const SbBox2f & quad,
-                         float z,
-                         int sliceIdx,
-                         const SbBox2f & textureCoords,
-                         SoTransferFunction * transferFunction);
+  void renderOrthoSlice(SoState * state,
+                        const SbBox2f & quad,
+                        float depth,
+                        int sliceIdx,
+                        const SbBox2f & textureCoords,
+                        SoTransferFunction * transferFunction,
+                        int axis);
 
   void setPageSize(int size);
   void setPageSize(const SbVec3s & size);

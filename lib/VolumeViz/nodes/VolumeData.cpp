@@ -65,7 +65,7 @@ LRU-system
   LRU-cache.  Whenever a page is to be deallocated, a search through
   all slices and pages is required. The monitors for bytes allocated
   by in-memory pages are updated in a very non-elegant way (study i.e.
-  SoVolumeData::renderOrthoSliceX).
+  SoVolumeData::renderOrthoSlice()).
 
   Some sort of page manager system could be implemented to solve this
   problem by storing all pages in a "flat" structure. This would look
@@ -406,8 +406,13 @@ SoVolumeData::setPageSize(const SbVec3s & insize)
   // return anything... 08312002 torbjorv
   if (!PRIVATE(this)->check2n(size[0]) ||
       !PRIVATE(this)->check2n(size[1]) ||
-      !PRIVATE(this)->check2n(size[2]))
-  return;
+      !PRIVATE(this)->check2n(size[2])) {
+#if 1 // debug
+    SoDebugError::postInfo("SoVolumeData::setPageSize",
+                           "not in 2^n format");
+#endif // debug
+    return;
+  }
 
   if (size[0] < 4) size[0] = 4;
   if (size[1] < 4) size[1] = 4;
@@ -451,105 +456,48 @@ SoVolumeData::GLRender(SoGLRenderAction * action)
 }
 
 void
-SoVolumeData::renderOrthoSliceX(SoState * state,
-                                const SbBox2f & quad,
-                                float x,
-                                int sliceIdx,
-                                const SbBox2f & textureCoords,
-                                SoTransferFunction * transferFunction)
+SoVolumeData::renderOrthoSlice(SoState * state,
+                               const SbBox2f & quad,
+                               float depth,
+                               int sliceIdx,
+                               const SbBox2f & textureCoords,
+                               SoTransferFunction * transferFunction,
+                               // axis: 0, 1, 2 for X, Y or Z axis.
+                               int axis)
 {
   SbVec2f max, min;
   quad.getBounds(min, max);
 
   SoVolumeDataSlice * slice =
-    PRIVATE(this)->getSlice(SoVolumeDataP::X, sliceIdx);
+    PRIVATE(this)->getSlice((SoVolumeDataP::Axis)axis, sliceIdx);
 
   PRIVATE(this)->numTexels -= slice->numTexels;
   PRIVATE(this)->numPages -= slice->numPages;
   PRIVATE(this)->numBytesSW -= slice->numBytesSW;
   PRIVATE(this)->numBytesHW -= slice->numBytesHW;
 
-  slice->render(state,
-                SbVec3f(x, min[1], min[0]),
-                SbVec3f(x, min[1], max[0]),
-                SbVec3f(x, max[1], max[0]),
-                SbVec3f(x, max[1], min[0]),
-                textureCoords,
-                transferFunction,
-                PRIVATE(this)->tick);
+  SbVec3f v0, v1, v2, v3;
+  if (axis == SoVolumeDataP::X) {
+    v0 = SbVec3f(depth, min[1], min[0]);
+    v1 = SbVec3f(depth, min[1], max[0]);
+    v2 = SbVec3f(depth, max[1], max[0]);
+    v3 = SbVec3f(depth, max[1], min[0]);
+  }
+  else if (axis == SoVolumeDataP::Y) {
+    v0 = SbVec3f(min[0], depth, min[1]);
+    v1 = SbVec3f(max[0], depth, min[1]);
+    v2 = SbVec3f(max[0], depth, max[1]);
+    v3 = SbVec3f(min[0], depth, max[1]);
+  }
+  else if (axis == SoVolumeDataP::Z) {
+    v0 = SbVec3f(min[0], min[1], depth);
+    v1 = SbVec3f(max[0], min[1], depth);
+    v2 = SbVec3f(max[0], max[1], depth);
+    v3 = SbVec3f(min[0], max[1], depth);
+  }
+  else assert(FALSE);
 
-  PRIVATE(this)->numTexels += slice->numTexels;
-  PRIVATE(this)->numPages += slice->numPages;
-  PRIVATE(this)->numBytesSW += slice->numBytesSW;
-  PRIVATE(this)->numBytesHW += slice->numBytesHW;
-
-  PRIVATE(this)->managePages();
-}
-
-void
-SoVolumeData::renderOrthoSliceY(SoState * state,
-                                const SbBox2f & quad,
-                                float y,
-                                int sliceIdx,
-                                const SbBox2f & textureCoords,
-                                SoTransferFunction * transferFunction)
-{
-
-  SbVec2f max, min;
-  quad.getBounds(min, max);
-
-  SoVolumeDataSlice * slice =
-    PRIVATE(this)->getSlice(SoVolumeDataP::Y, sliceIdx);
-
-  PRIVATE(this)->numTexels -= slice->numTexels;
-  PRIVATE(this)->numPages -= slice->numPages;
-  PRIVATE(this)->numBytesSW -= slice->numBytesSW;
-  PRIVATE(this)->numBytesHW -= slice->numBytesHW;
-
-  slice->render(state,
-                SbVec3f(min[0], y, min[1]),
-                SbVec3f(max[0], y, min[1]),
-                SbVec3f(max[0], y, max[1]),
-                SbVec3f(min[0], y, max[1]),
-                textureCoords,
-                transferFunction,
-                PRIVATE(this)->tick);
-
-  PRIVATE(this)->numTexels += slice->numTexels;
-  PRIVATE(this)->numPages += slice->numPages;
-  PRIVATE(this)->numBytesSW += slice->numBytesSW;
-  PRIVATE(this)->numBytesHW += slice->numBytesHW;
-
-  PRIVATE(this)->managePages();
-}
-
-void
-SoVolumeData::renderOrthoSliceZ(SoState * state,
-                                const SbBox2f & quad,
-                                float z,
-                                int sliceIdx,
-                                const SbBox2f & textureCoords,
-                                SoTransferFunction * transferFunction)
-{
-
-  SbVec2f max, min;
-  quad.getBounds(min, max);
-
-  SoVolumeDataSlice * slice =
-    PRIVATE(this)->getSlice(SoVolumeDataP::Z, sliceIdx);
-
-  PRIVATE(this)->numTexels -= slice->numTexels;
-  PRIVATE(this)->numPages -= slice->numPages;
-  PRIVATE(this)->numBytesSW -= slice->numBytesSW;
-  PRIVATE(this)->numBytesHW -= slice->numBytesHW;
-
-  slice->render(state,
-                SbVec3f(min[0], min[1], z),
-                SbVec3f(max[0], min[1], z),
-                SbVec3f(max[0], max[1], z),
-                SbVec3f(min[0], max[1], z),
-                textureCoords,
-                transferFunction,
+  slice->render(state, v0, v1, v2, v3, textureCoords, transferFunction,
                 PRIVATE(this)->tick);
 
   PRIVATE(this)->numTexels += slice->numTexels;

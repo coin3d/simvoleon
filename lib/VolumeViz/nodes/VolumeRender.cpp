@@ -228,20 +228,8 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
               dimensions[AXISIDX]) - imageIdx;
     }
 
-    if (renderalongX) {
-      volumedata->renderOrthoSliceX(state, QUAD, depth, imageIdx,
-                                    TEXTURECOORDS, transferfunction);
-    }
-    else if (renderalongY) {
-      volumedata->renderOrthoSliceY(state, QUAD, depth, imageIdx,
-                                    TEXTURECOORDS, transferfunction);
-    }
-    else if (renderalongZ) {
-      volumedata->renderOrthoSliceZ(state, QUAD, depth, imageIdx,
-                                    TEXTURECOORDS, transferfunction);
-    }
-    else assert(FALSE);
-
+    volumedata->renderOrthoSlice(state, QUAD, depth, imageIdx, TEXTURECOORDS,
+                                 transferfunction, AXISIDX);
     depth += depthAdder;
   }
 
