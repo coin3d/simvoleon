@@ -71,20 +71,36 @@ void
 Cvr3DPaletteTexture::blankUnused(const SbVec3s & texsize) const
 {
   assert(this->indexbuffer);
- 
-  for (short z=texsize[2]; z < this->dimensions[2]; z++) {    
-    for (short y=texsize[1]; y < this->dimensions[1]; y++) {
-      for (short x=0; x < this->dimensions[0]; x++) {
-        this->indexbuffer[(z * this->dimensions[0] * this->dimensions[1]) + 
-                          (y * this->dimensions[0]) + x] = 0x00;
-      }
-    }        
-    for (short x=texsize[0]; x < this->dimensions[0]; x++) {
-      for (short y=0; y < this->dimensions[1]; y++) {
+  unsigned short x, y, z;
+
+  // Bottom 'slab'
+  for (z=texsize[2]; z < this->dimensions[2]; z++) {  
+    for (x=0;x<this->dimensions[0];++x) {
+      for (y=0;y<this->dimensions[1];++y) {
         this->indexbuffer[(z * this->dimensions[0] * this->dimensions[1]) + 
                           (y * this->dimensions[0]) + x] = 0x00;
       }
     }    
   }
-  
+
+  // Front 'slab'
+  for (z=0;z<texsize[2];++z) {
+    for (x=0;x<texsize[0];++x) {
+      for (y=texsize[1];y<this->dimensions[1];++y) {
+        this->indexbuffer[(z * this->dimensions[0] * this->dimensions[1]) + 
+                          (y * this->dimensions[0]) + x] = 0x00;       
+      }
+    }    
+  }
+
+  // Right 'slab'
+  for (z=0;z<texsize[2];++z) {
+    for (x=texsize[0];x<this->dimensions[0];++x) {
+      for (y=0;y<this->dimensions[1];++y) {
+        this->indexbuffer[(z * this->dimensions[0] * this->dimensions[1]) + 
+                          (y * this->dimensions[0]) + x] = 0x00;       
+      }
+    }    
+  }
+
 }
