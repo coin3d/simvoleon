@@ -153,8 +153,15 @@ subcube_qsort_compare(const void * element1, const void * element2)
 }
 
 void
-Cvr3DTexCube::calculateOptimalSubCubeSize()
+Cvr3DTexCube::calculateOptimalSubCubeSize(void)
 {
+  // FIXME: this doesn't guarantee that we can actually use a texture
+  // of this size, should instead use Coin's
+  // cc_glglue_is_texture_size_legal() (at least in combination with
+  // the subcubesize found here). 20040709 mortene.
+
+  // FIXME: should also heed the value set for
+  // SoVolumeData::setPageSize() (see item #005 in BUGS.txt). 20040709 mortene.
 
   GLint maxsize;
   glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxsize);
@@ -163,19 +170,13 @@ Cvr3DTexCube::calculateOptimalSubCubeSize()
                            "GL_MAX_3D_TEXTURE_SIZE==%d", maxsize);
   }
 
-  short forcedsubcubesize = 0;
   const char * envstr = coin_getenv("CVR_FORCE_SUBCUBE_SIZE");
-  if (envstr) { forcedsubcubesize = atoi(envstr); }
-
-  if (coin_is_power_of_two(forcedsubcubesize)) {
-    if (forcedsubcubesize <= maxsize)
-      maxsize = forcedsubcubesize;
-  }
-  else {
-    if (forcedsubcubesize != 0)
-      SoDebugError::postWarning("calculateOptimalSubCubeSize",
-                                "Forced subcube size (%d) is not power of two.",
-                                forcedsubcubesize);
+  if (envstr) {
+    short forcedsubcubesize = atoi(envstr);
+    assert(forcedsubcubesize > 0);
+    assert(forcedsubcubesize <= maxsize && "subcube size must be <= than max 3D texture size");
+    assert(coin_is_power_of_two(forcedsubcubesize) && "subcube size must be power of two");
+    maxsize = forcedsubcubesize;
   }
 
   // FIXME: My GeforceFX 5600 card sometime fails when asking for 512 as
@@ -183,7 +184,6 @@ Cvr3DTexCube::calculateOptimalSubCubeSize()
   //maxsize = SbMin(256, maxsize);
 
   this->subcubesize = SbVec3s(maxsize, maxsize, maxsize);
-
 }
 
 
