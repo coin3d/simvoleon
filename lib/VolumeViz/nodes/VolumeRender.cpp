@@ -33,6 +33,8 @@
 
 // *************************************************************************
 
+#include <string.h>
+
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>
