@@ -226,13 +226,10 @@ Cvr2DTexPage::renderGLQuad(const SbVec3f & lowleft, const SbVec3f & lowright,
 
 
 /*!
-  Renders arbitrary shaped quad. Automatically loads all pages needed
-  for the given texturecoords. Texturecoords are in normalized
-  coordinates [0, 1].
+  Renders arbitrary shaped quad. Automatically loads all pages needed.
 
-  Vertices are specified in counterclockwise order: v0 maps to lower
-  left of slice, v1 maps to lower right of slice, v2 maps to upper
-  right of slice, and v3 maps to upper left of slice.
+  \a quadcoords specifies the "real" local space coordinates for the
+  full page.
 */
 void Cvr2DTexPage::render(SoState * state, const SbVec3f quadcoords[4],
                           SoTransferFunction * transferfunc,
@@ -275,6 +272,10 @@ void Cvr2DTexPage::render(SoState * state, const SbVec3f quadcoords[4],
       SbVec3f lowright = lowleft + subpagewidth;
       SbVec3f upleft = lowleft + subpageheight;
       SbVec3f upright = upleft + subpagewidth;
+
+      // FIXME: should do view frustum culling on each page as an
+      // optimization measure (both for rendering speed and texture
+      // memory usage). 20021121 mortene.
 
       this->renderGLQuad(lowleft, lowright, upleft, upright);
     }
