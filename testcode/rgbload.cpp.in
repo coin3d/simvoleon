@@ -160,61 +160,42 @@ main(int argc, char ** argv)
   APPLY_FILTER(ptr[2] > 128);
 #endif
 
-  @WIDGET@ window = So@Gui@::init( argv[0] );
+  @WIDGET@ window = So@Gui@::init(argv[0]);
   SoVolumeRendering::init();
-  SoDB::setRealTimeInterval(SbTime(1.0/50.0));
-
-  So@Gui@ExaminerViewer * ex1 = new So@Gui@ExaminerViewer( window );
-  ex1->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
 
   SoSeparator *root = new SoSeparator;
   root->ref();
 
-  SoPerspectiveCamera * myCamera = new SoPerspectiveCamera;
-  myCamera->position = SbVec3f(0.0f, 0.0f, 5.0f);
-  root->addChild(myCamera);
-  root->addChild(new SoDirectionalLight);
-
-  SoLightModel * lm = new SoLightModel;
-  lm->model = SoLightModel::BASE_COLOR;
-  root->addChild(lm);
-
-  SoDrawStyle *drawStyle = new SoDrawStyle;
-  drawStyle->style = SoDrawStyle::LINES;
   root->addChild(new SoClipPlaneManip);
-  root->addChild(drawStyle);
-  root->addChild(new SoCube);
 
   // Read the data (application supplied function)
   SbVec3s dim = volume_size;
 
-  int *pData = (int *) volume_data;
-
   // Add VolumeData to scene graph
-  SoVolumeData * pVolData = new SoVolumeData();
-  pVolData->setVolumeData(dim, (unsigned char *)pData, SoVolumeData::RGBA);
+  SoVolumeData * voldatanode = new SoVolumeData();
+  voldatanode->setVolumeData(dim, volume_data, SoVolumeData::RGBA);
   SbVec3f vsize(dim[0], dim[1], dim[2]);
-  pVolData->setVolumeSize(SbBox3f(-vsize/2.0f, vsize/2.0f));
+  voldatanode->setVolumeSize(SbBox3f(-vsize/2.0f, vsize/2.0f));
 
-  root->addChild(pVolData);
+  root->addChild(voldatanode);
 
   // Add TransferFunction (color map) to scene graph
-  SoTransferFunction *pTransFunc = new SoTransferFunction();
-  root->addChild( pTransFunc );
+  SoTransferFunction * transfuncnode = new SoTransferFunction();
+  root->addChild(transfuncnode);
 
   // Add VolumeRender to scene graph
-  SoVolumeRender * pVolRend = new SoVolumeRender();
-  root->addChild(pVolRend);
-  pVolRend->numSlices = 64;
+  SoVolumeRender * volrendnode = new SoVolumeRender();
+  root->addChild(volrendnode);
 
-  myCamera->viewAll(root, ex1->getViewportRegion());
-  ex1->setSceneGraph(root);
+  So@Gui@ExaminerViewer * viewer = new So@Gui@ExaminerViewer(window);
+  viewer->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
+  viewer->setSceneGraph(root);
 
-  ex1->show();
-  So@Gui@::show( window );
+  viewer->show();
+  So@Gui@::show(window);
   So@Gui@::mainLoop();
-  delete ex1;
 
+  delete viewer;
   root->unref();
   return 0;
 }
