@@ -42,15 +42,21 @@
 
 // *************************************************************************
 
-#include <VolumeViz/nodes/SoVolumeSkin.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/SbLinear.h>
+#include <Inventor/actions/SoRayPickAction.h>
 
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/nodes/SoOrthoSlice.h>
+#include <VolumeViz/nodes/SoVolumeSkin.h>
+#include <VolumeViz/details/SoVolumeSkinDetail.h>
+#include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrUtil.h>
+
+#include "volumeraypickintersection.h"
 
 // *************************************************************************
 
@@ -242,7 +248,7 @@ SoVolumeSkin::GLRender(SoGLRenderAction * action)
 
 }
 
-#undef PRIVATE
+
 
 void
 SoVolumeSkin::generatePrimitives(SoAction * action)
@@ -273,4 +279,25 @@ SoVolumeSkin::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
   box.extendBy(SbVec3f(dims[0]/2.0f, dims[1]/2.0f, dims[2]/2.0f));
 }
 
+void
+SoVolumeSkin::rayPick(SoRayPickAction * action)
+{
+ 
+  if (!this->shouldRayPick(action)) return;
+  
+  SbVec3f intersects[2];  
+  SoState * state = action->getState();  
+  this->computeObjectSpaceRay(action);
+  
+  if (!cvr_volumeraypickintersection(action, intersects))
+    return;
+    
+  SoVolumeSkinDetail * detail = new SoVolumeSkinDetail;
+  detail->setDetails(intersects[0], intersects[1], state, this);
 
+}
+
+// *************************************************************************
+
+#undef PRIVATE
+#undef PUBLIC

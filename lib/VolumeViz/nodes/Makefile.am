@@ -10,6 +10,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 # RegularSources   - source files compiled in this directory
 
 RegularSources = \
+	volumeraypickintersection.cpp \
 	TransferFunction.cpp \
 	VolumeData.cpp \
 	VolumeRender.cpp \
@@ -42,6 +43,7 @@ PublicHeaders = \
 	SoVolumeIndexedTriangleStripSet.h
 
 PrivateHeaders = \
+	volumeraypickintersection.h \
 	CvrIndexedSetRenderBaseP.h \
 	CvrNonIndexedSetRenderBaseP.h \
 	CvrFaceSetRenderP.h \

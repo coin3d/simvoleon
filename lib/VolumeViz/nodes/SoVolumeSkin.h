@@ -46,7 +46,8 @@ protected:
   virtual void GLRender(SoGLRenderAction * action);
   virtual void generatePrimitives(SoAction * action);
   virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
-  
+  virtual void rayPick(SoRayPickAction * action);
+
 private:
   friend class SoVolumeSkinP;
   class SoVolumeSkinP * pimpl;

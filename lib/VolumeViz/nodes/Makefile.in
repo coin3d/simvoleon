@@ -198,6 +198,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 #                    installed - including source-included source files.
 # RegularSources   - source files compiled in this directory
 RegularSources = \
+	volumeraypickintersection.cpp \
 	TransferFunction.cpp \
 	VolumeData.cpp \
 	VolumeRender.cpp \
@@ -232,6 +233,7 @@ PublicHeaders = \
 
 
 PrivateHeaders = \
+	volumeraypickintersection.h \
 	CvrIndexedSetRenderBaseP.h \
 	CvrNonIndexedSetRenderBaseP.h \
 	CvrFaceSetRenderP.h \
@@ -264,7 +266,8 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 nodes_lst_AR = $(AR) cru
 nodes_lst_LIBADD =
-am__objects_1 = TransferFunction.$(OBJEXT) VolumeData.$(OBJEXT) \
+am__objects_1 = volumeraypickintersection.$(OBJEXT) \
+	TransferFunction.$(OBJEXT) VolumeData.$(OBJEXT) \
 	VolumeRender.$(OBJEXT) VolumeRendering.$(OBJEXT) \
 	ObliqueSlice.$(OBJEXT) OrthoSlice.$(OBJEXT) \
 	VolumeSkin.$(OBJEXT) VolumeFaceSet.$(OBJEXT) \
@@ -281,13 +284,13 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
-am__objects_3 = TransferFunction.lo VolumeData.lo VolumeRender.lo \
-	VolumeRendering.lo ObliqueSlice.lo OrthoSlice.lo VolumeSkin.lo \
-	VolumeFaceSet.lo VolumeIndexedFaceSet.lo \
-	VolumeTriangleStripSet.lo VolumeIndexedTriangleStripSet.lo \
-	CvrIndexedSetRenderBaseP.lo CvrNonIndexedSetRenderBaseP.lo \
-	CvrFaceSetRenderP.lo CvrIndexedFaceSetRenderP.lo \
-	CvrTriangleStripSetRenderP.lo \
+am__objects_3 = volumeraypickintersection.lo TransferFunction.lo \
+	VolumeData.lo VolumeRender.lo VolumeRendering.lo \
+	ObliqueSlice.lo OrthoSlice.lo VolumeSkin.lo VolumeFaceSet.lo \
+	VolumeIndexedFaceSet.lo VolumeTriangleStripSet.lo \
+	VolumeIndexedTriangleStripSet.lo CvrIndexedSetRenderBaseP.lo \
+	CvrNonIndexedSetRenderBaseP.lo CvrFaceSetRenderP.lo \
+	CvrIndexedFaceSetRenderP.lo CvrTriangleStripSetRenderP.lo \
 	CvrIndexedTriangleStripSetRenderP.lo
 am_libnodes_la_OBJECTS = $(am__objects_3)
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
@@ -326,7 +329,9 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeSkin.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeSkin.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeTriangleStripSet.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/VolumeTriangleStripSet.Po
+@AMDEP_TRUE@	./$(DEPDIR)/VolumeTriangleStripSet.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/volumeraypickintersection.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/volumeraypickintersection.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -420,6 +425,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeSkin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeTriangleStripSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeTriangleStripSet.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/volumeraypickintersection.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/volumeraypickintersection.Po@am__quote@
 
 distclean-depend:
 	-rm -rf ./$(DEPDIR)

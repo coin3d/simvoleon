@@ -32,10 +32,55 @@
   where the profile is defined by a start point and an end point.
 */
 
-#include <VolumeViz/details/SoVolumeDetail.h>
-#include <Inventor/SbName.h>
 #include <stddef.h>
 #include <string.h>
+
+#include <Inventor/SbName.h>
+#include <Inventor/errors/SoDebugError.h>
+#include <Inventor/SoPickedPoint.h>
+#include <Inventor/actions/SoRayPickAction.h>
+
+#include <VolumeViz/details/SoVolumeDetail.h>
+#include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
+
+// *************************************************************************
+
+class SoVolumeDetailP {
+public:
+  SoVolumeDetailP(SoVolumeDetail * master)
+  {
+    this->master = master;
+  }
+
+  ~SoVolumeDetailP() 
+  {
+  }
+
+  void addVoxelIntersection(const SbVec3f & voxelcoord,
+                            const SbVec3s & voxelindex,
+                            unsigned int voxelvalue,
+                            uint8_t rgba[4]);
+  
+  class VoxelInfo {
+  public:
+    SbVec3f voxelcoord;
+    SbVec3s voxelindex;
+    unsigned int voxelvalue;
+    uint8_t rgba[4];
+  };
+
+  SbList<VoxelInfo> voxelinfolist;
+  SoVolumeDetail * master;
+
+};
+
+
+#define PRIVATE(p) (p->pimpl)
+#define PUBLIC(p) (p->master)
 
 // *************************************************************************
 
@@ -46,10 +91,12 @@ SO_DETAIL_SOURCE(SoVolumeDetail);
 SoVolumeDetail::SoVolumeDetail(void)
 {
   assert(SoVolumeDetail::getClassTypeId() != SoType::badType());
+  PRIVATE(this) = new SoVolumeDetailP(this);
 }
 
 SoVolumeDetail::~SoVolumeDetail()
 {
+  delete PRIVATE(this);
 }
 
 // doc in super
@@ -77,10 +124,10 @@ SoVolumeDetail::copy(void) const
 void
 SoVolumeDetail::getProfileObjectPos(SbVec3f profile[2]) const
 {
-  const unsigned int nrprofilepoints = this->voxelinfolist.getLength();
+  const unsigned int nrprofilepoints = PRIVATE(this)->voxelinfolist.getLength();
   assert(nrprofilepoints >= 2);
-  profile[0] = this->voxelinfolist[0].voxelcoord;
-  profile[1] = this->voxelinfolist[nrprofilepoints - 1].voxelcoord;
+  profile[0] = PRIVATE(this)->voxelinfolist[0].voxelcoord;
+  profile[1] = PRIVATE(this)->voxelinfolist[nrprofilepoints - 1].voxelcoord;
 }
 
 /*!
@@ -98,12 +145,12 @@ SoVolumeDetail::getProfileObjectPos(SbVec3f profile[2]) const
 int
 SoVolumeDetail::getProfileDataPos(SbVec3s profile[2]) const
 {
-  const unsigned int nrprofilepoints = this->voxelinfolist.getLength();
+  const unsigned int nrprofilepoints = PRIVATE(this)->voxelinfolist.getLength();
   assert(nrprofilepoints >= 2);
 
   if (profile != NULL) {
-    profile[0] = this->voxelinfolist[0].voxelindex;
-    profile[1] = this->voxelinfolist[nrprofilepoints - 1].voxelindex;
+    profile[0] = PRIVATE(this)->voxelinfolist[0].voxelindex;
+    profile[1] = PRIVATE(this)->voxelinfolist[nrprofilepoints - 1].voxelindex;
   }
 
   return nrprofilepoints;
@@ -128,11 +175,11 @@ SoVolumeDetail::getProfileValue(int index,
                                       SbVec3s * pos, SbVec3f * objpos,
                                       SbBool flag) const
 {
-  assert(index >= 0 && index < this->voxelinfolist.getLength());
+  assert(index >= 0 && index < PRIVATE(this)->voxelinfolist.getLength());
 
-  if (pos) { *pos = this->voxelinfolist[index].voxelindex; }
-  if (objpos) { *objpos = this->voxelinfolist[index].voxelcoord; }
-  return this->voxelinfolist[index].voxelvalue;
+  if (pos) { *pos = PRIVATE(this)->voxelinfolist[index].voxelindex; }
+  if (objpos) { *objpos = PRIVATE(this)->voxelinfolist[index].voxelcoord; }
+  return PRIVATE(this)->voxelinfolist[index].voxelvalue;
 }
 
 /*!
@@ -161,23 +208,126 @@ SoVolumeDetail::getFirstNonTransparentValue(unsigned int * value,
                                                   SbBool flag) const
 {
   int idx = 0;
-  for (idx=0; idx < this->voxelinfolist.getLength(); idx++) {
-    if (this->voxelinfolist[idx].rgba[3] != 0x00) break;
+  for (idx=0; idx < PRIVATE(this)->voxelinfolist.getLength(); idx++) {
+    if (PRIVATE(this)->voxelinfolist[idx].rgba[3] != 0x00) break;
   }
 
-  if (idx == this->voxelinfolist.getLength()) { return FALSE; }
+  if (idx == PRIVATE(this)->voxelinfolist.getLength()) { return FALSE; }
 
-  if (pos) { *pos = this->voxelinfolist[idx].voxelindex; }
-  if (objpos) { *objpos = this->voxelinfolist[idx].voxelcoord; }
-  if (value) { *value = this->voxelinfolist[idx].voxelvalue; }
+  if (pos) { *pos = PRIVATE(this)->voxelinfolist[idx].voxelindex; }
+  if (objpos) { *objpos = PRIVATE(this)->voxelinfolist[idx].voxelcoord; }
+  if (value) { *value = PRIVATE(this)->voxelinfolist[idx].voxelvalue; }
   return TRUE;
 }
 
+
+/*!
+  \COININTERNAL
+  
+  Used to set raypick details.  
+  NOTE: This method takes different arguments than the TGS equivalent.
+
+*/
+void 
+SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend, 
+                           SoState * state, SoNode * caller)
+{
+
+  SoRayPickAction * action = (SoRayPickAction *) state->getAction();
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  const SoTransferFunctionElement * transferfunctionelement =
+    SoTransferFunctionElement::getInstance(state);
+
+  // Find objectspace-dimensions of a voxel.
+  const SbBox3f & objbbox = vbelem->getUnitDimensionsBox();
+  const SbVec3s & voxcubedims = vbelem->getVoxelCubeDimensions();
+
+  SbVec3f mincorner, maxcorner;
+  objbbox.getBounds(mincorner, maxcorner);
+
+  const SbVec3f size = maxcorner - mincorner;
+  const SbVec3f voxelsize(voxcubedims[0] / size[0],
+                          voxcubedims[1] / size[1],
+                          voxcubedims[2] / size[2]);
+
+  // Calculate maximum number of voxels that could possibly be touched
+  // by the ray.
+  const SbVec3f rayvec = (rayend - raystart);
+  const float minvoxdim = SbMin(voxelsize[0], SbMin(voxelsize[1], voxelsize[2]));
+  const unsigned int maxvoxinray = (unsigned int)(rayvec.length() / minvoxdim + 1);
+  const SbVec3f stepvec = rayvec / maxvoxinray;
+  const SbBox3s voxelbounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
+
+  SbVec3s ijk, lastijk(-1, -1, -1);
+  SbVec3f objectcoord = raystart;
+  SoPickedPoint * pickedpoint = NULL;
+  CvrCLUT * clut = NULL;
+    
+  while (TRUE) {
+    // FIXME: we're not hitting the voxels in an exact manner with the
+    // intersection testing (it seems we're slightly off in the
+    // x-direction, at least), as can be seen from the
+    // SoGuiExamples/volumerendering/raypick example (either that or
+    // it could be the actual 2D texture-slice rendering that is
+    // wrong). 20030220 mortene.
+    //
+    // UPDATE: this might have been fixed now, at least I found and
+    // fixed an offset bug in the objectCoordsToIJK() method
+    // today. 20030320 mortene.
+
+    ijk = vbelem->objectCoordsToIJK(objectcoord);
+    if (!voxelbounds.intersect(ijk)) break;
+    
+    if (!action->isBetweenPlanes(objectcoord)) {
+      objectcoord += stepvec;
+      continue;
+    }
+    
+    if (ijk != lastijk) { // touched new voxel
+
+      if (CvrUtil::debugRayPicks()) {
+        SoDebugError::postInfo("SoVolumeDetail::rayPick",
+                               "ijk=<%d, %d, %d>", ijk[0], ijk[1], ijk[2]);
+      }
+
+      if (pickedpoint == NULL) {
+        pickedpoint = action->addIntersection(objectcoord);
+        // if NULL, something else is obstructing the view to the
+        // volume, the app programmer only want the nearest, and we
+        // don't need to continue our intersection tests
+        if (pickedpoint == NULL) return;
+        // FIXME: should fill in the normal vector of the pickedpoint:
+        //  ->setObjectNormal(<voxcube-side-normal>);
+        // 20030320 mortene.       
+        pickedpoint->setDetail(this, caller);        
+
+        clut = CvrVoxelChunk::getCLUT(transferfunctionelement);
+        clut->ref();
+      }
+
+      const uint32_t voxelvalue = vbelem->getVoxelValue(ijk);      
+      uint8_t rgba[4];
+      clut->lookupRGBA(voxelvalue, rgba);      
+      PRIVATE(this)->addVoxelIntersection(objectcoord, ijk, voxelvalue, rgba);
+      lastijk = ijk;      
+
+    }
+    else if (CvrUtil::debugRayPicks()) {
+      SoDebugError::postInfo("SoVolumeDetail::rayPick", "duplicate");
+    }
+
+    objectcoord += stepvec;
+  }
+ 
+  if (clut) clut->unref();
+
+}
+
 void
-SoVolumeDetail::addVoxelIntersection(const SbVec3f & voxelcoord,
-                                           const SbVec3s & voxelindex,
-                                           unsigned int voxelvalue,
-                                           uint8_t rgba[4])
+SoVolumeDetailP::addVoxelIntersection(const SbVec3f & voxelcoord,
+                                      const SbVec3s & voxelindex,
+                                      unsigned int voxelvalue,
+                                      uint8_t rgba[4])
 {
   VoxelInfo vxinfo;
   vxinfo.voxelcoord = voxelcoord;
@@ -187,3 +337,8 @@ SoVolumeDetail::addVoxelIntersection(const SbVec3f & voxelcoord,
 
   this->voxelinfolist.append(vxinfo);
 }
+
+// *************************************************************************
+
+#undef PRIVATE
+#undef PUBLIC

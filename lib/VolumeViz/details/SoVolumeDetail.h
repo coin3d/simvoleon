@@ -24,13 +24,14 @@
  *
 \**************************************************************************/
 
+
+#include <Inventor/misc/SoState.h>
+#include <Inventor/nodes/SoNode.h>
 #include <Inventor/details/SoDetail.h>
 #include <Inventor/details/SoSubDetail.h>
-#include <Inventor/SbVec3f.h>
-#include <Inventor/SbVec3s.h>
-#include <Inventor/lists/SbList.h>
-#include <VolumeViz/C/basic.h>
+#include <Inventor/SbLinear.h>
 
+#include <VolumeViz/C/basic.h>
 
 class SIMVOLEON_DLL_API SoVolumeDetail : public SoDetail {
   typedef SoDetail inherited;
@@ -54,22 +55,17 @@ public:
                                      SbVec3s * pos = 0, SbVec3f * objpos = 0,
                                      SbBool flag = FALSE) const;
 
+  // NOTE: The TGS version of the 'setDetails()' takes different
+  // arguments. We consider their solution to be unoptimal, and have
+  // therefore changed the input arguments.
+  void setDetails(const SbVec3f raystart, const SbVec3f rayend, 
+                  SoState * state, SoNode * caller);
+
 private:
-  void addVoxelIntersection(const SbVec3f & voxelcoord,
-                            const SbVec3s & voxelindex,
-                            unsigned int voxelvalue,
-                            uint8_t rgba[4]);
 
-  class VoxelInfo {
-  public:
-    SbVec3f voxelcoord;
-    SbVec3s voxelindex;
-    unsigned int voxelvalue;
-    uint8_t rgba[4];
-  };
-  SbList<VoxelInfo> voxelinfolist;
+  class SoVolumeDetailP * pimpl;
+  friend class SoVolumeDetailP;
 
-  friend class SoVolumeRender;
 };
 
 #endif // !COIN_SOVOLUMEDETAIL_H

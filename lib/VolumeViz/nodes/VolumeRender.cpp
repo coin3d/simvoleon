@@ -38,8 +38,6 @@
 #include <limits.h> // UINT_MAX
 #include <float.h> // DBL_MAX
 
-#include <VolumeViz/nodes/SoVolumeRender.h>
-
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/SbLine.h>
@@ -58,11 +56,13 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 
+#include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/render/2D/CvrPageHandler.h>
 #include <VolumeViz/render/3D/CvrCubeHandler.h>
 #include <VolumeViz/render/Pointset/PointRendering.h>
@@ -70,6 +70,8 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
+
+#include "volumeraypickintersection.h"
 
 // *************************************************************************
 
@@ -662,155 +664,22 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
 {
   if (!this->shouldRayPick(action)) return;
 
-  SoState * state = action->getState();
-  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
-  if (vbelem == NULL) { return; }
-
+  SbVec3f intersects[2];  
+  SoState * state = action->getState();  
   this->computeObjectSpaceRay(action);
-  const SbLine & ray = action->getLine();
 
-  const SbBox3f & objbbox = vbelem->getUnitDimensionsBox();
-
-  SbVec3f mincorner, maxcorner;
-  objbbox.getBounds(mincorner, maxcorner);
-
-  SbPlane sides[6] = {
-    SbPlane(SbVec3f(0, 0, 1), mincorner[2]), // front face
-    SbPlane(SbVec3f(0, 0, 1), maxcorner[2]), // back face
-    SbPlane(SbVec3f(1, 0, 0), mincorner[0]), // left face
-    SbPlane(SbVec3f(1, 0, 0), maxcorner[0]), // right face
-    SbPlane(SbVec3f(0, 1, 0), mincorner[1]), // bottom face
-    SbPlane(SbVec3f(0, 1, 0), maxcorner[1])  // top face
-  };
-
-  static int cmpindices[6][2] = {{0, 1}, {1, 2}, {0, 2}};
-
-  unsigned int nrintersect = 0;
-  SbVec3f intersects[2];
-  for (unsigned int i=0; i < (sizeof(sides) / sizeof(sides[0])); i++) {
-    SbVec3f intersectpt;
-    if (sides[i].intersect(ray, intersectpt)) {
-      const int axisidx0 = cmpindices[i / 2][0];
-      const int axisidx1 = cmpindices[i / 2][1];
-
-      if ((intersectpt[axisidx0] >= mincorner[axisidx0]) &&
-          (intersectpt[axisidx0] <= maxcorner[axisidx0]) &&
-          (intersectpt[axisidx1] >= mincorner[axisidx1]) &&
-          (intersectpt[axisidx1] <= maxcorner[axisidx1])) {
-        intersects[nrintersect++] = intersectpt;
-        // Break if we happen to hit more than three sides (could
-        // perhaps happen in borderline cases).
-        if (nrintersect == 2) break;
-      }
-    }
-  }
-
-
-  // Borderline case, ignore pick attempt.
-  if (nrintersect < 2) { return; }
-
-  assert(nrintersect == 2);
-
-  // Sort so first index is the one closest to ray start.
-  if ((ray.getPosition() - intersects[0]).sqrLength() >
-      (ray.getPosition() - intersects[1]).sqrLength()) {
-    SbSwap(intersects[0], intersects[1]);
-  }
-
+  if (!cvr_volumeraypickintersection(action, intersects))
+    return;
+      
   if (CvrUtil::debugRayPicks()) {
     PRIVATE(this)->raypicklines.append(intersects[0]);
     PRIVATE(this)->raypicklines.append(intersects[1]);
     this->touch(); // smash caches and re-render with line(s)
   }
+ 
+  SoVolumeRenderDetail * detail = new SoVolumeRenderDetail;
+  detail->setDetails(intersects[0], intersects[1], state, this);
 
-  const SoTransferFunctionElement * transferfunctionelement =
-    SoTransferFunctionElement::getInstance(state);
-  assert(transferfunctionelement != NULL);
-  SoTransferFunction * transferfunction =
-    transferfunctionelement->getTransferFunction();
-  assert(transferfunction != NULL);
-
-  const SbVec3s & voxcubedims = vbelem->getVoxelCubeDimensions();
-
-  // Find objectspace-dimensions of a voxel.
-  const SbVec3f size = maxcorner - mincorner;
-  const SbVec3f voxelsize(voxcubedims[0] / size[0],
-                          voxcubedims[1] / size[1],
-                          voxcubedims[2] / size[2]);
-
-  // Calculate maximum number of voxels that could possibly be touched
-  // by the ray.
-  const SbVec3f rayvec = (intersects[1] - intersects[0]);
-  const float minvoxdim = SbMin(voxelsize[0], SbMin(voxelsize[1], voxelsize[2]));
-  const unsigned int maxvoxinray = (unsigned int)(rayvec.length() / minvoxdim + 1);
-
-  const SbVec3f stepvec = rayvec / maxvoxinray;
-  SbVec3s ijk, lastijk(-1, -1, -1);
-
-  const SbBox3s voxelbounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
-
-  SoPickedPoint * pp = NULL;
-  SoVolumeRenderDetail * detail = NULL;
-  CvrCLUT * clut = NULL;
-  SbVec3f objectcoord = intersects[0];
-
-  while (TRUE) {
-    // FIXME: we're not hitting the voxels in an exact manner with the
-    // intersection testing (it seems we're slightly off in the
-    // x-direction, at least), as can be seen from the
-    // SoGuiExamples/volumerendering/raypick example (either that or
-    // it could be the actual 2D texture-slice rendering that is
-    // wrong). 20030220 mortene.
-    //
-    // UPDATE: this might have been fixed now, at least I found and
-    // fixed an offset bug in the objectCoordsToIJK() method
-    // today. 20030320 mortene.
-
-    ijk = vbelem->objectCoordsToIJK(objectcoord);
-    if (!voxelbounds.intersect(ijk)) break;
-
-    if (!action->isBetweenPlanes(objectcoord)) {
-      objectcoord += stepvec;
-      continue;
-    }
-
-    if (ijk != lastijk) { // touched new voxel
-      lastijk = ijk;
-      if (CvrUtil::debugRayPicks()) {
-        SoDebugError::postInfo("SoVolumeRender::rayPick",
-                               "ijk=<%d, %d, %d>", ijk[0], ijk[1], ijk[2]);
-      }
-      if (pp == NULL) {
-        pp = action->addIntersection(objectcoord);
-        // if NULL, something else is obstructing the view to the
-        // volume, the app programmer only want the nearest, and we
-        // don't need to continue our intersection tests
-        if (pp == NULL) return;
-        // FIXME: should fill in the normal vector of the pickedpoint:
-        //  ->setObjectNormal(<voxcube-side-normal>);
-        // 20030320 mortene.
-
-        detail = new SoVolumeRenderDetail;
-        pp->setDetail(detail, this);
-
-        clut = CvrVoxelChunk::getCLUT(transferfunctionelement);
-        clut->ref();
-      }
-
-      const uint32_t voxelvalue = vbelem->getVoxelValue(ijk);
-      uint8_t rgba[4];
-      clut->lookupRGBA(voxelvalue, rgba);
-
-      detail->addVoxelIntersection(objectcoord, ijk, voxelvalue, rgba);
-    }
-    else if (CvrUtil::debugRayPicks()) {
-      SoDebugError::postInfo("SoVolumeRender::rayPick", "duplicate");
-    }
-
-    objectcoord += stepvec;
-  }
-
-  if (clut) clut->unref();
 }
 
 // doc in super
@@ -1370,3 +1239,8 @@ SoVolumeRenderP::calculateNrOf3DSlices(SoGLRenderAction * action,
 }
 
 // *************************************************************************
+
+#undef PRIVATE
+#undef PUBLIC
+
+
