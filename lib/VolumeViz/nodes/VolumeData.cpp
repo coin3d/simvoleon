@@ -193,18 +193,20 @@ SoVolumeData::setVolumeSize(const SbBox3f & size)
 SbBox3f
 SoVolumeData::getVolumeSize(void) const
 {
+  SbBox3f volbox;
+
   // If not marked with FLT_MAX, it was explicitly set by the
   // application programmer.
-  if (!this->volumeboxmin.getValue()[0] == FLT_MAX) {
-    return SbBox3f(this->volumeboxmin.getValue(), this->volumeboxmax.getValue());
+  if (this->volumeboxmin.getValue()[0] != FLT_MAX) {
+    volbox = SbBox3f(this->volumeboxmin.getValue(), this->volumeboxmax.getValue());
   }
-
-  // If no reader, return the empty box.
-  if (!PRIVATE(this)->reader) { return SbBox3f();}
-
-  SoVolumeData::DataType type; SbVec3s dim; // dummy parameters
-  SbBox3f volbox;
-  PRIVATE(this)->reader->getDataChar(volbox, type, dim);
+  else {
+    if (PRIVATE(this)->reader) {
+      SoVolumeData::DataType type; SbVec3s dim; // dummy parameters
+      PRIVATE(this)->reader->getDataChar(volbox, type, dim);
+    }
+    // else, if no reader, return the empty box.
+  }
 
   return volbox;
 }
