@@ -22041,7 +22041,7 @@ echo "${ECHO_T}no" >&6
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
 
-  if $SIMVOLEON_STATIC; then
+  if $SIMVOLEON_STATIC && $BUILD_WITH_MSVC; then
     # don't link with coin and friends when building SIMVoleon as a static lib
     LDFLAGS=$sim_ac_configure_save_ldflags
     LIBS=$sim_ac_configure_save_libs
