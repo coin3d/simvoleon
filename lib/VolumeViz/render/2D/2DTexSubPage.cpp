@@ -332,11 +332,22 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
   const int nrtexels = this->texdims[0] * this->texdims[1];
   const int texmem = int(float(nrtexels) * float(this->bitspertexel) / 8.0f);
 
+  // This is a debugging backdoor to test stuff with no limits on how
+  // much texture memory we can use.
+  static int unlimited_texmem = -1;
+  if (unlimited_texmem == -1) {
+    const char * envstr = coin_getenv("CVR_UNLIMITED_TEXMEM");
+    if (envstr) { unlimited_texmem = atoi(envstr) > 0 ? 1 : 0; }
+    else unlimited_texmem = 0;
+  }
+
+
   // FIXME: limits should be stored in a global texture manager class
   // or some such. 20021121 mortene.
-  if (//Cvr2DTexSubPage::detectedtextureswapping ||
-      ((nrtexels + Cvr2DTexSubPage::nroftexels) > (16*1024*1024)) ||
-      ((texmem + Cvr2DTexSubPage::texmembytes) > (64*1024*1024))) {
+  if (!unlimited_texmem &&
+      (//Cvr2DTexSubPage::detectedtextureswapping ||
+       ((nrtexels + Cvr2DTexSubPage::nroftexels) > (16*1024*1024)) ||
+       ((texmem + Cvr2DTexSubPage::texmembytes) > (64*1024*1024)))) {
 #if CVR_DEBUG && 1 // debug
     static SbBool first = TRUE;
     if (first) {
