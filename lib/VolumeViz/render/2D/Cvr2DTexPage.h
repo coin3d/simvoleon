@@ -19,7 +19,6 @@ public:
             SoOrthoSlice::Axis axis, const SbVec2s & pageSize);
 
   void render(SoState * state, const SbVec3f v[4],
-              const SbBox2f & textureCoords,
               SoTransferFunction * transferfunc, long tick);
 
   Cvr2DTexSubPage * getLRUSubPage(long & tick);
@@ -37,16 +36,21 @@ private:
 
   int calcSubPageIdx(int row, int col) const;
 
+  void renderGLQuad(const SbVec3f & lowerLeft,
+                    const SbVec3f & lowerRight,
+                    const SbVec3f & upperLeft,
+                    const SbVec3f & upperRight);
+
   class Cvr2DTexSubPageItem ** subpages;
   SoVolumeReader * reader;
 
   SoOrthoSlice::Axis axis;
   int sliceIdx;
-  SbVec2s pageSize;
+  SbVec2s subpagesize;
   SbVec2s dimensions;
 
-  int numCols;
-  int numRows;
+  int nrcolumns;
+  int nrrows;
 
   SoVolumeData::DataType dataType;
 };

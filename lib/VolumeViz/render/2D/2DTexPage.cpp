@@ -30,7 +30,7 @@ public:
 
 Cvr2DTexPage::Cvr2DTexPage(void)
 {
-  this->pageSize = SbVec2s(32, 32);
+  this->subpagesize = SbVec2s(64, 64);
   this->subpages = NULL;
   this->axis = SoOrthoSlice::Z;
   this->sliceIdx = 0;
@@ -48,16 +48,16 @@ Cvr2DTexPage::~Cvr2DTexPage()
 
 void Cvr2DTexPage::init(SoVolumeReader * reader, int sliceIdx,
                         SoOrthoSlice::Axis axis,
-                        const SbVec2s & pageSize)
+                        const SbVec2s & subpagetexsize)
 {
-  assert(pageSize[0] > 0 && pageSize[1] > 0);
+  assert(subpagetexsize[0] > 0 && subpagetexsize[1] > 0);
 
   this->releaseAllSubPages();
 
   this->reader = reader;
   this->sliceIdx = sliceIdx;
   this->axis = axis;
-  this->pageSize = pageSize;
+  this->subpagesize = subpagetexsize;
 
   SbVec3s dim;
   SbBox3f size;
@@ -84,18 +84,21 @@ void Cvr2DTexPage::init(SoVolumeReader * reader, int sliceIdx,
       break;
   }
 
-#if 0 // debug
+  this->nrcolumns = (this->dimensions[0] + this->subpagesize[0] - 1) / this->subpagesize[0];
+  this->nrrows = (this->dimensions[1] + this->subpagesize[1] - 1) / this->subpagesize[1];
+
+#if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("void Cvr2DTexPage::init",
-                         "this->dimensions=[%d, %d], this->pageSize=[%d, %d]",
+                         "this->dimensions=[%d, %d], "
+                         "this->nrcolumns==%d, this->nrrows==%d, "
+                         "this->subpagesize=[%d, %d]",
                          this->dimensions[0], this->dimensions[1],
-                         this->pageSize[0], this->pageSize[1]);
+                         this->nrcolumns, this->nrrows,
+                         this->subpagesize[0], this->subpagesize[1]);
 #endif // debug
 
-  this->numCols = (this->dimensions[0] + this->pageSize[0] - 1) / this->pageSize[0];
-  this->numRows = (this->dimensions[1] + this->pageSize[1] - 1) / this->pageSize[1];
-
-  assert(this->numCols > 0);
-  assert(this->numRows > 0);
+  assert(this->nrcolumns > 0);
+  assert(this->nrrows > 0);
 }
 
 
@@ -109,7 +112,7 @@ Cvr2DTexPage::releaseSubPage(Cvr2DTexSubPage * page)
   assert(page != NULL);
   assert(this->subpages != NULL);
 
-  const int NRPAGES = this->numCols * this->numRows;
+  const int NRPAGES = this->nrcolumns * this->nrrows;
   for (int i = 0; i < NRPAGES; i++) {
     Cvr2DTexSubPageItem * p = this->subpages[i];
     if (p == NULL) continue; // skip this, continue with for-loop
@@ -150,7 +153,7 @@ Cvr2DTexPage::getLRUSubPage(long & tick)
   Cvr2DTexSubPage * LRUPage = NULL;
   long lowesttick = LONG_MAX;
 
-  const int NRPAGES = this->numCols * this->numRows;
+  const int NRPAGES = this->nrcolumns * this->nrrows;
   for (int i = 0; i < NRPAGES; i++) {
     Cvr2DTexSubPageItem * pitem = this->subpages[i];
     while (pitem != NULL) {
@@ -171,7 +174,7 @@ Cvr2DTexPage::releaseAllSubPages(void)
 {
   if (this->subpages == NULL) return;
 
-  for (int i = 0; i < this->numCols * this->numRows; i++) {
+  for (int i = 0; i < this->nrcolumns * this->nrrows; i++) {
     Cvr2DTexSubPageItem * pitem = this->subpages[i];
     if (pitem == NULL) continue;
 
@@ -191,6 +194,36 @@ Cvr2DTexPage::releaseAllSubPages(void)
 
 
 
+void
+Cvr2DTexPage::renderGLQuad(const SbVec3f & lowleft, const SbVec3f & lowright,
+                           const SbVec3f & upleft, const SbVec3f & upright)
+{
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("Cvr2DTexPage::renderGLQuad",
+                         "minuv=[%f, %f], maxuv=[%f, %f]",
+                         minuv[0], minuv[1], maxuv[0], maxuv[1]);
+#endif // debug
+  
+
+  glBegin(GL_QUADS);
+  glColor4f(1, 1, 1, 1);
+
+  glTexCoord2f(0.0f, 0.0f);
+  glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
+
+  glTexCoord2f(1.0f, 0.0f);
+  glVertex3f(lowright[0], lowright[1], lowright[2]);
+
+  glTexCoord2f(1.0f, 1.0f);
+  glVertex3f(upright[0], upright[1], upright[2]);
+
+  glTexCoord2f(0.0f, 1.0f);
+  glVertex3f(upleft[0], upleft[1], upleft[2]);
+
+  glEnd();
+}
+
+
 
 /*!
   Renders arbitrary shaped quad. Automatically loads all pages needed
@@ -201,144 +234,61 @@ Cvr2DTexPage::releaseAllSubPages(void)
   left of slice, v1 maps to lower right of slice, v2 maps to upper
   right of slice, and v3 maps to upper left of slice.
 */
-void Cvr2DTexPage::render(SoState * state, const SbVec3f v[4],
-                          const SbBox2f & textureCoords,
+void Cvr2DTexPage::render(SoState * state, const SbVec3f quadcoords[4],
                           SoTransferFunction * transferfunc,
                           long tick)
 {
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("void Cvr2DTexPage::render",
+                         "v0=[%f, %f, %f], "
+                         "v1=[%f, %f, %f], "
+                         "v2=[%f, %f, %f], "
+                         "v3=[%f, %f, %f]",
+                         quadcoords[0][0], quadcoords[0][1], quadcoords[0][2],
+                         quadcoords[1][0], quadcoords[1][1], quadcoords[1][2],
+                         quadcoords[2][0], quadcoords[2][1], quadcoords[2][2],
+                         quadcoords[3][0], quadcoords[3][1], quadcoords[3][2]);
+#endif // debug
+
   assert(this->reader);
   assert(transferfunc);
 
-  SbVec2f minUV, maxUV;
-  textureCoords.getBounds(minUV, maxUV);
+  SbVec3f subpagewidth = (quadcoords[1] - quadcoords[0]) / this->nrcolumns;
+  SbVec3f subpageheight = (quadcoords[3] - quadcoords[0]) / this->nrrows;
 
-  SbVec2f pageSizef =
-    SbVec2f(float(this->pageSize[0])/float(this->dimensions[0]),
-            float(this->pageSize[1])/float(this->dimensions[1]));
+  for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
 
-  // Local page-UV-coordinates for the current quad to be rendered.
-  SbVec2f localMinUV, localMaxUV;
-
-  // Global slice-UV-coordinates for the current quad to be rendered.
-  SbVec2f globalMinUV, globalMaxUV;
-
-  // Vertices for left and right edge of current row
-  SbVec3f endLowerLeft, endLowerRight;
-  SbVec3f endUpperLeft, endUpperRight;
-
-  // Vertices for current quad to be rendered
-  SbVec3f upperLeft, upperRight, lowerLeft, lowerRight;
-
-  globalMinUV = minUV;
-  endLowerLeft = v[0];
-  endLowerRight = v[1];
-  int row = (int) (minUV[1]*this->numRows);
-  while (globalMinUV[1] != maxUV[1]) {
-
-    if ((row + 1)*pageSizef[1] < maxUV[1]) {
-      // This is not the last row to be rendered
-      globalMaxUV[1] = (row + 1)*pageSizef[1];
-      localMaxUV[1] = 1.0;
-
-      // Interpolating the row's endvertices
-      float k =
-        float(globalMaxUV[1] - minUV[1])/float(maxUV[1] - minUV[1]);
-      endUpperLeft[0] = (1 - k)*v[0][0] + k*v[3][0];
-      endUpperLeft[1] = (1 - k)*v[0][1] + k*v[3][1];
-      endUpperLeft[2] = (1 - k)*v[0][2] + k*v[3][2];
-
-      endUpperRight[0] = (1 - k)*v[1][0] + k*v[2][0];
-      endUpperRight[1] = (1 - k)*v[1][1] + k*v[2][1];
-      endUpperRight[2] = (1 - k)*v[1][2] + k*v[2][2];
-    }
-    else {
-
-      // This is the last row to be rendered
-      globalMaxUV[1] = maxUV[1];
-      localMaxUV[1] = (globalMaxUV[1] - row*pageSizef[1])/pageSizef[1];
-
-      endUpperLeft = v[3];
-      endUpperRight = v[2];
-    }
-
-
-    int col = (int) (minUV[0]*this->dimensions[0]/this->pageSize[0]);
-    globalMinUV[0] = minUV[0];
-    localMinUV[0] = (globalMinUV[0] - col*pageSizef[0])/pageSizef[0];
-    localMinUV[1] = (globalMinUV[1] - row*pageSizef[1])/pageSizef[1];
-    lowerLeft = endLowerLeft;
-    upperLeft = endUpperLeft;
-    while (globalMinUV[0] != maxUV[0]) {
-      if ((col + 1)*pageSizef[0] < maxUV[0]) {
-
-        // Not the last quad on the row
-        globalMaxUV[0] = (col + 1)*pageSizef[0];
-        localMaxUV[0] = 1.0;
-
-        // Interpolating the quad's rightmost vertices
-        float k =
-          float(globalMaxUV[0] - minUV[0])/float(maxUV[0] - minUV[0]);
-        lowerRight = (1 - k)*endLowerLeft + k*endLowerRight;
-        upperRight = (1 - k)*endUpperLeft + k*endUpperRight;
-
-      }
-      else {
-
-        // The last quad on the row
-        globalMaxUV[0] = maxUV[0];
-        localMaxUV[0] = (maxUV[0] - col*pageSizef[0])/pageSizef[0];
-
-        lowerRight = endLowerRight;
-        upperRight = endUpperRight;
-      }
-
-      // rendering
+    for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
 
       Cvr2DTexSubPage * page = NULL;
-      Cvr2DTexSubPageItem * pageitem = this->getSubPage(col, row, transferfunc);
-      if (pageitem == NULL) { pageitem = this->buildSubPage(col, row, transferfunc); }
+      Cvr2DTexSubPageItem * pageitem = this->getSubPage(colidx, rowidx, transferfunc);
+      if (pageitem == NULL) { pageitem = this->buildSubPage(colidx, rowidx, transferfunc); }
       assert(pageitem != NULL);
       assert(pageitem->page != NULL);
 
       pageitem->page->activate();
       pageitem->lasttick = tick;
 
-      glBegin(GL_QUADS);
-      glColor4f(1, 1, 1, 1);
-      glTexCoord2f(localMinUV[0], localMinUV[1]);
-      glVertex3f(lowerLeft[0], lowerLeft[1], lowerLeft[2]);
-      glTexCoord2f(localMaxUV[0], localMinUV[1]);
-      glVertex3f(lowerRight[0], lowerRight[1], lowerRight[2]);
-      glTexCoord2f(localMaxUV[0], localMaxUV[1]);
-      glVertex3f(upperRight[0], upperRight[1], upperRight[2]);
-      glTexCoord2f(localMinUV[0], localMaxUV[1]);
-      glVertex3f(upperLeft[0], upperLeft[1], upperLeft[2]);
-      glEnd();
+      SbVec3f lowleft = quadcoords[0] +
+        subpagewidth * colidx + subpageheight * rowidx;
 
-      globalMinUV[0] = globalMaxUV[0];
-      lowerLeft = lowerRight;
-      upperLeft = upperRight;
-      localMinUV[0] = 0.0;
-      col++;
+      SbVec3f lowright = lowleft + subpagewidth;
+      SbVec3f upleft = lowleft + subpageheight;
+      SbVec3f upright = upleft + subpagewidth;
+
+      this->renderGLQuad(lowleft, lowright, upleft, upright);
     }
-
-    globalMinUV[1] = globalMaxUV[1];
-    localMinUV[0] = 0.0;
-    endLowerLeft = endUpperLeft;
-    endLowerRight = endUpperRight;
-    row++;
   }
-
 }
 
 
 int
 Cvr2DTexPage::calcSubPageIdx(int row, int col) const
 {
-  assert((row >= 0) && (row < this->numRows));
-  assert((col >= 0) && (col < this->numCols));
+  assert((row >= 0) && (row < this->nrrows));
+  assert((col >= 0) && (col < this->nrcolumns));
 
-  return (row * this->numCols) + col;
+  return (row * this->nrcolumns) + col;
 }
 
 /*!
@@ -354,17 +304,17 @@ Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
 
   // First Cvr2DTexSubPage ever in this slice?
   if (this->subpages == NULL) {
-    int nrpages = this->numCols * this->numRows;
+    int nrpages = this->nrcolumns * this->nrrows;
     this->subpages = new Cvr2DTexSubPageItem*[nrpages];
     for (int i=0; i < nrpages; i++) { this->subpages[i] = NULL; }
   }
 
-  SbBox2s subSlice = SbBox2s(col * this->pageSize[0],
-                             row * this->pageSize[1],
-                             (col + 1) * this->pageSize[0],
-                             (row + 1) * this->pageSize[1]);
+  SbBox2s subSlice = SbBox2s(col * this->subpagesize[0],
+                             row * this->subpagesize[1],
+                             (col + 1) * this->subpagesize[0],
+                             (row + 1) * this->subpagesize[1]);
 
-  int texturebuffersize = this->pageSize[0] * this->pageSize[1] * 4;
+  int texturebuffersize = this->subpagesize[0] * this->subpagesize[1] * 4;
   unsigned char * texture = new unsigned char[texturebuffersize];
 
   SoVolumeReader::Axis ax =
@@ -375,7 +325,7 @@ Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
 
   uint32_t * transferredTexture = transferfunc->transfer(texture,
                                                          this->dataType,
-                                                         this->pageSize);
+                                                         this->subpagesize);
   delete[] texture;
 
   // FIXME: paletted textures not supported yet. 20021119 mortene.
@@ -383,7 +333,7 @@ Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
   int paletteSize = 0;
 
   Cvr2DTexSubPage * page =
-    new Cvr2DTexSubPage((const uint8_t *)transferredTexture, this->pageSize,
+    new Cvr2DTexSubPage((const uint8_t *)transferredTexture, this->subpagesize,
                         palette, paletteSize);
 
   delete[] transferredTexture;
@@ -600,8 +550,8 @@ Cvr2DTexPage::getSubPage(int col, int row,
 {
   if (this->subpages == NULL) return NULL;
 
-  assert((col >= 0) && (col < this->numCols));
-  assert((row >= 0) && (row < this->numRows));
+  assert((col >= 0) && (col < this->nrcolumns));
+  assert((row >= 0) && (row < this->nrrows));
 
   Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
 
