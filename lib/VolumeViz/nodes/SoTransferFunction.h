@@ -25,14 +25,12 @@
 \**************************************************************************/
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
+#include <Inventor/fields/SoMFFloat.h>
 #include <Inventor/fields/SoSFEnum.h>
 #include <Inventor/fields/SoSFInt32.h>
-#include <Inventor/fields/SoMFFloat.h>
+#include <Inventor/fields/SoSFUInt32.h>
 
-class SbVec2s;
-class CvrTextureObject;
-class CvrVoxelChunk;
-
+// *************************************************************************
 
 class SIMVOLEON_DLL_API SoTransferFunction : public SoVolumeRendering {
   typedef SoVolumeRendering inherited;
@@ -79,8 +77,19 @@ protected:
   virtual void pick(SoPickAction * action);
 
 private:
+  // These were added to make it possible to control the narrowing of
+  // the transfer function from the iv-file. They provide the same
+  // functionality as the reMap() function.
+  //
+  // These are "unofficial", private fields, as they are not available
+  // in TGS VolumeViz, which we want to stay compatible with.
+  SoSFUInt32 remapLow;
+  SoSFUInt32 remapHigh;
+
   friend class SoTransferFunctionP;
   class SoTransferFunctionP * pimpl;
 };
+
+// *************************************************************************
 
 #endif // !COIN_SOTRANSFERFUNCTION_H

@@ -59,13 +59,7 @@ class SoTransferFunctionP {
 public:
   SoTransferFunctionP(SoTransferFunction * master) {
     this->master = master;
-
-    // Init to lowest and highest uint16_t values.
-    this->opaquethresholds[0] = 0;
-    this->opaquethresholds[1] = (2 << 16) - 1;
   }
-
-  int opaquethresholds[2];
 
 private:
   SoTransferFunction * master;
@@ -276,6 +270,17 @@ SoTransferFunction::SoTransferFunction(void)
   SO_NODE_ADD_FIELD(predefColorMap, (GREY));
   SO_NODE_ADD_FIELD(colorMapType, (RGBA));
   SO_NODE_ADD_FIELD(colorMap, (0));
+
+  // These were added to make it possible to control the narrowing of
+  // the transfer function from the iv-file. They provide the same
+  // functionality as the reMap() function.
+  //
+  // These are "unofficial", private fields, as they are not available
+  // in TGS VolumeViz, which we want to stay compatible with.
+  //
+  // Init to lowest and highest uint16_t values.
+  SO_NODE_ADD_FIELD(remapLow, (0));
+  SO_NODE_ADD_FIELD(remapHigh, ((2 << 16) - 1));
 }
 
 
@@ -301,9 +306,10 @@ SoTransferFunction::doAction(SoAction * action)
   SoState * s = action->getState();
 
   SoTransferFunctionElement::setTransferFunction(s, this);
-  SoTransferFunctionElement::setTransparencyThresholds(s,
-                                                       PRIVATE(this)->opaquethresholds[0],
-                                                       PRIVATE(this)->opaquethresholds[1]);
+
+  const uint32_t low = this->remapLow.getValue();
+  const uint32_t high = this->remapHigh.getValue();
+  SoTransferFunctionElement::setTransparencyThresholds(s, low, high);
 }
 
 void
@@ -335,24 +341,21 @@ void
 SoTransferFunction::reMap(int low, int high)
 {
   assert(low <= high);
+  assert(low >= 0);
+  assert(high >= 0);
 
-  if ((low == PRIVATE(this)->opaquethresholds[0]) &&
-      (high == PRIVATE(this)->opaquethresholds[1])) {
+  const uint32_t l = (uint32_t)low;
+  const uint32_t h = (uint32_t)high;
+
+  if ((l == this->remapLow.getValue()) && (h == this->remapHigh.getValue())) {
     // No change.
     return;
   }
 
-  PRIVATE(this)->opaquethresholds[0] = low;
-  PRIVATE(this)->opaquethresholds[1] = high;
-  
-  // This is done to update our node-id, which should automatically
-  // invalidate any 2D texture slices or 3D textures generated with
-  // the previous colormap transfer. Also, our internal index tables
-  // for speeding up transfers needs to be invalidated when these
-  // values changes.
-  //
-  // These settings should really have been made public as fields, and
-  // this would have been unnecessary. We can't do that without
-  // breaking compatibility with TGS's VolumeViz, though.
-  this->touch();
+  // This will cause an update to the SoTransferFunction instance's
+  // node-id, which should automatically invalidate any 2D texture
+  // slices or 3D textures generated with the previous colormap
+  // transfer.
+  this->remapLow = l;
+  this->remapHigh = h;
 }
