@@ -1,0 +1,101 @@
+This document contains various ideas for improvements that we wish to
+do with the library. Which ones are prioritized depends on user
+requests, availability of programmer resources, and external and
+internal funding.
+
+============================================================================
+
+000 Generate 2D lines and/or 3D contours from voxel data.
+
+    Can be done by applying the Marching Cubes (or Squares?)
+    algorithm, using coloring from the transfer function.
+
+    We've had external requests for this.
+
+    20040729 mortene.
+
+============================================================================
+
+001 Software rendering by ray casting.
+
+    Various techniques that are really hard to do with GL texturing
+    can be straight forward to implement if we can do visualization by
+    ray casting, like for instance lighting, other intensity
+    projections (in addition to maximum and sum), and probably many
+    other things.
+
+    Ray casting may also make dynamic level-of-detail a possibility..?
+
+    20040729 mortene.
+
+============================================================================
+
+002 Better rendering performance by using the "big image" scaling from
+    Coin.
+
+    Should try to scale textures to nothing larger than the necessary
+    size, considered in the context of projected screen-space
+    resolution (i.e. most texels are most often not shown, because
+    they are projected together with many more to one screen pixel --
+    so the textures could be smaller, with no loss of visual quality).
+
+    Could perhaps prove to be too CPU intensive, given the large
+    number of large textures for a typical volume, but should at least
+    investigate this.
+
+    20040729 mortene.
+
+============================================================================
+
+003 Support for "roaming" inside large volumes.
+
+    Implement support for the TGS's SoROI node, to make it possible to
+    use larger volumes than what is really supported by the available
+    memory and rendering resources on the host machine.
+
+    Will need a bit of internal redesign of some interfaces, as we can
+    no longer just pass around a pointer to the full voxel
+    block. Also, to support this properly, we would need to be able to
+    read parts of volume data files.
+
+    20040729 mortene.
+
+============================================================================
+
+004 Correct rendering of multiple (possibly intersecting), non-opaque
+    volumes in the same scene.
+
+    TGS supports this through their SoVolumeGroup node. We should have
+    something similar. Actually, if we can implement this with a
+    negligible performance hit, it would be better to do it _without_
+    forcing the app programmer to use something like the TGS
+    SoVolumeGroup, but instead just let it implicitly, transparently
+    work.
+
+    This can be done in various "stages" of complexity: first of all,
+    we should support it for co-planar slices in 3D-textures normal to
+    the view direction (this is the extent of what TGS
+    supports).
+
+    Next, it would be really cool if we clipped the polygons against
+    each other, so rendering of partly transparent "volume-mapped"
+    polygons in any direction would always look correct against each
+    other. This would probably be difficult to always behave with
+    decent performance, though.
+
+    20040729 mortene.
+
+============================================================================
+
+005 Proper support for 16-bit / 2-byte voxel data.
+
+    Currently, these are simply downsampled to 8-bit data. Should
+    handle 16-bit voxel values "natively".
+
+    Need to investigate to what degree something like this is
+    supported both by RGBA and paletted textures from OpenGL's
+    perspective.
+
+    20040729 mortene.
+
+============================================================================
