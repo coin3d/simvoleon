@@ -343,20 +343,8 @@ void Cvr2DTexPage::render(SoState * state,
 int
 Cvr2DTexPage::calcSubPageIdx(int row, int col) const
 {
-#if 1 // FIXME: base this on a compiler variable ("COINVOL_DEBUG" or something). 20021117 mortene.
-  if (! ((row >= 0) && (row < this->numRows))) {
-    SoDebugError::post("Cvr2DTexPage::calcSubPageIdx",
-                       "row %d out of bounds, this->numRows==%d",
-                       row, this->numRows);
-    assert(FALSE);
-  }
-  if (! ((col >= 0) && (col < this->numCols))) {
-    SoDebugError::post("Cvr2DTexPage::calcSubPageIdx",
-                       "col %d out of bounds, this->numCols==%d",
-                       col, this->numCols);
-    assert(FALSE);
-  }
-#endif // debug
+  assert((row >= 0) && (row < this->numRows));
+  assert((col >= 0) && (col < this->numCols));
 
   return (row * this->numCols) + col;
 }

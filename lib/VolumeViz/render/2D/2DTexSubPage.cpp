@@ -75,7 +75,8 @@ void
 Cvr2DTexSubPage::activate(void) const
 {
   glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
-#if 1 // DEBUG
+
+#if CVR_DEBUG
   // FIXME: glAreTexturesResident() is OpenGL 1.1 only. 20021119 mortene.
   GLboolean residences[1];
   GLboolean resident = glAreTexturesResident(1, this->texturename, residences);
@@ -83,7 +84,8 @@ Cvr2DTexSubPage::activate(void) const
     SoDebugError::postWarning("Cvr2DTexSubPage::activate",
                               "texture %d not resident", this->texturename);
   }
-#endif // debug
+#endif // CVR_DEBUG
+
 }
 
 // If no palette specified, this function assumes RGBA data. If a

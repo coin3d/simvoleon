@@ -224,11 +224,12 @@ SoTransferFunction::transfer(const uint8_t * input,
         if (predefmapidx == NONE) {
           assert(inval < nrcols);
           const float * colvals = &(colormap[inval * nrcomponents]);
-#if 1 // ROBUSTNESS
+#if CVR_DEBUG
+          // Done for robustness. Costly, though, so should probably remove.
           for (int cvchk = 0; cvchk < nrcomponents; cvchk++) {
             assert(colvals[cvchk] >= 0.0f && colvals[cvchk] <= 1.0f);
           }
-#endif // robustness
+#endif // CVR_DEBUG
           switch (colormaptype) {
           case ALPHA:
             rgba[0] = rgba[1] = rgba[2] = rgba[3] = uint8_t(colvals[0] * 255.0f);

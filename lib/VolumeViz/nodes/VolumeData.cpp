@@ -401,23 +401,17 @@ SoVolumeData::setPageSize(const SbVec3s & insize)
 {
   SbVec3s size = insize;
 
-  // Checking if the sizes are 2^n.
-  // FIXME: Should there have been an assertion here? This baby doesn't
-  // return anything... 08312002 torbjorv
-  if (!PRIVATE(this)->check2n(size[0]) ||
-      !PRIVATE(this)->check2n(size[1]) ||
-      !PRIVATE(this)->check2n(size[2])) {
-#if 1 // debug
-    SoDebugError::postInfo("SoVolumeData::setPageSize",
-                           "not in 2^n format");
-#endif // debug
-    return;
-  }
+  // FIXME: when can this possibly hit? On any valid input data?
+  // Investigate. 20021119 mortene.
+  assert(PRIVATE(this)->check2n(size[0]));
+  assert(PRIVATE(this)->check2n(size[1]));
+  assert(PRIVATE(this)->check2n(size[2]));
 
+  // FIXME: make sure this boundary condition is tested
+  // properly. 20021119 mortene.
   if (size[0] < 4) size[0] = 4;
   if (size[1] < 4) size[1] = 4;
   if (size[2] < 4) size[2] = 4;
-
 
   SbBool rebuildX = FALSE;
   SbBool rebuildY = FALSE;
