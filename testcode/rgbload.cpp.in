@@ -67,6 +67,9 @@ load_file(const char * filename, int slicenum)
   fprintf(stderr,"file loaded: %s, %d %d %d\n",
           filename, w, h, nc);
 
+  assert(w == volume_size[0] && "inconsistent dimensions of slices");
+  assert(h == volume_size[1] && "inconsistent dimensions of slices");
+
   if (data) {
     unsigned char * src = data;
     unsigned char * ptr = volume_data + volume_size[0] * volume_size[1] * 4 * slicenum;
@@ -190,7 +193,8 @@ main(int argc, char ** argv)
   // Add VolumeData to scene graph
   SoVolumeData * pVolData = new SoVolumeData();
   pVolData->setVolumeData(dim, (unsigned char *)pData, SoVolumeData::RGBA);
-  pVolData->setVolumeSize(SbBox3f(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f));
+  SbVec3f vsize(dim[0], dim[1], dim[2]);
+  pVolData->setVolumeSize(SbBox3f(-vsize/2.0f, vsize/2.0f));
 
   root->addChild(pVolData);
 
