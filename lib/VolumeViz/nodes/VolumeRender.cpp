@@ -27,9 +27,9 @@
 
 // List of GL_RENDERER substrings for hardware which does 3D textures
 // in hardware.
-static char * texture3d_in_hardware[] = {
+static const char * texture3d_in_hardware[] = {
   "GeForce FX",    // 5200 .. 5950
-  "GeForce 3", 
+  "GeForce3", 
   "GeForce4 Ti",
   "Geforce4 4200 GO",
   "Quadro FX", 
@@ -49,8 +49,8 @@ static char * texture3d_in_hardware[] = {
 
 // List of GL_RENDERER substrings for hardware which does 3D textures,
 // but only in software (ie. not feasible for volume rendering).
-static char * texture3d_in_software[] = {
-  "GeForce 2",
+static const char * texture3d_in_software[] = {
+  "GeForce2",
   "GeForce4 MX", 
   "Geforce4 440 GO",  
   "Geforce4 460 GO",  
