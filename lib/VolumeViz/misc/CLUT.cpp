@@ -53,6 +53,16 @@
 // FIXME: programs for handling 2D and 3D are almost identical --
 // avoid duplication. 20040504 mortene.
 
+// FIXME: the "MUL" instruction lines can be replaced by
+//
+//    "MOV result.color, R0;\n"
+//
+// if the user is not interested in modulating the textures with the
+// current diffuse color -- which is usually the case? This will
+// provide a decent speed-up, so it should be controllable from
+// application code, for instance from an envvar to disable
+// modulation. 20040611 mortene.
+
 static const char * cvrclut_palettelookupprogram3d = 
 "!!ARBfp1.0\n"
 "TEMP R0;\n"
