@@ -21,6 +21,8 @@
  *
 \**************************************************************************/
 
+// FIXME: class not yet in use. 20040505 mortene.
+
 /*!
   \class SoObliqueSliceDetail SoObliqueSliceDetail.h VolumeViz/details/SoObliqueSliceDetail.h
   \brief The SoObliqueSliceDetail FIXME: doc

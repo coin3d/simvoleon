@@ -21,6 +21,8 @@
  *
 \**************************************************************************/
 
+// FIXME: not yet implemented. 20040505 mortene.
+
 #include <VolumeViz/nodes/SoObliqueSlice.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>

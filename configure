@@ -20296,6 +20296,11 @@ rm -f conftest.$ac_objext conftest.$ac_ext
 # *******************************************************************
 # The ARB fragment programs uses recent parts of the cc_glglue
 # interface in Coin, so check for that.
+#
+# FIXME: should not depend on such a recent Coin version (in fact,
+# none has been officially released yet). The better solution is to
+# make cc_glglue importable into other projects -- it is also needed
+# in SIM Scenery, for instance. 20040505 mortene.
 
 echo "$as_me:$LINENO: checking if Coin version is recent enough to provide fragment program interface" >&5
 echo $ECHO_N "checking if Coin version is recent enough to provide fragment program interface... $ECHO_C" >&6

@@ -24,6 +24,8 @@
  *
 \**************************************************************************/
 
+// FIXME: class not yet implemented. 20040505 mortene.
+
 #include <Inventor/nodes/SoShape.h>
 #include <Inventor/fields/SoSFPlane.h>
 #include <Inventor/fields/SoSFEnum.h>

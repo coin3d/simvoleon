@@ -21,11 +21,7 @@
  *
 \**************************************************************************/
 
-/*!
-  \class SoROI VolumeViz/nodes/SoROI.h
-  \brief Specifies a region-of-interest within a volume data set.
-  \ingroup volviz
-*/
+// FIXME: not yet properly implemented. 20040505 mortene.
 
 
 /*

@@ -24,11 +24,16 @@
  *
 \**************************************************************************/
 
+// Note: this class is not part of the public API.
+
+// FIXME: should get rid of this class, it doesn't fit well into the
+// design. 20040505 mortene.
+
 #include <VolumeViz/readers/SoVolumeReader.h>
 #include <Inventor/SbBox3f.h>
 
 
-class SIMVOLEON_DLL_API SoVRMemReader : public SoVolumeReader{
+class SoVRMemReader : public SoVolumeReader{
 public:
   SoVRMemReader(void);
   virtual ~SoVRMemReader();

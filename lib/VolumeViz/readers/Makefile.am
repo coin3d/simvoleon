@@ -9,7 +9,7 @@ endif
 SOURCES = \
 	VolumeReader.cpp \
 	VRVolFileReader.cpp \
-	VRMemReader.cpp
+	VRMemReader.cpp	SoVRMemReader.h
 
 libreaders_la_SOURCES = $(SOURCES)
 
@@ -19,8 +19,7 @@ libreadersincdir = $(includedir)/VolumeViz/readers
 
 libreadersinc_HEADERS = \
 	SoVolumeReader.h \
-	SoVRVolFileReader.h \
-	SoVRMemReader.h
+	SoVRVolFileReader.h
 
 readers.lst: $(readers_lst_OBJECTS)
 	@echo "Linking $@..."; \

@@ -13,9 +13,11 @@ SOURCES = \
 	VolumeData.cpp \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
-	OrthoSlice.cpp \
-	ObliqueSlice.cpp \
-	ROI.cpp
+	OrthoSlice.cpp
+
+# FIXME: not yet implemented. 20040505 mortene.
+#	ObliqueSlice.cpp
+#	ROI.cpp
 
 libnodes_la_SOURCES = $(SOURCES)
 
@@ -24,13 +26,15 @@ nodes_lst_SOURCES = $(SOURCES)
 libnodesincdir = $(includedir)/VolumeViz/nodes
 
 libnodesinc_HEADERS = \
-	SoObliqueSlice.h \
 	SoOrthoSlice.h \
-	SoROI.h \
 	SoTransferFunction.h \
 	SoVolumeData.h \
 	SoVolumeRender.h \
 	SoVolumeRendering.h
+
+# FIXME: not yet implemented. 20040505 mortene
+#	SoObliqueSlice.h 
+#	SoROI.h 
 
 
 nodes.lst: $(nodes_lst_OBJECTS)

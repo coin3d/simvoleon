@@ -174,7 +174,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 SOURCES = \
 	VolumeReader.cpp \
 	VRVolFileReader.cpp \
-	VRMemReader.cpp
+	VRMemReader.cpp	SoVRMemReader.h
 
 
 libreaders_la_SOURCES = $(SOURCES)
@@ -185,8 +185,7 @@ libreadersincdir = $(includedir)/VolumeViz/readers
 
 libreadersinc_HEADERS = \
 	SoVolumeReader.h \
-	SoVRVolFileReader.h \
-	SoVRMemReader.h
+	SoVRVolFileReader.h
 
 subdir = lib/VolumeViz/readers
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -224,6 +223,13 @@ LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
+	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 DIST_SOURCES = $(readers_lst_SOURCES) $(libreaders_la_SOURCES)
 HEADERS = $(libreadersinc_HEADERS)
 
@@ -231,7 +237,7 @@ DIST_COMMON = $(libreadersinc_HEADERS) Makefile.am Makefile.in
 SOURCES = \
 	VolumeReader.cpp \
 	VRVolFileReader.cpp \
-	VRMemReader.cpp
+	VRMemReader.cpp	SoVRMemReader.h
 
 
 all: all-am

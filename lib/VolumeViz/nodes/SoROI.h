@@ -24,6 +24,9 @@
  *
 \**************************************************************************/
 
+// FIXME: class not yet properly implemented. 20040505 mortene.
+
+
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <Inventor/fields/SoSFBox3s.h>
 #include <Inventor/fields/SoSFBool.h>
