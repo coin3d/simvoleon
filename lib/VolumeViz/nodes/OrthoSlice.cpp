@@ -7,6 +7,7 @@
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/render/2D/Cvr2DTexPage.h>
 
 // *************************************************************************
 
@@ -92,8 +93,7 @@ SoOrthoSlice::affectsState(void) const
 void
 SoOrthoSlice::GLRender(SoGLRenderAction * action)
 {
-  // FIXME: implement
-  SoDebugError::postInfo("SoOrthoSlice::GLRender", "hola");
+  // FIXME: need to make sure we're not cached in a renderlist
 
   SbBox3f slicebox;
   SbVec3f dummy;
@@ -101,6 +101,25 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
 
   // debug
   SoOrthoSliceP::renderBox(action, slicebox);
+
+  // Fetching the current volumedata
+  SoState * state = action->getState();
+  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
+  assert(volumedataelement != NULL);
+  SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  assert(volumedata != NULL);
+
+  Cvr2DTexPage * page = new Cvr2DTexPage();
+  page->init(volumedata->getReader(), this->sliceNumber.getValue(),
+             this->axis.getValue(), SbVec2s(64, 64) /* subpagetexsize */);
+
+  page->render(action,
+               SbVec3f(0, 0, 0), // const SbVec3f & origo,
+               SbVec3f(64, 0, 0), // const SbVec3f & horizspan,
+               SbVec3f(0, 64, 0), // const SbVec3f & verticalspan,
+               SbVec2f(1.0, 1.0), // const SbVec2f & spacescale,
+               // FIXME: ugly cast
+               (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue());
 }
 
 void
