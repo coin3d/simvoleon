@@ -798,7 +798,7 @@ SoVolumeRenderP::rayPickDebug(SoGLRenderAction * action)
 // *************************************************************************
 
 SbBool
-SoVolumeRenderP::use3DTexturing(void)
+SoVolumeRenderP::use3DTexturing(void) const
 {
   // This check should only be done once.
   static int do3dtextures = -1;
@@ -816,7 +816,8 @@ SoVolumeRenderP::use3DTexturing(void)
   static const GLubyte * rendererstring = glGetString(GL_RENDERER);
   int i=0;
   while (texture3d_in_hardware[i]) {
-    const char * loc = strstr(rendererstring, texture3d_in_hardware[i++]);
+    const char * loc = strstr((const char *)rendererstring,
+                              texture3d_in_hardware[i++]);
     if (loc != NULL) {
       do3dtextures = 1;
       return TRUE;
@@ -825,7 +826,8 @@ SoVolumeRenderP::use3DTexturing(void)
 
   i=0;
   while (texture3d_in_software[i]) {
-    const char * loc = strstr(rendererstring, texture3d_in_software[i++]);
+    const char * loc = strstr((const char *)rendererstring,
+                              texture3d_in_software[i++]);
     if (CvrUtil::doDebugging() && loc) {
       SoDebugError::postWarning("SoVolumeRenderP::use3DTexturing",
                                 "Your GFX card ('%s') has 3D texture abilities, "
