@@ -55,6 +55,8 @@
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
+#include <Inventor/nodes/SoDrawStyle.h>
+#include <Inventor/nodes/SoCube.h>
 
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
@@ -142,10 +144,12 @@ public:
     this->cubehandler = NULL;
     this->abortfunc = NULL;
     this->abortfuncdata = NULL;
+    this->linestylevolumecube = NULL;
   }
 
   ~SoVolumeRenderP()
   {
+    if (this->linestylevolumecube) this->linestylevolumecube->unref();
     if (this->pagehandler) delete this->pagehandler;
     if (this->cubehandler) delete this->cubehandler;
   }
@@ -171,6 +175,9 @@ public:
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
   void * abortfuncdata;
 
+  // A cube used as line-style rep. for the volume
+  SoCube * linestylevolumecube;
+  
   // debug
   void rayPickDebug(SoGLRenderAction * action);
   SbList<SbVec3f> raypicklines;
@@ -451,11 +458,11 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   }
 
   if (CvrUtil::debugRayPicks()) { PRIVATE(this)->rayPickDebug(action); }
-
   SoState * state = action->getState();
 
   // Fetching the current volumedata
   const CvrVoxelBlockElement * vbelement = CvrVoxelBlockElement::getInstance(state);
+  const SbVec3s & voxcubedims = vbelement->getVoxelCubeDimensions();
 
   if (vbelement == NULL) {
     static SbBool first = TRUE;
@@ -468,6 +475,28 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     return;
   }
 
+
+  // Shall we draw the volume as a lines/wireframe?
+  SoDrawStyleElement::Style drawstyle = SoDrawStyleElement::get(state);
+  if (drawstyle == SoDrawStyleElement::LINES) { 
+
+    // Is the line style volume cube created yet?
+    if (!PRIVATE(this)->linestylevolumecube) {
+      PRIVATE(this)->linestylevolumecube = new SoCube;
+      PRIVATE(this)->linestylevolumecube->ref();     
+    }
+   
+    const SbBox3f volsize = vbelement->getUnitDimensionsBox();
+    float dx, dy, dz; // The size might have changed since last time.
+    volsize.getSize(dx, dy, dz); 
+    PRIVATE(this)->linestylevolumecube->width.setValue(dx);
+    PRIVATE(this)->linestylevolumecube->height.setValue(dy);
+    PRIVATE(this)->linestylevolumecube->depth.setValue(dz);    
+    PRIVATE(this)->linestylevolumecube->GLRender(action);
+    return;
+  }
+
+ 
   // Fetching the current transfer function. Note that it's not used
   // in this function, but we still catch this exception here for the
   // sake of simplicity of the code we're calling.
@@ -492,7 +521,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     return;
   }
 
-  const SbVec3s & voxcubedims = vbelement->getVoxelCubeDimensions();
+
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("SoVolumeRender::GLRender", "voxcubedims==[%d, %d, %d]",
                          voxcubedims[0], voxcubedims[1], voxcubedims[2]);
