@@ -1,13 +1,3 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
-
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
@@ -87,7 +77,7 @@ SoVolumeRender::SoVolumeRender(void)
   SO_NODE_ADD_FIELD(numSlicesControl, (SoVolumeRender::ALL));
   SO_NODE_ADD_FIELD(numSlices, (10));
   SO_NODE_ADD_FIELD(viewAlignedSlices, (FALSE));
-}//Constructor
+}
 
 /*!
   Destructor.
@@ -109,7 +99,7 @@ SoVolumeRender::initClass(void)
   first = 1;
 
   SO_NODE_INIT_CLASS(SoVolumeRender, SoShape, "Shape");
-}// initClass
+}
 
 
 
@@ -145,11 +135,11 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
     mm.multVecMatrix(worldpos, worldpos);
     camvec = vv.getProjectionPoint() - worldpos;
     imm.multDirMatrix(camvec, camvec);
-  }// if
+  }
   else { // ORTHOGRAPHIC
     camvec = - vv.getProjectionDirection();
     imm.multDirMatrix(camvec, camvec);
-  }// if
+  }
 
   SbVec3f abstoviewer;
   abstoviewer[0] = fabs(camvec[0]);
@@ -202,11 +192,11 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
     if (camvec[0] < 0)  {
       depthAdder = -(max[0] - min[0])/numSlices.getValue();
       depth = max[0];
-    }//if
+    }
     else {
       depthAdder = (max[0] - min[0])/numSlices.getValue();
       depth = min[0];
-    }//else
+    }
 
 
     // Rendering slices
@@ -232,8 +222,8 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
                                     transferFunction);
 
       depth += depthAdder;
-    }// for*/
-  }// if
+    }
+  }
   else 
 
 
@@ -246,11 +236,11 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
     if (camvec[1] < 0)  {
       depthAdder = -(max[1] - min[1])/numSlices.getValue();
       depth = max[1];
-    }//if
+    }
     else {
       depthAdder = (max[1] - min[1])/numSlices.getValue();
       depth = min[1];
-    }//if
+    }
 
     // Rendering slices
     for (int i = 0; i < numSlices.getValue(); i++) {
@@ -275,8 +265,8 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
                                     transferFunction);
 
       depth += depthAdder;
-    }// for*/
-  }// else if
+    }
+  }
   else 
 
 
@@ -290,11 +280,11 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
     if (camvec[2] < 0)  {
       depthAdder = -(max[2] - min[2])/numSlices.getValue();
       depth = max[2];
-    }//if
+    }
     else {
       depthAdder = +(max[2] - min[2])/numSlices.getValue();
       depth = min[2];
-    }//if
+    }
 
     // Rendering slices
     for (int i = 0; i < numSlices.getValue(); i++) {
@@ -319,19 +309,19 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
                                     transferFunction);
 
       depth += depthAdder;
-    }// for
-  }// else if
+    }
+  }
 
   glPopAttrib();
-}// GLRender
+}
 
 void 
 SoVolumeRender::generatePrimitives(SoAction * action)
-{}
+{
+}
 
 
 void 
 SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
 }
-

@@ -1,12 +1,3 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
 #ifndef COIN_SOVOLUMERENDERING_H
 #define COIN_SOVOLUMERENDERING_H
 
@@ -28,34 +19,23 @@ public:
     HW_TEXCOMPRESSION
   };
 
-  enum HW_SupportStatus {
-    NO,
-    YES,
-    UNKNOWN
-  };
+  enum HW_SupportStatus { NO, YES, UNKNOWN };
 
-  enum Axis {
-    X,
-    Y,
-    Z
-  };
-
-  enum DataType {
-    UNSIGNED_BYTE,
-    UNSIGNED_SHORT,
-    RGBA
-  };
+  enum Axis { X, Y, Z };
+  enum DataType { UNSIGNED_BYTE, UNSIGNED_SHORT, RGBA };
 
   SoVolumeRendering();
-  ~SoVolumeRendering();
 
   // FIXME: Unimplemented functions. 08282002 torbjorv.
   static void init();
   HW_SupportStatus isSupported(HW_Feature feature);
 
+protected:
+  ~SoVolumeRendering();
+
 private:
   friend class SoVolumeRenderingP;
   class SoVolumeRenderingP * pimpl;
-};//SoVolumeRendering
+};
 
 #endif // !COIN_SOVOLUMERENDERING_H

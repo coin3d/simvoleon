@@ -1,11 +1,9 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
+/*!
+  \class SoROI VolumeViz/nodes/SoROI.h
+  \brief Specifies a region-of-interest within a volume data set.
+  \ingroup volviz
+*/
+
 
 /*
 FIXME
@@ -14,7 +12,7 @@ FIXME
   using a number of clipping planes, resulting in a volume impossible to 
   describe with one box. SoROI::GLRender renders all the boxes currently 
   stored in SoROIP::boxes, but does NOT depthsort them first. This is 
-  cruicial, and must be implemented. A sensor and a callback is attached to
+  crucial, and must be implemented. A sensor and a callback is attached to
   SoROI::box and should generate a new list of boxes whenever this field
   changes. It should also be attached to SoROI::subVolume. 
 
@@ -77,9 +75,6 @@ private:
 
 // *************************************************************************
 
-/*!
-  Constructor.
-*/
 SoROI::SoROI(void)
 {
   SO_NODE_CONSTRUCTOR(SoROI);
@@ -117,33 +112,23 @@ SoROI::SoROI(void)
 
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
-}//Constructor
+}
 
 
 
-/*!
-  Destructor.
-*/
 SoROI::~SoROI()
 {
   delete PRIVATE(this);
 }
 
 
-
-
 // Doc from parent class.
 void
 SoROI::initClass(void)
 {
-  static int first = 0;
-  if (first == 1) return;
-  first = 1;
-
   SO_NODE_INIT_CLASS(SoROI, SoNode, "ROI");
-  
   SoVolumeData::initClass();
-}// initClass
+}
 
 
 
@@ -177,11 +162,11 @@ SoROI::GLRender(SoGLRenderAction *action)
     mm.multVecMatrix(worldpos, worldpos);
     camvec = vv.getProjectionPoint() - worldpos;
     imm.multDirMatrix(camvec, camvec);
-  }// if
+  }
   else { // ORTHOGRAPHIC
     camvec = - vv.getProjectionDirection();
     imm.multDirMatrix(camvec, camvec);
-  }// if
+  }
 
   SbVec3f abstoviewer;
   abstoviewer[0] = fabs(camvec[0]);
@@ -243,11 +228,11 @@ SoROI::GLRender(SoGLRenderAction *action)
       if (camvec[0] < 0)  {
         depthAdder = -(max[0] - min[0])/numSlices;
         depth = max[0];
-      }//if
+      }
       else {
         depthAdder = (max[0] - min[0])/numSlices;
         depth = min[0];
-      }//if
+      }
 
       SbBox2f mappingCoords = SbBox2f(float(minSlice[2])/dimensions[2],
                                       float(minSlice[1])/dimensions[1],
@@ -273,8 +258,8 @@ SoROI::GLRender(SoGLRenderAction *action)
                                       transferFunction);
 
         depth += depthAdder;
-      }// for
-    }// if
+      }
+    }
     else 
 
 
@@ -288,11 +273,11 @@ SoROI::GLRender(SoGLRenderAction *action)
       if (camvec[1] < 0)  {
         depthAdder = -(max[1] - min[1])/numSlices;
         depth = max[1];
-      }//if
+      }
       else {
         depthAdder = (max[1] - min[1])/numSlices;
         depth = min[1];
-      }//if
+      }
 
       SbBox2f mappingCoords = SbBox2f(float(minSlice[0])/dimensions[0],
                                       float(minSlice[2])/dimensions[2],
@@ -318,8 +303,8 @@ SoROI::GLRender(SoGLRenderAction *action)
                                       transferFunction);
 
         depth += depthAdder;
-      }// for
-    }// else if
+      }
+    }
     else 
 
 
@@ -334,11 +319,11 @@ SoROI::GLRender(SoGLRenderAction *action)
       if (camvec[2] < 0)  {
         depthAdder = -(max[2] - min[2])/numSlices;
         depth = max[2];
-      }//if
+      }
       else {
         depthAdder = +(max[2] - min[2])/numSlices;
         depth = min[2];
-      }//if
+      }
 
       SbBox2f mappingCoords = SbBox2f(float(minSlice[0])/dimensions[0],
                                       float(minSlice[1])/dimensions[1],
@@ -364,12 +349,12 @@ SoROI::GLRender(SoGLRenderAction *action)
                                       transferFunction);
 
         depth += depthAdder;
-      }// for
-    }// else if
-  }// for
+      }
+    }
+  }
 
   glPopAttrib();
-}// GLRender
+}
 
 
 // FIXME: Implement these functions... torbjorv 07312002
@@ -380,7 +365,9 @@ void SoROI::pick(SoPickAction *action) {}
 
 
 /*************************** PIMPL-FUNCTIONS ********************************/
-void SoROIP::boxCallback(void *data, SoSensor *sensor)
+
+void
+SoROIP::boxCallback(void *data, SoSensor *sensor)
 {
   SoROI * thisp = (SoROI *)data;
 
@@ -394,4 +381,4 @@ void SoROIP::boxCallback(void *data, SoSensor *sensor)
   PRIVATE(thisp)->numBoxes = 1;
 
   thisp->box.getValue(PRIVATE(thisp)->boxes[0]);
-}// boxCallback
+}

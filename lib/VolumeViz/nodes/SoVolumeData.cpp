@@ -1,12 +1,8 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http:// www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
+/*!
+  \class SoVolumeData VolumeViz/nodes/SoVolumeData.h
+  \brief The interface for working with volume data sets.
+  \ingroup volviz
+*/
 
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <memory.h>
@@ -51,12 +47,11 @@ DATA STRUCTURES
   each slice is segmented into pages. Each page is identified by it's
   slice number and it's (x,y) position in the slice. Even though
   different rendering nodes may share the same volume data, they may
-  have have individual transfer functions. A page shared by two
-  rendering nodes with different transfer functions cannot share the
-  same in-memory page. A page is therefore also identified by the
-  nodeId of it's transfer functions.  All pages with same coordinates
-  (sliceIdx, x, y) but different transfer functions are saved as a
-  linked list.
+  have individual transfer functions. A page shared by two rendering
+  nodes with different transfer functions cannot share the same
+  in-memory page. A page is therefore also identified by the nodeId of
+  it's transfer functions.  All pages with same coordinates (sliceIdx,
+  x, y) but different transfer functions are saved as a linked list.
 
 
   
@@ -267,8 +262,9 @@ REFACTORING
   possible to reuse the same loop for all three axis rendering the code 
   more elegant. And it's all about the looks, isn't it? 
 
-  All headerfiles are copied from TGS reference manual, and should be 
-  consistent with the TGS VolumeViz-interface (see "VOLUMEREADERS").
+  All class declarations are copied from TGS reference manual, and
+  should be consistent with the TGS VolumeViz-interface (see
+  "VOLUMEREADERS").
 
 
 
@@ -282,7 +278,7 @@ SO_NODE_SOURCE(SoVolumeData);
 
 // *************************************************************************
 
-class SoVolumeDataP{
+class SoVolumeDataP {
 public:
   SoVolumeDataP(SoVolumeData * master) 
   {
@@ -306,13 +302,13 @@ public:
 
     VRMemReader = NULL;
     reader = NULL;
-  }// constructor
+  }
 
   ~SoVolumeDataP()
   {
     delete VRMemReader;
     releaseSlices();
-  }// destructor
+  }
 
   SbVec3s dimensions;
   SbBox3f volumeSize;
@@ -349,6 +345,7 @@ public:
   void releaseLRUPage();
 
   bool check2n(int n);
+
 private:
   SoVolumeData * master;
 };
@@ -366,9 +363,6 @@ private:
 // *************************************************************************
 
 
-/*!
-  Constructor.
-*/
 SoVolumeData::SoVolumeData(void)
 {
   SO_NODE_CONSTRUCTOR(SoVolumeData);
@@ -404,39 +398,25 @@ SoVolumeData::SoVolumeData(void)
   SO_NODE_ADD_FIELD(storageHint, (SoVolumeData::AUTO));
   SO_NODE_ADD_FIELD(usePalettedTexture, (TRUE));
   SO_NODE_ADD_FIELD(useCompressedTexture, (TRUE));
-}// Constructor
+}
 
 
-
-/*!
-  Destructor.
-*/
 SoVolumeData::~SoVolumeData()
 {
   delete PRIVATE(this);
 }
 
 
-
-
 // Doc from parent class.
 void
 SoVolumeData::initClass(void)
 {
-  static int first = 0;
-  if (first == 1) return;
-  first = 1;
-
   SO_NODE_INIT_CLASS(SoVolumeData, SoVolumeRendering, "VolumeRendering");
 
   SoVolumeDataElement::initClass();
 
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
-
-}// initClass
-
-
-
+}
 
 void 
 SoVolumeData::setVolumeSize(const SbBox3f & size)
@@ -444,28 +424,24 @@ SoVolumeData::setVolumeSize(const SbBox3f & size)
   PRIVATE(this)->volumeSize = size;
   if (PRIVATE(this)->VRMemReader)
     PRIVATE(this)->VRMemReader->setVolumeSize(size);
-}// setVolumeSize
-
+}
 
 SbBox3f &
-SoVolumeData::getVolumeSize() 
+SoVolumeData::getVolumeSize(void) 
 { 
-
   return PRIVATE(this)->volumeSize; 
 }
 
 
 SbVec3s &
-SoVolumeData::getDimensions() 
+SoVolumeData::getDimensions(void)
 { 
   return PRIVATE(this)->dimensions; 
 }
 
 
-
-// FIXME: If size != 2^n these functions should extend to the nearest 
-// accepted size. 
-// torbjorv 07292002
+// FIXME: If size != 2^n these functions should extend to the nearest
+// accepted size.  torbjorv 07292002
 void 
 SoVolumeData::setVolumeData(const SbVec3s &dimensions, 
                             const void *data, 
@@ -485,20 +461,13 @@ SoVolumeData::setVolumeData(const SbVec3s &dimensions,
     PRIVATE(this)->pageSize[1] = dimensions[1];
   if (PRIVATE(this)->pageSize[2] > dimensions[2])
     PRIVATE(this)->pageSize[2] = dimensions[2];
-}// setVolumeData
-
-
-
+}
 
 void 
 SoVolumeData::setPageSize(int size) 
 {
   setPageSize(SbVec3s(size, size, size));
-}// setPageSize
-
-
-
-
+}
 
 void 
 SoVolumeData::setPageSize(const SbVec3s & insize) 
@@ -526,41 +495,33 @@ SoVolumeData::setPageSize(const SbVec3s & insize)
   if (size[0] != PRIVATE(this)->pageSize[0]) {
     rebuildY = true;
     rebuildZ = true;
-  }// if
+  }
 
   // The Y-size has changed. Rebuild X- and Z-axis maps. 
   if (size[1] != PRIVATE(this)->pageSize[1]) {
     rebuildX = true;
     rebuildZ = true;
-  }// if
+  }
 
   // The Z-size has changed. Rebuild X- and Y-axis maps. 
   if (size[2] != PRIVATE(this)->pageSize[2]) {
     rebuildX = true;
     rebuildY = true;
-  }// if
+  }
 
   PRIVATE(this)->pageSize = size;
 
   if (rebuildX) PRIVATE(this)->releaseSlicesX();
   if (rebuildY) PRIVATE(this)->releaseSlicesY();
   if (rebuildZ) PRIVATE(this)->releaseSlicesZ();
-}// setPageSize
+}
 
-
-
-
-/*!
-  Coin method.
-*/
 void
 SoVolumeData::GLRender(SoGLRenderAction * action)
 {
   SoVolumeDataElement::setVolumeData(action->getState(), this, this);
   PRIVATE(this)->tick++;
-}// GLRender
-
-
+}
 
 void 
 SoVolumeData::renderOrthoSliceX(SoState * state, 
@@ -596,7 +557,7 @@ SoVolumeData::renderOrthoSliceX(SoState * state,
   PRIVATE(this)->numBytesHW += slice->numBytesHW;
 
   PRIVATE(this)->managePages();
-}// renderOrthoSliceX
+}
 
 void 
 SoVolumeData::renderOrthoSliceY(SoState * state, 
@@ -633,9 +594,7 @@ SoVolumeData::renderOrthoSliceY(SoState * state,
   PRIVATE(this)->numBytesHW += slice->numBytesHW;
 
   PRIVATE(this)->managePages();
-}// renderOrthoSliceY
-
-
+}
 
 void 
 SoVolumeData::renderOrthoSliceZ(SoState * state, 
@@ -672,31 +631,19 @@ SoVolumeData::renderOrthoSliceZ(SoState * state,
   PRIVATE(this)->numBytesHW += slice->numBytesHW;
 
   PRIVATE(this)->managePages();
-}// renderOrthoSliceZ
-
-
-
-
-
+}
 
 SbVec3s & 
 SoVolumeData::getPageSize()
 {
   return PRIVATE(this)->pageSize;
-}// getPageSize
-
-
-
-
-
+}
 
 void 
 SoVolumeData::setTexMemorySize(int size) 
 {
   PRIVATE(this)->maxTexels = size;
-}// setTexMemorySize
-
-
+}
 
 void 
 SoVolumeData::setReader(SoVolumeReader * reader) 
@@ -706,15 +653,13 @@ SoVolumeData::setReader(SoVolumeReader * reader)
   reader->getDataChar(PRIVATE(this)->volumeSize,
                       PRIVATE(this)->dataType, 
                       PRIVATE(this)->dimensions);
-}// setReader
+}
 
 void 
 SoVolumeData::setHWMemorySize(int size) 
 {
   PRIVATE(this)->maxBytesHW = size;
-}// setTexMemorySize
-
-
+}
 
 /*************************** PIMPL-FUNCTIONS ********************************/
 
@@ -731,7 +676,7 @@ SoVolumeDataP::getSliceX(int sliceIdx)
     memset( slicesX, 
             0, 
             sizeof(SoVolumeDataSlice*)*dimensions[0]);
-  }// if
+  }
 
   if (!slicesX[sliceIdx]) {
     SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
@@ -741,10 +686,10 @@ SoVolumeDataP::getSliceX(int sliceIdx)
                    SbVec2s(this->pageSize[2], this->pageSize[1]));
 
     slicesX[sliceIdx] = newSlice;
-  }// if
+  }
 
   return slicesX[sliceIdx];
-}// getSliceX
+}
 
 
 SoVolumeDataSlice * 
@@ -759,7 +704,7 @@ SoVolumeDataP::getSliceY(int sliceIdx)
     memset( slicesY, 
             0, 
             sizeof(SoVolumeDataSlice*)*dimensions[1]);
-  }// if
+  }
 
   if (!slicesY[sliceIdx]) {
     SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
@@ -769,10 +714,10 @@ SoVolumeDataP::getSliceY(int sliceIdx)
                    SbVec2s(this->pageSize[0], this->pageSize[2]));
 
     slicesY[sliceIdx] = newSlice;
-  }// if
+  }
 
   return slicesY[sliceIdx];
-}// getSliceZ
+}
 
 
 
@@ -788,7 +733,7 @@ SoVolumeDataP::getSliceZ(int sliceIdx)
     memset( slicesZ, 
             0, 
             sizeof(SoVolumeDataSlice*)*dimensions[2]);
-  }// if
+  }
 
   if (!slicesZ[sliceIdx]) {
     SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
@@ -798,10 +743,10 @@ SoVolumeDataP::getSliceZ(int sliceIdx)
                    SbVec2s(this->pageSize[0], this->pageSize[1]));
 
     slicesZ[sliceIdx] = newSlice;
-  }// if
+  }
 
   return slicesZ[sliceIdx];
-}// getSliceZ
+}
 
 
 // FIXME: Perhaps there already is a function somewhere in C or Coin
@@ -816,23 +761,20 @@ SoVolumeDataP::check2n(int n)
         return false;
       else
         return true;
-    }// if
+    }
 
     n >>= 1;
-  }// for
+  }
   return true;
-}// Check2n
-
-
-
+}
 
 void 
-SoVolumeDataP::releaseSlices()
+SoVolumeDataP::releaseSlices(void)
 {
-  releaseSlicesX();
-  releaseSlicesY();
-  releaseSlicesZ();
-}// releasePages
+  this->releaseSlicesX();
+  this->releaseSlicesY();
+  this->releaseSlicesZ();
+}
 
 void 
 SoVolumeDataP::freeTexels(int desired)
@@ -840,12 +782,12 @@ SoVolumeDataP::freeTexels(int desired)
   if (desired > maxTexels) return;
 
   while ((maxTexels - numTexels) < desired)
-    releaseLRUPage();
-}// freeTexels
+    this->releaseLRUPage();
+}
 
 
 void 
-SoVolumeDataP::releaseLRUPage()
+SoVolumeDataP::releaseLRUPage(void)
 {
   SoVolumeDataPage * LRUPage = NULL;
   SoVolumeDataPage * tmpPage = NULL;
@@ -860,16 +802,16 @@ SoVolumeDataP::releaseLRUPage()
         if (LRUPage == NULL) {
           LRUSlice = slicesX[i];
           LRUPage = tmpPage;
-        }// if
+        }
         else
           if (tmpPage != NULL)
             if (tmpPage->lastuse < LRUPage->lastuse) {
               LRUSlice = slicesX[i];
               LRUPage = tmpPage;
-            }// if
-      }// if
-    }//for
-  }//if
+            }
+      }
+    }
+  }
 
   // Searching for LRU page among X-slices
   if (this->slicesY) {
@@ -880,16 +822,16 @@ SoVolumeDataP::releaseLRUPage()
         if (LRUPage == NULL) {
           LRUSlice = slicesY[i];
           LRUPage = tmpPage;
-        }// if
+        }
         else
           if (tmpPage != NULL)
             if (tmpPage->lastuse < LRUPage->lastuse) {
               LRUSlice = slicesY[i];
               LRUPage = tmpPage;
-            }// if
-      }// if
-    }//for
-  }//if
+            }
+      }
+    }
+  }
 
   // Searching for LRU page among X-slices
   if (this->slicesZ) {
@@ -900,16 +842,16 @@ SoVolumeDataP::releaseLRUPage()
         if (LRUPage == NULL) {
           LRUSlice = slicesZ[i];
           LRUPage = tmpPage;
-        }// if
+        }
         else
           if (tmpPage != NULL)
             if (tmpPage->lastuse < LRUPage->lastuse) {
               LRUSlice = slicesZ[i];
               LRUPage = tmpPage;
-            }// if
-      }// if
-    }//for
-  }//if
+            }
+      }
+    }
+  }
 
   this->numTexels -= LRUSlice->numTexels;
   this->numPages -= LRUSlice->numPages;
@@ -922,59 +864,46 @@ SoVolumeDataP::releaseLRUPage()
   this->numPages += LRUSlice->numPages;
   this->numBytesSW += LRUSlice->numBytesSW;
   this->numBytesHW += LRUSlice->numBytesHW;
-}// relaseLRUPage
-
-
+}
 
 void 
-SoVolumeDataP::releaseSlicesX()
+SoVolumeDataP::releaseSlicesX(void)
 {
-  if (slicesX) {
+  if (this->slicesX) {
     for (int i = 0; i < dimensions[0]; i++) {
-      delete slicesX[i];
-      slicesX[i] = NULL;
-    }// for
+      delete this->slicesX[i];
+      this->slicesX[i] = NULL;
+    }
 
-    delete [] slicesX;
-  }// if
-}// releaseSlicesX
-
-
-
-
+    delete[] this->slicesX;
+  }
+}
 
 void 
-SoVolumeDataP::releaseSlicesY()
+SoVolumeDataP::releaseSlicesY(void)
 {
-  if (slicesY) {
+  if (this->slicesY) {
     for (int i = 0; i < dimensions[1]; i++) {
-      delete slicesY[i];
-      slicesY[i] = NULL;
-    }// for
+      delete this->slicesY[i];
+      this->slicesY[i] = NULL;
+    }
 
-    delete [] slicesY;
-  }// if
-}// releaseSlicesY
-
-
-
-
+    delete[] this->slicesY;
+  }
+}
 
 void 
-SoVolumeDataP::releaseSlicesZ()
+SoVolumeDataP::releaseSlicesZ(void)
 {
-  if (slicesZ) {
+  if (this->slicesZ) {
     for (int i = 0; i < dimensions[2]; i++) {
-      delete slicesZ[i];
-      slicesZ[i] = NULL;
-    }// for
+      delete this->slicesZ[i];
+      this->slicesZ[i] = NULL;
+    }
 
-    delete [] slicesZ;
-  }// if
-}// releaseSlicesZ
-
-
-
+    delete[] this->slicesZ;
+  }
+}
 
 void 
 SoVolumeDataP::freeHWBytes(int desired)
@@ -982,19 +911,16 @@ SoVolumeDataP::freeHWBytes(int desired)
   if (desired > maxBytesHW) return;
 
   while ((maxBytesHW - numBytesHW) < desired)
-    releaseLRUPage();
-}// freeHWBytes
-
-
-
+    this->releaseLRUPage();
+}
 
 void 
-SoVolumeDataP::managePages()
+SoVolumeDataP::managePages(void)
 {
   // Keep both measures within maxlimits
-  freeHWBytes(0);
-  freeTexels(0);
-}// managePages
+  this->freeHWBytes(0);
+  this->freeTexels(0);
+}
 
 
 /****************** UNIMPLEMENTED FUNCTIONS ******************************/

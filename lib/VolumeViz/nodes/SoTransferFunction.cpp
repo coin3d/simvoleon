@@ -1,11 +1,8 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
+/*!
+  \class SoTransferFunction VolumeViz/nodes/SoTransferFunction.h
+  \brief Contains the transfer function definition.
+  \ingroup volviz
+*/
 
 /*
 FIXME
@@ -39,7 +36,7 @@ SO_NODE_SOURCE(SoTransferFunction);
 
 // *************************************************************************
 
-class SoTransferFunctionP{
+class SoTransferFunctionP {
 public:
   SoTransferFunctionP(SoTransferFunction * master) {
     this->master = master;
@@ -58,9 +55,6 @@ private:
 
 // *************************************************************************
 
-/*!
-  Constructor.
-*/
 SoTransferFunction::SoTransferFunction(void)
 {
   PRIVATE(this) = new SoTransferFunctionP(this);
@@ -83,14 +77,9 @@ SoTransferFunction::SoTransferFunction(void)
   SO_NODE_ADD_FIELD(offset, (0));
   SO_NODE_ADD_FIELD(predefColorMap, (GREY));
   SO_NODE_ADD_FIELD(colorMapType, (RGBA));
-}//Constructor
+}
 
 
-
-
-/*!
-  Destructor.
-*/
 SoTransferFunction::~SoTransferFunction()
 {
   delete PRIVATE(this);
@@ -101,34 +90,21 @@ SoTransferFunction::~SoTransferFunction()
 void
 SoTransferFunction::initClass(void)
 {
-  static int first = 0;
-  if (first == 1) return;
-  first = 1;
-
-  SO_NODE_INIT_CLASS(SoTransferFunction, 
-                     SoVolumeRendering, 
+  SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering,
                      "TransferFunction");
   SoTransferFunctionElement::initClass();
-}// initClass
+}
 
-
-
-
-/*!
-  Coin method.
-*/
 void
 SoTransferFunction::GLRender(SoGLRenderAction * action)
 {
   SoTransferFunctionElement::setTransferFunction(action->getState(), 
-                                                 this, 
-                                                 this);
-}// GLRender
+                                                 this, this);
+}
 
 
-/*
+/*!
   Transfers input to output, according to specified parameters. 
-
 */
 void
 SoTransferFunction::transfer(const void * input, 
@@ -149,7 +125,7 @@ SoTransferFunction::transfer(const void * input,
 
     output = new int[size[0]*size[1]];
     memcpy(output, input, size[0]*size[1]*sizeof(int));
-  }//if
+  }
 
   // Handling paletted inputdata
   else {
@@ -168,7 +144,7 @@ SoTransferFunction::transfer(const void * input,
       assert(0 && "unsupported");
       numBits = 16;
       break;
-    }// switch
+    }
     int numEntries = 1 << numBits;
 
     // Counting number of references to each palette entry     
@@ -182,7 +158,7 @@ SoTransferFunction::transfer(const void * input,
                           offset.getValue());
 
       palCount[idx]++;
-    }// for
+    }
 
     // Creating remap-table and counting number of entries in new palette
     int * remap = new int[numEntries];
@@ -191,10 +167,10 @@ SoTransferFunction::transfer(const void * input,
       if (palCount[i] != 0) {
         remap[i] = newIdx;
         newIdx++;
-      }// if
+      }
       else
         remap[i] = -1;
-    }// for
+    }
 
     // Calculating the new palette's size
     paletteSize = 2;
@@ -211,8 +187,8 @@ SoTransferFunction::transfer(const void * input,
       if (palCount[i] != 0) {
         memcpy(&palette[tmp*4], &oldPal[i*4], sizeof(float)*4);
         tmp++;
-      }// if
-    }// for
+      }
+    }
 
 
     // Deciding outputformat
@@ -221,7 +197,7 @@ SoTransferFunction::transfer(const void * input,
     if (paletteSize > 256) {
       newNumBits = 16;
       outputFormat = UNSIGNED_SHORT;
-    }// if
+    }
 
     // Rebuilding texturedata
     unsigned char * newTexture = 
@@ -234,22 +210,22 @@ SoTransferFunction::transfer(const void * input,
 
       idx = remap[idx];
       PRIVATE(this)->pack(newTexture, newNumBits, i, idx);
-    }// for
+    }
     output = newTexture;
     paletteFormat = GL_RGBA;
 
     delete [] palCount;
     delete [] remap;
-  }//else
-}// transfer
+  }
+}
 
 
 
 
-/*
-  Handles packed data for 1, 2, 4, 8 and 16 bits. Assumes 16-bit 
-  data are stored in little-endian format (that is the x86-way, 
-  right?). And MSB is the leftmost of the bitstream...? Think so. 
+/*!
+  Handles packed data for 1, 2, 4, 8 and 16 bits. Assumes 16-bit data
+  are stored in little-endian format (that is the x86-way,
+  right?). And MSB is the leftmost of the bitstream...? Think so.
 */
 int 
 SoTransferFunctionP::unpack(const void * data, int numBits, int index)
@@ -271,13 +247,13 @@ SoTransferFunctionP::unpack(const void * data, int numBits, int index)
   val &= (1 << numBits) - 1;
 
   return val;
-}// unpack
+}
 
 
 
-/*
-  Saves the index specified in val with the specified number of bits, 
-  at the specified index (not elementindex, not byteindex) in data. 
+/*!
+  Saves the index specified in val with the specified number of bits,
+  at the specified index (not elementindex, not byteindex) in data.
 */
 void 
 SoTransferFunctionP::pack(void * data, int numBits, int index, int val)
@@ -287,11 +263,11 @@ SoTransferFunctionP::pack(void * data, int numBits, int index, int val)
 
   if (numBits == 8) {
     ((char*)data)[index] = (char)val;
-  }// if
+  }
   else 
   if (numBits == 16) {
     ((short*)data)[index] = (short)val;
-  }// else
+  }
   else {
     int bitIndex = numBits*index;
     int byteIndex = bitIndex/8;
@@ -303,9 +279,12 @@ SoTransferFunctionP::pack(void * data, int numBits, int index, int val)
     val <<= localBitIndex;
     byte |= val;
     ((char*)data)[byteIndex] = byte;
-  }// else 
-}// pack
+  }
+}
 
 
-// FIXME: Implement this function torbjorv 08282002
-void SoTransferFunction::reMap(int min, int max) {}
+void
+SoTransferFunction::reMap(int min, int max)
+{
+  // FIXME: Implement this function torbjorv 08282002
+}

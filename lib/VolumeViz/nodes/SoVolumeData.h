@@ -1,12 +1,3 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
 #ifndef COIN_SOVOLUMEDATA_H
 #define COIN_SOVOLUMEDATA_H
 
@@ -33,6 +24,7 @@ class SoVolumeData : public SoVolumeRendering {
 
 public:
   static void initClass(void);
+  SoVolumeData(void);
 
   enum StorageHint {
     AUTO = 0x00000001,
@@ -59,48 +51,41 @@ public:
     CUBIC
   };
 
-
-  // Fields
   SoSFString fileName;
   SoSFEnum storageHint;
   SoSFBool usePalettedTexture;
   SoSFBool useCompressedTexture;
 
+  void setVolumeData(const SbVec3s & dimension,
+                     const void * data,
+                     SoVolumeRendering::DataType type
+                     = SoVolumeRendering::UNSIGNED_BYTE);
 
+  void setVolumeSize(const SbBox3f & size);
+  SbBox3f & getVolumeSize(void);
+  SbVec3s & getDimensions(void);
 
-  // Functions
-  void setVolumeData( const SbVec3s &dimension,
-                      const void *data,
-                      SoVolumeRendering::DataType type
-                      = SoVolumeRendering::UNSIGNED_BYTE);
-
-  void setVolumeSize(const SbBox3f &size);
-  SbBox3f &getVolumeSize();
-  SbVec3s & getDimensions();
-  void GLRender(SoGLRenderAction * action);
-  SoVolumeData(void);
-  ~SoVolumeData();
-  void renderOrthoSliceX( SoState * state,
-                          const SbBox2f & quad,
-                          float x,
-                          int sliceIdx,
-                          const SbBox2f & textureCoords,
-                          SoTransferFunction * transferFunction);
-  void renderOrthoSliceY( SoState * state,
-                          const SbBox2f & quad,
-                          float y,
-                          int sliceIdx,
-                          const SbBox2f & textureCoords,
-                          SoTransferFunction * transferFunction);
-  void renderOrthoSliceZ( SoState * state,
-                          const SbBox2f & quad,
-                          float z,
-                          int sliceIdx,
-                          const SbBox2f & textureCoords,
-                          SoTransferFunction * transferFunction);
+  void renderOrthoSliceX(SoState * state,
+                         const SbBox2f & quad,
+                         float x,
+                         int sliceIdx,
+                         const SbBox2f & textureCoords,
+                         SoTransferFunction * transferFunction);
+  void renderOrthoSliceY(SoState * state,
+                         const SbBox2f & quad,
+                         float y,
+                         int sliceIdx,
+                         const SbBox2f & textureCoords,
+                         SoTransferFunction * transferFunction);
+  void renderOrthoSliceZ(SoState * state,
+                         const SbBox2f & quad,
+                         float z,
+                         int sliceIdx,
+                         const SbBox2f & textureCoords,
+                         SoTransferFunction * transferFunction);
   void setPageSize(int size);
   void setPageSize(const SbVec3s & size);
-  SbVec3s & getPageSize();
+  SbVec3s & getPageSize(void);
   void setTexMemorySize(int size);
   void setHWMemorySize(int size);
   void setReader(SoVolumeReader * reader);
@@ -108,33 +93,35 @@ public:
 
   // FIXME: The following functions are still to be implemented.
   // torbjorv 07122002
-  SbBool getVolumeData( SbVec3s &dimension,
-                        void *&data,
-                        SoVolumeRendering::DataType &type);
+  SbBool getVolumeData(SbVec3s & dimension,
+                       void *& data,
+                       SoVolumeRendering::DataType & type);
 
 
-  SoVolumeReader * getReader();
-  SbBool getMinMax(int &min, int &max);
-  SbBool getHistogram(int &length, int *&histogram);
-  SoVolumeData * subSetting(const SbBox3s &region);
-  void updateRegions(const SbBox3s *region, int num);
-  SoVolumeData * reSampling(const SbVec3s &dimension,
+  SoVolumeReader * getReader(void);
+  SbBool getMinMax(int & min, int & max);
+  SbBool getHistogram(int & length, int *& histogram);
+  SoVolumeData * subSetting(const SbBox3s & region);
+  void updateRegions(const SbBox3s * region, int num);
+  SoVolumeData * reSampling(const SbVec3s & dimension,
                             SoVolumeData::SubMethod subMethod,
                             SoVolumeData::OverMethod = NONE);
   void enableSubSampling(SbBool enable);
   void enableAutoSubSampling(SbBool enable);
   void enableAutoUnSampling(SbBool enable);
-  void unSample();
+  void unSample(void);
   void setSubSamplingMethod(SubMethod method);
-  void setSubSamplingLevel(const SbVec3s &ROISampling,
-                           const SbVec3s &secondarySampling);
+  void setSubSamplingLevel(const SbVec3s & ROISampling,
+                           const SbVec3s & secondarySampling);
 
 
+protected:
+  ~SoVolumeData();
+  void GLRender(SoGLRenderAction * action);
 
 private:
   friend class SoVolumeDataP;
   class SoVolumeDataP * pimpl;
-
-};// SoVolumeData
+};
 
 #endif // !COIN_SOVOLUMEDATA_H

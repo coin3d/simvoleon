@@ -1,12 +1,3 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
 #ifndef COIN_SOROI_H
 #define COIN_SOROI_H
 
@@ -21,6 +12,7 @@ class SoROI : public SoVolumeRendering {
   SO_NODE_HEADER(SoROI);
 
 public:
+  SoROI(void);
   static void initClass(void);
 
   enum Flags {
@@ -47,28 +39,25 @@ public:
     FENCE_INVERT = FENCE | INVERT_OUTPUT 
   };
 
-  // Functions
-  SoROI();
-  ~SoROI();
-
-  // Fields
   SoSFBox3s box;
   SoSFEnum flags;
   SoSFBox3s subVolume;
   SoSFBool relative;
 
-private:
-  virtual void GLRender(SoGLRenderAction *action);
+protected:
+  ~SoROI();
+
+  virtual void GLRender(SoGLRenderAction * action);
 
   // FIXME: Implement these functions... torbjorv 07312002
-  virtual void doAction(SoAction *action);
-  virtual void callback(SoCallbackAction *action);
-  virtual void getBoundingBox(SoGetBoundingBoxAction *action);
-  virtual void pick(SoPickAction *action);
+  virtual void doAction(SoAction * action);
+  virtual void callback(SoCallbackAction * action);
+  virtual void getBoundingBox(SoGetBoundingBoxAction * action);
+  virtual void pick(SoPickAction * action);
 
+private:
   friend class SoROIP;
   class SoROIP * pimpl;
-
-};//SoROI
+};
 
 #endif // !COIN_SOROI_H
