@@ -20330,7 +20330,7 @@ exec_prefix=$sim_ac_save_exec_prefix
 
 # *******************************************************************
 
-                                                                                                                                            ac_config_files="$ac_config_files Makefile bin/Makefile lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile testcode/Makefile"
+                                                                                                                                                      ac_config_files="$ac_config_files Makefile bin/Makefile bin/simvoleon-config lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile testcode/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -20902,6 +20902,7 @@ do
   # Handling of arguments.
   "Makefile" ) CONFIG_FILES="$CONFIG_FILES Makefile" ;;
   "bin/Makefile" ) CONFIG_FILES="$CONFIG_FILES bin/Makefile" ;;
+  "bin/simvoleon-config" ) CONFIG_FILES="$CONFIG_FILES bin/simvoleon-config" ;;
   "lib/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
   "lib/VolumeViz/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/Makefile" ;;
   "lib/VolumeViz/C/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/C/Makefile" ;;
