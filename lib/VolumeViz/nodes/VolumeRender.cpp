@@ -540,7 +540,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
 
-
   }
   // axis-aligned 2D textures
   else if (rendermethod == SoVolumeRender::TEXTURE2D) {
@@ -1115,10 +1114,10 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glDrawPixels((int) viewportsize[2], (int) viewportsize[3], GL_RGBA, GL_UNSIGNED_BYTE, framebuf);
 
   if (CvrUtil::doDebugging()) {
-    SoDebugError::postWarning("SoVolumeRenderP::performanceTest",
-                              "3D texture performance test results: average3dtime==%f, "
-                              "average2dtime==%f --> rating==%f\n", average3dtime, average2dtime, 
-                              (average3dtime / average2dtime));
+    SoDebugError::postInfo("SoVolumeRenderP::performanceTest",
+                           "3D texture performance test results: average3dtime==%f, "
+                           "average2dtime==%f --> rating==%f\n", average3dtime, average2dtime, 
+                           (average3dtime / average2dtime));
   }
 
   glDeleteTextures(1, texture3did);

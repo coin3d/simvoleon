@@ -49,6 +49,11 @@
 // extension. ATI doesn't have the extension, and NVIDIA has
 // threatened to remove it from their drivers (and actually did so for
 // a few versions before re-introducing it).
+//
+// Notice that there are some '%s' in the fragment program listing
+// below. These will be filled in according to whether they are used
+// with 2D or 3D textures, and whether texture contributions should be
+// modulated with or replace the current fragment color.
 
 static const char * palettelookupprogram =
 "!!ARBfp1.0\n"

@@ -29,10 +29,22 @@
   the book «Introduction To Volume Rendering», by Lichtenbelt, Crane
   and Naqvi (Hewlett-Packard / Prentice Hall), ISBN 0-13-861683-3.
 
-  The format is just a simple header, before the voxels are laid out
-  in raw form.
+  The format is just a simple header, before the voxel values are laid
+  out in raw, uncompressed form:
 
-  FIXME: describe format in detail. 20021108 mortene.
+  \verbatim
+  struct vol_header {
+    uint32_t magic_number;
+    uint32_t header_length;
+    uint32_t width;
+    uint32_t height;
+    uint32_t images;
+    uint32_t bits_per_voxel;
+    uint32_t index_bits;
+    float scaleX, scaleY, scaleZ;
+    float rotX, rotY, rotZ;
+  };
+  \endverbatim
 
   For information about how the data will be mapped to the world
   coordinate system, see the documentation of
@@ -139,6 +151,7 @@ SoVRVolFileReader::~SoVRVolFileReader()
   delete PRIVATE(this);
 }
 
+// Documented in superclass.
 void
 SoVRVolFileReader::getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
                                SbVec3s & dim)
@@ -157,6 +170,16 @@ SoVRVolFileReader::getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
   size.setBounds(-voldims/2.0f, voldims/2.0f);
 }
 
+// Documented in superclass.
+//
+// FIXME: this is supposed to be the sole interface (well, together
+// with the new getSubCube() (or whatever its name is) function TGS
+// has added in later VolumeViz versions) for getting at the volume
+// data. The point of this is that one can implement optimized import
+// if the end-user has a roaming interface (with the SoROI node)
+// against the data, showing only smaller parts of it at the same
+// time. We should really support this properly, as it can be very
+// useful when working with huge volumes. 20040629 mortene.
 void
 SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data)
 {

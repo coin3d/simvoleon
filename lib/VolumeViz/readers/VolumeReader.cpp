@@ -97,6 +97,35 @@ VOLUMEREADERS
 
 // *************************************************************************
 
+/*!
+  \fn void SoVolumeReader::getDataChar(SbBox3f & size, SoVolumeData::DataType & type, SbVec3s & dim)
+
+  Returns information about the volume data contained in a volume
+  reader. Sub-classes, i.e. the non-abstract readers, needs to
+  implement this function.
+
+  \a size is set to the "world size" of the volume, in the implicit
+  unit coordinates.
+
+  \a type is set to either SoVolumeData::UNSIGNED_BYTE or
+  SoVolumeData::UNSIGNED_SHORT, to signify that the voxel values are
+  either 8-bit or 16-bit, respectively.
+
+  \a dim gives the volume dimensions in voxel coordinates, i.e. the
+  number of rows, columns and stacks of voxels along the internal 3
+  coordinate axes of the volume.
+*/
+
+/*!
+  \fn void SoVolumeReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data)
+
+  Extract a subslice from the volume (which may still reside solely on
+  disk). Sub-classes, i.e. the non-abstract readers, needs to
+  implement this function.
+*/
+
+// *************************************************************************
+
 class SoVolumeReaderP{
 public:
   SoVolumeReaderP(SoVolumeReader * master) {

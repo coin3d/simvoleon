@@ -1,6 +1,6 @@
 Systems in Motion releases SIM Voleon version 1.0.0
 
-Oslo, Norway, April 30th 2004
+Oslo, Norway, May 10th 2004
 
 SIM Voleon is a software development system for aiding in writing 3D
 graphics application containing so-called "volumetric data", as is
@@ -19,8 +19,8 @@ has the following major features:
 
 - It is fully portable over the full range of platforms also supported
   by the Coin library, including all versions of Microsoft Windows,
-  Apple's Macintosh OS X, Linux, Sun Solaris, SGI IRIX, and most other
-  UNIX variants.
+  Apple's Mac OS X, Linux, Sun Solaris, SGI IRIX, and most other UNIX
+  variants.
 
 - Integrates smoothly with traditional polygonal 3D data visualization
   from the Coin library, in a manner which is effortless for the
