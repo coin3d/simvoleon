@@ -80,6 +80,7 @@ private:
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::NONE
+  If this is set, the SoTransferFunction::colorMap field must be used.
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GREY
@@ -91,21 +92,27 @@ private:
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::TEMPERATURE
+  
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::PHYSICS
+ 
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::STANDARD
+ 
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GLOW
+ 
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::BLUE_RED
+ 
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::SEISMIC
+ 
 */
 
 /*!
