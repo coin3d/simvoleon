@@ -153,6 +153,8 @@ SoVolumeData::SoVolumeData(void)
   PRIVATE(this)->filenamesensor = new SoFieldSensor(SoVolumeDataP::filenameFieldModified, this);
   PRIVATE(this)->filenamesensor->setPriority(0); // immediate sensor
   PRIVATE(this)->filenamesensor->attach(&this->fileName);
+  PRIVATE(this)->histogram = NULL;
+  PRIVATE(this)->histogramlength = 0;
 }
 
 
