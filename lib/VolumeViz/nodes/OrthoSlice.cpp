@@ -83,6 +83,18 @@ private:
 
 // *************************************************************************
 
+/*!
+  \var SoSFEnum SoOrthoSlice::axis
+
+  Decides which plane the orthonormal slice will show. The plane will
+  be the one \e perpendicular to the axis, i.e if this field is set to
+  SoOrthoSlice::Z, the slice will lay in the X-Y plane.
+
+  Default value is SoOrthoSlice::Z.
+*/
+
+// *************************************************************************
+
 SoOrthoSlice::SoOrthoSlice(void)
 {
   SO_NODE_CONSTRUCTOR(SoOrthoSlice);
