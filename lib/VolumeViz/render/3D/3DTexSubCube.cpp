@@ -68,6 +68,8 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
   }
 
   this->textureobject = texobj;
+  this->textureobject->ref();
+
   this->distancefromcamera = 0;
   this->originaltexsize = originaltexsize;
 }

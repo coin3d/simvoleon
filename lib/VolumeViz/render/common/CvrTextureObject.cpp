@@ -161,6 +161,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   glGenTextures(1, &texid);
   assert(glGetError() == GL_NO_ERROR);
 
+  // FIXME: fix for 2D textures. 20040716 mortene.
   glEnable(GL_TEXTURE_3D);
   glBindTexture(GL_TEXTURE_3D, texid);
   assert(glGetError() == GL_NO_ERROR);
@@ -280,7 +281,6 @@ struct textureobj {
   uint32_t voldataid; // This will change if volume-data has been modified by the user.
   TEXTURETYPE texturetype;
   SbBox3s cutcube;
-  SbBox2s cutpage;
   CvrTextureObject * object;
 };
 
@@ -348,8 +348,6 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   if (obj != NULL) {
     // FIXME: make to work for 2D textures aswell. 20040716 mortene.
     assert((obj->texturetype == TEXTURE3D) && "Type != TEXTURE3D. Invalid texture type!");
-    // FIXME: should ref() in caller, not here. 20040716 mortene.
-    obj->object->ref();
     return obj->object;
   }
 
@@ -362,7 +360,6 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   // FIXME: make to work for 2D textures aswell. 20040716 mortene.
   obj->texturetype = TEXTURE3D;
   get_texturedict()->enter((unsigned long) newobj, (void *) obj);
-  newobj->ref();
 
   return newobj;
 }
