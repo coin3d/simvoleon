@@ -1200,7 +1200,7 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
     SoDebugError::postInfo("SoVolumeRenderP::use3DTexturing",
                            "Your GFX card did not score high enough in the performance test "
                            "for 3D textures compared to 2D textures. 2D texturing will be "
-                           "forced. (If you wish to force 3D texturing, set the envvar "
+                           "used. (If you wish to force 3D texturing, set the envvar "
                            "CVR_FORCE_3D_TEXTURES=1)");
   }
   
