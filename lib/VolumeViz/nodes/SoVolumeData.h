@@ -37,7 +37,7 @@ class SoVolumeData : public SoVolumeRendering {
 
 public:
   static void initClass(void);
-  
+
   enum StorageHint {
     AUTO = 0x00000001,       
     TEX2D_MULTI = 0x00000002, 
@@ -63,6 +63,7 @@ public:
     CUBIC
   };
 
+ 
   // Fields
   SoSFString fileName;
   SoSFEnum storageHint;
@@ -105,6 +106,7 @@ public:
   void setPageSize(SbVec3s &size);
   SbVec3s & getPageSize();
   void setTexMemorySize(int size);
+  void setHWMemorySize(int size);
   void setReader(SoVolumeReader * reader);
 
   // FIXME: The following functions are still to be implemented. torbjorv 07122002

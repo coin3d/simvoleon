@@ -100,23 +100,29 @@ SoVolumeDataSlice::releasePage(SoVolumeDataPage * page)
       if (p != NULL) {
         // Delete the first page in the linked list
         if (p == page) {
+          numPages--;
+          numTexels -= pageSize[0]*pageSize[1];
+          numBytesSW -= p->numBytesSW;
+          numBytesHW -= p->numBytesHW;
+
           pages[i] = p->nextPage;
           p->nextPage = NULL;
           delete p;
 
-          numPages--;
-          numTexels -= pageSize[0]*pageSize[1];
           return;
         }// if
         else
         while (p->nextPage != NULL) {
           if (p->nextPage == page) {
+            numPages--;
+            numTexels -= pageSize[0]*pageSize[1];
+            numBytesSW -= p->numBytesSW;
+            numBytesHW -= p->numBytesHW;
+
             p->nextPage = p->nextPage->nextPage;
             page->nextPage = NULL;
             delete page;
 
-            numPages--;
-            numTexels -= pageSize[0]*pageSize[1];
             return;
           }// if
       
@@ -350,8 +356,6 @@ SoVolumeDataPage * SoVolumeDataSlice::buildPage(int col,
 
 
 
-  // FIXME: Check type of inputdata about here. 12082002 torbjorv
-
   void * transferredTexture = NULL;
   float * palette = NULL;
   int paletteDataType;
@@ -390,6 +394,8 @@ SoVolumeDataPage * SoVolumeDataSlice::buildPage(int col,
 
   numTexels += pageSize[0]*pageSize[1];
   numPages++;
+  numBytesSW += page->numBytesSW;
+  numBytesHW += page->numBytesHW;
 
   return page;
 }// buildPage

@@ -23,6 +23,8 @@ public:
                 int paletteFormat = GL_RGBA,
                 int paletteSize = 0);
 
+  void release();
+
 
   Storage storage; 
   int format, paletteFormat, paletteSize; 
@@ -32,6 +34,8 @@ public:
   unsigned long lastuse;
   SbVec2s size;
   uint32_t transferFunctionId;
+  int numBytesHW;
+  int numBytesSW;
 
 
   SoVolumeDataPage * nextPage;

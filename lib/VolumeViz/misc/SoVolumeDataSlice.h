@@ -52,6 +52,8 @@ public:
 
   int numTexels;
   int numPages;
+  int numBytesHW;
+  int numBytesSW;
 
   int numCols;
   int numRows;

@@ -38,7 +38,7 @@ TODO:
   * test setPageSize with different sizes for each axis
   * test setVolumeSize with different sizes for each axis
 - GL_SHARED_PALETTE_EXT
-- Document datastructures
+- Document datastructures (slices, linked list of pages)
 - Document memoryleak/slowdown 
 - Describe the strange glColorTableEXT-behaviour
 - LUTs for transferfunction
@@ -50,6 +50,7 @@ TODO:
 - optimize the transferfunction for paletted textures
 - functionality for uploading a batch of textures at startup, avoiding 
   the terrible respons in userinterface.
+- check all FIXMEs
 */
 
 
@@ -75,8 +76,11 @@ public:
     pageSize = SbVec3s(64, 64, 64);
 
     maxTexels = 64*1024*1024;
-    currentTexels = 0;
-    currentPages = 0;
+    maxBytesHW = 1024*1024*16;
+    numTexels = 0;
+    numPages = 0;
+    numBytesSW = 0;
+    numBytesHW = 0;
     tick = 0;
 
     VRMemReader = NULL;
@@ -101,8 +105,11 @@ public:
   long tick;
   bool extensionsInitialized;
   int maxTexels;
-  int currentTexels;
-  int currentPages;
+  int numTexels;
+  int numPages;
+  int numBytesSW;
+  int maxBytesHW;
+  int numBytesHW;
 
   SoVolumeDataSlice **slicesX;
   SoVolumeDataSlice **slicesY;
@@ -118,6 +125,8 @@ public:
   void releaseSlicesZ();
 
   void freeTexels(int desired);
+  void freeHWBytes(int desired);
+  void managePages();
   void releaseLRUPage();
 
   bool check2n(int n);
@@ -328,6 +337,9 @@ SoVolumeData::GLRender(SoGLRenderAction * action)
 {
   SoVolumeDataElement::setVolumeData(action->getState(), this, this);
   PRIVATE(this)->tick++;
+  printf("numBytesSW = %010d numBytesHW = %010d\n", 
+         PRIVATE(this)->numBytesSW,
+         PRIVATE(this)->numBytesHW);
 
   if (!PRIVATE(this)->extensionsInitialized) {
 
@@ -373,8 +385,10 @@ void SoVolumeData::renderOrthoSliceX(SoState * state,
   SoVolumeDataSlice * slice = 
     PRIVATE(this)->getSliceX(sliceIdx);
 
-  PRIVATE(this)->currentTexels -= slice->numTexels;
-  PRIVATE(this)->currentPages -= slice->numPages;
+  PRIVATE(this)->numTexels -= slice->numTexels;
+  PRIVATE(this)->numPages -= slice->numPages;
+  PRIVATE(this)->numBytesSW -= slice->numBytesSW;
+  PRIVATE(this)->numBytesHW -= slice->numBytesHW;
 
   slice->render(state,
                 SbVec3f(x, min[1], min[0]),
@@ -385,10 +399,12 @@ void SoVolumeData::renderOrthoSliceX(SoState * state,
                 transferFunction,
                 PRIVATE(this)->tick);
 
-  PRIVATE(this)->currentTexels += slice->numTexels;
-  PRIVATE(this)->currentPages += slice->numPages;
+  PRIVATE(this)->numTexels += slice->numTexels;
+  PRIVATE(this)->numPages += slice->numPages;
+  PRIVATE(this)->numBytesSW += slice->numBytesSW;
+  PRIVATE(this)->numBytesHW += slice->numBytesHW;
 
-  PRIVATE(this)->freeTexels(0);
+  PRIVATE(this)->managePages();
 }// renderOrthoSliceX
 
 void SoVolumeData::renderOrthoSliceY(SoState * state, 
@@ -405,8 +421,10 @@ void SoVolumeData::renderOrthoSliceY(SoState * state,
   SoVolumeDataSlice * slice = 
     PRIVATE(this)->getSliceY(sliceIdx);
 
-  PRIVATE(this)->currentTexels -= slice->numTexels;
-  PRIVATE(this)->currentPages -= slice->numPages;
+  PRIVATE(this)->numTexels -= slice->numTexels;
+  PRIVATE(this)->numPages -= slice->numPages;
+  PRIVATE(this)->numBytesSW -= slice->numBytesSW;
+  PRIVATE(this)->numBytesHW -= slice->numBytesHW;
 
   slice->render(state,
                 SbVec3f(min[0], y, min[1]),
@@ -417,10 +435,12 @@ void SoVolumeData::renderOrthoSliceY(SoState * state,
                 transferFunction,
                 PRIVATE(this)->tick);
 
-  PRIVATE(this)->currentTexels += slice->numTexels;
-  PRIVATE(this)->currentPages += slice->numPages;
+  PRIVATE(this)->numTexels += slice->numTexels;
+  PRIVATE(this)->numPages += slice->numPages;
+  PRIVATE(this)->numBytesSW += slice->numBytesSW;
+  PRIVATE(this)->numBytesHW += slice->numBytesHW;
 
-  PRIVATE(this)->freeTexels(0);
+  PRIVATE(this)->managePages();
 }// renderOrthoSliceY
 
 
@@ -439,8 +459,10 @@ void SoVolumeData::renderOrthoSliceZ(SoState * state,
   SoVolumeDataSlice * slice = 
     PRIVATE(this)->getSliceZ(sliceIdx);
 
-  PRIVATE(this)->currentTexels -= slice->numTexels;
-  PRIVATE(this)->currentPages -= slice->numPages;
+  PRIVATE(this)->numTexels -= slice->numTexels;
+  PRIVATE(this)->numPages -= slice->numPages;
+  PRIVATE(this)->numBytesSW -= slice->numBytesSW;
+  PRIVATE(this)->numBytesHW -= slice->numBytesHW;
 
   slice->render(state,
                 SbVec3f(min[0], min[1], z),
@@ -451,10 +473,12 @@ void SoVolumeData::renderOrthoSliceZ(SoState * state,
                 transferFunction,
                 PRIVATE(this)->tick);
 
-  PRIVATE(this)->currentTexels += slice->numTexels;
-  PRIVATE(this)->currentPages += slice->numPages;
+  PRIVATE(this)->numTexels += slice->numTexels;
+  PRIVATE(this)->numPages += slice->numPages;
+  PRIVATE(this)->numBytesSW += slice->numBytesSW;
+  PRIVATE(this)->numBytesHW += slice->numBytesHW;
 
-  PRIVATE(this)->freeTexels(0);
+  PRIVATE(this)->managePages();
 }// renderOrthoSliceZ
 
 
@@ -490,6 +514,11 @@ SoVolumeData::setReader(SoVolumeReader * reader)
                       PRIVATE(this)->dimensions);
 }// setReader
 
+void 
+SoVolumeData::setHWMemorySize(int size) 
+{
+  PRIVATE(this)->maxBytesHW = size;
+}// setTexMemorySize
 
 
 
@@ -610,7 +639,7 @@ void SoVolumeDataP::freeTexels(int desired)
 {
   if (desired > maxTexels) return;
 
-  while ((maxTexels - currentTexels) < desired)
+  while ((maxTexels - numTexels) < desired)
     releaseLRUPage();
 }// freeTexels
 
@@ -681,13 +710,17 @@ void SoVolumeDataP::releaseLRUPage()
     }//for
   }//if
 
-  this->currentTexels -= LRUSlice->numTexels;
-  this->currentPages -= LRUSlice->numPages;
+  this->numTexels -= LRUSlice->numTexels;
+  this->numPages -= LRUSlice->numPages;
+  this->numBytesSW -= LRUSlice->numBytesSW;
+  this->numBytesHW -= LRUSlice->numBytesHW;
 
   LRUSlice->releasePage(LRUPage);
 
-  this->currentTexels += LRUSlice->numTexels;
-  this->currentPages += LRUSlice->numPages;
+  this->numTexels += LRUSlice->numTexels;
+  this->numPages += LRUSlice->numPages;
+  this->numBytesSW += LRUSlice->numBytesSW;
+  this->numBytesHW += LRUSlice->numBytesHW;
 }// relaseLRUPage
 
 
@@ -704,6 +737,22 @@ void SoVolumeDataP::releaseSlicesY()
 void SoVolumeDataP::releaseSlicesZ()
 {
 }// releaseSlicesZ
+
+void SoVolumeDataP::freeHWBytes(int desired)
+{
+  if (desired > maxBytesHW) return;
+
+  while ((maxBytesHW - numBytesHW) < desired)
+    releaseLRUPage();
+}// freeHWBytes
+
+void SoVolumeDataP::managePages()
+{
+  // Keep both measures within maxlimits
+  freeHWBytes(0);
+  freeTexels(0);
+}// managePages
+
 
 /****************** UNIMPLEMENTED FUNCTIONS ******************************/
 

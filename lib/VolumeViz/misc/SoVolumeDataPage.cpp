@@ -25,16 +25,15 @@ SoVolumeDataPage::SoVolumeDataPage()
   this->paletteFormat = 0;
   this->paletteSize = 0;
   this->nextPage = NULL;
+  this->numBytesHW = 0;
+  this->numBytesSW = 0;
 }// constructor
 
 
 SoVolumeDataPage::~SoVolumeDataPage()
 {
-  glDeleteTextures(1, &textureName);
-  delete [] data;
-  delete [] palette;
+  release();
   delete nextPage;
-  nextPage = NULL;
 }// destructor
 
 
@@ -45,7 +44,6 @@ void SoVolumeDataPage::setActivePage(long tick)
   glBindTexture(GL_TEXTURE_2D, this->textureName);
   this->lastuse = tick;
 
-  int err = glGetError();
 }// setActivePage
 
 
@@ -63,20 +61,37 @@ void SoVolumeDataPage::setData( Storage storage,
                                 int paletteFormat,
                                 int paletteSize)
 {
+  release();
   this->size = size;
   this->storage = storage;
-  this->lastuse = 0;
   this->paletteFormat = paletteFormat;
   this->paletteSize = paletteSize;
+
+
+
 
   // Possible creating an in-memory copy of all data
   if (storage & MEMORY) {
     this->data = new unsigned char[size[0]*size[1]*4];
     memcpy(this->data, bytes, size[0]*size[1]*4);
 
+    if (!palette) 
+      numBytesSW += size[0]*size[1]*4;      // RGBA-data
+    else {
+      if (paletteSize > 256)
+        numBytesSW += size[0]*size[1]*2;    // indexed, short
+      else
+        numBytesSW += size[0]*size[1];      // indexed, byte
+    }// else
+
     if (palette != NULL) {
       this->palette = new unsigned char[sizeof(unsigned char)*paletteSize];
       memcpy(this->palette, palette, sizeof(float)*paletteSize);
+
+      switch (paletteFormat) {
+        case GL_RGBA: numBytesSW += paletteSize*4;
+                      break;
+      }// switch
     }// if
   }// if
   else {
@@ -84,10 +99,13 @@ void SoVolumeDataPage::setData( Storage storage,
     this->palette = NULL;
   }// else
 
+
+
+
+
+  // Creating OpenGL-texture
   if (storage & OPENGL) {
     //FIXME: these functions is only supported in opengl 1.1... torbjorv 08052002
-//    glEnable(GL_TEXTURE_2D);
-//    glEnable(GL_SHARED_TEXTURE_PALETTE_EXT);
     glGenTextures(1, &this->textureName);
     glBindTexture(GL_TEXTURE_2D, this->textureName);
 
@@ -103,26 +121,20 @@ void SoVolumeDataPage::setData( Storage storage,
                     GL_RGBA,
                     GL_UNSIGNED_BYTE,
                     bytes);
+
+      numBytesHW += size[0]*size[1]*4;
     }// if
 
     // Uploading paletted texture
     else {
 
-      int err;
+      // Check size of indices
+      int format = GL_UNSIGNED_BYTE;
+      if (paletteSize > 256)
+        format = GL_UNSIGNED_SHORT;
 
-      switch (paletteSize) {
-        case   2: __asm nop
-                  break;
-        case   4: __asm nop
-                  break;
-        case  16: __asm nop
-                  break;
-        case 256: __asm nop
-                  break;
-        default:  __asm nop
-                  break;
-      }// switch
 
+      // Setting palette
       glColorTableEXT(GL_TEXTURE_2D, 
                       GL_RGBA, 
                       paletteSize,
@@ -130,30 +142,36 @@ void SoVolumeDataPage::setData( Storage storage,
                       GL_FLOAT,
                       palette);
 
-      err = glGetError();
-
-
+      // Checking what palettesize we actually got
       int actualPaletteSize;
       glGetColorTableParameterivEXT(GL_TEXTURE_2D, 
                                     GL_COLOR_TABLE_WIDTH_EXT, 
                                     &actualPaletteSize);
 
+      numBytesHW += actualPaletteSize*4*4;
+
+
       int internalFormat;
-      int format = GL_UNSIGNED_BYTE;
       switch (actualPaletteSize) {
-        case   2: internalFormat = GL_COLOR_INDEX1_EXT;
-                  break;
-        case   4: internalFormat = GL_COLOR_INDEX2_EXT;
-                  break;
-        case  16: internalFormat = GL_COLOR_INDEX4_EXT;
-                  break;
-        case 256: internalFormat = GL_COLOR_INDEX8_EXT;
-                  break;
-        default:  internalFormat = GL_COLOR_INDEX16_EXT;
-                  format = GL_UNSIGNED_SHORT;
-                  break;
+        case     2: internalFormat = GL_COLOR_INDEX1_EXT;
+                    numBytesHW += size[0]*size[1]/8;
+                    break;
+        case     4: internalFormat = GL_COLOR_INDEX2_EXT;
+                    numBytesHW += size[0]*size[1]/4;
+                    break;
+        case    16: internalFormat = GL_COLOR_INDEX4_EXT;
+                    numBytesHW += size[0]*size[1]/2;
+                    break;
+        case   256: internalFormat = GL_COLOR_INDEX8_EXT;
+                    numBytesHW += size[0]*size[1];
+                    break;
+        case 65536: internalFormat = GL_COLOR_INDEX16_EXT;
+                    numBytesHW += size[0]*size[1]*2;
+                    break;
       }// switch
 
+
+      // Upload texture
       glTexImage2D(GL_TEXTURE_2D, 
                    0,
                    internalFormat,
@@ -163,8 +181,6 @@ void SoVolumeDataPage::setData( Storage storage,
                    GL_COLOR_INDEX,
                    format,
                    bytes);
-
-      err = glGetError();
 
     }//else
 
@@ -194,3 +210,24 @@ void SoVolumeDataPage::setData( Storage storage,
 }//setData
 
 
+
+void SoVolumeDataPage::release()
+{
+  if (textureName != 0)
+    glDeleteTextures(1, &textureName);
+
+  delete [] data;
+  delete [] palette;
+
+  this->size = SbVec2s(0, 0);
+  this->format = 0;
+  this->storage = NOT_LOADED;
+  this->lastuse = 0;
+  this->transferFunctionId = 0;
+  this->data = NULL;
+  this->palette = NULL;
+  this->paletteFormat = 0;
+  this->paletteSize = 0;
+  this->numBytesHW = 0;
+  this->numBytesSW = 0;
+}// release
