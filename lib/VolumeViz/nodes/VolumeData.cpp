@@ -193,6 +193,9 @@ SoVolumeData::setVolumeSize(const SbBox3f & size)
   size.getBounds(volmin, volmax);
   this->volumeboxmin = volmin;
   this->volumeboxmax = volmax;
+
+  // Trigger a notification.
+  this->touch();
 }
 
 /*!
@@ -274,6 +277,10 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
   this->setReader(PRIVATE(this)->VRMemReader);
 
   PRIVATE(this)->datatype = type;
+
+  // Trigger a notification and a node-ID update, so texture pages etc
+  // are regenerated.
+  this->touch();
 }
 
 /*!
@@ -465,6 +472,10 @@ SoVolumeData::setTexMemorySize(int megatexels)
 
   // FIXME: should kick out texmem pages if we're currently over
   // limit. 20021121 mortene.
+
+  // Trigger a notification and a node-ID update, so texture pages etc
+  // are regenerated.
+  this->touch();
 }
 
 void
@@ -476,6 +487,10 @@ SoVolumeData::setReader(SoVolumeReader * reader)
   reader->getDataChar(dummyvolbox,
                       PRIVATE(this)->datatype,
                       PRIVATE(this)->dimensions);
+
+  // Trigger a notification and a node-ID update, so texture pages etc
+  // are regenerated.
+  this->touch();
 }
 
 SoVolumeReader *
@@ -603,6 +618,7 @@ SoVolumeData::reSampling(const SbVec3s &dimensions,
   
   newdataset->setVolumeData(newdim, data, PRIVATE(this)->datatype);
   newdataset->setVolumeSize(this->getVolumeSize());
+  // FIXME: this next line looks superfluous? 20040229 mortene.
   newdataset->touch();
 
   return newdataset; 
