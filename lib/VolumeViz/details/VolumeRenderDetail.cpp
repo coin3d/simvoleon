@@ -12,6 +12,7 @@
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <Inventor/SbName.h>
 #include <stddef.h>
+#include <string.h>
 
 // *************************************************************************
 
