@@ -20,6 +20,7 @@ class SoTransferFunction : public SoVolumeRendering {
 
 public:
   static void initClass(void);
+  SoTransferFunction(void);
 
   enum PredefColorMap {
     NONE = 0,
@@ -45,16 +46,16 @@ public:
   SoSFEnum colorMapType;
   SoMFFloat colorMap;
 
-  SoTransferFunction();
-
-  // FIXME: Implement this function. torbjorv 08282002
-  void reMap(int min, int max);
-
+  void reMap(int low, int high);
 
 
 protected:
   ~SoTransferFunction();
-  void GLRender(SoGLRenderAction * action);
+
+  virtual void doAction(SoAction * action);
+  virtual void GLRender(SoGLRenderAction * action);
+  virtual void callback(SoCallbackAction * action);
+  virtual void pick(SoPickAction * action);
 
 private:
   friend class SoTransferFunctionP;

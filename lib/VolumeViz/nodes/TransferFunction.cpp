@@ -8,6 +8,8 @@
 
 #include <string.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/actions/SoCallbackAction.h>
+#include <Inventor/actions/SoPickAction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
@@ -46,6 +48,10 @@ class SoTransferFunctionP {
 public:
   SoTransferFunctionP(SoTransferFunction * master) {
     this->master = master;
+
+    // Init to lowest and highest uint16_t values.
+    this->opaquethresholds[0] = 0;
+    this->opaquethresholds[1] = (2 << 16) - 1;
   }
 
   int unpack(const void * data, int numBits, int index);
@@ -60,6 +66,8 @@ public:
                                            uint8_t intgradient[256][4]);
 
   static void initPredefGradients(void);
+
+  int opaquethresholds[2];
 
 private:
   SoTransferFunction * master;
@@ -114,15 +122,34 @@ SoTransferFunction::initClass(void)
   SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering, "SoVolumeRendering");
 
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoCallbackAction, SoTransferFunctionElement);
+  SO_ENABLE(SoPickAction, SoTransferFunctionElement);
 
   SoTransferFunctionP::initPredefGradients();
 }
 
 void
+SoTransferFunction::doAction(SoAction * action)
+{
+  SoTransferFunctionElement::setTransferFunction(action->getState(), this, this);
+}
+
+void
 SoTransferFunction::GLRender(SoGLRenderAction * action)
 {
-  SoTransferFunctionElement::setTransferFunction(action->getState(), 
-                                                 this, this);
+  this->doAction(action);
+}
+
+void
+SoTransferFunction::callback(SoCallbackAction * action)
+{
+  this->doAction(action);
+}
+
+void
+SoTransferFunction::pick(SoPickAction * action)
+{
+  this->doAction(action);
 }
 
 
@@ -198,12 +225,22 @@ SoTransferFunction::transfer(const void * input,
     assert(cmap >= GREY); // FIXME: "NONE" not handled yet. 20021113 mortene.
     assert(cmap <= SEISMIC);
 
+    int32_t shiftval = this->shift.getValue();
+    int32_t offsetval = this->offset.getValue();
+
     for (int j=0; j < size[0]*size[1]; j++) {
-      if (inp[j] == 0x00) {
+      uint8_t inval = inp[j];
+
+      if (shiftval != 0) inval <<= shiftval;
+      if (offsetval != 0) inval += offsetval;
+
+      if ((inval == 0x00) || // FIXME: not sure about this.. 20021119 mortene.
+          (inval < PRIVATE(this)->opaquethresholds[0]) ||
+          (inval > PRIVATE(this)->opaquethresholds[1])) {
         outp[j] = 0x00000000;
       }
       else {
-        uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[cmap][inp[j]];
+        uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[cmap][inval];
 
         outp[j] = (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
           compileRGBALittleEndian(rgba[0], rgba[1], rgba[2], rgba[3]) :
@@ -436,9 +473,17 @@ SoTransferFunctionP::pack(void * data, int numbits, int index, int val)
 
 
 void
-SoTransferFunction::reMap(int min, int max)
+SoTransferFunction::reMap(int low, int high)
 {
-  // FIXME: Implement this function torbjorv 08282002
+  assert(low <= high);
+
+  PRIVATE(this)->opaquethresholds[0] = low;
+  PRIVATE(this)->opaquethresholds[1] = high;
+  
+  // This is done to update our node-id, which should automatically
+  // invalidate any 2D texture slices or 3D textures generated with
+  // the previous colormap transfer.
+  this->touch();
 }
 
 struct GIMPGradient *
