@@ -400,17 +400,20 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
     SoDebugError::postWarning("transfer3D", "16 bits pr voxel unit size is not properly implemented "
                               "yet. Voxels will therefore be scaled down to 8 bits.");
 
-    CvrPaletteTexture * palettetex = NULL;
+    CvrPaletteTexture * palettetex = 
+      (texobj->getTypeId().isDerivedFrom(CvrPaletteTexture::getClassTypeId())) ? 
+      (CvrPaletteTexture *)texobj : NULL;
+
     const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
     clut->ref();
-
+    
     if (palettetex) {
       palettetex->setCLUT(clut);
     }
     else {
       assert(FALSE && "16 bits RGBA textures are not supported.");
     }
-
+    
     const int32_t shiftval = transferfunc->shift.getValue();
     const int32_t offsetval = transferfunc->offset.getValue();
 
@@ -444,8 +447,8 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
       }
 
       invisible = FALSE;
-
     }
+    clut->unref();
 
   }
   else {
