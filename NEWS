@@ -2,11 +2,14 @@ New in SIM Voleon v1.1.0a (so far):
 
 * new features
   - SoObliqueSlice node
+  - SoVolumeFaceSet, SoVolumeIndexedFaceSet, SoVolumeTriangleStripSet
+    and SoVolumeIndexedTriangleStripSet nodes
+  - SoVolumeSkin node
 
 * bugfixes
   - data was previously rendered flipped on the Y axis, now fixed --
     note that this is a major semantic change which needs client code
     to be updated, see the RELNOTES document
   - 3D-texture based rendering for SoVolumeRender nodes now works
-    correctly for any preceding scene graph transformation
-  - many, many minor bugfixes
+    correctly for any preceding scene graph transformations
+  - many minor bugfixes
