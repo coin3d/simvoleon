@@ -93,7 +93,7 @@ private:
   \var SoTransferFunction::PredefColorMap SoTransferFunction::TEMPERATURE
 */
 /*!
-  \var SoTransferFunction::PredefColorMap SoTransferFunction::PYSICS
+  \var SoTransferFunction::PredefColorMap SoTransferFunction::PHYSICS
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::STANDARD
