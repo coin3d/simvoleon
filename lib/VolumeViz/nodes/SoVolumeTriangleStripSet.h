@@ -29,8 +29,8 @@
 #include <Inventor/fields/SoSFFloat.h>
 
 #include <VolumeViz/C/basic.h>
-#include <VolumeViz/render/3D/Cvr3DTexCube.h>
 
+// *************************************************************************
 
 class SIMVOLEON_DLL_API SoVolumeTriangleStripSet : public SoTriangleStripSet {
   typedef SoTriangleStripSet inherited;
@@ -54,5 +54,7 @@ private:
 
   friend class CvrTriangleStripSetRenderP;
 };
+
+// *************************************************************************
 
 #endif // !SIMVOLEON_SOVOLUMETRIANGLESTRIPSET_H

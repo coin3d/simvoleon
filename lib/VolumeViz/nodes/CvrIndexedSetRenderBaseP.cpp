@@ -41,6 +41,7 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoVolumeIndexedFaceSet.h>
+#include <VolumeViz/render/3D/Cvr3DTexCube.h>
 
 // *************************************************************************
 

@@ -24,6 +24,10 @@
  *
 \**************************************************************************/
 
+#ifndef SIMVOLEON_INTERNAL
+#error this is a private header file
+#endif // !SIMVOLEON_INTERNAL
+
 #include <Inventor/SbVec3s.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
