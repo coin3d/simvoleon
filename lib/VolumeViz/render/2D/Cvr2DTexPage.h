@@ -18,9 +18,7 @@ public:
   void init(SoVolumeReader * reader, int sliceIdx,
             SoOrthoSlice::Axis axis, const SbVec2s & pageSize);
 
-  void render(SoState * state,
-              const SbVec3f & v0, const SbVec3f & v1,
-              const SbVec3f & v2, const SbVec3f & v3,
+  void render(SoState * state, const SbVec3f v[4],
               const SbBox2f & textureCoords,
               SoTransferFunction * transferfunc, long tick);
 

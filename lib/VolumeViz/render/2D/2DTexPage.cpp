@@ -201,12 +201,10 @@ Cvr2DTexPage::releaseAllSubPages(void)
   left of slice, v1 maps to lower right of slice, v2 maps to upper
   right of slice, and v3 maps to upper left of slice.
 */
-void Cvr2DTexPage::render(SoState * state,
-                               const SbVec3f & v0, const SbVec3f & v1,
-                               const SbVec3f & v2, const SbVec3f & v3,
-                               const SbBox2f & textureCoords,
-                               SoTransferFunction * transferfunc,
-                               long tick)
+void Cvr2DTexPage::render(SoState * state, const SbVec3f v[4],
+                          const SbBox2f & textureCoords,
+                          SoTransferFunction * transferfunc,
+                          long tick)
 {
   assert(this->reader);
   assert(transferfunc);
@@ -215,8 +213,8 @@ void Cvr2DTexPage::render(SoState * state,
   textureCoords.getBounds(minUV, maxUV);
 
   SbVec2f pageSizef =
-    SbVec2f(float(this->pageSize[0])/float(dimensions[0]),
-            float(this->pageSize[1])/float(dimensions[1]));
+    SbVec2f(float(this->pageSize[0])/float(this->dimensions[0]),
+            float(this->pageSize[1])/float(this->dimensions[1]));
 
   // Local page-UV-coordinates for the current quad to be rendered.
   SbVec2f localMinUV, localMaxUV;
@@ -232,8 +230,8 @@ void Cvr2DTexPage::render(SoState * state,
   SbVec3f upperLeft, upperRight, lowerLeft, lowerRight;
 
   globalMinUV = minUV;
-  endLowerLeft = v0;
-  endLowerRight = v1;
+  endLowerLeft = v[0];
+  endLowerRight = v[1];
   int row = (int) (minUV[1]*this->numRows);
   while (globalMinUV[1] != maxUV[1]) {
 
@@ -245,13 +243,13 @@ void Cvr2DTexPage::render(SoState * state,
       // Interpolating the row's endvertices
       float k =
         float(globalMaxUV[1] - minUV[1])/float(maxUV[1] - minUV[1]);
-      endUpperLeft[0] = (1 - k)*v0[0] + k*v3[0];
-      endUpperLeft[1] = (1 - k)*v0[1] + k*v3[1];
-      endUpperLeft[2] = (1 - k)*v0[2] + k*v3[2];
+      endUpperLeft[0] = (1 - k)*v[0][0] + k*v[3][0];
+      endUpperLeft[1] = (1 - k)*v[0][1] + k*v[3][1];
+      endUpperLeft[2] = (1 - k)*v[0][2] + k*v[3][2];
 
-      endUpperRight[0] = (1 - k)*v1[0] + k*v2[0];
-      endUpperRight[1] = (1 - k)*v1[1] + k*v2[1];
-      endUpperRight[2] = (1 - k)*v1[2] + k*v2[2];
+      endUpperRight[0] = (1 - k)*v[1][0] + k*v[2][0];
+      endUpperRight[1] = (1 - k)*v[1][1] + k*v[2][1];
+      endUpperRight[2] = (1 - k)*v[1][2] + k*v[2][2];
     }
     else {
 
@@ -259,8 +257,8 @@ void Cvr2DTexPage::render(SoState * state,
       globalMaxUV[1] = maxUV[1];
       localMaxUV[1] = (globalMaxUV[1] - row*pageSizef[1])/pageSizef[1];
 
-      endUpperLeft = v3;
-      endUpperRight = v2;
+      endUpperLeft = v[3];
+      endUpperRight = v[2];
     }
 
 
