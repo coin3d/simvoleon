@@ -422,13 +422,6 @@ CvrPageHandler::releaseSlices(const unsigned int AXISIDX)
   assert(AXISIDX <= 2);
   if (this->slices[AXISIDX] == NULL) return;
 
-  // debug
-  if (CVR_DEBUG && CvrUtil::doDebugging()) {
-    SoDebugError::postInfo("CvrPageHandler::releaseSlices", "%c at %f",
-                           AXISIDX == 0 ? 'X' : (AXISIDX == 1 ? 'Y' : 'Z'),
-                           SbTime::getTimeOfDay().getValue());
-  }
-
   for (unsigned int i = 0; i < this->voldatadims[AXISIDX]; i++) {
     delete this->slices[AXISIDX][i];
     this->slices[AXISIDX][i] = NULL;
