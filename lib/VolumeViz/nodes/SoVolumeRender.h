@@ -43,7 +43,7 @@ public:
 protected:
   ~SoVolumeRender();
 
-  virtual void GLRender(SoGLRenderAction *action);
+  virtual void GLRender(SoGLRenderAction * action);
   virtual void generatePrimitives(SoAction * action);
   virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
 

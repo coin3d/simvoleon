@@ -3,6 +3,7 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
+#include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
@@ -14,7 +15,7 @@ SO_NODE_SOURCE(SoVolumeRender);
 
 // *************************************************************************
 
-class SoVolumeRenderP{
+class SoVolumeRenderP {
 public:
   SoVolumeRenderP(SoVolumeRender * master) {
     this->master = master;
@@ -30,9 +31,6 @@ private:
 
 // *************************************************************************
 
-/*!
-  Constructor.
-*/
 SoVolumeRender::SoVolumeRender(void)
 {
   SO_NODE_CONSTRUCTOR(SoVolumeRender);
@@ -63,16 +61,10 @@ SoVolumeRender::SoVolumeRender(void)
   SO_NODE_ADD_FIELD(viewAlignedSlices, (FALSE));
 }
 
-/*!
-  Destructor.
-*/
 SoVolumeRender::~SoVolumeRender()
 {
   delete PRIVATE(this);
 }
-
-
-
 
 // Doc from parent class.
 void
@@ -88,7 +80,7 @@ SoVolumeRender::initClass(void)
 
 // doc in super
 void
-SoVolumeRender::GLRender(SoGLRenderAction *action)
+SoVolumeRender::GLRender(SoGLRenderAction * action)
 {
   if (!this->shouldGLRender(action)) return;
 
@@ -133,21 +125,31 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   abstoviewer[1] = fabs(camvec[1]);
   abstoviewer[2] = fabs(camvec[2]);
 
-  // FIXME: Implement use of the
-  // numSlicesControl-field. torbjorv 07112002
-
   // Commonly used variables
-  SbVec3f min, max;
+  SbVec3f volmin, volmax;
   SbBox3f volumeSize = volumedata->getVolumeSize();
-  volumeSize.getBounds(min, max);
-  SbVec3s dimensions = volumedata->getDimensions();
-  float depth;
-  float depthAdder;
+  volumeSize.getBounds(volmin, volmax);
 
-  int numslices = this->numSlices.getValue();
-  // Default value is zero, so treat it as "hey, you choose, Mr
-  // VolumeViz Library" from the application programmer.
-  if (numslices == 0) numslices = 10;
+#if CVR_DEBUG && 1 // debug
+  SoDebugError::postInfo("SoVolumeRender::GLRender",
+                         "volumeSize==[%f, %f, %f]",
+                         volmax[0] - volmin[0],
+                         volmax[1] - volmin[1],
+                         volmax[2] - volmin[2]);
+#endif // debug
+
+
+  SbVec3s dimensions;
+  void * data;
+  SoVolumeData::DataType type;
+  SbBool ok = volumedata->getVolumeData(dimensions, data, type);
+  assert(ok);
+
+#if CVR_DEBUG && 1 // debug
+  SoDebugError::postInfo("SoVolumeRender::GLRender",
+                         "dimensions==[%d, %d, %d]",
+                         dimensions[0], dimensions[1], dimensions[2]);
+#endif // debug
 
   SbBool renderalongX =
     (abstoviewer[0] >= abstoviewer[1]) &&
@@ -168,21 +170,50 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   enum Axis { X = 0, Y = 1, Z = 2 };
   const int AXISIDX = (renderalongX ? X : (renderalongY ? Y : Z));
 
-  // Render in reverse order?
-  if (camvec[AXISIDX] < 0)  {
-    depthAdder = -(max[AXISIDX] - min[AXISIDX]) / numslices;
-    depth = max[AXISIDX];
+  int numslices = 0;
+  int control = this->numSlicesControl.getValue();
+
+  if (control == ALL) {
+    numslices = dimensions[AXISIDX];
+  }
+  else if (control == MANUAL) {
+    numslices = this->numSlices.getValue();
+  }
+  else if (control == AUTOMATIC) {
+    float complexity = this->getComplexityValue(action);
+    numslices = int(complexity * 2.0f * this->numSlices.getValue());
+    assert(numslices >= 0);
   }
   else {
-    depthAdder = (max[AXISIDX] - min[AXISIDX]) / numslices;
-    depth = min[AXISIDX];
+    assert(FALSE && "invalid numSlicesControl value");
+  }
+
+#if CVR_DEBUG && 1 // debug
+  SoDebugError::postInfo("SoVolumeRender::GLRender",
+                         "numslices == %d", numslices);
+#endif // debug
+
+
+  if (numslices == 0) return;
+
+  float depth;
+  float depthAdder;
+
+  // Render in reverse order?
+  if (camvec[AXISIDX] < 0)  {
+    depthAdder = -(volmax[AXISIDX] - volmin[AXISIDX]) / numslices;
+    depth = volmax[AXISIDX];
+  }
+  else {
+    depthAdder = (volmax[AXISIDX] - volmin[AXISIDX]) / numslices;
+    depth = volmin[AXISIDX];
   }
 
   // FIXME: is it really correct to use same quad for both X-way and
   // Y-way rendering? Seems bogus. 20021111 mortene.
   const SbBox2f QUAD = renderalongZ ?
-    SbBox2f(min[0], min[1], max[0], max[1]) :
-    SbBox2f(min[1], min[2], max[1], max[2]);
+    SbBox2f(volmin[0], volmin[1], volmax[0], volmax[1]) :
+    SbBox2f(volmin[1], volmin[2], volmax[1], volmax[2]);
 
   const SbBox2f TEXTURECOORDS = SbBox2f(0.0, 0.0, 1.0, 1.0);
 
@@ -215,20 +246,17 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   glDisable(GL_CULL_FACE);
 
   // Rendering slices
+
+  const int lastpageidx =
+    (int)((float(numslices - 1) / float(numslices)) * dimensions[AXISIDX]);
+
   for (int i = 0; i < numslices; i++) {
-    // FIXME: multiplying with dimensions looks
-    // funny.. investigate. 20021111 mortene.
-    int imageIdx =
+    int pageidx =
       (int)((float(i)/float(numslices)) * float(dimensions[AXISIDX]));
+    // If rendering in reverse order.
+    if (depthAdder < 0) { pageidx = lastpageidx - pageidx; }
 
-    // Are we rendering in in reverse order?
-    if (depthAdder < 0) {
-      imageIdx =
-        (int)((float(numslices - 1) / float(numslices)) *
-              dimensions[AXISIDX]) - imageIdx;
-    }
-
-    volumedata->renderOrthoSlice(state, QUAD, depth, imageIdx, TEXTURECOORDS,
+    volumedata->renderOrthoSlice(state, QUAD, depth, pageidx, TEXTURECOORDS,
                                  transferfunction, AXISIDX);
     depth += depthAdder;
   }
@@ -239,10 +267,12 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 void
 SoVolumeRender::generatePrimitives(SoAction * action)
 {
+  // FIXME: implement me. 20021120 mortene.
 }
 
 
 void
 SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
+  // FIXME: implement me. 20021120 mortene.
 }
