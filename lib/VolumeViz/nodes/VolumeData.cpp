@@ -546,13 +546,6 @@ SoVolumeData::setReader(SoVolumeReader * reader)
   reader->getDataChar(PRIVATE(this)->volumesize,
                       PRIVATE(this)->datatype,
                       PRIVATE(this)->dimensions);
-
-#if 1 // debug
-  SoDebugError::postInfo("SoVolumeData::setReader",
-                         "volumesize");
-  PRIVATE(this)->volumesize.print(stdout); fprintf(stdout, "\n");
-#endif // debug
-  
 }
 
 /*!

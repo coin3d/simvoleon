@@ -5,10 +5,13 @@
 #include <Inventor/misc/SoState.h>
 #include <Inventor/system/gl.h>
 
+class SoGLRenderAction;
+
 
 class Cvr2DTexSubPage {
 public:
-  Cvr2DTexSubPage(const uint8_t * textureimg, const SbVec2s & size,
+  Cvr2DTexSubPage(SoGLRenderAction * action,
+                  const uint8_t * textureimg, const SbVec2s & size,
                   const float * palette = NULL, int palettesize = 0);
   ~Cvr2DTexSubPage();
 
@@ -18,7 +21,7 @@ public:
   static unsigned int totalTextureMemoryUsed(void);
 
 private:
-  void transferTex2GL(const uint8_t * textureimg,
+  void transferTex2GL(SoGLRenderAction * action, const uint8_t * textureimg,
                       int palettesize, const float * palette);
 
   GLuint texturename[1];

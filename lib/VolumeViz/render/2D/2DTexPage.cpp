@@ -2,9 +2,12 @@
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
-#include <Inventor/errors/SoDebugError.h>
+
 #include <Inventor/C/tidbits.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
+
 #include <limits.h>
 
 // *************************************************************************
@@ -33,7 +36,10 @@ public:
 
 Cvr2DTexPage::Cvr2DTexPage(void)
 {
+  // FIXME: in CvrPageHandler, the subpagesize setting is given as a
+  // 3-component vector. 20021124 mortene.
   this->subpagesize = SbVec2s(64, 64);
+
   this->subpages = NULL;
   this->axis = 2; // Z-axis
   this->sliceIdx = 0;
@@ -230,26 +236,29 @@ Cvr2DTexPage::renderGLQuad(const SbVec3f & lowleft, const SbVec3f & lowright,
   glEnd();
 }
 
-
-
-/*!
-  Renders arbitrary shaped quad. Automatically loads all pages needed.
-
-  \a quadcoords specifies the "real" local space coordinates for the
-  full page.
-*/
-void Cvr2DTexPage::render(SoState * state,
-                          const SbVec3f & origo,
-                          const SbVec3f & horizspan,
-                          const SbVec3f & verticalspan,
-                          long tick)
+// Fetching the current transfer function from the state stack.
+SoTransferFunction *
+Cvr2DTexPage::getTransferFunc(SoGLRenderAction * action)
 {
-  // Fetching the current transfer function.
+  SoState * state = action->getState();
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  assert(tfelement != NULL); // FIXME: handle gracefully? 20021122 mortene.
+  assert(tfelement != NULL);
   SoTransferFunction * transferfunc = tfelement->getTransferFunction();
-  assert(transferfunc); // FIXME: handle gracefully. 20021122 mortene.
+  assert(transferfunc != NULL);
+  return transferfunc;
+}
 
+// Renders arbitrary shaped quad. Automatically loads all pages
+// needed.
+//
+// \a quadcoords specifies the "real" local space coordinates for the
+// full page.
+void
+Cvr2DTexPage::render(SoGLRenderAction * action,
+                     const SbVec3f & origo,
+                     const SbVec3f & horizspan, const SbVec3f & verticalspan,
+                     long tick)
+{
   SbVec3f subpagewidth = horizspan / this->nrcolumns;
   SbVec3f subpageheight = verticalspan / this->nrrows;
 
@@ -258,8 +267,8 @@ void Cvr2DTexPage::render(SoState * state,
     for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
 
       Cvr2DTexSubPage * page = NULL;
-      Cvr2DTexSubPageItem * pageitem = this->getSubPage(colidx, rowidx, transferfunc);
-      if (pageitem == NULL) { pageitem = this->buildSubPage(colidx, rowidx, transferfunc); }
+      Cvr2DTexSubPageItem * pageitem = this->getSubPage(action, colidx, rowidx);
+      if (pageitem == NULL) { pageitem = this->buildSubPage(action, colidx, rowidx); }
       assert(pageitem != NULL);
       assert(pageitem->page != NULL);
 
@@ -299,11 +308,9 @@ Cvr2DTexPage::calcSubPageIdx(int row, int col) const
   Builds a page if it doesn't exist. Rebuilds it if it does exist.
 */
 Cvr2DTexSubPageItem *
-Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
+Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 {
-  assert(transferfunc);
-
-  assert(this->getSubPage(col, row, transferfunc) == NULL);
+  assert(this->getSubPage(action, col, row) == NULL);
 
   // First Cvr2DTexSubPage ever in this slice?
   if (this->subpages == NULL) {
@@ -326,6 +333,8 @@ Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
 
   this->reader->getSubSlice(subSlice, this->sliceIdx, texture, ax);
 
+  SoTransferFunction * transferfunc = this->getTransferFunc(action);
+
   uint32_t * transferredTexture = transferfunc->transfer(texture,
                                                          this->dataType,
                                                          this->subpagesize);
@@ -336,7 +345,8 @@ Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
   int paletteSize = 0;
 
   Cvr2DTexSubPage * page =
-    new Cvr2DTexSubPage((const uint8_t *)transferredTexture, this->subpagesize,
+    new Cvr2DTexSubPage(action,
+                        (const uint8_t *)transferredTexture, this->subpagesize,
                         palette, paletteSize);
 
   delete[] transferredTexture;
@@ -548,8 +558,7 @@ SoTransferFunctionP::pack(void * data, int numbits, int index, int val)
 #endif // TMP DISABLED code
 
 Cvr2DTexSubPageItem *
-Cvr2DTexPage::getSubPage(int col, int row,
-                         SoTransferFunction * transferfunc)
+Cvr2DTexPage::getSubPage(SoGLRenderAction * action, int col, int row)
 {
   if (this->subpages == NULL) return NULL;
 
@@ -558,8 +567,9 @@ Cvr2DTexPage::getSubPage(int col, int row,
 
   Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
 
+  uint32_t transfuncid = this->getTransferFunc(action)->getNodeId();
   while (p != NULL) {
-    if (p->transferfuncid == transferfunc->getNodeId()) break;
+    if (p->transferfuncid == transfuncid) break;
     p = p->next;
   }
 

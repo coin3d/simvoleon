@@ -2,6 +2,7 @@
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
+#include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
 
 #include "texmemfullimg.h"
@@ -57,7 +58,8 @@ unsigned int Cvr2DTexSubPage::texmembytes = 0;
 GLuint Cvr2DTexSubPage::emptyimgname[1] = { 0 };
 SbBool Cvr2DTexSubPage::detectedtextureswapping = FALSE;
 
-Cvr2DTexSubPage::Cvr2DTexSubPage(const uint8_t * textureimg,
+Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
+                                 const uint8_t * textureimg,
                                  const SbVec2s & size,
                                  const float * palette, int palettesize)
 {
@@ -69,7 +71,7 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(const uint8_t * textureimg,
   assert(coin_is_power_of_two(size[1]));
   this->texdims = size;
 
-  this->transferTex2GL(textureimg, palettesize, palette);
+  this->transferTex2GL(action, textureimg, palettesize, palette);
 
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("Cvr2DTexSubPage::Cvr2DTexSubPage",
@@ -137,19 +139,26 @@ Cvr2DTexSubPage::activate(void) const
 // palette.  The function uses the palette's size to decide whether
 // the indices are byte or short.
 void
-Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
+Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
+                                const uint8_t * textureimg,
                                 int palettesize, const float * palette)
 {
-  // FIXME: need cache context here! 20021120 mortene.
-  const cc_glglue * glw = cc_glglue_instance(0);
+  const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
 
   if (Cvr2DTexSubPage::emptyimgname[0] == 0) {
     glGenTextures(1, Cvr2DTexSubPage::emptyimgname);
     glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
     // FIXME: never freed. 20021121 mortene.
+    
+    // Check format of GIMP-exported "texmem full" image.
+    assert(coin_is_power_of_two(tex_image.width));
+    assert(coin_is_power_of_two(tex_image.height));
+    assert(tex_image.bytes_per_pixel == 4);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, 4,
-                 tex_image.width, tex_image.height, // FIXME: check 2^n. 20021121 mortene.
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 tex_image.bytes_per_pixel,
+                 tex_image.width, tex_image.height,
                  0,
                  GL_RGBA,
                  GL_UNSIGNED_BYTE,
@@ -228,10 +237,9 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
       break;
 
     default:
-      // FIXME: this can indeed hit, try for instance SYN_64.vol. If
-      // some palette sizes are indeed unsupported by OpenGL, we
-      // should probably resize our palette to the nearest
-      // upward. 20021106 mortene.
+      // FIXME: this can indeed hit. If some palette sizes are indeed
+      // unsupported by OpenGL, we should probably resize our palette
+      // to the nearest upward. 20021106 mortene.
       assert(FALSE && "unknown palette size");
       break;
     }
@@ -292,6 +300,9 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
     //
     // FIXME: should at least provide an envvar to set GL_LINEAR
     // instead, for testing purposes. 20021121 mortene.
+    //
+    // FIXME: update, looks like this should be controlled from
+    // SoVolumeRender::interpolation field. 20021124 mortene.
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     assert(glGetError() == GL_NO_ERROR);

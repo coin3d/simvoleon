@@ -18,7 +18,7 @@ public:
   void init(SoVolumeReader * reader, int sliceIdx,
             unsigned int axis, const SbVec2s & pageSize);
 
-  void render(SoState * state, const SbVec3f & origo,
+  void render(SoGLRenderAction * action, const SbVec3f & origo,
               const SbVec3f & horizspan, const SbVec3f & verticalspan,
               long tick);
 
@@ -26,16 +26,18 @@ public:
   void releaseSubPage(Cvr2DTexSubPage *page);
 
 private:
-  class Cvr2DTexSubPageItem * getSubPage(int col, int row,
-                                         SoTransferFunction * transferfunc);
+  class Cvr2DTexSubPageItem * getSubPage(SoGLRenderAction * action,
+                                         int col, int row);
 
-  class Cvr2DTexSubPageItem * buildSubPage(int col, int row,
-                                           SoTransferFunction * transferfunc);
+  class Cvr2DTexSubPageItem * buildSubPage(SoGLRenderAction * action,
+                                           int col, int row);
 
   void releaseLRUSubPage(void);
   void releaseAllSubPages(void);
 
   int calcSubPageIdx(int row, int col) const;
+
+  SoTransferFunction * getTransferFunc(SoGLRenderAction * action);
 
   void renderGLQuad(const SbVec3f & lowerLeft,
                     const SbVec3f & lowerRight,
