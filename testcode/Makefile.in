@@ -64,22 +64,22 @@ $(srcdir)/utility.@OBJEXT@: $(srcdir)/utility.cpp
 # (SoTransferFunction UI)
 
 SoTransferFunction_ctrl.h: $(srcdir)/SoTransferFunction_ctrl.ui
-	uic $< -o $@
+	uic `cygpath -w $<` -o $@
 
 SoTransferFunction_ctrl.cpp: $(srcdir)/SoTransferFunction_ctrl.ui SoTransferFunction_ctrl.h
-	uic -impl $*.h $< -o $@
+	uic -impl $*.h `cygpath -w $<` -o $@
 
 SoTransferFunction_ctrl.@OBJEXT@: SoTransferFunction_ctrl.cpp
 	soqt-config --compile $<
 
 moc_SoTransferFunction_ctrl.cpp: SoTransferFunction_ctrl.h
-	moc -o $@ $<
+	moc -o $@ `cygpath -w $<`
 
 moc_SoTransferFunction_ctrl.@OBJEXT@: moc_SoTransferFunction_ctrl.cpp
 	soqt-config --compile $<
 
 moc_TransferFunctionHandler.cpp: $(srcdir)/TransferFunctionHandler.h
-	moc -o $@ $<
+	moc -o $@ `cygpath -w $<`
 
 moc_TransferFunctionHandler.@OBJEXT@: moc_TransferFunctionHandler.cpp
 	soqt-config --compile $<
@@ -90,10 +90,10 @@ $(srcdir)/TransferFunctionHandler.@OBJEXT@: $(srcdir)/TransferFunctionHandler.cp
 # (SoVolumeRender UI)
 
 SoVolumeRender_ctrl.h: $(srcdir)/SoVolumeRender_ctrl.ui
-	uic $< -o $@
+	uic `cygpath -w $<` -o $@
 
 SoVolumeRender_ctrl.cpp: $(srcdir)/SoVolumeRender_ctrl.ui SoVolumeRender_ctrl.h
-	uic -impl $*.h $< -o $@
+	uic -impl $*.h `cygpath -w $<` -o $@
 
 SoVolumeRender_ctrl.@OBJEXT@: SoVolumeRender_ctrl.cpp
 	soqt-config --compile $<
@@ -105,7 +105,7 @@ moc_SoVolumeRender_ctrl.@OBJEXT@: moc_SoVolumeRender_ctrl.cpp
 	soqt-config --compile $<
 
 moc_VolumeRenderHandler.cpp: $(srcdir)/VolumeRenderHandler.h
-	moc -o $@ $<
+	moc -o $@ `cygpath -w $<`
 
 moc_VolumeRenderHandler.@OBJEXT@: moc_VolumeRenderHandler.cpp
 	soqt-config --compile $<
@@ -116,10 +116,10 @@ $(srcdir)/VolumeRenderHandler.@OBJEXT@: $(srcdir)/VolumeRenderHandler.cpp SoVolu
 # (SoOrthoSlice UI)
 
 SoOrthoSlice_ctrl.h: $(srcdir)/SoOrthoSlice_ctrl.ui
-	uic $< -o $@
+	uic `cygpath -w $<` -o $@
 
 SoOrthoSlice_ctrl.cpp: $(srcdir)/SoOrthoSlice_ctrl.ui SoOrthoSlice_ctrl.h
-	uic -impl $*.h $< -o $@
+	uic -impl $*.h `cygpath -w $<` -o $@
 
 SoOrthoSlice_ctrl.@OBJEXT@: SoOrthoSlice_ctrl.cpp
 	soqt-config --compile $<
@@ -131,13 +131,13 @@ moc_SoOrthoSlice_ctrl.@OBJEXT@: moc_SoOrthoSlice_ctrl.cpp
 	soqt-config --compile $<
 
 moc_OrthoSliceHandler.cpp: $(srcdir)/OrthoSliceHandler.h
-	moc -o $@ $<
+	moc -o $@ `cygpath -w $<`
 
 moc_OrthoSliceHandler.@OBJEXT@: moc_OrthoSliceHandler.cpp
 	soqt-config --compile $<
 
 $(srcdir)/OrthoSliceHandler.@OBJEXT@: $(srcdir)/OrthoSliceHandler.cpp SoOrthoSlice_ctrl.h moc_SoOrthoSlice_ctrl.cpp
-	CPPFLAGS=-I. soqt-config --compile $<
+	CPPFLAGS="`simvoleon-config --cppflags` -I." soqt-config --compile $<
 
 
 ## ``readvol'' example
@@ -149,7 +149,7 @@ $(srcdir)/readvol.@OBJEXT@: $(srcdir)/readvol.cpp $(srcdir)/TransferFunctionHand
 	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 readvol@EXEEXT@: $(READVOL_OBJECTS)
-	soqt-config --link $@ $(READVOL_OBJECTS) -lSimVoleon
+	soqt-config --link $@ $(READVOL_OBJECTS) `simvoleon-config --libs`
 
 ## ``examine'' example
 
@@ -157,10 +157,10 @@ $(srcdir)/examine.cpp: $(srcdir)/examine.cpp.in
 	@soqt-config --ac-subst $<
 
 $(srcdir)/examine.@OBJEXT@: $(srcdir)/examine.cpp
-	soqt-config --compile $<
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 examine@EXEEXT@: $(EXAMINE_OBJECTS)
-	soqt-config --link $@ $(EXAMINE_OBJECTS) -lSimVoleon
+	soqt-config --link $@ $(EXAMINE_OBJECTS) `simvoleon-config --libs`
 
 ## ``orthoslicer'' example
 
@@ -168,10 +168,10 @@ $(srcdir)/orthoslicer.cpp: $(srcdir)/orthoslicer.cpp.in
 	@soqt-config --ac-subst $<
 
 $(srcdir)/orthoslicer.@OBJEXT@: $(srcdir)/orthoslicer.cpp $(srcdir)/TransferFunctionHandler.h
-	soqt-config --compile $<
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 orthoslicer@EXEEXT@: $(ORTHOSLICER_OBJECTS)
-	soqt-config --link $@ $(ORTHOSLICER_OBJECTS) -lSimVoleon
+	soqt-config --link $@ $(ORTHOSLICER_OBJECTS) `simvoleon-config --libs`
 
 ## ``simple8bit'' example
 
@@ -179,10 +179,10 @@ $(srcdir)/simple8bit.cpp: $(srcdir)/simple8bit.cpp.in
 	@soqt-config --ac-subst $<
 
 $(srcdir)/simple8bit.@OBJEXT@: $(srcdir)/simple8bit.cpp
-	soqt-config --compile $<
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 simple8bit@EXEEXT@: $(SIMPLE8BIT_OBJECTS)
-	soqt-config --link $@ $(SIMPLE8BIT_OBJECTS) -lSimVoleon
+	soqt-config --link $@ $(SIMPLE8BIT_OBJECTS) `simvoleon-config --libs`
 
 ## ``changingdataset'' example
 
@@ -190,10 +190,10 @@ $(srcdir)/changingdataset.cpp: $(srcdir)/changingdataset.cpp.in
 	@soqt-config --ac-subst $<
 
 $(srcdir)/changingdataset.@OBJEXT@: $(srcdir)/changingdataset.cpp
-	soqt-config --compile $<
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 changingdataset@EXEEXT@: $(CHANGINGDATASET_OBJECTS)
-	soqt-config --link $@ $(CHANGINGDATASET_OBJECTS) -lSimVoleon
+	soqt-config --link $@ $(CHANGINGDATASET_OBJECTS) `simvoleon-config --libs`
 
 ## ``raypick'' example
 
@@ -201,10 +201,10 @@ $(srcdir)/raypick.cpp: $(srcdir)/raypick.cpp.in
 	@soqt-config --ac-subst $<
 
 $(srcdir)/raypick.@OBJEXT@: $(srcdir)/raypick.cpp
-	soqt-config --compile $<
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 raypick@EXEEXT@: $(RAYPICK_OBJECTS)
-	soqt-config --link $@ $(RAYPICK_OBJECTS) -lSimVoleon
+	soqt-config --link $@ $(RAYPICK_OBJECTS) `simvoleon-config --libs`
 
 ## ``rgbload'' example
 
@@ -212,9 +212,9 @@ $(srcdir)/rgbload.cpp: $(srcdir)/rgbload.cpp.in
 	@soqt-config --ac-subst $<
 
 $(srcdir)/rgbload.@OBJEXT@: $(srcdir)/rgbload.cpp
-	soqt-config --compile $<
+	CPPFLAGS="`simvoleon-config --cppflags` `simage-config --cppflags`" soqt-config --compile $<
 
 rgbload@EXEEXT@: $(RGBLOAD_OBJECTS)
-	soqt-config --link $@ $(RGBLOAD_OBJECTS) -lSimVoleon -lsimage
+	soqt-config --link $@ $(RGBLOAD_OBJECTS) `simvoleon-config --libs` `simage-config --libs`
 
 ## end
