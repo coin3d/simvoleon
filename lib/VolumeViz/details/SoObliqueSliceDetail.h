@@ -5,6 +5,7 @@
 #include <Inventor/details/SoSubDetail.h>
 
 class SbVec3f;
+class SbVec3s;
 
 
 class SoObliqueSliceDetail : public SoDetail {
@@ -20,7 +21,7 @@ public:
   virtual SoDetail * copy(void) const;
 
   SbVec3f & getValueObjectPos(void) const;
-  SbVec3f & getValueDataPos(void) const;
+  SbVec3s & getValueDataPos(void) const;
   unsigned int getValue(void) const;
 };
 

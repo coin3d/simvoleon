@@ -5,10 +5,14 @@
   FIXME: doc
 */
 
+#include <stddef.h>
+
 #include <VolumeViz/details/SoObliqueSliceDetail.h>
+
 #include <Inventor/SbName.h>
 #include <Inventor/SbVec3f.h>
-#include <stddef.h>
+#include <Inventor/SbVec3s.h>
+
 
 SO_DETAIL_SOURCE(SoObliqueSliceDetail);
 
@@ -46,11 +50,11 @@ SoObliqueSliceDetail::getValueObjectPos(void) const
   return v;
 }
 
-SbVec3f &
+SbVec3s &
 SoObliqueSliceDetail::getValueDataPos(void) const
 {
   // FIXME: implement
-  static SbVec3f v;
+  static SbVec3s v;
   return v;
 }
 
