@@ -100,24 +100,6 @@ main(int argc, char ** argv)
   ecb->addEventCallback(SoMouseButtonEvent::getClassTypeId(), event_cb, viewer);
   root->addChild(ecb);
 
-  SoSeparator * cubeframe = new SoSeparator;
-  root->addChild(cubeframe);
-
-  SoLightModel * lm = new SoLightModel;
-  lm->model = SoLightModel::BASE_COLOR;
-  cubeframe->addChild(lm);
-
-  SoDrawStyle * drawstyle = new SoDrawStyle;
-  drawstyle->style = SoDrawStyle::LINES;
-  drawstyle->lineWidth = 3;
-  cubeframe->addChild(drawstyle);
-
-  SoPickStyle * pickstyle = new SoPickStyle;
-  pickstyle->style = SoPickStyle::UNPICKABLE;
-  cubeframe->addChild(pickstyle);
-
-  cubeframe->addChild(new SoCube);
-
   SbVec3s dim(64, 64, 64);
   void * voxels = generateRGBAVoxelSet(dim);
 
@@ -130,6 +112,33 @@ main(int argc, char ** argv)
 
   SoVolumeRender * volrend = new SoVolumeRender();
   root->addChild(volrend);
+
+  { // Show bounding box.
+    SoSeparator * bboxsep = new SoSeparator;
+    root->addChild(bboxsep);
+
+    SoLightModel * lm = new SoLightModel;
+    lm->model = SoLightModel::BASE_COLOR;
+    bboxsep->addChild(lm);
+
+    SoDrawStyle * drawstyle = new SoDrawStyle;
+    drawstyle->style = SoDrawStyle::LINES;
+    bboxsep->addChild(drawstyle);
+
+    SoPickStyle * pickstyle = new SoPickStyle;
+    pickstyle->style = SoPickStyle::UNPICKABLE;
+    bboxsep->addChild(pickstyle);
+
+    SoCube * volcage = new SoCube;
+    const SbBox3f volspan = voldata->getVolumeSize();
+
+    float dx, dy, dz;
+    volspan.getSize(dx, dy, dz);
+    volcage->width = dx;
+    volcage->height = dy;
+    volcage->depth = dz;
+    bboxsep->addChild(volcage);
+  }
 
   viewer->setSceneGraph(root);
   viewer->show();
