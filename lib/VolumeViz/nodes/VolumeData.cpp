@@ -14,7 +14,9 @@
 #include <VolumeViz/misc/SoVolumeDataPage.h>
 #include <VolumeViz/misc/SoVolumeDataSlice.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
-#include <string.h> // memset()
+
+#include <Inventor/errors/SoDebugError.h>
+
 
 
 /*
@@ -233,13 +235,15 @@ SO_NODE_SOURCE(SoVolumeData);
 
 class SoVolumeDataP {
 public:
+  enum Axis { X = 0, Y = 1, Z = 2 };
+
   SoVolumeDataP(SoVolumeData * master)
   {
     this->master = master;
 
-    slicesX = NULL;
-    slicesY = NULL;
-    slicesZ = NULL;
+    this->slices[X] = NULL;
+    this->slices[Y] = NULL;
+    this->slices[Z] = NULL;
 
     volumeSize = SbBox3f(-1, -1, -1, 1, 1, 1);
     dimensions = SbVec3s(0, 0, 0);
@@ -259,8 +263,8 @@ public:
 
   ~SoVolumeDataP()
   {
-    delete VRMemReader;
-    releaseSlices();
+    delete this->VRMemReader;
+    this->releaseAllSlices();
   }
 
   SbVec3s dimensions;
@@ -279,18 +283,12 @@ public:
   int maxBytesHW;
   int numBytesHW;
 
-  SoVolumeDataSlice **slicesX;
-  SoVolumeDataSlice **slicesY;
-  SoVolumeDataSlice **slicesZ;
+  SoVolumeDataSlice ** slices[3];
 
-  SoVolumeDataSlice * getSliceX(int sliceIdx);
-  SoVolumeDataSlice * getSliceY(int sliceIdx);
-  SoVolumeDataSlice * getSliceZ(int sliceIdx);
+  SoVolumeDataSlice * getSlice(const Axis AXISIDX, int sliceidx);
 
-  void releaseSlices();
-  void releaseSlicesX();
-  void releaseSlicesY();
-  void releaseSlicesZ();
+  void releaseAllSlices();
+  void releaseSlices(const Axis AXISIDX);
 
   void freeTexels(int desired);
   void freeHWBytes(int desired);
@@ -302,7 +300,6 @@ public:
 private:
   SoVolumeData * master;
 };
-
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
@@ -396,7 +393,7 @@ SoVolumeData::setVolumeData(const SbVec3s &dimensions,
 void
 SoVolumeData::setPageSize(int size)
 {
-  setPageSize(SbVec3s(size, size, size));
+  this->setPageSize(SbVec3s(size, size, size));
 }
 
 void
@@ -441,9 +438,9 @@ SoVolumeData::setPageSize(const SbVec3s & insize)
 
   PRIVATE(this)->pageSize = size;
 
-  if (rebuildX) PRIVATE(this)->releaseSlicesX();
-  if (rebuildY) PRIVATE(this)->releaseSlicesY();
-  if (rebuildZ) PRIVATE(this)->releaseSlicesZ();
+  if (rebuildX) PRIVATE(this)->releaseSlices(SoVolumeDataP::X);
+  if (rebuildY) PRIVATE(this)->releaseSlices(SoVolumeDataP::Y);
+  if (rebuildZ) PRIVATE(this)->releaseSlices(SoVolumeDataP::Z);
 }
 
 void
@@ -465,7 +462,7 @@ SoVolumeData::renderOrthoSliceX(SoState * state,
   quad.getBounds(min, max);
 
   SoVolumeDataSlice * slice =
-    PRIVATE(this)->getSliceX(sliceIdx);
+    PRIVATE(this)->getSlice(SoVolumeDataP::X, sliceIdx);
 
   PRIVATE(this)->numTexels -= slice->numTexels;
   PRIVATE(this)->numPages -= slice->numPages;
@@ -502,7 +499,7 @@ SoVolumeData::renderOrthoSliceY(SoState * state,
   quad.getBounds(min, max);
 
   SoVolumeDataSlice * slice =
-    PRIVATE(this)->getSliceY(sliceIdx);
+    PRIVATE(this)->getSlice(SoVolumeDataP::Y, sliceIdx);
 
   PRIVATE(this)->numTexels -= slice->numTexels;
   PRIVATE(this)->numPages -= slice->numPages;
@@ -539,7 +536,7 @@ SoVolumeData::renderOrthoSliceZ(SoState * state,
   quad.getBounds(min, max);
 
   SoVolumeDataSlice * slice =
-    PRIVATE(this)->getSliceZ(sliceIdx);
+    PRIVATE(this)->getSlice(SoVolumeDataP::Z, sliceIdx);
 
   PRIVATE(this)->numTexels -= slice->numTexels;
   PRIVATE(this)->numPages -= slice->numPages;
@@ -595,89 +592,46 @@ SoVolumeData::setHWMemorySize(int size)
 
 
 SoVolumeDataSlice *
-SoVolumeDataP::getSliceX(int sliceIdx)
+SoVolumeDataP::getSlice(const SoVolumeDataP::Axis AXISIDX, int sliceidx)
 {
-  // Valid slice?
-  if (sliceIdx >= this->dimensions[0]) return NULL;
+  assert((AXISIDX >= X) && (AXISIDX <= Z));
+  assert((sliceidx >= 0) && (sliceidx < this->dimensions[AXISIDX]));
 
-  // First SoVolumeDataPage ever?
-  if (!slicesX) {
-    slicesX = new SoVolumeDataSlice*[dimensions[0]];
-    memset( slicesX,
-            0,
-            sizeof(SoVolumeDataSlice*)*dimensions[0]);
+#if 0 // debug
+  SoDebugError::postInfo("SoVolumeDataP::getSlice", "axis==%c sliceidx==%d",
+                         AXISIDX == X ? 'X' : (AXISIDX == Y ? 'Y' : 'Z'),
+                         sliceidx);
+#endif // debug
+
+  // First SoVolumeDataPage ever for this axis?
+  if (this->slices[AXISIDX] == NULL) {
+    this->slices[AXISIDX] = new SoVolumeDataSlice*[this->dimensions[AXISIDX]];
+    for (int i=0; i < this->dimensions[AXISIDX]; i++) {
+      this->slices[AXISIDX][i] = NULL;
+    }
   }
 
-  if (!slicesX[sliceIdx]) {
-    SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
-    newSlice->init(this->reader,
-                   sliceIdx,
-                   SoOrthoSlice::X,
-                   SbVec2s(this->pageSize[2], this->pageSize[1]));
+  if (this->slices[AXISIDX][sliceidx] == NULL) {
+    SoVolumeDataSlice * newslice = new SoVolumeDataSlice;
 
-    slicesX[sliceIdx] = newSlice;
+    SoOrthoSlice::Axis axis =
+      AXISIDX == X ? SoOrthoSlice::X :
+      (AXISIDX == Y ? SoOrthoSlice::Y : SoOrthoSlice::Z );
+
+    SbVec2s pagesize =
+      AXISIDX == X ?
+      SbVec2s(this->pageSize[2], this->pageSize[1]) :
+      (AXISIDX == Y ?
+       SbVec2s(this->pageSize[0], this->pageSize[2]) :
+       SbVec2s(this->pageSize[0], this->pageSize[1]));
+    
+    newslice->init(this->reader, sliceidx, axis, pagesize);
+
+    this->slices[AXISIDX][sliceidx] = newslice;
   }
 
-  return slicesX[sliceIdx];
+  return this->slices[AXISIDX][sliceidx];
 }
-
-
-SoVolumeDataSlice *
-SoVolumeDataP::getSliceY(int sliceIdx)
-{
-  // Valid slice?
-  if (sliceIdx >= this->dimensions[1]) return NULL;
-
-  // First SoVolumeDataPage ever?
-  if (!slicesY) {
-    slicesY = new SoVolumeDataSlice*[dimensions[1]];
-    memset( slicesY,
-            0,
-            sizeof(SoVolumeDataSlice*)*dimensions[1]);
-  }
-
-  if (!slicesY[sliceIdx]) {
-    SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
-    newSlice->init(this->reader,
-                   sliceIdx,
-                   SoOrthoSlice::Y,
-                   SbVec2s(this->pageSize[0], this->pageSize[2]));
-
-    slicesY[sliceIdx] = newSlice;
-  }
-
-  return slicesY[sliceIdx];
-}
-
-
-
-SoVolumeDataSlice *
-SoVolumeDataP::getSliceZ(int sliceIdx)
-{
-  // Valid slice?
-  if (sliceIdx >= this->dimensions[2]) return NULL;
-
-  // First SoVolumeDataPage ever?
-  if (!slicesZ) {
-    slicesZ = new SoVolumeDataSlice*[dimensions[2]];
-    memset( slicesZ,
-            0,
-            sizeof(SoVolumeDataSlice*)*dimensions[2]);
-  }
-
-  if (!slicesZ[sliceIdx]) {
-    SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
-    newSlice->init(this->reader,
-                   sliceIdx,
-                   SoOrthoSlice::Z,
-                   SbVec2s(this->pageSize[0], this->pageSize[1]));
-
-    slicesZ[sliceIdx] = newSlice;
-  }
-
-  return slicesZ[sliceIdx];
-}
-
 
 // FIXME: Perhaps there already is a function somewhere in C or Coin
 // that can test this easily?  31082002 torbjorv
@@ -699,11 +653,9 @@ SoVolumeDataP::check2n(int n)
 }
 
 void
-SoVolumeDataP::releaseSlices(void)
+SoVolumeDataP::releaseAllSlices(void)
 {
-  this->releaseSlicesX();
-  this->releaseSlicesY();
-  this->releaseSlicesZ();
+  for (int i = 0; i < 3; i++) { this->releaseSlices((Axis)i); }
 }
 
 void
@@ -724,61 +676,55 @@ SoVolumeDataP::releaseLRUPage(void)
   SoVolumeDataSlice * LRUSlice = NULL;
 
   // Searching for LRU page among X-slices
-  if (this->slicesX) {
+  if (this->slices[X]) {
     for (int i = 0; i < this->dimensions[0]; i++) {
       tmpPage = NULL;
-      if (slicesX[i]) {
-        tmpPage = slicesX[i]->getLRUPage();
+      if (this->slices[X][i]) {
+        tmpPage = this->slices[X][i]->getLRUPage();
         if (LRUPage == NULL) {
-          LRUSlice = slicesX[i];
+          LRUSlice = this->slices[X][i];
           LRUPage = tmpPage;
         }
-        else
-          if (tmpPage != NULL)
-            if (tmpPage->lastuse < LRUPage->lastuse) {
-              LRUSlice = slicesX[i];
-              LRUPage = tmpPage;
-            }
+        else if (tmpPage && (tmpPage->lastuse < LRUPage->lastuse)) {
+          LRUSlice = this->slices[X][i];
+          LRUPage = tmpPage;
+        }
       }
     }
   }
 
-  // Searching for LRU page among X-slices
-  if (this->slicesY) {
+  // Searching for LRU page among Y-slices
+  if (this->slices[Y]) {
     for (int i = 0; i < this->dimensions[1]; i++) {
       tmpPage = NULL;
-      if (slicesY[i]) {
-        tmpPage = slicesY[i]->getLRUPage();
+      if (this->slices[Y][i]) {
+        tmpPage = this->slices[Y][i]->getLRUPage();
         if (LRUPage == NULL) {
-          LRUSlice = slicesY[i];
+          LRUSlice = this->slices[Y][i];
           LRUPage = tmpPage;
         }
-        else
-          if (tmpPage != NULL)
-            if (tmpPage->lastuse < LRUPage->lastuse) {
-              LRUSlice = slicesY[i];
-              LRUPage = tmpPage;
-            }
+        else if (tmpPage && (tmpPage->lastuse < LRUPage->lastuse)) {
+          LRUSlice = this->slices[Y][i];
+          LRUPage = tmpPage;
+        }
       }
     }
   }
 
   // Searching for LRU page among X-slices
-  if (this->slicesZ) {
+  if (this->slices[Z]) {
     for (int i = 0; i < this->dimensions[2]; i++) {
       tmpPage = NULL;
-      if (slicesZ[i]) {
-        tmpPage = slicesZ[i]->getLRUPage();
+      if (this->slices[Z][i]) {
+        tmpPage = this->slices[Z][i]->getLRUPage();
         if (LRUPage == NULL) {
-          LRUSlice = slicesZ[i];
+          LRUSlice = this->slices[Z][i];
           LRUPage = tmpPage;
         }
-        else
-          if (tmpPage != NULL)
-            if (tmpPage->lastuse < LRUPage->lastuse) {
-              LRUSlice = slicesZ[i];
-              LRUPage = tmpPage;
-            }
+        else if (tmpPage && (tmpPage->lastuse < LRUPage->lastuse)) {
+          LRUSlice = this->slices[Z][i];
+          LRUPage = tmpPage;
+        }
       }
     }
   }
@@ -789,6 +735,10 @@ SoVolumeDataP::releaseLRUPage(void)
   this->numBytesHW -= LRUSlice->numBytesHW;
 
   LRUSlice->releasePage(LRUPage);
+#if 1 // debug
+  SoDebugError::postInfo("SoVolumeDataP::releaseLRUPage",
+                         "released page");
+#endif // debug
 
   this->numTexels += LRUSlice->numTexels;
   this->numPages += LRUSlice->numPages;
@@ -797,51 +747,26 @@ SoVolumeDataP::releaseLRUPage(void)
 }
 
 void
-SoVolumeDataP::releaseSlicesX(void)
+SoVolumeDataP::releaseSlices(const SoVolumeDataP::Axis AXISIDX)
 {
-  if (this->slicesX) {
-    for (int i = 0; i < dimensions[0]; i++) {
-      delete this->slicesX[i];
-      this->slicesX[i] = NULL;
-    }
+  if (this->slices[AXISIDX] == NULL) return;
 
-    delete[] this->slicesX;
+  for (int i = 0; i < this->dimensions[AXISIDX]; i++) {
+    delete this->slices[AXISIDX][i];
+    this->slices[AXISIDX][i] = NULL;
   }
-}
 
-void
-SoVolumeDataP::releaseSlicesY(void)
-{
-  if (this->slicesY) {
-    for (int i = 0; i < dimensions[1]; i++) {
-      delete this->slicesY[i];
-      this->slicesY[i] = NULL;
-    }
-
-    delete[] this->slicesY;
-  }
-}
-
-void
-SoVolumeDataP::releaseSlicesZ(void)
-{
-  if (this->slicesZ) {
-    for (int i = 0; i < dimensions[2]; i++) {
-      delete this->slicesZ[i];
-      this->slicesZ[i] = NULL;
-    }
-
-    delete[] this->slicesZ;
-  }
+  delete[] this->slices[AXISIDX];
 }
 
 void
 SoVolumeDataP::freeHWBytes(int desired)
 {
-  if (desired > maxBytesHW) return;
+  if (desired > this->maxBytesHW) return;
 
-  while ((maxBytesHW - numBytesHW) < desired)
+  while ((this->maxBytesHW - this->numBytesHW) < desired) {
     this->releaseLRUPage();
+  }
 }
 
 void
