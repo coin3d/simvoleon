@@ -65,7 +65,7 @@ private:
   friend class Cvr2DTexPage;
   uint32_t * transfer(const uint8_t * input,
                       SoVolumeData::DataType inputdatatype,
-                      const SbVec2s & size) const;
+                      const SbVec2s & size, SbBool & invisible) const;
 };
 
 #endif // !COIN_SOTRANSFERFUNCTION_H

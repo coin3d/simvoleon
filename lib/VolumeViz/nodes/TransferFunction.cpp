@@ -152,10 +152,14 @@ compileRGBABigEndian(const uint8_t red, const uint8_t green,
 // to specified parameters.
 //
 // Output buffer is allocated within the function.
+//
+// The "invisible" flag will be set according to whether or not
+// there's at least one texel that's not fully transparent.
 uint32_t *
 SoTransferFunction::transfer(const uint8_t * input, 
                              SoVolumeData::DataType inputdatatype,
-                             const SbVec2s & size) const
+                             const SbVec2s & size,
+                             SbBool & invisible) const
 {
   // FIXME: I have a simple idea for (immensely?) speeding up transfer
   // of 8-bit and 16-bit volume data transfer: dynamically set up an
@@ -173,9 +177,14 @@ SoTransferFunction::transfer(const uint8_t * input,
 
   uint32_t * output = new uint32_t[size[0]*size[1]];
 
+  invisible = TRUE;
+
   // Handling RGBA inputdata. Just forwarding to output
   if (inputdatatype == SoVolumeData::RGBA) {
     (void)memcpy(output, input, size[0] * size[1] * sizeof(uint32_t));
+    // FIXME: set the "invisible" flag correctly according to actual
+    // input. 20021129 mortene.
+    invisible = FALSE;
   }
 
   else if (inputdatatype == SoVolumeData::UNSIGNED_BYTE) {
@@ -260,13 +269,21 @@ SoTransferFunction::transfer(const uint8_t * input,
         output[j] = (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
           compileRGBALittleEndian(rgba[0], rgba[1], rgba[2], rgba[3]) :
           compileRGBABigEndian(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+        invisible = invisible && (rgba[3] == 0x00);
       }
     }
   }
 
   else if (inputdatatype == SoVolumeData::UNSIGNED_SHORT) {
+    assert(FALSE && "not yet implemented");
+
     // FIXME: this is of course completely wrong -- the data should be
     // handled according to the SoTransferFunction settings. 20021112 mortene.
+
+    // FIXME: set the "invisible" flag correctly according to actual
+    // input. 20021129 mortene.
+    invisible = FALSE;
 
     uint32_t * outp = (uint32_t *)output;
     const uint16_t * inp = (const uint16_t *)input;

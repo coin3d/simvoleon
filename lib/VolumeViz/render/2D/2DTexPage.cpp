@@ -45,6 +45,7 @@ public:
   Cvr2DTexSubPage * page;
   Cvr2DTexSubPageItem * next, * prev;
   uint32_t transferfuncid;
+  SbBool invisible;
 };
 
 // *************************************************************************
@@ -226,6 +227,7 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
       Cvr2DTexSubPageItem * pageitem = this->getSubPage(action, colidx, rowidx);
       if (pageitem == NULL) { pageitem = this->buildSubPage(action, colidx, rowidx); }
       assert(pageitem != NULL);
+      if (pageitem->invisible) continue;
       assert(pageitem->page != NULL);
 
       SbVec3f upleft = origo +
@@ -337,10 +339,17 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // actually covered by texture (volume data does more often than not
   // fail to match dimensions perfectly with 2^n values). 20021125 mortene.
 
+  SbBool invisible;
   uint32_t * texture =
-    transferfunc->transfer(slicebuf, this->dataType, this->subpagesize);
+    transferfunc->transfer(slicebuf, this->dataType, this->subpagesize,
+                           invisible);
 
   delete[] slicebuf;
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("Cvr2DTexPage::buildSubPage",
+                         "detected invisible page at [%d, %d]", row, col);
+#endif // debug
 
   // FIXME: paletted textures not supported yet. 20021119 mortene.
   float * palette = NULL;
@@ -389,15 +398,19 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 #endif // DEBUG
 
 
-  Cvr2DTexSubPage * page =
-    new Cvr2DTexSubPage(action, (const uint8_t *)texture, this->subpagesize,
-                        texsize, palette, paletteSize);
+  Cvr2DTexSubPage * page = NULL;
+  if (!invisible) {
+    page = new Cvr2DTexSubPage(action, (const uint8_t *)texture,
+                               this->subpagesize, texsize,
+                               palette, paletteSize);
+  }
 
   delete[] texture;
   delete[] palette;
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
   pitem->transferfuncid = transferfunc->getNodeId();
+  pitem->invisible = invisible;
 
   Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
   if (p == NULL) {
