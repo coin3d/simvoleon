@@ -45,6 +45,18 @@
 
 // *************************************************************************
 
+// FIXME: this is modelled on the CvrPageHandler class used for
+// 2D-texturing. This class should not be needed, though, as there is
+// always just a single Cvr3DTexCube instance.
+//
+// (For 2D textures, there are several sets of Cvr2DTexPage instances,
+// one set for each principal axis, and each set contains all slices
+// for that axis.)
+//
+// Clean this up. 20040728 mortene.
+
+// *************************************************************************
+
 CvrCubeHandler::CvrCubeHandler(void)
 {
   this->volumecube = NULL;
@@ -96,6 +108,11 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
                        SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
                        void * abortcbdata)
 {
+  if (CvrUtil::doDebugging() && FALSE) {
+    SoDebugError::postInfo("CvrCubeHandler::render",
+                           "numslices==%u", numslices);
+  }
+
   SoState * state = action->getState();
 
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);

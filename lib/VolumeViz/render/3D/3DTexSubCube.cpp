@@ -69,7 +69,6 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(const SoGLRenderAction * action,
   this->textureobject = texobj;
   this->textureobject->ref();
 
-  this->distancefromcamera = 0;
   this->originaltexsize = originaltexsize;
   
   // Calculate clipplanes
@@ -149,6 +148,8 @@ Cvr3DTexSubCube::deactivateCLUT(const SoGLRenderAction * action)
 
 // *************************************************************************
 
+// Calculates new texture coordinates, and the "clip-vector"
+// representing the plane's intersection line with the box.
 void *
 Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
                                    const SbVec3f & v1, void * vdata1,
@@ -385,6 +386,11 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action)
   // FIXME: A separate method for rendering sorted tris should be
   // made. This would be useful for the facesets. (20040630 handegar)
 
+  if (CvrUtil::doDebugging() && FALSE) {
+    SoDebugError::postInfo("Cvr3DTexSubCube::render",
+                           "slices==%d", this->volumeslices.getLength());
+  }
+
   if (this->volumeslices.getLength() == 0)
     return;
 
@@ -448,23 +454,6 @@ Cvr3DTexSubCube::renderBBox(const SoGLRenderAction * action, int counter)
   glVertex3fv((this->origo + SbVec3f(0, 0, this->dimensions[2])).getValue());
   glEnd();
 
-}
-
-// *************************************************************************
-
-// FIXME: these definitely look like an indication of bad design, in
-// client code. 20040716 mortene.
-
-float
-Cvr3DTexSubCube::getDistanceFromCamera(void) const
-{
-  return this->distancefromcamera;
-}
-
-void
-Cvr3DTexSubCube::setDistanceFromCamera(float dist)
-{
-  this->distancefromcamera = dist;
 }
 
 // *************************************************************************

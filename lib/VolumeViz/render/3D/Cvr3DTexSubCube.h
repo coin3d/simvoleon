@@ -84,9 +84,6 @@ public:
                                   const SbVec3f & newvertex,
                                   void * userdata);
 
-  float getDistanceFromCamera(void) const;
-  void setDistanceFromCamera(float dist);
-
 private:
   void activateCLUT(const SoGLRenderAction * action); 
   void deactivateCLUT(const SoGLRenderAction * action); 
@@ -100,8 +97,6 @@ private:
   SbVec3s originaltexsize;
   SbVec3f dimensions;
   SbVec3f origo;
-
-  float distancefromcamera;
 
   struct subcube_slice {
     SbList <SbVec3f> texcoord; 

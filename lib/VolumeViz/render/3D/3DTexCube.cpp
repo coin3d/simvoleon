@@ -57,6 +57,7 @@ public:
   uint32_t volumedataid;
   SbVec3f center;
   SbBool invisible;
+  float distancefromcamera; // used when qsort'ing by depth vs camera position
 };
 
 // *************************************************************************
@@ -153,10 +154,7 @@ subcube_qsort_compare(const void * element1, const void * element2)
   Cvr3DTexSubCubeItem ** sc1 = (Cvr3DTexSubCubeItem **) element1;
   Cvr3DTexSubCubeItem ** sc2 = (Cvr3DTexSubCubeItem **) element2;
 
-  if ((*sc1)->cube->getDistanceFromCamera() >
-      (*sc2)->cube->getDistanceFromCamera()) return -1;
-  else return 1;
-
+  return ((*sc1)->distancefromcamera > (*sc2)->distancefromcamera) ? -1 : 1;
 }
 
 SbVec3s
@@ -270,9 +268,8 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
      
         SbBox3f subbbox(subcubeorigo, subcubeorigo + subcubeheight + subcubewidth + subcubedepth);
 
-        const float cubecameradist = (viewvolumeinv.getProjectionPoint() -
-                                      subbbox.getCenter()).length();
-        cubeitem->cube->setDistanceFromCamera(cubecameradist);
+        cubeitem->distancefromcamera = (viewvolumeinv.getProjectionPoint() -
+                                        subbbox.getCenter()).length();
 
         subbbox.transform(SoModelMatrixElement::get(state));
         float sdx, sdy, sdz;
