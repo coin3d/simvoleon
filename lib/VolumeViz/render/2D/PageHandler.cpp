@@ -93,23 +93,24 @@ CvrPageHandler::getCurrentAxis(const SbVec3f & viewvec) const
   abstoviewer[1] = fabs(viewvec[1]);
   abstoviewer[2] = fabs(viewvec[2]);
 
-  // Figures out which axis we are closest to be looking along.
-
-  SbBool renderalongX =
+  // Figures out which axis we are closest to be looking along:
+  
+  const SbBool renderalongX =
     (abstoviewer[0] >= abstoviewer[1]) &&
     (abstoviewer[0] >= abstoviewer[2]);
 
-  SbBool renderalongY =
+  const SbBool renderalongY =
     (abstoviewer[1] >= abstoviewer[0]) &&
     (abstoviewer[1] >= abstoviewer[2]);
 
-  SbBool renderalongZ =
+  const SbBool renderalongZ =
     (abstoviewer[2] >= abstoviewer[0]) &&
     (abstoviewer[2] >= abstoviewer[1]);
 
-  assert(((renderalongX ? 1 : 0) +
-          (renderalongY ? 1 : 0) +
-          (renderalongZ ? 1 : 0)) == 1);
+  // ..more than one of the flags can be set, if camera is on a
+  // principal axis of the volume's local coord system. This doesn't
+  // matter, as we don't really care which render-direction is used
+  // in border-cases.
 
   return (renderalongX ? 0 : (renderalongY ? 1 : 2));
 }
