@@ -4,6 +4,8 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <Inventor/SbBasic.h>
+#include <Inventor/errors/SoDebugError.h>
+
 
 // colormap values are between 0 and 255
 CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap)
@@ -42,6 +44,8 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
 void
 CvrCLUT::commonConstructor(void)
 {
+  this->refcount = 0;
+
   this->transparencythresholds[0] = 0;
   this->transparencythresholds[1] = this->nrentries - 1;
 
@@ -61,6 +65,28 @@ CvrCLUT::~CvrCLUT()
     delete[] this->flt_entries;
 
   delete[] this->transparentblock;
+}
+
+void
+CvrCLUT::ref(void) const
+{
+  CvrCLUT * that = (CvrCLUT *)this; // cast away constness
+  that->refcount++;
+}
+
+void
+CvrCLUT::unref(void) const
+{
+  CvrCLUT * that = (CvrCLUT *)this; // cast away constness
+  that->refcount--;
+  assert(this->refcount >= 0);
+  if (this->refcount == 0) delete this;
+}
+
+int32_t
+CvrCLUT::getRefCount(void) const
+{
+  return this->refcount;
 }
 
 // Everything below "low" (but not including) and above "high" (but
@@ -214,6 +240,16 @@ CvrCLUT::lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const
 
 // FIXME: reactivate the stuff from the transfer table caching (ripped
 // out of VoxelChunk.cpp):
+//
+//   // The simple idea for speeding up transfer of volume data is to
+//   // dynamically fill in an index array, so each transfer value
+//   // calculation is done only once.
+//   static void blankoutTransferTable(void);
+//   static uint32_t transfertable[256];
+//   static SbBool transferdone[256];
+//   static uint32_t transfertablenodeid;
+//
+// [...]
 //
 // uint32_t CvrVoxelChunk::transfertable[COLOR_TABLE_PREDEF_SIZE];
 // SbBool CvrVoxelChunk::transferdone[COLOR_TABLE_PREDEF_SIZE];

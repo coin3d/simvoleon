@@ -1,4 +1,5 @@
 #include <VolumeViz/render/2D/CvrPaletteTexture.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 #include <Inventor/SbName.h>
 #include <assert.h>
 
@@ -28,6 +29,7 @@ CvrPaletteTexture::CvrPaletteTexture(const SbVec2s & size)
 
 CvrPaletteTexture::~CvrPaletteTexture()
 {
+  if (this->clut) this->clut->unref();
   delete[] this->indexbuffer;
 }
 
@@ -49,8 +51,9 @@ CvrPaletteTexture::getIndex8Buffer(void) const
 void
 CvrPaletteTexture::setCLUT(const CvrCLUT * table)
 {
+  if (this->clut) this->clut->unref();
   this->clut = table;
-  // FIXME: do reference counting here on the CvrCLUT
+  this->clut->ref();
 }
 
 const CvrCLUT *

@@ -139,6 +139,8 @@ Cvr2DTexSubPage::~Cvr2DTexSubPage()
                            Cvr2DTexSubPage::texmembytes);
 #endif // debug
   }
+
+  if (this->clut) this->clut->unref();
 }
 
 
@@ -277,7 +279,9 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
   else {
     colorformat = GL_COLOR_INDEX8_EXT;
     this->bitspertexel = 8;
+    if (this->clut) this->clut->unref();
     this->clut = ((CvrPaletteTexture *)texobj)->getCLUT();
+    this->clut->ref();
   }
 
   const int nrtexels = this->texdims[0] * this->texdims[1];

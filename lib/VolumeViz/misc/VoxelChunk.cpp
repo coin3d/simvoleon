@@ -259,6 +259,9 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
     texobj = rgbatex;
     uint32_t * output = rgbatex->getRGBABuffer();
 
+    // FIXME: we should really have support routines for converting
+    // "raw" RGBA inputdata into paletted data
+
     for (unsigned int y = 0; y < (unsigned int)size[1]; y++) {
       (void)memcpy(&output[texsize[0] * y],
                    &(this->getBuffer32()[size[0] * y]),
@@ -275,6 +278,7 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
     CvrPaletteTexture * palettetex = NULL;
 
     const CvrCLUT * clut = this->makeCLUT(action);
+    clut->ref();
 
     SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
 
@@ -288,12 +292,12 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
       texobj = rgbatex;
     }
 
-    int32_t shiftval = transferfunc->shift.getValue();
-    int32_t offsetval = transferfunc->offset.getValue();
+    const int32_t shiftval = transferfunc->shift.getValue();
+    const int32_t offsetval = transferfunc->offset.getValue();
 
     const uint8_t * inputbytebuffer = this->getBuffer8();
 
-    if (palettetex) {
+    if (palettetex) { // paletted texture
       uint8_t * output = palettetex->getIndex8Buffer();
 
       for (unsigned int y=0; y < (unsigned int)size[1]; y++) {
@@ -307,7 +311,15 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
         }
       }
 
-      // FIXME: should set this correctly to optimize
+      // FIXME: should set the ''invisible'' flag correctly to
+      // optimize the amount of the available fill-rate of the gfx
+      // card we're using.
+      //
+      // Note that it's not straightforward to use this optimalization
+      // for paletted textures, because we want to be able to change
+      // the palette on the fly without having to regenerate texture
+      // blocks / slices (i.e.: something that _was_ invisible could
+      // become visible upon changing the palette, and vice versa).
       invisible = FALSE;
     }
     else { // RGBA texture
@@ -326,6 +338,7 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
         }
       }
     }
+    clut->unref();
   }
 
   else if (this->getUnitSize() == CvrVoxelChunk::UINT_16) {
