@@ -274,5 +274,16 @@ SoVolumeRender::generatePrimitives(SoAction * action)
 void
 SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
-  // FIXME: implement me. 20021120 mortene.
+  SoState * state = action->getState();
+
+  const SoVolumeDataElement * volumedataelement =
+    SoVolumeDataElement::getInstance(state);
+
+  if (volumedataelement == NULL) return;
+
+  SoVolumeData * volumedata = volumedataelement->getVolumeData();
+
+  SbBox3f vdbox = volumedata->getVolumeSize();
+  box.extendBy(vdbox);
+  center = vdbox.getCenter();
 }
