@@ -1015,13 +1015,13 @@ Optional Features:
   --enable-shared=PKGS  build shared libraries default=yes
   --enable-fast-install=PKGS  optimize for fast installation default=yes
   --disable-libtool-lock  avoid locking (might break parallel builds)
+  --enable-debug          compile in debug mode [default=yes]
   --enable-symbols        include symbol debug information [default=yes]
   --enable-rtti           (g++ only) compile with RTTI [default=yes]
   --enable-exceptions     (g++ only) compile with exceptions [default=no]
   --enable-profile        (GCC only) turn on inclusion of profiling code
                           [default=no]
   --enable-warnings       turn on warnings when compiling [default=yes]
-  --enable-debug          compile in debug mode [default=yes]
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -8380,6 +8380,37 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 fi
+
+
+# Check whether --enable-debug or --disable-debug was given.
+if test "${enable_debug+set}" = set; then
+  enableval="$enable_debug"
+  case "${enableval}" in
+    yes) enable_debug=true ;;
+    no)  enable_debug=false ;;
+    true | false) enable_debug=${enableval} ;;
+    *) { { echo "$as_me:$LINENO: error: bad value \"${enableval}\" for --enable-debug" >&5
+echo "$as_me: error: bad value \"${enableval}\" for --enable-debug" >&2;}
+   { (exit 1); exit 1; }; } ;;
+  esac
+else
+  enable_debug=true
+fi;
+
+if $enable_debug; then
+  DSUFFIX=d
+
+  CPPFLAGS="$CPPFLAGS -DCVR_DEBUG=1"
+
+else
+  DSUFFIX=
+  CPPFLAGS="$CPPFLAGS -DNDEBUG"
+
+  CPPFLAGS="$CPPFLAGS -DCVR_DEBUG=0"
+
+fi
+
+
 
 
 # Check whether --enable-symbols or --disable-symbols was given.
