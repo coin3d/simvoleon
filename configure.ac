@@ -168,6 +168,7 @@ SIM_AC_RTTI_SUPPORT
 SIM_AC_EXCEPTION_HANDLING
 SIM_AC_PROFILING_SUPPORT
 SIM_AC_COMPILER_WARNINGS
+SIM_AC_DETECT_COMMON_COMPILER_FLAGS
 
 # Used to discern between private and public header files, among other
 # things.
