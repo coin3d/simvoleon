@@ -40,8 +40,8 @@ if $BUILD_WITH_MSVC; then
     CPPFLAGS="$CPPFLAGS $sim_ac_msvcrt_CPPFLAGS"
     CFLAGS="$CFLAGS $sim_ac_msvcrt_CFLAGS"
     CXXFLAGS="$CXXFLAGS $sim_ac_msvcrt_CXXFLAGS"
-    LDFLAGS="$CFLAGS $sim_ac_msvcrt_LDFLAGS"
-    LIBS="$CXXFLAGS $sim_ac_msvcrt_LIBS"
+    # LDFLAGS="$CFLAGS $sim_ac_msvcrt_LDFLAGS"
+    # LIBS="$CXXFLAGS $sim_ac_msvcrt_LIBS"
   ])
   AC_SUBST([SIMVOLEON_MSVC_LIBC], [$sim_ac_msvcrt])
 fi
@@ -177,16 +177,20 @@ CPPFLAGS="$CPPFLAGS -DSIMVOLEON_INTERNAL"
 
 # *******************************************************************
 
-case $enable_static in
-yes | true)  SIMVOLEON_STATIC=true;;
-*)           SIMVOLEON_STATIC=false;;
+# **************************************************************************
+# Figure out if library should be built static or dynamic.
+
+case ${enable_static-no} in
+yes | true) SIMVOLEON_STATIC=true
+            enable_shared=no ;; # fix --enable-static bug? in autoconf 2.58
+*)          SIMVOLEON_STATIC=false ;;
 esac
 
-case $enable_shared in
-yes | true)  SIMVOLEON_STATIC=false;;
-*)           SIMVOLEON_STATIC=true;;
+case ${enable_shared-default} in
+default)    ;;
+yes | true) SIMVOLEON_STATIC=false ;;
+*)          SIMVOLEON_STATIC=true ;;
 esac
-
 
 # *******************************************************************
 # Option to disable potential error condition in configure script
@@ -285,6 +289,8 @@ AC_SUBST([voleon_src_dir])
 # Check that we can compile and link against a Coin version >= 2.0.0.
 
 if $sim_ac_build_library; then
+  sim_ac_configure_save_ldflags=$LDFLAGS
+  sim_ac_configure_save_libs=$LIBS
 
   SIM_AC_HAVE_COIN_IFELSE(
     [CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
@@ -330,6 +336,11 @@ if $sim_ac_build_library; then
      [AC_MSG_RESULT(no)]
   )
 
+  if $SIMVOLEON_STATIC; then
+    # don't link with coin and friends when building SIMVoleon as a static lib
+    LDFLAGS=$sim_ac_configure_save_ldflags
+    LIBS=$sim_ac_configure_save_libs
+  fi
 fi # sim_ac_build_library
 
 # **************************************************************************
@@ -346,13 +357,13 @@ AC_SUBST([LIBFLAGS], [])
 
 if $BUILD_WITH_MSVC; then
   rm -f vc60.pdb
-  LIBFLAGS="$LIBFLAGS $sim_ac_msvcrt_LIBLDFLAGS"
-  LIBS="$LIBS $sim_ac_msvcrt_LIBLIBS"
   if $SIMVOLEON_STATIC; then
     SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS -DSIMVOLEON_NOT_DLL"
   else
     CPPFLAGS="-DSIMVOLEON_MAKE_DLL $CPPFLAGS"
     SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS -DSIMVOLEON_DLL"
+    LIBFLAGS="$sim_ac_msvcrt_LIBLDFLAGS $LIBFLAGS"
+    LIBS="$sim_ac_msvcrt_LIBLIBS $LIBS"
   fi
   debugfile="`pwd`/lib/VolumeViz/simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.pdb"
   debugfile=`cygpath -w "$debugfile" | sed 's,\\\\,\\\\\\\\,g'`
@@ -407,7 +418,6 @@ SIM_AC_UNIQIFY_LIST(LIBS, $LIBS)
 # Microsoft Developer Studio Project files
 
 SIM_AC_MSVC_DSP_SETUP([SIMVOLEON], [SimVoleon], [simvoleon], [-I$simvoleon_build_dir/lib -I$simvoleon_src_dir/lib])
-
 
 # *******************************************************************
 
