@@ -157,12 +157,12 @@ CvrVoxelBlockElement::objectCoordsToIJK(const SbVec3f & objectpos) const
   SbVec3s ijk;
   for (int i=0; i < 3; i++) {
     const float normcoord = (objectpos[i] - mincorner[i]) / size[i];
-    ijk[i] = (short)(normcoord * voxeldims[i]);
+    ijk[i] = (short)(normcoord * (voxeldims[i]-1));
   }
 
   if (CvrUtil::debugRayPicks()) {
     SoDebugError::postInfo("CvrVoxelBlockElement::objectCoordsToIJK",
-                           "objectpos==<%f, %f, %f>, volumesize== <%f, %f, %f>, "
+                           "objectpos==<%f, %f, %f>, volumesize==<%f, %f, %f>, "
                            "mincorner==<%f, %f, %f>, voxeldims==<%d, %d, %d> "
                            "==> ijk==<%d, %d, %d>",
                            objectpos[0], objectpos[1], objectpos[2],
