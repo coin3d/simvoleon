@@ -7,6 +7,7 @@
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <VolumeViz/nodes/SoOrthoSlice.h>
 
+#include "OrthoSliceHandler.h"
 #include "utility.h"
 
 int
@@ -30,13 +31,15 @@ main(int argc, char ** argv)
   SoTransferFunction * transfunc = new SoTransferFunction();
   root->addChild(transfunc);
 
-  // Add VolumeRender to scene graph
-  SoVolumeRender * volrend = new SoVolumeRender();
-  root->addChild(volrend);
-
-  // Add VolumeRender to scene graph
+  // Add SoOrthoSlice to scene graph
   SoOrthoSlice * orthoslice = new SoOrthoSlice();
   root->addChild(orthoslice);
+
+  OrthoSliceHandler * tfdia = new OrthoSliceHandler(orthoslice);
+
+  // Add SoVolumeRender to scene graph
+  SoVolumeRender * volrend = new SoVolumeRender();
+  root->addChild(volrend);
 
   So@Gui@ExaminerViewer * viewer = new So@Gui@ExaminerViewer(window);
   viewer->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));

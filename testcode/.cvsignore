@@ -16,3 +16,7 @@ changingdataset
 changingdataset.cpp
 orthoslicer
 orthoslicer.cpp
+SoOrthoSlice_ctrl.cpp
+SoOrthoSlice_ctrl.h
+moc_OrthoSliceHandler.cpp
+moc_SoOrthoSlice_ctrl.cpp

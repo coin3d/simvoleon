@@ -11,7 +11,9 @@ EXAMINE_OBJECTS = \
         examine.o utility.o
 
 ORTHOSLICER_OBJECTS = \
-        orthoslicer.o utility.o
+        orthoslicer.o utility.o \
+        OrthoSliceHandler.o moc_OrthoSliceHandler.o \
+        SoOrthoSlice_ctrl.o moc_SoOrthoSlice_ctrl.o
 
 SIMPLE8BIT_OBJECTS = \
         simple8bit.o utility.o
@@ -34,17 +36,15 @@ clean:
               changingdataset $(CHANGINGDATASET_OBJECTS) changingdataset.cpp \
               readvol $(READVOL_OBJECTS) readvol.cpp \
               moc_TransferFunctionHandler.cpp \
-              SoTransferFunction_ctrl.h SoTransferFunction_ctrl.cpp moc_SoTransferFunction_ctrl.cpp
+              SoOrthoSlice_ctrl.h SoOrthoSlice_ctrl.cpp moc_SoOrthoSlice_ctrl.cpp \
+              moc_OrthoSliceHandler.cpp \
 
 ## common code
 
 utility.o: utility.cpp
 	soqt-config --compile $<
 
-## ``readvol'' example
-
-readvol.cpp: readvol.cpp.in
-	@soqt-config --ac-subst $<
+# (SoTransferFunction UI)
 
 SoTransferFunction_ctrl.h: SoTransferFunction_ctrl.ui
 	uic $< -o $@
@@ -67,10 +67,42 @@ moc_TransferFunctionHandler.cpp: TransferFunctionHandler.h
 moc_TransferFunctionHandler.o: moc_TransferFunctionHandler.cpp
 	soqt-config --compile $<
 
-readvol.o: readvol.cpp TransferFunctionHandler.h
+TransferFunctionHandler.o: TransferFunctionHandler.cpp SoTransferFunction_ctrl.h moc_SoTransferFunction_ctrl.cpp
 	soqt-config --compile $<
 
-TransferFunctionHandler.o: TransferFunctionHandler.cpp SoTransferFunction_ctrl.h moc_SoTransferFunction_ctrl.cpp
+# (SoOrthoSlice UI)
+
+SoOrthoSlice_ctrl.h: SoOrthoSlice_ctrl.ui
+	uic $< -o $@
+
+SoOrthoSlice_ctrl.cpp: SoOrthoSlice_ctrl.ui SoOrthoSlice_ctrl.h
+	uic -impl $*.h $< -o $@
+
+SoOrthoSlice_ctrl.o: SoOrthoSlice_ctrl.cpp
+	soqt-config --compile $<
+
+moc_SoOrthoSlice_ctrl.cpp: SoOrthoSlice_ctrl.h
+	moc -o $@ $<
+
+moc_SoOrthoSlice_ctrl.o: moc_SoOrthoSlice_ctrl.cpp
+	soqt-config --compile $<
+
+moc_OrthoSliceHandler.cpp: OrthoSliceHandler.h
+	moc -o $@ $<
+
+moc_OrthoSliceHandler.o: moc_OrthoSliceHandler.cpp
+	soqt-config --compile $<
+
+OrthoSliceHandler.o: OrthoSliceHandler.cpp SoOrthoSlice_ctrl.h moc_SoOrthoSlice_ctrl.cpp
+	soqt-config --compile $<
+
+
+## ``readvol'' example
+
+readvol.cpp: readvol.cpp.in
+	@soqt-config --ac-subst $<
+
+readvol.o: readvol.cpp TransferFunctionHandler.h
 	soqt-config --compile $<
 
 readvol: $(READVOL_OBJECTS)
@@ -92,7 +124,7 @@ examine: $(EXAMINE_OBJECTS)
 orthoslicer.cpp: orthoslicer.cpp.in
 	@soqt-config --ac-subst $<
 
-orthoslicer.o: orthoslicer.cpp
+orthoslicer.o: orthoslicer.cpp TransferFunctionHandler.h
 	soqt-config --compile $<
 
 orthoslicer: $(ORTHOSLICER_OBJECTS)
