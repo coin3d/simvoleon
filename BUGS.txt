@@ -1,3 +1,9 @@
+See also
+
+    docs/todo.txt
+
+for suggestions for major improvements and new features.
+
 ========================================================================
 
 001 The set of 2D texture slices doesn't seem to cover the full

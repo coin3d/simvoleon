@@ -109,3 +109,12 @@ internal funding.
     20040729 mortene.
 
 ============================================================================
+
+006 A framework for writing out volume data.
+
+    For dumping SoVolumeData (memory) contents to file, in various
+    formats.
+
+    20040917 mortene, suggested by Kristofer Tingdahl.
+
+============================================================================
