@@ -32,43 +32,27 @@ public:
 
 // *************************************************************************
 
-
-Cvr2DTexPage::Cvr2DTexPage(void)
+Cvr2DTexPage::Cvr2DTexPage(SoVolumeReader * reader,
+                           const unsigned int axis,
+                           const unsigned int sliceidx,
+                           const SbVec2s & subpagetexsize)
 {
-  this->subpagesize = SbVec2s(64, 64);
-
   this->subpages = NULL;
-  this->axis = 2; // Z-axis
-  this->sliceIdx = 0;
-  this->dataType = SoVolumeData::RGBA;
-  this->reader = NULL;
-}
 
-
-Cvr2DTexPage::~Cvr2DTexPage()
-{
-  this->releaseAllSubPages();
-}
-
-void
-Cvr2DTexPage::init(SoVolumeReader * reader, int sliceidx, unsigned int axis,
-                   const SbVec2s & subpagetexsize)
-{
   assert(subpagetexsize[0] > 0);
   assert(subpagetexsize[1] > 0);
   assert(coin_is_power_of_two(subpagetexsize[0]));
   assert(coin_is_power_of_two(subpagetexsize[1]));
 
-  this->releaseAllSubPages();
-
-  this->sliceIdx = sliceidx;
+  this->sliceidx = sliceidx;
   this->axis = axis;
   this->subpagesize = subpagetexsize;
   this->reader = reader;
 
   SbVec3s dim;
   SbBox3f size;
-  this->reader->getDataChar(size, this->dataType, dim);
+  SoVolumeData::DataType dummy;
+  this->reader->getDataChar(size, dummy, dim);
 
   assert(dim[0] > 0);
   assert(dim[1] > 0);
@@ -112,6 +96,10 @@ Cvr2DTexPage::init(SoVolumeReader * reader, int sliceidx, unsigned int axis,
   assert(this->nrrows > 0);
 }
 
+Cvr2DTexPage::~Cvr2DTexPage()
+{
+  this->releaseAllSubPages();
+}
 
 /*!
   Release resources used by a page in the slice.
@@ -294,12 +282,12 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // way of calling it. 20021206 mortene.
   CvrVoxelChunk * input = new CvrVoxelChunk(vddims, vctype, dataptr);
   CvrVoxelChunk * slice =
-    input->buildSubPage(this->axis, this->sliceIdx, subpagecut);
+    input->buildSubPage(this->axis, this->sliceidx, subpagecut);
   delete input;
 
 #if 0 // DEBUG: dump slice parts before slicebuf transformation to bitmap files.
   SbString s;
-  s.sprintf("/tmp/pretransfslice-%04d-%03d-%03d.pgm", this->sliceIdx, row, col);
+  s.sprintf("/tmp/pretransfslice-%04d-%03d-%03d.pgm", this->sliceidx, row, col);
   slice->dumpToPPM(s.getString());
 #endif // DEBUG
 
@@ -333,7 +321,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   
 #if 0 // DEBUG: dump all transfered textures to bitmap files.
   SbString s;
-  s.sprintf("/tmp/posttransftex-%04d-%03d-%03d.ppm", this->sliceIdx, row, col);
+  s.sprintf("/tmp/posttransftex-%04d-%03d-%03d.ppm", this->sliceidx, row, col);
   texobj->dumpToPPM(s.getString());
 #endif // DEBUG
 

@@ -325,20 +325,12 @@ CvrPageHandler::getSlice(const unsigned int AXISIDX, unsigned int sliceidx)
   }
 
   if (this->slices[AXISIDX][sliceidx] == NULL) {
-    Cvr2DTexPage * newslice = new Cvr2DTexPage;
+    // Pagesize according to axis: X => [Z, Y], Y => [X, Z], Z => [X, Y].
+    SbVec2s pagesize = SbVec2s(this->subpagesize[(AXISIDX == 0) ? 2 : 0],
+                               this->subpagesize[(AXISIDX == 1) ? 2 : 1]);
 
-    SbVec2s pagesize =
-      AXISIDX == 0 ?
-      SbVec2s(this->subpagesize[2], this->subpagesize[1]) :
-      (AXISIDX == 1 ?
-       SbVec2s(this->subpagesize[0], this->subpagesize[2]) :
-       SbVec2s(this->subpagesize[0], this->subpagesize[1]));
-
-    assert(coin_is_power_of_two(this->subpagesize[0]));
-    assert(coin_is_power_of_two(this->subpagesize[1]));
-    assert(coin_is_power_of_two(this->subpagesize[2]));
-
-    newslice->init(this->reader, sliceidx, AXISIDX, pagesize);
+    Cvr2DTexPage * newslice =
+      new Cvr2DTexPage(this->reader, AXISIDX, sliceidx, pagesize);
 
     this->slices[AXISIDX][sliceidx] = newslice;
   }

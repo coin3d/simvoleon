@@ -71,7 +71,7 @@ public:
 
   static void renderBox(SoGLRenderAction * action, SbBox3f box);
 
-  Cvr2DTexPage * getPage(const int axis, const int slice);
+  Cvr2DTexPage * getPage(const int axis, const int slice, SoVolumeData * v);
   
 private:
   SbList<CachedPage*> cachedpages[3];
@@ -164,10 +164,7 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   const int axisidx = this->axis.getValue();
   const int slicenr = this->sliceNumber.getValue();
 
-  Cvr2DTexPage * page = PRIVATE(this)->getPage(axisidx, slicenr);
-  page->init(volumedata->getReader(), slicenr, axisidx,
-             // FIXME: should match SoVolumeData::getPageSize():
-             SbVec2s(64, 64) /* subpagetexsize */);
+  Cvr2DTexPage * page = PRIVATE(this)->getPage(axisidx, slicenr, volumedata);
 
   SbVec3f origo, horizspan, verticalspan;
   volumedataelement->getPageGeometry(axisidx, slicenr,
@@ -189,7 +186,7 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
 }
 
 Cvr2DTexPage *
-SoOrthoSliceP::getPage(const int axis, const int slice)
+SoOrthoSliceP::getPage(const int axis, const int slice, SoVolumeData * voldata)
 {
   Cvr2DTexPage * page = NULL;
 
@@ -204,7 +201,13 @@ SoOrthoSliceP::getPage(const int axis, const int slice)
   }
 
   if (!cp) {
-    page = new Cvr2DTexPage();
+    SbVec3s pagesize = voldata->getPageSize();
+    // Pagesize according to axis: X => [Z, Y], Y => [X, Z], Z => [X, Y].
+    SbVec2s subpagesize =
+      SbVec2s(pagesize[(axis == 0) ? 2 : 0], pagesize[(axis == 1) ? 2 : 1]);
+
+    page = new Cvr2DTexPage(voldata->getReader(), axis, slice, subpagesize);
+
     this->cachedpages[axis][slice] = cp = new CachedPage(page, PUBLIC(this));
   }
 

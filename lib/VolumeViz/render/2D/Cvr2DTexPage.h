@@ -12,11 +12,10 @@ class SoTransferFunction;
 class Cvr2DTexPage {
 
 public:
-  Cvr2DTexPage(void);
+  Cvr2DTexPage(SoVolumeReader * reader,
+               const unsigned int axis, const unsigned int sliceidx,
+               const SbVec2s & subpagetexsize);
   ~Cvr2DTexPage();
-
-  void init(SoVolumeReader * reader, int sliceIdx,
-            unsigned int axis, const SbVec2s & pageSize);
 
   void render(SoGLRenderAction * action, const SbVec3f & origo,
               const SbVec3f & horizspan, const SbVec3f & verticalspan,
@@ -41,14 +40,12 @@ private:
   SoVolumeReader * reader;
 
   unsigned int axis;
-  int sliceIdx;
+  unsigned int sliceidx;
   SbVec2s subpagesize;
   SbVec2s dimensions;
 
   int nrcolumns;
   int nrrows;
-
-  SoVolumeData::DataType dataType;
 };
 
 #endif // !COIN_CVR2DTEXPAGE_H
