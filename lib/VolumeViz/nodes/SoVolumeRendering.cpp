@@ -26,17 +26,9 @@ SO_NODE_SOURCE(SoVolumeRendering);
 
 // *************************************************************************
 
-class SoVolumeRenderingP{
+class SoVolumeRenderingP {
 public:
-  SoVolumeRenderingP(SoVolumeRendering * master) {
-    this->master = master;
-  }
-
-
-private:
-  SoVolumeRendering * master;
 };
-
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
@@ -47,14 +39,7 @@ SoVolumeRendering::SoVolumeRendering(void)
 {
   SO_NODE_CONSTRUCTOR(SoVolumeRendering);
 
-  PRIVATE(this) = new SoVolumeRenderingP(this);
-
-  SO_NODE_DEFINE_ENUM_VALUE(HW_Feature, HW_VOLUMEPRO);
-  SO_NODE_DEFINE_ENUM_VALUE(HW_Feature, HW_3DTEXMAP);
-  SO_NODE_DEFINE_ENUM_VALUE(HW_Feature, HW_TEXCOLORMAP);
-  SO_NODE_DEFINE_ENUM_VALUE(HW_Feature, HW_TEXCOMPRESSION);
-
-  // FIXME: missing a init call of the field? 20021106 mortene.
+  PRIVATE(this) = NULL; // pimpl-class not yet needed
 }
 
 SoVolumeRendering::~SoVolumeRendering()
@@ -62,36 +47,57 @@ SoVolumeRendering::~SoVolumeRendering()
   delete PRIVATE(this);
 }
 
-// Doc from parent class.
+/*!
+  Does all necessary class initializations of the volume rendering
+  system.
+ */
+void
+SoVolumeRendering::init(void)
+{
+  SoVolumeDataElement::initClass();
+  SoTransferFunctionElement::initClass();
+
+  SoVolumeRendering::initClass();
+  SoVolumeData::initClass();
+  SoROI::initClass();
+  SoTransferFunction::initClass();
+
+  SoVolumeRender::initClass();
+}
+
 void
 SoVolumeRendering::initClass(void)
 {
-  // FIXME: is the last argument really correct? 20021106 mortene.
-  SO_NODE_INIT_CLASS(SoVolumeRendering, SoNode, "VolumeRendering");
-
-  SoVolumeData::initClass();
-  SoVolumeDataElement::initClass();
-  SoVolumeRender::initClass();
-  SoROI::initClass();
-  SoTransferFunction::initClass();
-  SoTransferFunctionElement::initClass();
+  SO_NODE_INIT_CLASS(SoVolumeRendering, SoNode, "SoNode");
 
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }
 
-
-
-// FIXME: These functions are still to be implemented.
-// torbjorv 08282002
-
-void
-SoVolumeRendering::init(void)
-{
-}
-
 SoVolumeRendering::HW_SupportStatus
 SoVolumeRendering::isSupported(HW_Feature feature)
 {
-  return SoVolumeRendering::UNKNOWN;
+  switch (feature) {
+
+  case SoVolumeRendering::HW_VOLUMEPRO:
+    return SoVolumeRendering::NO;
+
+  case SoVolumeRendering::HW_3DTEXMAP:
+    // FIXME: update this when support is in place. 20021106 mortene.
+    return SoVolumeRendering::NO;
+
+  case SoVolumeRendering::HW_TEXCOLORMAP:
+    // FIXME: update this when support is in place. 20021106 mortene.
+    return SoVolumeRendering::NO;
+
+  case SoVolumeRendering::HW_TEXCOMPRESSION:
+    // FIXME: update this when support is in place. 20021106 mortene.
+    return SoVolumeRendering::NO;
+
+  default:
+    assert(FALSE && "unknown feature");
+    break;
+  }
+
+  return SoVolumeRendering::NO;
 }
