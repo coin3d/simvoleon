@@ -297,11 +297,6 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // dataset). 20021203 mortene.
   delete slice;
 
-  if (texobj->getTypeId() == CvrPaletteTexture::getClassTypeId()) {
-    const CvrCLUT * c = ((CvrPaletteTexture *)texobj)->getCLUT();
-    assert(c == this->clut && "palette mismatch");
-  }
-
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("Cvr2DTexPage::buildSubPage",
                          "detected invisible page at [%d, %d]", row, col);
@@ -325,6 +320,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   Cvr2DTexSubPage * page = NULL;
   if (!invisible) {
     page = new Cvr2DTexSubPage(action, texobj, this->subpagesize, texsize);
+    page->setPalette(this->clut);
   }
 
   delete texobj;
@@ -361,6 +357,14 @@ Cvr2DTexPage::setPalette(const CvrCLUT * c)
       }
     }
   }
+}
+
+// *******************************************************************
+
+const CvrCLUT *
+Cvr2DTexPage::getPalette(void) const
+{
+  return this->clut;
 }
 
 // *******************************************************************

@@ -20,6 +20,7 @@ public:
               Cvr2DTexSubPage::Interpolation interpolation);
 
   void setPalette(const CvrCLUT * c);
+  const CvrCLUT * getPalette(void) const;
 
 private:
   class Cvr2DTexSubPageItem * getSubPage(SoState * state, int col, int row);
