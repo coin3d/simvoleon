@@ -27,7 +27,7 @@
     the actual depth) results in smoother volume surfaces and better
     image quality due to the linear filtering. We might consider
     clamping the number of slices when rendering with 2D textures,
-    though (unless we implement some kind of filtering technique for
+    though (unless we implement some kind of interpolation technique for
     the 'in between' 2D ortho slices).
 
 ========================================================================
@@ -133,7 +133,7 @@
 ========================================================================
 
 011 'clipGeometry' polygons for the SoVolume[Face|triangle]Set family
-    is sometimes wrong.
+    are sometimes wrong.
 
     When a faceset partly intersects a volume by 'going through' the
     volume, some polygons goes missing.
@@ -222,3 +222,16 @@
     20040817 mortene.
 
 ========================================================================
+
+016 Rendering SoObliqueSlice, SoOrthoSlice and SoVolume*Set nodes
+    using SoDrawStyle::LINES is not optimal as the volume texture has
+    to be loaded.
+
+    SIMVoleon should not be forced to load volume textures when
+    only rendering in LINES mode. The LINES rendering is now done by
+    3DTexSubCube/2DTexSubPage which automatically loads the texture
+    when initialized.
+    
+    20040907 handegar.
+
+
