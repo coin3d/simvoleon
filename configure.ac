@@ -290,6 +290,10 @@ if $sim_ac_build_library; then
     [CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
      LDFLAGS="$LDFLAGS $sim_ac_coin_ldflags"
      LIBS="$sim_ac_coin_libs $LIBS"
+
+     SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS $sim_ac_coin_cppflags"
+     SIMVOLEON_EXTRA_LDFLAGS="$SIMVOLEON_EXTRA_LDFLAGS $sim_ac_coin_ldflags"
+     SIMVOLEON_EXTRA_LIBS="$sim_ac_coin_libs $SIMVOLEON_EXTRA_LIBS"
     ],
     [AC_MSG_ERROR(could not compile and link against Coin)]
   )
