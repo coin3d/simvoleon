@@ -156,8 +156,10 @@ SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
   \endcode
 
   Where \a "complexity" is the current SoComplexity::value setting in
-  the scene graph traversal state. For \a "numSlices", see
-  SoVolumeRender::numSlices.
+  the scene graph traversal state. The default complexity value for a
+  scene graph with no SoComplexity node(s) is 0.5.
+
+  For \a "numSlices", see SoVolumeRender::numSlices.
 */
 
 /*!
@@ -188,8 +190,7 @@ SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
   current SoComplexity::value setting in the scene graph traversal
   state.
 
-  Note that the default value of the field is 0, i.e. no visualization
-  is done.
+  Note that the default value of the field is 0.
 */
 
 // *************************************************************************
@@ -622,7 +623,7 @@ SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
   that. (The abort callback function will still be called again.)
 */
 /*!
-  \typedef AbortCode SoVolumeRender::SoVolumeRenderAbortCB(int totalslices, int thisslice,  void * userdata)
+  \typedef AbortCode SoVolumeRender::SoVolumeRenderAbortCB(int totalslices, int thisslice, void * userdata)
 
   The function signature for callback function pointers to be passed
   in to SoVolumeRender::setAbortCallback().
