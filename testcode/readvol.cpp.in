@@ -12,8 +12,10 @@
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <VolumeViz/readers/SoVRVolFileReader.h>
-
 #include <Inventor/errors/SoDebugError.h>
+
+#include "TransferFunctionHandler.h"
+
 
 static void
 changeTransferColormap(void * d, SoSensor * sensor)
@@ -92,16 +94,17 @@ main(int argc, char ** argv)
 //   voldata->setVolumeSize(SbBox3f(-2, -2, -1, 2, 2, 1));
 //   voldata->setVolumeSize(SbBox3f(-160, -160, -17, 160, 160, 17));
 
-#if 0 // FIXME: y-axis aligned slices mostly disappears for
-      // LOBSTER.VOL if this is enabled..? 20021201 mortene.
   { // Show bounding box.
+    SoSeparator * bboxsep = new SoSeparator;
+    root->addChild(bboxsep);
+
     SoLightModel * lm = new SoLightModel;
     lm->model = SoLightModel::BASE_COLOR;
-    root->addChild(lm);
+    bboxsep->addChild(lm);
 
     SoDrawStyle *drawStyle = new SoDrawStyle;
     drawStyle->style = SoDrawStyle::LINES;
-    root->addChild(drawStyle);
+    bboxsep->addChild(drawStyle);
 
     SoCube * volcage = new SoCube;
     const SbBox3f volspan = voldata->getVolumeSize();
@@ -111,19 +114,20 @@ main(int argc, char ** argv)
     volcage->width = dx;
     volcage->height = dy;
     volcage->depth = dz;
-    root->addChild(volcage);
+    bboxsep->addChild(volcage);
   }
-#endif
 
   root->addChild(voldata);
 
   // Add TransferFunction (color map) to scene graph
-  SoTransferFunction *transfunc = new SoTransferFunction();
+  SoTransferFunction * transfunc = new SoTransferFunction();
   if (argc == 3) transfunc->predefColorMap = atoi(argv[2]); // XXX
-  transfunc->reMap(64, 192);
+//   transfunc->reMap(64, 192);
   root->addChild(transfunc);
 
-  transfunc->predefColorMap = SoTransferFunction::NONE;
+  TransferFunctionHandler * tfdia = new TransferFunctionHandler(transfunc);
+
+//   transfunc->predefColorMap = SoTransferFunction::NONE;
 
 //   transfunc->colorMapType = SoTransferFunction::ALPHA;
 //   setColorMapALPHA(&transfunc->colorMap);
@@ -137,26 +141,6 @@ main(int argc, char ** argv)
   SoVolumeRender * volrendnode = new SoVolumeRender();
   volrendnode->interpolation = SoVolumeRender::NEAREST;
   root->addChild(volrendnode);
-
-  { // Show bounding box.
-    SoLightModel * lm = new SoLightModel;
-    lm->model = SoLightModel::BASE_COLOR;
-    root->addChild(lm);
-
-    SoDrawStyle *drawStyle = new SoDrawStyle;
-    drawStyle->style = SoDrawStyle::LINES;
-    root->addChild(drawStyle);
-
-    SoCube * volcage = new SoCube;
-    const SbBox3f volspan = voldata->getVolumeSize();
-
-    float dx, dy, dz;
-    volspan.getSize(dx, dy, dz);
-    volcage->width = dx;
-    volcage->height = dy;
-    volcage->depth = dz;
-    root->addChild(volcage);
-  }
 
   So@Gui@ExaminerViewer * ex = new So@Gui@ExaminerViewer(window);
   ex->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
