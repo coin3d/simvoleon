@@ -23,7 +23,7 @@
 
 uint32_t CvrVoxelChunk::transfertable[256];
 SbBool CvrVoxelChunk::transferdone[256];
-uint32_t CvrVoxelChunk::transfertablenodeid;
+uint32_t CvrVoxelChunk::transfertablenodeid = 0;
 
 uint8_t CvrVoxelChunk::PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];
 
@@ -56,14 +56,13 @@ CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, UnitSize type,
     this->destructbuffer = FALSE;
   }
 
-  // Make sure this is set to an unused value, so it gets initialized
-  // at first invocation.
-  CvrVoxelChunk::transfertablenodeid = SoNode::getNextNodeId();
-
-  static SbBool init_gradients = TRUE;
-  if (init_gradients) {
+  static SbBool init_static = TRUE;
+  if (init_static) {
+    init_static = FALSE;
     CvrVoxelChunk::initPredefGradients();
-    init_gradients = FALSE;
+    // Make sure this is set to an unused value, so it gets
+    // initialized at first invocation.
+    CvrVoxelChunk::transfertablenodeid = SoNode::getNextNodeId();
   }
 }
 
@@ -195,13 +194,15 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
   const SbVec2s texsize(coin_next_power_of_two(size[0] - 1),
                         coin_next_power_of_two(size[1] - 1));
 
-  CvrRGBATexture * texobj = new CvrRGBATexture(texsize);
-
   invisible = TRUE;
+
+  CvrTextureObject * texobj = NULL;
 
   // Handling RGBA inputdata. Just forwarding to output.
   if (this->getUnitSize() == CvrVoxelChunk::UINT_32) {
-    uint32_t * output = texobj->getRGBABuffer();
+    CvrRGBATexture * rgbatex = new CvrRGBATexture(texsize);
+    texobj = rgbatex;
+    uint32_t * output = rgbatex->getRGBABuffer();
 
     for (unsigned int y = 0; y < (unsigned int)size[1]; y++) {
       (void)memcpy(&output[texsize[0] * y],
@@ -215,6 +216,9 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
   }
 
   else if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
+    CvrRGBATexture * rgbatex = new CvrRGBATexture(texsize);
+    texobj = rgbatex;
+
     const float * colormap = NULL;
     int nrcols = 0;
     int colormaptype = 0;
@@ -251,7 +255,7 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
                                          transparencythresholds[1]);
 
     const uint8_t * inputbytebuffer = this->getBuffer8();
-    uint32_t * output = texobj->getRGBABuffer();
+    uint32_t * output = rgbatex->getRGBABuffer();
 
     for (unsigned int y=0; y < (unsigned int)size[1]; y++) {
       for (unsigned int x=0; x < (unsigned int)size[0]; x++) {
@@ -282,12 +286,6 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
           if (predefmapidx == SoTransferFunction::NONE) {
             assert(inval < nrcols);
             const float * colvals = &(colormap[inval * nrcomponents]);
-#if CVR_DEBUG
-            // Done for robustness. Costly, though, so should probably remove.
-            for (int cvchk = 0; cvchk < nrcomponents; cvchk++) {
-              assert(colvals[cvchk] >= 0.0f && colvals[cvchk] <= 1.0f);
-            }
-#endif // CVR_DEBUG
             switch (colormaptype) {
             case SoTransferFunction::ALPHA:
               rgba[0] = rgba[1] = rgba[2] = rgba[3] = uint8_t(colvals[0] * 255.0f);
