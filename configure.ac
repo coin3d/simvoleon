@@ -307,6 +307,9 @@ if $sim_ac_build_library; then
     [AC_MSG_ERROR(could not compile and link against Coin)]
   )
 
+  # Coin 2.3.0 is needed for the cc_glglue_has_arb_fragment_program()
+  # function, and the SoGLCacheContextElement::scheduleDeleteCallback()
+  # method.
   AC_MSG_CHECKING([if Coin version is >= 2.3.0])
   AC_TRY_COMPILE(
      [#include <Inventor/SbBasic.h>],
