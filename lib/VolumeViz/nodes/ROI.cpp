@@ -117,7 +117,8 @@ SoROI::initClass(void)
 }
 
 
-
+// FIXME: try to merge this code with the SoVolumeRender::GLRender()
+// code. 20021111 mortene.
 void 
 SoROI::GLRender(SoGLRenderAction *action)
 {
@@ -233,15 +234,16 @@ SoROI::GLRender(SoGLRenderAction *action)
         if (camvec[0] < 0)
           imageIdx = maxSlice[0] - (i - minSlice[0]) - 1;
 
-        volumeData->renderOrthoSliceX(state,
-                                      SbBox2f(min[2], 
-                                              min[1], 
-                                              max[2], 
-                                              max[1]), 
-                                      depth,
-                                      imageIdx,
-                                      mappingCoords,
-                                      transferFunction);
+        volumeData->renderOrthoSlice(state,
+                                     SbBox2f(min[2], 
+                                             min[1], 
+                                             max[2], 
+                                             max[1]), 
+                                     depth,
+                                     imageIdx,
+                                     mappingCoords,
+                                     transferFunction,
+                                     0 /* axis */);
 
         depth += depthAdder;
       }
@@ -278,15 +280,16 @@ SoROI::GLRender(SoGLRenderAction *action)
         if (camvec[1] < 0)
           imageIdx = maxSlice[1] - (i - minSlice[1]) - 1;
 
-        volumeData->renderOrthoSliceY(state,
-                                      SbBox2f(min[0], 
-                                              min[2], 
-                                              max[0], 
-                                              max[2]), 
-                                      depth,
-                                      imageIdx,
-                                      mappingCoords,
-                                      transferFunction);
+        volumeData->renderOrthoSlice(state,
+                                     SbBox2f(min[0], 
+                                             min[2], 
+                                             max[0], 
+                                             max[2]), 
+                                     depth,
+                                     imageIdx,
+                                     mappingCoords,
+                                     transferFunction,
+                                     1 /* axis */);
 
         depth += depthAdder;
       }
@@ -324,15 +327,16 @@ SoROI::GLRender(SoGLRenderAction *action)
         if (camvec[2] < 0)
           imageIdx = maxSlice[2] - (i - minSlice[2]) - 1;
 
-        volumeData->renderOrthoSliceZ(state,
-                                      SbBox2f(min[0], 
-                                              min[1], 
-                                              max[0], 
-                                              max[1]), 
-                                      depth,
-                                      imageIdx,
-                                      mappingCoords,
-                                      transferFunction);
+        volumeData->renderOrthoSlice(state,
+                                     SbBox2f(min[0], 
+                                             min[1], 
+                                             max[0], 
+                                             max[1]), 
+                                     depth,
+                                     imageIdx,
+                                     mappingCoords,
+                                     transferFunction,
+                                     2 /* axis */);
 
         depth += depthAdder;
       }
