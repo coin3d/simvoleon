@@ -192,7 +192,15 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   }
   
   if (abortcode == SoVolumeRender::CONTINUE) {    
-    volumedataelement->getCubeGeometry(origo, cubescale); 
+    const SbBox3f spacesize = volumedata->getVolumeSize(); 
+    origo = spacesize.getMin();
+    const SbVec3s dimensions = this->getVoxelCubeDimensions();
+    float dx, dy, dz;
+    spacesize.getSize(dx, dy, dz);
+    cubescale = SbVec3f(dx / ((float) dimensions[0]), 
+                        dy / ((float) dimensions[1]),
+                        dz / ((float) dimensions[2]));
+
     this->volumecube->render(action, origo, cubescale, interpolation, numslices);
   }
   else {

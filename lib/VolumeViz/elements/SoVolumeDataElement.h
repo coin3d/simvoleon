@@ -36,9 +36,6 @@ public:
                        SbVec3f & horizspan,
                        SbVec3f & verticalspan) const;
   
-  void getCubeGeometry(SbVec3f & origo,
-                       SbVec3f & cubescale) const;
-
 protected:
   virtual ~SoVolumeDataElement();
   SoVolumeData * nodeptr;
