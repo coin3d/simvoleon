@@ -11,17 +11,14 @@ public:
 
   void setUserData(void * data);
 
-  void getDataChar(SbBox3f &size, SoVolumeData::DataType &type,
-                   SbVec3s &dim);
+  void getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
+                   SbVec3s & dim);
 
   void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data,
                    Axis axis = Z);
 
   void setData(const SbVec3s &dimensions, void * data,
-               const SbBox3f &volumeSize,
                SoVolumeData::DataType type = SoVolumeData::UNSIGNED_BYTE);
-
-  void setVolumeSize(const SbBox3f &size);
 
 private:
   friend class SoVRMemReaderP;

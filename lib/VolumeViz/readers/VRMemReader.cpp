@@ -14,12 +14,10 @@ public:
 
     this->dimensions = SbVec3s(0, 0, 0);
     this->dataType = SoVolumeData::UNSIGNED_BYTE;
-    // FIXME: what about volumeSize init? 20021110 mortene.
   }
 
   SbVec3s dimensions;
   SoVolumeData::DataType dataType;
-  SbBox3f volumeSize;
 
 private:
   SoVRMemReader * master;
@@ -61,9 +59,11 @@ void SoVRMemReader::getDataChar(SbBox3f & size,
                                 SoVolumeData::DataType & type,
                                 SbVec3s & dim)
 {
-  size = PRIVATE(this)->volumeSize;
   type = PRIVATE(this)->dataType;
   dim = PRIVATE(this)->dimensions;
+
+  size.setBounds(-dim[0]/2.0f, -dim[1]/2.0f, -dim[2]/2.0f,
+                 dim[0]/2.0f, dim[1]/2.0f, dim[2]/2.0f);
 }
 
 void SoVRMemReader::getSubSlice(SbBox2s &subSlice,
@@ -96,12 +96,10 @@ void SoVRMemReader::getSubSlice(SbBox2s &subSlice,
 void
 SoVRMemReader::setData(const SbVec3s &dimensions,
                        void * data,
-                       const SbBox3f & volumeSize,
                        SoVolumeData::DataType type)
 {
   PRIVATE(this)->dimensions = dimensions;
   this->m_data = data;
-  PRIVATE(this)->volumeSize = volumeSize;
   PRIVATE(this)->dataType = type;
 }
 
@@ -306,10 +304,4 @@ buildSubSliceZ(const void * input,
     // Next line of pixels
     yOffset += dim[0];
   }
-}
-
-void
-SoVRMemReader::setVolumeSize(const SbBox3f &volumeSize)
-{
-  PRIVATE(this)->volumeSize = volumeSize;
 }

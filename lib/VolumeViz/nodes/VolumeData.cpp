@@ -245,7 +245,6 @@ public:
     this->slices[Y] = NULL;
     this->slices[Z] = NULL;
 
-    this->volumeSize = SbBox3f(-1, -1, -1, 1, 1, 1);
     this->dimensions = SbVec3s(0, 0, 0);
     this->pageSize = SbVec3s(64, 64, 64);
 
@@ -272,7 +271,7 @@ public:
   }
 
   SbVec3s dimensions;
-  SbBox3f volumeSize;
+  SbBox3f volumesize;
   SbVec3s pageSize;
   SoVolumeData::DataType datatype;
 
@@ -348,21 +347,37 @@ SoVolumeData::initClass(void)
   SO_ENABLE(SoPickAction, SoVolumeDataElement);
 }
 
+/*!
+  Sets the geometric size of the volume.
+
+  This will override the value found in a volumedata file by a reader
+  (if any).
+ */
 void
 SoVolumeData::setVolumeSize(const SbBox3f & size)
 {
-  PRIVATE(this)->volumeSize = size;
-
-  // FIXME: try to get rid of this, should only store one
-  // copy. 20021120 mortene.
-  if (PRIVATE(this)->VRMemReader)
-    PRIVATE(this)->VRMemReader->setVolumeSize(size);
+  PRIVATE(this)->volumesize = size;
 }
 
+/*!
+  Returns geometric size of volume.
+ */
 SbBox3f &
 SoVolumeData::getVolumeSize(void) const
 {
-  return PRIVATE(this)->volumeSize;
+  // If not empty, it was explicitly set by the application
+  // programmer.
+  if (!PRIVATE(this)->volumesize.isEmpty())
+    return PRIVATE(this)->volumesize;
+
+  // If no reader, return the empty box.
+  if (!PRIVATE(this)->reader) 
+    return PRIVATE(this)->volumesize;
+
+  SoVolumeData::DataType type; SbVec3s dim; // dummy parameters
+  PRIVATE(this)->reader->getDataChar(PRIVATE(this)->volumesize, type, dim);
+
+  return PRIVATE(this)->volumesize;
 }
 
 // FIXME: If size != 2^n these functions should extend to the nearest
@@ -372,11 +387,14 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
                             void * data,
                             SoVolumeData::DataType type)
 {
+#if CVR_DEBUG && 1 // debug
+  SoDebugError::postInfo("SoVolumeData::setVolumeData",
+                         "setting volume data \"by hand\"");
+#endif // debug
+
+
   PRIVATE(this)->VRMemReader = new SoVRMemReader;
-  PRIVATE(this)->VRMemReader->setData(dimensions,
-                                      data,
-                                      PRIVATE(this)->volumeSize,
-                                      type);
+  PRIVATE(this)->VRMemReader->setData(dimensions, data, type);
 
   this->setReader(PRIVATE(this)->VRMemReader);
 
@@ -566,9 +584,16 @@ SoVolumeData::setReader(SoVolumeReader * reader)
 {
   PRIVATE(this)->reader = reader;
 
-  reader->getDataChar(PRIVATE(this)->volumeSize,
+  reader->getDataChar(PRIVATE(this)->volumesize,
                       PRIVATE(this)->datatype,
                       PRIVATE(this)->dimensions);
+
+#if 1 // debug
+  SoDebugError::postInfo("SoVolumeData::setReader",
+                         "volumesize");
+  PRIVATE(this)->volumesize.print(stdout); fprintf(stdout, "\n");
+#endif // debug
+  
 }
 
 /*!

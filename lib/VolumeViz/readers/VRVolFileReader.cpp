@@ -57,14 +57,12 @@ class SoVRVolFileReaderP {
 public:
 
   SoVRVolFileReaderP(void) {
-    this->dimensions = SbVec3s(0, 0, 0);
     this->dataType = SoVolumeData::UNSIGNED_BYTE;
-    // FIXME: what about volumeSize init? 20021110 mortene.
+    this->dimensions = SbVec3s(0, 0, 0);
   }
 
   SbVec3s dimensions;
   SoVolumeData::DataType dataType;
-  SbBox3f volumeSize;
 
   static void debugDumpHeader(struct vol_header * vh);
 
@@ -107,9 +105,14 @@ void
 SoVRVolFileReader::getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
                                SbVec3s & dim)
 {
-  size = PRIVATE(this)->volumeSize;
   type = PRIVATE(this)->dataType;
   dim = PRIVATE(this)->dimensions;
+
+  struct vol_header * volh = &(PRIVATE(this)->volh);
+  SbVec3f voldims(volh->width * volh->scaleX,
+                  volh->height * volh->scaleY,
+                  volh->images * volh->scaleZ);
+  size.setBounds(-voldims/2.0f, voldims/2.0f);
 }
 
 void
@@ -215,11 +218,19 @@ SoVRVolFileReader::setUserData(void * data)
   assert((volh->images > 0) && (volh->images < 32767));
 
   assert(volh->bits_per_voxel >= 1);
-  assert(volh->bits_per_voxel == 8); // FIXME: bad, but tmp, limitation. 20021110 mortene.
+  // FIXME: bad, but tmp, limitation. Fails with one of the "Intro 2
+  // VR" models. 20021110 mortene.
+  assert(volh->bits_per_voxel == 8);
 
   assert(volh->scaleX >= 0.0f);
   assert(volh->scaleY >= 0.0f);
   assert(volh->scaleZ >= 0.0f);
+
+  // FIXME: this should hopefully not be necessary when proper header
+  // read is in place. 20021120 mortene.
+  volh->scaleX = ((volh->scaleX == 0.0f) ? 1.0f : volh->scaleX);
+  volh->scaleY = ((volh->scaleY == 0.0f) ? 1.0f : volh->scaleY);
+  volh->scaleZ = ((volh->scaleZ == 0.0f) ? 1.0f : volh->scaleZ);
 
   uint32_t nrvoxels = volh->width * volh->height * volh->images;
   uint32_t minsize = (nrvoxels * volh->bits_per_voxel) / 8;
