@@ -22,7 +22,6 @@ public:
 
     data = NULL;
     dimensions = SbVec3s(0, 0, 0);
-    dataType = SoVolumeRendering::RGBA;
     dataType = SoVolumeRendering::UNSIGNED_BYTE;
   }
 
