@@ -230,7 +230,7 @@ CvrVoxelChunk::getCLUT(const SoTransferFunctionElement * tfelement)
 }
 
 SbBool
-CvrVoxelChunk::usePaletteTextures(SoGLRenderAction * action)
+CvrVoxelChunk::usePaletteTextures(const SoGLRenderAction * action)
 {
   SoState * state = action->getState();
   const SoVolumeDataElement * vdelement = SoVolumeDataElement::getInstance(state);
@@ -290,7 +290,7 @@ CvrVoxelChunk::usePaletteTextures(SoGLRenderAction * action)
 }
 
 CvrTextureObject *
-CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
+CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, SbBool & invisible) const
 {
 
   // FIXME: Only the CvrTextureManager should be allowed to create
@@ -506,7 +506,7 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
   at least one texel that's not fully transparent.
 */
 CvrTextureObject *
-CvrVoxelChunk::transfer2D(SoGLRenderAction * action, SbBool & invisible) const
+CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, SbBool & invisible) const
 {
   // FIXME: about the "invisible" flag: this should really be an
   // SbBox2s that indicates which part of the output buffer is

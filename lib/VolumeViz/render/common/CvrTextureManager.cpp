@@ -36,8 +36,6 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
-#include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
-#include <VolumeViz/render/common/Cvr2DRGBATexture.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 
@@ -78,7 +76,7 @@ unsigned int CvrTextureManager::totalnumberoftexels = 0;
 
 // *************************************************************************
 
-static textureobj * 
+static textureobj *
 find_textureobject_3D(const SoVolumeData * voldata, const SbBox3s cutcube)
 {
   SbPList keylist;
@@ -104,41 +102,20 @@ find_textureobject_3D(const SoVolumeData * voldata, const SbBox3s cutcube)
   return NULL;
 }
 
-static textureobj * 
-find_textureobject_2D(const SoVolumeData * voldata, const SbBox2s cutpage)
-{
-  SbPList keylist;
-  SbPList valuelist;
-  get_texturedict()->makePList(keylist, valuelist);
-
-  for (int i=0;i<valuelist.getLength();++i) {
-    void * ptr = valuelist[i];
-    textureobj * obj = (textureobj *) ptr;
-    if ((obj->voldata == voldata) &&
-        (obj->voldataid == voldata->getNodeId()) &&
-        (obj->cutpage == cutpage) &&
-        (obj->texturetype == TEXTURE2D))
-      return obj;
-  }
-
-  return NULL;
-
-}
-
 const CvrTextureObject *
-CvrTextureManager::getTextureObject(SoGLRenderAction * action, 
-                                    SoVolumeData * voldata, 
+CvrTextureManager::getTextureObject(const SoGLRenderAction * action,
+                                    SoVolumeData * voldata,
                                     SbVec3s texsize,
                                     SbBox3s cutcube)
 {
   textureobj * obj = find_textureobject_3D(voldata, cutcube);
-    
+
   if (obj != NULL) {
     assert((obj->texturetype == TEXTURE3D) && "Type != TEXTURE3D. Invalid texture type!");
     obj->object->ref();
-    return obj->object; 
+    return obj->object;
   }
-         
+
   CvrTextureObject * newobj =
     CvrTextureManager::new3DTextureObject(action, voldata, texsize, cutcube);
   obj = new textureobj;
@@ -153,16 +130,6 @@ CvrTextureManager::getTextureObject(SoGLRenderAction * action,
   return newobj;
 }
 
-const CvrTextureObject *
-CvrTextureManager::getTextureObject(SoGLRenderAction * action, 
-                                    SoVolumeData * voldata, 
-                                    SbVec2s texsize,
-                                    SbBox2s cutpage)
-{ 
-  assert(FALSE && "Not implemented yet for 2D textures.");
-  return NULL;
-}
-
 void
 CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
 {
@@ -175,7 +142,7 @@ CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
     const SbBool palette = ((texobject->getTypeId() == CvrPaletteTexture::getClassTypeId()));
     const SbBool tex3d = ((texobject->getTypeId() == Cvr3DRGBATexture::getClassTypeId()) ||
                           (texobject->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()));
-    
+
     // FIXME: This must be fixed the day we support 16 or 24 bits
     // textures. (20040625 handegar)
     const int voxelsize = palette ? 1 : 4;
@@ -186,9 +153,9 @@ CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
     CvrTextureManager::totaltexturesize -= nrtexels * voxelsize;
 
     void * ptr;
-    get_texturedict()->find((unsigned long)texobject, ptr);    
-    assert(ptr && "Trying to remove a CvrTextureObject which has not been registered!");    
-    const SbBool ok = get_texturedict()->remove((unsigned long)texobject);    
+    get_texturedict()->find((unsigned long)texobject, ptr);
+    assert(ptr && "Trying to remove a CvrTextureObject which has not been registered!");
+    const SbBool ok = get_texturedict()->remove((unsigned long)texobject);
     assert(ok);
     delete ((textureobj *)ptr);
   }
@@ -198,8 +165,8 @@ CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
 
 
 CvrTextureObject *
-CvrTextureManager::new3DTextureObject(SoGLRenderAction * action, 
-                                      SoVolumeData * voldata, 
+CvrTextureManager::new3DTextureObject(const SoGLRenderAction * action,
+                                      SoVolumeData * voldata,
                                       SbVec3s texsize,
                                       SbBox3s cutcube)
 {
@@ -222,52 +189,34 @@ CvrTextureManager::new3DTextureObject(SoGLRenderAction * action,
   delete input;
 
   SbBool invisible = FALSE;
-  CvrTextureObject * newtexobj = cubechunk->transfer3D(action, invisible); 
+  CvrTextureObject * newtexobj = cubechunk->transfer3D(action, invisible);
 
-  if (invisible) // Is the cubechunk 'empty'?
+  if (invisible) // Is the cubechunk completely transparent?
     return NULL;
-  
+
   // Must clear unused texture area to prevent artifacts due to
   // floating point inaccuracies when calculating texture coords.
   newtexobj->blankUnused(texsize);
   const SbVec3s realtexsize = newtexobj->getDimensions();
-  
+
   newtexobj->setTextureCompressed(voldata->useCompressedTexture.getValue());
   CvrTextureManager::transferTex3GL(action, newtexobj, realtexsize);
- 
+
   return newtexobj;
 }
 
-CvrTextureObject *
-CvrTextureManager::new2DTextureObject(SoGLRenderAction * action, 
-                                      SoVolumeData * voldata, 
-                                      SbVec2s texsize,
-                                      SbBox2s cutpage)
-{
-  assert(FALSE && "Not implementet yet.");
-  return NULL;
-}
-
 void
-CvrTextureManager::transferTex2GL(SoGLRenderAction * action,
+CvrTextureManager::transferTex3GL(const SoGLRenderAction * action,
                                   CvrTextureObject * texobj,
-                                  SbVec2s texdims)
+                                  const SbVec3s & texdims)
 {
-  assert(FALSE && "Not implemented yet.");
-}
 
-void
-CvrTextureManager::transferTex3GL(SoGLRenderAction * action,
-                                  CvrTextureObject * texobj,
-                                  SbVec3s texdims)
-{
-  
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
 
   int colorformat;
   int bitspertexel;
   GLuint texturename;
-  
+
   int ispaletted = (texobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId());
   assert(ispaletted || texobj->getTypeId() == Cvr3DRGBATexture::getClassTypeId());
 
@@ -293,13 +242,13 @@ CvrTextureManager::transferTex3GL(SoGLRenderAction * action,
     if (envstr) { unlimited_texmem = atoi(envstr) > 0 ? 1 : 0; }
     else unlimited_texmem = 0;
   }
-  if (!unlimited_texmem) {   
+  if (!unlimited_texmem) {
     // FIXME: A proper mechanism for setting max-texture memory usage
     // should be implemented here. (20040622 handegar)
     texturename = 0;
   }
   else {
-        
+
     CvrTextureManager::totalnumberoftexels += nrtexels;
     CvrTextureManager::totaltexturesize += texmem;
 
@@ -335,26 +284,26 @@ CvrTextureManager::transferTex3GL(SoGLRenderAction * action,
     if (ispaletted) imgptr = ((CvrPaletteTexture *)texobj)->getIndex8Buffer();
     else imgptr = ((CvrRGBATexture *)texobj)->getRGBABuffer();
 
-   
+
     int palettetype = GL_COLOR_INDEX;
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
-    if (cc_glglue_has_arb_fragment_program(glw)) 
-      palettetype = GL_LUMINANCE;    
+    if (cc_glglue_has_arb_fragment_program(glw))
+      palettetype = GL_LUMINANCE;
 #endif // HAVE_ARB_FRAGMENT_PROGRAM
-   
+
     // NOTE: Combining texture compression and GL_COLOR_INDEX doesn't
     // seem to work on NVIDIA cards (tested on GeForceFX 5600 &
-    // GeForce2 MX) (20040316 handegar)   
-    if (cc_glue_has_texture_compression(glw) && 
+    // GeForce2 MX) (20040316 handegar)
+    if (cc_glue_has_texture_compression(glw) &&
         texobj->textureCompressed() &&
         palettetype != GL_COLOR_INDEX) {
       if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
       else colorformat = GL_COMPRESSED_INTENSITY_ARB;
     }
-    
+
     if (!CvrUtil::dontModulateTextures()) // Is texture modulation disabled by an envvar?
       glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    
+
     cc_glglue_glTexImage3D(glw,
                            GL_TEXTURE_3D,
                            0,
@@ -364,12 +313,12 @@ CvrTextureManager::transferTex3GL(SoGLRenderAction * action,
                            ispaletted ? palettetype : GL_RGBA,
                            GL_UNSIGNED_BYTE,
                            imgptr);
-    
-    assert(glGetError() == GL_NO_ERROR);    
+
+    assert(glGetError() == GL_NO_ERROR);
   }
-  
+
   texobj->setOpenGLTextureId(texturename);
-  
+
 }
 
 unsigned int

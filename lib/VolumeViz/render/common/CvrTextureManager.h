@@ -1,5 +1,5 @@
-#ifndef COIN_CVRTEXTUREMANAGER_H
-#define COIN_CVRTEXTUREMANAGER_H
+#ifndef SIMVOLEON_CVRTEXTUREMANAGER_H
+#define SIMVOLEON_CVRTEXTUREMANAGER_H
 
 /**************************************************************************\
  *
@@ -37,44 +37,28 @@ class CvrTextureManager {
 public:
 
   // 3D texture
-  static const CvrTextureObject * getTextureObject(SoGLRenderAction * action,
+  static const CvrTextureObject * getTextureObject(const SoGLRenderAction * action,
                                                    SoVolumeData * voldata,
                                                    SbVec3s texsize,
                                                    SbBox3s cutbox);
-  // 2D texture
-  static const CvrTextureObject * getTextureObject(SoGLRenderAction * action,
-                                                   SoVolumeData * voldata,
-                                                   SbVec2s texsize,
-                                                   SbBox2s cutpage);
 
   static void finalizeTextureObject(const CvrTextureObject * textureobject);
 
+private:
   static unsigned int totalNrOfTexels(void);
   static unsigned int totalTextureMemoryUsed(void);
 
-private:
-
-  static CvrTextureObject * new3DTextureObject(SoGLRenderAction * action, 
-                                               SoVolumeData * voldata, 
+  static CvrTextureObject * new3DTextureObject(const SoGLRenderAction * action,
+                                               SoVolumeData * voldata,
                                                SbVec3s texsize,
                                                SbBox3s cutcube);
 
-  static CvrTextureObject * new2DTextureObject(SoGLRenderAction * action, 
-                                               SoVolumeData * voldata, 
-                                               SbVec2s texsize,
-                                               SbBox2s cutpage);
-
-  static void transferTex3GL(SoGLRenderAction * action, 
-                             CvrTextureObject * texobj, 
-                             SbVec3s texdims);
-  
-  static void transferTex2GL(SoGLRenderAction * action,
+  static void transferTex3GL(const SoGLRenderAction * action,
                              CvrTextureObject * texobj,
-                             SbVec2s texdims);   
+                             const SbVec3s & texdims);
 
   static unsigned int totaltexturesize;
   static unsigned int totalnumberoftexels;
-
 };
 
-#endif /* COIN_CVRTEXTUREMANAGER_H */
+#endif // ! SIMVOLEON_CVRTEXTUREMANAGER_H
