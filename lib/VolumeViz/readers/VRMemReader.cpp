@@ -167,9 +167,11 @@ buildSubSliceX(const void * input,
     const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
     const uint8_t * srcptr = &(input8bits[inoffset * voxelsize]);
 
-    // FIXME: nrhorizvoxels here should be actual width of
-    // subpages, in case it's not 2^n. 20021125 mortene.
-    uint8_t * dstptr = &(output8bits[nrhorizvoxels * rowidx * voxelsize]);
+    // We're using destwidth instead of nrhorizvoxels here in case the
+    // actual width of subpages is different from the cutslice
+    // size. This can happen out towards the borders of the
+    // volumedata-set if volumedatadimension % subpagesize != 0.
+    uint8_t * dstptr = &(output8bits[destwidth * rowidx * voxelsize]);
 
     // FIXME: try to optimize this loop. 20021125 mortene.
     for (unsigned int horizidx = 0; horizidx < nrhorizvoxels; horizidx++) {
@@ -215,9 +217,11 @@ buildSubSliceY(const void * input,
     const unsigned int inoffset = staticoffset + (rowidx * dim[0] * dim[1]);
     const uint8_t * srcptr = &(input8bits[inoffset * voxelsize]);
 
-    // FIXME: nrhorizvoxels here should be actual width of
-    // subpages, in case it's not 2^n. 20021125 mortene.
-    uint8_t * dstptr = &(output8bits[nrhorizvoxels * rowidx * voxelsize]);
+    // We're using destwidth instead of nrhorizvoxels here in case the
+    // actual width of subpages is different from the cutslice
+    // size. This can happen out towards the borders of the
+    // volumedata-set if volumedatadimension % subpagesize != 0.
+    uint8_t * dstptr = &(output8bits[destwidth * rowidx * voxelsize]);
 
     (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
   }
@@ -254,9 +258,11 @@ buildSubSliceZ(const void * input, void * output,
     const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
     const uint8_t * srcptr = &(input8bits[inoffset * voxelsize]);
 
-    // FIXME: nrhorizvoxels here should be actual width of
-    // subpages, in case it's not 2^n. 20021125 mortene.
-    uint8_t * dstptr = &(output8bits[nrhorizvoxels * rowidx * voxelsize]);
+    // We're using destwidth instead of nrhorizvoxels here in case the
+    // actual width of subpages is different from the cutslice
+    // size. This can happen out towards the borders of the
+    // volumedata-set if volumedatadimension % subpagesize != 0.
+    uint8_t * dstptr = &(output8bits[destwidth * rowidx * voxelsize]);
 
     (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
   }
