@@ -8,10 +8,8 @@ endif
 
 SOURCES = \
 	VolumeRenderDetail.cpp \
-	OrthoSliceDetail.cpp
-
-# FIXME: not yet implemented. 20040505 mortene
-#	ObliqueSliceDetail.cpp
+	OrthoSliceDetail.cpp \
+	ObliqueSliceDetail.cpp
 
 libdetails_la_SOURCES = $(SOURCES)
 
@@ -21,11 +19,8 @@ libdetailsincdir = $(includedir)/VolumeViz/details
 
 libdetailsinc_HEADERS = \
 	SoVolumeRenderDetail.h \
-	SoOrthoSliceDetail.h
-
-# FIXME: not yet implemented. 20040505 mortene
-#	SoObliqueSliceDetail.h
-
+	SoOrthoSliceDetail.h \
+	SoObliqueSliceDetail.h
 
 details.lst: $(details_lst_OBJECTS)
 	@echo "Linking $@..."; \

@@ -111,6 +111,7 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIMVOLEON_BETA_VERSION = @SIMVOLEON_BETA_VERSION@
 SIMVOLEON_DSP_DEFS = @SIMVOLEON_DSP_DEFS@
 SIMVOLEON_DSP_INCS = @SIMVOLEON_DSP_INCS@
 SIMVOLEON_DSP_LIBS = @SIMVOLEON_DSP_LIBS@
@@ -192,12 +193,10 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
 SOURCES = \
 	VolumeRenderDetail.cpp \
-	OrthoSliceDetail.cpp
+	OrthoSliceDetail.cpp \
+	ObliqueSliceDetail.cpp
 
 
-
-# FIXME: not yet implemented. 20040505 mortene
-#	ObliqueSliceDetail.cpp
 libdetails_la_SOURCES = $(SOURCES)
 
 details_lst_SOURCES = $(SOURCES)
@@ -206,7 +205,8 @@ libdetailsincdir = $(includedir)/VolumeViz/details
 
 libdetailsinc_HEADERS = \
 	SoVolumeRenderDetail.h \
-	SoOrthoSliceDetail.h
+	SoOrthoSliceDetail.h \
+	SoObliqueSliceDetail.h
 
 subdir = lib/VolumeViz/details
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -217,19 +217,23 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 details_lst_AR = $(AR) cru
 details_lst_LIBADD =
-am__objects_1 = VolumeRenderDetail.$(OBJEXT) OrthoSliceDetail.$(OBJEXT)
+am__objects_1 = VolumeRenderDetail.$(OBJEXT) OrthoSliceDetail.$(OBJEXT) \
+	ObliqueSliceDetail.$(OBJEXT)
 am_details_lst_OBJECTS = $(am__objects_1)
 details_lst_OBJECTS = $(am_details_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libdetails_la_LDFLAGS =
 libdetails_la_LIBADD =
-am__objects_2 = VolumeRenderDetail.lo OrthoSliceDetail.lo
+am__objects_2 = VolumeRenderDetail.lo OrthoSliceDetail.lo \
+	ObliqueSliceDetail.lo
 am_libdetails_la_OBJECTS = $(am__objects_2)
 libdetails_la_OBJECTS = $(am_libdetails_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/OrthoSliceDetail.Plo \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/ObliqueSliceDetail.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/ObliqueSliceDetail.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/OrthoSliceDetail.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/OrthoSliceDetail.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRenderDetail.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRenderDetail.Po
@@ -247,7 +251,8 @@ HEADERS = $(libdetailsinc_HEADERS)
 DIST_COMMON = $(libdetailsinc_HEADERS) Makefile.am Makefile.in
 SOURCES = \
 	VolumeRenderDetail.cpp \
-	OrthoSliceDetail.cpp
+	OrthoSliceDetail.cpp \
+	ObliqueSliceDetail.cpp
 
 
 all: all-am
@@ -280,6 +285,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObliqueSliceDetail.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObliqueSliceDetail.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSliceDetail.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSliceDetail.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRenderDetail.Plo@am__quote@
@@ -515,9 +522,6 @@ uninstall-am: uninstall-info-am uninstall-libdetailsincHEADERS
 	pdf-am ps ps-am tags uninstall uninstall-am uninstall-info-am \
 	uninstall-libdetailsincHEADERS
 
-
-# FIXME: not yet implemented. 20040505 mortene
-#	SoObliqueSliceDetail.h
 
 details.lst: $(details_lst_OBJECTS)
 	@echo "Linking $@..."; \

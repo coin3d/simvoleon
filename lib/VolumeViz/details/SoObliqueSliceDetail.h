@@ -24,9 +24,6 @@
  *
 \**************************************************************************/
 
-// FIXME: class not yet in use. 20040505 mortene.
-
-
 #include <Inventor/details/SoDetail.h>
 #include <Inventor/details/SoSubDetail.h>
 #include <Inventor/SbVec3f.h>
