@@ -6,3 +6,7 @@ readvol
 readvol.cpp
 rgbload
 rgbload.cpp
+raypick
+raypick.cpp
+examine
+examine.cpp
