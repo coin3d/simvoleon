@@ -38,14 +38,6 @@ struct cvr_rc_resource {
 
 /* ********************************************************************** */
 
-/* These are the lists connected to each resource owner. */
-struct cvr_rc_owner {
-  cc_list * live_resources;
-  cc_list * dead_resources;
-};
-
-/* ********************************************************************** */
-
 /* Global dictionaries which stores the mappings from a context id to
    a new hash, with resource pointers. That hash maps from resource
    pointers to the cvr_rc_resource struct.
@@ -57,14 +49,6 @@ struct cvr_rc_owner {
 
 static cc_hash * ctxlivehash = NULL;
 static cc_hash * ctxdeadhash = NULL;
-
-/* ********************************************************************** */
-
-/* List of callback functions to be used upon resource deletion, and
-   corresponding list of closure data. */
-
-static cc_list * deletioncbs = NULL;
-static cc_list * deletioncb_closures = NULL;
 
 /* ********************************************************************** */
 

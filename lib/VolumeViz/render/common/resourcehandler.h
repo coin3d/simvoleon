@@ -60,7 +60,6 @@ void cvr_rc_unregister_resource(uint32_t ctxid, void * resource);
 
 void cvr_rc_tag_resource_dead(uint32_t ctxid, void * resource);
 
-
 /* FIXME: should perhaps also implement an "aging" feature, something
    like this?:
 
