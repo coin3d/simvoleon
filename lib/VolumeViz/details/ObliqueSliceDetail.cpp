@@ -39,7 +39,7 @@ SoObliqueSliceDetail::copy(void) const
 }
 
 SbVec3f &
-SoObliqueSliceDetail::getValueObjectPos(void)
+SoObliqueSliceDetail::getValueObjectPos(void) const
 {
   // FIXME: implement
   static SbVec3f v;
@@ -47,7 +47,7 @@ SoObliqueSliceDetail::getValueObjectPos(void)
 }
 
 SbVec3f &
-SoObliqueSliceDetail::getValueDataPos(void)
+SoObliqueSliceDetail::getValueDataPos(void) const
 {
   // FIXME: implement
   static SbVec3f v;
@@ -55,7 +55,7 @@ SoObliqueSliceDetail::getValueDataPos(void)
 }
 
 unsigned int
-SoObliqueSliceDetail::getValue(void)
+SoObliqueSliceDetail::getValue(void) const
 {
   // FIXME: implement
   return 0;

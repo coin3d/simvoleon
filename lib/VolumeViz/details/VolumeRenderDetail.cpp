@@ -51,7 +51,7 @@ SoVolumeRenderDetail::copy(void) const
   geometry in a scene).
 */
 void
-SoVolumeRenderDetail::getProfileObjectPos(SbVec3f profile[2])
+SoVolumeRenderDetail::getProfileObjectPos(SbVec3f profile[2]) const
 {
   const unsigned int nrprofilepoints = this->voxelinfolist.getLength();
   assert(nrprofilepoints >= 2);
@@ -72,7 +72,7 @@ SoVolumeRenderDetail::getProfileObjectPos(SbVec3f profile[2])
   correct number of total profile points will still be returned.
 */
 int
-SoVolumeRenderDetail::getProfileDataPos(SbVec3s profile[2])
+SoVolumeRenderDetail::getProfileDataPos(SbVec3s profile[2]) const
 {
   const unsigned int nrprofilepoints = this->voxelinfolist.getLength();
   assert(nrprofilepoints >= 2);
@@ -102,7 +102,7 @@ SoVolumeRenderDetail::getProfileDataPos(SbVec3s profile[2])
 unsigned int
 SoVolumeRenderDetail::getProfileValue(int index,
                                       SbVec3s * pos, SbVec3f * objpos,
-                                      SbBool flag)
+                                      SbBool flag) const
 {
   assert(index >= 0 && index < this->voxelinfolist.getLength());
 
@@ -134,7 +134,7 @@ SbBool
 SoVolumeRenderDetail::getFirstNonTransparentValue(unsigned int * value,
                                                   SbVec3s * pos,
                                                   SbVec3f * objpos,
-                                                  SbBool flag)
+                                                  SbBool flag) const
 {
   int idx = 0;
   for (idx=0; idx < this->voxelinfolist.getLength(); idx++) {

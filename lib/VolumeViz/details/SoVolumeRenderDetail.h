@@ -20,15 +20,15 @@ public:
  
   virtual SoDetail * copy(void) const;
 
-  void getProfileObjectPos(SbVec3f profile[2]);
-  int getProfileDataPos(SbVec3s profile[2] = 0);
+  void getProfileObjectPos(SbVec3f profile[2]) const;
+  int getProfileDataPos(SbVec3s profile[2] = 0) const;
   unsigned int getProfileValue(int index,
                                SbVec3s * pos = 0, SbVec3f * objpos = 0,
-                               SbBool flag = FALSE);
+                               SbBool flag = FALSE) const;
 
   SbBool getFirstNonTransparentValue(unsigned int * value,
                                      SbVec3s * pos = 0, SbVec3f * objpos = 0,
-                                     SbBool flag = FALSE);
+                                     SbBool flag = FALSE) const;
 
 private:
   void addVoxelIntersection(const SbVec3f & voxelcoord,
