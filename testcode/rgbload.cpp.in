@@ -11,6 +11,7 @@
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoDirectionalLight.h>
 #include <Inventor/nodes/SoCube.h>
+#include <Inventor/nodes/SoBaseColor.h>
 #include <Inventor/manips/SoClipPlaneManip.h>
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoLightModel.h>
@@ -186,6 +187,31 @@ main(int argc, char ** argv)
   // Add VolumeRender to scene graph
   SoVolumeRender * volrendnode = new SoVolumeRender();
   root->addChild(volrendnode);
+
+  // Adds a visible bounding box.
+  {
+    SoLightModel * lm = new SoLightModel;
+    lm->model = SoLightModel::BASE_COLOR;
+    root->addChild(lm);
+
+    SoBaseColor * bc = new SoBaseColor;
+    bc->rgb.setValue(0.0f, 0.0f, 0.0f);
+    root->addChild(bc);
+
+    SoDrawStyle * drawstyle = new SoDrawStyle;
+    drawstyle->style = SoDrawStyle::LINES;
+    root->addChild(drawstyle);
+
+    SoCube * volcage = new SoCube;
+    const SbBox3f volspan = voldatanode->getVolumeSize();
+
+    float dx, dy, dz;
+    volspan.getSize(dx, dy, dz);
+    volcage->width = dx;
+    volcage->height = dy;
+    volcage->depth = dz;
+    root->addChild(volcage);
+  }
 
   So@Gui@ExaminerViewer * viewer = new So@Gui@ExaminerViewer(window);
   viewer->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
