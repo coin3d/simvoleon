@@ -147,6 +147,19 @@
   }
   \endcode
 
+  Beware that large voxel sets are divided into sub cubes. The largest
+  default sub cube size is set to 128x128x128 to comply with the TGS
+  VolumeViz library. Todays graphics cards can do much larger textures
+  than this, achieving a higher framerate due to the reduced overhead
+  of sub cube switching and slicing. A graphics card with 128+ MB and
+  true hardware 3D texture support can easily handle voxel sets of
+  size 256x256x256. Increasing the maximum sub cube size can really
+  boost the performance if your graphics card can handle it. Call
+  SoVolumeData::setPageSize(const SbVec3s & size) to adjust the
+  maximum sub cube size. Keep in mind that allowing really large 3D
+  textures might lead to trashing of other textures which again might
+  degrade performance, depending on your scene.
+
   \sa The documentation for the \COIN library: <http://doc.coin3d.org/Coin>.
   \sa The documentation for the SoQt library: <http://doc.coin3d.org/SoQt>.
 */
