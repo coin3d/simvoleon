@@ -358,8 +358,30 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeData.h \
-                         @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeData.cpp
+INPUT                  = \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeData.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeData.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/details/SoOrthoSliceDetail.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/details/OrthoSliceDetail.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/details/SoVolumeRenderDetail.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/details/VolumeRenderDetail.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/elements/SoTransferFunctionElement.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/elements/TransferFunctionElement.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/elements/SoVolumeDataElement.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/elements/VolumeDataElement.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoOrthoSlice.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/OrthoSlice.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoTransferFunction.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/TransferFunction.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeRender.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeRender.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeRendering.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeRendering.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/readers/SoVRVolFileReader.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/readers/VRVolFileReader.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/readers/SoVolumeReader.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/readers/VolumeReader.cpp
+
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 
