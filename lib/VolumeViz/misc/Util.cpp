@@ -1,5 +1,33 @@
 #include <VolumeViz/misc/CvrUtil.h>
 
+void
+CvrUtil::buildSubPage(const unsigned int axisidx,
+                      const uint8_t * input, uint8_t * output,
+                      const int pageidx, const SbBox2s & cutslice,
+                      const unsigned short destwidth,
+                      const SoVolumeData::DataType type,
+                      const SbVec3s & dim)
+{
+  switch (axisidx) {
+  case 0:
+    CvrUtil::buildSubPageX(input, output, pageidx, cutslice, destwidth, type, dim);
+    break;
+
+  case 1:
+    CvrUtil::buildSubPageY(input, output, pageidx, cutslice, destwidth, type, dim);
+    break;
+
+  case 2:
+    CvrUtil::buildSubPageZ(input, output, pageidx, cutslice, destwidth, type, dim);
+    break;
+
+  default:
+    assert(FALSE);
+    break;
+  }
+}
+
+
 static unsigned int
 datatype2bytesize(const SoVolumeData::DataType type)
 {
@@ -15,17 +43,14 @@ datatype2bytesize(const SoVolumeData::DataType type)
 
 // Copies rows of z-axis data down the y-axis.
 void
-CvrUtil::buildSubSliceX(const void * input,
-                        void * output,
-                        const int pageidx,
-                        const SbBox2s & cutslice,
-                        const unsigned short destwidth,
-                        const SoVolumeData::DataType type,
-                        const SbVec3s & dim)
+CvrUtil::buildSubPageX(const uint8_t * input,
+                       uint8_t * output,
+                       const int pageidx,
+                       const SbBox2s & cutslice,
+                       const unsigned short destwidth,
+                       const SoVolumeData::DataType type,
+                       const SbVec3s & dim)
 {
-  uint8_t * input8bits = (uint8_t *)input;
-  uint8_t * output8bits = (uint8_t *)output;
-
   assert(pageidx >= 0);
   assert(pageidx < dim[1]);
 
@@ -46,13 +71,13 @@ CvrUtil::buildSubSliceX(const void * input,
 
   for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
     const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
-    const uint8_t * srcptr = &(input8bits[inoffset * voxelsize]);
+    const uint8_t * srcptr = &(input[inoffset * voxelsize]);
 
     // We're using destwidth instead of nrhorizvoxels here in case the
     // actual width of subpages is different from the cutslice
     // size. This can happen out towards the borders of the
     // volumedata-set if volumedatadimension % subpagesize != 0.
-    uint8_t * dstptr = &(output8bits[destwidth * rowidx * voxelsize]);
+    uint8_t * dstptr = &(output[destwidth * rowidx * voxelsize]);
 
     // FIXME: try to optimize this loop. 20021125 mortene.
     for (unsigned int horizidx = 0; horizidx < nrhorizvoxels; horizidx++) {
@@ -67,17 +92,14 @@ CvrUtil::buildSubSliceX(const void * input,
 
 // Copies rows of x-axis data along the z-axis.
 void
-CvrUtil::buildSubSliceY(const void * input,
-                        void * output,
-                        const int pageidx,
-                        const SbBox2s & cutslice,
-                        const unsigned short destwidth,
-                        const SoVolumeData::DataType type,
-                        const SbVec3s & dim)
+CvrUtil::buildSubPageY(const uint8_t * input,
+                       uint8_t * output,
+                       const int pageidx,
+                       const SbBox2s & cutslice,
+                       const unsigned short destwidth,
+                       const SoVolumeData::DataType type,
+                       const SbVec3s & dim)
 {
-  uint8_t * input8bits = (uint8_t *)input;
-  uint8_t * output8bits = (uint8_t *)output;
-
   assert(pageidx >= 0);
   assert(pageidx < dim[1]);
 
@@ -96,13 +118,13 @@ CvrUtil::buildSubSliceY(const void * input,
 
   for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
     const unsigned int inoffset = staticoffset + (rowidx * dim[0] * dim[1]);
-    const uint8_t * srcptr = &(input8bits[inoffset * voxelsize]);
+    const uint8_t * srcptr = &(input[inoffset * voxelsize]);
 
     // We're using destwidth instead of nrhorizvoxels here in case the
     // actual width of subpages is different from the cutslice
     // size. This can happen out towards the borders of the
     // volumedata-set if volumedatadimension % subpagesize != 0.
-    uint8_t * dstptr = &(output8bits[destwidth * rowidx * voxelsize]);
+    uint8_t * dstptr = &(output[destwidth * rowidx * voxelsize]);
 
     (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
   }
@@ -110,16 +132,13 @@ CvrUtil::buildSubSliceY(const void * input,
 
 // Copies rows of x-axis data down the y-axis.
 void
-CvrUtil::buildSubSliceZ(const void * input, void * output,
-                        const int pageidx,
-                        const SbBox2s & cutslice,
-                        const unsigned short destwidth,
-                        const SoVolumeData::DataType type,
-                        const SbVec3s & dim)
+CvrUtil::buildSubPageZ(const uint8_t * input, uint8_t * output,
+                       const int pageidx,
+                       const SbBox2s & cutslice,
+                       const unsigned short destwidth,
+                       const SoVolumeData::DataType type,
+                       const SbVec3s & dim)
 {
-  uint8_t * input8bits = (uint8_t *)input;
-  uint8_t * output8bits = (uint8_t *)output;
-
   assert(pageidx >= 0);
   assert(pageidx < dim[2]);
 
@@ -137,13 +156,13 @@ CvrUtil::buildSubSliceZ(const void * input, void * output,
 
   for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
     const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
-    const uint8_t * srcptr = &(input8bits[inoffset * voxelsize]);
+    const uint8_t * srcptr = &(input[inoffset * voxelsize]);
 
     // We're using destwidth instead of nrhorizvoxels here in case the
     // actual width of subpages is different from the cutslice
     // size. This can happen out towards the borders of the
     // volumedata-set if volumedatadimension % subpagesize != 0.
-    uint8_t * dstptr = &(output8bits[destwidth * rowidx * voxelsize]);
+    uint8_t * dstptr = &(output[destwidth * rowidx * voxelsize]);
 
     (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
   }
