@@ -249,6 +249,7 @@
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/errors/SoDebugError.h>
 
 #include <VolumeViz/details/SoObliqueSliceDetail.h>
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
@@ -273,10 +274,6 @@
 #include <VolumeViz/nodes/SoVolumeSkin.h>
 #include <VolumeViz/nodes/SoVolumeTriangleStripSet.h>
 #include <VolumeViz/render/common/CvrTextureObject.h>
-
-#if COIN_DEBUG
-#include <Inventor/errors/SoDebugError.h>
-#endif // COIN_DEBUG
 
 // *************************************************************************
 
