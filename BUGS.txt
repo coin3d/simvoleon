@@ -21,6 +21,14 @@
     This seems pointless. Investigate.
 
     20030702 mortene.
+    
+    UPDATE 20040907 handegar: When rendering using 3D textures, this
+    might be a good thing, as an increase in number of slices (beyond
+    the actual depth) results in smoother volume surfaces and better
+    image quality due to the linear filtering. We might consider
+    clamping the number of slices when rendering with 2D textures,
+    though (unless we implement some kind of filtering technique for
+    the 'in between' 2D ortho slices).
 
 ========================================================================
 
