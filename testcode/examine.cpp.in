@@ -64,7 +64,10 @@ void * generateFancy3DTexture(int xDim, int yDim, int zDim)
             x*sin(t)*0.45 + 0.5,
             y*0.45 + 0.5,
             z*cos(t)*0.45 + 0.5,
-            255.0*cos(t), 255.0*sin(t), 255.0, 255.0);
+            (unsigned char)(255.0*cos(t)),
+            (unsigned char)(255.0*sin(t)),
+            255,
+            255);
 
     t += 0.001;
   }//while*/
