@@ -124,7 +124,6 @@ main(int argc, char ** argv)
 
   SoCube * volcage = new SoCube;
   const SbBox3f volspan = voldata->getVolumeSize();
-  volspan.print(stdout); fprintf(stdout, "\n");
 
   float dx, dy, dz;
   volspan.getSize(dx, dy, dz);
