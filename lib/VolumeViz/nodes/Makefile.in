@@ -200,6 +200,7 @@ SOURCES = \
 	VolumeRendering.cpp \
 	ObliqueSlice.cpp \
 	OrthoSlice.cpp \
+	VolumeSkin.cpp \
 	VolumeFaceSet.cpp \
 	VolumeIndexedFaceSet.cpp \
 	VolumeTriangleStripSet.cpp \
@@ -223,6 +224,7 @@ libnodesincdir = $(includedir)/VolumeViz/nodes
 
 libnodesinc_HEADERS = \
 	SoOrthoSlice.h \
+	SoVolumeSkin.h \
 	SoObliqueSlice.h \
 	SoTransferFunction.h \
 	SoVolumeData.h \
@@ -251,8 +253,8 @@ nodes_lst_LIBADD =
 am__objects_1 = TransferFunction.$(OBJEXT) VolumeData.$(OBJEXT) \
 	VolumeRender.$(OBJEXT) VolumeRendering.$(OBJEXT) \
 	ObliqueSlice.$(OBJEXT) OrthoSlice.$(OBJEXT) \
-	VolumeFaceSet.$(OBJEXT) VolumeIndexedFaceSet.$(OBJEXT) \
-	VolumeTriangleStripSet.$(OBJEXT) \
+	VolumeSkin.$(OBJEXT) VolumeFaceSet.$(OBJEXT) \
+	VolumeIndexedFaceSet.$(OBJEXT) VolumeTriangleStripSet.$(OBJEXT) \
 	VolumeIndexedTriangleStripSet.$(OBJEXT) \
 	CvrIndexedSetRenderBaseP.$(OBJEXT) \
 	CvrNonIndexedSetRenderBaseP.$(OBJEXT) \
@@ -266,7 +268,7 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
 am__objects_2 = TransferFunction.lo VolumeData.lo VolumeRender.lo \
-	VolumeRendering.lo ObliqueSlice.lo OrthoSlice.lo \
+	VolumeRendering.lo ObliqueSlice.lo OrthoSlice.lo VolumeSkin.lo \
 	VolumeFaceSet.lo VolumeIndexedFaceSet.lo \
 	VolumeTriangleStripSet.lo VolumeIndexedTriangleStripSet.lo \
 	CvrIndexedSetRenderBaseP.lo CvrNonIndexedSetRenderBaseP.lo \
@@ -307,6 +309,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRender.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRendering.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRendering.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/VolumeSkin.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/VolumeSkin.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeTriangleStripSet.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeTriangleStripSet.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -335,6 +339,7 @@ SOURCES = \
 	VolumeRendering.cpp \
 	ObliqueSlice.cpp \
 	OrthoSlice.cpp \
+	VolumeSkin.cpp \
 	VolumeFaceSet.cpp \
 	VolumeIndexedFaceSet.cpp \
 	VolumeTriangleStripSet.cpp \
@@ -407,6 +412,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRender.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRendering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRendering.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeSkin.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeSkin.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeTriangleStripSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeTriangleStripSet.Po@am__quote@
 

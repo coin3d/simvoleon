@@ -1,0 +1,255 @@
+/**************************************************************************\
+ *
+ *  This file is part of the SIM Voleon visualization library.
+ *  Copyright (C) 2003-2004 by Systems in Motion.  All rights reserved.
+ *
+ *  This library is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU General Public License
+ *  ("GPL") version 2 as published by the Free Software Foundation.
+ *  See the file LICENSE.GPL at the root directory of this source
+ *  distribution for additional information about the GNU GPL.
+ *
+ *  For using SIM Voleon with software that can not be combined with
+ *  the GNU GPL, and for taking advantage of the additional benefits
+ *  of our support services, please contact Systems in Motion about
+ *  acquiring a SIM Voleon Professional Edition License.
+ *
+ *  See <URL:http://www.coin3d.org/> for more information.
+ *
+ *  Systems in Motion, Teknobyen, Abels Gate 5, 7030 Trondheim, NORWAY.
+ *  <URL:http://www.sim.no/>.
+ *
+\**************************************************************************/
+
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/errors/SoDebugError.h>
+#include <Inventor/elements/SoViewVolumeElement.h>
+#include <Inventor/SbLinear.h>
+
+#include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/SoOrthoSlice.h>
+#include <VolumeViz/nodes/SoVolumeSkin.h>
+
+// *************************************************************************
+
+SO_NODE_SOURCE(SoVolumeSkin);
+
+// *************************************************************************
+
+struct slicestruct {
+  SoOrthoSlice * slice;
+  float distance;
+};
+
+class SoVolumeSkinP {
+public:
+  SoVolumeSkinP(SoVolumeSkin * master)
+  {
+    this->master = master;
+    this->initialized = FALSE;
+  }
+  ~SoVolumeSkinP()
+  {
+    if (this->initialized) {
+      for (int i=0;i<6;++i) 
+        this->cubesides[i].slice->unref();    
+      delete this->cubesides;
+    }
+  }
+
+  void buildSkinCube(SoGLRenderAction * action);
+  void sortCubeSides(SoGLRenderAction * action);
+  void renderSkinCube(SoGLRenderAction * action, 
+                      enum SoVolumeSkin::Interpolation interpolation);
+
+  slicestruct * cubesides;
+  SoVolumeSkin::Interpolation interpolation;
+  SbBool initialized;
+
+private:
+  SoVolumeSkin * master;
+};
+
+#define PRIVATE(p) (p->pimpl)
+
+// *************************************************************************
+
+SoVolumeSkin::SoVolumeSkin(void)
+{
+  SO_NODE_CONSTRUCTOR(SoVolumeSkin);
+
+  PRIVATE(this) = new SoVolumeSkinP(this);
+
+  SO_NODE_DEFINE_ENUM_VALUE(Interpolation, NEAREST);
+  SO_NODE_DEFINE_ENUM_VALUE(Interpolation, LINEAR);
+  SO_NODE_SET_SF_ENUM_TYPE(interpolation, Interpolation);
+  SO_NODE_ADD_FIELD(interpolation, (LINEAR));
+}
+
+SoVolumeSkin::~SoVolumeSkin()
+{
+  delete PRIVATE(this);
+}
+
+// Doc from parent class.
+void
+SoVolumeSkin::initClass(void)
+{
+  SO_NODE_INIT_CLASS(SoVolumeSkin, SoShape, "SoShape");
+  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
+}
+
+void
+SoVolumeSkinP::buildSkinCube(SoGLRenderAction * action)
+{
+
+  this->cubesides = new slicestruct[6];
+
+  for (int i=0;i<6;++i) {
+    this->cubesides[i].slice = new SoOrthoSlice;
+    this->cubesides[i].slice->ref();
+    this->cubesides[i].distance = 0.0f;
+  }
+
+  const SoVolumeDataElement * volumedataelement =
+    SoVolumeDataElement::getInstance(action->getState());
+  assert(volumedataelement != NULL);
+  const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+
+  const int maxslicesx = voxcubedims[0]-1;
+  const int maxslicesy = voxcubedims[1]-1;
+  const int maxslicesz = voxcubedims[2]-1;
+
+  // Top
+  this->cubesides[0].slice->axis.setValue(SoOrthoSlice::Y);
+  this->cubesides[0].slice->sliceNumber.setValue(maxslicesy);
+  // Bottom
+  this->cubesides[1].slice->axis.setValue(SoOrthoSlice::Y);
+  this->cubesides[1].slice->sliceNumber.setValue(0);
+  // Right
+  this->cubesides[2].slice->axis.setValue(SoOrthoSlice::X);
+  this->cubesides[2].slice->sliceNumber.setValue(maxslicesx);
+  // Left
+  this->cubesides[3].slice->axis.setValue(SoOrthoSlice::X);
+  this->cubesides[3].slice->sliceNumber.setValue(0);  
+  // Front
+  this->cubesides[4].slice->axis.setValue(SoOrthoSlice::Z);
+  this->cubesides[4].slice->sliceNumber.setValue(maxslicesz);
+  // Back
+  this->cubesides[5].slice->axis.setValue(SoOrthoSlice::Z);
+  this->cubesides[5].slice->sliceNumber.setValue(0);
+  
+}
+
+
+static int
+qsort_compare(const void * element1, const void * element2)
+{
+  const slicestruct * s1 = (slicestruct *) element1;
+  const slicestruct * s2 = (slicestruct *) element2;  
+  if (s1->distance < s2->distance) return -1;
+  else return 1;
+}
+
+void
+SoVolumeSkinP::sortCubeSides(SoGLRenderAction * action)
+{
+
+  const SbViewVolume viewvolume = SoViewVolumeElement::get(action->getState());
+  const SbPlane camplane = viewvolume.getPlane(0.0f);
+
+  // Fetch camera distance to each slice
+  for (int i=0;i<6;++i) {
+    SbVec3f center;
+    SbBox3f dummy;
+    ((SoShape *) this->cubesides[i].slice)->computeBBox(action, dummy, center);
+    this->cubesides[i].distance = camplane.getDistance(center);
+  }
+  
+  // Sort rendering order
+  qsort((void *) this->cubesides, 6, sizeof(slicestruct), qsort_compare);
+  
+}
+
+void
+SoVolumeSkinP::renderSkinCube(SoGLRenderAction * action, 
+                              enum SoVolumeSkin::Interpolation interpolation)
+{
+  
+  if (this->interpolation != interpolation) {
+    for (int i=0;i<6;++i) 
+      this->cubesides[i].slice->interpolation = interpolation;
+    this->interpolation = interpolation;
+  }
+  
+  this->sortCubeSides(action);
+  
+  for (int i=0;i<6;++i) 
+    ((SoShape *) this->cubesides[i].slice)->GLRender(action);
+
+}
+
+void
+SoVolumeSkin::GLRender(SoGLRenderAction * action)
+{
+
+  // FIXME: need to make sure we're not cached in a renderlist
+  if (!this->shouldGLRender(action)) return;
+
+  // Render at the end, in case the volume is partly (or fully)
+  // transparent.
+  //
+  // FIXME: this makes rendering a bit slower, so we should perhaps
+  // keep a flag around to know whether or not this is actually
+  // necessary. 20040212 mortene.
+  
+  if (!action->isRenderingDelayedPaths()) {
+    action->addDelayedPath(action->getCurPath()->copy());
+    return;
+  }
+  
+  if (!PRIVATE(this)->initialized) {
+    PRIVATE(this)->buildSkinCube(action);
+    PRIVATE(this)->initialized = TRUE;
+  }
+
+  Interpolation interp;
+  if (this->interpolation.getValue() == NEAREST) interp = NEAREST;
+  else interp = LINEAR;
+
+  PRIVATE(this)->renderSkinCube(action, interp);
+
+}
+
+#undef PRIVATE
+
+void
+SoVolumeSkin::generatePrimitives(SoAction * action)
+{
+  // FIXME: implement me?
+#if CVR_DEBUG && 1 // debug
+  static SbBool warn = TRUE;
+  if (warn) {
+    SoDebugError::postInfo("SoVolumeSkin::generatePrimitives",
+                           "not yet implemented");
+    warn = FALSE;
+  }
+#endif // debug
+}
+
+// doc in super
+void
+SoVolumeSkin::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
+{
+  const SoVolumeDataElement * volumedataelement =
+    SoVolumeDataElement::getInstance(action->getState());
+  assert(volumedataelement != NULL);
+  const SbVec3s dims = volumedataelement->getVoxelCubeDimensions();
+
+  center = SbVec3f(0, 0, 0);
+  box.extendBy(SbVec3f(-dims[0]/2.0f, -dims[1]/2.0f, -dims[2]/2.0f));
+  box.extendBy(SbVec3f(dims[0]/2.0f, dims[1]/2.0f, dims[2]/2.0f));
+}
+
+

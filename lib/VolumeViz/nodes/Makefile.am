@@ -15,6 +15,7 @@ SOURCES = \
 	VolumeRendering.cpp \
 	ObliqueSlice.cpp \
 	OrthoSlice.cpp \
+	VolumeSkin.cpp \
 	VolumeFaceSet.cpp \
 	VolumeIndexedFaceSet.cpp \
 	VolumeTriangleStripSet.cpp \
@@ -37,6 +38,7 @@ libnodesincdir = $(includedir)/VolumeViz/nodes
 
 libnodesinc_HEADERS = \
 	SoOrthoSlice.h \
+	SoVolumeSkin.h \
 	SoObliqueSlice.h \
 	SoTransferFunction.h \
 	SoVolumeData.h \
