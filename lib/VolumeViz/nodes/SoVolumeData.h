@@ -72,13 +72,12 @@ public:
                         const SbBox2f & quad,
                         float depth,
                         int sliceIdx,
-                        const SbBox2f & textureCoords,
                         SoTransferFunction * transferFunction,
                         int axis);
 
   void setPageSize(int size);
   void setPageSize(const SbVec3s & size);
-  SbVec3s & getPageSize(void);
+  const SbVec3s & getPageSize(void) const;
   void setReader(SoVolumeReader * reader);
 
   void setTexMemorySize(int megatexels);

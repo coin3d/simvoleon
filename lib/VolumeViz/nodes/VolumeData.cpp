@@ -246,7 +246,7 @@ public:
     this->slices[Z] = NULL;
 
     this->dimensions = SbVec3s(0, 0, 0);
-    this->pageSize = SbVec3s(64, 64, 64);
+    this->subpagesize = SbVec3s(64, 64, 64);
 
     // Default size enforced by TGS API.
     this->maxnrtexels = 64*1024*1024;
@@ -272,7 +272,7 @@ public:
 
   SbVec3s dimensions;
   SbBox3f volumesize;
-  SbVec3s pageSize;
+  SbVec3s subpagesize;
   SoVolumeData::DataType datatype;
 
   SoVRMemReader * VRMemReader;
@@ -398,14 +398,6 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
 
   this->setReader(PRIVATE(this)->VRMemReader);
 
-  // FIXME: why the comparisons? 20021120 mortene.
-  if (PRIVATE(this)->pageSize[0] > dimensions[0])
-    PRIVATE(this)->pageSize[0] = dimensions[0];
-  if (PRIVATE(this)->pageSize[1] > dimensions[1])
-    PRIVATE(this)->pageSize[1] = dimensions[1];
-  if (PRIVATE(this)->pageSize[2] > dimensions[2])
-    PRIVATE(this)->pageSize[2] = dimensions[2];
-
   PRIVATE(this)->datatype = type;
 }
 
@@ -419,57 +411,82 @@ SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
   return TRUE;
 }
 
+/*!
+  Sets the internal size of texture pages and texture cubes.  This
+  sets all dimensions to the same value at once.  Default value is
+  64^3.
+
+  The \a size value must be a power of two.
+
+  This is essentially of interest for the internal implementation, and
+  should usually not be necessary to change from application code.
+*/
 void
 SoVolumeData::setPageSize(int size)
 {
+  assert(size > 0);
+  assert(PRIVATE(this)->isPowerOfTwo(size));
   this->setPageSize(SbVec3s(size, size, size));
 }
 
-void
-SoVolumeData::setPageSize(const SbVec3s & insize)
-{
-  SbVec3s size = insize;
+/*!
+  Sets the internal size of texture pages and texture cubes.  Default
+  value is [64, 64, 64].
 
-  // FIXME: when can this possibly hit? On any valid input data?
-  // Investigate. 20021119 mortene.
+  All elements of \a texsize must be a power of two.
+
+  This is essentially of interest for the internal implementation, and
+  should usually not be necessary to change from application code.
+*/
+void
+SoVolumeData::setPageSize(const SbVec3s & texsize)
+{
+  SbVec3s size = texsize;
+
+  assert(size[0] > 0 && size[1] > 0 && size[2] > 0);
   assert(PRIVATE(this)->isPowerOfTwo(size[0]));
   assert(PRIVATE(this)->isPowerOfTwo(size[1]));
   assert(PRIVATE(this)->isPowerOfTwo(size[2]));
-
-  // FIXME: make sure this boundary condition is tested
-  // properly. 20021119 mortene.
-  if (size[0] < 4) size[0] = 4;
-  if (size[1] < 4) size[1] = 4;
-  if (size[2] < 4) size[2] = 4;
 
   SbBool rebuildX = FALSE;
   SbBool rebuildY = FALSE;
   SbBool rebuildZ = FALSE;
 
   // The X-size has changed. Rebuild Y- and Z-axis maps.
-  if (size[0] != PRIVATE(this)->pageSize[0]) {
+  if (size[0] != PRIVATE(this)->subpagesize[0]) {
     rebuildY = TRUE;
     rebuildZ = TRUE;
   }
 
   // The Y-size has changed. Rebuild X- and Z-axis maps.
-  if (size[1] != PRIVATE(this)->pageSize[1]) {
+  if (size[1] != PRIVATE(this)->subpagesize[1]) {
     rebuildX = TRUE;
     rebuildZ = TRUE;
   }
 
   // The Z-size has changed. Rebuild X- and Y-axis maps.
-  if (size[2] != PRIVATE(this)->pageSize[2]) {
+  if (size[2] != PRIVATE(this)->subpagesize[2]) {
     rebuildX = TRUE;
     rebuildY = TRUE;
   }
 
-  PRIVATE(this)->pageSize = size;
+  PRIVATE(this)->subpagesize = size;
 
   if (rebuildX) PRIVATE(this)->releaseSlices(SoVolumeDataP::X);
   if (rebuildY) PRIVATE(this)->releaseSlices(SoVolumeDataP::Y);
   if (rebuildZ) PRIVATE(this)->releaseSlices(SoVolumeDataP::Z);
 }
+
+/*!
+  Returns internal dimensions of each 2D texture rectangle or 3D
+  texture cube.
+ */
+const SbVec3s &
+SoVolumeData::getPageSize(void) const
+{
+  return PRIVATE(this)->subpagesize;
+}
+
 
 void
 SoVolumeData::doAction(SoAction * action)
@@ -510,7 +527,6 @@ SoVolumeData::renderOrthoSlice(SoState * state,
                                const SbBox2f & quad,
                                float depth,
                                int sliceIdx,
-                               const SbBox2f & textureCoords,
                                SoTransferFunction * transferFunction,
                                // axis: 0, 1, 2 for X, Y or Z axis.
                                int axis)
@@ -542,19 +558,12 @@ SoVolumeData::renderOrthoSlice(SoState * state,
   }
   else assert(FALSE);
 
-  slice->render(state, v, textureCoords, transferFunction, PRIVATE(this)->tick);
+  slice->render(state, v, transferFunction, PRIVATE(this)->tick);
 
   PRIVATE(this)->managePages();
 }
 
-SbVec3s &
-SoVolumeData::getPageSize(void)
-{
-  return PRIVATE(this)->pageSize;
-}
-
 /*!
-
   Set the maximum number of texels we can bind up for 2D and 3D
   textures for volume rendering. The default value is 64 megatexels
   (i.e. 64 * 1024 * 1024).
@@ -647,10 +656,10 @@ SoVolumeDataP::getSlice(const SoVolumeDataP::Axis AXISIDX, int sliceidx)
 
     SbVec2s pagesize =
       AXISIDX == X ?
-      SbVec2s(this->pageSize[2], this->pageSize[1]) :
+      SbVec2s(this->subpagesize[2], this->subpagesize[1]) :
       (AXISIDX == Y ?
-       SbVec2s(this->pageSize[0], this->pageSize[2]) :
-       SbVec2s(this->pageSize[0], this->pageSize[1]));
+       SbVec2s(this->subpagesize[0], this->subpagesize[2]) :
+       SbVec2s(this->subpagesize[0], this->subpagesize[1]));
     
     assert(pagesize[0] > 0 && pagesize[1] > 0);
     newslice->init(this->reader, sliceidx, axis, pagesize);
