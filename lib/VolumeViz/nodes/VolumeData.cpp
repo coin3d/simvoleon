@@ -297,7 +297,7 @@ public:
   void managePages();
   void releaseLRUPage();
 
-  bool check2n(int n);
+  SbBool check2n(int n);
 
 private:
   SoVolumeData * master;
@@ -417,26 +417,26 @@ SoVolumeData::setPageSize(const SbVec3s & insize)
   if (size[2] < 4) size[2] = 4;
 
 
-  bool rebuildX = false;
-  bool rebuildY = false;
-  bool rebuildZ = false;
+  SbBool rebuildX = FALSE;
+  SbBool rebuildY = FALSE;
+  SbBool rebuildZ = FALSE;
 
   // The X-size has changed. Rebuild Y- and Z-axis maps.
   if (size[0] != PRIVATE(this)->pageSize[0]) {
-    rebuildY = true;
-    rebuildZ = true;
+    rebuildY = TRUE;
+    rebuildZ = TRUE;
   }
 
   // The Y-size has changed. Rebuild X- and Z-axis maps.
   if (size[1] != PRIVATE(this)->pageSize[1]) {
-    rebuildX = true;
-    rebuildZ = true;
+    rebuildX = TRUE;
+    rebuildZ = TRUE;
   }
 
   // The Z-size has changed. Rebuild X- and Y-axis maps.
   if (size[2] != PRIVATE(this)->pageSize[2]) {
-    rebuildX = true;
-    rebuildY = true;
+    rebuildX = TRUE;
+    rebuildY = TRUE;
   }
 
   PRIVATE(this)->pageSize = size;
@@ -681,21 +681,21 @@ SoVolumeDataP::getSliceZ(int sliceIdx)
 
 // FIXME: Perhaps there already is a function somewhere in C or Coin
 // that can test this easily?  31082002 torbjorv
-bool
+SbBool
 SoVolumeDataP::check2n(int n)
 {
   for (int i = 0; i < (int) (sizeof(int)*8); i++) {
 
     if (n & 1) {
       if (n != 1)
-        return false;
+        return FALSE;
       else
-        return true;
+        return TRUE;
     }
 
     n >>= 1;
   }
-  return true;
+  return TRUE;
 }
 
 void
