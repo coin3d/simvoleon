@@ -67,3 +67,12 @@ SoVolumeRenderDetail::getFirstNonTransparentValue(unsigned int * value,
   // FIXME: implement
   return FALSE;
 }
+
+void
+SoVolumeRenderDetail::addVoxelIntersection(const SbVec3f & voxelcoord,
+                                           const SbVec3s & voxelindex,
+                                           unsigned int voxelvalue,
+                                           uint8_t rgba[4])
+{
+  assert(FALSE && "FIXME implement me");
+}

@@ -28,6 +28,19 @@ public:
   SbBool getFirstNonTransparentValue(unsigned int * value,
                                      SbVec3s * pos = 0, SbVec3f * objpos = 0,
                                      SbBool flag = FALSE);
+
+private:
+  void addVoxelIntersection(const SbVec3f & voxelcoord,
+                            const SbVec3s & voxelindex,
+                            unsigned int voxelvalue,
+                            uint8_t rgba[4]);
+  // XXX
+//   SbList<SbVec3f> voxelcoords;
+//   SbList<SbVec3s> voxelindices;
+//   SbList<unsigned int> voxelvalues;
+//   SbList<uint8_t
+
+  friend class SoVolumeRender;
 };
 
 #endif // !COIN_SOVOLUMERENDERDETAIL_H
