@@ -100,146 +100,231 @@ SoTransferFunction::GLRender(SoGLRenderAction * action)
 
 
 /*!
-  Transfers input to output, according to specified parameters. 
+  Transfers voxel data from input buffer to output buffer, according
+  to specified parameters.
+
+  Output buffer is allocated within the function.
 */
 void
 SoTransferFunction::transfer(const void * input, 
-                             SoVolumeData::DataType inputDataType,
-                             SbVec2s &size,
+                             SoVolumeData::DataType inputdatatype,
+                             const SbVec2s & size,
                              void *& output,
-                             int &outputFormat,
+                             int & outputFormat,
                              float *& palette,
-                             int &paletteFormat,
-                             int &paletteSize)
+                             int & paletteFormat,
+                             int & palettesize)
 {
+  // FIXME: the RGBA datatype for inputdata should be killed,
+  // methinks. 20021112 mortene.
+
   // Handling RGBA inputdata. Just forwarding to output
-  if (inputDataType == SoVolumeData::RGBA) {
+  if (inputdatatype == SoVolumeData::RGBA) {
+    // FIXME: this is of course completely wrong -- the data should be
+    // handled according to the SoTransferFunction settings. 20021112 mortene.
+
+    // FIXME: we're using a GLEnum here, but SoVolumeData enum
+    // below. 20021112 mortene.
     outputFormat = GL_RGBA;
+
     palette = NULL;
     paletteFormat = 0;
-    paletteSize = 0;
+    palettesize = 0;
 
     output = new int[size[0]*size[1]];
-    memcpy(output, input, size[0]*size[1]*sizeof(int));
+    (void)memcpy(output, input, size[0]*size[1]*sizeof(int));
+    return;
   }
 
-  // Handling paletted inputdata
-  else {
-    int i;
+#if 1
+  if (inputdatatype == SoVolumeData::UNSIGNED_BYTE) {
+    // FIXME: this is of course completely wrong -- the data should be
+    // handled according to the SoTransferFunction settings. 20021112 mortene.
 
-    int numBits;
-    switch(inputDataType) {
-    case SoVolumeData::UNSIGNED_BYTE: 
-      numBits = 8; 
-      break;
+    // FIXME: we're using a GLEnum here, but SoVolumeData enum
+    // below. 20021112 mortene.
+    outputFormat = GL_RGBA;
+
+    palette = NULL;
+    paletteFormat = 0;
+    palettesize = 0;
+
+    uint32_t * outp = new uint32_t[size[0] * size[1]];
+    const uint8_t * inp = (const uint8_t *)input;
+
+    for (int j=0; j < size[0]*size[1]; j++) {
+      // FIXME: this probably only works on LSB machines. 20021112 mortene.
+      outp[j] =
+        (0 << 0) | // red
+        (uint32_t(inp[j]) << 8) | // green
+        (0 << 16) |  // blue
+        ((inp[j] ? 0xff : 0) << 24); // alpha
+    }
+
+    output = outp;
+    return;
+  }
+
+  if (inputdatatype == SoVolumeData::UNSIGNED_SHORT) {
+    // FIXME: this is of course completely wrong -- the data should be
+    // handled according to the SoTransferFunction settings. 20021112 mortene.
+
+    // FIXME: we're using a GLEnum here, but SoVolumeData enum
+    // below. 20021112 mortene.
+    outputFormat = GL_RGBA;
+
+    palette = NULL;
+    paletteFormat = 0;
+    palettesize = 0;
+
+    uint32_t * outp = new uint32_t[size[0] * size[1]];
+    const uint16_t * inp = (const uint16_t *)input;
+
+    for (int j=0; j < size[0]*size[1]; j++) {
+      // FIXME: this probably only works on LSB machines. 20021112 mortene.
+      outp[j] =
+        (0 << 0) | // red
+        (uint32_t(inp[j] & 0x00ff) << 8) | // green
+        (uint32_t((inp[j] >> 8) & 0x00ff) << 16) | // blue
+        ((inp[j] ? 0xff : 0) << 24); // alpha
+    }
+
+    output = outp;
+    return;
+  }
+
+  assert(FALSE && "unknown input format");
+
+#else
+  // FIXME: tmp disabled all use of paletted and compressed
+  // textures. (The code wasn't working at all, as far as I could
+  // see.) 20021112 mortene.
+  
+  int numbits;
+  switch (inputdatatype) {
+  case SoVolumeData::UNSIGNED_BYTE: numbits = 8; break;
         
-    case SoVolumeData::UNSIGNED_SHORT:
-      numBits = 16;
-      break;
-    default:
-      assert(0 && "unsupported");
-      numBits = 16;
-      break;
-    }
-    int numEntries = 1 << numBits;
+  case SoVolumeData::UNSIGNED_SHORT: numbits = 16; break;
 
-    // Counting number of references to each palette entry     
-    int * palCount = new int[numEntries];
-    memset(palCount, 0, sizeof(int)*numEntries);
-    for (i = 0; i < size[0]*size[1]; i++) {
-      int unpacked = PRIVATE(this)->unpack(input, numBits, i);
-      int idx = (unpacked << this->shift.getValue()) + this->offset.getValue();
-
-      if (idx >= numEntries) {
-#if 1 // debug
-        SoDebugError::postInfo("SoTransferFunction::transfer",
-                               "idx %d out-of-bounds [0, %d] "
-                               "(unpacked==%d, shift==%d, offset==%d)",
-                               idx, numEntries - 1,
-                               unpacked, this->shift.getValue(),
-                               this->offset.getValue());
-#endif // debug
-      }
-
-      assert(idx < numEntries);
-
-      palCount[idx]++;
-    }
-
-    // Creating remap-table and counting number of entries in new palette
-    int * remap = new int[numEntries];
-    int newIdx = 0;
-    for (i = 0; i < numEntries; i++) {
-      if (palCount[i] != 0) {
-        remap[i] = newIdx;
-        newIdx++;
-      }
-      else
-        remap[i] = -1;
-    }
-
-    // Calculating the new palette's size
-    paletteSize = 2;
-    while (paletteSize < newIdx)
-      paletteSize <<= 1;
-
-
-    // Building new palette
-    palette = new float [paletteSize*4];
-    memset(palette, 0, sizeof(float)*paletteSize*4);
-    const float * oldPal = this->colorMap.getValues(0);
-    int tmp = 0;
-    for (i = 0; i < numEntries; i++) {
-      if (palCount[i] != 0) {
-        memcpy(&palette[tmp*4], &oldPal[i*4], sizeof(float)*4);
-        tmp++;
-      }
-    }
-
-
-    // Deciding outputformat
-    int newNumBits = 8;
-    outputFormat = SoVolumeData::UNSIGNED_BYTE;
-    if (paletteSize > 256) {
-      newNumBits = 16;
-      outputFormat = SoVolumeData::UNSIGNED_SHORT;
-    }
-
-    // Rebuilding texturedata
-    unsigned char * newTexture = 
-      new unsigned char[size[0] * size[1] * newNumBits / 8];
-    memset(newTexture, 0, size[0] * size[1] * newNumBits / 8);
-    for (i = 0; i < size[0]*size[1]; i++) {
-
-      int unpacked = PRIVATE(this)->unpack(input, numBits, i);
-      int idx = (unpacked << this->shift.getValue()) + this->offset.getValue();
-
-      if (idx >= numEntries) {
-#if 1 // debug
-        SoDebugError::postInfo("SoTransferFunction::transfer",
-                               "idx %d out-of-bounds [0, %d] "
-                               "(unpacked==%d, shift==%d, offset==%d)",
-                               idx, numEntries - 1,
-                               unpacked, this->shift.getValue(),
-                               this->offset.getValue());
-#endif // debug
-      }
-
-      assert(idx < numEntries);
-
-      idx = remap[idx];
-      PRIVATE(this)->pack(newTexture, newNumBits, i, idx);
-    }
-    output = newTexture;
-    paletteFormat = GL_RGBA;
-
-    delete [] palCount;
-    delete [] remap;
+  default: assert(FALSE && "unknown input data type"); break;
   }
+
+  int maxpalentries = 1 << numbits;
+
+  // Counting number of references to each palette entry     
+  SbBool * palcountarray = new SbBool[maxpalentries];
+  (void)memset(palcountarray, 0, sizeof(SbBool) * maxpalentries);
+
+  int nrpalentries = 0;
+
+  int32_t shift = this->shift.getValue(); // for optimized access in loop below
+  int32_t offset = this->offset.getValue();  // for optimized access in loop
+
+  int i;
+  for (i = 0; i < size[0]*size[1]; i++) {
+    int unpacked = PRIVATE(this)->unpack(input, numbits, i);
+    int idx = (unpacked << shift) + offset;
+
+    if (idx >= maxpalentries) {
+#if 1 // debug
+      SoDebugError::postInfo("SoTransferFunction::transfer",
+                             "idx %d out-of-bounds [0, %d] "
+                             "(unpacked==%d, shift==%d, offset==%d)",
+                             idx, maxpalentries - 1,
+                             unpacked, shift, offset);
+#endif // debug
+    }
+
+    assert(idx < maxpalentries);
+
+    if (palcountarray[idx] == FALSE) {
+      palcountarray[idx] = TRUE;
+      nrpalentries++;
+    }
+  }
+
+  // Creating remap-table and counting number of entries in new palette
+  int * remap = new int[maxpalentries];
+  int palidx = 0;
+  for (i = 0; i < maxpalentries; i++) {
+    if (palcountarray[i]) { remap[i] = palidx++; }
+    else { remap[i] = -1; }
+  }
+
+  // Calculating the new palette's size to a power of two.
+  palettesize = 2;
+  while (palettesize < nrpalentries) { palettesize <<= 1; }
+
+#if 0 // debug
+  SoDebugError::postInfo("SoTransferFunction::transfer",
+                         "nrpalentries==%d, palettesize==%d",
+                         nrpalentries, palettesize);
+#endif // debug
+
+  // Building new palette
+  // FIXME: convert this to a bytearray. 20021112 mortene.
+  palette = new float[palettesize*4]; // "*4" is to cover 1 byte each for RGBA
+  (void)memset(palette, 0, sizeof(float)*palettesize*4);
+  const float * oldPal = this->colorMap.getValues(0);
+#if 0 // debug
+  SoDebugError::postInfo("SoTransferFunction::transfer",
+                         "this->colorMap.getNum()==%d, maxpalentries==%d",
+                         this->colorMap.getNum(), maxpalentries);
+#endif // debug
+  // FIXME: the way we use this->colorMap here leaves much to be
+  // desired wrt both robustness and correctness. 20021112 mortene.
+  int tmp = 0;
+  for (i = 0; i < maxpalentries; i++) {
+    if (palcountarray[i]) {
+      // FIXME: out-of-bounds read on oldPal! 20021112 mortene.
+      (void)memcpy(&palette[tmp*4], &oldPal[i*4], sizeof(float)*4);
+      tmp++;
+    }
+  }
+
+    // FIXME: we're using a SoVolumeData enum here, but GLEnum
+    // above for outputFormat. 20021112 mortene.
+
+  // Deciding outputformat
+  int newNumBits = 8;
+  outputFormat = SoVolumeData::UNSIGNED_BYTE;
+  if (palettesize > 256) {
+    newNumBits = 16;
+    outputFormat = SoVolumeData::UNSIGNED_SHORT;
+  }
+
+  // Rebuilding texturedata
+  unsigned char * newTexture = 
+    new unsigned char[size[0] * size[1] * newNumBits / 8];
+  memset(newTexture, 0, size[0] * size[1] * newNumBits / 8);
+
+  for (i = 0; i < size[0]*size[1]; i++) {
+
+    int unpacked = PRIVATE(this)->unpack(input, numbits, i);
+    int idx = (unpacked << shift) + offset;
+
+    if (idx >= maxpalentries) {
+#if 1 // debug
+      SoDebugError::postInfo("SoTransferFunction::transfer",
+                             "idx %d out-of-bounds [0, %d] "
+                             "(unpacked==%d, shift==%d, offset==%d)",
+                             idx, maxpalentries - 1,
+                             unpacked, shift, offset);
+#endif // debug
+    }
+
+    assert(idx < maxpalentries);
+
+    idx = remap[idx];
+    PRIVATE(this)->pack(newTexture, newNumBits, i, idx);
+  }
+  output = newTexture;
+  paletteFormat = GL_RGBA;
+
+  delete[] palcountarray;
+  delete[] remap;
+#endif // TMP DISABLED
 }
-
-
-
 
 /*!
   Handles packed data for 1, 2, 4, 8 and 16 bits. Assumes 16-bit data
@@ -247,23 +332,23 @@ SoTransferFunction::transfer(const void * input,
   right?). And MSB is the leftmost of the bitstream...? Think so.
 */
 int 
-SoTransferFunctionP::unpack(const void * data, int numBits, int index)
+SoTransferFunctionP::unpack(const void * data, int numbits, int index)
 {
-  if (numBits == 8)
+  if (numbits == 8)
     return (int)((char*)data)[index];
 
-  if (numBits == 16)
+  if (numbits == 16)
     return (int)((short*)data)[index];
 
 
   // Handling 1, 2 and 4 bit formats
-  int bitIndex = numBits*index;
+  int bitIndex = numbits*index;
   int byteIndex = bitIndex/8;
-  int localBitIndex = 8 - bitIndex%8 - numBits;
+  int localBitIndex = 8 - bitIndex%8 - numbits;
 
   char val = ((char*)data)[byteIndex];
   val >>= localBitIndex;
-  val &= (1 << numBits) - 1;
+  val &= (1 << numbits) - 1;
 
   return val;
 }
@@ -275,25 +360,25 @@ SoTransferFunctionP::unpack(const void * data, int numBits, int index)
   at the specified index (not elementindex, not byteindex) in data.
 */
 void 
-SoTransferFunctionP::pack(void * data, int numBits, int index, int val)
+SoTransferFunctionP::pack(void * data, int numbits, int index, int val)
 {
-  if (val >= (1 << numBits))
-    val = (1 << numBits) - 1;
+  if (val >= (1 << numbits))
+    val = (1 << numbits) - 1;
 
-  if (numBits == 8) {
+  if (numbits == 8) {
     ((char*)data)[index] = (char)val;
   }
   else 
-  if (numBits == 16) {
+  if (numbits == 16) {
     ((short*)data)[index] = (short)val;
   }
   else {
-    int bitIndex = numBits*index;
+    int bitIndex = numbits*index;
     int byteIndex = bitIndex/8;
-    int localBitIndex = 8 - bitIndex%8 - numBits;
+    int localBitIndex = 8 - bitIndex%8 - numbits;
 
     char byte = ((char*)data)[byteIndex];
-    char mask = (((1 << numBits) - 1) << localBitIndex) ^ -1;
+    char mask = (((1 << numbits) - 1) << localBitIndex) ^ -1;
     byte &= mask;
     val <<= localBitIndex;
     byte |= val;

@@ -58,13 +58,13 @@ protected:
 
 private:
   friend class SoTransferFunctionP;
-  friend class SoVolumeDataSlice;
   class SoTransferFunctionP * pimpl;
 
-  // FIXME: move to pimpl class. 20021106 mortene.
+  // FIXME: clean up interface. 20021106 mortene.
+  friend class SoVolumeDataSlice;
   void transfer(const void * input, 
                 SoVolumeData::DataType inputDataType,
-                SbVec2s & size,
+                const SbVec2s & size,
                 void *& output,
                 int &outputFormat,
                 float *& palette,
