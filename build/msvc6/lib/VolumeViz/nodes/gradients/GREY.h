@@ -1,0 +1,9 @@
+#ifndef COIN_GREY_GRADIENT_H
+#define COIN_GREY_GRADIENT_H
+
+static const char GREY_gradient[] =
+  "GIMP Gradient\n"
+  "1\n"
+  "0.000000 0.689482 1.000000 1.000000 1.000000 1.000000 0.000000 1.000000 1.000000 1.000000 1.000000 0 0\n";
+
+#endif /* ! COIN_GREY_GRADIENT_H */
