@@ -278,7 +278,8 @@ GENERATE_DEPRECATEDLIST= YES
 #
 # mortene.
 
-ALIASES                = "VOLEONINTERNAL=<em>This API member is considered internal to the library, as it is not likely to be of interest to the application programmer.</em>\n\n"
+ALIASES                = "VOLEONINTERNAL=<em>This API member is considered internal to the library, as it is not likely to be of interest to the application programmer.</em>\n\n" \
+                         "COIN=<a href=http://www.coin3d.org><b>Coin</b></a>"
 
 # The ENABLED_SECTIONS tag can be used to enable conditional 
 # documentation sections, marked by \if sectionname ... \endif.

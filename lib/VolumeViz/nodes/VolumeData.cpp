@@ -30,6 +30,15 @@
   to be rendered. For a complete, stand-alone usage example, see the
   SIM Voleon main page documentation.
 
+  The volume rendering of SIM Voleon works well on volume data sets of
+  any dimensions. With other volume rendering systems, it is often
+  necessary to accommodate the rendering system by pre-processing the
+  dataset to be of power-of-two dimensions, either to avoid the
+  rendering to take up an extraordinary amount of resources related to
+  texture-mapping, or from down-right failing. This restriction is not
+  present in SIM Voleon, which works well with different dimensions
+  along the principal axes, and with any non-power-of-two dimension.
+
   If the volume data is set from a memory location with the
   SoVolumeData::setVolumeData() method, the voxel data can be changed
   during visualization at will. But after making a batch of changes,
