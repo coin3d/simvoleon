@@ -39,8 +39,7 @@ public:
   Cvr2DTexSubPage(SoGLRenderAction * action,
                   const CvrTextureObject * texobj,
                   const SbVec2s & pagesize, 
-                  const SbVec2s & texsize,
-                  const SbBool compresstextures);
+                  const SbVec2s & texsize);
   ~Cvr2DTexSubPage();
 
   enum Interpolation { NEAREST, LINEAR };
@@ -77,7 +76,6 @@ private:
   unsigned int bitspertexel;
   const CvrCLUT * clut;
   SbBool ispaletted;
-  SbBool compresstextures;
   const CvrTextureObject * texobj;
 };
 

@@ -52,10 +52,10 @@
   automatically by the SIM Voleon rendering system.
 */
 
+#include <VolumeViz/nodes/SoVolumeData.h>
+
 #include <limits.h>
 #include <float.h> // FLT_MAX
-
-#include <VolumeViz/nodes/SoVolumeData.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/SbVec3s.h>
@@ -69,6 +69,7 @@
 #include <Inventor/lists/SbStringList.h>
 #include <Inventor/system/gl.h>
 
+#include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
 #include <VolumeViz/readers/SoVRVolFileReader.h>
@@ -91,6 +92,26 @@
 
   Default value is \c TRUE. Apart from debugging purposes, there is
   really no good reason to set this field to \c FALSE.
+*/
+
+/*!
+  \var SoSFBool SoVolumeData::useCompressedTexture
+
+  Indicate whether or not to use compressed textures, if supported by
+  the graphics card and driver.
+
+  Compressed textures can save a major amount of texture memory out of
+  the graphics card memory resources, typically by a factor of about
+  5x - 15x. Texture compression is however lossy, meaning that there
+  will be a certain amount of degradation of visual quality -- but
+  this should usually not be noticable.
+
+  Not all graphics cards and drivers supports compressed textures, but
+  the library will fall back on non-compressed textures automatically
+  if that is the case.
+
+  Default value is \c TRUE. To secure no loss of visual quality, set
+  this field to \c FALSE.
 */
 
 // *************************************************************************
@@ -219,6 +240,8 @@ SoVolumeData::initClass(void)
   SO_ENABLE(SoCallbackAction, SoVolumeDataElement);
   SO_ENABLE(SoGetBoundingBoxAction, SoVolumeDataElement);
   SO_ENABLE(SoPickAction, SoVolumeDataElement);
+
+  SO_ENABLE(SoGLRenderAction, CvrCompressedTexturesElement);
 }
 
 /*!
@@ -456,6 +479,9 @@ void
 SoVolumeData::GLRender(SoGLRenderAction * action)
 {
   this->doAction(action);
+
+  CvrCompressedTexturesElement::set(action->getState(),
+                                    this->useCompressedTexture.getValue());
 }
 
 void

@@ -609,8 +609,7 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
     short dx, dy, dz;
     subcubecut.getSize(dx, dy, dz);
     const SbVec3f cubesize(dx, dy, dz);
-    cube = new Cvr3DTexSubCube(action, texobj, cubesize, texsize,
-                               voldatanode->useCompressedTexture.getValue());
+    cube = new Cvr3DTexSubCube(action, texobj, cubesize, texsize);
     cube->setPalette(this->clut);
   }
 

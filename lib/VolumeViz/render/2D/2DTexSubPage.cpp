@@ -32,6 +32,7 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
 
+#include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
@@ -88,10 +89,7 @@ Cvr2DTexSubPage::resourceCleanerS(void * owner, uint32_t ctxid, void * resource,
 Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
                                  const SbVec2s & pagesize,
-                                 const SbVec2s & texsize,
-                                 // FIXME: this should be on the state
-                                 // stack. 20040716 mortene.
-                                 const SbBool compresstextures)
+                                 const SbVec2s & texsize)
 {
   // We're using the GL resource handler, so plug in our deletion
   // callback.
@@ -140,10 +138,6 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                          this->texobj->getDimensions()[1],
                          this->texmaxcoords[0], this->texmaxcoords[1]);
 #endif // debug
-
-  this->compresstextures = compresstextures;
-  const char * envstr = coin_getenv("CVR_COMPRESS_TEXTURES");
-  if (envstr) { this->compresstextures = (compresstextures || atoi(envstr) > 0 ? TRUE : FALSE); }
 }
 
 Cvr2DTexSubPage::~Cvr2DTexSubPage()
@@ -463,10 +457,12 @@ Cvr2DTexSubPage::makeGLTexture(const SoGLRenderAction * action)
     palettetype = GL_LUMINANCE;    
 #endif // HAVE_ARB_FRAGMENT_PROGRAM
 
+  SoState * state = action->getState();
+
   // FIXME: Is this way of compressing textures OK? (20040303 handegar)
   if (cc_glue_has_texture_compression(glw) && 
-      this->compresstextures &&
-      palettetype != GL_COLOR_INDEX) {
+      (palettetype != GL_COLOR_INDEX) &&
+      CvrCompressedTexturesElement::get(state)) {
     if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
     else colorformat = GL_COMPRESSED_INTENSITY_ARB;
   }

@@ -1,24 +1,44 @@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
+# **************************************************************************
+#
+# PublicHeaders    - header files that should be installed
+# PrivateHeaders   - source files that should be distributed, but not
+#                    installed - including source-included source files.
+# RegularSources   - source files compiled in this directory
+
+RegularSources = \
+	CompressedTexturesElement.cpp \
+	VolumeDataElement.cpp \
+	TransferFunctionElement.cpp
+
+PublicHeaders = \
+	SoVolumeDataElement.h \
+	SoTransferFunctionElement.h
+
+PrivateHeaders = \
+	CvrCompressedTexturesElement.h
+
+# **************************************************************************
+
 if BUILD_WITH_MSVC
 noinst_LIBRARIES = elements.lst
 else
 noinst_LTLIBRARIES = libelements.la
 endif
 
-SOURCES = \
-	VolumeDataElement.cpp \
-	TransferFunctionElement.cpp
+libelements_la_SOURCES = $(RegularSources)
+EXTRA_libelements_la_SOURCES = $(PublicHeaders) $(PrivateHeaders)
 
-libelements_la_SOURCES = $(SOURCES)
+elements_lst_SOURCES = $(RegularSources)
+EXTRA_elements_lst_SOURCES = $(PublicHeaders) $(PrivateHeaders)
 
-elements_lst_SOURCES = $(SOURCES)
+# **************************************************************************
 
 libelementsincdir = $(includedir)/VolumeViz/elements
+libelementsinc_HEADERS = $(PublicHeaders)
 
-libelementsinc_HEADERS = \
-	SoVolumeDataElement.h \
-	SoTransferFunctionElement.h
+# **************************************************************************
 
 elements.lst: $(elements_lst_OBJECTS)
 	@echo "Linking $@..."; \
@@ -49,3 +69,4 @@ install-libelementsincHEADERS: $(libelementsinc_HEADERS)
 	done; \
 	:
 
+# **************************************************************************

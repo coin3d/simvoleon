@@ -43,8 +43,7 @@ public:
   Cvr3DTexSubCube(SoGLRenderAction * action,
                   const CvrTextureObject * texobj,
                   const SbVec3f & cubesize, 
-                  const SbVec3s & texsize,
-                  const SbBool compresstextures);
+                  const SbVec3s & texsize);
   ~Cvr3DTexSubCube();
 
   enum Interpolation { NEAREST, LINEAR };

@@ -50,8 +50,7 @@
 Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
                                  const SbVec3f & cubesize,
-                                 const SbVec3s & originaltexsize,
-                                 const SbBool compresstextures)
+                                 const SbVec3s & originaltexsize)
 {
   this->clut = NULL;
 

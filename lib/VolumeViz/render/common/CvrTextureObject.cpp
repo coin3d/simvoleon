@@ -29,6 +29,7 @@
 #include <Inventor/SbName.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 
+#include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/render/common/Cvr2DRGBATexture.h>
@@ -198,13 +199,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   if (cc_glglue_has_arb_fragment_program(glw)) { palettetype = GL_LUMINANCE; }
 #endif // HAVE_ARB_FRAGMENT_PROGRAM
 
-  // FIXME: compression should be its own element, and then we
-  // wouldn't have to muck about with grabbing and querying full
-  // SoVolumeData node. 20040716 mortene.
   SoState * state = action->getState();
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  const SoVolumeData * voldata = volumedataelement->getVolumeData();
-  const SbBool compressed = voldata->useCompressedTexture.getValue();
 
   // NOTE: Combining texture compression and GL_COLOR_INDEX doesn't
   // seem to work on NVIDIA cards (tested on GeForceFX 5600 &
@@ -215,8 +210,14 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   //
   // FIXME: compression setting is a property of the GL texture which
   // should be part of the comparison check when we figure out whether
-  // to make a new texture, or to reuse an exisiting one. 20040716 mortene.
-  if (cc_glue_has_texture_compression(glw) && compressed && palettetype != GL_COLOR_INDEX) {
+  // to make a new texture, or to reuse an exisiting one. Should
+  // probably best take care of this by using the Coin caching
+  // mechanism. 20040716 mortene.
+  if (cc_glue_has_texture_compression(glw) &&
+      (palettetype != GL_COLOR_INDEX) &&
+      // Important to check this last, as we want to avoid getting an
+      // unnecessary cache dependency:
+      CvrCompressedTexturesElement::get(state)) {
     if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
     else colorformat = GL_COMPRESSED_INTENSITY_ARB;
   }
