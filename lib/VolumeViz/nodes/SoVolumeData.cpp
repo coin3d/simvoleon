@@ -29,7 +29,7 @@
 
 DICTIONARY
 
-  "Slice"      : One complete cut through the volume along an axis. 
+  "Slice"      : One complete cut through the volume, normal to an axis. 
   "Page"       : A segment of a slice. 
   "In-memory"  : In this context, "in-memory" means volume data (pages) that's 
                  pulled out of the reader and run through a transfer function,
@@ -43,7 +43,7 @@ DATA STRUCTURES
 
   As several different rendering nodes may share the same volume data
   node, a sharing mechanism for in-memory data is implemented. The
-  volume is partitioned into slices along each of the three axis, and
+  volume is partitioned into slices along each of the three axes, and
   each slice is segmented into pages. Each page is identified by it's
   slice number and it's (x,y) position in the slice. Even though
   different rendering nodes may share the same volume data, they may
@@ -58,14 +58,14 @@ DATA STRUCTURES
 LRU-system
 
   To support large sets of volume data, a simple memory management
-  system is implemented. The scenegraphs VolumeData-node contains a
+  system is implemented. The scene graph's VolumeData-node contains a
   logical clock that's incremented for each run through it's
   GLRender. All in-memory pages are tagged with a timestamp at the
   time they're loaded. The VolumeData-node has a max limit for the
   amount of HW/SW memory it should occupy, and whenever it exceeds
-  this limit it throws out the page with the smallest timestamp. A
-  simple LRU-cache. Of course, all pages' timestamps are updated
-  whenever they're rendered.
+  this limit it throws out the page with the oldest timestamp. A
+  simple LRU-cache, in other words. Of course, all pages' timestamps
+  are "touched" (updated) whenever they're rendered.
 
   The data structures does not work perfectly together with the
   LRU-cache.  Whenever a page is to be deallocated, a search through
@@ -156,7 +156,7 @@ MEMORY MANAGEMENT
 
 RENDERING
 
-  A SoVolumeRender is nothing but a SoROI which renders the entire
+  An SoVolumeRender is nothing but an SoROI which renders the entire
   volume. And this is how it should be implemented. But this is not
   how it is implemented now. :) The GLRender-function for both SoROI
   and SoVolumeRender is more or less identical, and they should share
