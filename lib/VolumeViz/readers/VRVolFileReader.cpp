@@ -261,16 +261,17 @@ SoVRVolFileReader::setUserData(void * data)
   if (CvrUtil::doDebugging()) { SoVRVolFileReaderP::debugDumpHeader(volh); }
 
   // FIXME: this actually fails with LOBSTER.vol. 20021110 mortene.
-//   assert(volh->magic_number == 0x0b7e7759);
+  // assert(volh->magic_number == 0x0b7e7759);
 
   assert((volh->width > 0) && (volh->width < 32767));
   assert((volh->height > 0) && (volh->height < 32767));
   assert((volh->images > 0) && (volh->images < 32767));
 
   assert(volh->bits_per_voxel >= 1);
+
   // FIXME: bad, but tmp, limitation. Fails with one of the "Intro 2
   // VR" models. 20021110 mortene.
-  assert(volh->bits_per_voxel == 8);
+  assert((volh->bits_per_voxel - volh->index_bits) == 8);
 
   assert(volh->scaleX >= 0.0f);
   assert(volh->scaleY >= 0.0f);
