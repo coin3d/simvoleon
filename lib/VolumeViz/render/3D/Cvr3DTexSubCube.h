@@ -107,7 +107,7 @@ private:
   };
 
   SbList <subcube_slice> volumeslices;
-  SbList <SbVec3f *> texcoordlist;
+  SbList <SbVec3f> texcoordlist;
 
   SbPlane clipplanes[6];
 };

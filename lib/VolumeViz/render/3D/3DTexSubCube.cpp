@@ -163,11 +163,11 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
 
   const SbVec3s texdims = obj->textureobject->getDimensions();
   
-  SbVec3f * texcoord =
-    new SbVec3f(dist[0] / texdims[0], dist[1] / texdims[1], dist[2] / texdims[2]);
+  const SbVec3f v(dist[0] / texdims[0], dist[1] / texdims[1], dist[2] / texdims[2]);
+  obj->texcoordlist.append(v);
 
-  obj->texcoordlist.append(texcoord);
-  return (void *) texcoord;
+  const unsigned int lastidx = obj->texcoordlist.getLength() - 1;
+  return (void *)(&(obj->texcoordlist[lastidx]));
 }
 
 // Check if this cube is intersected by a faceset.
@@ -366,10 +366,17 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper)
       slice.texcoord.append(SbVec3f(texcoord->getValue()));
     }
     
-    for (i=0;i<this->texcoordlist.getLength();++i)
-      delete this->texcoordlist[i];
+#if 0 // debug code, to figure out the max length of the list, for better init
+    static unsigned int maxlen = 0;
+    unsigned int l = this->texcoordlist.getLength();
+    if (l > maxlen) {
+      maxlen = l;
+      printf("texcoordlist max length: %d\n", maxlen);
+    }
+#endif // debug
+
     this->texcoordlist.truncate(0);
-    
+   
     this->volumeslices.append(slice);
   }
 }
