@@ -27,8 +27,6 @@
 #include <Inventor/SbVec2s.h>
 #include <Inventor/SbVec2f.h>
 #include <Inventor/SbVec3f.h>
-#include <Inventor/misc/SoState.h>
-#include <Inventor/system/gl.h>
 #include <Inventor/C/glue/gl.h>
 
 class SoGLRenderAction;

@@ -21,28 +21,25 @@
  *
 \**************************************************************************/
 
+#include "CvrTextureManager.h"
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <Inventor/system/gl.h>
-#include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
+#include <Inventor/C/tidbits.h>
+#include <Inventor/SbBox3s.h>
 #include <Inventor/SbDict.h>
 #include <Inventor/errors/SoDebugError.h>
 
-#include <VolumeViz/misc/CvrVoxelChunk.h>
-#include <VolumeViz/render/common/CvrRGBATexture.h>
-#include <VolumeViz/render/common/CvrPaletteTexture.h>
-#include <VolumeViz/render/common/Cvr3DRGBATexture.h>
-#include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
-#include <VolumeViz/render/common/Cvr2DRGBATexture.h>
-#include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
-
-#include "CvrTextureManager.h"
+#include <VolumeViz/misc/CvrVoxelChunk.h>
+#include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
+#include <VolumeViz/render/common/Cvr2DRGBATexture.h>
+#include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
+#include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 
 static SbDict texturedict;
 

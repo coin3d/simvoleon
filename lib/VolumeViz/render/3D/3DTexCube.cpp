@@ -21,34 +21,33 @@
  *
 \**************************************************************************/
 
+#include <VolumeViz/render/3D/Cvr3DTexCube.h>
+
 #include <limits.h>
 #include <string.h>
 
+#include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/errors/SoDebugError.h>
 #include <Inventor/SbLinear.h>
 #include <Inventor/SbViewVolume.h>
-#include <Inventor/elements/SoViewVolumeElement.h>
+#include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoProjectionMatrixElement.h>
+#include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/elements/SoViewingMatrixElement.h>
+#include <Inventor/errors/SoDebugError.h>
 
-#include <VolumeViz/render/3D/Cvr3DTexCube.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/render/common/CvrRGBATexture.h>
-#include <VolumeViz/render/common/CvrPaletteTexture.h>
-#include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
-
+#include <VolumeViz/render/common/Cvr3DRGBATexture.h>
+#include <VolumeViz/render/common/CvrPaletteTexture.h>
+#include <VolumeViz/render/common/CvrRGBATexture.h>
 #include <VolumeViz/render/common/CvrTextureManager.h>
-
-
 
 // *************************************************************************
 

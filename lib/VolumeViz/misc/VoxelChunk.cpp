@@ -21,35 +21,37 @@
  *
 \**************************************************************************/
 
-#include <Inventor/C/tidbits.h>
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/misc/SoState.h>
-#include <Inventor/errors/SoDebugError.h>
-
-#include <VolumeViz/render/common/CvrRGBATexture.h>
-#include <VolumeViz/render/common/CvrPaletteTexture.h>
-#include <VolumeViz/render/common/Cvr2DRGBATexture.h>
-#include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
-#include <VolumeViz/render/common/Cvr3DRGBATexture.h>
-#include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
-#include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/nodes/gradients/GREY.h>
-#include <VolumeViz/nodes/gradients/TEMPERATURE.h>
-#include <VolumeViz/nodes/gradients/PHYSICS.h>
-#include <VolumeViz/nodes/gradients/STANDARD.h>
-#include <VolumeViz/nodes/gradients/GLOW.h>
-#include <VolumeViz/nodes/gradients/BLUE_RED.h>
-#include <VolumeViz/nodes/gradients/SEISMIC.h>
-#include <VolumeViz/misc/CvrGIMPGradient.h>
-#include <VolumeViz/misc/CvrCLUT.h>
-#include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 
 #include <assert.h>
 #include <string.h> // memcpy()
+
+#include <Inventor/C/glue/gl.h>
+#include <Inventor/C/tidbits.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/errors/SoDebugError.h>
+#include <Inventor/misc/SoState.h>
+
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrGIMPGradient.h>
+#include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/gradients/BLUE_RED.h>
+#include <VolumeViz/nodes/gradients/GLOW.h>
+#include <VolumeViz/nodes/gradients/GREY.h>
+#include <VolumeViz/nodes/gradients/PHYSICS.h>
+#include <VolumeViz/nodes/gradients/SEISMIC.h>
+#include <VolumeViz/nodes/gradients/STANDARD.h>
+#include <VolumeViz/nodes/gradients/TEMPERATURE.h>
+#include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
+#include <VolumeViz/render/common/Cvr2DRGBATexture.h>
+#include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
+#include <VolumeViz/render/common/Cvr3DRGBATexture.h>
+#include <VolumeViz/render/common/CvrPaletteTexture.h>
+#include <VolumeViz/render/common/CvrRGBATexture.h>
 
 const unsigned int COLOR_TABLE_PREDEF_SIZE = 256;
 uint8_t CvrVoxelChunk::PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][COLOR_TABLE_PREDEF_SIZE][4];

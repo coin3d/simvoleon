@@ -25,7 +25,10 @@
 \**************************************************************************/
 
 #include <Inventor/system/inttypes.h>
-#include <Inventor/C/glue/gl.h>
+#include <Inventor/system/gl.h>
+
+struct cc_glglue;
+
 
 class CvrCLUT {
 public:

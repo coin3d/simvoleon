@@ -21,25 +21,25 @@
  *
 \**************************************************************************/
 
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/errors/SoDebugError.h>
+#include "CvrNonIndexedSetRenderBaseP.h"
 
-#include <Inventor/elements/SoModelMatrixElement.h>
+#include <Inventor/C/glue/gl.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/elements/SoClipPlaneElement.h>
+#include <Inventor/elements/SoCoordinateElement.h>
 #include <Inventor/elements/SoGLLazyElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
-#include <Inventor/elements/SoCoordinateElement.h>
-#include <Inventor/elements/SoClipPlaneElement.h>
 #include <Inventor/elements/SoTextureQualityElement.h>
+#include <Inventor/errors/SoDebugError.h>
 #include <Inventor/nodes/SoTriangleStripSet.h>
 
-#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
-#include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 
-#include "CvrNonIndexedSetRenderBaseP.h"
 #include "SoVolumeFaceSet.h"
 
 // FIXME: Lighting does not work properly as normals are ignored. (20040707 handegar)

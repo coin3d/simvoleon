@@ -24,10 +24,9 @@
  *
 \**************************************************************************/
 
-#include <GL/gl.h>
-
-#include <Inventor/SbVec2s.h>
 #include <Inventor/SoType.h>
+#include <Inventor/system/gl.h>
+
 
 class CvrTextureObject {
 public:

@@ -21,28 +21,30 @@
  *
 \**************************************************************************/
 
+#include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <Inventor/elements/SoModelMatrixElement.h>
-#include <Inventor/elements/SoLazyElement.h>
+#include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
+#include <Inventor/SbClip.h>
+#include <Inventor/SbColor.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/elements/SoLazyElement.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/projectors/SbPlaneProjector.h>
-#include <Inventor/SbColor.h>
 
-#include <VolumeViz/render/common/CvrRGBATexture.h>
-#include <VolumeViz/render/common/CvrPaletteTexture.h>
-#include <VolumeViz/render/common/Cvr3DRGBATexture.h>
-#include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
-#include <VolumeViz/render/common/CvrTextureManager.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
-#include <VolumeViz/elements/SoTransferFunctionElement.h>
-
-#include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
+#include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
+#include <VolumeViz/render/common/Cvr3DRGBATexture.h>
+#include <VolumeViz/render/common/CvrPaletteTexture.h>
+#include <VolumeViz/render/common/CvrRGBATexture.h>
+#include <VolumeViz/render/common/CvrTextureManager.h>
 
 // *************************************************************************
 
@@ -226,7 +228,7 @@ Cvr3DTexSubCube::checkIntersectionFaceSet(const SbVec3f & cubeorigo,
                                           const SbVec3f * vertexlist,
                                           const int * numVertices,
                                           const unsigned int length,
-                                          const SbMatrix m)
+                                          const SbMatrix & m)
 {
   
   SbClip cubeclipper(this->subcube_clipperCB, this);
@@ -254,7 +256,7 @@ Cvr3DTexSubCube::checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo,
                                                    const SbVec3f * vertexlist,
                                                    const int * numVertices,
                                                    const unsigned int length,
-                                                   const SbMatrix m)
+                                                   const SbMatrix & m)
 {
   
   SbClip cubeclipper(this->subcube_clipperCB, this);
@@ -295,7 +297,7 @@ Cvr3DTexSubCube::checkIntersectionIndexedTriangleStripSet(const SbVec3f & cubeor
                                                           const SbVec3f * vertexlist,
                                                           const int * indices,
                                                           const unsigned int numindices,
-                                                          const SbMatrix m)
+                                                          const SbMatrix & m)
 {
   
   SbClip cubeclipper(this->subcube_clipperCB, this);
@@ -334,7 +336,7 @@ Cvr3DTexSubCube::checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo,
                                                  const SbVec3f * vertexlist,
                                                  const int * indices,
                                                  const unsigned int numindices,
-                                                 const SbMatrix m)
+                                                 const SbMatrix & m)
 {
   
   SbClip cubeclipper(this->subcube_clipperCB, this);
@@ -362,7 +364,7 @@ SbBool
 Cvr3DTexSubCube::checkIntersectionSlice(const SbVec3f & cubeorigo, 
                                         const SbViewVolume & viewvolume, 
                                         const float viewdistance, 
-                                        const SbMatrix m)
+                                        const SbMatrix & m)
 {
   
   SbClip cubeclipper(this->subcube_clipperCB, this);
@@ -535,7 +537,7 @@ Cvr3DTexSubCube::renderBBox(const SoGLRenderAction * action, int counter)
 }
 
 float
-Cvr3DTexSubCube::getDistanceFromCamera()
+Cvr3DTexSubCube::getDistanceFromCamera(void) const
 {
   return this->distancefromcamera;
 }

@@ -21,27 +21,29 @@
  *
 \**************************************************************************/
 
+#include <VolumeViz/render/3D/CvrCubeHandler.h>
+
 #include <stdlib.h>
 #include <assert.h>
 
+#include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
-#include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/SbTime.h>
-#include <Inventor/errors/SoDebugError.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/elements/SoGLLazyElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
-#include <Inventor/elements/SoGLLazyElement.h>
+#include <Inventor/errors/SoDebugError.h>
 
-#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/readers/SoVolumeReader.h>
-#include <VolumeViz/render/3D/CvrCubeHandler.h>
-#include <VolumeViz/render/3D/Cvr3DTexCube.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/misc/CvrUtil.h>
-#include <VolumeViz/misc/CvrCLUT.h>
-#include <VolumeViz/misc/CvrVoxelChunk.h>
+#include <VolumeViz/readers/SoVolumeReader.h>
+#include <VolumeViz/render/3D/Cvr3DTexCube.h>
 
 
 CvrCubeHandler::CvrCubeHandler(const SbVec3s & voldatadims,

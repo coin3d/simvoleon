@@ -50,6 +50,9 @@
 
 // *************************************************************************
 
+#include <VolumeViz/nodes/SoObliqueSlice.h>
+
+#include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
@@ -68,9 +71,6 @@
 #include <VolumeViz/render/3D/CvrCubeHandler.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/misc/CvrUtil.h>
-
-#include <VolumeViz/nodes/SoObliqueSlice.h>
-
 
 // *************************************************************************
 

@@ -26,22 +26,17 @@
 
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbVec3f.h>
-#include <Inventor/SbVec3f.h>
-#include <Inventor/SbMatrix.h>
 #include <Inventor/lists/SbList.h>
-#include <Inventor/misc/SoState.h>
-#include <Inventor/system/gl.h>
-#include <Inventor/C/glue/gl.h>
-#include <Inventor/SbClip.h>
-#include <Inventor/SbViewVolume.h>
 
-#include <VolumeViz/misc/CvrCLUT.h>
-#include <VolumeViz/render/common/CvrTextureObject.h>
+class SbClip;
+class SbMatrix;
+class SbViewVolume;
+class SoGLRenderAction;
 
-struct subcube_slice {
-  SbList <SbVec3f> texcoord; 
-  SbList <SbVec3f> vertex;  
-};
+class CvrCLUT;
+class CvrTextureObject;
+
+// *************************************************************************
 
 class Cvr3DTexSubCube {
 public:
@@ -63,38 +58,38 @@ public:
   SbBool checkIntersectionSlice(const SbVec3f & cubeorigo, 
                                 const SbViewVolume & viewvolume, 
                                 const float viewdistance, 
-                                const SbMatrix);
+                                const SbMatrix &);
 
   SbBool checkIntersectionFaceSet(const SbVec3f & cubeorigo, 
                                   const SbVec3f * vertexlist,
                                   const int * numVertices,
                                   const unsigned int length,
-                                  const SbMatrix m);
+                                  const SbMatrix & m);
 
   SbBool checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo, 
                                            const SbVec3f * vertexlist,
                                            const int * numVertices,
                                            const unsigned int length,
-                                           const SbMatrix m);
+                                           const SbMatrix & m);
 
   SbBool checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo, 
                                          const SbVec3f * vertexlist,
                                          const int * indices,
                                          const unsigned int numindices,
-                                         const SbMatrix m);
+                                         const SbMatrix & m);
 
   SbBool checkIntersectionIndexedTriangleStripSet(const SbVec3f & cubeorigo, 
                                                   const SbVec3f * vertexlist,
                                                   const int * indices,
                                                   const unsigned int numindices,
-                                                  const SbMatrix m);
+                                                  const SbMatrix & m);
 
   static void * subcube_clipperCB(const SbVec3f & v0, void * vdata0, 
                                   const SbVec3f & v1, void * vdata1,
                                   const SbVec3f & newvertex,
                                   void * userdata);
 
-  float getDistanceFromCamera();
+  float getDistanceFromCamera(void) const;
   void setDistanceFromCamera(float dist);
 
 private:
@@ -116,10 +111,13 @@ private:
 
   float distancefromcamera;
 
+  struct subcube_slice {
+    SbList <SbVec3f> texcoord; 
+    SbList <SbVec3f> vertex;  
+  };
+
   SbList <subcube_slice> volumeslices;
   SbList <SbVec3f *> texcoordlist;
-
 };
-
 
 #endif //COIN_CVR3DTEXSUBPAGE_H
