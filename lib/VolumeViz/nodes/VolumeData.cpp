@@ -210,8 +210,20 @@ SoVolumeData::getVolumeSize(void) const
   }
   else {
     if (PRIVATE(this)->reader) {
-      SoVolumeData::DataType type; SbVec3s dim; // dummy parameters
-      PRIVATE(this)->reader->getDataChar(volbox, type, dim);
+      static const char * use_unit_box = coin_getenv("SIMVOLEON_UNIT_DIMENSIONS");
+      if (use_unit_box) {
+        // This is really the wiser thing to do, as it is much easier
+        // to work with something you know is of unit size.
+        //
+        // FIXME: we should migrate to using this approach everywhere
+        // in our SimVoleon-dependent software (like RIMS and the
+        // SoGuiExamples). 20040217 mortene.
+        volbox.setBounds(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
+      }
+      else {
+        SoVolumeData::DataType type; SbVec3s dim; // dummy parameters
+        PRIVATE(this)->reader->getDataChar(volbox, type, dim);
+      }
     }
     // else, if no reader, return the empty box.
   }
