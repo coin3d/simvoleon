@@ -174,6 +174,11 @@ Cvr3DTexCube::clampSubCubeSize(const SbVec3s & size)
   // Coin 2.3, so we can't use this without first separating out the
   // gl-wrapper, as planned. 20040714 mortene.
 
+  // FIXME: this design is a bit bogus. Consider this: the size can be
+  // set in one GL context, but the tex-cube can later be attempted
+  // used in another GL context, with a smaller max size. Not sure how
+  // to fix this yet. 20041221 mortene.
+
   GLint maxsize = -1;
   glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxsize);
 
@@ -185,7 +190,8 @@ Cvr3DTexCube::clampSubCubeSize(const SbVec3s & size)
     static const char CVR_IGNORE_ATI_QUERY_BUG[] = "CVR_IGNORE_ATI_QUERY_BUG";
     const char * env = coin_getenv(CVR_IGNORE_ATI_QUERY_BUG);
 
-    if (env == NULL) {
+    static SbBool first = TRUE;
+    if (first && (env == NULL)) {
       SoDebugError::postWarning("Cvr3DTexCube::clampSubCubeSize",
                                 "Obscure bug found with your OpenGL driver. "
                                 "If you are employed by Systems in Motion, "
@@ -196,6 +202,7 @@ Cvr3DTexCube::clampSubCubeSize(const SbVec3s & size)
                                 "not get this notification again.)",
                                 CVR_IGNORE_ATI_QUERY_BUG);
     }
+    first = FALSE;
     maxsize = 128; // this should be safe
   }
 
