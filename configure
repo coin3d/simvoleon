@@ -20286,9 +20286,62 @@ sed 's/^/| /' conftest.$ac_ext >&5
 
 echo "$as_me:$LINENO: result: no" >&5
 echo "${ECHO_T}no" >&6
-    { { echo "$as_me:$LINENO: error: SimVoleon needs Coin v2.0.0 or older." >&5
-echo "$as_me: error: SimVoleon needs Coin v2.0.0 or older." >&2;}
+    { { echo "$as_me:$LINENO: error: SimVoleon needs Coin v2.0.0 or newer." >&5
+echo "$as_me: error: SimVoleon needs Coin v2.0.0 or newer." >&2;}
    { (exit 1); exit 1; }; }
+
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+
+# *******************************************************************
+# The ARB fragment programs uses recent parts of the cc_glglue
+# interface in Coin, so check for that.
+
+echo "$as_me:$LINENO: checking if Coin version is recent enough to provide fragment program interface" >&5
+echo $ECHO_N "checking if Coin version is recent enough to provide fragment program interface... $ECHO_C" >&6
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <Inventor/C/glue/gl.h>
+int
+main ()
+{
+(void)cc_glglue_has_arb_fragment_program(NULL);
+    cc_glglue_glProgramString(NULL, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, 1, NULL);
+
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_ARB_FRAGMENT_PROGRAM
+_ACEOF
+
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
 
 fi
 rm -f conftest.$ac_objext conftest.$ac_ext
