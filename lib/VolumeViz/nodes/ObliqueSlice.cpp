@@ -123,6 +123,74 @@ SoObliqueSlice::~SoObliqueSlice()
   delete PRIVATE(this);
 }
 
+// *************************************************************************
+
+/*!
+  \enum SoObliqueSlice::Interpolation
+  Enumeration of available types of voxel colors interpolation.
+*/
+/*!
+  \var SoObliqueSlice::Interpolation SoObliqueSlice::NEAREST
+
+  For "in between" pixels of the screen rasterization, pick the color
+  of the nearest voxel.  Will give sharp edges and a distinct blocky
+  look.
+*/
+/*!
+  \var SoObliqueSlice::Interpolation SoObliqueSlice::LINEAR
+
+  For "in between" pixels of the screen rasterization, interpolate by
+  averaging the colors of several of the nearest voxels.  Will give a
+  smoother appearance, but sacrifies some "correctness" for
+  appearance.
+*/
+/*!
+  \var SoSFEnum SoObliqueSlice::interpolation
+
+  How to interpolate color values when rendering "in between" voxels.
+  See SoObliqueSlice::Interpolation.
+
+  Default value is SoObliqueSlice::LINEAR.
+*/
+
+
+/*!
+  \var SoObliqueSlice::alphaUse SoObliqueSlice::ALPHA_AS_IS
+  
+  The alpha channel is rendered 'as-is'.
+*/
+/*!
+  \var SoObliqueSlice::alphaUse SoObliqueSlice::ALPHA_OPAQUE
+
+  The alpha channel is ignored making the slice opaque.
+*/
+/*!
+  \var SoObliqueSlice::alphaUse SoObliqueSlice::ALPHA_BINARY
+
+  All alpha values not equal to 0 is threated as value 1.0f.
+*/
+
+/*!
+  \var SoSFEnum SoObliqueSlice::alphaUse
+
+  How the alpha channel should be threated during rendering.
+  See SoObliqueSlice::AlphaUse.
+  
+  Default value is SoObliqueSlice::ALPHA_AS_IS
+*/
+
+
+/*!
+  \var SoSFPlane SoObliqueSlice::plane
+
+  The plane defining the slice.
+  
+  Default value is an XY plane.
+*/
+
+// *************************************************************************
+
+
 // Doc from parent class.
 void
 SoObliqueSlice::initClass(void)
@@ -135,9 +203,7 @@ SoObliqueSlice::initClass(void)
 
   SO_ENABLE(SoRayPickAction, SoVolumeDataElement);
   SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
-
 }
-
 
 void
 SoObliqueSlice::GLRender(SoGLRenderAction * action)
