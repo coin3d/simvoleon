@@ -10,6 +10,7 @@
 #include <VolumeViz/misc/SoVolumeDataSlice.h>
 #include <Inventor/misc/SoState.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <string.h>
 
 #if HAVE_CONFIG_H
 #include <config.h>
@@ -31,7 +32,7 @@ SoVolumeDataSlice::SoVolumeDataSlice()
   this->numPages = 0;
   this->numTexels = 0;
   this->sliceIdx = 0;
-  this->reader;
+  this->reader = NULL;
   this->dataType = SoVolumeRendering::RGBA;
 }// constructor
 
@@ -60,21 +61,21 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader,
   reader->getDataChar(size, this->dataType, dim);
 
   switch (axis) {
-    case SoVolumeRendering::X: 
+    case SoVolumeRendering::X:
       {
         this->dimensions[0] = dim[2];
         this->dimensions[1] = dim[1];
       }// case
       break;
 
-    case SoVolumeRendering::Y: 
+    case SoVolumeRendering::Y:
       {
         this->dimensions[0] = dim[0];
         this->dimensions[1] = dim[2];
       }// case
       break;
 
-    case SoVolumeRendering::Z: 
+    case SoVolumeRendering::Z:
       {
         this->dimensions[0] = dim[0];
         this->dimensions[1] = dim[1];
@@ -83,7 +84,7 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader,
   }// switch
 
   this->numCols = this->dimensions[0]/this->pageSize[0];
-  this->numRows = this->dimensions[1]/this->pageSize[1];                  
+  this->numRows = this->dimensions[1]/this->pageSize[1];
 }// init
 
 
@@ -91,9 +92,9 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader,
 /*
   Searches for a specified page in the slice. The page
   is identified by it's memorylocation (the pointer). If the
-  page isn't found, nothing happens. 
+  page isn't found, nothing happens.
 */
-void 
+void
 SoVolumeDataSlice::releasePage(SoVolumeDataPage * page)
 {
   if (pages) {
@@ -128,7 +129,7 @@ SoVolumeDataSlice::releasePage(SoVolumeDataPage * page)
 
             return;
           }// if
-      
+
           p = p->nextPage;
         }// while
       }// if
@@ -146,7 +147,7 @@ void SoVolumeDataSlice::releaseLRUPage()
 
 
 
-SoVolumeDataPage * 
+SoVolumeDataPage *
 SoVolumeDataSlice::getLRUPage()
 {
   SoVolumeDataPage * LRUPage = NULL;
@@ -154,7 +155,7 @@ SoVolumeDataSlice::getLRUPage()
     for (int i = 0; i < numCols*numRows; i++) {
       SoVolumeDataPage * page = pages[i];
       while (page != NULL) {
-        if (LRUPage == NULL) 
+        if (LRUPage == NULL)
           LRUPage = page;
         else
           if (page->lastuse < LRUPage->lastuse)
@@ -187,23 +188,23 @@ void SoVolumeDataSlice::releaseAllPages()
 
 /*
 
-  Renders a arbitrary shaped quad. Automatically loads all pages 
+  Renders a arbitrary shaped quad. Automatically loads all pages
   needed for the given texturecoords. Texturecoords is in relative
-  coordinates [0, 1]. 
+  coordinates [0, 1].
 
-  vertices specified in counterclockwise order. 
-  v0 maps to lower left of slice. 
+  vertices specified in counterclockwise order.
+  v0 maps to lower left of slice.
   v1 maps to lower right of slice.
   v2 maps to upper right of slice.
   v3 maps to upper left of slice.
 
 */
 void SoVolumeDataSlice::render(SoState * state,
-                               const SbVec3f & v0, 
-                               const SbVec3f & v1, 
-                               const SbVec3f & v2, 
-                               const SbVec3f & v3, 
-                               const SbBox2f & textureCoords, 
+                               const SbVec3f & v0,
+                               const SbVec3f & v1,
+                               const SbVec3f & v2,
+                               const SbVec3f & v3,
+                               const SbBox2f & textureCoords,
                                SoTransferFunction * transferFunction,
                                long tick)
 {
@@ -213,15 +214,15 @@ void SoVolumeDataSlice::render(SoState * state,
   SbVec2f minUV, maxUV;
   textureCoords.getBounds(minUV, maxUV);
 
-  SbVec2f pageSizef = 
-    SbVec2f(float(this->pageSize[0])/float(dimensions[0]), 
+  SbVec2f pageSizef =
+    SbVec2f(float(this->pageSize[0])/float(dimensions[0]),
             float(this->pageSize[1])/float(dimensions[1]));
 
-  // Local page-UV-coordinates for the current quad to be rendered. 
-  SbVec2f localMinUV, localMaxUV;                   
+  // Local page-UV-coordinates for the current quad to be rendered.
+  SbVec2f localMinUV, localMaxUV;
 
-  // Global slice-UV-coordinates for the current quad to be rendered. 
-  SbVec2f globalMinUV, globalMaxUV;             
+  // Global slice-UV-coordinates for the current quad to be rendered.
+  SbVec2f globalMinUV, globalMaxUV;
 
   // Vertices for left and right edge of current row
   SbVec3f endLowerLeft, endLowerRight;
@@ -233,7 +234,7 @@ void SoVolumeDataSlice::render(SoState * state,
   globalMinUV = minUV;
   endLowerLeft = v0;
   endLowerRight = v1;
-  int row = minUV[1]*this->numRows;
+  int row = (int) (minUV[1]*this->numRows);
   while (globalMinUV[1] != maxUV[1]) {
 
     if ((row + 1)*pageSizef[1] < maxUV[1]) {
@@ -242,7 +243,7 @@ void SoVolumeDataSlice::render(SoState * state,
       localMaxUV[1] = 1.0;
 
       // Interpolating the row's endvertices
-      float k = 
+      float k =
         float(globalMaxUV[1] - minUV[1])/float(maxUV[1] - minUV[1]);
       endUpperLeft[0] = (1 - k)*v0[0] + k*v3[0];
       endUpperLeft[1] = (1 - k)*v0[1] + k*v3[1];
@@ -261,9 +262,9 @@ void SoVolumeDataSlice::render(SoState * state,
       endUpperLeft = v3;
       endUpperRight = v2;
     }// else
-  
 
-    int col = minUV[0]*this->dimensions[0]/this->pageSize[0];
+
+    int col = (int) (minUV[0]*this->dimensions[0]/this->pageSize[0]);
     globalMinUV[0] = minUV[0];
     localMinUV[0] = (globalMinUV[0] - col*pageSizef[0])/pageSizef[0];
     localMinUV[1] = (globalMinUV[1] - row*pageSizef[1])/pageSizef[1];
@@ -277,7 +278,7 @@ void SoVolumeDataSlice::render(SoState * state,
         localMaxUV[0] = 1.0;
 
         // Interpolating the quad's rightmost vertices
-        float k = 
+        float k =
           float(globalMaxUV[0] - minUV[0])/float(maxUV[0] - minUV[0]);
         lowerRight = (1 - k)*endLowerLeft + k*endLowerRight;
         upperRight = (1 - k)*endUpperLeft + k*endUpperRight;
@@ -288,7 +289,7 @@ void SoVolumeDataSlice::render(SoState * state,
         // The last quad on the row
         globalMaxUV[0] = maxUV[0];
         localMaxUV[0] = (maxUV[0] - col*pageSizef[0])/pageSizef[0];
-        
+
         lowerRight = endLowerRight;
         upperRight = endUpperRight;
       }// else
@@ -303,18 +304,18 @@ void SoVolumeDataSlice::render(SoState * state,
       glBegin(GL_QUADS);
       glColor4f(1, 1, 1, 1);
       glTexCoord2f(localMinUV[0], localMinUV[1]);
-      glVertex3f(lowerLeft[0], lowerLeft[1], lowerLeft[2]);    
+      glVertex3f(lowerLeft[0], lowerLeft[1], lowerLeft[2]);
       glTexCoord2f(localMaxUV[0], localMinUV[1]);
-      glVertex3f(lowerRight[0], lowerRight[1], lowerRight[2]);    
+      glVertex3f(lowerRight[0], lowerRight[1], lowerRight[2]);
       glTexCoord2f(localMaxUV[0], localMaxUV[1]);
-      glVertex3f(upperRight[0], upperRight[1], upperRight[2]);    
+      glVertex3f(upperRight[0], upperRight[1], upperRight[2]);
       glTexCoord2f(localMinUV[0], localMaxUV[1]);
-      glVertex3f(upperLeft[0], upperLeft[1], upperLeft[2]);    
+      glVertex3f(upperLeft[0], upperLeft[1], upperLeft[2]);
       glEnd();
 
-      globalMinUV[0] = globalMaxUV[0]; 
+      globalMinUV[0] = globalMaxUV[0];
       lowerLeft = lowerRight;
-      upperLeft = upperRight; 
+      upperLeft = upperRight;
       localMinUV[0] = 0.0;
       col++;
     }// while
@@ -334,10 +335,10 @@ void SoVolumeDataSlice::render(SoState * state,
 
 
 /*
-  Builds a page if it doesn't exist. Rebuilds it if it does exist. 
+  Builds a page if it doesn't exist. Rebuilds it if it does exist.
 */
-SoVolumeDataPage * 
-SoVolumeDataSlice::buildPage(int col, 
+SoVolumeDataPage *
+SoVolumeDataSlice::buildPage(int col,
                              int row,
                              SoTransferFunction * transferFunction)
 {
@@ -351,8 +352,8 @@ SoVolumeDataSlice::buildPage(int col,
     // First SoVolumeDataPage ever in this slice?
     if (!this->pages) {
       pages = new SoVolumeDataPage*[this->numCols*this->numRows];
-      memset( this->pages, 
-              0, 
+      memset( this->pages,
+              0,
               sizeof(SoVolumeDataPage*)*this->numCols*this->numRows);
     }// if
 
@@ -364,8 +365,8 @@ SoVolumeDataSlice::buildPage(int col,
     *pNewPage = page;
   }// if
 
-  SbBox2s subSlice = SbBox2s(col*pageSize[0], 
-                             row*pageSize[1], 
+  SbBox2s subSlice = SbBox2s(col*pageSize[0],
+                             row*pageSize[1],
                              (col + 1)*pageSize[0],
                              (row + 1)*pageSize[1]);
 
@@ -377,9 +378,9 @@ SoVolumeDataSlice::buildPage(int col,
   int outputDataType;
   int paletteSize;
   unsigned char * texture = new unsigned char[pageSize[0]*pageSize[1]*4];
-  reader->getSubSlice(subSlice, 
-                      sliceIdx, 
-                      texture, 
+  reader->getSubSlice(subSlice,
+                      sliceIdx,
+                      texture,
                       axis);
 
   transferFunction->transfer(texture,
@@ -392,17 +393,17 @@ SoVolumeDataSlice::buildPage(int col,
                              paletteSize);
 
   delete [] texture;
-   
+
   page->setData(SoVolumeDataPage::OPENGL,
-                (unsigned char*)transferredTexture, 
-                pageSize, 
+                (unsigned char*)transferredTexture,
+                pageSize,
                 palette,
                 paletteDataType,
                 paletteSize);
 
   page->transferFunctionId = transferFunction->getNodeId();
 
-  delete [] transferredTexture;
+  delete [] ((char*) transferredTexture);
   delete [] palette;
 
   pages[row*this->numCols + col] = page;
@@ -420,15 +421,15 @@ SoVolumeDataSlice::buildPage(int col,
 
 
 
-SoVolumeDataPage * 
-SoVolumeDataSlice::getPage(int col, 
-                           int row, 
+SoVolumeDataPage *
+SoVolumeDataSlice::getPage(int col,
+                           int row,
                            SoTransferFunction * transferFunction)
 {
   if (!pages) return NULL;
 
   // Valid SoVolumeDataPage?
-  if ((col >= this->numCols) || 
+  if ((col >= this->numCols) ||
       (row >= this->numRows))
     return NULL;
 
@@ -441,4 +442,3 @@ SoVolumeDataSlice::getPage(int col,
 
   return p;
 }//getPage
-

@@ -109,7 +109,7 @@ void SoVolumeDataPage::setData( Storage storage,
 
   // Creating OpenGL-texture
   if (storage & OPENGL) {
-    cc_glglue * glue = cc_glglue_instance((int) action->getCacheContext());
+    const cc_glglue * glue = cc_glglue_instance(0); // FIXME: need cache context here
     
     // FIXME: these functions is only supported in opengl 1.1... 
     // torbjorv 08052002
@@ -132,7 +132,7 @@ void SoVolumeDataPage::setData( Storage storage,
     }// if
 
     // Uploading paletted texture
-    else if (cc_glglue_has_paletted_textures{glue)) {
+    else if (cc_glglue_has_paletted_textures(glue)) {
       // FIXME: what if the OpenGL extension is not available, pederb, 2002-10-29
 
       // Check size of indices

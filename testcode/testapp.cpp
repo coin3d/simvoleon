@@ -14,7 +14,6 @@
 #include <Inventor/manips/SoTrackballManip.h>
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <math.h>
-#include <VolumeViz/misc/SoSFBox3s.h>
 #include <Inventor/draggers/SoHandleBoxDragger.h>
 #include <Inventor/sensors/SoFieldSensor.h>
 #include <Inventor/nodes/SoPickStyle.h>
@@ -29,15 +28,15 @@ SoHandleBoxDragger * dragger = NULL;
 SoVolumeData * volumeData = NULL;
 SoROI * roi = NULL;
 
-void setDotRGBA(int *pData, 
-            int xDim, int yDim, int zDim, 
-            float X, float Y, float Z, 
+void setDotRGBA(int *pData,
+            int xDim, int yDim, int zDim,
+            float X, float Y, float Z,
             unsigned char R,
             unsigned char G,
             unsigned char B,
             unsigned char A)
 {
-  int nX = int(xDim*X); 
+  int nX = int(xDim*X);
   int nY = int(yDim*Y);
   int nZ = int(zDim*Z);
 
@@ -60,7 +59,7 @@ void * generateFancy3DTextureRGBA(int xDim, int yDim, int zDim)
 
 
   float t = 0;
-  
+
   while (t < 100) {
     float x = sin((t + 1.4234)*1.9);
     float y = cos((t*2.5) - 10);
@@ -68,9 +67,9 @@ void * generateFancy3DTextureRGBA(int xDim, int yDim, int zDim)
 
     setDotRGBA( texture,
             xDim, yDim, zDim,
-            sin(t*12)*0.45 + 0.5, 
-            sin(t*15)*cos(t*5)*0.45 + 0.5, 
-            cos(t*4.5)*0.45 + 0.5, 
+            sin(t*12)*0.45 + 0.5,
+            sin(t*15)*cos(t*5)*0.45 + 0.5,
+            cos(t*4.5)*0.45 + 0.5,
             255.0*cos(t), 255.0*sin(t), 255.0, 255.0);
 
     t += 0.0005;
@@ -81,15 +80,15 @@ void * generateFancy3DTextureRGBA(int xDim, int yDim, int zDim)
 
 
 
-void setDotPal16(unsigned short *pData, 
-            int xDim, int yDim, int zDim, 
-            float X, float Y, float Z, 
+void setDotPal16(unsigned short *pData,
+            int xDim, int yDim, int zDim,
+            float X, float Y, float Z,
             unsigned char R,
             unsigned char G,
             unsigned char B,
             unsigned char A)
 {
-  int nX = int(xDim*X); 
+  int nX = int(xDim*X);
   int nY = int(yDim*Y);
   int nZ = int(zDim*Z);
 
@@ -108,7 +107,7 @@ void setDotPal16(unsigned short *pData,
 
 void * generateFancy3DTexturePal16(int xDim, int yDim, int zDim, float *& palette)
 {
-  // Constructing a palette with 4444 RGBA structure. 
+  // Constructing a palette with 4444 RGBA structure.
   palette = new float[4*65536];
   for (int i = 0; i < 65536; i++) {
     int R = (i & 15);
@@ -122,12 +121,12 @@ void * generateFancy3DTexturePal16(int xDim, int yDim, int zDim, float *& palett
     palette[i*4 + 3] = float(A)/15.0;
   }// for
 
-  
+
 
   unsigned short * texture = new unsigned short[xDim*yDim*zDim];
   memset(texture, 0, sizeof(unsigned short)*xDim*yDim*zDim);
   float t = 0;
-  
+
   while (t < 100) {
     float x = sin((t + 1.4234)*1.9);
     float y = cos((t*2.5) - 10);
@@ -135,9 +134,9 @@ void * generateFancy3DTexturePal16(int xDim, int yDim, int zDim, float *& palett
 
     setDotPal16( texture,
             xDim, yDim, zDim,
-            sin(t*12)*0.45 + 0.5, 
-            sin(t*15)*cos(t*5)*0.45 + 0.5, 
-            cos(t*4.5)*0.45 + 0.5, 
+            sin(t*12)*0.45 + 0.5,
+            sin(t*15)*cos(t*5)*0.45 + 0.5,
+            cos(t*4.5)*0.45 + 0.5,
             15.0*cos(t), 15.0*sin(t), 15.0, 15.0);
 
 
@@ -152,7 +151,7 @@ void * generateFancy3DTexturePal16(int xDim, int yDim, int zDim, float *& palett
 main(int argc, char **argv)
 {
 
-  
+
 	// Initialize Inventor. This returns a main window to use.
 	// If unsuccessful, exit.
 	QWidget *myWindow = SoQt::init(argv[0]); // pass the app name
@@ -160,9 +159,6 @@ main(int argc, char **argv)
 
   // Initialize Qt and SoQt.
   SoVolumeRendering::initClass();
-  SoSFBox3s::initClass();
-	SoQtExaminerViewer *myExaminerViewer = new SoQtExaminerViewer(myWindow);
-
 
   SoSeparator *root = new SoSeparator;
   root->ref();
@@ -184,15 +180,15 @@ main(int argc, char **argv)
 
   volumeData = new SoVolumeData();
   SoTransferFunction *pTransFunc = new SoTransferFunction();
-  
+
   SbVec3s dim = SbVec3s(256, 256, 256);
 
-  
+
   float * palette;
-  unsigned short *pData = 
+  unsigned short *pData =
     (unsigned short*)generateFancy3DTexturePal16(dim[0], dim[1], dim[2], palette);
 
-  volumeData->setVolumeData( dim, 
+  volumeData->setVolumeData( dim,
                             (unsigned char *)pData,
                             SoVolumeRendering::UNSIGNED_SHORT);
 
@@ -201,11 +197,11 @@ main(int argc, char **argv)
   memcpy(p, palette, 65536*sizeof(float)*4);
   pTransFunc->colorMap.finishEditing();
 
-  
 
-/*  unsigned int * pData = 
+
+/*  unsigned int * pData =
     (unsigned int*)generateFancy3DTextureRGBA(dim[0], dim[1], dim[2]);
-  volumeData->setVolumeData( dim, 
+  volumeData->setVolumeData( dim,
                             (unsigned char *)pData,
                             SoVolumeRendering::RGBA);
 
@@ -226,7 +222,7 @@ main(int argc, char **argv)
   //pVolRend->numSlices = 64;
 
   roi = new SoROI;
-  roi->box.setValue(0, 0, 0, 63, 63, 63); 
+  roi->box.setValue(0, 0, 0, 63, 63, 63);
   root->addChild(roi);
 
   SoDrawStyle *drawStyle = new SoDrawStyle;

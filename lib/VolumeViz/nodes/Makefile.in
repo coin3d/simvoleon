@@ -105,7 +105,8 @@ SOURCES = \
 	SoTransferFunction.cpp \
 	SoVolumeData.cpp \
 	SoVolumeRender.cpp \
-	SoVolumeRendering.cpp
+	SoVolumeRendering.cpp \
+	SoROI.cpp
 
 
 libnodes_la_SOURCES = $(SOURCES)
@@ -133,14 +134,14 @@ nodes_lst_AR = $(AR) cru
 nodes_lst_LIBADD =
 am_nodes_lst_OBJECTS = SoTransferFunction.$(OBJEXT) \
 	SoVolumeData.$(OBJEXT) SoVolumeRender.$(OBJEXT) \
-	SoVolumeRendering.$(OBJEXT)
+	SoVolumeRendering.$(OBJEXT) SoROI.$(OBJEXT)
 nodes_lst_OBJECTS = $(am_nodes_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
 am_libnodes_la_OBJECTS = SoTransferFunction.lo SoVolumeData.lo \
-	SoVolumeRender.lo SoVolumeRendering.lo
+	SoVolumeRender.lo SoVolumeRendering.lo SoROI.lo
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -149,7 +150,8 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/SoTransferFunction.Plo \
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/SoROI.Plo $(DEPDIR)/SoROI.Po \
+@AMDEP_TRUE@	$(DEPDIR)/SoTransferFunction.Plo \
 @AMDEP_TRUE@	$(DEPDIR)/SoTransferFunction.Po \
 @AMDEP_TRUE@	$(DEPDIR)/SoVolumeData.Plo \
 @AMDEP_TRUE@	$(DEPDIR)/SoVolumeData.Po \
@@ -174,7 +176,8 @@ SOURCES = \
 	SoTransferFunction.cpp \
 	SoVolumeData.cpp \
 	SoVolumeRender.cpp \
-	SoVolumeRendering.cpp
+	SoVolumeRendering.cpp \
+	SoROI.cpp
 
 
 all: all-am
@@ -214,6 +217,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoROI.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoROI.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoTransferFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoTransferFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeData.Plo@am__quote@

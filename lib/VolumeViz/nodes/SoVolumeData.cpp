@@ -15,6 +15,8 @@
 #include <Inventor/elements/SoGLCacheContextElement.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
 #include <Inventor/SbVec3s.h>
+#include <VolumeViz/misc/SoVolumeDataPage.h>
+#include <VolumeViz/misc/SoVolumeDataSlice.h>
 
 #if HAVE_CONFIG_H
 #include <config.h>

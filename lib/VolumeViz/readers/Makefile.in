@@ -102,7 +102,8 @@ INCLUDES = -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libreaders.la
 
 SOURCES = \
-	SoVolumeReader.cpp
+	SoVolumeReader.cpp \
+	SoVRMemReader.cpp
 
 
 libreaders_la_SOURCES = $(SOURCES)
@@ -112,7 +113,8 @@ readers_lst_SOURCES = $(SOURCES)
 libreadersincdir = $(includedir)/VolumeViz/readers
 
 libreadersinc_HEADERS = \
-	SoVolumeReader.h
+	SoVolumeReader.h \
+	SoVRMemReader.h
 
 subdir = lib/VolumeViz/readers
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
@@ -122,13 +124,14 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 readers_lst_AR = $(AR) cru
 readers_lst_LIBADD =
-am_readers_lst_OBJECTS = SoVolumeReader.$(OBJEXT)
+am_readers_lst_OBJECTS = SoVolumeReader.$(OBJEXT) \
+	SoVRMemReader.$(OBJEXT)
 readers_lst_OBJECTS = $(am_readers_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libreaders_la_LDFLAGS =
 libreaders_la_LIBADD =
-am_libreaders_la_OBJECTS = SoVolumeReader.lo
+am_libreaders_la_OBJECTS = SoVolumeReader.lo SoVRMemReader.lo
 libreaders_la_OBJECTS = $(am_libreaders_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -137,7 +140,9 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/SoVolumeReader.Plo \
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/SoVRMemReader.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/SoVRMemReader.Po \
+@AMDEP_TRUE@	$(DEPDIR)/SoVolumeReader.Plo \
 @AMDEP_TRUE@	$(DEPDIR)/SoVolumeReader.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -153,7 +158,8 @@ HEADERS = $(libreadersinc_HEADERS)
 
 DIST_COMMON = $(libreadersinc_HEADERS) Makefile.am Makefile.in
 SOURCES = \
-	SoVolumeReader.cpp
+	SoVolumeReader.cpp \
+	SoVRMemReader.cpp
 
 
 all: all-am
@@ -193,6 +199,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVRMemReader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVRMemReader.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeReader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeReader.Po@am__quote@
 

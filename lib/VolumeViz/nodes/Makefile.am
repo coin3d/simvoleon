@@ -11,7 +11,8 @@ SOURCES = \
 	SoTransferFunction.cpp \
 	SoVolumeData.cpp \
 	SoVolumeRender.cpp \
-	SoVolumeRendering.cpp
+	SoVolumeRendering.cpp \
+	SoROI.cpp
 
 libnodes_la_SOURCES = $(SOURCES)
 

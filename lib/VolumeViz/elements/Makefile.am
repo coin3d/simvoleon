@@ -8,7 +8,8 @@ noinst_LTLIBRARIES = libelements.la
 endif
 
 SOURCES = \
-	SoVolumeDataElement.cpp
+	SoVolumeDataElement.cpp \
+	SoTransferFunctionElement.cpp
 
 libelements_la_SOURCES = $(SOURCES)
 
@@ -17,7 +18,8 @@ elements_lst_SOURCES = $(SOURCES)
 libelementsincdir = $(includedir)/VolumeViz/elements
 
 libelementsinc_HEADERS = \
-	SoVolumeDataElement.h	
+	SoVolumeDataElement.h \
+	SoTransferFunctionElement.h
 
 elements.lst: $(elements_lst_OBJECTS)
 	@echo "Linking $@..."; \

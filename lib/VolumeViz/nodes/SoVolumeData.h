@@ -21,14 +21,10 @@
 #include <Inventor/SbBox2f.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <Inventor/nodes/SoSubNode.h>
-#include <VolumeViz/misc/SoVolumeDataPage.h>
-#include <VolumeViz/misc/SoVolumeDataSlice.h>
 
 class SoVolumeReader;
-
-
-
-
+class SoState;
+class SoTransferFunction;
 
 class SoVolumeData : public SoVolumeRendering {
   typedef SoVolumeRendering inherited;

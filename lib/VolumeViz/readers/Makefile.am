@@ -8,7 +8,8 @@ noinst_LTLIBRARIES = libreaders.la
 endif
 
 SOURCES = \
-	SoVolumeReader.cpp
+	SoVolumeReader.cpp \
+	SoVRMemReader.cpp
 
 libreaders_la_SOURCES = $(SOURCES)
 
@@ -17,7 +18,8 @@ readers_lst_SOURCES = $(SOURCES)
 libreadersincdir = $(includedir)/VolumeViz/readers
 
 libreadersinc_HEADERS = \
-	SoVolumeReader.h
+	SoVolumeReader.h \
+	SoVRMemReader.h
 
 readers.lst: $(readers_lst_OBJECTS)
 	@echo "Linking $@..."; \

@@ -11,7 +11,7 @@
 #define COIN_SOROI_H
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
-#include <VolumeViz/misc/SoSFBox3s.h>
+#include <Inventor/fields/SoSFBox3s.h>
 #include <Inventor/fields/SoSFBool.h>
 #include <Inventor/fields/SoSFEnum.h>
 

@@ -98,42 +98,41 @@ sim_ac_coin_configcmd = @sim_ac_coin_configcmd@
 
 INCLUDES = -I$(top_srcdir)/lib
 
-@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = elements.lst
-@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libelements.la
+@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = misc.lst
+@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libmisc.la
 
 SOURCES = \
-	SoVolumeDataElement.cpp \
-	SoTransferFunctionElement.cpp
+	SoVolumeDataPage.cpp \
+	SoVolumeDataSlice.cpp
 
 
-libelements_la_SOURCES = $(SOURCES)
+libmisc_la_SOURCES = $(SOURCES)
 
-elements_lst_SOURCES = $(SOURCES)
+misc_lst_SOURCES = $(SOURCES)
 
-libelementsincdir = $(includedir)/VolumeViz/elements
+libmiscincdir = $(includedir)/VolumeViz/misc
 
-libelementsinc_HEADERS = \
-	SoVolumeDataElement.h \
-	SoTransferFunctionElement.h
+libmiscinc_HEADERS = \
+	SoVolumeDataSlice.h \
+	SoVolumeDataPage.h
 
-subdir = lib/VolumeViz/elements
+subdir = lib/VolumeViz/misc
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 LIBRARIES = $(noinst_LIBRARIES)
 
-elements_lst_AR = $(AR) cru
-elements_lst_LIBADD =
-am_elements_lst_OBJECTS = SoVolumeDataElement.$(OBJEXT) \
-	SoTransferFunctionElement.$(OBJEXT)
-elements_lst_OBJECTS = $(am_elements_lst_OBJECTS)
+misc_lst_AR = $(AR) cru
+misc_lst_LIBADD =
+am_misc_lst_OBJECTS = SoVolumeDataPage.$(OBJEXT) \
+	SoVolumeDataSlice.$(OBJEXT)
+misc_lst_OBJECTS = $(am_misc_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
-libelements_la_LDFLAGS =
-libelements_la_LIBADD =
-am_libelements_la_OBJECTS = SoVolumeDataElement.lo \
-	SoTransferFunctionElement.lo
-libelements_la_OBJECTS = $(am_libelements_la_OBJECTS)
+libmisc_la_LDFLAGS =
+libmisc_la_LIBADD =
+am_libmisc_la_OBJECTS = SoVolumeDataPage.lo SoVolumeDataSlice.lo
+libmisc_la_OBJECTS = $(am_libmisc_la_OBJECTS)
 
 DEFS = @DEFS@
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
@@ -141,10 +140,10 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/SoTransferFunctionElement.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoTransferFunctionElement.Po \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeDataElement.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeDataElement.Po
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/SoVolumeDataPage.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/SoVolumeDataPage.Po \
+@AMDEP_TRUE@	$(DEPDIR)/SoVolumeDataSlice.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/SoVolumeDataSlice.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -154,13 +153,13 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 CXXFLAGS = @CXXFLAGS@
-DIST_SOURCES = $(elements_lst_SOURCES) $(libelements_la_SOURCES)
-HEADERS = $(libelementsinc_HEADERS)
+DIST_SOURCES = $(misc_lst_SOURCES) $(libmisc_la_SOURCES)
+HEADERS = $(libmiscinc_HEADERS)
 
-DIST_COMMON = $(libelementsinc_HEADERS) Makefile.am Makefile.in
+DIST_COMMON = $(libmiscinc_HEADERS) Makefile.am Makefile.in
 SOURCES = \
-	SoVolumeDataElement.cpp \
-	SoTransferFunctionElement.cpp
+	SoVolumeDataPage.cpp \
+	SoVolumeDataSlice.cpp
 
 
 all: all-am
@@ -178,7 +177,7 @@ distclean-libtool:
 	-rm -f libtool
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  lib/VolumeViz/elements/Makefile
+	  $(AUTOMAKE) --gnu  lib/VolumeViz/misc/Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && \
 	  CONFIG_HEADERS= CONFIG_LINKS= \
@@ -191,8 +190,8 @@ clean-noinstLIBRARIES:
 
 clean-noinstLTLIBRARIES:
 	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
-libelements.la: $(libelements_la_OBJECTS) $(libelements_la_DEPENDENCIES) 
-	$(CXXLINK)  $(libelements_la_LDFLAGS) $(libelements_la_OBJECTS) $(libelements_la_LIBADD) $(LIBS)
+libmisc.la: $(libmisc_la_OBJECTS) $(libmisc_la_DEPENDENCIES) 
+	$(CXXLINK)  $(libmisc_la_LDFLAGS) $(libmisc_la_OBJECTS) $(libmisc_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -200,10 +199,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoTransferFunctionElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoTransferFunctionElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataPage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataPage.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataSlice.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataSlice.Po@am__quote@
 
 distclean-depend:
 	-rm -rf $(DEPDIR)
@@ -227,22 +226,22 @@ distclean-depend:
 	$(LTCXXCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
 CXXDEPMODE = @CXXDEPMODE@
 uninstall-info-am:
-install-libelementsincHEADERS: $(libelementsinc_HEADERS)
+install-libmiscincHEADERS: $(libmiscinc_HEADERS)
 	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libelementsincdir)
-	@list='$(libelementsinc_HEADERS)'; for p in $$list; do \
+	$(mkinstalldirs) $(DESTDIR)$(libmiscincdir)
+	@list='$(libmiscinc_HEADERS)'; for p in $$list; do \
 	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(INSTALL_HEADER) $$d$$p $(DESTDIR)$(libelementsincdir)/$$f"; \
-	  $(INSTALL_HEADER) $$d$$p $(DESTDIR)$(libelementsincdir)/$$f; \
+	  echo " $(INSTALL_HEADER) $$d$$p $(DESTDIR)$(libmiscincdir)/$$f"; \
+	  $(INSTALL_HEADER) $$d$$p $(DESTDIR)$(libmiscincdir)/$$f; \
 	done
 
-uninstall-libelementsincHEADERS:
+uninstall-libmiscincHEADERS:
 	@$(NORMAL_UNINSTALL)
-	@list='$(libelementsinc_HEADERS)'; for p in $$list; do \
+	@list='$(libmiscinc_HEADERS)'; for p in $$list; do \
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(libelementsincdir)/$$f"; \
-	  rm -f $(DESTDIR)$(libelementsincdir)/$$f; \
+	  echo " rm -f $(DESTDIR)$(libmiscincdir)/$$f"; \
+	  rm -f $(DESTDIR)$(libmiscincdir)/$$f; \
 	done
 
 tags: TAGS
@@ -303,7 +302,7 @@ check: check-am
 all-am: Makefile $(LIBRARIES) $(LTLIBRARIES) $(HEADERS)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(libelementsincdir)
+	$(mkinstalldirs) $(DESTDIR)$(libmiscincdir)
 
 install: install-am
 install-exec: install-exec-am
@@ -346,7 +345,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-libelementsincHEADERS
+install-data-am: install-libmiscincHEADERS
 
 install-exec-am:
 
@@ -365,7 +364,7 @@ mostlyclean: mostlyclean-am
 mostlyclean-am: mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool
 
-uninstall-am: uninstall-info-am uninstall-libelementsincHEADERS
+uninstall-am: uninstall-info-am uninstall-libmiscincHEADERS
 
 .PHONY: GTAGS all all-am check check-am clean clean-generic \
 	clean-libtool clean-noinstLIBRARIES clean-noinstLTLIBRARIES \
@@ -373,17 +372,17 @@ uninstall-am: uninstall-info-am uninstall-libelementsincHEADERS
 	distclean-libtool distclean-tags distdir dvi dvi-am info \
 	info-am install install-am install-data install-data-am \
 	install-exec install-exec-am install-info install-info-am \
-	install-libelementsincHEADERS install-man install-strip \
+	install-libmiscincHEADERS install-man install-strip \
 	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool tags uninstall \
-	uninstall-am uninstall-info-am uninstall-libelementsincHEADERS
+	uninstall-am uninstall-info-am uninstall-libmiscincHEADERS
 
 
-elements.lst: $(elements_lst_OBJECTS)
+misc.lst: $(misc_lst_OBJECTS)
 	@echo "Linking $@..."; \
 	rm -f $@; \
-	for i in $(elements_lst_OBJECTS); do echo $$i >>$@; done
+	for i in $(misc_lst_OBJECTS); do echo $$i >>$@; done
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

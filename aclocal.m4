@@ -71,43 +71,31 @@ AC_ARG_WITH([msvcrt],
     sim_ac_msvcrt=singlethread-static
     sim_ac_msvcrt_CFLAGS="/ML"
     sim_ac_msvcrt_CXXFLAGS="/ML"
-    sim_ac_msvcrt_LIBLDFLAGS=""
-    sim_ac_msvcrt_LIBLIBS=""
     ;;
   default-debug | singlethread-static-debug | mld | /mld | libcd | libcd\.lib )
     sim_ac_msvcrt=singlethread-static-debug
     sim_ac_msvcrt_CFLAGS="/MLd"
     sim_ac_msvcrt_CXXFLAGS="/MLd"
-    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
-    sim_ac_msvcrt_LIBLIBS="-llibcd"
     ;;
   multithread-static | mt | /mt | libcmt | libcmt\.lib )
     sim_ac_msvcrt=multithread-static
     sim_ac_msvcrt_CFLAGS="/MT"
     sim_ac_msvcrt_CXXFLAGS="/MT"
-    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
-    sim_ac_msvcrt_LIBLIBS="-llibcmt"
     ;;
   multithread-static-debug | mtd | /mtd | libcmtd | libcmtd\.lib )
     sim_ac_msvcrt=multithread-static-debug
     sim_ac_msvcrt_CFLAGS="/MTd"
     sim_ac_msvcrt_CXXFLAGS="/MTd"
-    sim_ac_msvcrt_LIBLDFLAGS="/NODEFAULTLIB:libc"
-    sim_ac_msvcrt_LIBLIBS="-llibcmtd"
     ;;
   multithread-dynamic | md | /md | msvcrt | msvcrt\.lib )
     sim_ac_msvcrt=multithread-dynamic
-    sim_ac_msvcrt_CFLAGS=""
-    sim_ac_msvcrt_CXXFLAGS=""
-    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
-    sim_ac_msvcrt_LIBLIBS="-lmsvcrt"
+    sim_ac_msvcrt_CFLAGS="/MD"
+    sim_ac_msvcrt_CXXFLAGS="/MD"
     ;;
   multithread-dynamic-debug | mdd | /mdd | msvcrtd | msvcrtd\.lib )
     sim_ac_msvcrt=multithread-dynamic-debug
     sim_ac_msvcrt_CFLAGS="/MDd"
     sim_ac_msvcrt_CXXFLAGS="/MDd"
-    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
-    sim_ac_msvcrt_LIBLIBS="-lmsvcrtd"
     ;;
   *)
     SIM_AC_ERROR([invalid-msvcrt])
@@ -4835,8 +4823,8 @@ fi
 AC_DEFUN([SIM_AC_WITH_INVENTOR], [
 : ${sim_ac_want_inventor=false}
 AC_ARG_WITH([inventor],
-  AC_HELP_STRING([--with-inventor], [use another Open Inventor than Coin [[default=no]]])
-AC_HELP_STRING([--with-inventor=PATH], [specify where Open Inventor resides]),
+  AC_HELP_STRING([--with-inventor], [use another Open Inventor than Coin [[default=no]], with InventorXt])
+AC_HELP_STRING([--with-inventor=PATH], [specify where Open Inventor and InventorXt resides]),
   [case "$withval" in
   no)  sim_ac_want_inventor=false ;;
   yes) sim_ac_want_inventor=true
@@ -4967,7 +4955,9 @@ EOF
   AC_MSG_CHECKING([for Open Inventor library])
 
   for sim_ac_iv_cppflags_loop in "" "-DWIN32"; do
-    for sim_ac_iv_libcheck in $sim_ac_inventor_chk_libs; do
+    # Trying with no libraries first, as TGS Inventor uses pragmas in
+    # a header file to notify MSVC of what to link with.
+    for sim_ac_iv_libcheck in "" $sim_ac_inventor_chk_libs; do
       if test "x$sim_ac_inventor_libs" = "xUNRESOLVED"; then
         CPPFLAGS="$sim_ac_iv_cppflags_loop $sim_ac_inventor_cppflags $sim_ac_save_CPPFLAGS"
         LDFLAGS="$sim_ac_inventor_ldflags $sim_ac_save_LDFLAGS"
@@ -5043,6 +5033,38 @@ m4_do([popdef([cache_variable])],
 ]) # SIM_AC_HAVE_INVENTOR_NODE
 
 # **************************************************************************
+# SIM_AC_HAVE_INVENTOR_VRMLNODE( VRLMNODE, [ACTION-IF-FOUND] [, ACTION-IF-NOT-FOUND])
+#
+# Check whether or not the given VRMLNODE is available in the Open Inventor
+# development system.  If so, the HAVE_<VRMLNODE> define is set.
+#
+# Authors:
+#   Lars J. Aas  <larsa@sim.no>
+#   Morten Eriksen  <mortene@sim.no>
+
+AC_DEFUN([SIM_AC_HAVE_INVENTOR_VRMLNODE], 
+[m4_do([pushdef([cache_variable], sim_cv_have_oiv_[]AC_TOLOWER([$1])_vrmlnode)],
+       [pushdef([DEFINE_VARIABLE], HAVE_[]AC_TOUPPER([$1]))])
+AC_CACHE_CHECK(
+  [if the Open Inventor $1 VRML node is available],
+  cache_variable,
+  [AC_TRY_LINK(
+    [#include <Inventor/VRMLnodes/$1.h>],
+    [$1 * p = new $1;],
+    cache_variable=true,
+    cache_variable=false)])
+
+if $cache_variable; then
+  AC_DEFINE(DEFINE_VARIABLE, 1, [Define to enable use of the Open Inventor $1 VRML node])
+  $2
+else
+  ifelse([$3], , :, [$3])
+fi
+m4_do([popdef([cache_variable])],
+      [popdef([DEFINE_VARIABLE])])
+]) # SIM_AC_HAVE_INVENTOR_VRMLNODE
+
+# **************************************************************************
 # SIM_AC_HAVE_INVENTOR_FEATURE(MESSAGE, HEADERS, BODY, DEFINE
 #                              [, ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
 #
@@ -5070,6 +5092,82 @@ fi
 m4_do([popdef([cache_variable])],
       [popdef([DEFINE_VARIABLE])])
 ]) # SIM_AC_HAVE_INVENTOR_FEATURE
+
+# **************************************************************************
+# SIM_AC_INVENTOR_EXTENSIONS( ACTION )
+#
+# This macro adds an "--with-iv-extensions=..." option to configure, that
+# enabes the configurer to enable extensions in third-party libraries to
+# be initialized by the library by default.  The configure-option argument
+# must be a comma-separated list of link library path options, link library
+# options and class-names.
+#
+# Sample usage is
+#   ./configure --with-iv-extension=-L/tmp/mynodes,-lmynodes,MyNode1,MyNode2
+#
+# TODO:
+#   * check if __declspec(dllimport) is needed on Cygwin
+
+AC_DEFUN([SIM_AC_INVENTOR_EXTENSIONS],
+[
+AC_ARG_WITH(
+  [iv-extensions],
+  [AC_HELP_STRING([--with-iv-extensions=extensions], [enable extra open inventor extensions])],
+  [sim_ac_iv_try_extensions=$withval])
+
+sim_ac_iv_extension_save_LIBS=$LIBS
+
+sim_ac_iv_extension_LIBS=
+sim_ac_iv_extension_LDFLAGS=
+sim_ac_iv_extension_decarations=
+sim_ac_iv_extension_initializations=
+
+sim_ac_iv_extensions=
+while test x"${sim_ac_iv_try_extensions}" != x""; do
+  sim_ac_iv_extension=`echo ,$sim_ac_iv_try_extensions | cut -d, -f2`
+  sim_ac_iv_try_extensions=`echo ,$sim_ac_iv_try_extensions | cut -d, -f3-`
+  case $sim_ac_iv_extension in
+  sim_ac_dummy ) # ignore
+    ;;
+  -L* ) # extension library path hint
+    sim_ac_iv_extension_LDFLAGS="$sim_ac_iv_extension_LDFLAGS $sim_ac_iv_extension"
+    ;;
+  -l* ) # extension library hint
+    LIBS="$sim_ac_iv_extension_save_LIBS $sim_ac_iv_extension_LIBS $sim_ac_iv_extension"
+    AC_MSG_CHECKING([for Open Inventor extension library $sim_ac_iv_extension])
+    AC_TRY_LINK([#include <Inventor/SoDB.h>], [SoDB::init();],
+      [sim_ac_iv_extension_LIBS="$sim_ac_iv_extension_LIBS $sim_ac_iv_extension"
+       AC_MSG_RESULT([linkable])],
+      [AC_MSG_RESULT([unlinkable - discarded])])
+    ;;
+  * )
+    AC_MSG_CHECKING([for Open Inventor extension $sim_ac_iv_extension])
+    AC_TRY_LINK(
+[#include <Inventor/SoDB.h>
+// hack up a declaration and see if the mangled name is found by the linker
+class $sim_ac_iv_extension {
+public:
+static void initClass(void);
+};], [
+  SoDB::init();
+  $sim_ac_iv_extension::initClass();
+], [
+  AC_MSG_RESULT([found])
+  sim_ac_iv_extensions="$sim_ac_iv_extensions COIN_IV_EXTENSION($sim_ac_iv_extension)"
+], [
+  AC_MSG_RESULT([not found])
+])
+    ;;
+  esac
+done
+
+AC_DEFINE_UNQUOTED([COIN_IV_EXTENSIONS], [$sim_ac_iv_extensions], [Open Inventor extensions])
+
+LIBS=$sim_ac_iv_extension_save_LIBS
+
+ifelse([$1], , :, [$1])
+
+]) # SIM_AC_INVENTOR_EXTENSIONS
 
 
 # Convenience macros SIM_AC_DEBACKSLASH and SIM_AC_DOBACKSLASH for

@@ -98,7 +98,7 @@ sim_ac_coin_configcmd = @sim_ac_coin_configcmd@
 
 INCLUDES = -I$(top_srcdir)/lib
 
-SUBDIRS = details elements nodes readers .
+SUBDIRS = details elements nodes readers misc .
 
 @BUILD_WITH_MSVC_TRUE@lib_LIBRARIES = VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib
 @BUILD_WITH_MSVC_FALSE@lib_LTLIBRARIES = libVolumeViz.la
@@ -109,7 +109,8 @@ libVolumeViz_la_LIBADD = \
         details/libdetails.la \
         elements/libelements.la \
 	nodes/libnodes.la \
-        readers/libreaders.la
+        readers/libreaders.la \
+	misc/libmisc.la
 
 
 libVolumeViz_la_LDFLAGS = \
@@ -123,7 +124,8 @@ VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD = \
         details/details.lst \
         elements/elements.lst \
         nodes/nodes.lst \
-        readers/readers.lst
+        readers/readers.lst \
+	misc/misc.lst
 
 subdir = lib/VolumeViz
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
@@ -134,14 +136,15 @@ LIBRARIES = $(lib_LIBRARIES)
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_AR = $(AR) cru
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_DEPENDENCIES = \
 	details/details.lst elements/elements.lst nodes/nodes.lst \
-	readers/readers.lst
+	readers/readers.lst misc/misc.lst
 am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS =
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS = \
 	$(am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
 libVolumeViz_la_DEPENDENCIES = details/libdetails.la \
-	elements/libelements.la nodes/libnodes.la readers/libreaders.la
+	elements/libelements.la nodes/libnodes.la readers/libreaders.la \
+	misc/libmisc.la
 am_libVolumeViz_la_OBJECTS =
 libVolumeViz_la_OBJECTS = $(am_libVolumeViz_la_OBJECTS)
 
@@ -518,6 +521,7 @@ uninstall-local:
 	  "$$incbasedir/elements" \
 	  "$$incbasedir/nodes" \
 	  "$$incbasedir/readers" \
+	  "$$incbasedir/misc" \
 	  "$$incbasedir"; do \
 	  if test -d "$$dir"; then \
 	    echo " rmdir" "$$dir"; \

@@ -1,7 +1,7 @@
 
 INCLUDES = -I$(top_srcdir)/lib
 
-SUBDIRS = details elements nodes readers .
+SUBDIRS = details elements nodes readers misc .
 
 if BUILD_WITH_MSVC
 lib_LIBRARIES = VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib
@@ -15,7 +15,8 @@ libVolumeViz_la_LIBADD = \
         details/libdetails.la \
         elements/libelements.la \
 	nodes/libnodes.la \
-        readers/libreaders.la
+        readers/libreaders.la \
+	misc/libmisc.la
 
 libVolumeViz_la_LDFLAGS = \
 	-no-undefined \
@@ -27,7 +28,8 @@ VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD = \
         details/details.lst \
         elements/elements.lst \
         nodes/nodes.lst \
-        readers/readers.lst
+        readers/readers.lst \
+	misc/misc.lst
 
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib: Makefile \
   $(libVolumeViz_lib_OBJECTS) \
@@ -83,6 +85,7 @@ uninstall-local:
 	  "$$incbasedir/elements" \
 	  "$$incbasedir/nodes" \
 	  "$$incbasedir/readers" \
+	  "$$incbasedir/misc" \
 	  "$$incbasedir"; do \
 	  if test -d "$$dir"; then \
 	    echo " rmdir" "$$dir"; \

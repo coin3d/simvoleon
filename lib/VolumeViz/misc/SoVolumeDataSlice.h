@@ -49,11 +49,9 @@ public:
   SoVolumeDataPage * getLRUPage();
 
   SoVolumeDataPage **pages;
-
   SoVolumeReader * reader;
 
   SoVolumeRendering::Axis axis;
-  SoVolumeRendering::DataType dataType;
   int sliceIdx;
   SbVec2s pageSize;
   SbVec2s dimensions;
@@ -66,6 +64,9 @@ public:
 
   int numCols;
   int numRows;
+private:
+  SoVolumeRendering::DataType dataType;
+
 };
 
 
