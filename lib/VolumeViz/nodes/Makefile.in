@@ -111,6 +111,7 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIMVOLEON_BETA_VERSION = @SIMVOLEON_BETA_VERSION@
 SIMVOLEON_DSP_DEFS = @SIMVOLEON_DSP_DEFS@
 SIMVOLEON_DSP_INCS = @SIMVOLEON_DSP_INCS@
 SIMVOLEON_DSP_LIBS = @SIMVOLEON_DSP_LIBS@
@@ -197,13 +198,14 @@ SOURCES = \
 	VolumeData.cpp \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
-	OrthoSlice.cpp
+	ObliqueSlice.cpp \
+	OrthoSlice.cpp 
 
 
 
 # FIXME: not yet implemented. 20040505 mortene.
-#	ObliqueSlice.cpp
 #	ROI.cpp
+#	VolumeIndexedFaceSet.cpp et al.
 libnodes_la_SOURCES = $(SOURCES)
 
 nodes_lst_SOURCES = $(SOURCES)
@@ -212,10 +214,11 @@ libnodesincdir = $(includedir)/VolumeViz/nodes
 
 libnodesinc_HEADERS = \
 	SoOrthoSlice.h \
+	SoObliqueSlice.h \
 	SoTransferFunction.h \
 	SoVolumeData.h \
 	SoVolumeRender.h \
-	SoVolumeRendering.h
+	SoVolumeRendering.h 
 
 subdir = lib/VolumeViz/nodes
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -228,7 +231,7 @@ nodes_lst_AR = $(AR) cru
 nodes_lst_LIBADD =
 am__objects_1 = TransferFunction.$(OBJEXT) VolumeData.$(OBJEXT) \
 	VolumeRender.$(OBJEXT) VolumeRendering.$(OBJEXT) \
-	OrthoSlice.$(OBJEXT)
+	ObliqueSlice.$(OBJEXT) OrthoSlice.$(OBJEXT)
 am_nodes_lst_OBJECTS = $(am__objects_1)
 nodes_lst_OBJECTS = $(am_nodes_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
@@ -236,12 +239,14 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
 am__objects_2 = TransferFunction.lo VolumeData.lo VolumeRender.lo \
-	VolumeRendering.lo OrthoSlice.lo
+	VolumeRendering.lo ObliqueSlice.lo OrthoSlice.lo
 am_libnodes_la_OBJECTS = $(am__objects_2)
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/OrthoSlice.Plo \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/ObliqueSlice.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/ObliqueSlice.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/OrthoSlice.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/OrthoSlice.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/TransferFunction.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/TransferFunction.Po \
@@ -275,7 +280,8 @@ SOURCES = \
 	VolumeData.cpp \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
-	OrthoSlice.cpp
+	ObliqueSlice.cpp \
+	OrthoSlice.cpp 
 
 
 all: all-recursive
@@ -308,6 +314,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObliqueSlice.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObliqueSlice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSlice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSlice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunction.Plo@am__quote@
@@ -643,8 +651,8 @@ uninstall-info: uninstall-info-recursive
 
 
 # FIXME: not yet implemented. 20040505 mortene
-#	SoObliqueSlice.h 
 #	SoROI.h 
+#	SoVolumeIndexedFaceSet.h et al.
 
 nodes.lst: $(nodes_lst_OBJECTS)
 	@echo "Linking $@..."; \
