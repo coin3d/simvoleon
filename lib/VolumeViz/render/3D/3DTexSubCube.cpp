@@ -34,7 +34,6 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
-#include <Inventor/bundles/SoMaterialBundle.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/C/tidbits.h>
@@ -484,9 +483,6 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
 
   if (this->ispaletted) // Switch ON palette rendering
     this->activateCLUT(action);
-
-  SoMaterialBundle mb((SoGLRenderAction *) action);
-  mb.sendFirst();
   
   // FIXME: Maybe we should build a vertex array instead of making
   // glVertex3f calls. Would probably give a performance

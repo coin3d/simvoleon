@@ -34,7 +34,6 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
-#include <Inventor/bundles/SoMaterialBundle.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -473,9 +472,6 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
   // palette, or the previous palette will be used.
   this->activateTexture(interpolation);
   if (this->ispaletted) { this->activateCLUT(action); }
-
-  SoMaterialBundle mb((SoGLRenderAction *) action);
-  mb.sendFirst();
 
   // Scale span of GL quad to match the visible part of the
   // texture. (Border subpages shouldn't show all of the texture, if
