@@ -52,7 +52,7 @@ CvrUtil::buildSubPageX(const uint8_t * input,
                        const SbVec3s & dim)
 {
   assert(pageidx >= 0);
-  assert(pageidx < dim[1]);
+  assert(pageidx < dim[0]);
 
   SbVec2s ssmin, ssmax;
   cutslice.getBounds(ssmin, ssmax);
