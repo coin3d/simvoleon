@@ -174,8 +174,31 @@ Cvr3DTexCube::clampSubCubeSize(const SbVec3s & size)
   // Coin 2.3, so we can't use this without first separating out the
   // gl-wrapper, as planned. 20040714 mortene.
 
-  GLint maxsize;
+  GLint maxsize = -1;
   glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxsize);
+
+  // This has been reported by an external developer to hit on an ATI
+  // OpenGL driver on a Linux system. As 3D texture based rendering
+  // otherwise seemed to work just fine, we simply warn, correct the
+  // problem, and go on.
+  if (maxsize == -1) {
+    static const char CVR_IGNORE_ATI_QUERY_BUG[] = "CVR_IGNORE_ATI_QUERY_BUG";
+    const char * env = coin_getenv(CVR_IGNORE_ATI_QUERY_BUG);
+
+    if (env == NULL) {
+      SoDebugError::postWarning("Cvr3DTexCube::clampSubCubeSize",
+                                "Obscure bug found with your OpenGL driver. "
+                                "If you are employed by Systems in Motion, "
+                                "report this occurrence to <mortene@sim.no> "
+                                "for further debugging. Otherwise, you can "
+                                "safely ignore this warning. (Set the "
+                                "environment variable '%s' on the system to "
+                                "not get this notification again.)",
+                                CVR_IGNORE_ATI_QUERY_BUG);
+    }
+    maxsize = 128; // this should be safe
+  }
+
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("Cvr3DTexCube::clampSubCubeSize",
                            "GL_MAX_3D_TEXTURE_SIZE==%d", maxsize);
