@@ -90,7 +90,7 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
     this->texdims = ((Cvr3DRGBATexture *) texobj)->dimensions;
   }
   else {
-    assert(FALSE && "Cannot initialize a 3D texture cube with a 2D texture object");
+    assert(FALSE && "Cannot initialize a 3D texture cube using a 2D texture object.");
   }
 
   this->compresstextures = compresstextures;
@@ -306,8 +306,8 @@ Cvr3DTexSubCube::transferTex3GL(SoGLRenderAction * action,
     int palettetype = GL_COLOR_INDEX;
 
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
-      if (cc_glglue_has_arb_fragment_program(glw))
-        palettetype = GL_LUMINANCE;     
+    if (cc_glglue_has_arb_fragment_program(glw)) 
+      palettetype = GL_LUMINANCE;
 #endif
       
     // FIXME: Is this way of compressing textures OK? (20040303 handegar)
@@ -363,8 +363,7 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
   
   Cvr3DTexSubCube * obj = (Cvr3DTexSubCube *) userdata;
   SbVec3f dist = SbVec3f(newvertex - obj->origo);
-  
-  
+    
   const float tmp1 = obj->dimensions[0] + (obj->texdims[0] - obj->originaltexsize[0]);
   const float tmp2 = obj->dimensions[1] + (obj->texdims[1] - obj->originaltexsize[1]);
   const float tmp3 = obj->dimensions[2] + (obj->texdims[2] - obj->originaltexsize[2]);
@@ -434,20 +433,19 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
                            cubeorigo, 
                            cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f)));
 
-
   int i=0;
   const int result = cubeclipper.getNumVertices();
 
   if (result > 0) {
     subcube_slice slice;
-    for (i=0;i<result;i++) {
+
+    for (i=0;i<result;i++) {       
+      SbVec3f * tmp = (SbVec3f *) cubeclipper.getVertexData(i);
+      if (tmp == NULL) continue; // No texcoord were calculated. Skip.
+
       SbVec3f vert;
       cubeclipper.getVertex(i, vert);
-      
-      SbVec3f * tmp = (SbVec3f *) cubeclipper.getVertexData(i);
-      // FIXME: Why does this happen? (20040317 handegar)
-      if (tmp == NULL) continue; 
-
+  
       SbVec3f texcoord(tmp->getValue());
       slice.vertex.append(vert);
       slice.texcoord.append(texcoord);
