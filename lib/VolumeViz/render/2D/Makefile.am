@@ -15,6 +15,9 @@ SOURCES = \
 	PaletteTexture.cpp CvrPaletteTexture.h \
 	TexManager.cpp CvrTexManager.h
 
+EXTRA_DIST = \
+	texmemfullimg.h
+
 lib2Drender_la_SOURCES = $(SOURCES)
 
 2Drender_lst_SOURCES = $(SOURCES)

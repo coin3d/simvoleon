@@ -88,6 +88,7 @@ uninstall-local:
 	done; \
 	incbasedir="$(DESTDIR)$(includedir)/VolumeViz"; \
 	for dir in \
+	  "$$incbasedir/C" \
 	  "$$incbasedir/details" \
 	  "$$incbasedir/elements" \
 	  "$$incbasedir/nodes" \
