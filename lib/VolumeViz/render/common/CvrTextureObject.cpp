@@ -50,6 +50,69 @@
 
 // *************************************************************************
 
+// FIXME: suggestion found on comp.graphics.api.opengl on how to check
+// how much texture VRAM is available:
+//
+// [...]
+// Once you create texture(s), you can give it(them) a priority using
+// glPrioritizeTexture
+// (http://www.3dlabs.com/support/developer/GLmanpages/glprioritizetextures.htm)
+// 
+// this should tell the ICD to put textures with the highest priority
+// (and according to available texture memory on your hardware) into
+// the actual video ram on you sweet geforce (or whatever card you
+// happen to use:-).
+// 
+// and then, you can see if that texture(s) is really resident (stored
+// in vram) by calling glAreTexturesResident
+// (http://www.3dlabs.com/support/developer/GLmanpages/glaretexturesresident.htm)
+// 
+// So if you want to test how many textures you can cram into your
+// vram, you can just keep on creating new textures and setting their
+// priority to high (1) and for every new one you create see if it is
+// really stored in vram.  Keep in mind that you need to use a given
+// texture at least once before it can be "prioritized", put into
+// vram.
+// 
+// This is really really cool, because say you want to use 10 textures
+// interchangeably. If you put them in vram then calls to
+// glBindTexture will be ultra fricking fast, because the texture will
+// no longer have to go through the AGP bus.
+// [...]
+//
+// 20021130 mortene.
+//
+// Update 20021201 mortene: I think the technique above will be
+// dangerous on UMA-machines (like the SGI O2) were tex mem is the
+// same as other system mem. One would at least have to set a upper
+// limit before running the test.
+
+
+// For reference, here's some information from Thomas Roell of Xi
+// Graphics on glPrioritizeTextures() from c.g.a.opengl:
+//
+// [...]
+//
+//   Texture priorities would be a nice thing, but only few OpenGL
+//   implementations actually use them. There are a lot of reasons
+//   that they ignore priorities. One is that the default priority is
+//   set to 1.0, which is the highest priority. That means unless all
+//   textures for all you applications running at the same time
+//   explicitely use texture priorities, the one that uses them
+//   (i.e. lower priorities) will be at a disadvantage. The other
+//   problem is that typically textures are not the only objects that
+//   live in HW accessable memory. There are display lists, color
+//   tables, vertex array objects and so on. However there is no way
+//   to prioritize them. Hence if you are using textures and display
+//   lists at the same time, useng priorities might cause a lot of
+//   texture cache trashing.
+//
+// [...]
+//
+// 20021201 mortene.
+
+// *************************************************************************
+
 // Don't set value explicitly to SoType::badType(), to avoid a bug in
 // Sun CC v4.0. (Bitpattern 0x0000 equals SoType::badType()).
 SoType CvrTextureObject::classTypeId;
