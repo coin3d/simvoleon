@@ -1,6 +1,6 @@
 NAME
 
-SimVoleon
+SIM Voleon
 
 
 BRIEF DESCRIPTION
@@ -10,15 +10,10 @@ A volume rendering library for Coin.
 
 HOMEPAGE
 
-<none yet>
+http://dev.sim.no/SIM_Voleon
 
 
 LICENSE
 
-[to be decided]
-
-
-MAIN DEVELOPERS
-
-Morten Eriksen
-Torbjørn Vik
+Licensed under several licenses: the GNU GPL for use in Free Software,
+or under a Professional Edition License for use in proprietary software.

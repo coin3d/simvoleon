@@ -38,27 +38,3 @@
     <mortene@sim.no> 20030702.
 
 ========================================================================
-
-Other stuff, just moved here before my 2003 summer vacation, from
-various paper notes around the office:
-
-        * add in possibility to do voxel palette loading in
-          ''readvol''
-
-        * fix texmem-threshold to heed API-control
-
-        * fix out-of-mem situations
-
-        * is order of axes incorrect? make a test volume (old
-          bug-report from Seland)
-
-        * SoOrthoSliceDetail::getValue() wrong (mirrored along normal
-          axis?)
-
-        * release older SoOrthoSliceDetail pages (should that be
-          "SoOrthoSlice", i.e. a typo in my notes?)
-
-        * crashes when attempting to read non-existent or non-readable
-          VOL-file
-
-========================================================================
