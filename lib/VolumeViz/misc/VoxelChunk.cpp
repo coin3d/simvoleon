@@ -266,9 +266,14 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
         if (CvrVoxelChunk::transferdone[voldataidx]) {
           output[texelidx] = CvrVoxelChunk::transfertable[voldataidx];
 
-          uint8_t alpha = (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
-            ((output[texelidx] & 0xff000000) > 24) : (output[texelidx] & 0x000000ff);
-          invisible = invisible && (alpha == 0x00);
+          if (invisible) {
+            uint8_t alpha =
+              (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
+              ((output[texelidx] & 0xff000000) > 24) :
+              (output[texelidx] & 0x000000ff);
+            invisible = (alpha == 0x00);
+          }
+
           continue;
         }
 
