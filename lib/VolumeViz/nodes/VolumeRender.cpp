@@ -925,6 +925,8 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList <float> & timelist3d,
   SbTime end1 = SbTime::getTimeOfDay();
   timelist3d.append((end1 - start1).getValue());
   
+  glFlush();
+
   // 2D textures 
   SbTime start2 = SbTime::getTimeOfDay();
   
@@ -989,12 +991,43 @@ SoVolumeRenderP::performanceTest() const
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
   this->setupPerformanceTestTextures(texture3did, texture2dids);
- 
+
   // Save the framebuffer for later
   GLdouble viewportsize[4];
   glGetDoublev(GL_VIEWPORT, viewportsize);
+
+  // Save previous values to be on the safe side
+  GLfloat redbias, greenbias, bluebias, alphabias;
+  GLfloat redscale, greenscale, bluescale, alphascale;
+  GLfloat pixelzoomx, pixelzoomy;
+  GLint skippixels, skiprows;
+  glGetFloatv(GL_RED_SCALE, &redscale);
+  glGetFloatv(GL_GREEN_SCALE, &greenscale);
+  glGetFloatv(GL_BLUE_SCALE, &bluescale);
+  glGetFloatv(GL_ALPHA_SCALE, &alphascale);
+  glGetFloatv(GL_RED_BIAS, &redbias);
+  glGetFloatv(GL_GREEN_BIAS, &greenbias);
+  glGetFloatv(GL_BLUE_BIAS, &bluebias);
+  glGetFloatv(GL_ALPHA_BIAS, &alphabias);
+  glGetFloatv(GL_ZOOM_X, &pixelzoomx);
+  glGetFloatv(GL_ZOOM_Y, &pixelzoomy);
+  glGetIntegerv(GL_UNPACK_SKIP_PIXELS, &skippixels);
+  glGetIntegerv(GL_UNPACK_SKIP_ROWS, &skiprows);
+
+  glPixelTransferf(GL_RED_SCALE, 1.0f);  // Setting to initial values
+  glPixelTransferf(GL_GREEN_SCALE, 1.0f);
+  glPixelTransferf(GL_BLUE_SCALE, 1.0f);  
+  glPixelTransferf(GL_ALPHA_SCALE, 1.0f);
+  glPixelTransferf(GL_RED_BIAS, 0.0f);
+  glPixelTransferf(GL_GREEN_BIAS, 0.0f);
+  glPixelTransferf(GL_BLUE_BIAS, 0.0f);
+  glPixelTransferf(GL_ALPHA_BIAS, 0.0f);
+  glPixelZoom(1.0f, 1.0f);
+  glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
+  glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+
   int size = (int) (viewportsize[2] * viewportsize[3]) * 4;
-  unsigned char * framebuf = new unsigned char[size];
+  GLubyte * framebuf = new GLubyte[size];
   glReadPixels(0, 0, (int) viewportsize[2], (int) viewportsize[3], GL_RGBA, 
                GL_UNSIGNED_BYTE, framebuf);
 
@@ -1004,7 +1037,7 @@ SoVolumeRenderP::performanceTest() const
   glDisable(GL_CULL_FACE);
   glDisable(GL_BLEND);
 
-  glViewport(0, 0, 400, 400);
+  glViewport(0, 0, (GLuint) viewportsize[2], (GLuint) viewportsize[3]);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
 
@@ -1036,10 +1069,14 @@ SoVolumeRenderP::performanceTest() const
 
   timelist2d.truncate(0);
   timelist3d.truncate(0);
-  for (int i=0;i<volumerender_performancetest_times;++i) 
+  SbTime starttime = SbTime::getTimeOfDay(); 
+  for (int i=0;i<volumerender_performancetest_times;++i) {
+    if (((SbTime::getTimeOfDay() - starttime).getValue()) > 0.0005)
+      break; // Max testing time is 0.5 seconds
     this->renderPerformanceTestScene(timelist3d, timelist2d,
                                      texture3did, texture2dids);
- 
+  }
+  
   const float average3dtime = this->getAveragePerformanceTime(timelist3d);
   const float average2dtime = this->getAveragePerformanceTime(timelist2d);
 
@@ -1055,9 +1092,20 @@ SoVolumeRenderP::performanceTest() const
 
   glDeleteTextures(1, texture3did);
   glDeleteTextures(2, texture2dids);
+  
+  glPixelTransferf(GL_RED_SCALE, redscale);  // Restoring values
+  glPixelTransferf(GL_GREEN_SCALE, greenscale);
+  glPixelTransferf(GL_BLUE_SCALE, bluescale);  
+  glPixelTransferf(GL_ALPHA_SCALE, alphascale);
+  glPixelTransferf(GL_RED_BIAS, redbias);
+  glPixelTransferf(GL_GREEN_BIAS, greenbias);
+  glPixelTransferf(GL_BLUE_BIAS, bluebias);
+  glPixelTransferf(GL_ALPHA_BIAS, alphabias);
+  glPixelZoom(pixelzoomx, pixelzoomy);
+  glPixelStorei(GL_UNPACK_SKIP_PIXELS, skippixels);
+  glPixelStorei(GL_UNPACK_SKIP_ROWS, skiprows);
 
   glPopAttrib();
-
   return average3dtime / average2dtime;
 
 }
@@ -1078,7 +1126,7 @@ SoVolumeRenderP::use3DTexturing(void) const
     do3dtextures = 1;
     return TRUE;
   }
-
+  
   static const GLubyte * rendererstring = glGetString(GL_RENDERER);
   int i=0;
   while (texture3d_in_hardware[i]) {
@@ -1123,7 +1171,7 @@ SoVolumeRenderP::use3DTexturing(void) const
                               "forced. (If you wish to force 3D texturing, set the envvar "
                               "CVR_FORCE_3D_TEXTURES=1)");
   }
-
+  
   do3dtextures = 0;
   return FALSE;
 
