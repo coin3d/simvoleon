@@ -41,14 +41,11 @@
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 
-// FIXME: static objects which needs to run their constructors are not
-// portable. Ouch. 20040715 mortene.
-static SbDict texturedict;
+// *************************************************************************
 
 enum TEXTURETYPE {
   TEXTURE2D,
-  TEXTURE3D,
-  UNKNOWN
+  TEXTURE3D
 };
 
 struct textureobj {
@@ -60,15 +57,33 @@ struct textureobj {
   CvrTextureObject * object;
 };
 
+// *************************************************************************
+
+static SbDict *
+get_texturedict(void)
+{
+  static SbDict * texturedict = NULL;
+
+  if (texturedict == NULL) {
+    texturedict = new SbDict;
+    // FIXME: leak. 20040715 mortene.
+  }
+  return texturedict;
+}
+
+// *************************************************************************
+
 unsigned int CvrTextureManager::totaltexturesize = 0;
 unsigned int CvrTextureManager::totalnumberoftexels = 0;
 
+// *************************************************************************
+
 static textureobj * 
-findTextureObject3D(const SoVolumeData * voldata, const SbBox3s cutcube)
+find_textureobject_3D(const SoVolumeData * voldata, const SbBox3s cutcube)
 {
   SbPList keylist;
   SbPList valuelist;
-  texturedict.makePList(keylist, valuelist);
+  get_texturedict()->makePList(keylist, valuelist);
 
   for (int i=0;i<valuelist.getLength();++i) {
     void * ptr = valuelist[i];
@@ -90,11 +105,11 @@ findTextureObject3D(const SoVolumeData * voldata, const SbBox3s cutcube)
 }
 
 static textureobj * 
-findTextureObject2D(const SoVolumeData * voldata, const SbBox2s cutpage)
+find_textureobject_2D(const SoVolumeData * voldata, const SbBox2s cutpage)
 {
   SbPList keylist;
   SbPList valuelist;
-  texturedict.makePList(keylist, valuelist);
+  get_texturedict()->makePList(keylist, valuelist);
 
   for (int i=0;i<valuelist.getLength();++i) {
     void * ptr = valuelist[i];
@@ -116,7 +131,7 @@ CvrTextureManager::getTextureObject(SoGLRenderAction * action,
                                     SbVec3s texsize,
                                     SbBox3s cutcube)
 {
-  textureobj * obj = findTextureObject3D(voldata, cutcube);
+  textureobj * obj = find_textureobject_3D(voldata, cutcube);
     
   if (obj != NULL) {
     assert((obj->texturetype == TEXTURE3D) && "Type != TEXTURE3D. Invalid texture type!");
@@ -124,14 +139,15 @@ CvrTextureManager::getTextureObject(SoGLRenderAction * action,
     return obj->object; 
   }
          
-  CvrTextureObject * newobj = new3DTextureObject(action, voldata, texsize, cutcube);
+  CvrTextureObject * newobj =
+    CvrTextureManager::new3DTextureObject(action, voldata, texsize, cutcube);
   obj = new textureobj;
   obj->object = newobj;
   obj->voldata = voldata;
   obj->voldataid = voldata->getNodeId();
   obj->cutcube = cutcube;
   obj->texturetype = TEXTURE3D;
-  texturedict.enter((unsigned long) newobj, (void *) obj);
+  get_texturedict()->enter((unsigned long) newobj, (void *) obj);
   newobj->ref();
 
   return newobj;
@@ -151,10 +167,6 @@ void
 CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
 {
   if (texobject->getRefCount() == 1) { // about to be destructed
-    void * ptr;
-    texturedict.find((unsigned long) texobject, ptr);    
-    assert(ptr && "Trying to remove a CvrTextureObject which has not been registered!");    
-
     GLuint tmp[1];
     tmp[0] = texobject->getOpenGLTextureId();
     glDeleteTextures(1, tmp);
@@ -187,7 +199,12 @@ CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
     CvrTextureManager::totalnumberoftexels -= nrtexels;
     CvrTextureManager::totaltexturesize -= nrtexels * voxelsize;
 
-    delete ((textureobj *) ptr);
+    void * ptr;
+    get_texturedict()->find((unsigned long)texobject, ptr);    
+    assert(ptr && "Trying to remove a CvrTextureObject which has not been registered!");    
+    const SbBool ok = get_texturedict()->remove((unsigned long)texobject);    
+    assert(ok);
+    delete ((textureobj *)ptr);
   }
 
   texobject->unref();

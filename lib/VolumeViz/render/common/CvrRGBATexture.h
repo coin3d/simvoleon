@@ -36,17 +36,14 @@ public:
 
   virtual uint32_t * getRGBABuffer(void) const;
 
-private:
-
-  CvrRGBATexture();
+protected:
+  CvrRGBATexture(void);
   virtual ~CvrRGBATexture();
 
   uint32_t * rgbabuffer;
+
+private:
   static SoType classTypeId;
-
-  friend class Cvr2DRGBATexture;
-  friend class Cvr3DRGBATexture; 
-
 };
 
 #endif // !COIN_CVRRGBATEXTURE_H

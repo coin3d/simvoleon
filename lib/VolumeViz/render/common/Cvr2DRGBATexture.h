@@ -35,20 +35,21 @@ public:
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
+  // FIXME: should be part of superclass. 20040715 mortene.
   SbVec2s dimensions;
 
   virtual uint32_t * getRGBABuffer(void) const;
   void blankUnused(const SbVec2s & texsize) const;
 
-private:
-
+protected:
   Cvr2DRGBATexture(const SbVec2s & size);
   virtual ~Cvr2DRGBATexture();
 
+private:
   static SoType classTypeId;
 
+  // FIXME: most likely an indication of bad design. 20040715 mortene.
   friend class CvrVoxelChunk;
-
 };
 
 #endif // !COIN_CVR2DRGBATEXTURE_H

@@ -44,21 +44,18 @@ public:
   void ref(void) const;
   void unref(void) const;
 
-private:
-  // Constructor and destructor is private as only the texture manager
-  // is allowed to create and remove TextureObjects.
-  CvrTextureObject();
+protected:
+  // Constructor and destructor is protected as only the texture
+  // manager is allowed to create and remove TextureObjects.
+  CvrTextureObject(void);
   virtual ~CvrTextureObject();
 
+private:
   static SoType classTypeId;
   GLuint opengltextureid;
   SbBool iscompressed;
   uint32_t refcounter;
 
-  // FIXME: this reeks of bad design. 20040715 mortene.
-  friend class CvrTextureManager;
-  friend class CvrRGBATexture;
-  friend class CvrPaletteTexture;
   // FIXME: This should be removed as soon as the 2D texture support is
   // implemented in the texture manager. (20040628 handegar)
   friend class Cvr2DTexPage;
