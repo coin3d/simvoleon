@@ -125,10 +125,11 @@ public:
 
   unsigned int calculateNrOf2DSlices(SoGLRenderAction * action, const SbVec3s & dimensions);
   unsigned int calculateNrOf3DSlices(SoGLRenderAction * action, const SbVec3s & dimensions);
-  SbBool use3DTexturing(void) const;
+  SbBool use3DTexturing(const cc_glglue * glglue) const;
 
-  void setupPerformanceTestTextures(GLuint * texture3did, GLuint * texture2dids) const;
-  float performanceTest() const;
+  void setupPerformanceTestTextures(GLuint * texture3did, GLuint * texture2dids, 
+                                    const cc_glglue * glglue) const;
+  float performanceTest(const cc_glglue * glue) const;
   void renderPerformanceTestScene(SbList <float> & timelist3d, 
                                   SbList <float> & timelist2d,
                                   GLuint * texture3did,
@@ -468,7 +469,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   const int storagehint = volumedata->storageHint.getValue();
   if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
     if (cc_glglue_has_3d_textures(glue) && !PRIVATE(this)->force2dtextures) {
-      if (PRIVATE(this)->use3DTexturing()) {
+      if (PRIVATE(this)->use3DTexturing(glue)) {
         rendermethod = SoVolumeRender::TEXTURE3D;
       }
     }
@@ -841,7 +842,8 @@ SoVolumeRenderP::rayPickDebug(SoGLRenderAction * action)
 
 void
 SoVolumeRenderP::setupPerformanceTestTextures(GLuint * texture3did,
-                                              GLuint * texture2dids) const
+                                              GLuint * texture2dids,
+                                              const cc_glglue * glglue) const
 {
   
   unsigned char * volumedataset;
@@ -872,8 +874,9 @@ SoVolumeRenderP::setupPerformanceTestTextures(GLuint * texture3did,
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP);  
-  glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, texturesize, texturesize, texturesize, 
-               0, GL_RGBA, GL_UNSIGNED_BYTE, volumedataset);
+  cc_glglue_glTexImage3D(glglue, 
+                         GL_TEXTURE_3D, 0, GL_RGBA, texturesize, texturesize, texturesize, 
+                         0, GL_RGBA, GL_UNSIGNED_BYTE, volumedataset);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);  
    
@@ -990,7 +993,7 @@ SoVolumeRenderP::getAveragePerformanceTime(SbList <float> & l) const
 }
 
 float
-SoVolumeRenderP::performanceTest() const
+SoVolumeRenderP::performanceTest(const cc_glglue * glue) const
 {
 
   GLuint texture3did[1];
@@ -1000,7 +1003,7 @@ SoVolumeRenderP::performanceTest() const
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
-  this->setupPerformanceTestTextures(texture3did, texture2dids);
+  this->setupPerformanceTestTextures(texture3did, texture2dids, glue);
 
   // Save the framebuffer for later
   GLdouble viewportsize[4];
@@ -1093,7 +1096,7 @@ SoVolumeRenderP::performanceTest() const
 
 
 SbBool
-SoVolumeRenderP::use3DTexturing(void) const
+SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
 {
   // This check should only be done once.
   static int do3dtextures = -1;
@@ -1118,7 +1121,7 @@ SoVolumeRenderP::use3DTexturing(void) const
       return TRUE;
     }
   }
-  
+
   i=0;
   while (texture3d_in_software[i]) {
     const char * loc = strstr((const char *)rendererstring,
@@ -1139,7 +1142,7 @@ SoVolumeRenderP::use3DTexturing(void) const
   // FIXME: The performance test should be properly tested on many
   // different GFX cards to see if the rating threshold is high enough
   // (20040503 handegar)
-  const float rating = this->performanceTest(); // => (3D rendertime) / (2D rendertime)
+  const float rating = this->performanceTest(glglue); // => (3D rendertime) / (2D rendertime)
   if (rating > 0.5) { // 2D should atleast be twice as fast before 3D texturing is dropped.  
     do3dtextures = 1;
     return TRUE;
