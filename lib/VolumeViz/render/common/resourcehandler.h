@@ -51,12 +51,13 @@ extern "C" {
 }
 #endif /* emacs indentation */
 
-void cvr_rc_bind_to_context(uint32_t ctxid, void * resource);
-void cvr_rc_take_out(uint32_t ctxid, void * resource);
-void cvr_rc_tag_dead(uint32_t ctxid, void * resource);
+void cvr_rc_bind_resource(uint32_t ctxid, void * owner, void * resource);
+SbBool cvr_rc_find_resource(uint32_t ctxid, void * owner, void ** resource);
 
-typedef SbBool cvr_rc_deletion_cb(void * closure, uint32_t ctxid, void * resource);
-void cvr_rc_add_deletion_func(cvr_rc_deletion_cb * func, void * closure);
+void cvr_rc_tag_resources_dead(void * owner);
+
+typedef SbBool cvr_rc_deletion_cb(void * owner, uint32_t ctxid, void * resource, void * closure);
+void cvr_rc_add_deletion_func(void * owner, cvr_rc_deletion_cb * func, void * closure);
 
 
 /* FIXME: should perhaps also implement an "aging" feature, something

@@ -56,16 +56,17 @@ public:
   static unsigned int totalTextureMemoryUsed(void);
 
 private:
-  void transferTex2GL(SoGLRenderAction * action,
-                      const CvrTextureObject * texobj);
+  void makeGLTexture(const SoGLRenderAction * action);
+  void activateTexture(const SoGLRenderAction * actio, Interpolation interp) const;
 
-  void activateTexture(Interpolation interpolation) const;
   void activateCLUT(const SoGLRenderAction * action);
   void deactivateCLUT(const SoGLRenderAction * action);
 
   static void bindTexMemFullImage(const cc_glglue * glw);
 
-  GLuint texturename[1];
+  struct GLResource { GLuint texid; };
+  static SbBool resourceCleanerS(void * owner, uint32_t ctxid, void * resource, void * closure);
+
   static GLuint emptyimgname[1];
   SbVec2s texdims;
   SbVec2f texmaxcoords;
@@ -77,7 +78,8 @@ private:
   const CvrCLUT * clut;
   SbBool ispaletted;
   SbBool compresstextures;
+  const CvrTextureObject * texobj;
 };
 
 
-#endif //COIN_CVR2DTEXSUBPAGE_H
+#endif // !COIN_CVR2DTEXSUBPAGE_H

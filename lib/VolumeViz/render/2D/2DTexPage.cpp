@@ -314,6 +314,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   SbBool invisible;
   CvrTextureObject * texobj = slice->transfer2D(action, invisible);
+  texobj->ref();
 
   // FIXME: could cache slices -- would speed up regeneration when
   // textures have to be invalidated. But this would take lots of
@@ -334,6 +335,8 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // Must clear the unused texture area to prevent artifacts due to
   // inaccuracies when calculating texture coords.
  
+  // FIXME: blankUnused() should be a common method on the
+  // superclass. 20040715 mortene.
   if (texobj->getTypeId() == Cvr2DRGBATexture::getClassTypeId()) {
     ((Cvr2DRGBATexture *) texobj)->blankUnused(texsize);
   } else if (texobj->getTypeId() == Cvr2DPaletteTexture::getClassTypeId()) {
@@ -354,7 +357,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
     page->setPalette(this->clut);
   }
 
-  delete texobj;
+  texobj->unref();
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
   pitem->volumedataid = voldatanode->getNodeId();

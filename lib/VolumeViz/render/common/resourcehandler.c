@@ -30,34 +30,18 @@
 
 /* ********************************************************************** */
 
-/* This is the data connected to each GL context id. */
-struct context {
+/* These are the lists connected to each resource owner. */
+struct cvr_rc_owner {
   cc_list * live_resources;
   cc_list * dead_resources;
 };
 
 /* ********************************************************************** */
 
-/* Global dictionary which stores the mappings from a context id to an
-   array with the pointers to resources allocated for that context. */
-/* FIXME: should have thread-safe access to this. 20040714 mortene. */
-static cc_hash * ctxdict = NULL;
-
-static SbBool
-hash_put(cc_hash * ht, uint32_t key, struct context * cx)
-{
-  return cc_hash_put(ht, (unsigned long)key, (void *)cx);
-}
-
-static SbBool
-hash_get(cc_hash * ht, uint32_t key, struct context ** cx)
-{
-  void * val;
-  const SbBool ok = cc_hash_get(ht, (unsigned long)key, &val);
-  if (!ok) { return FALSE; }
-  *cx = val;
-  return TRUE;
-}
+/* Global dictionary which stores the mappings from a context id to a
+   new hash, with resource owners, having one or more resources in
+   this context. */
+static cc_hash * ctxhash = NULL;
 
 /* ********************************************************************** */
 
@@ -69,94 +53,77 @@ static cc_list * deletioncb_closures = NULL;
 
 /* ********************************************************************** */
 
-/*! Use this when having allocated a new resource to bind to its
-    context.
+/*! Use this when having allocated a new resource to bind to a
+    specific context and owner.
 
-    Note that the \a resource pointer must be a unique pointer for the
-    resource handler.
+    Note that an owner can only store one resource pr context id.
 */
 void
-cvr_rc_bind_to_context(uint32_t ctxid, void * resource)
+cvr_rc_bind_resource(uint32_t ctxid, void * owner, void * resource)
 {
-  SbBool newentry, ok;
-  struct context * cx;
-  cc_list * livelist;
-  void * oldptr;
-  int idx;
+  SbBool ok, newentry;
+  cc_hash * ownershash;
+  void * tmp;
 
-  if (ctxdict == NULL) {
-    ctxdict = cc_hash_construct(8, 0.75f);
+  if (ctxhash == NULL) {
+    ctxhash = cc_hash_construct(256, 0.75f);
     /* FIXME: leak, cleanup. 20040714 mortene. */
   }
 
-  ok = hash_get(ctxdict, ctxid, &cx);
+  /* find (or make) dict of owners in the specified context */
+  ok = cc_hash_get(ctxhash, ctxid, &tmp);
   if (!ok) {
-    cx = malloc(sizeof(struct context));
-
-    /* FIXME: leaks cleanup. 20040714 mortene. */
-    cx->live_resources = cc_list_construct();
-    cx->dead_resources = NULL;
-    newentry = hash_put(ctxdict, ctxid, cx);
+    ownershash = cc_hash_construct(128, 0.75f);
+    newentry = cc_hash_put(ctxhash, ctxid, ownershash);
     assert(newentry);
   }
-
-  idx = cc_list_find(cx->live_resources, resource);
-  assert((idx == -1) && "this resource pointer already bound");
-  idx = cc_list_find(cx->dead_resources, resource);
-  assert((idx == -1) && "this resource pointer already bound");
-
-  cc_list_append(cx->live_resources, resource);
-}
-
-
-/*! Take the resource out of the resource handler, without invoking a
-    delete callback.
-*/
-void
-cvr_rc_take_out(uint32_t ctxid, void * resource)
-{
-  SbBool ok;
-  struct context * cx;
-  int idx;
-
-  assert(ctxdict);
-  ok = hash_get(ctxdict, ctxid, &cx);
-  assert(!ok);
-
-  idx = cc_list_find(cx->live_resources, resource);
-  if (idx != -1) {
-    cc_list_remove_fast(cx->live_resources, idx);
-  }
   else {
-    idx = cc_list_find(cx->dead_resources, resource);
-    assert((idx != -1) && "resource ptr not found");
-    cc_list_remove_fast(cx->dead_resources, idx);
+    ownershash = (cc_hash *)tmp;
   }
+
+  /* map resource ptr to owner */
+  /* FIXME: dangerous cast? 20040715 mortene. */
+  newentry = cc_hash_put(ownershash, (unsigned long)owner, resource);
+  assert(newentry);
 }
 
-/*! Tag a resource as dead, i.e. to be deleted next time the context
-    is made current.
+/*! Finds the resource connected to a specific owner in a specific
+    context.
+
+    Returns \c TRUE if a resource has been bound, \c FALSE otherwise.
 */
-void
-cvr_rc_tag_dead(uint32_t ctxid, void * resource)
+SbBool
+cvr_rc_find_resource(uint32_t ctxid, void * owner, void ** resource)
 {
   SbBool ok;
-  struct context * cx;
-  int idx;
+  cc_hash * ownershash;
+  void * tmp;
 
-  assert(ctxdict);
-  ok = hash_get(ctxdict, ctxid, &cx);
-  assert(!ok);
+  if (ctxhash == NULL) { return NULL; }
 
-  idx = cc_list_find(cx->dead_resources, resource);
-  /* this may be too strict? should perhaps just return instead  -mortene*/
-  assert((idx == -1) && "resource already tagged dead");
+  /* find dict of owners in the specified context */
+  ok = cc_hash_get(ctxhash, ctxid, &tmp);
+  if (!ok) { return FALSE; }
+  ownershash = (cc_hash *)tmp;
 
-  idx = cc_list_find(cx->live_resources, resource);
-  assert((idx != -1) && "resource not found");
+  /* find resource ptr from owner */
+  /* FIXME: dangerous cast? 20040715 mortene. */
+  ok = cc_hash_get(ownershash, (unsigned long)owner, &tmp);
+  if (!ok) { return FALSE; }
 
-  cc_list_remove_fast(cx->live_resources, idx);
-  cc_list_append(cx->dead_resources, resource);
+  *resource = tmp;
+  return TRUE;
+}
+
+// *************************************************************************
+
+/*! Tag resources in all contexts for an owner as dead, i.e. to be
+    deleted next time the context is made current.
+*/
+void
+cvr_rc_tag_resources_dead(void * owner)
+{
+  /* FIXME: implement */
 }
 
 /*! Register a function that will be called whenever a resource that
@@ -178,8 +145,9 @@ cvr_rc_tag_dead(uint32_t ctxid, void * resource)
     \c TRUE, otherwise \c FALSE.
 */
 void
-cvr_rc_add_deletion_func(cvr_rc_deletion_cb * func, void * closure)
+cvr_rc_add_deletion_func(void * owner, cvr_rc_deletion_cb * func, void * closure)
 {
+#if 0 /* xxx obsolete */
   if (deletioncbs == NULL) {
     /* FIXME: leak, clean up. 20040714 mortene. */
     deletioncbs = cc_list_construct();
@@ -188,6 +156,9 @@ cvr_rc_add_deletion_func(cvr_rc_deletion_cb * func, void * closure)
 
   cc_list_append(deletioncbs, func);
   cc_list_append(deletioncb_closures, closure);
+#else
+  /* FIXME: implement */
+#endif
 }
 
 /* ********************************************************************** */
