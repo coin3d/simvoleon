@@ -49,7 +49,6 @@ private:
   SoTransferFunction * master;
 };
 
-
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
 
@@ -68,15 +67,18 @@ SoTransferFunction::SoTransferFunction(void)
   SO_NODE_DEFINE_ENUM_VALUE(PredefColorMap, GLOW);
   SO_NODE_DEFINE_ENUM_VALUE(PredefColorMap, BLUE_RED);
   SO_NODE_DEFINE_ENUM_VALUE(PredefColorMap, SEISMIC);
+  SO_NODE_SET_SF_ENUM_TYPE(predefColorMap, PredefColorMap);
 
   SO_NODE_DEFINE_ENUM_VALUE(ColorMapType, ALPHA);
   SO_NODE_DEFINE_ENUM_VALUE(ColorMapType, LUM_ALPHA);
   SO_NODE_DEFINE_ENUM_VALUE(ColorMapType, RGBA);
+  SO_NODE_SET_SF_ENUM_TYPE(colorMapType, ColorMapType);
 
   SO_NODE_ADD_FIELD(shift, (0));
   SO_NODE_ADD_FIELD(offset, (0));
   SO_NODE_ADD_FIELD(predefColorMap, (GREY));
   SO_NODE_ADD_FIELD(colorMapType, (RGBA));
+  SO_NODE_ADD_FIELD(colorMap, (0));
 }
 
 
@@ -86,11 +88,10 @@ SoTransferFunction::~SoTransferFunction()
 }
 
 
-// Doc from parent class.
 void
 SoTransferFunction::initClass(void)
 {
-  SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering, "TransferFunction");
+  SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering, "SoVolumeRendering");
 
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
 }

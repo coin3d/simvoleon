@@ -1,12 +1,3 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
 #ifndef COIN_SOVOLUMERENDER_H
 #define COIN_SOVOLUMERENDER_H
 
@@ -28,35 +19,18 @@ class SoVolumeRender : public SoShape {
 
 public:
   static void initClass(void);
+  SoVolumeRender(void);
 
-  enum Interpolation {
-    NEAREST, 
-    LINEAR
-  };
+  enum Interpolation { NEAREST, LINEAR };
+  enum Composition { MAX_INTENSITY, SUM_INTENSITY, ALPHA_BLENDING };
+  enum NumSlicesControl { ALL, MANUAL, AUTOMATIC };
 
-  enum Composition {
-    MAX_INTENSITY, 
-    SUM_INTENSITY, 
-    ALPHA_BLENDING
-  };
+  enum AbortCode { CONTINUE, ABORT, SKIP };
+  typedef AbortCode SoVolumeRenderAbortCB(int totalSlices, int thisSlice, 
+                                          void * userData);
 
-  enum NumSlicesControl {
-    ALL, 
-    MANUAL, 
-    AUTOMATIC
-  };
+  void setAbortCallback (SoVolumeRenderAbortCB *func, void *userData=NULL);
 
-  enum AbortCode {
-    CONTINUE, 
-    ABORT, 
-    SKIP
-  };
-
-  typedef AbortCode SoVolumeRenderAbortCB(int totalSlices, 
-                                          int thisSlice, 
-                                          void *userData);
-
-  // Fields
   SoSFEnum interpolation;
   SoSFEnum composition;
   SoSFBool lighting;
@@ -66,22 +40,16 @@ public:
   SoSFInt32 numSlices;
   SoSFBool viewAlignedSlices;
 
-  // Functions
-  SoVolumeRender();
-  ~SoVolumeRender();
-  void setAbortCallback (SoVolumeRenderAbortCB *func, void *userData=NULL);
-
 protected:
+  ~SoVolumeRender();
+
   virtual void GLRender(SoGLRenderAction *action);
   virtual void generatePrimitives(SoAction * action);
   virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
 
-
 private:
   friend class SoVolumeRenderP;
   class SoVolumeRenderP * pimpl;
-
-
-};//SoVolumeRender
+};
 
 #endif // !COIN_SOVOLUMERENDER_H

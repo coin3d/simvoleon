@@ -65,17 +65,13 @@ SoVolumeRender::SoVolumeRender(void)
   SO_NODE_DEFINE_ENUM_VALUE(NumSlicesControl, AUTOMATIC);
   SO_NODE_SET_SF_ENUM_TYPE(numSlicesControl, NumSlicesControl);
 
-  SO_NODE_DEFINE_ENUM_VALUE(AbortCode, CONTINUE);
-  SO_NODE_DEFINE_ENUM_VALUE(AbortCode, ABORT);
-  SO_NODE_DEFINE_ENUM_VALUE(AbortCode, SKIP);
-
   SO_NODE_ADD_FIELD(interpolation, (SoVolumeRender::LINEAR));
   SO_NODE_ADD_FIELD(composition, (SoVolumeRender::ALPHA_BLENDING));
   SO_NODE_ADD_FIELD(lighting, (FALSE));
   SO_NODE_ADD_FIELD(lightDirection, (SbVec3f(-1, -1, -1)));
   SO_NODE_ADD_FIELD(lightIntensity, (1.0));
   SO_NODE_ADD_FIELD(numSlicesControl, (SoVolumeRender::ALL));
-  SO_NODE_ADD_FIELD(numSlices, (10));
+  SO_NODE_ADD_FIELD(numSlices, (0));
   SO_NODE_ADD_FIELD(viewAlignedSlices, (FALSE));
 }
 
@@ -94,7 +90,7 @@ SoVolumeRender::~SoVolumeRender()
 void
 SoVolumeRender::initClass(void)
 {
-  SO_NODE_INIT_CLASS(SoVolumeRender, SoShape, "Shape");
+  SO_NODE_INIT_CLASS(SoVolumeRender, SoShape, "SoShape");
 
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
@@ -182,6 +178,10 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   float depth;
   float depthAdder;
 
+  int numslices = this->numSlices.getValue();
+  // Default value is zero, so treat it as "hey, you choose" from the
+  // application programmer.
+  if (numslices == 0) numslices = 10;
 
   // Render along X-axis
   if ((abstoviewer[0] >= abstoviewer[1]) &&
@@ -189,26 +189,24 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
     // Render in reverse order?
     if (camvec[0] < 0)  {
-      depthAdder = -(max[0] - min[0])/numSlices.getValue();
+      depthAdder = -(max[0] - min[0]) / numslices;
       depth = max[0];
     }
     else {
-      depthAdder = (max[0] - min[0])/numSlices.getValue();
+      depthAdder = (max[0] - min[0]) / numslices;
       depth = min[0];
     }
 
-
     // Rendering slices
-    for (int i = 0; i < numSlices.getValue(); i++) {
+    for (int i = 0; i < numslices; i++) {
       int imageIdx = 
-        (int)((float(i)/float(numSlices.getValue()))*float(dimensions[0]));
+        (int)((float(i)/float(numslices)) * float(dimensions[0]));
 
       // Are we rendering in in reverse order?
       if (depthAdder < 0)
         imageIdx = 
-          (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*
-          dimensions[0]) - 
-          imageIdx;
+          (int)((float(numslices - 1) / numslices) *
+                dimensions[0]) - imageIdx;
 
       volumeData->renderOrthoSliceX(state,
                                     SbBox2f(min[1], 
@@ -223,35 +221,31 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
       depth += depthAdder;
     }
   }
-  else 
-
-
 
   // Render along Y-axis
-  if ((abstoviewer[1] >= abstoviewer[0]) &&
-      (abstoviewer[1] >= abstoviewer[2])) {
+  else if ((abstoviewer[1] >= abstoviewer[0]) &&
+           (abstoviewer[1] >= abstoviewer[2])) {
 
     // Render in reverse order?
     if (camvec[1] < 0)  {
-      depthAdder = -(max[1] - min[1])/numSlices.getValue();
+      depthAdder = -(max[1] - min[1]) / numslices;
       depth = max[1];
     }
     else {
-      depthAdder = (max[1] - min[1])/numSlices.getValue();
+      depthAdder = (max[1] - min[1]) / numslices;
       depth = min[1];
     }
 
     // Rendering slices
-    for (int i = 0; i < numSlices.getValue(); i++) {
+    for (int i = 0; i < numslices; i++) {
       int imageIdx = 
-        (int)((float(i)/float(numSlices.getValue()))*float(dimensions[1]));
+        (int)((float(i)/float(numslices))*float(dimensions[1]));
 
       // Are we rendering in in reverse order?
       if (depthAdder < 0)
         imageIdx = 
-          (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*
-          dimensions[1]) - 
-          imageIdx;
+          (int)((float(numslices - 1) / numslices) *
+                dimensions[1]) - imageIdx;
 
       volumeData->renderOrthoSliceY(state,
                                     SbBox2f(min[1], 
@@ -266,36 +260,30 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
       depth += depthAdder;
     }
   }
-  else 
-
-
-
-
   // Render along Z-axis
-  if ((abstoviewer[2] >= abstoviewer[0]) &&
-      (abstoviewer[2] >= abstoviewer[1])) {
+  else if ((abstoviewer[2] >= abstoviewer[0]) &&
+           (abstoviewer[2] >= abstoviewer[1])) {
 
     // Render in reverse order?
     if (camvec[2] < 0)  {
-      depthAdder = -(max[2] - min[2])/numSlices.getValue();
+      depthAdder = -(max[2] - min[2]) / numslices;
       depth = max[2];
     }
     else {
-      depthAdder = +(max[2] - min[2])/numSlices.getValue();
+      depthAdder = +(max[2] - min[2]) / numslices;
       depth = min[2];
     }
 
     // Rendering slices
-    for (int i = 0; i < numSlices.getValue(); i++) {
+    for (int i = 0; i < numslices; i++) {
       int imageIdx 
-        = (int)((float(i)/float(numSlices.getValue()))*float(dimensions[2]));
+        = (int)((float(i)/float(numslices))*float(dimensions[2]));
 
       // Are we rendering in in reverse order?
       if (camvec[2] < 0)
         imageIdx = 
-          (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*
-          dimensions[2]) - 
-          imageIdx;
+          (int)((float(numslices - 1) / numslices) *
+                dimensions[2]) - imageIdx;
 
       volumeData->renderOrthoSliceZ(state,
                                     SbBox2f(min[0], 

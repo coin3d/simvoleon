@@ -354,14 +354,7 @@ private:
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
 
-
-
-
-
-
-
 // *************************************************************************
-
 
 SoVolumeData::SoVolumeData(void)
 {
@@ -378,25 +371,11 @@ SoVolumeData::SoVolumeData(void)
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, TEX2D_SINGLE);
   SO_NODE_SET_SF_ENUM_TYPE(storageHint, StorageHint);
 
-  SO_NODE_DEFINE_ENUM_VALUE(DataType, VOLUMEPRO);
-  SO_NODE_DEFINE_ENUM_VALUE(DataType, TEX2D_SINGLE);
-
-  SO_NODE_DEFINE_ENUM_VALUE(DataType, NEAREST);
-  SO_NODE_DEFINE_ENUM_VALUE(DataType, MAX);
-  SO_NODE_DEFINE_ENUM_VALUE(DataType, AVERAGE);
-
-  SO_NODE_DEFINE_ENUM_VALUE(DataType, NONE);
-  SO_NODE_DEFINE_ENUM_VALUE(DataType, CONSTANT);
-  SO_NODE_DEFINE_ENUM_VALUE(DataType, LINEAR);
-  SO_NODE_DEFINE_ENUM_VALUE(DataType, CUBIC);
-
-  SO_NODE_DEFINE_ENUM_VALUE(Axis, X);
-  SO_NODE_DEFINE_ENUM_VALUE(Axis, Y);
-  SO_NODE_DEFINE_ENUM_VALUE(Axis, Z);
-
   SO_NODE_ADD_FIELD(fileName, (""));
   SO_NODE_ADD_FIELD(storageHint, (SoVolumeData::AUTO));
   SO_NODE_ADD_FIELD(usePalettedTexture, (TRUE));
+  // FIXME: is this field an extension specific to us? (Can't find it
+  // in TGS doc.) If so, make sure it is documented as such. 20021106 mortene.
   SO_NODE_ADD_FIELD(useCompressedTexture, (TRUE));
 }
 
@@ -411,7 +390,7 @@ SoVolumeData::~SoVolumeData()
 void
 SoVolumeData::initClass(void)
 {
-  SO_NODE_INIT_CLASS(SoVolumeData, SoVolumeRendering, "VolumeRendering");
+  SO_NODE_INIT_CLASS(SoVolumeData, SoVolumeRendering, "SoVolumeRendering");
 
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }

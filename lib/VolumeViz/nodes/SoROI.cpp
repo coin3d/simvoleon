@@ -81,9 +81,6 @@ SoROI::SoROI(void)
 
   PRIVATE(this) = new SoROIP(this);
 
-  PRIVATE(this)->boxSensor = new SoFieldSensor(PRIVATE(this)->boxCallback, this);
-  PRIVATE(this)->boxSensor->attach(&this->box);
-
   SO_NODE_DEFINE_ENUM_VALUE(Flags, ENABLE_X0);
   SO_NODE_DEFINE_ENUM_VALUE(Flags, ENABLE_Y0);
   SO_NODE_DEFINE_ENUM_VALUE(Flags, ENABLE_Z0);
@@ -106,26 +103,25 @@ SoROI::SoROI(void)
   SO_NODE_DEFINE_ENUM_VALUE(Flags, FENCE_INVERT);
   SO_NODE_SET_SF_ENUM_TYPE(flags, Flags);
 
+  SO_NODE_ADD_FIELD(relative, (FALSE)); 
+  SO_NODE_ADD_FIELD(flags, (SUB_VOLUME)); 
   SO_NODE_ADD_FIELD(box, (0, 0, 0, 1, 1, 1));
   SO_NODE_ADD_FIELD(subVolume, (0, 0, 0, 0, 0, 0));
-  SO_NODE_ADD_FIELD(relative, (FALSE)); 
 
-  // FIXME: shouldn't "flags" get a default value? 20021106 mortene.
+  PRIVATE(this)->boxSensor = new SoFieldSensor(PRIVATE(this)->boxCallback, this);
+  PRIVATE(this)->boxSensor->attach(&this->box);
 }
-
-
 
 SoROI::~SoROI()
 {
   delete PRIVATE(this);
 }
 
-
 // Doc from parent class.
 void
 SoROI::initClass(void)
 {
-  SO_NODE_INIT_CLASS(SoROI, SoNode, "ROI");
+  SO_NODE_INIT_CLASS(SoROI, SoVolumeRendering, "SoVolumeRendering");
 
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
