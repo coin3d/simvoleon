@@ -80,7 +80,7 @@ moc_TransferFunctionHandler.o: moc_TransferFunctionHandler.cpp
 	soqt-config --compile $<
 
 TransferFunctionHandler.o: TransferFunctionHandler.cpp SoTransferFunction_ctrl.h moc_SoTransferFunction_ctrl.cpp
-	soqt-config --compile $<
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 # (SoVolumeRender UI)
 
@@ -106,7 +106,7 @@ moc_VolumeRenderHandler.o: moc_VolumeRenderHandler.cpp
 	soqt-config --compile $<
 
 VolumeRenderHandler.o: VolumeRenderHandler.cpp SoVolumeRender_ctrl.h moc_SoVolumeRender_ctrl.cpp
-	soqt-config --compile $<
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 # (SoOrthoSlice UI)
 
@@ -141,7 +141,7 @@ readvol.cpp: readvol.cpp.in
 	@soqt-config --ac-subst $<
 
 readvol.o: readvol.cpp TransferFunctionHandler.h VolumeRenderHandler.h
-	soqt-config --compile $<
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 readvol: $(READVOL_OBJECTS)
 	soqt-config --link $@ $(READVOL_OBJECTS) -lSimVoleon
