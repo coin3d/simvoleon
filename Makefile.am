@@ -9,6 +9,10 @@ BUILT_SOURCES = \
 DISTCLEANFILES = \
 	simvoleon-@CONFIG@.cfg
 
+CLEANFILES = \
+	simvoleon1.dsp \
+	simvoleon1.dsw
+
 EXTRA_DIST = \
 	simvoleon.cfg.in
 
