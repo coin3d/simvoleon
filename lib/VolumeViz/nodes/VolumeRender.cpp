@@ -1,10 +1,9 @@
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/elements/SoModelMatrixElement.h>
-#include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
+
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
@@ -29,15 +28,48 @@ public:
     delete this->pagehandler;
   }
 
+  unsigned int calculateNrOfSlices(SoGLRenderAction * action,
+                                   const SbVec3s & dimensions);
+
   CvrPageHandler * pagehandler;
 
 private:
   SoVolumeRender * master;
 };
 
-
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
+
+unsigned int
+SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
+                                     const SbVec3s & dimensions)
+{
+  int numslices = 0;
+  const int control = PUBLIC(this)->numSlicesControl.getValue();
+  const unsigned int AXISIDX = this->pagehandler->getCurrentAxis(action);
+
+  if (control == SoVolumeRender::ALL) {
+    numslices = dimensions[AXISIDX];
+  }
+  else if (control == SoVolumeRender::MANUAL) {
+    numslices = PUBLIC(this)->numSlices.getValue();
+  }
+  else if (control == SoVolumeRender::AUTOMATIC) {
+    float complexity = PUBLIC(this)->getComplexityValue(action);
+    numslices = int(complexity * 2.0f * PUBLIC(this)->numSlices.getValue());
+    assert(numslices >= 0);
+  }
+  else {
+    assert(FALSE && "invalid numSlicesControl value");
+  }
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("SoVolumeRenderP::calculateNrOfSlices",
+                         "numslices == %d", numslices);
+#endif // debug
+
+  return numslices;
+}
 
 // *************************************************************************
 
@@ -94,65 +126,44 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 {
   if (!this->shouldGLRender(action)) return;
 
-  // FIXME: this method should really just pass on control to the
-  // "rendering unit handler" (2D texture slices / 3D textures / ...),
-  // and not like now have lots of specific code for dealing with 2D
-  // texture pages. 20021122 mortene.
-  
   SoState * state = action->getState();
 
   // Fetching the current volumedata
   const SoVolumeDataElement * volumedataelement =
     SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL); // FIXME: handle gracefully. 20021111 mortene.
+  assert(volumedataelement != NULL);
 
   SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  if (volumedata == NULL) {
+    static SbBool first = TRUE;
+    if (first) {
+      SoDebugError::post("SoVolumeRender::GLRender",
+                         "no SoVolumeData in scene graph before "
+                         "SoVolumeRender node");
+      first = FALSE;
+    }
+    return;
+  }
 
-  // Fetching the current transfer function.
+  // Fetching the current transfer function. Note that it's not used
+  // in this function, but we still catch this exception here for the
+  // sake of simplicity of the code we're calling.
   const SoTransferFunctionElement * transferfunctionelement =
     SoTransferFunctionElement::getInstance(state);
-  assert(transferfunctionelement != NULL); // FIXME: handle gracefully. 20021111 mortene.
+  assert(transferfunctionelement != NULL);
 
   SoTransferFunction * transferfunction =
     transferfunctionelement->getTransferFunction();
-
-  // Calculating a camvec from camera to center of object.
-  const SbMatrix & mm = SoModelMatrixElement::get(state);
-  SbMatrix imm = mm.inverse();
-
-  SbVec3f camvec;
-  const SbViewVolume & vv = SoViewVolumeElement::get(state);
-
-  if (/* FIXME: ??? 20021111 mortene: */ 0 &&
-      vv.getProjectionType() == SbViewVolume::PERSPECTIVE) {
-    SbVec3f worldpos(0.0f, 0.0f, 0.0f);
-    mm.multVecMatrix(worldpos, worldpos);
-    camvec = vv.getProjectionPoint() - worldpos;
-    imm.multDirMatrix(camvec, camvec);
+  if (transferfunction == NULL) {
+    static SbBool first = TRUE;
+    if (first) {
+      SoDebugError::post("SoVolumeRender::GLRender",
+                         "no SoTransferFunction in scene graph before "
+                         "SoVolumeRender node");
+      first = FALSE;
+    }
+    return;
   }
-  else { // ORTHOGRAPHIC
-    camvec = - vv.getProjectionDirection();
-    imm.multDirMatrix(camvec, camvec);
-  }
-
-  SbVec3f abstoviewer;
-  abstoviewer[0] = fabs(camvec[0]);
-  abstoviewer[1] = fabs(camvec[1]);
-  abstoviewer[2] = fabs(camvec[2]);
-
-  // Commonly used variables
-  SbVec3f volmin, volmax;
-  SbBox3f volumeSize = volumedata->getVolumeSize();
-  volumeSize.getBounds(volmin, volmax);
-
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("SoVolumeRender::GLRender",
-                         "volumeSize==[%f, %f, %f]",
-                         volmax[0] - volmin[0],
-                         volmax[1] - volmin[1],
-                         volmax[2] - volmin[2]);
-#endif // debug
-
 
   SbVec3s dimensions;
   void * data;
@@ -166,130 +177,23 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
                          dimensions[0], dimensions[1], dimensions[2]);
 #endif // debug
 
-  if (!PRIVATE(this)->pagehandler) {
-    PRIVATE(this)->pagehandler =
-      new CvrPageHandler(dimensions, volumedata->getReader());
+  // FIXME: should check that rendering should be done through 2D
+  // texture slices. 20021124 mortene.
+  if (1) {
+    if (!PRIVATE(this)->pagehandler) {
+      PRIVATE(this)->pagehandler =
+        new CvrPageHandler(dimensions, volumedata->getReader());
+      // FIXME: the pagehandler instance must be devalidated /
+      // destructed when data changes, the transferfunction changes or
+      // other volume-rendering options that should cause
+      // texture-updating changes. 20021124 mortene.
+    }
+
+    int numslices = PRIVATE(this)->calculateNrOfSlices(action, dimensions);
+    if (numslices == 0) return;
+
+    PRIVATE(this)->pagehandler->render(action, numslices);
   }
-
-  // Figures out which axis we are closest to be looking along.
-
-  SbBool renderalongX =
-    (abstoviewer[0] >= abstoviewer[1]) &&
-    (abstoviewer[0] >= abstoviewer[2]);
-
-  SbBool renderalongY =
-    (abstoviewer[1] >= abstoviewer[0]) &&
-    (abstoviewer[1] >= abstoviewer[2]);
-
-  SbBool renderalongZ =
-    (abstoviewer[2] >= abstoviewer[0]) &&
-    (abstoviewer[2] >= abstoviewer[1]);
-
-  assert(((renderalongX ? 1 : 0) +
-          (renderalongY ? 1 : 0) +
-          (renderalongZ ? 1 : 0)) == 1);
-
-  enum Axis { X = 0, Y = 1, Z = 2 };
-  const int AXISIDX = (renderalongX ? X : (renderalongY ? Y : Z));
-
-  int numslices = 0;
-  int control = this->numSlicesControl.getValue();
-
-  if (control == ALL) {
-    numslices = dimensions[AXISIDX];
-  }
-  else if (control == MANUAL) {
-    numslices = this->numSlices.getValue();
-  }
-  else if (control == AUTOMATIC) {
-    float complexity = this->getComplexityValue(action);
-    numslices = int(complexity * 2.0f * this->numSlices.getValue());
-    assert(numslices >= 0);
-  }
-  else {
-    assert(FALSE && "invalid numSlicesControl value");
-  }
-
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("SoVolumeRender::GLRender",
-                         "numslices == %d", numslices);
-#endif // debug
-
-
-  if (numslices == 0) return;
-
-  float depth;
-  float depthAdder;
-
-  // Render in reverse order?
-  if (camvec[AXISIDX] < 0)  {
-    depthAdder = -(volmax[AXISIDX] - volmin[AXISIDX]) / numslices;
-    depth = volmax[AXISIDX];
-  }
-  else {
-    depthAdder = (volmax[AXISIDX] - volmin[AXISIDX]) / numslices;
-    depth = volmin[AXISIDX];
-  }
-
-  const SbBox2f QUAD = renderalongZ ?
-    SbBox2f(volmin[0], volmin[1], volmax[0], volmax[1]) :
-    (renderalongX ?
-     SbBox2f(volmin[2], volmin[1], volmax[2], volmax[1]) :
-     SbBox2f(volmin[0], volmin[2], volmax[0], volmax[2]));
-
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("SoVolumeRender::GLRender",
-                         "QUAD=[%f, %f] - [%f, %f] (AXISIDX==%d)",
-                         QUAD.getMin()[0], QUAD.getMin()[1],
-                         QUAD.getMax()[0], QUAD.getMax()[1],
-                         AXISIDX);
-#endif // debug
-
-  glPushAttrib(GL_ALL_ATTRIB_BITS);
-
-  glDisable(GL_LIGHTING);
-  glEnable(GL_TEXTURE_2D);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-  // FIXME: this is a reversion of a change that pederb made on
-  // 20021104 that made the CoinVol/testcode/example program fail
-  // (nothing gets drawn). Need to check with pederb what he tried to
-  // accomplish with the change. (The log message says "Switched to
-  // alpha test rendering instead of blending.") 20021109 mortene.
-#if 1
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#else
-  // FIXME: add proper transparency test. For now I've just disabled
-  // blending and enabled glAlphaTest instead (looks better, and delayed
-  // rendering is not required). pederb, 2002-11-04
-  // glEnable(GL_BLEND);
-  // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  // this is to enable alpha test
-  glAlphaFunc(GL_GREATER, 0.5f);
-  glEnable(GL_ALPHA_TEST);
-#endif
-
-  glDisable(GL_CULL_FACE);
-
-  // Rendering slices
-
-  const int lastpageidx =
-    (int)((float(numslices - 1) / float(numslices)) * dimensions[AXISIDX]);
-
-  for (int i = 0; i < numslices; i++) {
-    int pageidx =
-      (int)((float(i)/float(numslices)) * float(dimensions[AXISIDX]));
-    // If rendering in reverse order.
-    if (depthAdder < 0) { pageidx = lastpageidx - pageidx; }
-
-    PRIVATE(this)->pagehandler->renderOrthoSlice(state, QUAD, depth,
-                                                 pageidx, AXISIDX);
-    depth += depthAdder;
-  }
-
-  glPopAttrib();
 }
 
 void
