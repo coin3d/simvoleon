@@ -224,9 +224,10 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices)
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
   glDisable(GL_LIGHTING);
+  // FIXME: shouldn't we disable lots of stuff here (3D textures, for
+  // instance)? 20021128 mortene.
   glEnable(GL_TEXTURE_2D);
-  // FIXME: change to GL_FRONT after everything works well. 20021126 mortene.
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  glPolygonMode(GL_FRONT, GL_FILL);
 
   // FIXME: this is a reversion of a change that pederb made on
   // 20021104 that made the CoinVol/testcode/example program fail
@@ -248,6 +249,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices)
   glEnable(GL_ALPHA_TEST);
 #endif
 
+  // FIXME: what's this good for? 20021128 mortene.
   glDisable(GL_CULL_FACE);
 
   for (unsigned int i = 0; i < numslices; i++) {
