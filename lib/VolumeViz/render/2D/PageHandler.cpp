@@ -195,18 +195,19 @@ CvrPageHandler::render(SoGLRenderAction * action, int numslices)
 
   glDisable(GL_CULL_FACE);
 
-  // Rendering slices
-
-  const int lastpageidx = (int)((float(numslices - 1) / float(numslices)) *
-                                this->voldatadims[AXISIDX]);
-
   for (int i = 0; i < numslices; i++) {
-    int pageidx =
-      (int)((float(i)/float(numslices)) * float(this->voldatadims[AXISIDX]));
-    // If rendering in reverse order.
-    if (depthAdder < 0) { pageidx = lastpageidx - pageidx; }
+    // Find nearest integer page idx (as number of pages to render
+    // need not match the number of actual volume data pages).
+    int pageidx = (int)
+      ((float(i)/float(numslices)) * float(this->voldatadims[AXISIDX]) + 0.5f);
 
-    this->renderOrthoSlice(action, QUAD, depth, pageidx, AXISIDX);
+    assert(pageidx >= 0);
+    assert(pageidx < numslices);
+
+    // If rendering in reverse order.
+    if (depthAdder < 0) { pageidx = numslices - pageidx - 1; }
+
+    this->renderOnePage(action, QUAD, depth, pageidx, AXISIDX);
     depth += depthAdder;
   }
 
@@ -214,13 +215,12 @@ CvrPageHandler::render(SoGLRenderAction * action, int numslices)
 }
 
 void
-CvrPageHandler::renderOrthoSlice(SoGLRenderAction * action,
-                                 const SbBox2f & quad,
-                                 float depth,
-                                 int sliceIdx,
-                                 // axis: 0, 1, 2 for X, Y or Z axis.
-                                 unsigned int axis)
+CvrPageHandler::renderOnePage(SoGLRenderAction * action,
+                              const SbBox2f & quad, float depth,
+                              unsigned int pageidx, unsigned int axis)
 {
+  assert(pageidx < this->voldatadims[axis]);
+
   SbVec2f qmax, qmin;
   quad.getBounds(qmin, qmax);
 
@@ -248,10 +248,10 @@ CvrPageHandler::renderOrthoSlice(SoGLRenderAction * action,
   }
   else assert(FALSE);
 
-  Cvr2DTexPage * slice = this->getSlice(axis, sliceIdx);
+  Cvr2DTexPage * slice = this->getSlice(axis, pageidx);
 
 #if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("CvrPageHandler::renderOrthoSlice",
+  SoDebugError::postInfo("CvrPageHandler::renderOnePage",
                          "origo==[%f, %f, %f]",
                          origo[0], origo[1], origo[2]);
 #endif // debug

@@ -28,8 +28,8 @@ private:
 
   Cvr2DTexPage * getSlice(const unsigned int AXISIDX, unsigned int sliceidx);
 
-  void renderOrthoSlice(SoGLRenderAction * action, const SbBox2f & quad,
-                        float depth, int sliceIdx, unsigned int axis);
+  void renderOnePage(SoGLRenderAction * action, const SbBox2f & quad,
+                     float depth, unsigned int pageidx, unsigned int axis);
 
   Cvr2DTexPage ** slices[3];
   unsigned int voldatadims[3];
