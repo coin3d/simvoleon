@@ -22,6 +22,7 @@ private:
                       int palettesize, const float * palette);
 
   GLuint texturename[1];
+  static GLuint emptyimgname[1];
   SbVec2s texdims;
   static unsigned int nroftexels;
   static unsigned int texmembytes;

@@ -3,6 +3,8 @@
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/errors/SoDebugError.h>
 
+#include "texmemfullimg.h"
+
 // (This is cut'n'pasted from torbjorv's end-of-project doc in
 // SoVolumeData.cpp:)
 //
@@ -51,6 +53,7 @@
 
 unsigned int Cvr2DTexSubPage::nroftexels = 0;
 unsigned int Cvr2DTexSubPage::texmembytes = 0;
+GLuint Cvr2DTexSubPage::emptyimgname[1] = { 0 };
 
 
 Cvr2DTexSubPage::Cvr2DTexSubPage(const uint8_t * textureimg,
@@ -76,23 +79,25 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(const uint8_t * textureimg,
 
 Cvr2DTexSubPage::~Cvr2DTexSubPage()
 {
-  glDeleteTextures(1, this->texturename);
+  if (this->texturename[0] != 0) {
+    glDeleteTextures(1, this->texturename);
 
-  const unsigned int nrtexels = this->texdims[0] * this->texdims[1];
-  assert(nrtexels <= Cvr2DTexSubPage::nroftexels);
-  Cvr2DTexSubPage::nroftexels -= nrtexels;
+    const unsigned int nrtexels = this->texdims[0] * this->texdims[1];
+    assert(nrtexels <= Cvr2DTexSubPage::nroftexels);
+    Cvr2DTexSubPage::nroftexels -= nrtexels;
 
-  unsigned int freetexmem = (unsigned int)
-    (float(nrtexels) * this->texmultfactor);
-  assert(freetexmem <= Cvr2DTexSubPage::texmembytes);
-  Cvr2DTexSubPage::texmembytes -= freetexmem;
+    unsigned int freetexmem = (unsigned int)
+      (float(nrtexels) * this->texmultfactor);
+    assert(freetexmem <= Cvr2DTexSubPage::texmembytes);
+    Cvr2DTexSubPage::texmembytes -= freetexmem;
 
 #if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("Cvr2DTexSubPage::~Cvr2DTexSubPage",
-                         "nroftexels => %d, texmembytes => %d",
-                         Cvr2DTexSubPage::nroftexels,
-                         Cvr2DTexSubPage::texmembytes);
+    SoDebugError::postInfo("Cvr2DTexSubPage::~Cvr2DTexSubPage",
+                           "nroftexels => %d, texmembytes => %d",
+                           Cvr2DTexSubPage::nroftexels,
+                           Cvr2DTexSubPage::texmembytes);
 #endif // debug
+  }
 }
 
 
@@ -101,6 +106,11 @@ Cvr2DTexSubPage::~Cvr2DTexSubPage()
 void
 Cvr2DTexSubPage::activate(void) const
 {
+  if (this->texturename[0] == 0) {
+    glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
+    return;
+  }
+
   glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
 
 #if CVR_DEBUG
@@ -113,6 +123,9 @@ Cvr2DTexSubPage::activate(void) const
   }
 #endif // CVR_DEBUG
 
+#if CVR_DEBUG && 0 // debug: for GL texture things
+  glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
+#endif // debug
 }
 
 // If no palette specified, this function assumes RGBA data. If a
@@ -126,25 +139,35 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
   // FIXME: need cache context here! 20021120 mortene.
   const cc_glglue * glw = cc_glglue_instance(0);
 
-  // FIXME: these functions is only supported in opengl 1.1...
-  // torbjorv 08052002
-  glGenTextures(1, this->texturename);
-  glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
+  if (Cvr2DTexSubPage::emptyimgname[0] == 0) {
+    glGenTextures(1, Cvr2DTexSubPage::emptyimgname);
+    glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
+    // FIXME: never freed. 20021121 mortene.
 
-  const int nrtexels = this->texdims[0] * this->texdims[1];
-
-  // Uploading standard RGBA-texture
-  if (palette == NULL) {
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 4,
-                 this->texdims[0],
-                 this->texdims[1],
+    glTexImage2D(GL_TEXTURE_2D, 0, 4,
+                 tex_image.width, tex_image.height, // FIXME: check 2^n. 20021121 mortene.
                  0,
                  GL_RGBA,
                  GL_UNSIGNED_BYTE,
-                 textureimg);
+                 tex_image.pixel_data);
 
+    const int texels = tex_image.width * tex_image.height;
+    Cvr2DTexSubPage::nroftexels += texels;
+    Cvr2DTexSubPage::texmembytes += texels * tex_image.bytes_per_pixel;
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  }
+
+  int colorformat;
+  int bytes_pr_unit = GL_UNSIGNED_BYTE;
+
+  // Uploading standard RGBA-texture
+  if (palette == NULL) {
+    colorformat = 4;
     this->texmultfactor = 4.0f; // 8 bits each R, G, B & A
   }
   // Uploading paletted texture
@@ -156,11 +179,11 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
     assert(cc_glglue_has_paletted_textures(glw) && "can't handle palette-textures");
 
     // Check size of indices
-    int format = GL_UNSIGNED_BYTE;
-    if (palettesize > 256)
-      format = GL_UNSIGNED_SHORT;
+    if (palettesize > 256) bytes_pr_unit = GL_UNSIGNED_SHORT;
 
     // Setting palette
+    // FIXME: does this need to be called _after_ glBindTextures()?
+    // 20021121 mortene.
     cc_glglue_glColorTableEXT(glw, GL_TEXTURE_2D,
                               GL_RGBA,
                               palettesize,
@@ -173,8 +196,6 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
     cc_glglue_glGetColorTableParameterivEXT(glw, GL_TEXTURE_2D,
                                             GL_COLOR_TABLE_WIDTH_EXT,
                                             &actualPaletteSize);
-
-    int colorformat;
 
     switch (actualPaletteSize) {
     case 2:
@@ -210,40 +231,50 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
       assert(FALSE && "unknown palette size");
       break;
     }
+  }
 
+  const int nrtexels = this->texdims[0] * this->texdims[1];
+  const int texmem = int(float(nrtexels) * this->texmultfactor);
 
-    // Upload texture
+  // FIXME: limits should be stored in a global texture manager class
+  // or some such. 20021121 mortene.
+  if (((nrtexels + Cvr2DTexSubPage::nroftexels) > (16*1024*1024)) ||
+      ((texmem + Cvr2DTexSubPage::texmembytes) > (16*1024*1024))) {
+    this->texturename[0] = 0;
+  }
+  else {
+    Cvr2DTexSubPage::nroftexels += nrtexels;
+    Cvr2DTexSubPage::texmembytes += texmem;
+
+    // FIXME: these functions are only supported in opengl 1.1+...
+    // torbjorv 08052002
+    glGenTextures(1, this->texturename);
+    glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
+
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  colorformat,
                  this->texdims[0],
                  this->texdims[1],
                  0,
-                 GL_COLOR_INDEX,
-                 format,
+                 palette == NULL ? GL_RGBA : GL_COLOR_INDEX,
+                 bytes_pr_unit,
                  textureimg);
 
+    GLint wrapenum = GL_CLAMP;
+    if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
+
+    // FIXME: investigate if this is really what we want. 20021120 mortene.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
+
+    // FIXME: investigate if this is really what we want. 20021120 mortene.
+    //
+    // FIXME: should at least provide an envvar to set GL_LINEAR
+    // instead, for testing purposes. 20021121 mortene.
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   }
-
-  Cvr2DTexSubPage::nroftexels += nrtexels;
-  Cvr2DTexSubPage::texmembytes += int(float(nrtexels) * this->texmultfactor);
-
-  GLint wrapenum = GL_CLAMP;
-  if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
-
-  // FIXME: investigate if this is really what we want. 20021120 mortene.
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
-
-  // FIXME: investigate if this is really what we want. Perhaps
-  // GL_NEAREST is better? 20021120 mortene.
-#if 0
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-#else
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-#endif
 }
 
 unsigned int
