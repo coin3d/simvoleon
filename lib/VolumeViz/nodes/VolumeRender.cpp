@@ -976,6 +976,13 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
   // (i.e. 3D texturing is reported to be from ~40x to ~200x slower
   // than 2D texturing). Investigate why this happens, and improve
   // test. 20040711 mortene.
+  //
+  // UPDATE: increasing the number of tests (to run for an excessive
+  // ~5 seconds) "normalizes" the values (to be between 140 and
+  // 160). This might indicate that it is not a good idea to use
+  // random coordinates for the polygons, as long as there are
+  // relatively few of them. Should perhaps instead render a fixed set
+  // of quite large polygons? 20040711 mortene.
 
   unsigned int i;
   const float xp = (rand() * 5.0f) / RAND_MAX;
