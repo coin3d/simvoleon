@@ -37,21 +37,22 @@
 
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/actions/SoRayPickAction.h>
-#include <Inventor/errors/SoDebugError.h>
-#include <Inventor/system/gl.h>
+#include <Inventor/C/tidbits.h>
 #include <Inventor/SbLine.h>
 #include <Inventor/SbPlane.h>
-#include <Inventor/elements/SoLazyElement.h>
-#include <Inventor/elements/SoGLTextureEnabledElement.h>
-#include <Inventor/elements/SoGLTexture3EnabledElement.h>
-#include <Inventor/elements/SoModelMatrixElement.h>
-#include <Inventor/bundles/SoMaterialBundle.h>
-#include <Inventor/C/tidbits.h>
-#include <Inventor/SoPickedPoint.h>
-#include <Inventor/SbTime.h>
 #include <Inventor/SbRotation.h>
+#include <Inventor/SbTime.h>
+#include <Inventor/SoPickedPoint.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/actions/SoGetBoundingBoxAction.h>
+#include <Inventor/actions/SoRayPickAction.h>
+#include <Inventor/bundles/SoMaterialBundle.h>
+#include <Inventor/elements/SoGLTexture3EnabledElement.h>
+#include <Inventor/elements/SoGLTextureEnabledElement.h>
+#include <Inventor/elements/SoLazyElement.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
+#include <Inventor/errors/SoDebugError.h>
+#include <Inventor/system/gl.h>
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
@@ -380,12 +381,13 @@ SoVolumeRender::initClass(void)
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoModelMatrixElement);
+  SO_ENABLE(SoGLRenderAction, SoLazyElement);
 
   SO_ENABLE(SoRayPickAction, SoVolumeDataElement);
   SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
   SO_ENABLE(SoRayPickAction, SoModelMatrixElement);
-  SO_ENABLE(SoGLRenderAction, SoLazyElement);
 
+  SO_ENABLE(SoGetBoundingBoxAction, SoVolumeDataElement);
 }
 
 void
@@ -403,15 +405,6 @@ SoVolumeRenderP::getTransformFromVolumeBoxDimensions(const SoVolumeDataElement *
 
   const SbVec3f localtrans =
     (localbox.getMax() - localbox.getMin()) / 2.0f + localbox.getMin();
-
-#if 0 // debug, remove when 3D textures have been confirmed to work
-  printf("voxcubedims: <%d, %d, %d>\n", voxcubedims[0], voxcubedims[1], voxcubedims[2]);
-  printf("localbox: <%f, %f, %f> -> <%f, %f, %f>\n",
-         localbox.getMin()[0], localbox.getMin()[1], localbox.getMin()[2],
-         localbox.getMax()[0], localbox.getMax()[1], localbox.getMax()[2]);
-  printf("localspan: "); localspan.print(stdout); printf("\n");
-  printf("localtrans: "); localtrans.print(stdout); printf("\n");
-#endif // debug
 
   m.setTransform(localtrans, SbRotation::identity(), localspan);
 }
@@ -440,17 +433,16 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   SoState * state = action->getState();
 
   // Fetching the current volumedata
-  const SoVolumeDataElement * volumedataelement =
-    SoVolumeDataElement::getInstance(state);
+  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
   assert(volumedataelement != NULL);
-
   SoVolumeData * volumedata = volumedataelement->getVolumeData();
+
   if (volumedata == NULL) {
     static SbBool first = TRUE;
     if (first) {
-      SoDebugError::post("SoVolumeRender::GLRender",
-                         "no SoVolumeData in scene graph before "
-                         "SoVolumeRender node");
+      SoDebugError::postWarning("SoVolumeRender::GLRender",
+                                "No SoVolumeData in scene graph before "
+                                "SoVolumeRender node.");
       first = FALSE;
     }
     return;
@@ -467,14 +459,32 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     transferfunctionelement->getTransferFunction();
 
   if (transferfunction == NULL) {
-    // FIXME: should instead just use a default
-    // transferfunction. Perhaps SoVolumeData (?) could place one the
-    // state stack? 20040220 mortene.
+    // FIXME: should instead just use a default transferfunction.
+    // Perhaps SoVolumeData (?) could place one on the state stack?
+    // 20040220 mortene.
     static SbBool first = TRUE;
     if (first) {
-      SoDebugError::post("SoVolumeRender::GLRender",
-                         "no SoTransferFunction in scene graph before "
-                         "SoVolumeRender node -- rendering aborted");
+      SoDebugError::postWarning("SoVolumeRender::GLRender",
+                                "No SoTransferFunction in scene graph before "
+                                "SoVolumeRender node -- rendering aborted.");
+      first = FALSE;
+    }
+    return;
+  }
+
+  const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("SoVolumeRender::GLRender", "voxcubedims==[%d, %d, %d]",
+                         voxcubedims[0], voxcubedims[1], voxcubedims[2]);
+#endif // debug
+  assert((voxcubedims[0] >= 0) && (voxcubedims[1] >= 0) && (voxcubedims[2] >= 0));
+  if (voxcubedims[0] == 0) {
+    assert((voxcubedims[1] == 0) && (voxcubedims[2] == 0));
+    static SbBool first = TRUE;
+    if (first) {
+      SoDebugError::postWarning("SoVolumeRender::GLRender",
+                                "No valid volume seems to be available from "
+                                "the previous SoVolumeData.");
       first = FALSE;
     }
     return;
@@ -487,14 +497,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   SbMatrix volumetransform;
   SoVolumeRenderP::getTransformFromVolumeBoxDimensions(volumedataelement, volumetransform);
   SoModelMatrixElement::mult(state, this, volumetransform);
-
-  const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
-
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("SoVolumeRender::GLRender",
-                         "voxcubedims==[%d, %d, %d]",
-                         voxcubedims[0], voxcubedims[1], voxcubedims[2]);
-#endif // debug
 
   int rendermethod, storagehint;
 
@@ -791,14 +793,15 @@ void
 SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
   SoState * state = action->getState();
-  const SoVolumeDataElement * volumedataelement =
-    SoVolumeDataElement::getInstance(state);
 
-  if (volumedataelement == NULL) return;
+  const SoVolumeDataElement * vdelem = SoVolumeDataElement::getInstance(state);
+  assert(vdelem && "element enabled for node, should always be available");
+  const SoVolumeData * volumedata = vdelem->getVolumeData();
+  if (volumedata == NULL) { return; }
 
-  const SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  const SbBox3f vdbox = volumedata->getVolumeSize();
+  if (vdbox.isEmpty()) { return; }
 
-  SbBox3f vdbox = volumedata->getVolumeSize();
   box.extendBy(vdbox);
   center = vdbox.getCenter();
 }
@@ -1159,12 +1162,22 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
   }
   
   static const GLubyte * rendererstring = glGetString(GL_RENDERER);
-  int i=0;
+  unsigned int i=0;
   while (texture3d_in_hardware[i]) {
     const char * loc = strstr((const char *)rendererstring,
                               texture3d_in_hardware[i++]);
     if (loc != NULL) {
       do3dtextures = 1;
+      if (CvrUtil::doDebugging()) {
+        SoDebugError::postInfo("SoVolumeRenderP::use3DTexturing",
+                               "Your OpenGL driver and graphics card "
+                               "combination ('%s') was found in a whitelist "
+                               "of drivers/cards able to accelerate "
+                               "3D textures in hardware. "
+                               "(If you wish to force 2D texturing instead, "
+                               "set the envvar CVR_FORCE_2D_TEXTURES=1).",
+                               rendererstring);
+      }
       return TRUE;
     }
   }
@@ -1175,10 +1188,13 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
                               texture3d_in_software[i++]);
     if (CvrUtil::doDebugging() && loc) {
       SoDebugError::postInfo("SoVolumeRenderP::use3DTexturing",
-                             "Your GFX card ('%s') has 3D texture abilities, "
-                             "but these are not hardware accelerated. Using 2D textures instead. "
-                             "(If you wish to force 3D texturing, set the envvar "
-                             "CVR_FORCE_3D_TEXTURES=1)",
+                             "Your OpenGL driver has 3D texture abilities, "
+                             "but your graphics card ('%s') was found in a "
+                             "blacklist of cards not able to accelerate "
+                             "3D textures in hardware. Falling back on 2D "
+                             "textures instead. "
+                             "(If you wish to force 3D texturing, set the "
+                             "envvar CVR_FORCE_3D_TEXTURES=1).",
                              rendererstring);
       do3dtextures = 0;
       return FALSE;
@@ -1190,18 +1206,19 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
   // different GFX cards to see if the rating threshold is high enough
   // (20040503 handegar)
   const float rating = SoVolumeRenderP::performanceTest(glglue); // => (3D rendertime) / (2D rendertime)
-  if (rating < 3.0f) { // 2D should at least be this many times as
-                       // fast before 3D texturing is dropped.
+  if (rating < 3.0f) { // 2D should at least be this many times faster
+                       // before 3D texturing is dropped.
     do3dtextures = 1;
     return TRUE;
   }
 
   if (CvrUtil::doDebugging()) {    
     SoDebugError::postInfo("SoVolumeRenderP::use3DTexturing",
-                           "Your GFX card did not score high enough in the performance test "
-                           "for 3D textures compared to 2D textures. 2D texturing will be "
-                           "used. (If you wish to force 3D texturing, set the envvar "
-                           "CVR_FORCE_3D_TEXTURES=1)");
+                           "Your GFX card did not score high enough in the "
+                           "performance test for 3D textures compared to "
+                           "2D textures. 2D texturing will be used. "
+                           "(If you wish to force 3D texturing, set the "
+                           "envvar CVR_FORCE_3D_TEXTURES=1)");
   }
   
   do3dtextures = 0;

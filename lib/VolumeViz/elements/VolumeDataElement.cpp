@@ -92,8 +92,8 @@ SoVolumeDataElement::getVoxelCubeDimensions(void) const
   SbVec3s voxeldims;
   void * discardptr;
   SoVolumeData::DataType discard;
-  SbBool ok = this->nodeptr->getVolumeData(voxeldims, discardptr, discard);
-  assert(ok);
+  const SbBool ok = this->nodeptr->getVolumeData(voxeldims, discardptr, discard);
+  if (!ok) { return SbVec3s(0, 0, 0); } // no volume set
   return voxeldims;
 }
 
