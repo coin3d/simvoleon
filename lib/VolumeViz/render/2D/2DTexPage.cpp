@@ -9,6 +9,7 @@
 #include <Inventor/system/gl.h>
 
 #include <limits.h>
+#include <string.h>
 
 // *************************************************************************
 
@@ -296,26 +297,72 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
     for (int i=0; i < nrpages; i++) { this->subpages[i] = NULL; }
   }
 
-  SbBox2s subSlice = SbBox2s(col * this->subpagesize[0],
-                             row * this->subpagesize[1],
-                             (col + 1) * this->subpagesize[0],
-                             (row + 1) * this->subpagesize[1]);
+  SbVec2s subpagemin(col * this->subpagesize[0], row * this->subpagesize[1]);
+  SbVec2s subpagemax((col + 1) * this->subpagesize[0] /* FIXME: - 1? */,
+                     (row + 1) * this->subpagesize[1]); /* FIXME: - 1? */
+  subpagemax[0] = SbMin(subpagemax[0], this->dimensions[0]);
+  subpagemax[1] = SbMin(subpagemax[1], this->dimensions[1]);
 
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("Cvr2DTexPage::buildSubPage",
+                         "subpagemin=[%d, %d] subpagemax=[%d, %d]",
+                         subpagemin[0], subpagemin[1],
+                         subpagemax[0], subpagemax[1]);
+#endif // debug
+
+  SbBox2s subpagecut = SbBox2s(subpagemin, subpagemax);
+  
   int texturebuffersize = this->subpagesize[0] * this->subpagesize[1] * 4;
   unsigned char * texture = new unsigned char[texturebuffersize];
+  (void)memset(texture, 0x00, texturebuffersize);
 
   SoVolumeReader::Axis ax =
     this->axis == 0 ? SoVolumeReader::X :
     (this->axis == 1 ? SoVolumeReader::Y : SoVolumeReader::Z);
 
-  this->reader->getSubSlice(subSlice, this->sliceIdx, texture, ax);
+  this->reader->getSubSlice(subpagecut, this->sliceIdx, texture, ax);
+
+#if 0 // DEBUG: dump slice parts before texture transformation to bitmap files.
+  SbString s;
+  s.sprintf("/tmp/pretransfslice-%04d-%03d-%03d.pgm", this->sliceIdx, row, col);
+  FILE * f = fopen(s.getString(), "w");
+  assert(f);
+  (void)fprintf(f, "P2\n%d %d 255\n",  // width height maxcolval
+                this->subpagesize[0], this->subpagesize[1]);
+
+  for (int i=0; i < this->subpagesize[0] * this->subpagesize[1]; i++) {
+    fprintf(f, "%d\n", texture[i]);
+  }
+  fclose(f);
+#endif // DEBUG
 
   SoTransferFunction * transferfunc = this->getTransferFunc(action);
+
+  // FIXME: optimalization measure; should be able to save on texture
+  // memory by not using full pages where only parts of them are
+  // actually covered by texture (volume data does more often than not
+  // fail to match dimensions perfectly with 2^n values). 20021125 mortene.
 
   uint32_t * transferredTexture = transferfunc->transfer(texture,
                                                          this->dataType,
                                                          this->subpagesize);
   delete[] texture;
+
+#if 0 // DEBUG: dump all transfered textures to bitmap files.
+  SbString s;
+  s.sprintf("/tmp/posttransftex-%04d-%03d-%03d.ppm", this->sliceIdx, row, col);
+  FILE * f = fopen(s.getString(), "w");
+  assert(f);
+  (void)fprintf(f, "P3\n%d %d 255\n",  // width height maxcolval
+                this->subpagesize[0], this->subpagesize[1]);
+
+  for (int i=0; i < this->subpagesize[0] * this->subpagesize[1]; i++) {
+    uint32_t rgba = transferredTexture[i];
+    fprintf(f, "%d %d %d\n",
+            rgba & 0xff, (rgba & 0xff00) >> 8,  (rgba & 0xff0000) >> 16);
+  }
+  fclose(f);
+#endif // DEBUG
 
   // FIXME: paletted textures not supported yet. 20021119 mortene.
   float * palette = NULL;
