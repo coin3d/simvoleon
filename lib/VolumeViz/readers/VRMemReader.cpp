@@ -27,13 +27,13 @@ private:
 #define PUBLIC(p) (p->master)
 
 void buildSubSliceX(const void * input, void * output,
-                    int sliceIdx, const SbBox2s & subSlice,
+                    int pageoffsetidx, const SbBox2s & subslice,
                     const SoVolumeData::DataType type, const SbVec3s & dim);
 void buildSubSliceY(const void * input, void * output,
-                    int sliceIdx, const SbBox2s & subSlice,
+                    int pageoffsetidx, const SbBox2s & subslice,
                     const SoVolumeData::DataType type, const SbVec3s & dim);
 void buildSubSliceZ(const void * input, void * output,
-                    int sliceIdx, const SbBox2s & subSlice,
+                    int pageoffsetidx, const SbBox2s & subslice,
                     const SoVolumeData::DataType type, const SbVec3s & dim);
 
 
@@ -66,26 +66,26 @@ void SoVRMemReader::getDataChar(SbBox3f & size,
                  dim[0]/2.0f, dim[1]/2.0f, dim[2]/2.0f);
 }
 
-void SoVRMemReader::getSubSlice(SbBox2s &subSlice,
+void SoVRMemReader::getSubSlice(SbBox2s &subslice,
                                 int sliceNumber,
                                 void * data,
                                 Axis axis)
 {
   switch (axis) {
     case X:
-      buildSubSliceX(this->m_data, data, sliceNumber, subSlice,
+      buildSubSliceX(this->m_data, data, sliceNumber, subslice,
                      PRIVATE(this)->dataType,
                      PRIVATE(this)->dimensions);
       break;
 
     case Y:
-      buildSubSliceY(this->m_data, data, sliceNumber, subSlice,
+      buildSubSliceY(this->m_data, data, sliceNumber, subslice,
                      PRIVATE(this)->dataType,
                      PRIVATE(this)->dimensions);
       break;
 
     case Z:
-      buildSubSliceZ(this->m_data, data, sliceNumber, subSlice,
+      buildSubSliceZ(this->m_data, data, sliceNumber, subslice,
                      PRIVATE(this)->dataType,
                      PRIVATE(this)->dimensions);
       break;
@@ -117,56 +117,51 @@ SoVRMemReader::setData(const SbVec3s &dimensions,
 void
 buildSubSliceX(const void * input,
                void * output,
-               int sliceIdx,
-               const SbBox2s & subSlice,
+               int pageoffsetidx,
+               const SbBox2s & subslice,
                const SoVolumeData::DataType type,
                const SbVec3s & dim)
 {
-  // FIXME: use fixed-width int-types. 20021109 mortene.
-  unsigned int * intData = (unsigned int *)input;
-  unsigned int * intTexture = (unsigned int *)output;
-  unsigned char * byteData = (unsigned char *)input;
-  unsigned char * byteTexture = (unsigned char *)output;
-  unsigned short * shortData = (unsigned short *)input;
-  unsigned short * shortTexture = (unsigned short *)output;
+  uint8_t * input8bits = (uint8_t *)input;
+  uint8_t * output8bits = (uint8_t *)output;
+  uint16_t * input16bits = (uint16_t *)input;
+  uint16_t * output16bits = (uint16_t *)output;
+  uint32_t * input32bits = (uint32_t *)input;
+  uint32_t * output32bits = (uint32_t *)output;
 
-  SbVec2s min, max;
-  subSlice.getBounds(min, max);
+  SbVec2s ssmin, ssmax;
+  subslice.getBounds(ssmin, ssmax);
 
-  int out = 0;
-  int xOffset = sliceIdx;
-  int yOffset = min[1]*dim[0];
-  int yLimit = max[1]*dim[0];
-  int zAdd = dim[0]*dim[1];
-  int zStart = min[0]*dim[0]*dim[1];
+  int xOffset = pageoffsetidx;
+  int yOffset = ssmin[1] * dim[0];
+  int yLimit = ssmax[1] * dim[0];
+  int zAdd = dim[0] * dim[1];
+  int zStart = ssmin[0] * dim[0] * dim[1];
 
   while (yOffset < yLimit) {
     int zOffset = zStart + xOffset + yOffset;
-    int zLimit  = max[0]*dim[0]*dim[1]
+    int zLimit  = ssmax[0] * dim[0] * dim[1]
                 + xOffset + yOffset;
 
     switch (type) {
 
       case SoVolumeData::UNSIGNED_BYTE:
         while (zOffset < zLimit) {
-          byteTexture[out] = byteData[zOffset];
-          out ++;
+          *output8bits++ = input8bits[zOffset];
           zOffset += zAdd;
         }
         break;
 
       case SoVolumeData::UNSIGNED_SHORT:
         while (zOffset < zLimit) {
-          shortTexture[out] = shortData[zOffset];
-          out ++;
+          *output16bits++ = input16bits[zOffset];
           zOffset += zAdd;
         }
         break;
 
       case SoVolumeData::RGBA:
         while (zOffset < zLimit) {
-          intTexture[out] = intData[zOffset];
-          out ++;
+          *output32bits++ = input32bits[zOffset];
           zOffset += zAdd;
         }
         break;
@@ -187,52 +182,48 @@ buildSubSliceX(const void * input,
 void
 buildSubSliceY(const void * input,
                void * output,
-               int sliceIdx,
-               const SbBox2s & subSlice,
+               int pageoffsetidx,
+               const SbBox2s & subslice,
                const SoVolumeData::DataType type,
                const SbVec3s & dim)
 {
-  unsigned int * intData = (unsigned int *)input;
-  unsigned int * intTexture = (unsigned int *)output;
-  unsigned char * byteData = (unsigned char *)input;
-  unsigned char * byteTexture = (unsigned char *)output;
-  unsigned short * shortData = (unsigned short *)input;
-  unsigned short * shortTexture = (unsigned short *)output;
+  uint8_t * input8bits = (uint8_t *)input;
+  uint8_t * output8bits = (uint8_t *)output;
+  uint16_t * input16bits = (uint16_t *)input;
+  uint16_t * output16bits = (uint16_t *)output;
+  uint32_t * input32bits = (uint32_t *)input;
+  uint32_t * output32bits = (uint32_t *)output;
 
-  SbVec2s min, max;
-  subSlice.getBounds(min, max);
+  SbVec2s ssmin, ssmax;
+  subslice.getBounds(ssmin, ssmax);
 
-  int out = 0;
-  int yOffset = sliceIdx*dim[0];
-  int zOffset = min[1]*dim[0]*dim[1] + yOffset;
-  int zLimit = dim[0]*dim[1]*max[1] + yOffset;
+  int yOffset = pageoffsetidx * dim[0];
+  int zOffset = ssmin[1] * dim[0] * dim[1] + yOffset;
+  int zLimit = dim[0] * dim[1] * ssmax[1] + yOffset;
 
   while (zOffset < zLimit) {
-    int xOffset = min[0] + zOffset;
-    int xLimit = max[0] + zOffset;
+    int xOffset = ssmin[0] + zOffset;
+    int xLimit = ssmax[0] + zOffset;
 
     switch (type) {
 
       case SoVolumeData::UNSIGNED_BYTE:
           while (xOffset < xLimit) {
-            byteTexture[out] = byteData[xOffset];
-            out++;
+            *output8bits++ = input8bits[xOffset];
             xOffset++;
           }
           break;
 
       case SoVolumeData::UNSIGNED_SHORT:
           while (xOffset < xLimit) {
-            shortTexture[out] = shortData[xOffset];
-            out++;
+            *output16bits++ = input16bits[xOffset];
             xOffset++;
           }
           break;
 
       case SoVolumeData::RGBA:
           while (xOffset < xLimit) {
-            intTexture[out] = intData[xOffset];
-            out++;
+            *output32bits++ = input32bits[xOffset];
             xOffset++;
           }
           break;
@@ -251,51 +242,47 @@ buildSubSliceY(const void * input,
 void
 buildSubSliceZ(const void * input,
                void * output,
-               int sliceIdx,
-               const SbBox2s & subSlice,
+               int pageoffsetidx,
+               const SbBox2s & subslice,
                const SoVolumeData::DataType type,
                const SbVec3s & dim)
 {
-  unsigned int * intData = (unsigned int *)input;
-  unsigned int * intTexture = (unsigned int *)output;
-  unsigned char * byteData = (unsigned char *)input;
-  unsigned char * byteTexture = (unsigned char *)output;
-  unsigned short * shortData = (unsigned short *)input;
-  unsigned short * shortTexture = (unsigned short *)output;
+  uint8_t * input8bits = (uint8_t *)input;
+  uint8_t * output8bits = (uint8_t *)output;
+  uint16_t * input16bits = (uint16_t *)input;
+  uint16_t * output16bits = (uint16_t *)output;
+  uint32_t * input32bits = (uint32_t *)input;
+  uint32_t * output32bits = (uint32_t *)output;
 
-  SbVec2s min, max;
-  subSlice.getBounds(min, max);
+  SbVec2s ssmin, ssmax;
+  subslice.getBounds(ssmin, ssmax);
 
-  int out = 0;
-  int zOffset = sliceIdx*dim[0]*dim[1];
-  int yOffset = min[1]*dim[0] + zOffset;
-  int yLimit = max[1]*dim[0] + zOffset;
-  int xStart = min[0];
+  int zOffset = pageoffsetidx * dim[0] * dim[1];
+  int yOffset = ssmin[1] * dim[0] + zOffset;
+  int yLimit = ssmax[1] * dim[0] + zOffset;
+  int xStart = ssmin[0];
   while (yOffset < yLimit) {
     int xOffset = xStart + yOffset;
-    int xLimit = max[0] + yOffset;
+    int xLimit = ssmax[0] + yOffset;
 
     switch (type) {
       case SoVolumeData::UNSIGNED_BYTE:
         while (xOffset < xLimit) {
-          byteTexture[out] = byteData[xOffset];
-          out++;
+          *output8bits++ = input8bits[xOffset];
           xOffset++;
         }
         break;
 
       case SoVolumeData::UNSIGNED_SHORT:
         while (xOffset < xLimit) {
-          shortTexture[out] = shortData[xOffset];
-          out++;
+          *output16bits++ = input16bits[xOffset];
           xOffset++;
         }
         break;
 
       case SoVolumeData::RGBA:
         while (xOffset < xLimit) {
-          intTexture[out] = intData[xOffset];
-          out++;
+          *output32bits++ = input32bits[xOffset];
           xOffset++;
         }
         break;
