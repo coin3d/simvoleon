@@ -17,6 +17,7 @@ public:
   virtual void getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
                            SbVec3s & dim) = 0;
 
+  // FIXME: extra API vs TGS. See FIXME below. 20021109 mortene.
   enum Axis { X, Y, Z };
 
   virtual void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data,
