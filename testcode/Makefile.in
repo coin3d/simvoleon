@@ -114,7 +114,7 @@ moc_VolumeRenderHandler.@OBJEXT@: moc_VolumeRenderHandler.cpp
 	soqt-config --compile $<
 
 $(srcdir)/VolumeRenderHandler.@OBJEXT@: $(srcdir)/VolumeRenderHandler.cpp SoVolumeRender_ctrl.h moc_SoVolumeRender_ctrl.cpp
-	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
+	CPPFLAGS="`simvoleon-config --cppflags` -I." soqt-config --compile $<
 
 # (SoOrthoSlice UI)
 
