@@ -11,7 +11,7 @@
     Note that this is probably buggy not only for SoOrthoSlice, but
     also for SoVolumeRender.
 
-    <mortene@sim.no> 20030427.
+    20030427 mortene.
 
 ========================================================================
 
@@ -23,7 +23,7 @@
     be wise to use an even smaller set to see the problem more
     clearly.
 
-    <mortene@sim.no> 20030627.
+    20030627 mortene.
 
     UPDATE 20040212 mortene: handegar committed a fix for this, check
     if it now works 100% correctly.
@@ -35,6 +35,16 @@
 
     This seems pointless. Investigate.
 
-    <mortene@sim.no> 20030702.
+    20030702 mortene.
+
+========================================================================
+
+003 SoVolumeRender with 3D-textures fails on Solaris.
+
+    Tingdahl reported that when running their app on a Solaris box and
+    remote displaying it on a Linux box, slices came up white instead
+    of textured.
+
+    20040616 mortene.
 
 ========================================================================
