@@ -28,9 +28,20 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/errors/SoDebugError.h>
+#include <Inventor/elements/SoLazyElement.h>
+#include <Inventor/elements/SoGLLazyElement.h>
+#include <Inventor/SbRotation.h>
+#include <Inventor/SoPickedPoint.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
 
+#include <VolumeViz/details/SoObliqueSliceDetail.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/render/3D/Cvr3DTexCube.h>
+#include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
+#include <VolumeViz/render/3D/CvrCubeHandler.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/misc/CvrUtil.h>
 
 // *************************************************************************
 
@@ -43,7 +54,10 @@ public:
   SoObliqueSliceP(SoObliqueSlice * master)
   {
     this->master = master;
+    this->cubehandler = NULL;
   }
+
+  CvrCubeHandler * cubehandler;
 
 private:
   SoObliqueSlice * master;
@@ -76,6 +90,7 @@ SoObliqueSlice::SoObliqueSlice(void)
 
 SoObliqueSlice::~SoObliqueSlice()
 {
+  delete PRIVATE(this)->cubehandler;
   delete PRIVATE(this);
 }
 
@@ -94,16 +109,177 @@ SoObliqueSlice::initClass(void)
 
 }
 
+
 void
 SoObliqueSlice::GLRender(SoGLRenderAction * action)
 {
-  // FIXME: implement
+  // FIXME: need to make sure we're not cached in a renderlist
+  if (!this->shouldGLRender(action)) return;
+
+  // Render at the end, in case the volume is partly (or fully)
+  // transparent.
+  //
+  // FIXME: this makes rendering a bit slower, so we should perhaps
+  // keep a flag around to know whether or not this is actually
+  // necessary. 20040212 mortene.
+  
+  if (!action->isRenderingDelayedPaths()) {
+    action->addDelayedPath(action->getCurPath()->copy());
+    return;
+  }
+
+  SoState * state = action->getState();
+   
+  // Fetching the current volumedata
+  const SoVolumeDataElement * volumedataelement =
+    SoVolumeDataElement::getInstance(state);
+  assert(volumedataelement != NULL);
+
+  SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  if (volumedata == NULL) {
+    static SbBool first = TRUE;
+    if (first) {
+      SoDebugError::post("SoObliqueSlice::GLRender",
+                         "no SoVolumeData in scene graph before "
+                         "SoObliqueSlice node -- rendering aborted");
+      first = FALSE;
+    }
+    return;
+  }
+
+  // Fetching the current transfer function. Note that it's not used
+  // in this function, but we still catch this exception here for the
+  // sake of simplicity of the code we're calling.
+  const SoTransferFunctionElement * transferfunctionelement =
+    SoTransferFunctionElement::getInstance(state);
+  assert(transferfunctionelement != NULL);
+  
+  SoTransferFunction * transferfunction =
+    transferfunctionelement->getTransferFunction();
+
+   
+  if (transferfunction == NULL) {
+    // FIXME: should instead just use a default
+    // transferfunction. Perhaps SoVolumeData (?) could place one the
+    // state stack? 20040220 mortene.
+    static SbBool first = TRUE;
+    if (first) {
+      SoDebugError::post("SoObliqueSlice::GLRender",
+                         "no SoTransferFunction in scene graph before "
+                         "SoObliqueSlice node -- rendering aborted");
+      first = FALSE;
+    }
+    return;
+  }
+
+  // This must be done, as we want to control stuff in the GL state
+  // machine. Without it, state changes could trigger outside our
+  // control.
+  state->push();
+
+  SbMatrix volumetransform;
+  CvrUtil::getTransformFromVolumeBoxDimensions(volumedataelement, volumetransform);
+  SoModelMatrixElement::mult(state, this, volumetransform);
+
+  const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+
+  int rendermethod, storagehint; 
+  rendermethod = SoObliqueSlice::TEXTURE2D; // this is the default
+  storagehint = volumedata->storageHint.getValue();
+  if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
+    const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
+    if (cc_glglue_has_3d_textures(glue)) {
+      rendermethod = SoObliqueSlice::TEXTURE3D;
+    }
+  }
+ 
+  if (rendermethod == SoObliqueSlice::TEXTURE2D) {
+    static SbBool flag = FALSE;
+    if (!flag) {
+      SoDebugError::postWarning("SoObliqueSlice::GLRender", 
+                                "ObliqueSlice is not implemented for 2D textures.");
+      flag = TRUE;
+    }
+    goto done;
+  }
+  else if (rendermethod == SoObliqueSlice::TEXTURE3D) {
+     
+    if (!PRIVATE(this)->cubehandler) {
+      PRIVATE(this)->cubehandler = new CvrCubeHandler(voxcubedims, volumedata->getReader());
+    }
+
+    Cvr3DTexSubCube::Interpolation interp;
+    switch (this->interpolation.getValue()) {
+    case NEAREST: interp = Cvr3DTexSubCube::NEAREST; break;
+    case LINEAR: interp = Cvr3DTexSubCube::LINEAR; break;
+    default: assert(FALSE && "invalid value in interpolation field"); break;
+    }
+    
+    SoObliqueSlice::AlphaUse alphause;    
+    switch (this->alphaUse.getValue()) {
+    case ALPHA_AS_IS: alphause = SoObliqueSlice::ALPHA_AS_IS; break;
+    case ALPHA_OPAQUE: alphause = SoObliqueSlice::ALPHA_OPAQUE; break;
+    case ALPHA_BINARY: alphause = SoObliqueSlice::ALPHA_BINARY; break;
+    default: assert(FALSE && "invalid value in AlphaUse field"); break;
+    }
+    
+    PRIVATE(this)->cubehandler->renderObliqueSlice(action, interp, alphause, this->plane.getValue());
+    
+  }
+  else assert(FALSE && "Unknown render method!");
+
+ done:
+  state->pop();
 }
 
 void
 SoObliqueSlice::rayPick(SoRayPickAction * action)
 {
-  // FIXME: implement
+
+if (!this->shouldRayPick(action)) return;
+
+  SoState * state = action->getState();
+
+  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
+  assert(volumedataelement != NULL);
+  const SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  if (volumedata == NULL) { return; }
+
+  this->computeObjectSpaceRay(action);
+  const SbLine & ray = action->getLine();
+
+  const SbPlane sliceplane = this->plane.getValue();
+
+  SbVec3f intersection;
+  if (sliceplane.intersect(ray, intersection) && // returns FALSE if parallel
+      action->isBetweenPlanes(intersection)) {
+
+    SbVec3s ijk = volumedataelement->objectCoordsToIJK(intersection);
+
+    const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+    const SbBox3s voxcubebounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
+
+    if (voxcubebounds.intersect(ijk)) {
+
+      SoPickedPoint * pp = action->addIntersection(intersection);
+      // if NULL, something else is obstructing the view to the
+      // volume, the app programmer only want the nearest, and we
+      // don't need to continue our intersection tests
+      if (pp == NULL) return;
+      pp->setObjectNormal(sliceplane.getNormal());
+
+      SoObliqueSliceDetail * detail = new SoObliqueSliceDetail;
+      pp->setDetail(detail, this);
+
+      detail->objectcoords = intersection;
+      detail->ijkcoords = ijk;
+      detail->voxelvalue = volumedata->getVoxelValue(ijk);
+    }
+  }
+
+  // Common clipping plane handling.
+  SoObliqueSlice::doAction(action);
+
 }
 
 void
@@ -125,18 +301,15 @@ SoObliqueSlice::generatePrimitives(SoAction * action)
 void
 SoObliqueSlice::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
-#if 0 // FIXME: code from SoVolumeRender, needs slight adjustments
   SoState * state = action->getState();
-
   const SoVolumeDataElement * volumedataelement =
     SoVolumeDataElement::getInstance(state);
 
   if (volumedataelement == NULL) return;
-
-  SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  const SoVolumeData * volumedata = volumedataelement->getVolumeData();
 
   SbBox3f vdbox = volumedata->getVolumeSize();
+
   box.extendBy(vdbox);
   center = vdbox.getCenter();
-#endif
 }

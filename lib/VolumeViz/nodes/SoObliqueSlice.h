@@ -59,6 +59,9 @@ protected:
 private:
   friend class SoObliqueSliceP;
   class SoObliqueSliceP * pimpl;
+
+  enum RenderingMethod { TEXTURE3D, TEXTURE2D, NOTIMPLEMENTED };
+
 };
 
 #endif // !COIN_SOOBLIQUESLICE_H
