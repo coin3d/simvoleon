@@ -10,7 +10,10 @@
 #ifndef COIN_SOROI_H
 #define COIN_SOROI_H
 
-#include <SmallChange/nodes/SoVolumeRendering.h>
+#include <VolumeViz/nodes/SoVolumeRendering.h>
+#include <VolumeViz/misc/SoSFBox3s.h>
+#include <Inventor/fields/SoSFBool.h>
+#include <Inventor/fields/SoSFEnum.h>
 
 class SoROI : public SoVolumeRendering
 {
@@ -45,15 +48,25 @@ public:
   };
 
   // Functions
-  virtual SoType getTypeId () const;
-  SoROI ();
-  static SoType getClassTypeId ();
+  SoROI();
+  ~SoROI();
 
   // Fields
   SoSFBox3s box;
-  SoSFBitMask flags;
+  SoSFEnum flags;
   SoSFBox3s subVolume;
   SoSFBool relative;
+
+private:
+  virtual void doAction(SoAction *action);
+  virtual void callback(SoCallbackAction *action);
+  virtual void GLRender(SoGLRenderAction *action);
+  virtual void getBoundingBox(SoGetBoundingBoxAction *action);
+  virtual void pick(SoPickAction *action);
+
+  friend class SoROIP;
+  class SoROIP * pimpl;
+
 };//SoROI
 
-#endif // !COIN_SORIO_H
+#endif // !COIN_SOROI_H

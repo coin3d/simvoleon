@@ -209,26 +209,15 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
       // Are we rendering in in reverse order?
       if (depthAdder < 0)
-        imageIdx = dimensions[0] - 1 - imageIdx;
+        imageIdx = (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*dimensions[0]) - imageIdx;
 
-      SoGLImage * image = volumeData->getGLImageSlice(imageIdx, SoVolumeData::X);
-      SoGLDisplayList * dl = image->getGLDisplayList(state);
-      dl->call(state);
+      volumeData->renderOrthoSliceX(state,
+                                    imageIdx,
+                                    SbBox2f(min[1], min[2], max[1], max[2]), 
+                                    SbBox2f(0.0, 0.0, 1.0, 1.0), depth);
 
-      glBegin(GL_QUADS);
-      glColor4f(1, 1, 1, 1);
-      glTexCoord2f(0.0f, 0.0f);
-      glVertex3f(depth, min[1], min[2]);    
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex3f(depth, min[1], max[2]);    
-      glTexCoord2f(1.0f, 1.0f);
-      glVertex3f(depth, max[1], max[2]);    
-      glTexCoord2f(0.0f, 1.0f);
-      glVertex3f(depth, max[1], min[2]);    
       depth += depthAdder;
-
-      glEnd();
-    }// for
+    }// for*/
   }// if
   else 
 
@@ -255,27 +244,15 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
       // Are we rendering in in reverse order?
       if (depthAdder < 0)
-        imageIdx = dimensions[1] - 1 - imageIdx;
+        imageIdx = (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*dimensions[1]) - imageIdx;
 
-      SoGLImage * image = 
-        volumeData->getGLImageSlice(imageIdx, SoVolumeData::Y);
-      SoGLDisplayList * dl = image->getGLDisplayList(state);
-      dl->call(state);
+      volumeData->renderOrthoSliceY(state,
+                                    imageIdx,
+                                    SbBox2f(min[1], min[2], max[1], max[2]), 
+                                    SbBox2f(0.0, 0.0, 1.0, 1.0), depth);
 
-      glBegin(GL_QUADS);
-      glColor4f(1, 1, 1, 1);
-      glTexCoord2f(0.0f, 1.0f);
-      glVertex3f(min[0], depth, min[2]);    
-      glTexCoord2f(1.0f, 1.0f);
-      glVertex3f(max[0], depth, min[2]);    
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex3f(max[0], depth, max[2]);    
-      glTexCoord2f(0.0f, 0.0f);
-      glVertex3f(min[0], depth, max[2]);    
       depth += depthAdder;
-
-      glEnd();
-    }// for
+    }// for*/
   }// else if
   else 
 
@@ -303,26 +280,14 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
       // Are we rendering in in reverse order?
       if (camvec[2] < 0)
-        imageIdx = dimensions[2] - 1 - imageIdx;
+        imageIdx = (int)((float(numSlices.getValue() - 1)/numSlices.getValue())*dimensions[2]) - imageIdx;
 
-      SoGLImage * image = 
-        volumeData->getGLImageSlice(imageIdx, SoVolumeData::Z);
-      SoGLDisplayList * dl = image->getGLDisplayList(state);
-      dl->call(state);
+      volumeData->renderOrthoSliceZ(state,
+                                    imageIdx,
+                                    SbBox2f(min[0], min[1], max[0], max[1]), 
+                                    SbBox2f(0.0, 0.0, 1.0, 1.0), depth);
 
-      glBegin(GL_QUADS);
-      glColor4f(1, 1, 1, 1);
-      glTexCoord2f(0.0f, 0.0f);
-      glVertex3f(min[0], min[1], depth);    
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex3f(max[0], min[1], depth);    
-      glTexCoord2f(1.0f, 1.0f);
-      glVertex3f(max[0], max[1], depth);    
-      glTexCoord2f(0.0f, 1.0f);
-      glVertex3f(min[0], max[1], depth);    
       depth += depthAdder;
-
-      glEnd();
     }// for
   }// else if
 

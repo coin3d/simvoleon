@@ -17,6 +17,8 @@
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbBox3f.h>
 #include <Inventor/SbBox3s.h>
+#include <Inventor/SbBox2s.h>
+#include <Inventor/SbBox2f.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <Inventor/nodes/SoSubNode.h>
 #include <Inventor/misc/SoGLImage.h>
@@ -74,15 +76,39 @@ public:
   SoSFBool usePalettedTexture;
   SoSFBool useCompressedTexture;
 
+
+
   // Functions
-  void setVolumeData(const SbVec3s &dimension, void *data, SoVolumeData::DataType type=UNSIGNED_BYTE);
+  void setVolumeData( const SbVec3s &dimension, 
+                      void *data, 
+                      SoVolumeData::DataType type=UNSIGNED_BYTE);
   void setVolumeSize(const SbBox3f &size);
-  SoGLImage * getGLImageSlice(int sliceIdx, Axis axis);
+  SoGLImage * getGLImagePage(int sliceIdx, Axis axis, int col, int row);
   SbBox3f &getVolumeSize();
   SbVec3s & getDimensions();
   void GLRender(SoGLRenderAction * action);
   SoVolumeData(void);
   ~SoVolumeData();
+  void renderOrthoSliceX( SoState * state,
+                          int sliceIdx,
+                          SbBox2f &slice, 
+                          SbBox2f &mappingcoordinates, 
+                          float x);
+  void renderOrthoSliceY( SoState * state,
+                          int sliceIdx,
+                          SbBox2f &slice, 
+                          SbBox2f &mappingcoordinates, 
+                          float y);
+  void renderOrthoSliceZ( SoState * state,
+                          int sliceIdx,
+                          SbBox2f &slice, 
+                          SbBox2f &mappingcoordinates, 
+                          float z);
+  void setPageSize(int size);
+  void setPageSize(SbVec3s &size);
+  SbVec3s & getPageSize();
+
+
 
 
   // FIXME: The following functions are still to be implemented. torbjorv 07122002
@@ -93,10 +119,10 @@ public:
   SbBool getHistogram(int &length, int *&histogram);
   SoVolumeData * subSetting(const SbBox3s &region);
   void updateRegions(const SbBox3s *region, int num);
-  SoVolumeData * reSampling(const SbVec3s &dimension, SoVolumeData::SubMethod subMethod, SoVolumeData::OverMethod = NONE);
+  SoVolumeData * reSampling(const SbVec3s &dimension, 
+                            SoVolumeData::SubMethod subMethod, 
+                            SoVolumeData::OverMethod = NONE);
   void setTexMemorySize(int size);
-  void setPageSize(int size);
-  void setPageSize(SbVec3s &size);
   void enableSubSampling(SbBool enable);
   void enableAutoSubSampling(SbBool enable);
   void enableAutoUnSampling(SbBool enable);

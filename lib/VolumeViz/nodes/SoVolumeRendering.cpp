@@ -12,6 +12,7 @@
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/nodes/SoROI.h>
 
 #if HAVE_CONFIG_H
 #include <config.h>
@@ -85,6 +86,7 @@ SoVolumeRendering::initClass(void)
   SoVolumeData::initClass();
   SoVolumeRender::initClass();
   SoVolumeDataElement::initClass();
+  SoROI::initClass();
 }// initClass
 
 
