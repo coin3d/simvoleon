@@ -488,8 +488,6 @@ SoVolumeData::setTextureMemorySize(int texturememory)
   // limit. 20021121 mortene.
 }
 
-/*************************** PIMPL-FUNCTIONS ********************************/
-
 SoVolumeReader *
 SoVolumeData::getReader(void) const
 {

@@ -263,10 +263,7 @@ Cvr2DTexPage::calcSubPageIdx(int row, int col) const
 Cvr2DTexSubPageItem *
 Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 {
-  // FIXME: optimalization idea; detect fully transparent subpages,
-  // and handle specifically. 20021124 mortene.
-
-  // FIXME: optimalization idea; crop textures for 100%
+  // FIXME: optimalization idea; *crop* textures for 100%
   // transparency. 20021124 mortene.
 
   // FIXME: optimalization idea; detect 100% similar neighboring
@@ -317,16 +314,15 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   default: assert(FALSE); break;
   }
   
+  // FIXME: improve buildSubPage() interface to fix this roundabout
+  // way of calling it. 20021206 mortene.
   CvrVoxelChunk * input = new CvrVoxelChunk(vddims, vctype, dataptr);
   CvrVoxelChunk * slice =
-    CvrUtil::buildSubPage(*input,
-                          this->axis, this->sliceIdx,
-                          subpagecut);
+    CvrUtil::buildSubPage(*input, this->axis, this->sliceIdx, subpagecut);
   delete input;
 
-  uint8_t * slicebuf = (uint8_t *)slice->getBuffer();
-
 #if 0 // DEBUG: dump slice parts before slicebuf transformation to bitmap files.
+  uint8_t * slicebuf = (uint8_t *)slice->getBuffer();
   SbString s;
   s.sprintf("/tmp/pretransfslice-%04d-%03d-%03d.pgm", this->sliceIdx, row, col);
   FILE * f = fopen(s.getString(), "w");
@@ -360,10 +356,6 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   SoDebugError::postInfo("Cvr2DTexPage::buildSubPage",
                          "detected invisible page at [%d, %d]", row, col);
 #endif // debug
-
-  // FIXME: paletted textures not supported yet. 20021119 mortene.
-  float * palette = NULL;
-  int paletteSize = 0;
 
   // Size of the texture that we're actually using. Will be less than
   // this->subpagesize on datasets where dimensions are not all power
@@ -418,7 +410,6 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   }
 
   delete texobj;
-  delete[] palette;
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
   pitem->transferfuncid = transferfunc->getNodeId();
