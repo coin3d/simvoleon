@@ -1,6 +1,6 @@
 Systems in Motion releases SIM Voleon version 2.0.0
 
-Oslo, Norway, 2004-10-08
+Oslo, Norway, 2004-10-10
 
 SIM Voleon is a software development system for aiding in writing 3D
 graphics application containing so-called "volumetric data", as is
