@@ -50,7 +50,7 @@ Licenses and pricing
 SIM Voleon is Free Software released publicly under the GNU General
 Public License ("GPL"), and is also available for any proprietary use
 under a Professional Edition License (the "SIM Voleon PEL"). The price
-for becoming a SIM Voleon PEL holder is USD 5,000 per developer per
+for becoming a SIM Voleon PEL holder is USD $3,950 per developer per
 year. There are no royalties or hidden extra costs.
 
 
