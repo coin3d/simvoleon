@@ -382,11 +382,6 @@ CvrCLUT::activate(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
       CvrCLUT::initFragmentProgram(glw);
     }
 
-    printf("this->palettelookuptexture==%d, "
-           "this->palettelookupprogramid[texturetype]==%d\n",
-           this->palettelookuptexture,
-           CvrCLUT::fragmentprogramid[texturetype]);
-
     // FIXME: What should we do if unit #1 is already taken? (20040310 handegar)
     cc_glglue_glActiveTexture(glw, GL_TEXTURE1);
     glEnable(GL_TEXTURE_1D);
