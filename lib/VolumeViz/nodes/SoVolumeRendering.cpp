@@ -97,8 +97,8 @@ SoVolumeRendering::initClass(void)
   SO_NODE_INIT_CLASS(SoVolumeRendering, SoNode, "VolumeRendering");
   
   SoVolumeData::initClass();
-  SoVolumeRender::initClass();
   SoVolumeDataElement::initClass();
+  SoVolumeRender::initClass();
   SoROI::initClass();
   SoTransferFunction::initClass();
   SoTransferFunctionElement::initClass();

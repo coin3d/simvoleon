@@ -87,6 +87,9 @@ SoVolumeRender::SoVolumeRender(void)
   SO_NODE_ADD_FIELD(numSlicesControl, (SoVolumeRender::ALL));
   SO_NODE_ADD_FIELD(numSlices, (10));
   SO_NODE_ADD_FIELD(viewAlignedSlices, (FALSE));
+
+  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }//Constructor
 
 

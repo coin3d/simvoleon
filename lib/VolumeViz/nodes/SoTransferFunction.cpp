@@ -95,10 +95,7 @@ SoTransferFunction::initClass(void)
   first = 1;
 
   SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering, "TransferFunction");
-
   SoTransferFunctionElement::initClass();
-
-  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
 }// initClass
 
 

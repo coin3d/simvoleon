@@ -27,6 +27,7 @@
 
 
 /*
+TODO:
 
 - LOAD_ALL: Builds as many pages as possible, limited by the texellimit. 
   This is done whenever StorageHint changes and building is required. 
@@ -36,6 +37,19 @@
 - Testing: 
   * test setPageSize with different sizes for each axis
   * test setVolumeSize with different sizes for each axis
+- GL_SHARED_PALETTE_EXT
+- Document datastructures
+- Document memoryleak/slowdown 
+- Describe the strange glColorTableEXT-behaviour
+- LUTs for transferfunction
+- texMemSize should perhaps been changed to work with bytes? In the case of
+  paletted textures, using texels as a measure is more or less moronic. TGS
+  does this. 'nuff said. :)
+- when using paletted textures the userinterface works badly, as the
+  texturegeneration is quite heavy
+- optimize the transferfunction for paletted textures
+- functionality for uploading a batch of textures at startup, avoiding 
+  the terrible respons in userinterface.
 */
 
 

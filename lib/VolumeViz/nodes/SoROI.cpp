@@ -103,6 +103,8 @@ SoROI::SoROI(void)
   SO_NODE_ADD_FIELD(subVolume, (0, 0, 0, 0, 0, 0));
   SO_NODE_ADD_FIELD(relative, (FALSE)); 
 
+  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }//Constructor
 
 
