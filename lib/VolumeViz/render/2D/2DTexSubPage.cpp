@@ -60,16 +60,24 @@ SbBool Cvr2DTexSubPage::detectedtextureswapping = FALSE;
 
 Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                                  const uint8_t * textureimg,
-                                 const SbVec2s & size,
+                                 const SbVec2s & pagesize,
+                                 const SbVec2s & texsize,
                                  const float * palette, int palettesize)
 {
   this->texmultfactor = 0.0f;
 
-  assert(size[0] >= 0);
-  assert(size[1] >= 0);
-  assert(coin_is_power_of_two(size[0]));
-  assert(coin_is_power_of_two(size[1]));
-  this->texdims = size;
+  assert(pagesize[0] >= 0);
+  assert(pagesize[1] >= 0);
+  assert(coin_is_power_of_two(pagesize[0]));
+  assert(coin_is_power_of_two(pagesize[1]));
+
+  this->texdims = pagesize;
+  this->texmaxcoords = SbVec2f(1.0f, 1.0f);
+
+  if (pagesize != texsize) {
+    this->texmaxcoords[0] = float(texsize[0]) / float(pagesize[0]);
+    this->texmaxcoords[1] = float(texsize[1]) / float(pagesize[1]);
+  }
 
   this->transferTex2GL(action, textureimg, palettesize, palette);
 
@@ -323,13 +331,13 @@ Cvr2DTexSubPage::render(const SbVec3f & lowleft, const SbVec3f & lowright,
   // in the opposite direction (top-to-bottom) from what the Y axis in
   // the OpenGL coordinate system uses (bottom-to-top).
 
-  glTexCoord2f(0.0f, 1.0f);
+  glTexCoord2f(0.0f, this->texmaxcoords[1]);
   glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
 
-  glTexCoord2f(1.0f, 1.0f);
+  glTexCoord2f(this->texmaxcoords[0], this->texmaxcoords[1]);
   glVertex3f(lowright[0], lowright[1], lowright[2]);
 
-  glTexCoord2f(1.0f, 0.0f);
+  glTexCoord2f(this->texmaxcoords[0], 0.0f);
   glVertex3f(upright[0], upright[1], upright[2]);
 
   glTexCoord2f(0.0f, 0.0f);
