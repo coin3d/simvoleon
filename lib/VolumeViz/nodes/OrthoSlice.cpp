@@ -366,7 +366,9 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
 
   glDisable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
+#if 0 // disabled this, so SoDrawStyle influences SoOrthoSlice, as expected
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

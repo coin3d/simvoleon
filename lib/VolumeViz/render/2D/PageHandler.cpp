@@ -206,10 +206,9 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
   glDisable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
-  // FIXME: if this is set to "GL_FRONT", the testcode/examine example
-  // fails (data disappears from certain
-  // angles). Investigate. 20021202 mortene.
+#if 0 // disabled this, so SoDrawStyle influences SoVolumeRender, as expected
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
   // FIXME: how does the blending cooperate with the other geometry in
   // a Coin scene graph? Do we need to delay rendering? 20021109 mortene.
