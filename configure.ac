@@ -255,6 +255,7 @@ SIM_AC_UNIQIFY_LIST(LIBS, $LIBS)
 AC_OUTPUT([
         Makefile
         bin/Makefile
+	bin/simvoleon-config
         lib/Makefile
         lib/VolumeViz/Makefile
         lib/VolumeViz/C/Makefile
