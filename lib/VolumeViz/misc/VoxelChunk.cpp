@@ -350,6 +350,11 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
       // the palette on the fly without having to regenerate texture
       // blocks / slices (i.e.: something that _was_ invisible could
       // become visible upon changing the palette, and vice versa).
+      //
+      // Should still fix it, though, as it can have a _major_
+      // impact. Try for instance the 3DHEAD.VOL set in RGBA texture
+      // mode versus palette texture mode -- the former has ~ 2X-3X
+      // better framerate.
       invisible = FALSE;
     }
     else { // RGBA texture
