@@ -67,7 +67,6 @@ CvrTextureObject::initClass(void)
 CvrTextureObject::CvrTextureObject(const SbVec3s & size)
 {
   assert(CvrTextureObject::classTypeId != SoType::badType());
-  this->iscompressed = FALSE;
   this->refcounter = 0;
 
   assert(coin_is_power_of_two(size[0]));
@@ -112,6 +111,15 @@ CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
 }
 #endif
 
+// FIXME: a GL texture for a CvrTextureObject is not only dependent on
+// the context, but also various things that are on the state stack
+// ("texture compression wanted" flag, for instance).
+//
+// The best way to handle this is properly by using the Coin cache
+// mechanism? Check how pederb did the font caching, which should be a
+// simple example to follow.
+//
+// 20040716 mortene.
 SbBool
 CvrTextureObject::findGLTexture(const SoGLRenderAction * action, GLuint & texid) const
 {
@@ -173,6 +181,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
 #if 0
   if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
 #endif
+  // FIXME: fix for 2D textures. 20040716 mortene.
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrapenum);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, wrapenum);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrapenum);
@@ -188,12 +197,21 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   if (cc_glglue_has_arb_fragment_program(glw)) { palettetype = GL_LUMINANCE; }
 #endif // HAVE_ARB_FRAGMENT_PROGRAM
 
+  // FIXME: compression should be its own element, and then we
+  // wouldn't have to muck about with grabbing and querying full
+  // SoVolumeData node. 20040716 mortene.
+  SoState * state = action->getState();
+  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
+  const SoVolumeData * voldata = volumedataelement->getVolumeData();
+  const SbBool compressed = voldata->useCompressedTexture.getValue();
+
   // NOTE: Combining texture compression and GL_COLOR_INDEX doesn't
   // seem to work on NVIDIA cards (tested on GeForceFX 5600 &
   // GeForce2 MX) (20040316 handegar)
-  if (cc_glue_has_texture_compression(glw) &&
-      this->textureCompressed() &&
-      palettetype != GL_COLOR_INDEX) {
+  //
+  // FIXME: check if that is a general GL limitation. (I seem to
+  // remember it is.) 20040716 mortene.
+  if (cc_glue_has_texture_compression(glw) && compressed && palettetype != GL_COLOR_INDEX) {
     if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
     else colorformat = GL_COMPRESSED_INTENSITY_ARB;
   }
@@ -201,6 +219,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   if (!CvrUtil::dontModulateTextures()) // Is texture modulation disabled by an envvar?
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
+  // FIXME: fix for 2D textures. 20040716 mortene.
   cc_glglue_glTexImage3D(glw,
                          GL_TEXTURE_3D,
                          0,
@@ -216,22 +235,6 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   cvr_rc_bind_resource(glctxid, (void *)this, (void *)texid);
 
   return texid;
-}
-
-// *************************************************************************
-
-// FIXME: needs to go. 20040716 mortene.
-
-void
-CvrTextureObject::setTextureCompressed(SbBool flag)
-{
-  this->iscompressed = flag;
-}
-
-SbBool
-CvrTextureObject::textureCompressed() const
-{
-  return this->iscompressed;
 }
 
 // *************************************************************************
@@ -320,6 +323,13 @@ find_textureobject_3D(const uint32_t voldataid, const SbBox3s cutcube)
   return NULL;
 }
 
+/*! Returns an instance which embodies a chunk of voxels out of the
+    current SoVolumeData on the state stack, as given by the \a
+    cutcube argument.
+
+    Automatically takes care of sharing if an instance was already
+    made to the same specifications.
+*/
 const CvrTextureObject *
 CvrTextureObject::create(const SoGLRenderAction * action,
                          const SbVec3s & texsize,
@@ -332,6 +342,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   textureobj * obj = find_textureobject_3D(voldata->getNodeId(), cutcube);
 
   if (obj != NULL) {
+    // FIXME: make to work for 2D textures aswell. 20040716 mortene.
     assert((obj->texturetype == TEXTURE3D) && "Type != TEXTURE3D. Invalid texture type!");
     // FIXME: should ref() in caller, not here. 20040716 mortene.
     obj->object->ref();
@@ -344,6 +355,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   obj->object = newobj;
   obj->voldataid = voldata->getNodeId();
   obj->cutcube = cutcube;
+  // FIXME: make to work for 2D textures aswell. 20040716 mortene.
   obj->texturetype = TEXTURE3D;
   get_texturedict()->enter((unsigned long) newobj, (void *) obj);
   newobj->ref();
@@ -385,10 +397,6 @@ CvrTextureObject::new3DTextureObject(const SoGLRenderAction * action,
   // floating point inaccuracies when calculating texture coords.
   newtexobj->blankUnused(texsize);
   const SbVec3s realtexsize = newtexobj->getDimensions();
-
-  // FIXME: should be passed on the stack. Should also only be
-  // considered when generating GL textures. 20040716 mortene.
-  newtexobj->setTextureCompressed(voldata->useCompressedTexture.getValue());
 
   return newtexobj;
 }

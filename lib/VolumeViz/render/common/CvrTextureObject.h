@@ -1,5 +1,5 @@
-#ifndef COIN_CVRTEXTUREOBJECT_H
-#define COIN_CVRTEXTUREOBJECT_H
+#ifndef SIMVOLEON_CVRTEXTUREOBJECT_H
+#define SIMVOLEON_CVRTEXTUREOBJECT_H
 
 /**************************************************************************\
  *
@@ -53,18 +53,12 @@ public:
 
   GLuint getGLTexture(const SoGLRenderAction * action) const;
 
-  // FIXME: these need to go -- a CvrTextureObject can have several GL
-  // textures bound to it, some compressed, some not. 20040716 mortene.
-  SbBool textureCompressed() const;
-  void setTextureCompressed(SbBool flag);
-
   virtual SbBool isPaletted(void) const = 0;
-
   virtual void blankUnused(const SbVec3s & texsize) const = 0;
 
 protected:
-  // Constructor and destructor is protected as only the texture
-  // manager is allowed to create and remove TextureObjects.
+  // Constructor and destructor is protected as instances should be
+  // made through the create() function.
   CvrTextureObject(const SbVec3s & size);
   virtual ~CvrTextureObject();
 
@@ -76,9 +70,8 @@ private:
                                                const SbBox3s & cutcube);
 
   static SoType classTypeId;
-  SbBool iscompressed;
   SbVec3s dimensions;
   uint32_t refcounter;
 };
 
-#endif // !COIN_CVRTEXTUREOBJECT_H
+#endif // !SIMVOLEON_CVRTEXTUREOBJECT_H
