@@ -1,0 +1,220 @@
+srcdir = @srcdir@
+
+all: \
+	examine@EXEEXT@ simple8bit@EXEEXT@ readvol@EXEEXT@ \
+	raypick@EXEEXT@ rgbload@EXEEXT@ changingdataset@EXEEXT@ \
+	orthoslicer@EXEEXT@
+
+## 
+
+VOLUMERENDER_UI_OBJECTS = \
+        VolumeRenderHandler.@OBJEXT@ moc_VolumeRenderHandler.@OBJEXT@ \
+        SoVolumeRender_ctrl.@OBJEXT@ moc_SoVolumeRender_ctrl.@OBJEXT@
+
+TRANSFERFUNCTION_UI_OBJECTS = \
+        TransferFunctionHandler.@OBJEXT@ moc_TransferFunctionHandler.@OBJEXT@ \
+        SoTransferFunction_ctrl.@OBJEXT@ moc_SoTransferFunction_ctrl.@OBJEXT@
+
+ORTHOSLICE_UI_OBJECTS = \
+        OrthoSliceHandler.@OBJEXT@ moc_OrthoSliceHandler.@OBJEXT@ \
+        SoOrthoSlice_ctrl.@OBJEXT@ moc_SoOrthoSlice_ctrl.@OBJEXT@
+
+## 
+
+READVOL_OBJECTS = \
+        readvol.@OBJEXT@ $(TRANSFERFUNCTION_UI_OBJECTS) $(VOLUMERENDER_UI_OBJECTS)
+
+EXAMINE_OBJECTS = \
+        examine.@OBJEXT@ utility.@OBJEXT@
+
+ORTHOSLICER_OBJECTS = \
+        orthoslicer.@OBJEXT@ utility.@OBJEXT@ \
+	$(ORTHOSLICE_UI_OBJECTS) $(TRANSFERFUNCTION_UI_OBJECTS)
+
+SIMPLE8BIT_OBJECTS = \
+        simple8bit.@OBJEXT@ utility.@OBJEXT@
+
+CHANGINGDATASET_OBJECTS = \
+        changingdataset.@OBJEXT@
+
+RAYPICK_OBJECTS = \
+        raypick.@OBJEXT@ utility.@OBJEXT@
+
+RGBLOAD_OBJECTS = \
+        rgbload.@OBJEXT@
+
+clean:
+	@rm -f rgbload@EXEEXT@ $(RGBLOAD_OBJECTS) $(srcdir)/rgbload.cpp \
+              raypick@EXEEXT@ $(RAYPICK_OBJECTS) $(srcdir)/raypick.cpp \
+              examine@EXEEXT@ $(EXAMINE_OBJECTS) $(srcdir)/examine.cpp \
+              orthoslicer@EXEEXT@ $(ORTHOSLICER_OBJECTS) $(srcdir)/orthoslicer.cpp \
+              simple8bit@EXEEXT@ $(SIMPLE8BIT_OBJECTS) $(srcdir)/simple8bit.cpp \
+              changingdataset@EXEEXT@ $(CHANGINGDATASET_OBJECTS) $(srcdir)/changingdataset.cpp \
+              readvol@EXEEXT@ $(READVOL_OBJECTS) $(srcdir)/readvol.cpp \
+              SoTransferFunction_ctrl.h SoTransferFunction_ctrl.cpp moc_SoTransferFunction_ctrl.cpp \
+              moc_TransferFunctionHandler.cpp \
+              SoOrthoSlice_ctrl.h SoOrthoSlice_ctrl.cpp moc_SoOrthoSlice_ctrl.cpp \
+              moc_OrthoSliceHandler.cpp
+
+## common code
+
+utility.@OBJEXT@: $(srcdir)/utility.cpp
+	soqt-config --compile $<
+
+# (SoTransferFunction UI)
+
+SoTransferFunction_ctrl.h: $(srcdir)/SoTransferFunction_ctrl.ui
+	uic $< -o $@
+
+SoTransferFunction_ctrl.cpp: $(srcdir)/SoTransferFunction_ctrl.ui SoTransferFunction_ctrl.h
+	uic -impl $*.h $< -o $@
+
+SoTransferFunction_ctrl.@OBJEXT@: SoTransferFunction_ctrl.cpp
+	soqt-config --compile $<
+
+moc_SoTransferFunction_ctrl.cpp: SoTransferFunction_ctrl.h
+	moc -o $@ $<
+
+moc_SoTransferFunction_ctrl.@OBJEXT@: moc_SoTransferFunction_ctrl.cpp
+	soqt-config --compile $<
+
+moc_TransferFunctionHandler.cpp: $(srcdir)/TransferFunctionHandler.h
+	moc -o $@ $<
+
+moc_TransferFunctionHandler.@OBJEXT@: moc_TransferFunctionHandler.cpp
+	soqt-config --compile $<
+
+TransferFunctionHandler.@OBJEXT@: $(srcdir)/TransferFunctionHandler.cpp SoTransferFunction_ctrl.h moc_SoTransferFunction_ctrl.cpp
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
+
+# (SoVolumeRender UI)
+
+SoVolumeRender_ctrl.h: $(srcdir)/SoVolumeRender_ctrl.ui
+	uic $< -o $@
+
+SoVolumeRender_ctrl.cpp: $(srcdir)/SoVolumeRender_ctrl.ui SoVolumeRender_ctrl.h
+	uic -impl $*.h $< -o $@
+
+SoVolumeRender_ctrl.@OBJEXT@: SoVolumeRender_ctrl.cpp
+	soqt-config --compile $<
+
+moc_SoVolumeRender_ctrl.cpp: SoVolumeRender_ctrl.h
+	moc -o $@ $<
+
+moc_SoVolumeRender_ctrl.@OBJEXT@: moc_SoVolumeRender_ctrl.cpp
+	soqt-config --compile $<
+
+moc_VolumeRenderHandler.cpp: $(srcdir)/VolumeRenderHandler.h
+	moc -o $@ $<
+
+moc_VolumeRenderHandler.@OBJEXT@: moc_VolumeRenderHandler.cpp
+	soqt-config --compile $<
+
+VolumeRenderHandler.@OBJEXT@: $(srcdir)/VolumeRenderHandler.cpp SoVolumeRender_ctrl.h moc_SoVolumeRender_ctrl.cpp
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
+
+# (SoOrthoSlice UI)
+
+SoOrthoSlice_ctrl.h: $(srcdir)/SoOrthoSlice_ctrl.ui
+	uic $< -o $@
+
+SoOrthoSlice_ctrl.cpp: $(srcdir)/SoOrthoSlice_ctrl.ui SoOrthoSlice_ctrl.h
+	uic -impl $*.h $< -o $@
+
+SoOrthoSlice_ctrl.@OBJEXT@: SoOrthoSlice_ctrl.cpp
+	soqt-config --compile $<
+
+moc_SoOrthoSlice_ctrl.cpp: SoOrthoSlice_ctrl.h
+	moc -o $@ $<
+
+moc_SoOrthoSlice_ctrl.@OBJEXT@: moc_SoOrthoSlice_ctrl.cpp
+	soqt-config --compile $<
+
+moc_OrthoSliceHandler.cpp: $(srcdir)/OrthoSliceHandler.h
+	moc -o $@ $<
+
+moc_OrthoSliceHandler.@OBJEXT@: moc_OrthoSliceHandler.cpp
+	soqt-config --compile $<
+
+OrthoSliceHandler.@OBJEXT@: $(srcdir)/OrthoSliceHandler.cpp SoOrthoSlice_ctrl.h moc_SoOrthoSlice_ctrl.cpp
+	soqt-config --compile $<
+
+
+## ``readvol'' example
+
+$(srcdir)/readvol.cpp: $(srcdir)/readvol.cpp.in
+	@soqt-config --ac-subst $<
+
+readvol.@OBJEXT@: $(srcdir)/readvol.cpp $(srcdir)/TransferFunctionHandler.h $(srcdir)/VolumeRenderHandler.h
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
+
+readvol@EXEEXT@: $(READVOL_OBJECTS)
+	soqt-config --link $@ $(READVOL_OBJECTS) -lSimVoleon
+
+## ``examine'' example
+
+$(srcdir)/examine.cpp: $(srcdir)/examine.cpp.in
+	@soqt-config --ac-subst $<
+
+examine.@OBJEXT@: $(srcdir)/examine.cpp
+	soqt-config --compile $<
+
+examine@EXEEXT@: $(EXAMINE_OBJECTS)
+	soqt-config --link $@ $(EXAMINE_OBJECTS) -lSimVoleon
+
+## ``orthoslicer'' example
+
+$(srcdir)/orthoslicer.cpp: $(srcdir)/orthoslicer.cpp.in
+	@soqt-config --ac-subst $<
+
+orthoslicer.@OBJEXT@: $(srcdir)/orthoslicer.cpp $(srcdir)/TransferFunctionHandler.h
+	soqt-config --compile $<
+
+orthoslicer@EXEEXT@: $(ORTHOSLICER_OBJECTS)
+	soqt-config --link $@ $(ORTHOSLICER_OBJECTS) -lSimVoleon
+
+## ``simple8bit'' example
+
+$(srcdir)/simple8bit.cpp: $(srcdir)/simple8bit.cpp.in
+	@soqt-config --ac-subst $<
+
+simple8bit.@OBJEXT@: $(srcdir)/simple8bit.cpp
+	soqt-config --compile $<
+
+simple8bit@EXEEXT@: $(SIMPLE8BIT_OBJECTS)
+	soqt-config --link $@ $(SIMPLE8BIT_OBJECTS) -lSimVoleon
+
+## ``changingdataset'' example
+
+$(srcdir)/changingdataset.cpp: $(srcdir)/changingdataset.cpp.in
+	@soqt-config --ac-subst $<
+
+changingdataset.@OBJEXT@: $(srcdir)/changingdataset.cpp
+	soqt-config --compile $<
+
+changingdataset@EXEEXT@: $(CHANGINGDATASET_OBJECTS)
+	soqt-config --link $@ $(CHANGINGDATASET_OBJECTS) -lSimVoleon
+
+## ``raypick'' example
+
+$(srcdir)/raypick.cpp: $(srcdir)/raypick.cpp.in
+	@soqt-config --ac-subst $<
+
+raypick.@OBJEXT@: $(srcdir)/raypick.cpp
+	soqt-config --compile $<
+
+raypick@EXEEXT@: $(RAYPICK_OBJECTS)
+	soqt-config --link $@ $(RAYPICK_OBJECTS) -lSimVoleon
+
+## ``rgbload'' example
+
+$(srcdir)/rgbload.cpp: $(srcdir)/rgbload.cpp.in
+	@soqt-config --ac-subst $<
+
+rgbload.@OBJEXT@: $(srcdir)/rgbload.cpp
+	soqt-config --compile $<
+
+rgbload@EXEEXT@: $(RGBLOAD_OBJECTS)
+	soqt-config --link $@ $(RGBLOAD_OBJECTS) -lSimVoleon -lsimage
+
+## end
