@@ -17,6 +17,7 @@
 #include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
+#include <VolumeViz/misc/CvrUtil.h>
 #include <limits.h>
 
 /*
@@ -322,11 +323,20 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
                             void * data,
                             SoVolumeData::DataType type)
 {
-#if CVR_DEBUG && 1 // debug
-  SoDebugError::postInfo("SoVolumeData::setVolumeData",
-                         "setting volume data \"by hand\"");
-#endif // debug
+  if (CvrUtil::doDebugging()) {
+    SbString typestr;
+    switch (type) {
+    case UNSIGNED_BYTE: typestr = "8-bit"; break;
+    case UNSIGNED_SHORT: typestr = "16-bit"; break;
+    case RGBA: typestr = "RGBA"; break;
+    default: assert(FALSE); break;
+    }
 
+    SoDebugError::postInfo("SoVolumeData::setVolumeData",
+                           "setting %dx%dx%d %s volume data \"by hand\"",
+                           dimensions[0], dimensions[1], dimensions[2],
+                           typestr.getString());
+  }
 
   PRIVATE(this)->VRMemReader = new SoVRMemReader;
   PRIVATE(this)->VRMemReader->setData(dimensions, data, type);
