@@ -34,6 +34,10 @@
 #include <Inventor/SbViewVolume.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
+#include <Inventor/nodes/SoDrawStyle.h>
+#include <Inventor/misc/SoState.h>
+
+
 
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
@@ -433,7 +437,11 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action)
   if (this->volumeslices.getLength() == 0) { return; }
 
   // 0: as usual, 1: added box wireframes, 2: only slice wireframes
-  const unsigned int renderstyle = CvrUtil::debugRenderStyle();
+  unsigned int renderstyle = CvrUtil::debugRenderStyle();
+
+  // Shall we draw the oblique slice as lines/wireframe?
+  SoDrawStyleElement::Style drawstyle = SoDrawStyleElement::get(action->getState());
+  if (drawstyle == SoDrawStyleElement::LINES) renderstyle = 2;
 
   this->renderSlices(action, renderstyle == 2);
   if (renderstyle == 1) { this->renderBBox(); }

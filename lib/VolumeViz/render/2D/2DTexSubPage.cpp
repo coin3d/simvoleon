@@ -31,6 +31,7 @@
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
+#include <Inventor/nodes/SoDrawStyle.h>
 
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
@@ -253,9 +254,15 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
                         const SbVec3f & upleft,
                         SbVec3f widthvec, SbVec3f heightvec)
 {
-  // 0: as usual, 1: with slice wireframes, 2: only wireframes
-  const unsigned int renderstyle = CvrUtil::debugRenderStyle();
 
+ 
+  // 0: as usual, 1: with slice wireframes, 2: only wireframes
+  unsigned int renderstyle = CvrUtil::debugRenderStyle();
+
+  // Shall we draw the oblique slice as lines/wireframe?
+  SoDrawStyleElement::Style drawstyle = SoDrawStyleElement::get(action->getState());
+  if (drawstyle == SoDrawStyleElement::LINES) renderstyle = 2;
+  
   // Scale span of GL quad to match the visible part of the
   // texture. (Border subpages shouldn't show all of the texture, if
   // the dimensions of the dataset are not a power of two, or if the
@@ -273,12 +280,9 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
   if (renderstyle != 2) {
     this->renderQuad(action, upleft, lowleft, upright, lowright);
   }
-
+  
   if (renderstyle != 0) {
     glDisable(GL_TEXTURE_2D);
-    glLineStipple(1, 0xffff);
-    glLineWidth(2);
-
     glBegin(GL_LINE_LOOP);
     glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
     glVertex3f(lowright[0], lowright[1], lowright[2]);
