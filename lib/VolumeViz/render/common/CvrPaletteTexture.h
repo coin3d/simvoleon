@@ -33,9 +33,7 @@ class CvrPaletteTexture : public CvrTextureObject {
 public:
   static void initClass(void);
 
-  CvrPaletteTexture();
-  virtual ~CvrPaletteTexture();
-
+ 
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
@@ -45,12 +43,16 @@ public:
   const CvrCLUT * getCLUT(void) const;
 
 private:
-  friend class Cvr2DPaletteTexture;
-  friend class Cvr3DPaletteTexture;
+
+  CvrPaletteTexture();
+  virtual ~CvrPaletteTexture();
 
   uint8_t * indexbuffer;
   const CvrCLUT * clut;
   static SoType classTypeId;
+
+  friend class Cvr2DPaletteTexture;
+  friend class Cvr3DPaletteTexture;
 
 };
 

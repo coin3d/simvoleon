@@ -111,6 +111,7 @@ PATH_SEPARATOR = @PATH_SEPARATOR@
 RANLIB = @RANLIB@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
+SIMVOLEON_BETA_VERSION = @SIMVOLEON_BETA_VERSION@
 SIMVOLEON_DSP_DEFS = @SIMVOLEON_DSP_DEFS@
 SIMVOLEON_DSP_INCS = @SIMVOLEON_DSP_INCS@
 SIMVOLEON_DSP_LIBS = @SIMVOLEON_DSP_LIBS@
@@ -191,13 +192,14 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libcommonrender.la
 
 SOURCES = \
+	CvrTextureManager.cpp CvrTextureManager.h \
 	CvrTextureObject.cpp CvrTextureObject.h \
 	CvrRGBATexture.cpp CvrRGBATexture.h \
 	CvrPaletteTexture.cpp CvrPaletteTexture.h \
-        Cvr2DPaletteTexture.cpp Cvr2DPaletteTexture.h \
-        Cvr3DPaletteTexture.cpp Cvr3DPaletteTexture.h \
-        Cvr2DRGBATexture.cpp Cvr2DRGBATexture.h \
-        Cvr3DRGBATexture.cpp Cvr3DRGBATexture.h
+	Cvr2DPaletteTexture.cpp Cvr2DPaletteTexture.h \
+	Cvr3DPaletteTexture.cpp Cvr3DPaletteTexture.h \
+	Cvr2DRGBATexture.cpp Cvr2DRGBATexture.h \
+	Cvr3DRGBATexture.cpp Cvr3DRGBATexture.h
 
 
 libcommonrender_la_SOURCES = $(SOURCES)
@@ -212,18 +214,18 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 commonrender_lst_AR = $(AR) cru
 commonrender_lst_LIBADD =
-am__objects_1 = CvrTextureObject.$(OBJEXT) CvrRGBATexture.$(OBJEXT) \
-	CvrPaletteTexture.$(OBJEXT) Cvr2DPaletteTexture.$(OBJEXT) \
-	Cvr3DPaletteTexture.$(OBJEXT) Cvr2DRGBATexture.$(OBJEXT) \
-	Cvr3DRGBATexture.$(OBJEXT)
+am__objects_1 = CvrTextureManager.$(OBJEXT) CvrTextureObject.$(OBJEXT) \
+	CvrRGBATexture.$(OBJEXT) CvrPaletteTexture.$(OBJEXT) \
+	Cvr2DPaletteTexture.$(OBJEXT) Cvr3DPaletteTexture.$(OBJEXT) \
+	Cvr2DRGBATexture.$(OBJEXT) Cvr3DRGBATexture.$(OBJEXT)
 am_commonrender_lst_OBJECTS = $(am__objects_1)
 commonrender_lst_OBJECTS = $(am_commonrender_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libcommonrender_la_LDFLAGS =
 libcommonrender_la_LIBADD =
-am__objects_2 = CvrTextureObject.lo CvrRGBATexture.lo \
-	CvrPaletteTexture.lo Cvr2DPaletteTexture.lo \
+am__objects_2 = CvrTextureManager.lo CvrTextureObject.lo \
+	CvrRGBATexture.lo CvrPaletteTexture.lo Cvr2DPaletteTexture.lo \
 	Cvr3DPaletteTexture.lo Cvr2DRGBATexture.lo Cvr3DRGBATexture.lo
 am_libcommonrender_la_OBJECTS = $(am__objects_2)
 libcommonrender_la_OBJECTS = $(am_libcommonrender_la_OBJECTS)
@@ -241,6 +243,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/CvrPaletteTexture.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRGBATexture.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRGBATexture.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrTextureManager.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrTextureManager.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrTextureObject.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrTextureObject.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -261,13 +265,14 @@ LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 DIST_SOURCES = $(commonrender_lst_SOURCES) $(libcommonrender_la_SOURCES)
 DIST_COMMON = Makefile.am Makefile.in
 SOURCES = \
+	CvrTextureManager.cpp CvrTextureManager.h \
 	CvrTextureObject.cpp CvrTextureObject.h \
 	CvrRGBATexture.cpp CvrRGBATexture.h \
 	CvrPaletteTexture.cpp CvrPaletteTexture.h \
-        Cvr2DPaletteTexture.cpp Cvr2DPaletteTexture.h \
-        Cvr3DPaletteTexture.cpp Cvr3DPaletteTexture.h \
-        Cvr2DRGBATexture.cpp Cvr2DRGBATexture.h \
-        Cvr3DRGBATexture.cpp Cvr3DRGBATexture.h
+	Cvr2DPaletteTexture.cpp Cvr2DPaletteTexture.h \
+	Cvr3DPaletteTexture.cpp Cvr3DPaletteTexture.h \
+	Cvr2DRGBATexture.cpp Cvr2DRGBATexture.h \
+	Cvr3DRGBATexture.cpp Cvr3DRGBATexture.h
 
 
 all: all-am
@@ -312,6 +317,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPaletteTexture.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRGBATexture.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRGBATexture.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrTextureManager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrTextureManager.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrTextureObject.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrTextureObject.Po@am__quote@
 

@@ -39,7 +39,6 @@ SoType CvrTextureObject::classTypeId;
 SoType CvrTextureObject::getTypeId(void) const { return CvrTextureObject::classTypeId; }
 SoType CvrTextureObject::getClassTypeId(void) { return CvrTextureObject::classTypeId; }
 
-
 void
 CvrTextureObject::initClass(void)
 {
@@ -59,8 +58,50 @@ CvrTextureObject::initClass(void)
 CvrTextureObject::CvrTextureObject()
 {
   assert(CvrTextureObject::classTypeId != SoType::badType());
+  this->opengltextureid = 0; // id=0 => texture has not been uploaded to texture mem. 
+  this->iscompressed = FALSE;
+  this->refcounter = 0;
 }
 
 CvrTextureObject::~CvrTextureObject()
 {
+}
+
+GLuint 
+CvrTextureObject::getOpenGLTextureId(void) const
+{
+  return this->opengltextureid;
+}
+
+void 
+CvrTextureObject::setOpenGLTextureId(GLuint textureid)
+{
+  this->opengltextureid = textureid;
+}
+
+void
+CvrTextureObject::setTextureCompressed(SbBool flag)
+{
+  this->iscompressed = flag;
+}
+
+SbBool
+CvrTextureObject::textureCompressed() const
+{
+  return this->iscompressed;
+}
+
+void
+CvrTextureObject::ref()
+{
+  this->refcounter++;
+}
+
+SbBool 
+CvrTextureObject::unref()
+{
+  this->refcounter--;
+  if (refcounter <= 0) // last unref?
+    return FALSE;
+  return TRUE;
 }

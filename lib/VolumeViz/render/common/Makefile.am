@@ -7,13 +7,14 @@ noinst_LTLIBRARIES = libcommonrender.la
 endif
 
 SOURCES = \
+	CvrTextureManager.cpp CvrTextureManager.h \
 	CvrTextureObject.cpp CvrTextureObject.h \
 	CvrRGBATexture.cpp CvrRGBATexture.h \
 	CvrPaletteTexture.cpp CvrPaletteTexture.h \
-        Cvr2DPaletteTexture.cpp Cvr2DPaletteTexture.h \
-        Cvr3DPaletteTexture.cpp Cvr3DPaletteTexture.h \
-        Cvr2DRGBATexture.cpp Cvr2DRGBATexture.h \
-        Cvr3DRGBATexture.cpp Cvr3DRGBATexture.h
+	Cvr2DPaletteTexture.cpp Cvr2DPaletteTexture.h \
+	Cvr3DPaletteTexture.cpp Cvr3DPaletteTexture.h \
+	Cvr2DRGBATexture.cpp Cvr2DRGBATexture.h \
+	Cvr3DRGBATexture.cpp Cvr3DRGBATexture.h
 
 libcommonrender_la_SOURCES = $(SOURCES)
 

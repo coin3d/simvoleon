@@ -32,9 +32,6 @@ class Cvr2DRGBATexture : public CvrRGBATexture {
 public:
   static void initClass(void);
 
-  Cvr2DRGBATexture(const SbVec2s & size);
-  virtual ~Cvr2DRGBATexture();
-
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
@@ -44,7 +41,13 @@ public:
   void blankUnused(const SbVec2s & texsize) const;
 
 private:
+
+  Cvr2DRGBATexture(const SbVec2s & size);
+  virtual ~Cvr2DRGBATexture();
+
   static SoType classTypeId;
+
+  friend class CvrVoxelChunk;
 
 };
 

@@ -34,9 +34,6 @@ class Cvr3DPaletteTexture : public CvrPaletteTexture {
 public:
   static void initClass(void);
 
-  Cvr3DPaletteTexture(const SbVec3s & size);
-  virtual ~Cvr3DPaletteTexture();
-
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
@@ -46,8 +43,14 @@ public:
   void blankUnused(const SbVec3s & texsize) const;
 
 private:
+
+  Cvr3DPaletteTexture(const SbVec3s & size);
+  virtual ~Cvr3DPaletteTexture();
+
   static SoType classTypeId;
 
+  friend class CvrVoxelChunk;
+  friend class CvrTextureManager;
 };
 
 #endif // !COIN_CVR3DPALETTETEXTURE_H

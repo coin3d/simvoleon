@@ -34,9 +34,6 @@ class Cvr2DPaletteTexture : public CvrPaletteTexture {
 public:
   static void initClass(void);
 
-  Cvr2DPaletteTexture(const SbVec2s & size);
-  virtual ~Cvr2DPaletteTexture();
-
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
@@ -47,8 +44,12 @@ public:
   void dumpToPPM(const char * filename) const;
 
 private:
+  Cvr2DPaletteTexture(const SbVec2s & size);
+  virtual ~Cvr2DPaletteTexture();
+
   static SoType classTypeId;
 
+  friend class CvrVoxelChunk;
 };
 
 #endif // !COIN_CVR2DPALETTETEXTURE_H

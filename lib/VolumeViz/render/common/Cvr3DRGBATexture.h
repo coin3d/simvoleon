@@ -32,9 +32,6 @@ class Cvr3DRGBATexture : public CvrRGBATexture {
 public:
   static void initClass(void);
 
-  Cvr3DRGBATexture(const SbVec3s & size);
-  virtual ~Cvr3DRGBATexture();
-
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
@@ -44,8 +41,14 @@ public:
   void blankUnused(const SbVec3s & texsize) const;
 
 private:
+
+  Cvr3DRGBATexture(const SbVec3s & size);
+  virtual ~Cvr3DRGBATexture();
+
   static SoType classTypeId;
 
+  friend class CvrVoxelChunk;
+  friend class CvrTextureManager;
 };
 
 #endif // !COIN_CVR3DRGBATEXTURE_H
