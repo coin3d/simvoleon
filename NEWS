@@ -1,4 +1,4 @@
-New in SIM Voleon v2.0.1a (so far):
+New in SIM Voleon v2.0.1:
 
 * bugfixes
   - mixing 2D-textures and 3D-textures with the same palette would

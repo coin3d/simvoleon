@@ -2,7 +2,7 @@
 m4_define([SIMVOLEON_MAJOR], [2])
 m4_define([SIMVOLEON_MINOR], [0])
 m4_define([SIMVOLEON_MICRO], [1])
-m4_define([SIMVOLEON_BETA], [a])
+m4_define([SIMVOLEON_BETA], [])
 
 # Converted to Libtool versioning.
 m4_define([SC_ABI_CURRENT], [m4_eval((SIMVOLEON_MAJOR*20)+SIMVOLEON_MINOR)])
