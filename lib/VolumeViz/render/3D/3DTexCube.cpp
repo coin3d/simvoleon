@@ -727,20 +727,24 @@ Cvr3DTexCube::setPalette(const CvrCLUT * c)
       for (unsigned int depth = 0; depth < this->nrdepths; depth++) {
         const unsigned int idx = this->calcSubCubeIdx(row, col, depth);
         Cvr3DTexSubCubeItem * subc = this->subcubes[idx];
-        // FIXME: as far as I can tell from the code, the extra
-        // "subp->cube != NULL" check here should be superfluous, but I
-        // get a NULL-ptr crash if I leave it out when using RGBA
-        // textures and changing the palette. (Reproducible on
-        // ASK.trh.sim.no.) Investigate further. 20030325 mortene.
-        //
-        // FIXME: subc->cube can be NULL if it was a completely
-        // transparent set of voxels, and we're *not* using paletted
-        // textures. I guess that means this should be converted to an
-        // assert on this fact. 20041018 mortene.
-        if (subc && subc->cube) {
-          if (subc->cube->isPaletted()) { subc->cube->setPalette(this->clut); }
-          else { this->releaseSubCube(row, col, depth); }
+
+        // No cube was yet made in this position.
+        if (subc == NULL) { continue; }
+
+        // Only if invisible should there be no page allocated.
+        assert(subc->invisible || subc->cube);
+
+        // If this hits, the cube was RGBA and/or previously
+        // invisible.  That may change when setting a new palette, so
+        // remove the old cube.
+        if (subc->invisible || !subc->cube->isPaletted()) {
+          this->releaseSubCube(row, col, depth);
+          continue;
         }
+
+        // If paletted and previously visible, we simply migrate the new
+        // palette to all sub-pages.
+        subc->cube->setPalette(this->clut);
       }
     }
   }

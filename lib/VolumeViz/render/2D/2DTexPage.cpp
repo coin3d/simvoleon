@@ -318,15 +318,24 @@ Cvr2DTexPage::setPalette(const CvrCLUT * c)
     for (int row=0; row < this->nrrows; row++) {
       const int idx = this->calcSubPageIdx(row, col);
       Cvr2DTexSubPageItem * subp = this->subpages[idx];
-      // FIXME: as far as I can tell from the code, the extra
-      // "subp->page != NULL" check here should be superfluous, but I
-      // get a NULL-ptr crash if I leave it out when using RGBA
-      // textures and changing the palette. (Reproducible on
-      // ASK.trh.sim.no.) Investigate further. 20030325 mortene.
-      if (subp && subp->page) {
-        if (subp->page->isPaletted()) { subp->page->setPalette(this->clut); }
-        else { this->releaseSubPage(row, col); }
+
+      // No slice was yet made in this position.
+      if (subp == NULL) { continue; }
+
+      // Only if invisible should there be no page allocated.
+      assert(subp->invisible || subp->page);
+
+      // If this hits, the page was RGBA and/or previously invisible.
+      // That may change when setting a new palette, so remove the old
+      // page.
+      if (subp->invisible || !subp->page->isPaletted()) {
+        this->releaseSubPage(row, col);
+        continue;
       }
+
+      // If paletted and previously visible, we simply migrate the new
+      // palette to all sub-pages.
+      subp->page->setPalette(this->clut);
     }
   }
 }

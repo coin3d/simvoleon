@@ -508,12 +508,14 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action,
   // impact. Try for instance the 3DHEAD.VOL set in RGBA texture
   // mode versus palette texture mode -- the former has ~ 2X-3X
   // better framerate.
-
+  //
+  // UPDATE 20041112 mortene: I just fixed a bug wrt handling
+  // invisible pages, so it may work to let paletted pages be
+  // initially held as invisible.
   if (palettetex)
     invisible = FALSE;
 
   clut->unref();
-
 }
 
 // Initialize all predefined colormaps.
