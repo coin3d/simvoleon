@@ -14,6 +14,7 @@ endif
 libSimVoleon_la_SOURCES = dummy.cpp
 
 libSimVoleon_la_LIBADD = \
+        details/libdetails.la \
         elements/libelements.la \
 	misc/libmisc.la \
 	nodes/libnodes.la \
@@ -27,6 +28,7 @@ libSimVoleon_la_LDFLAGS = \
 SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES = dummy.cpp
 
 SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD = \
+        details/details.lst \
         elements/elements.lst \
         misc/misc.lst \
         nodes/nodes.lst \
@@ -83,6 +85,7 @@ uninstall-local:
 	done; \
 	incbasedir="$(DESTDIR)$(includedir)/VolumeViz"; \
 	for dir in \
+	  "$$incbasedir/details" \
 	  "$$incbasedir/elements" \
 	  "$$incbasedir/nodes" \
 	  "$$incbasedir/readers" \
