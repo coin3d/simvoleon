@@ -102,6 +102,7 @@ private:
   };
 
   SbList <subcube_slice> volumeslices;
+  unsigned int volumesliceslength;
 
   SbPlane clipplanes[6];
   SbClip clippoly;

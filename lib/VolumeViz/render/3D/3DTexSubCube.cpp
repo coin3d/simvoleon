@@ -91,6 +91,8 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(const SoGLRenderAction * action,
                                 cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f));
   
   this->origo = cubeorigo;
+
+  this->volumesliceslength = 0;
 }
 
 Cvr3DTexSubCube::~Cvr3DTexSubCube()
@@ -315,28 +317,36 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(void)
     this->clippoly.clip(this->clipplanes[j]);
   }
 
-  const unsigned int result = this->clippoly.getNumVertices();
+  const unsigned int nrvertices = this->clippoly.getNumVertices();
 
-  if (result >= 3) {
-    subcube_slice slice;
+  if (nrvertices >= 3) {
+    const SbVec3s texdims = this->textureobject->getDimensions();
     SbVec3f vert;
+    subcube_slice * slice = NULL;
+
+    // We use our own tracking of the list-length, instead of doing
+    // SbList::truncate(), so we can reuse the list elements (to avoid
+    // unnecessary memory allocation).
+    const unsigned int reallength = (unsigned int)this->volumeslices.getLength();
+    assert(this->volumesliceslength <= reallength);
+    if (this->volumesliceslength == reallength) {
+      subcube_slice s;
+      this->volumeslices.append(s);
+    }
+    slice = &this->volumeslices[this->volumesliceslength];
+    this->volumesliceslength++;
+
+    slice->vertex.truncate(0);
+    slice->texcoord.truncate(0);
     
-    for (unsigned int i=0; i < result; i++) {
+    for (unsigned int i=0; i < nrvertices; i++) {
       this->clippoly.getVertex(i, vert);
-      // FIXME: this will alloc lots (?) of memory each frame, which
-      // probably affects performance. 20041007 mortene.
-      slice.vertex.append(vert);
+      slice->vertex.append(vert);
 
       const SbVec3f dist = vert - this->origo;
-      const SbVec3s texdims = this->textureobject->getDimensions();
       const SbVec3f v(dist[0] / texdims[0], dist[1] / texdims[1], dist[2] / texdims[2]);
-
-      // FIXME: this will alloc lots (?) of memory each frame, which
-      // probably affects performance. 20041007 mortene.
-      slice.texcoord.append(v);
+      slice->texcoord.append(v);
     }
-    
-    this->volumeslices.append(slice);
   }
 }
 
@@ -365,7 +375,7 @@ Cvr3DTexSubCube::renderSlices(const SoGLRenderAction * action, SbBool wireframe)
   // COMMENT 20040804 mortene: sounds unlikely to be a significant
   // bottleneck, IMHO.
 
-  for (int i = this->volumeslices.getLength()-1; i >= 0; --i) {
+  for (int i = this->volumesliceslength - 1; i >= 0; --i) {
     struct subcube_slice & slice = this->volumeslices[i];
 
     glBegin(GL_TRIANGLE_FAN);
@@ -381,7 +391,10 @@ Cvr3DTexSubCube::renderSlices(const SoGLRenderAction * action, SbBool wireframe)
     assert(glGetError() == GL_NO_ERROR);
   }
 
-  this->volumeslices.truncate(0);
+  // We use our own tracking of the list-length, instead of doing
+  // SbList::truncate(), so we can reuse the list elements (to avoid
+  // unnecessary memory allocation).
+  this->volumesliceslength = 0;
 
   if (!wireframe && this->textureobject->isPaletted()) {
     this->deactivateCLUT(action);
@@ -399,12 +412,13 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action)
 
   if (CvrUtil::doDebugging() && FALSE) {
     SoDebugError::postInfo("Cvr3DTexSubCube::render",
-                           "slices==%d", this->volumeslices.getLength());
+                           "slices==%d",
+                           this->volumesliceslength);
   }
 
   // This can e.g. happen when some of the sub-cubes are not within
   // the view volume:
-  if (this->volumeslices.getLength() == 0) { return; }
+  if (this->volumesliceslength == 0) { return; }
 
   // 0: as usual, 1: added box wireframes, 2: only slice wireframes
   unsigned int renderstyle = CvrUtil::debugRenderStyle();
