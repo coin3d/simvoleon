@@ -57,3 +57,12 @@
     20040622 mortene.
 
 ========================================================================
+
+005 SoVolumeData::setPageSize() ignored for 3D texturing.
+
+    3D texturing just uses the max allowed by OpenGL. Should follow
+    what is forced by the API.
+
+    20040623 mortene.
+
+========================================================================
