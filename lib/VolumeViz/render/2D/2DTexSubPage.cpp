@@ -1,5 +1,6 @@
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 
+#include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/errors/SoDebugError.h>
 
@@ -54,7 +55,7 @@
 unsigned int Cvr2DTexSubPage::nroftexels = 0;
 unsigned int Cvr2DTexSubPage::texmembytes = 0;
 GLuint Cvr2DTexSubPage::emptyimgname[1] = { 0 };
-
+SbBool Cvr2DTexSubPage::detectedtextureswapping = FALSE;
 
 Cvr2DTexSubPage::Cvr2DTexSubPage(const uint8_t * textureimg,
                                  const SbVec2s & size,
@@ -64,6 +65,8 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(const uint8_t * textureimg,
 
   assert(size[0] >= 0);
   assert(size[1] >= 0);
+  assert(coin_is_power_of_two(size[0]));
+  assert(coin_is_power_of_two(size[1]));
   this->texdims = size;
 
   this->transferTex2GL(textureimg, palettesize, palette);
@@ -120,6 +123,7 @@ Cvr2DTexSubPage::activate(void) const
   if (!resident) {
     SoDebugError::postWarning("Cvr2DTexSubPage::activate",
                               "texture %d not resident", this->texturename);
+    Cvr2DTexSubPage::detectedtextureswapping = TRUE;
   }
 #endif // CVR_DEBUG
 
@@ -238,8 +242,19 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
 
   // FIXME: limits should be stored in a global texture manager class
   // or some such. 20021121 mortene.
-  if (((nrtexels + Cvr2DTexSubPage::nroftexels) > (16*1024*1024)) ||
+  if (Cvr2DTexSubPage::detectedtextureswapping ||
+      ((nrtexels + Cvr2DTexSubPage::nroftexels) > (16*1024*1024)) ||
       ((texmem + Cvr2DTexSubPage::texmembytes) > (16*1024*1024))) {
+#if CVR_DEBUG && 1 // debug
+    static SbBool first = TRUE;
+    if (first) {
+      SoDebugError::postInfo("Cvr2DTexSubPage::transferTex2GL",
+                             "filled up textures, nrtexels==%d, texmembytes==%d",
+                             Cvr2DTexSubPage::nroftexels,
+                             Cvr2DTexSubPage::texmembytes);
+      first = FALSE;
+    }
+#endif // debug
     this->texturename[0] = 0;
   }
   else {
@@ -249,7 +264,10 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
     // FIXME: these functions are only supported in opengl 1.1+...
     // torbjorv 08052002
     glGenTextures(1, this->texturename);
+    assert(glGetError() == GL_NO_ERROR);
+
     glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
+    assert(glGetError() == GL_NO_ERROR);
 
     glTexImage2D(GL_TEXTURE_2D,
                  0,
@@ -260,6 +278,7 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
                  palette == NULL ? GL_RGBA : GL_COLOR_INDEX,
                  bytes_pr_unit,
                  textureimg);
+    assert(glGetError() == GL_NO_ERROR);
 
     GLint wrapenum = GL_CLAMP;
     if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
@@ -267,6 +286,7 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
     // FIXME: investigate if this is really what we want. 20021120 mortene.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
+    assert(glGetError() == GL_NO_ERROR);
 
     // FIXME: investigate if this is really what we want. 20021120 mortene.
     //
@@ -274,6 +294,7 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
     // instead, for testing purposes. 20021121 mortene.
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    assert(glGetError() == GL_NO_ERROR);
   }
 }
 

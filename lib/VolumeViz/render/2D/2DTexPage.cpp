@@ -3,6 +3,7 @@
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <Inventor/errors/SoDebugError.h>
+#include <Inventor/C/tidbits.h>
 #include <Inventor/system/gl.h>
 #include <limits.h>
 
@@ -51,7 +52,10 @@ void Cvr2DTexPage::init(SoVolumeReader * reader,
                         int sliceidx, unsigned int axis,
                         const SbVec2s & subpagetexsize)
 {
-  assert(subpagetexsize[0] > 0 && subpagetexsize[1] > 0);
+  assert(subpagetexsize[0] > 0);
+  assert(subpagetexsize[1] > 0);
+  assert(coin_is_power_of_two(subpagetexsize[0]));
+  assert(coin_is_power_of_two(subpagetexsize[1]));
 
   this->releaseAllSubPages();
 
@@ -203,13 +207,6 @@ void
 Cvr2DTexPage::renderGLQuad(const SbVec3f & lowleft, const SbVec3f & lowright,
                            const SbVec3f & upleft, const SbVec3f & upright)
 {
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("Cvr2DTexPage::renderGLQuad",
-                         "minuv=[%f, %f], maxuv=[%f, %f]",
-                         minuv[0], minuv[1], maxuv[0], maxuv[1]);
-#endif // debug
-  
-
   glBegin(GL_QUADS);
   glColor4f(1, 1, 1, 1);
 

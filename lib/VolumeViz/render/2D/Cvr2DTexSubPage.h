@@ -26,6 +26,7 @@ private:
   SbVec2s texdims;
   static unsigned int nroftexels;
   static unsigned int texmembytes;
+  static SbBool detectedtextureswapping;
   float texmultfactor;
 };
 
