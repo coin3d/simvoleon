@@ -1,14 +1,26 @@
-all: readvol
+all: examine readvol raypick
+
+## 
 
 READVOL_OBJECTS = \
         readvol.o \
         TransferFunctionHandler.o moc_TransferFunctionHandler.o \
         SoTransferFunction_ctrl.o moc_SoTransferFunction_ctrl.o
 
+EXAMINE_OBJECTS = \
+        examine.o
+
+RAYPICK_OBJECTS = \
+        raypick.o
+
 clean:
-	rm -f readvol $(READVOL_OBJECTS) readvol.cpp \
+	rm -f raypick $(RAYPICK_OBJECTS) raypick.cpp \
+              examine $(EXAMINE_OBJECTS) examine.cpp \
+              readvol $(READVOL_OBJECTS) readvol.cpp \
               moc_TransferFunctionHandler.cpp \
               SoTransferFunction_ctrl.h SoTransferFunction_ctrl.cpp moc_SoTransferFunction_ctrl.cpp
+
+## ``readvol'' example
 
 readvol.cpp: readvol.cpp.in
 	@soqt-config --ac-subst $<
@@ -42,3 +54,27 @@ TransferFunctionHandler.o: TransferFunctionHandler.cpp SoTransferFunction_ctrl.h
 
 readvol: $(READVOL_OBJECTS)
 	soqt-config --link $@ $(READVOL_OBJECTS) -lVolumeViz
+
+## ``examine'' example
+
+examine.cpp: examine.cpp.in
+	@soqt-config --ac-subst $<
+
+examine.o: examine.cpp
+	soqt-config --compile $<
+
+examine: $(EXAMINE_OBJECTS)
+	soqt-config --link $@ $(EXAMINE_OBJECTS) -lVolumeViz
+
+## ``raypick'' example
+
+raypick.cpp: raypick.cpp.in
+	@soqt-config --ac-subst $<
+
+raypick.o: raypick.cpp
+	soqt-config --compile $<
+
+raypick: $(RAYPICK_OBJECTS)
+	soqt-config --link $@ $(RAYPICK_OBJECTS) -lVolumeViz
+
+## end
