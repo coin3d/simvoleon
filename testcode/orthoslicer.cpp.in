@@ -49,7 +49,7 @@ event_cb(void * ud, SoEventCallback * n)
                   v[0], v[1], v[2], nv[0], nv[1], nv[2]);
 
     const SoDetail * d = point->getDetail();
-    if (d->getTypeId() == SoOrthoSliceDetail::getClassTypeId()) {
+    if (d && d->getTypeId() == SoOrthoSliceDetail::getClassTypeId()) {
       const SoOrthoSliceDetail * detail = (const SoOrthoSliceDetail *)d;
 
       v = detail->getValueObjectPos();
