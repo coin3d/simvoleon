@@ -76,7 +76,7 @@ AC_PROG_CPP
 AC_PROG_CXX
 AC_LANG_CPLUSPLUS
 
-AC_CHECK_HEADERS([windows.h unistd.h ctype.h sys/types.h dirent.h])
+# *******************************************************************
 
 AM_INIT_AUTOMAKE(VolumeViz, $VERSION)
 
@@ -86,6 +86,20 @@ AM_DISABLE_STATIC
 
 #  Files to cram results from the configure tests into.
 AM_CONFIG_HEADER(config.h)
+
+# *******************************************************************
+# Compiler checking.
+
+## Make it possible for the user to turn off optimization flags for
+## the compiler before running the fatal error checks below.
+SIM_AC_COMPILER_OPTIMIZATION
+
+## Smoke out some known defunct compilers.
+SIM_AC_COMPILER_CPLUSPLUS_FATAL_ERRORS
+
+# *******************************************************************
+
+AC_CHECK_HEADERS([windows.h unistd.h ctype.h sys/types.h dirent.h])
 
 #  Check for pthread (required for multithreaded streaming sound)
 SIM_AC_CHECK_PTHREAD([
