@@ -21,6 +21,10 @@
  *
 \**************************************************************************/
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 #include <VolumeViz/render/common/CvrRGBATexture.h>
 #include <VolumeViz/render/common/CvrPaletteTexture.h>

@@ -21,6 +21,10 @@
  *
 \**************************************************************************/
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
 #include <VolumeViz/render/common/CvrRGBATexture.h>
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
@@ -35,6 +39,7 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/projectors/SbPlaneProjector.h>
 
+//#define HAVE_ARB_FRAGMENT_PROGRAM
 // *************************************************************************
 
 // debugging: keep this around until the peculiar NVidia bug with
@@ -305,7 +310,7 @@ Cvr3DTexSubCube::transferTex3GL(SoGLRenderAction * action,
       if (cc_glglue_has_arb_fragment_program(glw))
         palettetype = GL_LUMINANCE;     
 #endif
-
+      
     // FIXME: Is this way of compressing textures OK? (20040303 handegar)
     if (cc_glue_has_texture_compression(glw) && 
         this->compresstextures &&
@@ -313,7 +318,7 @@ Cvr3DTexSubCube::transferTex3GL(SoGLRenderAction * action,
       if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
       else colorformat = GL_COMPRESSED_INTENSITY_ARB;
     }
-
+      
     cc_glglue_glTexImage3D(glw,
                            GL_TEXTURE_3D,
                            0,
