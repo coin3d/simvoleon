@@ -1,24 +1,12 @@
+#include <VolumeViz/nodes/SoVolumeRender.h>
+
 #include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/elements/SoGLCacheContextElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
-
+#include <Inventor/system/gl.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/nodes/SoVolumeRender.h>
-#include <VolumeViz/nodes/SoVolumeRendering.h>
-#include <VolumeViz/elements/SoTransferFunctionElement.h>
-
-
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
-
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#endif // HAVE_WINDOWS_H*/
-
-#include <GL/gl.h>
 
 // *************************************************************************
 
@@ -50,7 +38,7 @@ SoVolumeRender::SoVolumeRender(void)
   SO_NODE_CONSTRUCTOR(SoVolumeRender);
 
   PRIVATE(this) = new SoVolumeRenderP(this);
-  
+
   SO_NODE_DEFINE_ENUM_VALUE(Interpolation, NEAREST);
   SO_NODE_DEFINE_ENUM_VALUE(Interpolation, LINEAR);
   SO_NODE_SET_SF_ENUM_TYPE(interpolation, Interpolation);
@@ -99,7 +87,7 @@ SoVolumeRender::initClass(void)
 
 
 // doc in super
-void 
+void
 SoVolumeRender::GLRender(SoGLRenderAction *action)
 {
   SoState * state = action->getState();
@@ -115,7 +103,7 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   const SoTransferFunctionElement * transferFunctionElement;
   transferFunctionElement = SoTransferFunctionElement::getInstance(state);
   assert(transferFunctionElement);
-  SoTransferFunction * transferFunction = 
+  SoTransferFunction * transferFunction =
     transferFunctionElement->getTransferFunction();
 
   // Calculating a camvec from camera to center of object
@@ -169,14 +157,14 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
   glDisable(GL_CULL_FACE);
 
-  // FIXME: Implement use of the 
+  // FIXME: Implement use of the
   // numSlicesControl-field. torbjorv 07112002
 
   // FIXME: Clean up the use of states for textures, lighting,
-  // culling, blendfunc (restore previous states). 
+  // culling, blendfunc (restore previous states).
   // torbjorv 07122002
 
-  // FIXME: 
+  // FIXME:
 
 
   // Commonly used variables
@@ -208,20 +196,20 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
     // Rendering slices
     for (int i = 0; i < numslices; i++) {
-      int imageIdx = 
+      int imageIdx =
         (int)((float(i)/float(numslices)) * float(dimensions[0]));
 
       // Are we rendering in in reverse order?
       if (depthAdder < 0)
-        imageIdx = 
+        imageIdx =
           (int)((float(numslices - 1) / numslices) *
                 dimensions[0]) - imageIdx;
 
       volumeData->renderOrthoSliceX(state,
-                                    SbBox2f(min[1], 
-                                            min[2], 
-                                            max[1], 
-                                            max[2]), 
+                                    SbBox2f(min[1],
+                                            min[2],
+                                            max[1],
+                                            max[2]),
                                     depth,
                                     imageIdx,
                                     SbBox2f(0.0, 0.0, 1.0, 1.0),
@@ -247,20 +235,20 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
     // Rendering slices
     for (int i = 0; i < numslices; i++) {
-      int imageIdx = 
+      int imageIdx =
         (int)((float(i)/float(numslices))*float(dimensions[1]));
 
       // Are we rendering in in reverse order?
       if (depthAdder < 0)
-        imageIdx = 
+        imageIdx =
           (int)((float(numslices - 1) / numslices) *
                 dimensions[1]) - imageIdx;
 
       volumeData->renderOrthoSliceY(state,
-                                    SbBox2f(min[1], 
-                                            min[2], 
-                                            max[1], 
-                                            max[2]), 
+                                    SbBox2f(min[1],
+                                            min[2],
+                                            max[1],
+                                            max[2]),
                                     depth,
                                     imageIdx,
                                     SbBox2f(0.0, 0.0, 1.0, 1.0),
@@ -285,20 +273,20 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
 
     // Rendering slices
     for (int i = 0; i < numslices; i++) {
-      int imageIdx 
+      int imageIdx
         = (int)((float(i)/float(numslices))*float(dimensions[2]));
 
       // Are we rendering in in reverse order?
       if (camvec[2] < 0)
-        imageIdx = 
+        imageIdx =
           (int)((float(numslices - 1) / numslices) *
                 dimensions[2]) - imageIdx;
 
       volumeData->renderOrthoSliceZ(state,
-                                    SbBox2f(min[0], 
-                                            min[1], 
-                                            max[0], 
-                                            max[1]), 
+                                    SbBox2f(min[0],
+                                            min[1],
+                                            max[0],
+                                            max[1]),
                                     depth,
                                     imageIdx,
                                     SbBox2f(0.0, 0.0, 1.0, 1.0),
@@ -311,13 +299,13 @@ SoVolumeRender::GLRender(SoGLRenderAction *action)
   glPopAttrib();
 }
 
-void 
+void
 SoVolumeRender::generatePrimitives(SoAction * action)
 {
 }
 
 
-void 
+void
 SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
 }

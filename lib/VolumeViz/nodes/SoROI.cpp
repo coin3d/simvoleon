@@ -20,29 +20,18 @@ FIXME
 */
 
 
-#include <Inventor/nodes/SoNode.h>
-#include <Inventor/fields/SoSFEnum.h>
-#include <Inventor/sensors/SoFieldSensor.h>
+#include <VolumeViz/nodes/SoROI.h>
+
 #include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/elements/SoGLCacheContextElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
-
-#include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/nodes/SoROI.h>
+#include <Inventor/sensors/SoFieldSensor.h>
+#include <Inventor/system/gl.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
-#include <VolumeViz/elements/SoTransferFunctionElement.h>
-
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
-
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#endif // HAVE_WINDOWS_H
-#include <GL/gl.h>
 
 // *************************************************************************
 

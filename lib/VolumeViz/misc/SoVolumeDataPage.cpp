@@ -1,17 +1,9 @@
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
-
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#endif // HAVE_WINDOWS_H
-#include <GL/gl.h>
+#include <VolumeViz/misc/SoVolumeDataPage.h>
 
 #include <Inventor/C/glue/gl.h>
-#include <VolumeViz/misc/SoVolumeDataPage.h>
-#include <Inventor/misc/SoState.h>
 #include <Inventor/actions/SoGLRenderAction.h>
-#include <VolumeViz/nodes/SoVolumeRendering.h>
+#include <Inventor/misc/SoState.h>
+#include <Inventor/system/gl.h>
 
 
 SoVolumeDataPage::SoVolumeDataPage(void)
@@ -142,7 +134,7 @@ void SoVolumeDataPage::setData(Storage storage,
 
       // Checking what palettesize we actually got
       int actualPaletteSize;
-      cc_glglue_glGetColorTableParameterivEXT(glue,GL_TEXTURE_2D,
+      cc_glglue_glGetColorTableParameterivEXT(glue, GL_TEXTURE_2D,
                                               GL_COLOR_TABLE_WIDTH_EXT,
                                               &actualPaletteSize);
 

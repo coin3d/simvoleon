@@ -5,33 +5,25 @@
 */
 
 #include <VolumeViz/nodes/SoVolumeData.h>
-#include <memory.h>
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <Inventor/elements/SoGLCacheContextElement.h>
-#include <VolumeViz/readers/SoVRMemReader.h>
+
 #include <Inventor/SbVec3s.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/elements/SoGLCacheContextElement.h>
+#include <Inventor/system/gl.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/misc/SoVolumeDataPage.h>
 #include <VolumeViz/misc/SoVolumeDataSlice.h>
-
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
-
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#endif // HAVE_WINDOWS_H*/
-
-#include <GL/gl.h>
+#include <VolumeViz/readers/SoVRMemReader.h>
+#include <string.h> // memset()
 
 
 /*
 
 DICTIONARY
 
-  "Slice"      : One complete cut through the volume, normal to an axis. 
-  "Page"       : A segment of a slice. 
-  "In-memory"  : In this context, "in-memory" means volume data (pages) that's 
+  "Slice"      : One complete cut through the volume, normal to an axis.
+  "Page"       : A segment of a slice.
+  "In-memory"  : In this context, "in-memory" means volume data (pages) that's
                  pulled out of the reader and run through a transfer function,
                  thus ready to be rendered.
   LRU          : Least Recently Used
@@ -54,7 +46,7 @@ DATA STRUCTURES
   x, y) but different transfer functions are saved as a linked list.
 
 
-  
+
 LRU-system
 
   To support large sets of volume data, a simple memory management
@@ -99,7 +91,7 @@ USER INTERACTION
 
 
 PALETTED TEXTURES
-  
+
   Paletted textures rocks. Depending on the size of the pages, it
   could save significant amounts of memory. The current implementation
   uses individual palettes for each page. This can be both a good idea
@@ -182,85 +174,85 @@ VOLUMEREADERS
   with the following definition:
 
   void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data)
-                  
-  It returns a subslice within a specified slice along the z-axis. This 
-  means that the responsibility for building slices along X and Y-axis 
-  lies within the reader-client.When generating textures along either 
-  x- or y-axis, this requires a significant number of iterations, one 
-  for each slice along the z-axis. This will in turn trigger plenty 
-  filereads at different disklocations, and your disk's heads will have 
-  a disco showdown the Travolta way. I've extended the interface as 
+
+  It returns a subslice within a specified slice along the z-axis. This
+  means that the responsibility for building slices along X and Y-axis
+  lies within the reader-client.When generating textures along either
+  x- or y-axis, this requires a significant number of iterations, one
+  for each slice along the z-axis. This will in turn trigger plenty
+  filereads at different disklocations, and your disk's heads will have
+  a disco showdown the Travolta way. I've extended the interface as
   following:
 
-  void getSubSlice(SbBox2s &subSlice, 
-                   int sliceNumber, 
+  void getSubSlice(SbBox2s &subSlice,
+                   int sliceNumber,
                    void * data,
                    SoOrthoSlice::Axis axis = SoOrthoSlice::Z)
 
-  This moves the responsibility for building slices to the reader. 
+  This moves the responsibility for building slices to the reader.
   It makes it possible to exploit fileformats with possible clever
   data layout, and if the fileformat/input doesn't provide intelligent
-  organization, it still wouldn't be any slower. The only drawback is 
-  that some functionality would be duplicated among several readers 
+  organization, it still wouldn't be any slower. The only drawback is
+  that some functionality would be duplicated among several readers
   and making them more complicated.
 
-  The consequences is that readers developed for TGS's implementation 
+  The consequences is that readers developed for TGS's implementation
   would not work with ours, but the opposite should work just fine.
 
 
 
 TODO
-  
+
   No picking functionality whatsoever is implemented. Other missing
   functions are tagged with FIXMEs.
 
   Missing classes: SoObliqueSlice, SoOrthoSlice, all readers, all
   details.
-  
+
 
 
 REFACTORING
 
-  Rumours has it that parts of this library will be refactored and 
-  extracted into a more or less external c-library. This is a 
+  Rumours has it that parts of this library will be refactored and
+  extracted into a more or less external c-library. This is a
   very good idea, and it is already partially implemented through
-  SoVolumeDataPage and SoVolumeDataSlice. This library should be as 
-  decoupled from Coin as possible, but it would be a lot of work to 
-  build a completely standalone one. An intermediate layer between 
+  SoVolumeDataPage and SoVolumeDataSlice. This library should be as
+  decoupled from Coin as possible, but it would be a lot of work to
+  build a completely standalone one. An intermediate layer between
   the lib and Coin would be required, responsible for translating all
-  necessary datastructures (i.e. readers and transferfunctions), 
-  functioncalls and opengl/coin-states. 
-  
-  The interface of the library should be quite simple and would 
+  necessary datastructures (i.e. readers and transferfunctions),
+  functioncalls and opengl/coin-states.
+
+  The interface of the library should be quite simple and would
   probably require the following:
-  * A way to support the library with data and data characteristics. 
-    Should be done by providing the lib with pointers to 
-    SoVolumeReader-objects. 
-  * Renderingfunctionality. Volumerendering and slicerendering, 
+  * A way to support the library with data and data characteristics.
+    Should be done by providing the lib with pointers to
+    SoVolumeReader-objects.
+  * Renderingfunctionality. Volumerendering and slicerendering,
     specifying location in space, texturecoordinates in the volume and
     transferfunction.
-  * Functionality to specify maximum resource usage by the lib. 
-  * Preferred storage- and rendering-technique. 
+  * Functionality to specify maximum resource usage by the lib.
+  * Preferred storage- and rendering-technique.
 
   etc etc...
 
-  Conclusion: This interface came out quite obvious. :) And it will 
+  Conclusion: This interface came out quite obvious. :) And it will
   end up a lot like the existing one, except that most of the code in
   SoVolumeData will be pushed into this lib. As mentioned, the lib
-  will rely heavily on different Coin-classes, especially SoState, 
+  will rely heavily on different Coin-classes, especially SoState,
   SoVolumeReader and SoTransferFunction and must be designed to fit
   with these.
 
-  The renderingcode is totally independent of the dataformats of 
-  textures. (RGBA, paletted etc), and may be reused with great ease 
-  whereever needed in the new lib. This code is located in 
-  SoVolumeDataSlice::Render and i.e. SoVolumeRender::GLRender. 
-  I actually spent quite some time implementing the slicerendering, 
-  getting all the interpolation correct when switching from one page 
-  to another within the same arbitrary shaped quad. 
-  SoVolumeRender::GLRender is more straightforward, but it should be 
-  possible to reuse the same loop for all three axis rendering the code 
-  more elegant. And it's all about the looks, isn't it? 
+  The renderingcode is totally independent of the dataformats of
+  textures. (RGBA, paletted etc), and may be reused with great ease
+  whereever needed in the new lib. This code is located in
+  SoVolumeDataSlice::Render and i.e. SoVolumeRender::GLRender.
+  I actually spent quite some time implementing the slicerendering,
+  getting all the interpolation correct when switching from one page
+  to another within the same arbitrary shaped quad.
+  SoVolumeRender::GLRender is more straightforward, but it should be
+  possible to reuse the same loop for all three axis rendering the code
+  more elegant. And it's all about the looks, isn't it?
 
   All class declarations are copied from TGS reference manual, and
   should be consistent with the TGS VolumeViz-interface (see
@@ -268,7 +260,7 @@ REFACTORING
 
 
 
-  
+
   torbjorv 08292002
 */
 
@@ -280,7 +272,7 @@ SO_NODE_SOURCE(SoVolumeData);
 
 class SoVolumeDataP {
 public:
-  SoVolumeDataP(SoVolumeData * master) 
+  SoVolumeDataP(SoVolumeData * master)
   {
     this->master = master;
 
@@ -361,7 +353,7 @@ SoVolumeData::SoVolumeData(void)
   SO_NODE_CONSTRUCTOR(SoVolumeData);
 
   PRIVATE(this) = new SoVolumeDataP(this);
-  
+
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, AUTO);
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, TEX2D_MULTI);
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, TEX2D);
@@ -395,7 +387,7 @@ SoVolumeData::initClass(void)
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }
 
-void 
+void
 SoVolumeData::setVolumeSize(const SbBox3f & size)
 {
   PRIVATE(this)->volumeSize = size;
@@ -404,34 +396,34 @@ SoVolumeData::setVolumeSize(const SbBox3f & size)
 }
 
 SbBox3f &
-SoVolumeData::getVolumeSize(void) 
-{ 
-  return PRIVATE(this)->volumeSize; 
+SoVolumeData::getVolumeSize(void)
+{
+  return PRIVATE(this)->volumeSize;
 }
 
 
 SbVec3s &
 SoVolumeData::getDimensions(void)
-{ 
-  return PRIVATE(this)->dimensions; 
+{
+  return PRIVATE(this)->dimensions;
 }
 
 
 // FIXME: If size != 2^n these functions should extend to the nearest
 // accepted size.  torbjorv 07292002
-void 
-SoVolumeData::setVolumeData(const SbVec3s &dimensions, 
-                            void * data, 
-                            SoVolumeData::DataType type) 
+void
+SoVolumeData::setVolumeData(const SbVec3s &dimensions,
+                            void * data,
+                            SoVolumeData::DataType type)
 {
 
   PRIVATE(this)->VRMemReader = new SoVRMemReader;
-  PRIVATE(this)->VRMemReader->setData(dimensions, 
-                                      data, 
+  PRIVATE(this)->VRMemReader->setData(dimensions,
+                                      data,
                                       PRIVATE(this)->volumeSize,
                                       type);
   this->setReader(PRIVATE(this)->VRMemReader);
- 
+
   if (PRIVATE(this)->pageSize[0] > dimensions[0])
     PRIVATE(this)->pageSize[0] = dimensions[0];
   if (PRIVATE(this)->pageSize[1] > dimensions[1])
@@ -440,14 +432,14 @@ SoVolumeData::setVolumeData(const SbVec3s &dimensions,
     PRIVATE(this)->pageSize[2] = dimensions[2];
 }
 
-void 
-SoVolumeData::setPageSize(int size) 
+void
+SoVolumeData::setPageSize(int size)
 {
   setPageSize(SbVec3s(size, size, size));
 }
 
-void 
-SoVolumeData::setPageSize(const SbVec3s & insize) 
+void
+SoVolumeData::setPageSize(const SbVec3s & insize)
 {
   SbVec3s size = insize;
 
@@ -468,19 +460,19 @@ SoVolumeData::setPageSize(const SbVec3s & insize)
   bool rebuildY = false;
   bool rebuildZ = false;
 
-  // The X-size has changed. Rebuild Y- and Z-axis maps. 
+  // The X-size has changed. Rebuild Y- and Z-axis maps.
   if (size[0] != PRIVATE(this)->pageSize[0]) {
     rebuildY = true;
     rebuildZ = true;
   }
 
-  // The Y-size has changed. Rebuild X- and Z-axis maps. 
+  // The Y-size has changed. Rebuild X- and Z-axis maps.
   if (size[1] != PRIVATE(this)->pageSize[1]) {
     rebuildX = true;
     rebuildZ = true;
   }
 
-  // The Z-size has changed. Rebuild X- and Y-axis maps. 
+  // The Z-size has changed. Rebuild X- and Y-axis maps.
   if (size[2] != PRIVATE(this)->pageSize[2]) {
     rebuildX = true;
     rebuildY = true;
@@ -500,18 +492,18 @@ SoVolumeData::GLRender(SoGLRenderAction * action)
   PRIVATE(this)->tick++;
 }
 
-void 
-SoVolumeData::renderOrthoSliceX(SoState * state, 
-                                const SbBox2f & quad, 
+void
+SoVolumeData::renderOrthoSliceX(SoState * state,
+                                const SbBox2f & quad,
                                 float x,
-                                int sliceIdx, 
+                                int sliceIdx,
                                 const SbBox2f & textureCoords,
                                 SoTransferFunction * transferFunction)
 {
   SbVec2f max, min;
   quad.getBounds(min, max);
 
-  SoVolumeDataSlice * slice = 
+  SoVolumeDataSlice * slice =
     PRIVATE(this)->getSliceX(sliceIdx);
 
   PRIVATE(this)->numTexels -= slice->numTexels;
@@ -536,11 +528,11 @@ SoVolumeData::renderOrthoSliceX(SoState * state,
   PRIVATE(this)->managePages();
 }
 
-void 
-SoVolumeData::renderOrthoSliceY(SoState * state, 
-                                const SbBox2f & quad, 
+void
+SoVolumeData::renderOrthoSliceY(SoState * state,
+                                const SbBox2f & quad,
                                 float y,
-                                int sliceIdx, 
+                                int sliceIdx,
                                 const SbBox2f & textureCoords,
                                 SoTransferFunction * transferFunction)
 {
@@ -548,7 +540,7 @@ SoVolumeData::renderOrthoSliceY(SoState * state,
   SbVec2f max, min;
   quad.getBounds(min, max);
 
-  SoVolumeDataSlice * slice = 
+  SoVolumeDataSlice * slice =
     PRIVATE(this)->getSliceY(sliceIdx);
 
   PRIVATE(this)->numTexels -= slice->numTexels;
@@ -573,11 +565,11 @@ SoVolumeData::renderOrthoSliceY(SoState * state,
   PRIVATE(this)->managePages();
 }
 
-void 
-SoVolumeData::renderOrthoSliceZ(SoState * state, 
-                                const SbBox2f & quad, 
+void
+SoVolumeData::renderOrthoSliceZ(SoState * state,
+                                const SbBox2f & quad,
                                 float z,
-                                int sliceIdx, 
+                                int sliceIdx,
                                 const SbBox2f & textureCoords,
                                 SoTransferFunction * transferFunction)
 {
@@ -585,7 +577,7 @@ SoVolumeData::renderOrthoSliceZ(SoState * state,
   SbVec2f max, min;
   quad.getBounds(min, max);
 
-  SoVolumeDataSlice * slice = 
+  SoVolumeDataSlice * slice =
     PRIVATE(this)->getSliceZ(sliceIdx);
 
   PRIVATE(this)->numTexels -= slice->numTexels;
@@ -610,30 +602,30 @@ SoVolumeData::renderOrthoSliceZ(SoState * state,
   PRIVATE(this)->managePages();
 }
 
-SbVec3s & 
+SbVec3s &
 SoVolumeData::getPageSize()
 {
   return PRIVATE(this)->pageSize;
 }
 
-void 
-SoVolumeData::setTexMemorySize(int size) 
+void
+SoVolumeData::setTexMemorySize(int size)
 {
   PRIVATE(this)->maxTexels = size;
 }
 
-void 
-SoVolumeData::setReader(SoVolumeReader * reader) 
+void
+SoVolumeData::setReader(SoVolumeReader * reader)
 {
   PRIVATE(this)->reader = reader;
 
   reader->getDataChar(PRIVATE(this)->volumeSize,
-                      PRIVATE(this)->dataType, 
+                      PRIVATE(this)->dataType,
                       PRIVATE(this)->dimensions);
 }
 
-void 
-SoVolumeData::setHWMemorySize(int size) 
+void
+SoVolumeData::setHWMemorySize(int size)
 {
   PRIVATE(this)->maxBytesHW = size;
 }
@@ -641,7 +633,7 @@ SoVolumeData::setHWMemorySize(int size)
 /*************************** PIMPL-FUNCTIONS ********************************/
 
 
-SoVolumeDataSlice * 
+SoVolumeDataSlice *
 SoVolumeDataP::getSliceX(int sliceIdx)
 {
   // Valid slice?
@@ -650,16 +642,16 @@ SoVolumeDataP::getSliceX(int sliceIdx)
   // First SoVolumeDataPage ever?
   if (!slicesX) {
     slicesX = new SoVolumeDataSlice*[dimensions[0]];
-    memset( slicesX, 
-            0, 
+    memset( slicesX,
+            0,
             sizeof(SoVolumeDataSlice*)*dimensions[0]);
   }
 
   if (!slicesX[sliceIdx]) {
     SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
-    newSlice->init(this->reader, 
-                   sliceIdx, 
-                   SoOrthoSlice::X, 
+    newSlice->init(this->reader,
+                   sliceIdx,
+                   SoOrthoSlice::X,
                    SbVec2s(this->pageSize[2], this->pageSize[1]));
 
     slicesX[sliceIdx] = newSlice;
@@ -669,7 +661,7 @@ SoVolumeDataP::getSliceX(int sliceIdx)
 }
 
 
-SoVolumeDataSlice * 
+SoVolumeDataSlice *
 SoVolumeDataP::getSliceY(int sliceIdx)
 {
   // Valid slice?
@@ -678,16 +670,16 @@ SoVolumeDataP::getSliceY(int sliceIdx)
   // First SoVolumeDataPage ever?
   if (!slicesY) {
     slicesY = new SoVolumeDataSlice*[dimensions[1]];
-    memset( slicesY, 
-            0, 
+    memset( slicesY,
+            0,
             sizeof(SoVolumeDataSlice*)*dimensions[1]);
   }
 
   if (!slicesY[sliceIdx]) {
     SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
-    newSlice->init(this->reader, 
-                   sliceIdx, 
-                   SoOrthoSlice::Y, 
+    newSlice->init(this->reader,
+                   sliceIdx,
+                   SoOrthoSlice::Y,
                    SbVec2s(this->pageSize[0], this->pageSize[2]));
 
     slicesY[sliceIdx] = newSlice;
@@ -698,7 +690,7 @@ SoVolumeDataP::getSliceY(int sliceIdx)
 
 
 
-SoVolumeDataSlice * 
+SoVolumeDataSlice *
 SoVolumeDataP::getSliceZ(int sliceIdx)
 {
   // Valid slice?
@@ -707,16 +699,16 @@ SoVolumeDataP::getSliceZ(int sliceIdx)
   // First SoVolumeDataPage ever?
   if (!slicesZ) {
     slicesZ = new SoVolumeDataSlice*[dimensions[2]];
-    memset( slicesZ, 
-            0, 
+    memset( slicesZ,
+            0,
             sizeof(SoVolumeDataSlice*)*dimensions[2]);
   }
 
   if (!slicesZ[sliceIdx]) {
     SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
-    newSlice->init(this->reader, 
-                   sliceIdx, 
-                   SoOrthoSlice::Z, 
+    newSlice->init(this->reader,
+                   sliceIdx,
+                   SoOrthoSlice::Z,
                    SbVec2s(this->pageSize[0], this->pageSize[1]));
 
     slicesZ[sliceIdx] = newSlice;
@@ -728,13 +720,13 @@ SoVolumeDataP::getSliceZ(int sliceIdx)
 
 // FIXME: Perhaps there already is a function somewhere in C or Coin
 // that can test this easily?  31082002 torbjorv
-bool 
+bool
 SoVolumeDataP::check2n(int n)
 {
   for (int i = 0; i < (int) (sizeof(int)*8); i++) {
 
     if (n & 1) {
-      if (n != 1) 
+      if (n != 1)
         return false;
       else
         return true;
@@ -745,7 +737,7 @@ SoVolumeDataP::check2n(int n)
   return true;
 }
 
-void 
+void
 SoVolumeDataP::releaseSlices(void)
 {
   this->releaseSlicesX();
@@ -753,7 +745,7 @@ SoVolumeDataP::releaseSlices(void)
   this->releaseSlicesZ();
 }
 
-void 
+void
 SoVolumeDataP::freeTexels(int desired)
 {
   if (desired > maxTexels) return;
@@ -763,7 +755,7 @@ SoVolumeDataP::freeTexels(int desired)
 }
 
 
-void 
+void
 SoVolumeDataP::releaseLRUPage(void)
 {
   SoVolumeDataPage * LRUPage = NULL;
@@ -843,7 +835,7 @@ SoVolumeDataP::releaseLRUPage(void)
   this->numBytesHW += LRUSlice->numBytesHW;
 }
 
-void 
+void
 SoVolumeDataP::releaseSlicesX(void)
 {
   if (this->slicesX) {
@@ -856,7 +848,7 @@ SoVolumeDataP::releaseSlicesX(void)
   }
 }
 
-void 
+void
 SoVolumeDataP::releaseSlicesY(void)
 {
   if (this->slicesY) {
@@ -869,7 +861,7 @@ SoVolumeDataP::releaseSlicesY(void)
   }
 }
 
-void 
+void
 SoVolumeDataP::releaseSlicesZ(void)
 {
   if (this->slicesZ) {
@@ -882,7 +874,7 @@ SoVolumeDataP::releaseSlicesZ(void)
   }
 }
 
-void 
+void
 SoVolumeDataP::freeHWBytes(int desired)
 {
   if (desired > maxBytesHW) return;
@@ -891,7 +883,7 @@ SoVolumeDataP::freeHWBytes(int desired)
     this->releaseLRUPage();
 }
 
-void 
+void
 SoVolumeDataP::managePages(void)
 {
   // Keep both measures within maxlimits
@@ -904,58 +896,58 @@ SoVolumeDataP::managePages(void)
 // FIXME: Implement these functions. torbjorv 08282002
 
 
-SbBool 
-SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data, 
-                            SoVolumeData::DataType & type) 
+SbBool
+SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
+                            SoVolumeData::DataType & type)
 { return FALSE; }
 
-SoVolumeReader * 
-SoVolumeData::getReader() 
+SoVolumeReader *
+SoVolumeData::getReader()
 { return NULL; }
 
-SbBool 
-SoVolumeData::getMinMax(int &min, int &max) 
+SbBool
+SoVolumeData::getMinMax(int &min, int &max)
 { return FALSE; }
 
-SbBool 
-SoVolumeData::getHistogram(int &length, int *&histogram) 
+SbBool
+SoVolumeData::getHistogram(int &length, int *&histogram)
 { return FALSE; }
 
-SoVolumeData * 
-SoVolumeData::subSetting(const SbBox3s &region) 
+SoVolumeData *
+SoVolumeData::subSetting(const SbBox3s &region)
 { return NULL; }
 
-void 
-SoVolumeData::updateRegions(const SbBox3s *region, int num) 
+void
+SoVolumeData::updateRegions(const SbBox3s *region, int num)
 {}
 
-SoVolumeData * 
-SoVolumeData::reSampling(const SbVec3s &dimensions, 
-                         SoVolumeData::SubMethod subMethod, 
-                         SoVolumeData::OverMethod) 
+SoVolumeData *
+SoVolumeData::reSampling(const SbVec3s &dimensions,
+                         SoVolumeData::SubMethod subMethod,
+                         SoVolumeData::OverMethod)
 { return NULL; }
 
-void 
-SoVolumeData::enableSubSampling(SbBool enable) 
+void
+SoVolumeData::enableSubSampling(SbBool enable)
 {}
 
-void 
-SoVolumeData::enableAutoSubSampling(SbBool enable) 
+void
+SoVolumeData::enableAutoSubSampling(SbBool enable)
 {}
 
-void 
-SoVolumeData::enableAutoUnSampling(SbBool enable) 
+void
+SoVolumeData::enableAutoUnSampling(SbBool enable)
 {}
 
-void 
-SoVolumeData::unSample() 
+void
+SoVolumeData::unSample()
 {}
 
-void 
-SoVolumeData::setSubSamplingMethod(SubMethod method) 
+void
+SoVolumeData::setSubSamplingMethod(SubMethod method)
 {}
 
-void 
-SoVolumeData::setSubSamplingLevel(const SbVec3s &ROISampling, 
-                    const SbVec3s &secondarySampling) 
+void
+SoVolumeData::setSubSamplingLevel(const SbVec3s &ROISampling,
+                    const SbVec3s &secondarySampling)
 {}
