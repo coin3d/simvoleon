@@ -18,7 +18,6 @@
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <Inventor/misc/SoGLImage.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>

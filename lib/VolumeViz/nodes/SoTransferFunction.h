@@ -15,8 +15,7 @@
 #include <Inventor/fields/SoSFInt32.h>
 #include <Inventor/fields/SoMFFloat.h>
 
-class SoTransferFunction : public SoVolumeRendering
-{
+class SoTransferFunction : public SoVolumeRendering {
   typedef SoVolumeRendering inherited;
 
   SO_NODE_HEADER(SoTransferFunction);

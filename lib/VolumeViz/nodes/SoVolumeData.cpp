@@ -9,11 +9,11 @@
 
 
 #include <VolumeViz/nodes/SoVolumeData.h>
-#include <Inventor/misc/SoGLImage.h>
 #include <memory.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
+#include <VolumeViz/misc/SoVolumeDataPage.h>
 
 #if HAVE_CONFIG_H
 #include <config.h>
@@ -24,6 +24,87 @@
 #endif // HAVE_WINDOWS_H*/
 
 #include <GL/gl.h>
+
+
+/*
+
+- LOAD_ALL: Builds as many pages as possible, limited by the texellimit. 
+  This is done whenever StorageHint changes and building is required. 
+  Both SetData and changes in StorageHint must trigger the build. 
+  The textures are NOT uploaded to OpenGL here. They're uploaded in VolumeData's 
+  GLRender. 
+- Create SoVolumeDataSlice-class:
+    * SbVec2s size (columns, rows)
+    * SoVolumeDataPage * getPage(col, row, SoTransferFunction *, SoVolumeReader *)
+- Create SoVolumeDataPage-struct
+    * storage (opengl, memory) 
+    * format (GL_INDEX8, GL_RGBA)
+    * size
+    * textureName
+    * lastUse
+    * void * data;
+    * unsigned long lastuse;
+    * setActive(long tick)
+    * float * palette 
+    * setData()
+* Create SoVRMemReader-class
+    * 
+*/
+
+
+//Extensions for compressed textures...
+typedef void (APIENTRY * PFNGLCOMPRESSEDTEXIMAGE3DARBPROC) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLsizei imageSize, const GLvoid *data);
+typedef void (APIENTRY * PFNGLCOMPRESSEDTEXIMAGE2DARBPROC) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLsizei height, GLint border, GLsizei imageSize, const GLvoid *data);
+typedef void (APIENTRY * PFNGLCOMPRESSEDTEXIMAGE1DARBPROC) (GLenum target, GLint level, GLenum internalformat, GLsizei width, GLint border, GLsizei imageSize, const GLvoid *data);
+typedef void (APIENTRY * PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const GLvoid *data);
+typedef void (APIENTRY * PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC) (GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const GLvoid *data);
+typedef void (APIENTRY * PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC) (GLenum target, GLint level, GLint xoffset, GLsizei width, GLenum format, GLsizei imageSize, const GLvoid *data);
+typedef void (APIENTRY * PFNGLGETCOMPRESSEDTEXIMAGEARBPROC) (GLenum target, GLint level, void *img);
+
+PFNGLCOMPRESSEDTEXIMAGE3DARBPROC glCompressedTexImage3DARB;
+PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB;
+PFNGLCOMPRESSEDTEXIMAGE1DARBPROC glCompressedTexImage1DARB;
+PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC glCompressedTexSubImage3DARB;
+PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC	glCompressedTexSubImage2DARB;
+PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC	glCompressedTexSubImage1DARB;
+PFNGLGETCOMPRESSEDTEXIMAGEARBPROC	glGetCompressedTexImageARB;
+
+//Extensions for paletted textures...
+#ifndef GL_EXT_paletted_texture
+#define GL_EXT_paletted_texture
+#define GL_COLOR_INDEX1_EXT (0x80E2)
+#define GL_COLOR_INDEX2_EXT (0x80E3)
+#define GL_COLOR_INDEX4_EXT (0x80E4)
+#define GL_COLOR_INDEX8_EXT (0x80E5)
+#define GL_COLOR_INDEX12_EXT (0x80E6)
+#define GL_COLOR_INDEX16_EXT (0x80E7)
+#define GL_TEXTURE_INDEX_SIZE_EXT (0x80ED)
+
+#define GL_COLOR_TABLE_FORMAT_EXT (0x80D8)
+#define GL_COLOR_TABLE_WIDTH_EXT (0x80D9)
+#define GL_COLOR_TABLE_RED_SIZE_EXT (0x80DA)
+#define GL_COLOR_TABLE_GREEN_SIZE_EXT (0x80DB)
+#define GL_COLOR_TABLE_BLUE_SIZE_EXT (0x80DC)
+#define GL_COLOR_TABLE_ALPHA_SIZE_EXT 80x80DD)
+#define GL_COLOR_TABLE_LUMINANCE_SIZE_EXT (0x80DE)
+#define GL_COLOR_TABLE_INTENSITY_SIZE_EXT (0x80DF)
+#define GL_TEXTURE_INDEX_SIZE_EXT (0x80ED)
+#endif 
+
+typedef void (APIENTRY * PFNGLCOLORTABLEEXTPROC) (GLenum target, GLenum internalFormat, GLsizei width, GLenum format, GLenum type, const GLvoid *table);
+typedef void (APIENTRY * PFNGLCOLORSUBTABLEEXTPROC) (GLenum target, GLsizei start, GLsizei count, GLenum format, GLenum type, const GLvoid *data);
+typedef void (APIENTRY * PFNGLGETCOLORTABLEEXTPROC) (GLenum target, GLenum format, GLenum type, GLvoid *data);
+typedef void (APIENTRY * PFNGLGETCOLORTABLEPARAMETERIVEXTPROC) (GLenum target, GLenum pname, GLint *params);
+typedef void (APIENTRY * PFNGLGETCOLORTABLEPARAMETERFVEXTPROC) (GLenum target, GLenum pname, GLfloat *params);
+
+PFNGLCOLORTABLEEXTPROC glColorTableEXT;
+PFNGLCOLORSUBTABLEEXTPROC glColorSubTableEXT;
+PFNGLGETCOLORTABLEEXTPROC glGetColorTableEXT;
+PFNGLGETCOLORTABLEPARAMETERIVEXTPROC glGetColorTableParameterivEXT;
+PFNGLGETCOLORTABLEPARAMETERFVEXTPROC glGetColorTableParameterfvEXT;
+
+
+
 
 // *************************************************************************
 
@@ -45,47 +126,62 @@ public:
     data = NULL;
 
     pageSize = SbVec3s(64, 64, 64);
+
+    maxTexels = 64*1024*1024;
+    currentTexels = 0;
+    currentPages = 0;
+
+    tick = 0;
+    extensionsInitialized = false;
   }// constructor
 
   ~SoVolumeDataP()
   {
-    releaseTextures();
+    releasePages();
   }// destructor
 
+  const void * data;
 
-  void * data;
   SbVec3s dimensions;
   SbBox3f volumeSize;
-
   SbVec3s pageSize;
 
+  long tick;
+  bool extensionsInitialized;
 
-  // Pointers to arrays with pointers. Each array contains every page along 
+  int maxTexels;
+  int currentTexels;
+  int currentPages;
+  SoVolumeData::DataType dataType;
+
+
+  // Pointers to arrays with pointers. Each array contains every SoVolumeDataPage along 
   // that axis. If the pagesize generates 16 pages each slice along Z-axis, 
-  // page (col, row) in slice n would be positioned at 
+  // SoVolumeDataPage (col, row) in slice n would be positioned at 
   // slice[n*pageSize[0]*pageSize[1] + row*pageSize[0] + col]
-  // Use get...Page-functions to retreive the pages. 
-  SoGLImage **pageX;
-  SoGLImage **pageY;
-  SoGLImage **pageZ;
+  // Use get...SoVolumeDataPage-functions to retreive the pages. 
+  SoVolumeDataPage **pageX;
+  SoVolumeDataPage **pageY;
+  SoVolumeDataPage **pageZ;
 
+  SoVolumeDataPage * getPage(int sliceIdx, SoVolumeData::Axis axis, int col, int row);
   const void * getRGBAPage(int sliceIdx, SoVolumeData::Axis axis, int col, int row);
   const void * getRGBAPageX(int sliceIdx, int col, int row);
   const void * getRGBAPageY(int sliceIdx, int col, int row);
   const void * getRGBAPageZ(int sliceIdx, int col, int row);
 
   // FIXME: Implement support for other pixelformats. torbjorv 08312002
-  SoGLImage * getGLImagePageX(int sliceIdx, int col, int row);
-  SoGLImage * getGLImagePageY(int sliceIdx, int col, int row);
-  SoGLImage * getGLImagePageZ(int sliceIdx, int col, int row);
+  SoVolumeDataPage * getPageX(int sliceIdx, int col, int row);
+  SoVolumeDataPage * getPageY(int sliceIdx, int col, int row);
+  SoVolumeDataPage * getPageZ(int sliceIdx, int col, int row);
 
-  // FIXME: Create functions that return GLImage for each page. 
-  // Just for convenience. torbjorv 08312002 
+  void releasePages();
+  void releasePagesX();
+  void releasePagesY();
+  void releasePagesZ();
 
-  void releaseTextures();
-  void releaseTexturesX();
-  void releaseTexturesY();
-  void releaseTexturesZ();
+  void freeTexels(int desired);
+  void releaseOldestPage();
 
   bool check2n(int n);
 private:
@@ -95,6 +191,12 @@ private:
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
+
+
+
+
+
+
 
 // *************************************************************************
 
@@ -165,6 +267,7 @@ SoVolumeData::initClass(void)
   SoVolumeDataElement::initClass();
 
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
+
 }// initClass
 
 
@@ -192,12 +295,13 @@ SoVolumeData::getDimensions()
 // torbjorv 07292002
 void 
 SoVolumeData::setVolumeData(const SbVec3s &dimensions, 
-                            void *data, 
+                            const void *data, 
                             SoVolumeData::DataType type) 
 {
   
   PRIVATE(this)->data = data;
   PRIVATE(this)->dimensions = dimensions;
+  PRIVATE(this)->dataType = type;
 
   if (PRIVATE(this)->pageSize[0] > PRIVATE(this)->dimensions[0])
     PRIVATE(this)->pageSize[0] = PRIVATE(this)->dimensions[0];
@@ -232,6 +336,10 @@ SoVolumeData::setPageSize(SbVec3s &size)
       !PRIVATE(this)->check2n(size[2]))
   return;
 
+  if (size[0] < 4) size[0] = 4;
+  if (size[1] < 4) size[1] = 4;
+  if (size[2] < 4) size[2] = 4;
+
 
   bool rebuildX = false;
   bool rebuildY = false;
@@ -257,9 +365,9 @@ SoVolumeData::setPageSize(SbVec3s &size)
 
   PRIVATE(this)->pageSize = size;
 
-  if (rebuildX) PRIVATE(this)->releaseTexturesX();
-  if (rebuildY) PRIVATE(this)->releaseTexturesY();
-  if (rebuildZ) PRIVATE(this)->releaseTexturesZ();
+  if (rebuildX) PRIVATE(this)->releasePagesX();
+  if (rebuildY) PRIVATE(this)->releasePagesY();
+  if (rebuildZ) PRIVATE(this)->releasePagesZ();
 }// setPageSize
 
 
@@ -272,28 +380,59 @@ void
 SoVolumeData::GLRender(SoGLRenderAction * action)
 {
   SoVolumeDataElement::setVolumeData(action->getState(), this, this);
+  PRIVATE(this)->tick++;
+  printf( "currentPages: %06d  currentTexels = %010d\n", 
+          PRIVATE(this)->currentPages, 
+          PRIVATE(this)->currentTexels);
+
+
+  if (!PRIVATE(this)->extensionsInitialized) {
+
+    // Compressed texture extensions
+    glCompressedTexImage3DARB = 
+      (PFNGLCOMPRESSEDTEXIMAGE3DARBPROC)wglGetProcAddress("glCompressedTexImage3DARB");
+    glCompressedTexImage2DARB = 
+      (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)wglGetProcAddress("glCompressedTexImage2DARB");
+
+
+    // Paletted texture extensions
+    glColorTableEXT =
+      (PFNGLCOLORTABLEEXTPROC)wglGetProcAddress("glColorTableEXT");
+
+    glColorSubTableEXT =
+      (PFNGLCOLORSUBTABLEEXTPROC)wglGetProcAddress("glColorSubTableEXT");
+
+    glGetColorTableEXT =     
+      (PFNGLGETCOLORTABLEEXTPROC)wglGetProcAddress("glGetColorTableEXT");
+
+    glGetColorTableParameterivEXT = 
+      (PFNGLGETCOLORTABLEPARAMETERIVEXTPROC)wglGetProcAddress("glGetColorTableParameterivEXT");
+  
+    glGetColorTableParameterfvEXT = 
+      (PFNGLGETCOLORTABLEPARAMETERFVEXTPROC)wglGetProcAddress("glGetColorTableParameterfvEXT"); 
+
+    PRIVATE(this)->extensionsInitialized = true;
+  }// if
 }// GLRender
 
 
 
-SoGLImage *
-SoVolumeData::getGLImagePage(int sliceIdx, Axis axis, int col, int row)
+SoVolumeDataPage *
+SoVolumeDataP::getPage(int sliceIdx, SoVolumeData::Axis axis, int col, int row)
 {
   // FIXME: Need to implement support for different pixelformats. 
   // torbjorv 07122002
 
-  // FIXME: Can we delete the pixeldata after sending to SoGLImage?
-  // torbjorv 07122002
   switch (axis)
   {
-    case X: return PRIVATE(this)->getGLImagePageX(sliceIdx, col, row);
-            break;
+    case SoVolumeData::X: return this->getPageX(sliceIdx, col, row);
+                          break;  
 
-    case Y: return PRIVATE(this)->getGLImagePageY(sliceIdx, col, row);
-            break;
+    case SoVolumeData::Y: return this->getPageY(sliceIdx, col, row);
+                          break;
 
-    case Z: return PRIVATE(this)->getGLImagePageZ(sliceIdx, col, row);
-            break;
+    case SoVolumeData::Z: return this->getPageZ(sliceIdx, col, row);
+                          break;
   }// switch
   return NULL;
 }// getSlice
@@ -354,10 +493,9 @@ void SoVolumeData::renderOrthoSliceX(SoState * state, int sliceIdx, SbBox2f &sli
 
 
       // rendering
-      SoGLImage * image = 
-        PRIVATE(this)->getGLImagePageX(sliceIdx, col, row);
-      SoGLDisplayList * dl = image->getGLDisplayList(state);
-      dl->call(state);
+      SoVolumeDataPage * page = 
+        PRIVATE(this)->getPageX(sliceIdx, col, row);
+      page->setActivePage(PRIVATE(this)->tick);
 
       glBegin(GL_QUADS);
       glColor4f(1, 1, 1, 1);
@@ -444,10 +582,9 @@ void SoVolumeData::renderOrthoSliceY(SoState * state, int sliceIdx, SbBox2f &sli
 
 
       // rendering
-      SoGLImage * image = 
-        PRIVATE(this)->getGLImagePageY(sliceIdx, col, row);
-      SoGLDisplayList * dl = image->getGLDisplayList(state);
-      dl->call(state);
+      SoVolumeDataPage * page = 
+        PRIVATE(this)->getPageY(sliceIdx, col, row);
+      page->setActivePage(PRIVATE(this)->tick);
 
       glBegin(GL_QUADS);
       glColor4f(1, 1, 1, 1);
@@ -539,10 +676,9 @@ void SoVolumeData::renderOrthoSliceZ(SoState * state, int sliceIdx, SbBox2f &sli
 
 
       // rendering
-      SoGLImage * image = 
-        PRIVATE(this)->getGLImagePageZ(sliceIdx, col, row);
-      SoGLDisplayList * dl = image->getGLDisplayList(state);
-      dl->call(state);
+      SoVolumeDataPage * page = 
+        PRIVATE(this)->getPageZ(sliceIdx, col, row);
+      page->setActivePage(PRIVATE(this)->tick);
 
       glBegin(GL_QUADS);
       glColor4f(1, 1, 1, 1);
@@ -585,6 +721,13 @@ SbVec3s & SoVolumeData::getPageSize()
 
 
 
+void 
+SoVolumeData::setTexMemorySize(int size) 
+{
+  PRIVATE(this)->maxTexels = size;
+}
+
+
 /*************************** PIMPL-FUNCTIONS ********************************/
 
 // FIXME: Perhaps there already is a function somewhere in C or Coin
@@ -607,95 +750,112 @@ bool SoVolumeDataP::check2n(int n)
 
 
 
-SoGLImage * SoVolumeDataP::getGLImagePageX(int sliceIdx, int col, int row)
+SoVolumeDataPage * SoVolumeDataP::getPageX(int sliceIdx, int col, int row)
 {
   assert(data);
 
-  // Valid page?
-  if ((col >= pageSize[2]) || (row >= pageSize[1]))
+  // Valid SoVolumeDataPage?
+  if ((col >= (dimensions[2]/pageSize[2])) || 
+      (row >= (dimensions[1]/pageSize[1])))
     return NULL;
 
-  // First page ever?
+  // First SoVolumeDataPage ever?
   if (!pageX) {
-    pageX = new SoGLImage*[dimensions[0]*pageSize[1]*pageSize[2]];
+    pageX = new SoVolumeDataPage*[dimensions[0]*pageSize[1]*pageSize[2]];
     memset( pageX, 
             0, 
-            sizeof(SoGLImage*)*dimensions[0]*pageSize[1]*pageSize[2]);
+            sizeof(SoVolumeDataPage*)*dimensions[0]*pageSize[1]*pageSize[2]);
   }// if
 
   // Texture already generated?
   if (!pageX[sliceIdx*pageSize[2]*pageSize[1] + row*pageSize[2] + col]) {
-    const unsigned char * RGBATexture = 
+
+    freeTexels(pageSize[2]*pageSize[1]);
+
+    unsigned char * RGBATexture = 
         (unsigned char *)getRGBAPageX(sliceIdx, col, row);
     
-    SoGLImage * GLImage = new SoGLImage();
-    GLImage->setData( RGBATexture, 
-                      SbVec2s(pageSize[2], pageSize[1]), 
-                      4,
-                      SoGLImage::CLAMP_TO_EDGE,
-                      SoGLImage::CLAMP_TO_EDGE);
+    SoVolumeDataPage * page = new SoVolumeDataPage();
+    page->setData(SoVolumeDataPage::OPENGL,
+                  RGBATexture, 
+                  SbVec2s(pageSize[2], pageSize[1]), 
+                  4,
+                  GL_RGBA);
 
+    delete [] RGBATexture;
 
-    pageX[sliceIdx*pageSize[2]*pageSize[1] + row*pageSize[2] + col] = GLImage;
+    pageX[sliceIdx*pageSize[2]*pageSize[1] + row*pageSize[2] + col] = page;
+
+    currentTexels += pageSize[2]*pageSize[1];
+    currentPages++;
   }// if
 
   return pageX[sliceIdx*pageSize[2]*pageSize[1] + row*pageSize[2] + col];
-}// getGLImagePageX
+}// getPageX
 
 
 
-SoGLImage * SoVolumeDataP::getGLImagePageY(int sliceIdx, int col, int row)
+SoVolumeDataPage * SoVolumeDataP::getPageY(int sliceIdx, int col, int row)
 {
   assert(data);
 
-  // Valid page?
-  if ((col >= pageSize[0]) || (row >= pageSize[2]))
+  // Valid SoVolumeDataPage?
+  if ((col >= (dimensions[0]/pageSize[0])) || 
+      (row >= (dimensions[2]/pageSize[2])))
     return NULL;
 
-  // First page ever?
+  // First SoVolumeDataPage ever?
   if (!pageY) {
-    pageY = new SoGLImage*[dimensions[1]*pageSize[0]*pageSize[2]];
+    pageY = new SoVolumeDataPage*[dimensions[1]*pageSize[0]*pageSize[2]];
     memset( pageY, 
             0, 
-            sizeof(SoGLImage*)*dimensions[1]*pageSize[0]*pageSize[2]);
+            sizeof(SoVolumeDataPage*)*dimensions[1]*pageSize[0]*pageSize[2]);
   }// if
 
   // Texture already generated?
   if (!pageY[sliceIdx*pageSize[0]*pageSize[2] + row*pageSize[0] + col])
   {
-    const unsigned char * RGBATexture = 
+    freeTexels(pageSize[0]*pageSize[2]);
+
+    unsigned char * RGBATexture = 
         (unsigned char *)getRGBAPageY(sliceIdx, col, row);
     
-    SoGLImage * GLImage = new SoGLImage();
-    GLImage->setData( RGBATexture, 
-                      SbVec2s(pageSize[0], pageSize[2]), 
-                      4,
-                      SoGLImage::CLAMP_TO_EDGE,
-                      SoGLImage::CLAMP_TO_EDGE);
+    SoVolumeDataPage * page = new SoVolumeDataPage();
+    page->setData(SoVolumeDataPage::OPENGL,
+                  RGBATexture, 
+                  SbVec2s(pageSize[0], pageSize[2]), 
+                  4,
+                  GL_RGBA);
 
-    pageY[sliceIdx*pageSize[0]*pageSize[2] + row*pageSize[0] + col] = GLImage;
+    delete [] RGBATexture;
+
+    pageY[sliceIdx*pageSize[0]*pageSize[2] + row*pageSize[0] + col] = page;
+
+    currentTexels += pageSize[0]*pageSize[2];
+    currentPages++;
   }// if
 
   return pageY[sliceIdx*pageSize[0]*pageSize[2] + row*pageSize[0] + col];
-}// getGLImagePageY
+}// getPageY
 
 
 
 
 
 
-SoGLImage * SoVolumeDataP::getGLImagePageZ(int sliceIdx, int col, int row)
+SoVolumeDataPage * SoVolumeDataP::getPageZ(int sliceIdx, int col, int row)
 {
   assert(data);
 
-  if ((col >= pageSize[0]) || (row >= pageSize[1]))
+  if ((col >= (this->dimensions[0]/this->pageSize[0])) || 
+      (row >= (this->dimensions[1]/this->pageSize[1])))
     return NULL;
 
   if (!pageZ) {
-    pageZ = new SoGLImage*[dimensions[2]*pageSize[0]*pageSize[1]];
+    pageZ = new SoVolumeDataPage*[dimensions[2]*pageSize[0]*pageSize[1]];
     memset( pageZ, 
             0, 
-            sizeof(SoGLImage*)*dimensions[2]*pageSize[0]*pageSize[1]);
+            sizeof(SoVolumeDataPage*)*dimensions[2]*pageSize[0]*pageSize[1]);
   }// if
 
 
@@ -703,47 +863,68 @@ SoGLImage * SoVolumeDataP::getGLImagePageZ(int sliceIdx, int col, int row)
   void * p = pageZ[sliceIdx*pageSize[0]*pageSize[1] + row*pageSize[0] + col];
   if (!pageZ[sliceIdx*pageSize[0]*pageSize[1] + row*pageSize[0] + col])
   {
+    freeTexels(pageSize[0]*pageSize[1]);
+
     unsigned char * RGBATexture = 
         (unsigned char *)getRGBAPageZ(sliceIdx, col, row);
     
-    SoGLImage * GLImage = new SoGLImage();
-    GLImage->setData( RGBATexture, 
-                      SbVec2s(pageSize[0], pageSize[1]), 
-                      4,
-                      SoGLImage::CLAMP_TO_EDGE,
-                      SoGLImage::CLAMP_TO_EDGE);
+    SoVolumeDataPage * page = new SoVolumeDataPage();
+    page->setData(SoVolumeDataPage::OPENGL,
+                  RGBATexture, 
+                  SbVec2s(pageSize[0], pageSize[1]), 
+                  4,
+                  GL_RGBA);
 
-    pageZ[sliceIdx*pageSize[0]*pageSize[1] + row*pageSize[0] + col] = GLImage;
+    delete [] RGBATexture;
+
+    pageZ[sliceIdx*pageSize[0]*pageSize[1] + row*pageSize[0] + col] = page;
+
+    currentTexels += pageSize[0]*pageSize[1];
+    currentPages++;
   }// if
 
   return pageZ[sliceIdx*pageSize[0]*pageSize[1] + row*pageSize[0] + col];
-}// getGLImagePageZ
+}// getPageZ
 
 
 
 
 // Returns a texture with Z as horisontal and Y as vertical axis
 // Assumes that the provided data is in RGBA-form
-// Caller deletes of course. This function may be optimized 
-// when coming to multiplications and stuff. Could just as well 
-// use additions, but it'll be more messy. The cache-misses will 
-// dominate anyway. 
-// FIXME: This code should REALLY be made more readable. 
-// torbjorv 08312002
+// Caller deletes of course. 
+
+// This function and the similar functions for Y- and Z-axis should
+// be fairly optimized. They're unrolled four times as the pages 
+// are restricted downwards to a size of 4. 
 const void * 
 SoVolumeDataP::getRGBAPageX(int sliceIdx, int col, int row)
 {
   int * texture = 
-    new int[dimensions[2]*dimensions[1]];
+    new int[pageSize[2]*pageSize[1]];
   int * intData = (int*)data;
 
-  int i = 0;
-  for (int y = pageSize[1]*row; y < pageSize[1]*(row + 1); y++)
-    for (int z = pageSize[2]*col; z < pageSize[2]*(col + 1); z++) {
-      texture[i] = 
-        intData[z*dimensions[0]*dimensions[1] + dimensions[0]*y + sliceIdx];
-      i++;
-    }// for
+  int out = 0;
+  int xOffset = sliceIdx;
+  int yOffset = pageSize[1]*row*dimensions[0];
+  int yLimit = pageSize[1]*(row + 1)*dimensions[0];
+  int zAdd = dimensions[0]*dimensions[1];
+  int zAdd4 = zAdd*4;
+  int zStart = pageSize[2]*col*dimensions[0]*dimensions[1];
+
+  while (yOffset < yLimit) {
+    int zOffset = zStart + xOffset + yOffset;
+    int zLimit  = pageSize[2]*(col + 1)*dimensions[0]*dimensions[1] 
+                + xOffset + yOffset;
+    while (zOffset < zLimit) {
+      texture[out + 0] = intData[zOffset + 0*zAdd];
+      texture[out + 1] = intData[zOffset + 1*zAdd];
+      texture[out + 2] = intData[zOffset + 2*zAdd];
+      texture[out + 3] = intData[zOffset + 3*zAdd];
+      out += 4;
+      zOffset += zAdd4;
+    }// while
+    yOffset += dimensions[0];
+  }// while
 
   return texture;
 }// getRGBAPageX
@@ -753,22 +934,31 @@ SoVolumeDataP::getRGBAPageX(int sliceIdx, int col, int row)
 // Returns a texture with X as horisontal and Z as vertical axis
 // Assumes that the provided data is in RGBA-form
 // Caller deletes of course.
-// FIXME: This code should REALLY be made more readable. 
-// torbjorv 08312002
 const void * 
 SoVolumeDataP::getRGBAPageY(int sliceIdx, int col, int row)
 {
   int * texture = 
-    new int[dimensions[0]*dimensions[2]];
+    new int[pageSize[0]*pageSize[2]];
   int * intData = (int*)data;
 
-  int i = 0;
-  for (int z = pageSize[2]*row; z < pageSize[2]*(row + 1); z++)
-    for (int x = pageSize[0]*col; x < pageSize[0]*(col + 1); x++) {
-      texture[i] = 
-        intData[z*dimensions[0]*dimensions[1] + dimensions[0]*sliceIdx + x];
-      i++;
-    }// for
+  int out = 0;
+  int yOffset = sliceIdx*dimensions[0];
+  int zOffset = pageSize[2]*dimensions[0]*dimensions[1]*row + yOffset;
+  int zLimit = dimensions[0]*dimensions[1]*(row + 1)*pageSize[2] + yOffset;
+
+  while (zOffset < zLimit) {
+    int xOffset = pageSize[0]*col + zOffset;
+    int xLimit = pageSize[0]*(col + 1) + zOffset;
+    while (xOffset < xLimit) {
+      texture[out] = intData[xOffset];
+      texture[out + 1] = intData[xOffset + 1];
+      texture[out + 2] = intData[xOffset + 2];
+      texture[out + 3] = intData[xOffset + 3];
+      out += 4;
+      xOffset += 4;
+    }// while
+    zOffset += dimensions[0]*dimensions[1];
+  }// while
 
   return texture;
 }// getRGBAPageY
@@ -782,16 +972,29 @@ const void *
 SoVolumeDataP::getRGBAPageZ(int sliceIdx, int col, int row)
 {
   int * texture = 
-    new int[dimensions[0]*dimensions[1]];
+    new int[pageSize[0]*pageSize[1]];
   int * intData = (int*)data;
 
-  int i = 0;
-  for (int y = pageSize[1]*row; y < pageSize[1]*(row + 1); y++)
-    for (int x = pageSize[0]*col; x < pageSize[1]*(col + 1); x++) {
-      texture[i] = 
-        intData[sliceIdx*dimensions[0]*dimensions[1] + dimensions[0]*y + x];
-      i++;
-    }// for
+  int out = 0;
+  int zOffset = sliceIdx*dimensions[0]*dimensions[1];
+  int yOffset = pageSize[1]*row*dimensions[0] + zOffset;
+  int yLimit = pageSize[1]*(row + 1)*dimensions[0] + zOffset;
+  int xStart = pageSize[0]*col;
+  while (yOffset < yLimit) {
+    int xOffset = xStart + yOffset; 
+    int xLimit = pageSize[0] + xStart + yOffset; 
+    while (xOffset < xLimit) {
+      texture[out] = intData[xOffset];
+      texture[out + 1] = intData[xOffset + 1];
+      texture[out + 2] = intData[xOffset + 2];
+      texture[out + 3] = intData[xOffset + 3];
+      out += 4;
+      xOffset += 4;
+    }// while
+
+    // Next line of pixels
+    yOffset += dimensions[0];
+  }// while
 
   return texture;
 }// getRGBAPageZ
@@ -820,21 +1023,22 @@ SoVolumeDataP::getRGBAPage(int sliceIdx, SoVolumeData::Axis axis, int col, int r
 }// getRGBAPage
 
 
-void SoVolumeDataP::releaseTextures()
+void SoVolumeDataP::releasePages()
 {
-  releaseTexturesX();
-  releaseTexturesY();
-  releaseTexturesZ();
-}// releaseTextures
+  releasePagesX();
+  releasePagesY();
+  releasePagesZ();
+}// releasePages
 
 
-void SoVolumeDataP::releaseTexturesX()
+void SoVolumeDataP::releasePagesX()
 {
   int i;
   if ( pageX ) {
     for (i = 0; i < dimensions[0]; i++) {
       if (pageX[i]) {
-        pageX[i]->unref();
+
+        delete pageX[i];
         pageX[i] = NULL;
       }
     }// for
@@ -842,15 +1046,15 @@ void SoVolumeDataP::releaseTexturesX()
 
   delete [] pageX;
   pageX = NULL;
-}// releaseTextures
+}// releasePages
 
-void SoVolumeDataP::releaseTexturesY()
+void SoVolumeDataP::releasePagesY()
 {
   int i;
   if ( pageY ) {
     for (i = 0; i < dimensions[1]; i++) {
       if (pageY[i]) {
-        pageY[i]->unref();
+        delete pageY[i];
         pageY[i] = NULL;
       }
     }// for
@@ -858,15 +1062,15 @@ void SoVolumeDataP::releaseTexturesY()
 
   delete [] pageY;
   pageY = NULL;
-}// releaseTextures
+}// releasePages
 
-void SoVolumeDataP::releaseTexturesZ()
+void SoVolumeDataP::releasePagesZ()
 {
   int i;
   if ( pageZ ) {
     for (i = 0; i < dimensions[2]; i++) {
       if (pageZ[i]) {
-        pageZ[i]->unref();
+        delete pageZ[i];
         pageZ[i] = NULL;
       }
     }// for
@@ -874,7 +1078,60 @@ void SoVolumeDataP::releaseTexturesZ()
 
   delete [] pageZ;
   pageZ = NULL;
-}// releaseTextures
+}// releasePages
+
+
+
+void SoVolumeDataP::freeTexels(int desired)
+{
+  if (desired > maxTexels) return;
+
+  while ((maxTexels - currentTexels) < desired)
+    releaseOldestPage();
+}// freeTexels
+
+
+void SoVolumeDataP::releaseOldestPage()
+{
+  int i;
+
+  unsigned int oldest = -1;
+  SoVolumeDataPage **p = NULL;
+
+  if (pageX)
+    for (i = this->dimensions[0]*this->pageSize[1]*this->pageSize[2] - 1; i >= 0; i--) {
+      if (pageX[i] )
+        if (pageX[i]->lastuse < oldest) {
+          p = &pageX[i];
+          oldest = pageX[i]->lastuse;
+        }// if
+    }//for
+
+  if (pageY)
+    for (i = this->dimensions[1]*this->pageSize[0]*this->pageSize[2] - 1; i >= 0; i--) {
+      if (pageY[i] )
+        if (pageY[i]->lastuse < oldest) {
+          p = &pageY[i];
+          oldest = pageY[i]->lastuse;
+        }// if
+    }//for
+
+  if (pageZ)
+    for (i = this->dimensions[2]*this->pageSize[0]*this->pageSize[1] - 1; i >= 0; i--) {
+      if (pageZ[i] )
+        if (pageZ[i]->lastuse < oldest) {
+          p = &pageZ[i];
+          oldest = pageZ[i]->lastuse;
+        }// if
+    }//for
+
+  this->currentPages--;
+  this->currentTexels -= (*p)->size[0]*(*p)->size[1];
+  delete *p;
+  *p = NULL;
+}// relaseOldestPage
+
+
 
 
 
@@ -917,11 +1174,6 @@ SoVolumeData::reSampling(const SbVec3s &dimensions,
                          SoVolumeData::SubMethod subMethod, 
                          SoVolumeData::OverMethod) 
 { return NULL; }
-
-void 
-SoVolumeData::setTexMemorySize(int size) 
-{}
-
 
 void 
 SoVolumeData::enableSubSampling(SbBool enable) 

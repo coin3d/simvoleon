@@ -21,8 +21,7 @@
 
 
 
-class SoVolumeRender : public SoShape
-{
+class SoVolumeRender : public SoShape {
   typedef SoShape inherited;
 
   SO_NODE_HEADER(SoVolumeRender);

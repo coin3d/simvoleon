@@ -15,8 +15,7 @@
 #include <Inventor/fields/SoSFBool.h>
 #include <Inventor/fields/SoSFEnum.h>
 
-class SoROI : public SoVolumeRendering
-{
+class SoROI : public SoVolumeRendering {
   typedef SoVolumeRendering inherited;
 
   SO_NODE_HEADER(SoROI);

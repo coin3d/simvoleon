@@ -13,8 +13,7 @@
 #include <Inventor/nodes/SoNode.h>
 
 
-class SoObliqueSlice : public SoShape
-{
+class SoObliqueSlice : public SoShape {
   typedef SoShape inherited;
 
   SO_NODE_HEADER(SoObliqueSlice);

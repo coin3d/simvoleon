@@ -13,8 +13,7 @@
 #include <Inventor/nodes/SoNode.h>
 
 
-class SoOrthoSlice : public SoShape
-{
+class SoOrthoSlice : public SoShape {
   typedef SoShape inherited;
 
   SO_NODE_HEADER(SoOrthoSlice);

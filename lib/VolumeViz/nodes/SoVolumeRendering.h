@@ -14,8 +14,7 @@
 #include <Inventor/nodes/SoSubNode.h>
 
 
-class SoVolumeRendering : public SoNode
-{
+class SoVolumeRendering : public SoNode {
   typedef SoNode inherited;
 
   SO_NODE_HEADER(SoVolumeRendering);

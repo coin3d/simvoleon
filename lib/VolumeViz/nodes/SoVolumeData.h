@@ -21,13 +21,15 @@
 #include <Inventor/SbBox2f.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <Inventor/nodes/SoSubNode.h>
-#include <Inventor/misc/SoGLImage.h>
+#include <VolumeViz/misc/SoVolumeDataPage.h>
 
 class SoVolumeReader;
 
 
-class SoVolumeData : public SoVolumeRendering
-{
+
+
+
+class SoVolumeData : public SoVolumeRendering {
   typedef SoVolumeRendering inherited;
 
   SO_NODE_HEADER(SoVolumeData);
@@ -36,18 +38,22 @@ public:
   static void initClass(void);
   
   enum StorageHint {
-    AUTO, 
-    TEX2D_MULTI, 
+    AUTO = 0x00000001,       
+    TEX2D_MULTI = 0x00000002, 
     TEX2D = TEX2D_MULTI, 
-    TEX3D, 
-    MEMORY, 
-    VOLUMEPRO, 
-    TEX2D_SINGLE
+    TEX3D = 0x00000004, 
+    MEMORY = 0x00000008,
+    VOLUMEPRO = 0x00000010, 
+    TEX2D_SINGLE = 0x00000020,
+    LOAD_ALL = 0x00000040,          // Builds as many pages as possible at 
+    DYNAMIC_LOADING = 0x00000080,   // Only loads the pages used
   };
 
   enum DataType {
     UNSIGNED_BYTE, 
-    UNSIGNED_SHORT
+    UNSIGNED_SHORT,
+    RGB,
+    RGBA,
   };
 
   enum SubMethod {
@@ -80,10 +86,10 @@ public:
 
   // Functions
   void setVolumeData( const SbVec3s &dimension, 
-                      void *data, 
+                      const void *data, 
                       SoVolumeData::DataType type=UNSIGNED_BYTE);
+
   void setVolumeSize(const SbBox3f &size);
-  SoGLImage * getGLImagePage(int sliceIdx, Axis axis, int col, int row);
   SbBox3f &getVolumeSize();
   SbVec3s & getDimensions();
   void GLRender(SoGLRenderAction * action);
@@ -107,6 +113,7 @@ public:
   void setPageSize(int size);
   void setPageSize(SbVec3s &size);
   SbVec3s & getPageSize();
+  void setTexMemorySize(int size);
 
 
 
@@ -122,7 +129,6 @@ public:
   SoVolumeData * reSampling(const SbVec3s &dimension, 
                             SoVolumeData::SubMethod subMethod, 
                             SoVolumeData::OverMethod = NONE);
-  void setTexMemorySize(int size);
   void enableSubSampling(SbBool enable);
   void enableAutoSubSampling(SbBool enable);
   void enableAutoUnSampling(SbBool enable);
