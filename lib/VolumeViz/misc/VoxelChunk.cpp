@@ -230,9 +230,6 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
     }
     else {
       colormap = transferfunc->colorMap.getValues(0);
-      nrcols = transferfunc->colorMap.getNum() / nrcomponents;
-      // FIXME: a bit strict this, should warn instead. 20021119 mortene.
-      assert((transferfunc->colorMap.getNum() % nrcomponents) == 0);
 
       colormaptype = transferfunc->colorMapType.getValue();
       switch (colormaptype) {
@@ -241,6 +238,9 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
       case SoTransferFunction::RGBA: nrcomponents = 4; break;
       default: assert(FALSE && "invalid SoTransferFunction::colorMapType value"); break;
       }
+      nrcols = transferfunc->colorMap.getNum() / nrcomponents;
+      // FIXME: a bit strict this, should warn instead. 20021119 mortene.
+      assert((transferfunc->colorMap.getNum() % nrcomponents) == 0);
     }
 
     int32_t shiftval = transferfunc->shift.getValue();
