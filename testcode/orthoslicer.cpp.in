@@ -6,6 +6,7 @@
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <VolumeViz/nodes/SoOrthoSlice.h>
+#include <VolumeViz/readers/SoVRVolFileReader.h>
 
 #include "OrthoSliceHandler.h"
 #include "utility.h"
@@ -19,13 +20,27 @@ main(int argc, char ** argv)
   SoSeparator * root = new SoSeparator;
   root->ref();
 
-  SbVec3s dim = SbVec3s(64, 64, 64);
-  uint8_t * voxeldata = generateRGBAVoxelSet(dim);
+  uint8_t * voxeldata = NULL;
 
   // Add SoVolumeData to scene graph
-  SoVolumeData * volumedata = new SoVolumeData();
-  volumedata->setVolumeData(dim, voxeldata, SoVolumeData::RGBA);
-  root->addChild(volumedata);
+
+  if (argc != 2) { // Generate dataset
+    SbVec3s dim = SbVec3s(64, 64, 64);
+    voxeldata = generateRGBAVoxelSet(dim);
+
+    SoVolumeData * volumedata = new SoVolumeData();
+    volumedata->setVolumeData(dim, voxeldata, SoVolumeData::RGBA);
+    volumedata->setVolumeSize(SbBox3f(-64, -32, -32, 64, 32, 32));
+    root->addChild(volumedata);
+  }
+  else { // Read VOL file
+    SoVRVolFileReader * filereader = new SoVRVolFileReader;
+    filereader->setUserData(argv[1]);
+
+    SoVolumeData * voldata = new SoVolumeData();
+    voldata->setReader(filereader);
+    root->addChild(voldata);
+  }
 
   // Add TransferFunction (color map) to scene graph
   SoTransferFunction * transfunc = new SoTransferFunction();
@@ -39,7 +54,7 @@ main(int argc, char ** argv)
 
   // Add SoVolumeRender to scene graph
   SoVolumeRender * volrend = new SoVolumeRender();
-  root->addChild(volrend);
+//   root->addChild(volrend);
 
   So@Gui@ExaminerViewer * viewer = new So@Gui@ExaminerViewer(window);
   viewer->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
