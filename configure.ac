@@ -283,50 +283,49 @@ AC_SUBST([voleon_src_dir])
 # *******************************************************************
 # Check that we can compile and link against a Coin version >= 2.0.0.
 
-SIM_AC_HAVE_COIN_IFELSE(
-  [CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
-   LDFLAGS="$LDFLAGS $sim_ac_coin_ldflags"
-   LIBS="$sim_ac_coin_libs $LIBS"
-  ],
-  [if $sim_ac_build_library; then
-     AC_MSG_ERROR(could not compile and link against Coin)
-   fi
-  ]
-)
+if $sim_ac_build_library; then
 
-AC_MSG_CHECKING([if Coin version is >= 2.0.0])
-AC_TRY_COMPILE(
-   [#include <Inventor/SbBasic.h>],
-   [#if (COIN_MAJOR_VERSION < 2)
-    #error hepp
-    #endif],
-   [AC_MSG_RESULT(yes)],
-   [AC_MSG_RESULT(no)
-    if $sim_ac_build_library; then
+  SIM_AC_HAVE_COIN_IFELSE(
+    [CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
+     LDFLAGS="$LDFLAGS $sim_ac_coin_ldflags"
+     LIBS="$sim_ac_coin_libs $LIBS"
+    ],
+    [AC_MSG_ERROR(could not compile and link against Coin)]
+  )
+
+  AC_MSG_CHECKING([if Coin version is >= 2.0.0])
+  AC_TRY_COMPILE(
+     [#include <Inventor/SbBasic.h>],
+     [#if (COIN_MAJOR_VERSION < 2)
+      #error hepp
+      #endif],
+     [AC_MSG_RESULT(yes)],
+     [AC_MSG_RESULT(no)
       AC_MSG_ERROR(SimVoleon needs Coin v2.0.0 or newer.)
-    fi
-   ]
-)
+     ]
+  )
 
-# *******************************************************************
-# The ARB fragment programs uses recent parts of the cc_glglue
-# interface in Coin, so check for that.
-#
-# FIXME: should not depend on such a recent Coin version (in fact,
-# none has been officially released yet). The better solution is to
-# make cc_glglue importable into other projects -- it is also needed
-# in SIM Scenery, for instance. 20040505 mortene.
+  # *******************************************************************
+  # The ARB fragment programs uses recent parts of the cc_glglue
+  # interface in Coin, so check for that.
+  #
+  # FIXME: should not depend on such a recent Coin version (in fact,
+  # none has been officially released yet). The better solution is to
+  # make cc_glglue importable into other projects -- it is also needed
+  # in SIM Scenery, for instance. 20040505 mortene.
+  
+  AC_MSG_CHECKING([if Coin provides fragment program interface])
+  AC_TRY_COMPILE(
+     [#include <Inventor/C/glue/gl.h>],
+     [(void)cc_glglue_has_arb_fragment_program(NULL);
+      cc_glglue_glProgramString(NULL, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, 1, NULL);
+     ],
+     [AC_MSG_RESULT(yes)
+      AC_DEFINE([HAVE_ARB_FRAGMENT_PROGRAM],, [define to use Coin cc_glglue fragment program interface])],
+     [AC_MSG_RESULT(no)]
+  )
 
-AC_MSG_CHECKING([if Coin provides fragment program interface])
-AC_TRY_COMPILE(
-   [#include <Inventor/C/glue/gl.h>],
-   [(void)cc_glglue_has_arb_fragment_program(NULL);
-    cc_glglue_glProgramString(NULL, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, 1, NULL);
-   ],
-   [AC_MSG_RESULT(yes)
-    AC_DEFINE([HAVE_ARB_FRAGMENT_PROGRAM],, [define to use Coin cc_glglue fragment program interface])],
-   [AC_MSG_RESULT(no)]
-)
+fi # sim_ac_build_library
 
 # *******************************************************************
 
