@@ -116,6 +116,9 @@ public:
   int * histogram;
   unsigned int histogramlength;
 
+  void downSample(SbVec3s dimensions, SoVolumeData::SubMethod subMethod, void * data);
+  void overSample(SbVec3s dimensions, SoVolumeData::OverMethod overMethod, void * data);
+
 private:
   SoVolumeData * master;
 };
@@ -238,6 +241,7 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
                            dimensions[0], dimensions[1], dimensions[2],
                            typestr.getString());
   }
+
 
   PRIVATE(this)->VRMemReader = new SoVRMemReader;
   PRIVATE(this)->VRMemReader->setData(dimensions, data, type);
@@ -535,8 +539,49 @@ SoVolumeData::updateRegions(const SbBox3s *region, int num)
 SoVolumeData *
 SoVolumeData::reSampling(const SbVec3s &dimensions,
                          SoVolumeData::SubMethod subMethod,
-                         SoVolumeData::OverMethod)
-{ return NULL; }
+                         SoVolumeData::OverMethod overMethod)
+{ 
+
+  SoVolumeData * newdataset = new SoVolumeData;
+  
+  // Creating a temporary dataset which will hold the result
+  const int datasize = dimensions[0] * dimensions[1] * dimensions[2];
+  void * data;
+  switch (PRIVATE(this)->datatype) {
+  case UNSIGNED_BYTE: 
+    data = new uint8_t[datasize];       
+    break;
+  case UNSIGNED_SHORT: 
+    data = new uint16_t[datasize];
+    break;
+  case RGBA:
+    data = new uint32_t[datasize];
+    break;
+  default:
+    assert(0 && "Unknown datatype");
+  }
+  
+  SbVec3s volumeslices;
+  void * discardptr;
+  SoVolumeData::DataType type;
+  assert(this->getVolumeData(volumeslices, discardptr, type));
+
+  // FIXME: Over sampling is not implemented yet (Not by TGS
+  // either). We therefore crop the dimensions if oversampling is
+  // requested as done by VolumeViz. (20040113 handegar)
+  SbVec3s newdim = dimensions;
+  if (volumeslices[0] < newdim[0]) newdim[0] = volumeslices[0];
+  if (volumeslices[1] < newdim[1]) newdim[1] = volumeslices[1];
+  if (volumeslices[2] < newdim[2]) newdim[2] = volumeslices[2];
+
+  PRIVATE(this)->downSample(newdim, subMethod, data);
+  
+  newdataset->setVolumeData(newdim, data, PRIVATE(this)->datatype);
+  newdataset->setVolumeSize(this->getVolumeSize());
+  newdataset->touch();
+
+  return newdataset; 
+}
 
 void
 SoVolumeData::enableSubSampling(SbBool enable)
@@ -562,6 +607,115 @@ void
 SoVolumeData::setSubSamplingLevel(const SbVec3s &ROISampling,
                     const SbVec3s &secondarySampling)
 {}
+
+void 
+SoVolumeDataP::overSample(SbVec3s dimensions, SoVolumeData::OverMethod subMethod, void * data)
+{
+  assert(FALSE && "Oversampling not implemented yet.");
+}
+
+void 
+SoVolumeDataP::downSample(SbVec3s dimensions, SoVolumeData::SubMethod subMethod, void * data)
+{
+
+  SbVec3s volumeslices;
+  void * discardptr;
+  SoVolumeData::DataType type;
+  assert(master->getVolumeData(volumeslices, discardptr, type));
+
+  const float scalefactorx = ((float) volumeslices[0]) / (dimensions[0]);
+  const float scalefactory = ((float) volumeslices[1]) / (dimensions[1]);
+  const float scalefactorz = ((float) volumeslices[2]) / (dimensions[2]);
+    
+  for (int i=0; i<dimensions[0]; ++i) { // x
+    for (int j=0; j<dimensions[1]; ++j) { // y
+      for (int k=0; k<dimensions[2]; ++k) { // z
+
+        const int xpos = (int) (scalefactorx * i);
+        const int ypos = (int) (scalefactory * j);
+        const int zpos = (int) (scalefactorz * k);   
+        uint32_t resultvoxel = 0; 
+        
+        if (subMethod != SoVolumeData::NEAREST) { // Maximum and Average
+         
+          double averagevoxel[4] = {0, 0, 0, 0};
+
+          for (int x=0; x<((int) scalefactorx); ++x) {
+            for (int y=0; y<((int) scalefactory); ++y) {
+              for (int z=0; z<((int) scalefactorz); ++z) {
+
+                if (subMethod == SoVolumeData::AVERAGE) { // AVERAGE sampling
+                  uint32_t val = master->getVoxelValue(SbVec3s(xpos+x, ypos+y, zpos+z));
+                  averagevoxel[0] += (double) val;                                    
+                  if (this->datatype != SoVolumeData::UNSIGNED_BYTE) {
+                    averagevoxel[1] += (double) ((val>>8) & 0x000000ff);
+                    if (this->datatype != SoVolumeData::RGBA) {
+                      averagevoxel[2] += (double) ((val>>16) & 0x000000ff);
+                      averagevoxel[3] += (double) ((val>>24) & 0x000000ff);
+                    }
+                  }
+                }
+                else { // MAX sampling
+                  resultvoxel = SbMax(resultvoxel, 
+                                      master->getVoxelValue(SbVec3s(xpos+x, ypos+y, zpos+z)));
+                }
+              }
+            }
+          }
+
+          if (subMethod == SoVolumeData::AVERAGE) { 
+
+            float nr = scalefactorx * scalefactory * scalefactorz;
+            switch (this->datatype) {
+            case SoVolumeData::UNSIGNED_SHORT: nr = nr * 2; break;
+            case SoVolumeData::RGBA: nr = nr * 4; break;
+            default: break;
+            }
+
+            resultvoxel = (uint32_t) (averagevoxel[3] / nr);
+            resultvoxel = resultvoxel << 8;
+            resultvoxel += (uint8_t) (averagevoxel[2] / nr);
+            resultvoxel = resultvoxel << 8;
+            resultvoxel += (uint8_t) (averagevoxel[1] / nr);
+            resultvoxel = resultvoxel << 8;
+            resultvoxel += (uint8_t) (averagevoxel[0] / nr);                         
+          }
+          
+        } 
+        else { // NEAREST sampling
+          resultvoxel = master->getVoxelValue(SbVec3s(xpos, ypos, zpos)); 
+        }
+       
+        const int index = (k * dimensions[0] * dimensions[1]) + (j * dimensions[0]) + i;
+
+        switch (this->datatype) {
+        case SoVolumeData::UNSIGNED_BYTE: 
+          {
+            uint8_t * tmp = (uint8_t *) data;            
+            tmp[index] = (uint8_t) resultvoxel; 
+            break; 
+          }              
+        case SoVolumeData::UNSIGNED_SHORT:        
+          {
+            uint16_t * tmp = (uint16_t *) data;   
+            tmp[index] = (uint16_t) resultvoxel;
+            break;
+          }
+        case SoVolumeData::RGBA:
+          {
+            uint32_t * tmp = (uint32_t *) data;
+            tmp[index] = (uint32_t) resultvoxel;
+            break;
+          }            
+        default: assert(FALSE);
+        }
+        
+      }
+    }
+  }
+  
+
+}
 
 // *************************************************************************
 
