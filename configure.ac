@@ -407,6 +407,7 @@ AC_OUTPUT([
         lib/Makefile
         lib/VolumeViz/Makefile
         lib/VolumeViz/C/Makefile
+	lib/VolumeViz/caches/Makefile
 	lib/VolumeViz/details/Makefile
 	lib/VolumeViz/elements/Makefile
 	lib/VolumeViz/misc/Makefile
