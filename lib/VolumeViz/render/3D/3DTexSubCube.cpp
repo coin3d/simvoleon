@@ -13,11 +13,6 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/projectors/SbPlaneProjector.h>
 
-// FIXME: This one should be defined by the configuration
-// script.  (20040315 handegar)
-#define HAVE_ARB_FRAGMENT_PROGRAM
-
-
 // *************************************************************************
 
 // debugging: keep this around until the peculiar NVidia bug with
@@ -278,23 +273,22 @@ Cvr3DTexSubCube::transferTex3GL(SoGLRenderAction * action,
     if (this->ispaletted) imgptr = ((CvrPaletteTexture *)texobj)->getIndex8Buffer();
     else imgptr = ((CvrRGBATexture *)texobj)->getRGBABuffer();
 
-
+    // FIXME: Combining texture compression and GL_COLOR_INDEX doesnt
+    // seem to work on NVIDIA cards (tested on GeForceFX 5600 &
+    // GeForce2 MX) (20040316 handegar)
     int palettetype = GL_COLOR_INDEX;
 
-    // FIXME: Is this way of compressing textures OK? (20040303 handegar)
-    if (cc_glue_has_texture_compression(glw) && this->compresstextures) {
-      if (colorformat == 4)
-        colorformat = GL_COMPRESSED_RGBA;
-      else
-        colorformat = GL_COMPRESSED_INTENSITY_ARB;
-
-      // FIXME: Should add a better way to handle these two
-      // methods. (20040310 handegar)
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
       if (cc_glglue_has_arb_fragment_program(glw))
         palettetype = GL_LUMINANCE;     
 #endif
 
+    // FIXME: Is this way of compressing textures OK? (20040303 handegar)
+    if (cc_glue_has_texture_compression(glw) && 
+        this->compresstextures &&
+        palettetype != GL_COLOR_INDEX) {
+      if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
+      else colorformat = GL_COMPRESSED_INTENSITY_ARB;
     }
 
     GLCMD(glTexImage3D(GL_TEXTURE_3D,
