@@ -3,6 +3,7 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include <Inventor/SbBasic.h>
 #include <Inventor/errors/SoDebugError.h>
 
