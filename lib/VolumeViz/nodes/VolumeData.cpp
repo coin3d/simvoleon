@@ -1,7 +1,24 @@
 /*!
   \class SoVolumeData VolumeViz/nodes/SoVolumeData.h
-  \brief The interface for working with volume data sets.
+  \brief The main interface for setting up volume data sets.
   \ingroup volviz
+
+  This node class provides the interface for setting up the voxel data
+  to be rendered. For a complete, stand-alone usage example, see the
+  SimVoleon main page documentation.
+
+  If the volume data is set from a memory location with the
+  SoVolumeData::setVolumeData() method, the voxel data can be changed
+  during visualization at will. But after making a batch of changes,
+  make sure you notify the node that data has been modified by doing
+  the following:
+
+  \code
+  volumedatanode->touch();
+  \endcode
+
+  Regeneration of textures etc for visualization will then be done
+  automatically by the SimVoleon rendering system.
 */
 
 #include <VolumeViz/nodes/SoVolumeData.h>
@@ -316,8 +333,6 @@ SoVolumeData::getVolumeSize(void) const
   return PRIVATE(this)->volumesize;
 }
 
-// FIXME: If size != 2^n these functions should extend to the nearest
-// accepted size.  torbjorv 07292002
 void
 SoVolumeData::setVolumeData(const SbVec3s & dimensions,
                             void * data,
