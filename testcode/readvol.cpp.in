@@ -7,13 +7,18 @@
 #include <Inventor/nodes/SoLightModel.h>
 #include <Inventor/nodes/SoPerspectiveCamera.h>
 #include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoTransformSeparator.h>
+#include <Inventor/nodes/SoScale.h>
+#include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/sensors/SoTimerSensor.h>
+#include <Inventor/errors/SoDebugError.h>
+#include <Inventor/manips/SoClipPlaneManip.h>
+
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <VolumeViz/readers/SoVRVolFileReader.h>
-#include <Inventor/errors/SoDebugError.h>
 
 #include "TransferFunctionHandler.h"
 
@@ -124,6 +129,24 @@ main(int argc, char ** argv)
   transfunc->colorMapType = SoTransferFunction::RGBA;
   setColorMapRGBA(&transfunc->colorMap);
 
+  {
+    SoTransformSeparator * sep = new SoTransformSeparator;
+    root->addChild(sep);
+
+    const SbBox3f volspan = voldata->getVolumeSize();
+    float dx, dy, dz;
+    volspan.getSize(dx, dy, dz);
+
+    SoScale * scale = new SoScale;
+    scale->scaleFactor.setValue(dx / 10.0f, dy / 10.0f, dz / 10.0f);
+    sep->addChild(scale);
+
+    SoTranslation * trans = new SoTranslation;
+    trans->translation.setValue(- dx / 2.0f, 0, 0);
+
+    SoClipPlaneManip * clipplane = new SoClipPlaneManip;
+    sep->addChild(clipplane);
+  }
 
   // Add VolumeRender to scene graph
   SoVolumeRender * volrendnode = new SoVolumeRender();
