@@ -86,6 +86,13 @@ CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, UnitSize type,
     this->voxelbuffer = buffer;
     this->destructbuffer = FALSE;
   }
+
+  // FIXME: Remove this option when we bump the major version
+  // number. (20040615 handegar)
+  this->flipvolumerendering = FALSE; // Render the 'old' way?, ie. the wrong way.
+  const char * flipvolumeenvstr = coin_getenv("CVR_FLIP_Y_AXIS");
+  if (flipvolumeenvstr) { this->flipvolumerendering = atoi(flipvolumeenvstr) > 0 ? TRUE : FALSE; }
+
 }
 
 CvrVoxelChunk::~CvrVoxelChunk()
@@ -297,8 +304,6 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
 
   const SbVec3s size(this->dimensions[0], this->dimensions[1], this->dimensions[2]);
 
-
-
   // FIXME: this is just a temporary fix for what seems like a really
   // weird and nasty NVidia driver bug; allocate enough textures of 1-
   // or 2-pixel width, and the driver will eventually crash. (We're
@@ -349,9 +354,20 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
       for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
         for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
           for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
-            // Flpping y axis.
-            const int voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
-            const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;     
+
+            int voxelidx;
+            if (this->flipvolumerendering) {            
+              // Render 'the old way' where the y-axis was flipped.
+              // FIXME: Remove this option when we bump the major
+              // version number. (20040615 handegar)
+              voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
+            }
+            else {
+              voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x;
+            }
+
+            const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;
+
             assert(voxelidx <= (size[0] * size[1] * size[2]));
             assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
             const uint8_t voldataidx = inputbytebuffer[voxelidx];            
@@ -383,9 +399,19 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
       for (unsigned int z = 0; z < (unsigned int) size[2]; z++) {
         for (unsigned int y=0; y < (unsigned int) size[1]; y++) {
           for (unsigned int x=0; x < (unsigned int) size[0]; x++) {
-            // Flpping y axis.
-            const int voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
-            const int texelidx = (z * (texsize[0]*texsize[1])) + (y * texsize[0]) + x;
+
+            int voxelidx;
+            if (this->flipvolumerendering) {            
+              // Render 'the old way' where the y-axis was flipped.
+              // FIXME: Remove this option when we bump the major
+              // version number. (20040615 handegar)
+              voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
+            }
+            else {
+              voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x;
+            }
+
+            const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;
             const uint8_t voldataidx = inputbytebuffer[voxelidx];
             const uint8_t colidx = (voldataidx << shiftval) + offsetval;
    
@@ -431,9 +457,20 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
       for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
         for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
           for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
-            // Flpping y axis.
-            const int voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
+
+            int voxelidx;
+            if (this->flipvolumerendering) {            
+              // Render 'the old way' where the y-axis was flipped.
+              // FIXME: Remove this option when we bump the major
+              // version number. (20040615 handegar)
+              voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
+            }
+            else {
+              voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x;
+            }
+
             const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;     
+
             assert(voxelidx <= (size[0] * size[1] * size[2]));
             assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
             // FIXME: Quick hack! Shifting down a 16 bit word to a byte. (20040311 handegar)
@@ -850,7 +887,6 @@ CvrVoxelChunk::buildSubCube(const SbBox3s & cutcube)
       const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);      
       uint8_t * dstptr = &(outputbytebuffer[((depthidx * nrhorizvoxels * nrvertvoxels) + (nrhorizvoxels * rowidx)) * voxelsize]);      
       (void) memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
-
     }
   }
 
