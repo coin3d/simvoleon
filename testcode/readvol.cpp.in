@@ -16,27 +16,16 @@
 int
 main(int argc, char ** argv)
 {
+  if (argc != 2) {
+    fprintf(stderr, "\nUsage: %s dataset.vol\n\n", argv[0]);
+    exit(1);
+  }
+
   @WIDGET@ window = So@Gui@::init(argv[0]);
   SoVolumeRendering::init();
 
-  assert(argc == 2);
-
   SoSeparator *root = new SoSeparator;
   root->ref();
-
-  SoPerspectiveCamera * myCamera = new SoPerspectiveCamera;
-  myCamera->position = SbVec3f(0.0f, 0.0f, 5.0f);
-  root->addChild(myCamera);
-  root->addChild(new SoDirectionalLight);
-
-  SoLightModel * lm = new SoLightModel;
-  lm->model = SoLightModel::BASE_COLOR;
-  root->addChild(lm);
-
-  SoDrawStyle *drawStyle = new SoDrawStyle;
-  drawStyle->style = SoDrawStyle::LINES;
-  root->addChild(drawStyle);
-  root->addChild(new SoCube);
 
   SoVRVolFileReader * filereader = new SoVRVolFileReader;
   filereader->setUserData(argv[1]);
@@ -62,17 +51,25 @@ main(int argc, char ** argv)
   root->addChild(pVolRend);
   pVolRend->numSlices = 64;
 
-  So@Gui@ExaminerViewer * ex1 = new So@Gui@ExaminerViewer(window);
-  myCamera->viewAll(root, ex1->getViewportRegion());
-  ex1->setSceneGraph(root);
+  SoLightModel * lm = new SoLightModel;
+  lm->model = SoLightModel::BASE_COLOR;
+  root->addChild(lm);
 
-  ex1->show();
+  SoDrawStyle *drawStyle = new SoDrawStyle;
+  drawStyle->style = SoDrawStyle::LINES;
+  root->addChild(drawStyle);
+  root->addChild(new SoCube);
+
+  So@Gui@ExaminerViewer * ex = new So@Gui@ExaminerViewer(window);
+  ex->setSceneGraph(root);
+
+  ex->show();
   So@Gui@::show(window);
   So@Gui@::mainLoop();
-  delete ex1;
 
+  delete ex;
   delete filereader;
-
   root->unref();
+
   return 0;
 }
