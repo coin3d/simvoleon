@@ -199,13 +199,13 @@ SOURCES = \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
 	ObliqueSlice.cpp \
+	VolumeIndexedFaceSet.cpp \
 	OrthoSlice.cpp 
 
 
 
 # FIXME: not yet implemented. 20040505 mortene.
 #	ROI.cpp
-#	VolumeIndexedFaceSet.cpp et al.
 libnodes_la_SOURCES = $(SOURCES)
 
 nodes_lst_SOURCES = $(SOURCES)
@@ -218,6 +218,7 @@ libnodesinc_HEADERS = \
 	SoTransferFunction.h \
 	SoVolumeData.h \
 	SoVolumeRender.h \
+	SoVolumeIndexedFaceSet.h \
 	SoVolumeRendering.h 
 
 subdir = lib/VolumeViz/nodes
@@ -231,7 +232,8 @@ nodes_lst_AR = $(AR) cru
 nodes_lst_LIBADD =
 am__objects_1 = TransferFunction.$(OBJEXT) VolumeData.$(OBJEXT) \
 	VolumeRender.$(OBJEXT) VolumeRendering.$(OBJEXT) \
-	ObliqueSlice.$(OBJEXT) OrthoSlice.$(OBJEXT)
+	ObliqueSlice.$(OBJEXT) VolumeIndexedFaceSet.$(OBJEXT) \
+	OrthoSlice.$(OBJEXT)
 am_nodes_lst_OBJECTS = $(am__objects_1)
 nodes_lst_OBJECTS = $(am_nodes_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
@@ -239,7 +241,8 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
 am__objects_2 = TransferFunction.lo VolumeData.lo VolumeRender.lo \
-	VolumeRendering.lo ObliqueSlice.lo OrthoSlice.lo
+	VolumeRendering.lo ObliqueSlice.lo VolumeIndexedFaceSet.lo \
+	OrthoSlice.lo
 am_libnodes_la_OBJECTS = $(am__objects_2)
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
@@ -252,6 +255,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/TransferFunction.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeData.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeData.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/VolumeIndexedFaceSet.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/VolumeIndexedFaceSet.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRender.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRender.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRendering.Plo \
@@ -281,6 +286,7 @@ SOURCES = \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
 	ObliqueSlice.cpp \
+	VolumeIndexedFaceSet.cpp \
 	OrthoSlice.cpp 
 
 
@@ -322,6 +328,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeData.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeData.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeIndexedFaceSet.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeIndexedFaceSet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRender.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRender.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRendering.Plo@am__quote@
@@ -652,7 +660,6 @@ uninstall-info: uninstall-info-recursive
 
 # FIXME: not yet implemented. 20040505 mortene
 #	SoROI.h 
-#	SoVolumeIndexedFaceSet.h et al.
 
 nodes.lst: $(nodes_lst_OBJECTS)
 	@echo "Linking $@..."; \
