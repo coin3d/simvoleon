@@ -25,8 +25,12 @@
 \**************************************************************************/
 
 #include <Inventor/SbVec2s.h>
-#include <Inventor/misc/SoState.h>
-#include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
+
+class Cvr2DTexSubPage;
+class CvrCLUT;
+class SbVec3f;
+class SoGLRenderAction;
+class SoState;
 
 // *************************************************************************
 

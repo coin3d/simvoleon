@@ -86,7 +86,6 @@ private:
   SbVec3s dimensions;
   SbVec3f origo;
 
-  SbBool rendersubcubeoutline;
   int nrcolumns;
   int nrrows;
   int nrdepths;

@@ -40,6 +40,7 @@
 
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
+#include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/SbLine.h>
 #include <Inventor/SbPlane.h>

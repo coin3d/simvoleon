@@ -27,13 +27,13 @@
 #include <Inventor/SbBox2f.h>
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3s.h>
-#include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
 class Cvr2DTexPage;
 class SoVolumeData;
 class SoState;
 class SoGLRenderAction;
+class CvrCLUT;
 
 // *************************************************************************
 

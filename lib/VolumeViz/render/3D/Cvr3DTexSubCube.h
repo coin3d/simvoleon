@@ -49,7 +49,6 @@ public:
   ~Cvr3DTexSubCube();
 
   void render(const SoGLRenderAction * action);
-  void renderBBox(const SoGLRenderAction * action, int counter); // Debug method
 
   // FIXME: do these need to be private? Investigate. 20040716 mortene.
   SbBool isPaletted(void) const;
@@ -85,6 +84,9 @@ public:
                                   void * userdata);
 
 private:
+  void renderSlices(const SoGLRenderAction * action);
+  void renderBBox(void) const;
+
   void activateCLUT(const SoGLRenderAction * action); 
   void deactivateCLUT(const SoGLRenderAction * action); 
  

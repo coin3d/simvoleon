@@ -62,6 +62,28 @@ CvrUtil::debugRayPicks(void)
   return (CVR_DEBUG_RAYPICKS == 0) ? FALSE : TRUE;
 }
 
+// For debugging. Force different way of rendering, to aid in
+// visualizing how the slices are set up. The significance of the
+// possible values are as follows:
+//
+// 0 - default, render as usual
+//
+// 1 - render both the usual textured sub-slices aswell as wireframe
+//     borders of the sub-slices
+//
+// 2 - render only the (non-textured) sub-slice frames
+unsigned int
+CvrUtil::debugRenderStyle(void)
+{
+  static int renderstyle = -1;
+  if (renderstyle == -1) {
+    const char * env = coin_getenv("CVR_DEBUG_SLICE_RENDERSTYLE");
+    renderstyle = env ? atoi(env) : 0;
+    assert(renderstyle >= 0 && renderstyle <= 2);
+  }
+  return (unsigned int)renderstyle;
+}
+
 // If the environment flag is set, data along the Y axis will be
 // flipped upside down. This to keep compatibility with an old bug,
 // since there's client code depending on this behavior.

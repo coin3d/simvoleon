@@ -94,10 +94,6 @@ Cvr3DTexCube::Cvr3DTexCube(const SoGLRenderAction * action)
   this->nrrows = (this->dimensions[1] + this->subcubesize[1] - 1) / this->subcubesize[1];
   this->nrdepths = (this->dimensions[2] + this->subcubesize[2] - 1) / this->subcubesize[2];
 
-  this->rendersubcubeoutline = FALSE;
-  const char * framesenvstr = coin_getenv("CVR_SUBCUBE_FRAMES");
-  if (framesenvstr) { this->rendersubcubeoutline = atoi(framesenvstr) > 0 ? TRUE : FALSE; }
-
   this->abortfunc = NULL;
   this->abortfuncdata = NULL;
 }
@@ -203,11 +199,6 @@ Cvr3DTexCube::renderResult(const SoGLRenderAction * action,
   // Render all subcubes.
   for (int i=0;i<subcubelist.getLength();++i) {
     subcubelist[i]->cube->render(action);
-  }
-  // Draw lines around each subcube if requested by the 'CVR_SUBCUBE_FRAMES' envvar.
-  if (this->rendersubcubeoutline) {
-    for (int i=0;i<subcubelist.getLength();++i)
-      subcubelist[i]->cube->renderBBox(action, i);
   }
   subcubelist.truncate(0);
 }

@@ -381,7 +381,7 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper)
 // *************************************************************************
 
 void
-Cvr3DTexSubCube::render(const SoGLRenderAction * action)
+Cvr3DTexSubCube::renderSlices(const SoGLRenderAction * action)
 {
   // FIXME: A separate method for rendering sorted tris should be
   // made. This would be useful for the facesets. (20040630 handegar)
@@ -397,7 +397,6 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action)
   // Texture binding/activation must happen before setting the
   // palette, or the previous palette will be used.
   this->textureobject->activateTexture(action);
-
   if (this->textureobject->isPaletted())  // Switch on palette rendering
     this->activateCLUT(action);
 
@@ -430,9 +429,19 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action)
 
 }
 
+void
+Cvr3DTexSubCube::render(const SoGLRenderAction * action)
+{
+  // 0: as usual, 1: with slice wireframes, 2: only wireframes
+  const unsigned int renderstyle = CvrUtil::debugRenderStyle();
+
+  if (renderstyle != 2) { this->renderSlices(action); }
+  if (renderstyle != 0) { this->renderBBox(); }
+}
+
 // For debugging purposes
 void
-Cvr3DTexSubCube::renderBBox(const SoGLRenderAction * action, int counter)
+Cvr3DTexSubCube::renderBBox(void) const
 {
 
   glDisable(GL_CULL_FACE);

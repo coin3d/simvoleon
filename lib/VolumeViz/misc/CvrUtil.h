@@ -36,6 +36,8 @@ public:
   static SbBool doDebugging(void);
   static SbBool debugRayPicks(void);
 
+  static unsigned int debugRenderStyle(void);
+
   static SbBool useFlippedYAxis(void);
   static SbBool dontModulateTextures(void);
   static SbBool force2DTextureRendering(void);

@@ -209,29 +209,16 @@ Cvr2DTexSubPage::deactivateCLUT(const SoGLRenderAction * action)
 // *************************************************************************
 
 void
-Cvr2DTexSubPage::render(const SoGLRenderAction * action,
-                        const SbVec3f & upleft,
-                        SbVec3f widthvec, SbVec3f heightvec)
+Cvr2DTexSubPage::renderQuad(const SoGLRenderAction * action,
+                            const SbVec3f & upleft,
+                            const SbVec3f & lowleft,
+                            const SbVec3f & upright,
+                            const SbVec3f & lowright)
 {
-
   // Texture binding/activation must happen before setting the
   // palette, or the previous palette will be used.
   this->texobj->activateTexture(action);
   if (this->isPaletted()) { this->activateCLUT(action); }
-
-  // Scale span of GL quad to match the visible part of the
-  // texture. (Border subpages shouldn't show all of the texture, if
-  // the dimensions of the dataset are not a power of two, or if the
-  // dimensions are less than the subpage size).
-
-  widthvec *= this->quadpartfactors[0];
-  heightvec *= this->quadpartfactors[1];
-
-  // Find all corner points of the quad.
-
-  SbVec3f lowleft = upleft + heightvec;
-  SbVec3f lowright = lowleft + widthvec;
-  SbVec3f upright = upleft + widthvec;
 
   if (CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -257,22 +244,37 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
 
   glEnd();
 
+  // Switch OFF palette rendering
+  if (this->isPaletted()) { this->deactivateCLUT(action); }
+}
 
-  if (this->isPaletted()) // Switch OFF palette rendering
-    this->deactivateCLUT(action);
+void
+Cvr2DTexSubPage::render(const SoGLRenderAction * action,
+                        const SbVec3f & upleft,
+                        SbVec3f widthvec, SbVec3f heightvec)
+{
+  // 0: as usual, 1: with slice wireframes, 2: only wireframes
+  const unsigned int renderstyle = CvrUtil::debugRenderStyle();
 
-  // This is a debugging backdoor: if the environment variable
-  // CVR_SUBPAGE_FRAMES is set to a positive integer, a lineset will
-  // be drawn around the border of each page.
+  // Scale span of GL quad to match the visible part of the
+  // texture. (Border subpages shouldn't show all of the texture, if
+  // the dimensions of the dataset are not a power of two, or if the
+  // dimensions are less than the subpage size).
 
-  static int showsubpageframes = -1;
-  if (showsubpageframes == -1) {
-    const char * envstr = coin_getenv("CVR_SUBPAGE_FRAMES");
-    if (envstr) { showsubpageframes = atoi(envstr) > 0 ? 1 : 0; }
-    else showsubpageframes = 0;
+  widthvec *= this->quadpartfactors[0];
+  heightvec *= this->quadpartfactors[1];
+
+  // Find all corner points of the quad.
+
+  const SbVec3f lowleft = upleft + heightvec;
+  const SbVec3f lowright = lowleft + widthvec;
+  const SbVec3f upright = upleft + widthvec;
+
+  if (renderstyle != 2) {
+    this->renderQuad(action, upleft, lowleft, upright, lowright);
   }
 
-  if (showsubpageframes) {
+  if (renderstyle != 0) {
     glDisable(GL_TEXTURE_2D);
     glLineStipple(1, 0xffff);
     glLineWidth(2);
@@ -283,7 +285,5 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
     glVertex3f(upright[0], upright[1], upright[2]);
     glVertex3f(upleft[0], upleft[1], upleft[2]);
     glEnd();
-
-    glEnable(GL_TEXTURE_2D);
   }
 }

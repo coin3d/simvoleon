@@ -52,6 +52,10 @@ public:
   void setPalette(const CvrCLUT * newclut);
 
 private:
+  void renderQuad(const SoGLRenderAction * action,
+                  const SbVec3f & upleft, const SbVec3f & lowleft,
+                  const SbVec3f & upright, const SbVec3f & lowright);
+
   void activateCLUT(const SoGLRenderAction * action);
   void deactivateCLUT(const SoGLRenderAction * action);
 

@@ -1,5 +1,5 @@
-#ifndef COIN_CVRPALETTETEXTURE_H
-#define COIN_CVRPALETTETEXTURE_H
+#ifndef SIMVOLEON_CVRPALETTETEXTURE_H
+#define SIMVOLEON_CVRPALETTETEXTURE_H
 
 /**************************************************************************\
  *
@@ -56,4 +56,4 @@ private:
   static SoType classTypeId;
 };
 
-#endif // !COIN_CVRPALETTETEXTURE_H
+#endif // !SIMVOLEON_CVRPALETTETEXTURE_H

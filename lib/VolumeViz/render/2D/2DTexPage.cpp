@@ -39,6 +39,7 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/render/common/CvrTextureObject.h>
+#include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 
 // *************************************************************************
 
@@ -185,8 +186,10 @@ Cvr2DTexPage::render(const SoGLRenderAction * action,
 
   // Find the "local 3D-space" size of each subpage.
 
-  SbVec3f subpagewidth = horizspan * float(this->subpagesize[0]) / float(this->dimensions[0]);
-  SbVec3f subpageheight = verticalspan * float(this->subpagesize[1]) / float(this->dimensions[1]);
+  const SbVec2s & sub = this->subpagesize;
+  const SbVec2s & dim = this->dimensions;
+  const SbVec3f subpagewidth = horizspan * float(sub[0]) / float(dim[0]);
+  const SbVec3f subpageheight = verticalspan * float(sub[1]) / float(dim[1]);
 
   SoState * state = action->getState();
 
