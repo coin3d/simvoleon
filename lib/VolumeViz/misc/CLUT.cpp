@@ -121,7 +121,6 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
 void
 CvrCLUT::commonConstructor(void)
 {
-  this->usefragmentprogramlookup = FALSE;
   this->palettehaschanged = TRUE;
   this->palettelookuptexture = 0;
 
@@ -142,9 +141,8 @@ CvrCLUT::CvrCLUT(const CvrCLUT & clut)
   this->nrentries = clut.nrentries;
   this->nrcomponents = clut.nrcomponents;
   this->datatype = clut.datatype;
-  this->usefragmentprogramlookup = clut.usefragmentprogramlookup;
   this->palettehaschanged = clut.palettehaschanged;
-  this->palettelookuptexture = clut.palettelookuptexture;
+  this->palettelookuptexture = 0; // don't share texture id
 
   const int blocksize = this->nrentries * this->nrcomponents;
 
@@ -313,15 +311,19 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue)
 #endif // HAVE_ARB_FRAGMENT_PROGRAM
 }
 
+// Initializes the 1D-texture set up for the fragment program to use
+// for palette entry lookups.
 void
 CvrCLUT::initPaletteTexture(const cc_glglue * glue)
 {
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+  // FIXME: can probably reuse texture id. 20041103 mortene.
+
   if (this->palettelookuptexture != 0)
     glDeleteTextures(1, &this->palettelookuptexture);
 
   // FIXME: this must be bound to the specific GL context. 20040716 mortene.
   glGenTextures(1, &this->palettelookuptexture);
+
   glEnable(GL_TEXTURE_1D);
   glBindTexture(GL_TEXTURE_1D, this->palettelookuptexture);
 
@@ -335,75 +337,41 @@ CvrCLUT::initPaletteTexture(const cc_glglue * glue)
   glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA8, this->nrentries, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, (GLvoid *) this->glcolors);
 
-  if (CvrUtil::doDebugging()) {
-    static SbBool flag = FALSE;
-    if (!flag) {
-      SoDebugError::postInfo("CvrCLUT::initPaletteTexture", 
-                             "Using a fragment program as palette lookup mechanism.");
-      flag = TRUE;
-    }
-  }
-#endif // HAVE_ARB_FRAGMENT_PROGRAM
+  // FIXME: shouldn't we restore the glEnable(GL_TEXTURE_1D) here?
+  // 20041103 mortene.
 }
 
-void
-CvrCLUT::deactivate(const cc_glglue * glw) const
-{
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
-  if (!this->usefragmentprogramlookup)
-    return;
+// *************************************************************************
 
-  glDisable(GL_FRAGMENT_PROGRAM_ARB);
+void
+CvrCLUT::activateFragmentProgram(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
+{
+  // Shall we generate a new palette texture?
+  if (this->palettehaschanged) {
+    ((CvrCLUT*)this)->initPaletteTexture(glw);
+    ((CvrCLUT*)this)->palettehaschanged = FALSE;
+  }
+
+  if (CvrCLUT::fragmentprogramid[0] == 0) {
+    CvrCLUT::initFragmentProgram(glw);
+  }
+
+  // FIXME: What should we do if unit #1 is already taken? (20040310 handegar)
   cc_glglue_glActiveTexture(glw, GL_TEXTURE1);
-  glDisable(GL_TEXTURE_1D);
+  glEnable(GL_TEXTURE_1D);
+  glBindTexture(GL_TEXTURE_1D, this->palettelookuptexture);
+
   cc_glglue_glActiveTexture(glw, GL_TEXTURE0);
-#endif // HAVE_ARB_FRAGMENT_PROGRAM
+  cc_glglue_glBindProgram(glw, GL_FRAGMENT_PROGRAM_ARB,
+                          CvrCLUT::fragmentprogramid[texturetype]);
+
+  glEnable(GL_FRAGMENT_PROGRAM_ARB);
 }
 
-
 void
-CvrCLUT::activate(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
+CvrCLUT::activatePalette(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
 {
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
-  // FIXME: We should maybe do a better test than this (Ie. not base
-  // the test on glue) (20040310 handegar)
-  if (cc_glglue_has_arb_fragment_program(glw)) {
-
-    ((CvrCLUT*)this)->usefragmentprogramlookup = TRUE;
-
-    // Shall we upload a new palette texture?
-    if (this->palettehaschanged) {
-      // Casting away the const'ness...
-      ((CvrCLUT*)this)->initPaletteTexture(glw);
-      ((CvrCLUT*)this)->palettehaschanged = FALSE;
-    }
-
-    if (CvrCLUT::fragmentprogramid[0] == 0) {
-      CvrCLUT::initFragmentProgram(glw);
-    }
-
-    // FIXME: What should we do if unit #1 is already taken? (20040310 handegar)
-    cc_glglue_glActiveTexture(glw, GL_TEXTURE1);
-    glEnable(GL_TEXTURE_1D);
-    glBindTexture(GL_TEXTURE_1D, this->palettelookuptexture);
-
-    cc_glglue_glActiveTexture(glw, GL_TEXTURE0);
-    cc_glglue_glBindProgram(glw, GL_FRAGMENT_PROGRAM_ARB,
-                            CvrCLUT::fragmentprogramid[texturetype]);
-
-    glEnable(GL_FRAGMENT_PROGRAM_ARB);
-
-    return;
-  }
-#endif // HAVE_ARB_FRAGMENT_PROGRAM
-
-  // FIXME: Is this check necessary? It *should* have been done earlier
-  // in VoxelChunk.cpp (20040310 handegar)
-  if (!cc_glglue_has_paletted_textures(glw)) {
-    SoDebugError::postWarning("CvrCLUT::activate",
-                              "Trying to use the palette texture extension, but it is not supported.");
-    return;
-  }
+  assert(cc_glglue_has_paletted_textures(glw));
 
   // FIXME: should only need to do this once somewhere else
   glEnable(GL_COLOR_TABLE);
@@ -471,6 +439,41 @@ CvrCLUT::activate(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
   assert(actualsize == (GLint)this->nrentries);
 }
 
+/*!
+  Activates the palette we carry, for OpenGL.
+*/
+void
+CvrCLUT::activate(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
+{
+  if (CvrCLUT::useFragmentProgramLookup(glw)) {
+    this->activateFragmentProgram(glw, texturetype);
+  }
+  else if (CvrCLUT::usePaletteExtension(glw)) {
+    this->activatePalette(glw, texturetype);
+  }
+  else {
+    assert(FALSE && "unknown palette activation type");
+  }
+}
+
+/*!
+  Cleans up whatever was done for palette activation.
+*/
+void
+CvrCLUT::deactivate(const cc_glglue * glw) const
+{
+  if (CvrCLUT::useFragmentProgramLookup(glw)) {
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+    glDisable(GL_FRAGMENT_PROGRAM_ARB);
+#endif // HAVE_ARB_FRAGMENT_PROGRAM
+    cc_glglue_glActiveTexture(glw, GL_TEXTURE1);
+    glDisable(GL_TEXTURE_1D);
+    cc_glglue_glActiveTexture(glw, GL_TEXTURE0);
+  }
+}
+
+// *************************************************************************
+
 // Find RGBA color at the given idx.
 void
 CvrCLUT::lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const
@@ -479,6 +482,10 @@ CvrCLUT::lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const
   for (int i=0; i < 4; i++) { rgba[i] = this->glcolors[idx * 4 + i]; }
 }
 
+// FIXME: this doesn't seem compatible with the fact that
+// CvrCLUT-instances should be possible to share between any number of
+// textured elements. Must be fixed, or strange errors may
+// occur. 20041029 mortene.
 void
 CvrCLUT::setAlphaUse(AlphaUse policy)
 {
@@ -555,21 +562,6 @@ CvrCLUT::usePaletteTextures(const SoGLRenderAction * action)
   const SbBool apiusepalette = CvrPalettedTexturesElement::get(state);
   SbBool usepalettetex = apiusepalette;
 
-  const char * env;
-  static int force_paletted = -1; // "-1" means "undecided"
-  static int force_rgba = -1;
-
-  if (force_paletted == -1) {
-    force_paletted = (env = coin_getenv("CVR_FORCE_PALETTED_TEXTURES")) && (atoi(env) > 0);
-  }
-  if (force_rgba == -1) {
-    force_rgba = (env = coin_getenv("CVR_FORCE_RGBA_TEXTURES")) && (atoi(env) > 0);
-  }
-  assert(!(force_paletted && force_rgba)); // both at the same time can't be done, silly
-
-  if (force_paletted) usepalettetex = TRUE;
-  if (force_rgba) usepalettetex = FALSE;
-
   // If we requested paletted textures, does OpenGL support them?
   // Texture paletting can also be done with fragment
   // programs. (E.g. ATI drivers don't have the palette-texture
@@ -577,27 +569,67 @@ CvrCLUT::usePaletteTextures(const SoGLRenderAction * action)
   //
   // (FIXME: one more thing to check versus OpenGL is that the palette
   // size can fit. 2003???? mortene.)
-  const SbBool haspalettetextures = cc_glglue_has_paletted_textures(glw);
-  SbBool hasfragmentprogramsupport = FALSE;
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
-  hasfragmentprogramsupport = cc_glglue_has_arb_fragment_program(glw);
-#endif // HAVE_ARB_FRAGMENT_PROGRAM
-  usepalettetex = usepalettetex && (haspalettetextures || hasfragmentprogramsupport);
+  const SbBool usepaletteextension = CvrCLUT::usePaletteExtension(glw);
+  const SbBool usefragmentprogram = CvrCLUT::useFragmentProgramLookup(glw);
+  usepalettetex = usepalettetex && (usepaletteextension || usefragmentprogram);
 
   static SbBool first = TRUE;
   if (first && CvrUtil::doDebugging()) {
     SoDebugError::postInfo("CvrCLUT::usePaletteTextures",
-                           "returns %d (SoVolumeData::usePalettedTexture==%d, "
-                           "force_paletted==%d, force_rgba==%d, "
-                           "OpenGL-has-palette-texture-extension==%d, "
-                           "OpenGL-has-fragment-programs==%d)",
-                           usepalettetex,
-                           apiusepalette, force_paletted, force_rgba,
-                           haspalettetextures, hasfragmentprogramsupport);
+                           "(SoVolumeData::usePalettedTexture==%d, "
+                           "use-palette-extension==%d, "
+                           "use-fragment-programs==%d) => %s",
+                           apiusepalette,
+                           usepaletteextension, usefragmentprogram,
+                           usepalettetex ? "TRUE" : "FALSE");
     first = FALSE;
   }
 
   return usepalettetex;
+}
+
+SbBool
+CvrCLUT::usePaletteExtension(const cc_glglue * glw)
+{
+  static int disable_palext = -1; // "-1" means "undecided"
+
+  if (disable_palext == -1) {
+    const char * env = coin_getenv("CVR_DISABLE_PALETTED_PALEXT");
+    disable_palext = env && (atoi(env) > 0);
+    if (disable_palext && CvrUtil::doDebugging()) {
+      SoDebugError::postInfo("CvrCLUT::usePaletteExtension",
+                             "palette extension for paletted textures "
+                             "forced OFF");
+    }
+  }
+
+  if (disable_palext) { return FALSE; }
+
+  return cc_glglue_has_paletted_textures(glw);
+}
+
+SbBool
+CvrCLUT::useFragmentProgramLookup(const cc_glglue * glw)
+{
+  static int disable_fragprog = -1; // "-1" means "undecided"
+
+  if (disable_fragprog == -1) {
+    const char * env = coin_getenv("CVR_DISABLE_PALETTED_FRAGPROG");
+    disable_fragprog = env && (atoi(env) > 0);
+    if (disable_fragprog && CvrUtil::doDebugging()) {
+      SoDebugError::postInfo("CvrCLUT::useFragmentProgramLookup",
+                             "fragment program lookup for paletted textures "
+                             "forced OFF");
+    }
+  }
+
+  if (disable_fragprog) { return FALSE; }
+
+  SbBool usefragmentprogramsupport = FALSE;
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+  usefragmentprogramsupport = cc_glglue_has_arb_fragment_program(glw);
+#endif // HAVE_ARB_FRAGMENT_PROGRAM
+  return usefragmentprogramsupport;
 }
 
 // *************************************************************************

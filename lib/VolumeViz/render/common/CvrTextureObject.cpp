@@ -340,12 +340,9 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
 
 
   GLenum palettetype = GL_COLOR_INDEX;
-
-  // FIXME: this is terrible -- whether fragment program is used or
-  // not should be checked in some other way. 20041029 mortene.
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
-  if (cc_glglue_has_arb_fragment_program(glw)) { palettetype = GL_LUMINANCE; }
-#endif // HAVE_ARB_FRAGMENT_PROGRAM
+  if (this->isPaletted() && CvrCLUT::useFragmentProgramLookup(glw)) {
+    palettetype = GL_LUMINANCE;
+  }
 
   // NOTE: Combining texture compression and GL_COLOR_INDEX doesn't
   // seem to work on NVIDIA cards (tested on GeForceFX 5600 &

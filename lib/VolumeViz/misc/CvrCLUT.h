@@ -62,12 +62,18 @@ public:
 
   static SbBool usePaletteTextures(const SoGLRenderAction * action);
 
+  static SbBool usePaletteExtension(const cc_glglue * glw);
+  static SbBool useFragmentProgramLookup(const cc_glglue * glw);
+
 private:
   ~CvrCLUT();
   void commonConstructor(void);
   void regenerateGLColorData(void);
+
   static void initFragmentProgram(const cc_glglue * glue);
   void initPaletteTexture(const cc_glglue * glue);
+  void activateFragmentProgram(const cc_glglue * glw, CvrCLUT::TextureType t) const;
+  void activatePalette(const cc_glglue * glw, CvrCLUT::TextureType t) const;
 
   unsigned int nrentries;
   unsigned int nrcomponents;
@@ -86,7 +92,6 @@ private:
   uint8_t * glcolors;
 
   SbBool palettehaschanged;
-  SbBool usefragmentprogramlookup;
   GLuint palettelookuptexture;
   static GLuint fragmentprogramid[2];
 
