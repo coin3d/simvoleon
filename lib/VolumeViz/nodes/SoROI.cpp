@@ -8,19 +8,20 @@
 \**************************************************************************/
 
 
-#include <VolumeViz/nodes/SoROI.h>
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/fields/SoSFEnum.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
-
 #include <Inventor/sensors/SoFieldSensor.h>
-#include <VolumeViz/nodes/SoVolumeRender.h>
-#include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <Inventor/actions/SoGLRenderAction.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
+
+#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/SoROI.h>
+#include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/nodes/SoVolumeRendering.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
 
 #if HAVE_CONFIG_H
 #include <config.h>
@@ -143,6 +144,13 @@ SoROI::GLRender(SoGLRenderAction *action)
   assert(volumeDataElement);
   SoVolumeData * volumeData = volumeDataElement->getVolumeData();
 
+  // Fetching the current transferFunction
+  const SoTransferFunctionElement * transferFunctionElement;
+  transferFunctionElement = SoTransferFunctionElement::getInstance(state);
+  assert(transferFunctionElement);
+  SoTransferFunction * transferFunction = 
+    transferFunctionElement->getTransferFunction();
+
   // Calculating a camvec from camera to center of object
   const SbMatrix & mm = SoModelMatrixElement::get(state);
   SbMatrix imm = mm.inverse();
@@ -233,7 +241,7 @@ SoROI::GLRender(SoGLRenderAction *action)
                                       depth,
                                       imageIdx,
                                       mappingCoords,
-                                      NULL);
+                                      transferFunction);
 
         depth += depthAdder;
       }// for*/
@@ -275,7 +283,7 @@ SoROI::GLRender(SoGLRenderAction *action)
                                       depth,
                                       imageIdx,
                                       mappingCoords,
-                                      NULL);
+                                      transferFunction);
 
         depth += depthAdder;
       }// for*/
@@ -318,7 +326,7 @@ SoROI::GLRender(SoGLRenderAction *action)
                                       depth,
                                       imageIdx,
                                       mappingCoords,
-                                      NULL);
+                                      transferFunction);
 
         depth += depthAdder;
       }// for
