@@ -36,7 +36,9 @@ CLEANFILES = \
 	simvoleon1d.ilk
 
 EXTRA_DIST = \
-	simvoleon.cfg.in
+	simvoleon.cfg.in \
+	cfg/errors.txt \
+	cfg/wrapmsvc.exe
 
 m4datadir = $(datadir)/aclocal
 dist_m4data_DATA = cfg/simvoleon.m4

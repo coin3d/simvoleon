@@ -40,6 +40,9 @@ if $BUILD_WITH_MSVC; then
     CPPFLAGS="$CPPFLAGS $sim_ac_msvcrt_CPPFLAGS"
     CFLAGS="$CFLAGS $sim_ac_msvcrt_CFLAGS"
     CXXFLAGS="$CXXFLAGS $sim_ac_msvcrt_CXXFLAGS"
+    # These are set later, as they should only be set if we're building as
+    # a DLL, and not when building a static lib:
+    #
     # LDFLAGS="$CFLAGS $sim_ac_msvcrt_LDFLAGS"
     # LIBS="$CXXFLAGS $sim_ac_msvcrt_LIBS"
   ])

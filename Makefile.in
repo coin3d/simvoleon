@@ -221,7 +221,9 @@ CLEANFILES = \
 
 
 EXTRA_DIST = \
-	simvoleon.cfg.in
+	simvoleon.cfg.in \
+	cfg/errors.txt \
+	cfg/wrapmsvc.exe
 
 
 m4datadir = $(datadir)/aclocal
