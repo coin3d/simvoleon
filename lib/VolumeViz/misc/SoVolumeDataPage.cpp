@@ -19,6 +19,7 @@ SoVolumeDataPage::SoVolumeDataPage()
   this->storage = NOT_LOADED;
   this->lastuse = 0;
   this->transferFunctionId = 0;
+  this->nextPage = NULL;
 }// constructor
 
 
@@ -26,6 +27,8 @@ SoVolumeDataPage::~SoVolumeDataPage()
 {
   glDeleteTextures(1, &textureName);
   delete [] data;
+  delete nextPage;
+  nextPage = NULL;
 }// destructor
 
 
@@ -35,7 +38,7 @@ void SoVolumeDataPage::setActivePage(long tick)
 {
   glBindTexture(GL_TEXTURE_2D, this->textureName);
   this->lastuse = tick;
-}
+}// setActivePage
 
 
 
