@@ -305,8 +305,7 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue)
                               "Error in fragment program! (byte pos: %d) '%s'.\n",
                               errorPos, glGetString(GL_PROGRAM_ERROR_STRING_ARB));
   }
-
-#endif
+#endif // HAVE_ARB_FRAGMENT_PROGRAM
 }
 
 void
@@ -338,8 +337,7 @@ CvrCLUT::initPaletteTexture(const cc_glglue * glue)
       flag = TRUE;
     }
   }
-
-#endif
+#endif // HAVE_ARB_FRAGMENT_PROGRAM
 }
 
 void
@@ -353,7 +351,7 @@ CvrCLUT::deactivate(const cc_glglue * glw) const
   cc_glglue_glActiveTexture(glw, GL_TEXTURE1);
   glDisable(GL_TEXTURE_1D);
   cc_glglue_glActiveTexture(glw, GL_TEXTURE0);
-#endif
+#endif // HAVE_ARB_FRAGMENT_PROGRAM
 }
 
 
@@ -391,7 +389,7 @@ CvrCLUT::activate(const cc_glglue * glw) const
 
     return;
   }
-#endif
+#endif // HAVE_ARB_FRAGMENT_PROGRAM
 
   // FIXME: Is this check necessary? It *should* have been done earlier
   // in VoxelChunk.cpp (20040310 handegar)

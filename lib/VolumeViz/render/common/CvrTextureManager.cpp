@@ -214,8 +214,7 @@ CvrTextureManager::new3DTextureObject(SoGLRenderAction * action,
   delete input;
 
   SbBool invisible = FALSE;
-  CvrTextureObject * newtexobj = NULL;
-  newtexobj = cubechunk->transfer3D(action, invisible); 
+  CvrTextureObject * newtexobj = cubechunk->transfer3D(action, invisible); 
 
   if (invisible) // Is the cubechunk 'empty'?
     return NULL;
@@ -328,7 +327,7 @@ CvrTextureManager::transferTex3GL(SoGLRenderAction * action,
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
     if (cc_glglue_has_arb_fragment_program(glw)) 
       palettetype = GL_LUMINANCE;    
-#endif
+#endif // HAVE_ARB_FRAGMENT_PROGRAM
    
     // NOTE: Combining texture compression and GL_COLOR_INDEX doesn't
     // seem to work on NVIDIA cards (tested on GeForceFX 5600 &

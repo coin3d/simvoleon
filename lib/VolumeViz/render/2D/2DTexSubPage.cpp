@@ -405,7 +405,7 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
     if (cc_glglue_has_arb_fragment_program(glw))
       palettetype = GL_LUMINANCE;    
-#endif
+#endif // HAVE_ARB_FRAGMENT_PROGRAM
 
     // FIXME: Is this way of compressing textures OK? (20040303 handegar)
     if (cc_glue_has_texture_compression(glw) && 
