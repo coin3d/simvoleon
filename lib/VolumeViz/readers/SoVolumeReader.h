@@ -8,7 +8,7 @@ class SbBox3f;
 class SbVec3s;
 
 
-class SoVolumeReader {
+class SIMVOLEON_DLL_API SoVolumeReader {
 public:
   SoVolumeReader(void);
   virtual ~SoVolumeReader();

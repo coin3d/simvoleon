@@ -3,8 +3,10 @@
 
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSubNode.h>
+#include <VolumeViz/C/basic.h>
 
-class SoVolumeRendering : public SoNode {
+
+class SIMVOLEON_DLL_API SoVolumeRendering : public SoNode {
   typedef SoNode inherited;
 
   SO_NODE_HEADER(SoVolumeRendering);

@@ -9,7 +9,7 @@ class SoVolumeData;
 class SbVec3f;
 
 
-class SoVolumeDataElement : public SoReplacedElement {
+class SIMVOLEON_DLL_API SoVolumeDataElement : public SoReplacedElement {
   typedef SoReplacedElement inherited;
   SO_ELEMENT_HEADER(SoVolumeDataElement);
 

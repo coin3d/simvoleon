@@ -5,9 +5,10 @@
 #include <Inventor/details/SoSubDetail.h>
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3s.h>
+#include <VolumeViz/C/basic.h>
 
 
-class SoOrthoSliceDetail : public SoDetail {
+class SIMVOLEON_DLL_API SoOrthoSliceDetail : public SoDetail {
   typedef SoDetail inherited;
 
   SO_DETAIL_HEADER(SoOrthoSliceDetail);

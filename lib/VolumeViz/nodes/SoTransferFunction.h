@@ -11,7 +11,7 @@ class CvrTextureObject;
 class CvrVoxelChunk;
 
 
-class SoTransferFunction : public SoVolumeRendering {
+class SIMVOLEON_DLL_API SoTransferFunction : public SoVolumeRendering {
   typedef SoVolumeRendering inherited;
 
   SO_NODE_HEADER(SoTransferFunction);

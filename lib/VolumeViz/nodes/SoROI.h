@@ -6,7 +6,7 @@
 #include <Inventor/fields/SoSFBool.h>
 #include <Inventor/fields/SoSFEnum.h>
 
-class SoROI : public SoVolumeRendering {
+class SIMVOLEON_DLL_API SoROI : public SoVolumeRendering {
   typedef SoVolumeRendering inherited;
 
   SO_NODE_HEADER(SoROI);

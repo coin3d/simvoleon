@@ -9,10 +9,10 @@
 #include <Inventor/fields/SoSFVec3f.h>
 #include <Inventor/fields/SoSFFloat.h>
 #include <Inventor/fields/SoSFInt32.h>
+#include <VolumeViz/C/basic.h>
 
 
-
-class SoVolumeRender : public SoShape {
+class SIMVOLEON_DLL_API SoVolumeRender : public SoShape {
   typedef SoShape inherited;
 
   SO_NODE_HEADER(SoVolumeRender);

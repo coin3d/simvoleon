@@ -6,9 +6,10 @@
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3s.h>
 #include <Inventor/lists/SbList.h>
+#include <VolumeViz/C/basic.h>
 
 
-class SoVolumeRenderDetail : public SoDetail {
+class SIMVOLEON_DLL_API SoVolumeRenderDetail : public SoDetail {
   typedef SoDetail inherited;
 
   SO_DETAIL_HEADER(SoVolumeRenderDetail);

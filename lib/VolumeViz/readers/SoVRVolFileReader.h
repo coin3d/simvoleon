@@ -4,7 +4,7 @@
 #include <VolumeViz/readers/SoVolumeReader.h>
 
 
-class SoVRVolFileReader : public SoVolumeReader {
+class SIMVOLEON_DLL_API SoVRVolFileReader : public SoVolumeReader {
   typedef SoVolumeReader inherited;
 
 public:

@@ -2,11 +2,12 @@
 #define COIN_SOTRANSFERFUNCTIONELEMENT_H
 
 #include <Inventor/elements/SoReplacedElement.h>
+#include <VolumeViz/C/basic.h>
 
 class SoTransferFunction;
 
 
-class SoTransferFunctionElement : public SoReplacedElement {
+class SIMVOLEON_DLL_API SoTransferFunctionElement : public SoReplacedElement {
   typedef SoReplacedElement inherited;
   SO_ELEMENT_HEADER(SoTransferFunctionElement);
 

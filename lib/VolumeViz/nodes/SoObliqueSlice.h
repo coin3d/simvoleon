@@ -4,9 +4,10 @@
 #include <Inventor/nodes/SoShape.h>
 #include <Inventor/fields/SoSFPlane.h>
 #include <Inventor/fields/SoSFEnum.h>
+#include <VolumeViz/C/basic.h>
 
 
-class SoObliqueSlice : public SoShape {
+class SIMVOLEON_DLL_API SoObliqueSlice : public SoShape {
   typedef SoShape inherited;
 
   SO_NODE_HEADER(SoObliqueSlice);

@@ -4,7 +4,7 @@
 #include <VolumeViz/readers/SoVolumeReader.h>
 #include <Inventor/SbBox3f.h>
 
-class SoVRMemReader : public SoVolumeReader{
+class SIMVOLEON_DLL_API SoVRMemReader : public SoVolumeReader{
 public:
   SoVRMemReader(void);
   virtual ~SoVRMemReader();

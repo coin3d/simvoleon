@@ -5,9 +5,10 @@
 #include <Inventor/fields/SoSFUInt32.h>
 #include <Inventor/fields/SoSFEnum.h>
 #include <Inventor/fields/SoSFBool.h>
+#include <VolumeViz/C/basic.h>
 
 
-class SoOrthoSlice : public SoShape {
+class SIMVOLEON_DLL_API SoOrthoSlice : public SoShape {
   typedef SoShape inherited;
 
   SO_NODE_HEADER(SoOrthoSlice);

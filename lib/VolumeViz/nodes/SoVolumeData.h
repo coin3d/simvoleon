@@ -17,7 +17,7 @@ class SoVolumeReader;
 class SoState;
 class SoTransferFunction;
 
-class SoVolumeData : public SoVolumeRendering {
+class SIMVOLEON_DLL_API SoVolumeData : public SoVolumeRendering {
   typedef SoVolumeRendering inherited;
 
   SO_NODE_HEADER(SoVolumeData);
