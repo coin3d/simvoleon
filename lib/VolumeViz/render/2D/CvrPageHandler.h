@@ -25,12 +25,12 @@ public:
 private:
   unsigned int getCurrentAxis(const SbVec3f & viewvec) const;
   void getViewVector(SoGLRenderAction * action, SbVec3f & direction) const;
-
   Cvr2DTexPage * getSlice(const unsigned int AXISIDX, unsigned int sliceidx);
+  void comparePageSize(const SbVec3s & currsubpagesize);
 
   Cvr2DTexPage ** slices[3];
   unsigned int voldatadims[3];
-  unsigned int subpagesize[3];
+  SbVec3s subpagesize;
   SoVolumeReader * reader;
 };
 

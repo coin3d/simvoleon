@@ -39,8 +39,6 @@ public:
 
 Cvr2DTexPage::Cvr2DTexPage(void)
 {
-  // FIXME: in CvrPageHandler, the subpagesize setting is given as a
-  // 3-component vector. 20021124 mortene.
   this->subpagesize = SbVec2s(64, 64);
 
   this->subpages = NULL;

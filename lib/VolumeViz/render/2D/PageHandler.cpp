@@ -21,9 +21,7 @@ CvrPageHandler::CvrPageHandler(const SbVec3s & voldatadims,
   this->voldatadims[1] = voldatadims[1];
   this->voldatadims[2] = voldatadims[2];
 
-  this->subpagesize[0] = 64;
-  this->subpagesize[1] = 64;
-  this->subpagesize[2] = 64;
+  this->subpagesize = SbVec3s(64, 64, 64);
 
   this->slices[0] = NULL;
   this->slices[1] = NULL;
@@ -113,6 +111,36 @@ CvrPageHandler::getCurrentAxis(SoGLRenderAction * action) const
   return this->getCurrentAxis(camvec);
 }
 
+// Compare with this->subpagesize. If they differ, destroy all pages
+// along the changed axes. They will be automatically regenerated upon
+// next rendering.
+void
+CvrPageHandler::comparePageSize(const SbVec3s & currsubpagesize)
+{
+  SbBool rebuildx = FALSE, rebuildy = FALSE, rebuildz = FALSE;
+
+  if (currsubpagesize[0] != this->subpagesize[0]) rebuildy = rebuildz = TRUE;
+  if (currsubpagesize[1] != this->subpagesize[1]) rebuildx = rebuildz = TRUE;
+  if (currsubpagesize[2] != this->subpagesize[2]) rebuildx = rebuildy = TRUE;
+
+  if (rebuildx || rebuildy || rebuildz) {
+    this->subpagesize = currsubpagesize;
+
+    // This is the quick and simple way to do it.
+    if (rebuildx) this->releaseSlices(0);
+    if (rebuildy) this->releaseSlices(1);
+    if (rebuildz) this->releaseSlices(2);
+    // A more optimal strategy when it comes to performance /might/ be
+    // to just rearrange the textures within existing pages. This is
+    // not so simple, though, as the textures are not stored anywhere
+    // else but within OpenGL texture objects -- which means we would
+    // have to use ~ 2x the memory to avoid simple destruction and
+    // regeneration, as we do now.
+    //
+    // mortene.
+  }
+}
+
 void
 CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices)
 {
@@ -122,6 +150,8 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices)
   assert(volumedataelement != NULL);
   SoVolumeData * volumedata = volumedataelement->getVolumeData();
   assert(volumedata != NULL);
+
+  this->comparePageSize(volumedata->getPageSize());
 
   SbVec3f spacemin, spacemax;
   SbBox3f spacesize = volumedata->getVolumeSize();

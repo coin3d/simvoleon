@@ -407,8 +407,9 @@ SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
 
   The \a size value must be a power of two.
 
-  This is essentially of interest for the internal implementation, and
-  should usually not be necessary to change from application code.
+  This is essentially of interest only for the internal
+  implementation, and should usually not be necessary to change from
+  application code.
 */
 void
 SoVolumeData::setPageSize(int size)
@@ -424,46 +425,27 @@ SoVolumeData::setPageSize(int size)
 
   All elements of \a texsize must be a power of two.
 
-  This is essentially of interest for the internal implementation, and
-  should usually not be necessary to change from application code.
+  This is essentially of interest only for the internal
+  implementation, and should usually not be necessary to change from
+  application code.
 */
 void
 SoVolumeData::setPageSize(const SbVec3s & texsize)
 {
   SbVec3s size = texsize;
 
-  // FIXME: texsize dimensions must also be >=
+  // FIXME: texsize dimensions must also be <=
   // GL_MAX_TEXTURE_SIZE. 20021122 mortene.
   assert(size[0] > 0 && size[1] > 0 && size[2] > 0);
   assert(coin_is_power_of_two(size[0]));
   assert(coin_is_power_of_two(size[1]));
   assert(coin_is_power_of_two(size[2]));
 
-  SbBool rebuildX = FALSE;
-  SbBool rebuildY = FALSE;
-  SbBool rebuildZ = FALSE;
-
-  // The X-size has changed. Rebuild Y- and Z-axis maps.
-  if (size[0] != PRIVATE(this)->subpagesize[0]) {
-    rebuildY = TRUE;
-    rebuildZ = TRUE;
-  }
-
-  // The Y-size has changed. Rebuild X- and Z-axis maps.
-  if (size[1] != PRIVATE(this)->subpagesize[1]) {
-    rebuildX = TRUE;
-    rebuildZ = TRUE;
-  }
-
-  // The Z-size has changed. Rebuild X- and Y-axis maps.
-  if (size[2] != PRIVATE(this)->subpagesize[2]) {
-    rebuildX = TRUE;
-    rebuildY = TRUE;
-  }
-
   PRIVATE(this)->subpagesize = size;
 
-  // FIXME: need to update pagesizes in CvrPageHandler. 20021122 mortene.
+  // This causes a notification and a redraw. The new pagesize should
+  // then be picked up automatically by the rendering code.
+  this->touch();
 }
 
 /*!
