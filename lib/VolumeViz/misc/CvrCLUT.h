@@ -6,7 +6,7 @@
 
 class CvrCLUT {
 public:
-  CvrCLUT(const unsigned int nrcols, const uint8_t * rgba8bits);
+  CvrCLUT(const unsigned int nrcols, const uint8_t * colormap);
   CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
           const float * colormap);
   ~CvrCLUT();
@@ -14,6 +14,7 @@ public:
   void setTransparencyThresholds(uint32_t low, uint32_t high);
 
   void activate(const cc_glglue * glw) const;
+  void lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const;
 
 private:
   void commonConstructor(void);

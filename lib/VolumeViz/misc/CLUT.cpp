@@ -5,8 +5,8 @@
 #include <stdlib.h>
 #include <Inventor/SbBasic.h>
 
-
-CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * rgba8bits)
+// colormap values are between 0 and 255
+CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap)
 {
   this->nrentries = nrcols;
   this->nrcomponents = 4;
@@ -14,7 +14,7 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * rgba8bits)
 
   const int blocksize = this->nrentries * this->nrcomponents;
   this->int_entries = new uint8_t[blocksize];
-  (void)memcpy(this->int_entries, rgba8bits, blocksize * sizeof(uint8_t));
+  (void)memcpy(this->int_entries, colormap, blocksize * sizeof(uint8_t));
   // (yeah, yeah, I know sizeof(uint8_t) is always == 1)
 
   this->commonConstructor();
@@ -23,6 +23,8 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * rgba8bits)
 // nrcomponents == 1: LUMINANCE
 // nrcomponents == 2: LUMINANCE + ALPHA
 // nrcomponents == 4: RGBA
+//
+// values in colormap are between 0.0 and 1.0
 CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
                  const float * colormap)
 {
@@ -164,3 +166,96 @@ CvrCLUT::activate(const cc_glglue * glw) const
 
   assert(glGetError() == GL_NO_ERROR);
 }
+
+// Find RGBA color at the given idx.
+void
+CvrCLUT::lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const
+{
+  if ((idx < this->transparencythresholds[0]) ||
+      (idx > this->transparencythresholds[1])) {
+    rgba[0] = 0x00; rgba[1] = 0x00; rgba[2] = 0x00; rgba[3] = 0x00;
+    return;
+  }
+
+  if (this->datatype == FLOATS) {
+    assert(idx < this->nrentries);
+    const float * colvals = &(this->flt_entries[idx * this->nrcomponents]);
+    switch (this->nrcomponents) {
+    case 1: // ALPHA
+      rgba[0] = rgba[1] = rgba[2] = rgba[3] = uint8_t(colvals[0] * 255.0f);
+      break;
+
+    case 2: // LUMINANCE_ALPHA
+      rgba[0] = rgba[1] = rgba[2] = uint8_t(colvals[0] * 255.0f);
+      rgba[3] = uint8_t(colvals[1] * 255.0f);
+      break;
+
+    case 4: // RGBA
+      rgba[0] = uint8_t(colvals[0] * 255.0f);
+      rgba[1] = uint8_t(colvals[1] * 255.0f);
+      rgba[2] = uint8_t(colvals[2] * 255.0f);
+      rgba[3] = uint8_t(colvals[3] * 255.0f);
+      break;
+
+    default:
+      assert(FALSE && "impossible");
+      break;
+    }
+  }
+  else if (this->datatype == INTS) {
+    const int colidx = idx * 4;
+    rgba[0] = this->int_entries[colidx + 0];
+    rgba[1] = this->int_entries[colidx + 1];
+    rgba[2] = this->int_entries[colidx + 2];
+    rgba[3] = this->int_entries[colidx + 3];
+  }
+  else assert(FALSE);
+}
+
+// FIXME: reactivate the stuff from the transfer table caching (ripped
+// out of VoxelChunk.cpp):
+//
+// uint32_t CvrVoxelChunk::transfertable[COLOR_TABLE_PREDEF_SIZE];
+// SbBool CvrVoxelChunk::transferdone[COLOR_TABLE_PREDEF_SIZE];
+// uint32_t CvrVoxelChunk::transfertablenodeid = 0;
+//
+// constructor [...]
+//   static SbBool init_static = TRUE;
+//   if (init_static) {
+//     init_static = FALSE;
+//     // Make sure this is set to an unused value, so it gets
+//     // initialized at first invocation.
+//     CvrVoxelChunk::transfertablenodeid = SoNode::getNextNodeId();
+//   }
+//
+// transfer() [...]
+//   // This table needs to be invalidated when any parameter of the
+//   // SoTransferFunction node changes.
+//   if (CvrVoxelChunk::transfertablenodeid != transferfunc->getNodeId()) {
+//     CvrVoxelChunk::blankoutTransferTable();
+//     CvrVoxelChunk::transfertablenodeid = transferfunc->getNodeId();
+//   }
+// [...]
+//           if (CvrVoxelChunk::transferdone[voldataidx]) {
+//             output[texelidx] = CvrVoxelChunk::transfertable[voldataidx];
+//             if (invisible) {
+//               uint8_t alpha =
+//                 (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
+//                 ((output[texelidx] & 0xff000000) > 24) :
+//                 (output[texelidx] & 0x000000ff);
+//               invisible = (alpha == 0x00);
+//             }
+//             continue;
+//           }
+// [...]
+//           CvrVoxelChunk::transferdone[voldataidx] = TRUE;
+//           CvrVoxelChunk::transfertable[voldataidx] = output[texelidx];
+//
+// [...]
+// void
+// CvrVoxelChunk::blankoutTransferTable(void)
+// {
+//   for (unsigned int i=0; i < COLOR_TABLE_PREDEF_SIZE; i++) {
+//     CvrVoxelChunk::transferdone[i] = FALSE;
+//   }
+// }
