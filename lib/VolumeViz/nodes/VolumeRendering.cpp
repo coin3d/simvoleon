@@ -60,6 +60,10 @@
   automatically done on graphics card which supports hardware assisted
   3D texture mapping. </li>
 
+  <li> Transfer functions can be manipulated in realtime using the
+  EXT_texture_palette or the ARB_fragment_program OpenGL
+  extension. </li>
+
   <center>
    <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-spine.png">
   </center>
