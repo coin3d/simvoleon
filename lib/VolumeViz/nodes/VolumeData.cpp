@@ -293,8 +293,6 @@ public:
   void releaseAllSlices();
   void releaseSlices(const Axis AXISIDX);
 
-  void freeTexels(int desired);
-  void freeHWBytes(int desired);
   void managePages(void);
   void releaseLRUPage(void);
 
@@ -608,19 +606,14 @@ SoVolumeDataP::releaseAllSlices(void)
 }
 
 void
-SoVolumeDataP::freeTexels(int desired)
-{
-  // FIXME: should be assert, methinks. 20021118 mortene.
-  if (desired > maxTexels) return;
-
-  while ((maxTexels - numTexels) < desired)
-    this->releaseLRUPage();
-}
-
-
-void
 SoVolumeDataP::releaseLRUPage(void)
 {
+#if 1 // debug
+  SoDebugError::postInfo("SoVolumeDataP::releaseLRUPage",
+                         "releaseLRUPage() start, numTexels==%d, numBytesHW==%d",
+                         this->numTexels, this->numBytesHW);
+#endif // debug
+
   Cvr2DTexSubPage * LRUPage = NULL;
   Cvr2DTexPage * LRUSlice = NULL;
 
@@ -630,7 +623,7 @@ SoVolumeDataP::releaseLRUPage(void)
     if (this->slices[dim]) {
       for (int i = 0; i < this->dimensions[dim]; i++) {
         if (this->slices[dim][i]) {
-          Cvr2DTexSubPage * tmppage = this->slices[dim][i]->getLRUPage();
+          Cvr2DTexSubPage * tmppage = this->slices[dim][i]->getLRUSubPage();
           SbBool newlow = (LRUPage == NULL);
           if (!newlow) { newlow = tmppage && (tmppage->lastuse < LRUPage->lastuse); }
           if (newlow) {
@@ -645,14 +638,16 @@ SoVolumeDataP::releaseLRUPage(void)
   this->numTexels -= LRUSlice->numTexels;
   this->numBytesHW -= LRUSlice->numBytesHW;
 
-  LRUSlice->releasePage(LRUPage);
-#if 1 // debug
-  SoDebugError::postInfo("SoVolumeDataP::releaseLRUPage",
-                         "released page");
-#endif // debug
+  LRUSlice->releaseSubPage(LRUPage);
 
   this->numTexels += LRUSlice->numTexels;
   this->numBytesHW += LRUSlice->numBytesHW;
+
+#if 1 // debug
+  SoDebugError::postInfo("SoVolumeDataP::releaseLRUPage",
+                         "releaseLRUPage() done, numTexels==%d, numBytesHW==%d",
+                         this->numTexels, this->numBytesHW);
+#endif // debug
 }
 
 void
@@ -669,21 +664,12 @@ SoVolumeDataP::releaseSlices(const SoVolumeDataP::Axis AXISIDX)
 }
 
 void
-SoVolumeDataP::freeHWBytes(int desired)
-{
-  assert(desired <= this->maxBytesHW);
-
-  while ((this->maxBytesHW - this->numBytesHW) < desired) {
-    this->releaseLRUPage();
-  }
-}
-
-void
 SoVolumeDataP::managePages(void)
 {
   // Keep both measures within maxlimits
-  this->freeHWBytes(0);
-  this->freeTexels(0);
+
+  while (this->numBytesHW > this->maxBytesHW) { this->releaseLRUPage(); }
+  while (this->numTexels > this->maxTexels) { this->releaseLRUPage(); }
 }
 
 
