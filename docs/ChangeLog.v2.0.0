@@ -1,0 +1,4764 @@
+2004-10-11 10:24  mortene
+
+	* configure: bootstrap
+
+2004-10-11 10:23  mortene
+
+	* INSTALL, NEWS, configure.ac, docs/announcement-2_0_0.txt: Version
+	  number update.
+
+2004-10-11 10:20  mortene
+
+	* aclocal.m4, configure, cfg/errors.txt, cfg/simvoleon.m4,
+	  lib/VolumeViz/elements/Makefile.in: Bootstrap.
+
+2004-10-11 10:09  mortene
+
+	* RELNOTES, docs/announcement-2_0_0.txt: Release preparations.
+
+2004-10-11 10:09  mortene
+
+	* lib/VolumeViz/: misc/Util.cpp, misc/VoxelChunk.cpp,
+	  nodes/CvrIndexedSetRenderBaseP.cpp,
+	  nodes/CvrNonIndexedSetRenderBaseP.cpp, nodes/ROI.cpp,
+	  nodes/VolumeRender.cpp, render/3D/3DTexCube.cpp: Minor clean-up
+	  stuff.
+
+2004-10-11 10:09  mortene
+
+	* lib/VolumeViz/: nodes/SoVolumeData.h, nodes/VolumeData.cpp,
+	  readers/SoVolumeReader.h, readers/VRMemReader.cpp,
+	  readers/VRVolFileReader.cpp, readers/VolumeReader.cpp:
+	  Compatibility fixes vs TGS VolumeViz.
+
+2004-10-11 10:09  mortene
+
+	* lib/VolumeViz/nodes/: ObliqueSlice.cpp, OrthoSlice.cpp,
+	  SoObliqueSlice.h: Compatibility fixes: API for alternate
+	  representations.
+
+2004-10-08 17:08  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp:
+	  Compatibility fix: match TGS VolumeViz API.
+
+2004-10-08 15:02  mortene
+
+	* lib/VolumeViz/nodes/: OrthoSlice.cpp, SoOrthoSlice.h:
+	  Compatibility fix: add alternateRep field (no real
+	  implementation, just stubbed).
+
+2004-10-08 14:50  mortene
+
+	* lib/VolumeViz/nodes/: SoTransferFunction.h, TransferFunction.cpp:
+	  Compatibility fix: adds function hasTransparency().
+
+2004-10-08 14:50  mortene
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Compile fix.
+
+2004-10-08 14:34  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeRendering.h, VolumeRendering.cpp:
+	  Compatibility fixes: stub up functions from TGS VolumeViz.
+
+2004-10-08 12:17  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeRendering.h, VolumeRendering.cpp:
+	  Bug / compatibility fix: node should be abstract.
+
+2004-10-08 11:10  mortene
+
+	* lib/VolumeViz/nodes/: ObliqueSlice.cpp, VolumeFaceSet.cpp,
+	  VolumeIndexedFaceSet.cpp, VolumeIndexedTriangleStripSet.cpp,
+	  VolumeSkin.cpp, VolumeTriangleStripSet.cpp: Doc: update
+	  'since'-information to reflect that we are releasing as 2.0, not
+	  1.1.
+
+2004-10-08 11:10  mortene
+
+	* lib/VolumeViz/details/: ObliqueSliceDetail.cpp,
+	  OrthoSliceDetail.cpp, SoObliqueSliceDetail.h,
+	  SoOrthoSliceDetail.h, SoVolumeDetail.h, SoVolumeRenderDetail.h,
+	  SoVolumeSkinDetail.h, VolumeDetail.cpp, VolumeRenderDetail.cpp,
+	  VolumeSkinDetail.cpp: Bugfixes: copy() functions were not
+	  implemented correct.
+
+2004-10-08 11:10  mortene
+
+	* lib/VolumeViz/elements/SoTransferFunctionElement.h: Remove from
+	  public API.
+
+2004-10-08 09:52  mortene
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Minor fix: slight
+	  improvement to how HW features are reported.
+
+2004-10-08 09:18  mortene
+
+	* RELNOTES, docs/announcement-2_0_0.txt,
+	  lib/VolumeViz/elements/Makefile.am: Prepare 2.0 release.
+
+2004-10-08 06:16  mortene
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Doc: tiny API doc
+	  addition.
+
+2004-10-07 16:49  handegar
+
+	* lib/VolumeViz/details/VolumeDetail.cpp: Fixed raypick bug.
+
+2004-10-07 16:44  mortene
+
+	* lib/VolumeViz/render/3D/: 3DTexSubCube.cpp, Cvr3DTexSubCube.h:
+	  Optimalization: reuse list elements to avoid unnecessary memory
+	  allocation.
+
+2004-10-07 16:14  mortene
+
+	* lib/VolumeViz/render/3D/: 3DTexSubCube.cpp, Cvr3DTexSubCube.h:
+	  Optimalization: reuse SbClip, to avoid unnecessary memory
+	  allocation during rendering.
+
+2004-10-07 15:50  mortene
+
+	* lib/VolumeViz/render/3D/: 3DTexSubCube.cpp, Cvr3DTexSubCube.h:
+	  Optimalization: faster clipping.
+
+2004-10-07 15:07  mortene
+
+	* lib/VolumeViz/render/3D/3DTexSubCube.cpp: Improved debug output,
+	  more code comments.
+
+2004-10-07 13:14  mortene
+
+	* lib/VolumeViz/render/3D/: 3DTexSubCube.cpp, Cvr3DTexSubCube.h:
+	  Optimalization: don't new SbVec3f instances, just copy them to
+	  object-global list.
+
+2004-10-07 12:55  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Doc: more interface doc.
+
+2004-10-07 12:54  mortene
+
+	* lib/VolumeViz/readers/VRMemReader.cpp: Compatibility fix:
+	  normalize world size to be within 2x2x2 cube.
+
+2004-10-07 11:24  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Debug: less default debug
+	  output.
+
+2004-10-07 11:23  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Updates FIXME note.
+
+2004-10-07 11:23  mortene
+
+	* lib/VolumeViz/readers/: VRVolFileReader.cpp, VolumeReader.cpp:
+	  Compatibility fix: volume should by default be normalized to be
+	  within a cube with dimensions <2,2,2> in unit coordinates.
+
+2004-10-07 09:46  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp: New field,
+	  recently added by TGS, or previously overlooked by us. Also fill
+	  in stub messages and FIXMEs at unimplemented functions.
+
+2004-09-23 11:51  mortene
+
+	* docs/todo.txt: Misc updates.
+
+2004-09-23 11:10  mortene
+
+	* lib/VolumeViz/: nodes/CvrIndexedSetRenderBaseP.cpp,
+	  nodes/CvrNonIndexedSetRenderBaseP.cpp, nodes/SoVolumeFaceSet.h,
+	  nodes/SoVolumeIndexedFaceSet.h,
+	  nodes/SoVolumeIndexedTriangleStripSet.h,
+	  nodes/SoVolumeTriangleStripSet.h, render/3D/Cvr3DTexCube.h: Build
+	  fix: don't use internal header files from public headers\!
+
+2004-09-23 11:03  mortene
+
+	* lib/VolumeViz/nodes/: SoTransferFunction.h, TransferFunction.cpp:
+	  Provide a work-around for mis-design on behalf of TGS: add
+	  ''unofficial'' fields for narrowing the transfer function.
+
+2004-09-23 10:30  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Doc: minor fix.
+
+2004-09-23 10:19  mortene
+
+	* lib/VolumeViz/nodes/: TransferFunction.cpp, VolumeRendering.cpp:
+	  Doc: API doc enhancements.
+
+2004-09-21 14:00  handegar
+
+	* BUGS.txt: Removed bug 018.
+
+2004-09-21 13:59  handegar
+
+	* lib/VolumeViz/details/VolumeDetail.cpp: Fixed RayPick bug 018.
+
+2004-09-20 16:45  handegar
+
+	* lib/VolumeViz/render/3D/3DTexCube.cpp: Robustified obliqueslice.
+
+2004-09-20 12:21  mortene
+
+	* BUGS.txt: New item.
+
+2004-09-20 11:39  mortene
+
+	* BUGS.txt: New item.
+
+2004-09-19 15:28  mortene
+
+	* BUGS.txt: New item.
+
+2004-09-17 10:00  mortene
+
+	* BUGS.txt, docs/todo.txt: New to-do item.
+
+2004-09-17 09:41  mortene
+
+	* lib/VolumeViz/render/3D/3DTexSubCube.cpp: Codestyle and minor
+	  optimization fixes.
+
+2004-09-16 15:56  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Tiny debug output fix.
+
+2004-09-16 15:56  mortene
+
+	* lib/VolumeViz/render/: 3D/3DTexCube.cpp, 3D/3DTexSubCube.cpp,
+	  3D/Cvr3DTexCube.h, 3D/Cvr3DTexSubCube.h,
+	  common/CvrTextureObject.cpp, common/CvrTextureObject.h:
+	  Rearranged code to correct a bug with abort callback, plus
+	  simplifies code flow. Many parts of the internal interfaces
+	  improved in various ways.
+
+2004-09-15 15:13  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Better fix for bug017.
+
+2004-09-15 12:45  handegar
+
+	* BUGS.txt: Removed a non-alphabetical char.
+
+2004-09-15 12:42  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: SoVolumeDataElement gone.
+
+2004-09-15 12:38  handegar
+
+	* BUGS.txt: Removed bug017
+
+2004-09-15 12:37  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Fixed bug 017
+
+2004-09-15 10:47  handegar
+
+	* BUGS.txt: Remove bug011.
+
+2004-09-15 10:46  handegar
+
+	* lib/VolumeViz/nodes/: CvrIndexedSetRenderBaseP.cpp,
+	  CvrNonIndexedSetRenderBaseP.cpp: Fixed bug011.
+
+2004-09-15 10:08  mortene
+
+	* BUGS.txt: New item.
+
+2004-09-14 12:09  mortene
+
+	* docs/simvoleon.doxygen.in: Updates for obsoleted element, and new
+	  detail classes.
+
+2004-09-14 12:08  mortene
+
+	* lib/VolumeViz/: elements/Makefile.am, elements/Makefile.in,
+	  elements/SoVolumeDataElement.h, elements/VolumeDataElement.cpp,
+	  nodes/VolumeRender.cpp: Remove class SoVolumeDataElement
+	  obsoleted for 2.0 release.
+
+2004-09-14 12:00  mortene
+
+	* configure, configure.ac: Bump version number.
+
+2004-09-08 17:26  handegar
+
+	* lib/VolumeViz/render/3D/3DTexSubCube.cpp: Minor typo.
+
+2004-09-08 17:24  handegar
+
+	* BUGS.txt: Clarified text for bug 016.
+
+2004-09-07 16:25  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Added support for
+	  SoDrawStyle::POINTS.
+
+2004-09-07 16:13  handegar
+
+	* BUGS.txt: Added a new bug (016).  Typos.
+
+2004-09-07 15:23  handegar
+
+	* BUGS.txt: Added an update to bug 002.
+
+2004-09-07 15:10  handegar
+
+	* BUGS.txt: Removed bug 014.
+
+2004-09-07 15:08  handegar
+
+	* lib/VolumeViz/render/: 2D/2DTexSubPage.cpp, 3D/3DTexSubCube.cpp:
+	  Added support for SoDrawStyle::LINES for SoObliqueSlice &
+	  SoOrthoSlice.
+
+2004-09-07 14:58  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Typo.
+
+2004-09-07 14:38  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Added SoDrawStyle::LINES
+	  support for SoVolumeRender.
+
+2004-09-07 13:40  handegar
+
+	* BUGS.txt: Remove bugs.
+
+2004-09-07 13:38  handegar
+
+	* lib/VolumeViz/nodes/: volumeraypickintersection.cpp,
+	  volumeraypickintersection.h: New files (internal raypick code).
+
+2004-09-07 13:22  handegar
+
+	* lib/VolumeViz/: details/SoVolumeDetail.h,
+	  details/VolumeDetail.cpp, nodes/Makefile.am, nodes/Makefile.in,
+	  nodes/SoVolumeSkin.h, nodes/VolumeRender.cpp,
+	  nodes/VolumeSkin.cpp: Restructured RayPick and SoVolumeDetail
+	  code for SoVolumeRender & SoVolumeSkin.  Bootstrap.
+
+2004-09-02 15:33  handegar
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Classinit()-ing new
+	  detail nodes.
+
+2004-09-02 15:30  handegar
+
+	* lib/VolumeViz/nodes/: ObliqueSlice.cpp, OrthoSlice.cpp: Minor
+	  message-text fix.
+
+2004-09-02 15:30  handegar
+
+	* lib/VolumeViz/details/: Makefile.am, Makefile.in,
+	  SoVolumeDetail.h, SoVolumeRenderDetail.h, SoVolumeSkinDetail.h,
+	  VolumeDetail.cpp, VolumeRenderDetail.cpp, VolumeSkinDetail.cpp:
+	  New detail nodes.  Reorganizing the volumedetail class system
+	  according to VolumeViz.
+
+2004-09-02 15:23  handegar
+
+	* lib/VolumeViz/nodes/: ObliqueSlice.cpp, OrthoSlice.cpp: Display
+	  warning if raypicking when CVR_USE_FLIPPED_Y_AXIS=1.
+
+2004-09-02 15:20  handegar
+
+	* lib/VolumeViz/elements/VoxelBlockElement.cpp: Minor raypick
+	  bugfix.
+
+2004-09-02 11:14  mortene
+
+	* BUGS.txt: New item.
+
+2004-08-24 13:08  mortene
+
+	* configure.ac: Make simvoleon-config self-sufficient for src
+	  builds.
+
+2004-08-17 13:40  mortene
+
+	* BUGS.txt: Make a note of a known problem.
+
+2004-08-09 10:27  handegar
+
+	* lib/VolumeViz/render/3D/CubeHandler.cpp: Minor fix/cleanup.
+
+2004-08-06 16:19  handegar
+
+	* lib/VolumeViz/render/2D/: CvrPageHandler.h, PageHandler.cpp:
+	  Voxel dimensions can now be changed during runtime as one update
+	  voxel data (Bug reported by Kristofer Tingdahl).
+
+2004-08-06 15:49  handegar
+
+	* lib/VolumeViz/render/3D/: CubeHandler.cpp, CvrCubeHandler.h:
+	  Voxel dimensions can now be changed during runtime as one update
+	  voxel data (Bug reported by Kristofer Tingdahl).
+
+2004-08-06 15:31  handegar
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Plugged a potential memleak.
+
+2004-08-05 15:40  handegar
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Doxygen enum-list fix.
+
+2004-08-04 23:59  mortene
+
+	* lib/VolumeViz/: nodes/ObliqueSlice.cpp, render/3D/3DTexCube.cpp,
+	  render/3D/3DTexSubCube.cpp, render/3D/Cvr3DTexCube.h,
+	  render/3D/Cvr3DTexSubCube.h, render/3D/CvrCubeHandler.h: Debug:
+	  added more control envvars for debugging aid. Misc header include
+	  clean-ups.
+
+2004-08-04 11:47  handegar
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Doxygen fix.
+
+2004-08-04 10:27  mortene
+
+	* lib/VolumeViz/: misc/CvrUtil.h, misc/Util.cpp,
+	  nodes/VolumeRender.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/2DTexSubPage.cpp, render/2D/Cvr2DTexPage.h,
+	  render/2D/Cvr2DTexSubPage.h, render/2D/CvrPageHandler.h,
+	  render/3D/3DTexCube.cpp, render/3D/3DTexSubCube.cpp,
+	  render/3D/Cvr3DTexCube.h, render/3D/Cvr3DTexSubCube.h,
+	  render/common/CvrPaletteTexture.h: Debugging: more flexibility in
+	  control of visual debugging with box/slice wireframes.
+
+2004-08-04 10:25  mortene
+
+	* BUGS.txt: New item.
+
+2004-08-03 10:05  handegar
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Doxygen typo.
+
+2004-08-02 10:51  handegar
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Doc fix.
+
+2004-07-30 13:29  handegar
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Added more doc.
+
+2004-07-30 11:30  handegar
+
+	* docs/todo.txt: A note on raycasting.
+
+2004-07-30 10:51  handegar
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Minor doc adjustments.
+
+2004-07-29 22:34  mortene
+
+	* docs/todo.txt: Start off the wish list with a bunch of tasks
+	  simmering in my head.
+
+2004-07-29 16:31  handegar
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: More doc.
+
+2004-07-29 12:14  kyrah
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Doc fix. It's called Mac
+	  OS X. :)
+
+2004-07-28 15:59  mortene
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, 3DTexSubCube.cpp,
+	  CubeHandler.cpp, Cvr3DTexSubCube.h: Clean-up: minor internal
+	  interface design fix.
+
+2004-07-28 15:38  handegar
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Minor doc fix.
+
+2004-07-28 14:40  handegar
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Removed alot of redundant
+	  code.  Added support for 2D 16 bits textures.
+
+2004-07-28 14:20  handegar
+
+	* lib/VolumeViz/render/3D/CubeHandler.cpp: RGBA => palette texture
+	  bug fix.
+
+2004-07-28 13:09  handegar
+
+	* lib/VolumeViz/render/common/: CvrTextureObject.cpp,
+	  CvrTextureObject.h: Compare fix by mortene.  Small memleak fix.
+
+2004-07-27 16:42  handegar
+
+	* lib/VolumeViz/render/3D/3DTexCube.cpp: minor optimization.
+
+2004-07-27 13:39  handegar
+
+	* lib/VolumeViz/: nodes/CvrIndexedSetRenderBaseP.cpp,
+	  nodes/CvrNonIndexedSetRenderBaseP.cpp, render/3D/3DTexCube.cpp,
+	  render/3D/3DTexSubCube.cpp, render/3D/CubeHandler.cpp,
+	  render/3D/Cvr3DTexCube.h, render/3D/Cvr3DTexSubCube.h: 3D texture
+	  optimization.
+
+2004-07-27 12:46  handegar
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: New mainpage doc item.
+
+2004-07-27 12:18  handegar
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Minor doc fix.
+
+2004-07-27 11:48  handegar
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Reenabled 16 bit voxel support
+	  (scales values down to 8 bit).
+
+2004-07-27 11:35  handegar
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Added some doc.
+
+2004-07-27 11:35  handegar
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Increased max subcube size to
+	  128x128x128.
+
+2004-07-23 18:08  mortene
+
+	* lib/VolumeViz/render/common/: resourcehandler.c,
+	  resourcehandler.h: Implement hooks for context activation and
+	  context destruction.
+
+2004-07-23 17:44  mortene
+
+	* lib/VolumeViz/render/common/: resourcehandler.c,
+	  resourcehandler.h: Clean-up: remove obsoleted code.
+
+2004-07-23 16:19  mortene
+
+	* lib/VolumeViz/: caches/CvrGLTextureCache.h,
+	  caches/GLTextureCache.cpp, render/2D/PageHandler.cpp,
+	  render/common/CvrTextureObject.cpp,
+	  render/common/CvrTextureObject.h,
+	  render/common/resourcehandler.c, render/common/resourcehandler.h:
+	  Internal design: connect CvrGLTextureCache to the GL resource
+	  handler.
+
+2004-07-23 12:57  handegar
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp: msvc compile
+	  fix
+
+2004-07-23 12:47  handegar
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp: Bug fix
+	  (fragment program support ignored due to missing define).
+
+2004-07-23 12:33  mortene
+
+	* BUGS.txt: Update item #12 after work-around to move from status
+	  critical to status medium priority.
+
+2004-07-23 12:28  mortene
+
+	* lib/VolumeViz/render/common/: Cvr2DPaletteTexture.h,
+	  Cvr2DRGBATexture.h, Cvr3DPaletteTexture.h, Cvr3DRGBATexture.h,
+	  CvrTextureObject.cpp, CvrTextureObject.h: Half-way work-around
+	  for bug with visible seams between textures.
+
+2004-07-23 12:25  mortene
+
+	* configure: Bootstrap.
+
+2004-07-23 12:25  mortene
+
+	* configure.ac: Bugfix: activate stricter checking by the compiler.
+
+2004-07-23 11:22  mortene
+
+	* BUGS.txt: Fixed one bug, but that uncovered 2 new ones...
+
+2004-07-23 11:22  mortene
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, Cvr3DTexCube.h: Bugfix:
+	  heed SoVolumeData's pagesize setting.
+
+2004-07-23 11:06  mortene
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp: Info text block
+	  moved over from obsoleted file about texture resource queries.
+
+2004-07-23 11:02  mortene
+
+	* lib/VolumeViz/render/2D/: CvrTexManager.h, Makefile.am,
+	  Makefile.in, TexManager.cpp: Removes obsoleted files.
+
+2004-07-22 22:34  mortene
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp: Bugfix: had a
+	  regression for volumes with non-power-of-two dimensions. Now
+	  fixed.
+
+2004-07-22 21:49  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, Cvr2DTexPage.h,
+	  CvrPageHandler.h, PageHandler.cpp: Minor clean-ups. Internal
+	  design FIXMEs.
+
+2004-07-22 16:01  mortene
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, 3DTexSubCube.cpp,
+	  Cvr3DTexCube.h, Cvr3DTexSubCube.h: Minor code clean-ups
+	  (constness, header inclusion).
+
+2004-07-22 16:00  mortene
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp: Remove FIXME
+	  note for issue which has been taken care of.
+
+2004-07-22 15:59  mortene
+
+	* configure, configure.ac: Build fix.
+
+2004-07-22 15:39  handegar
+
+	* BUGS.txt: Added some bugs.
+
+2004-07-22 15:11  mortene
+
+	* lib/VolumeViz/: Makefile.am, Makefile.in,
+	  caches/CvrGLTextureCache.h, caches/GLTextureCache.cpp,
+	  caches/Makefile.am, caches/Makefile.in, misc/Makefile.am,
+	  misc/Makefile.in, render/common/CvrTextureObject.cpp,
+	  render/common/CvrTextureObject.h: Implementation clean-up: use
+	  the Coin caching mechanism to track the validity of GL texture
+	  ids.
+
+2004-07-22 11:11  mortene
+
+	* NEWS: Sync.
+
+2004-07-22 10:28  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Tuning: recent changes
+	  biased performance of 2D texturing, so lower threshold for
+	  accepting 3D texturing.
+
+2004-07-22 10:26  mortene
+
+	* lib/VolumeViz/render/common/: Cvr2DPaletteTexture.cpp,
+	  Cvr2DPaletteTexture.h, Cvr2DRGBATexture.cpp, Cvr2DRGBATexture.h,
+	  Cvr3DPaletteTexture.cpp, Cvr3DPaletteTexture.h,
+	  Cvr3DRGBATexture.cpp, Cvr3DRGBATexture.h, CvrPaletteTexture.cpp,
+	  CvrPaletteTexture.h, CvrRGBATexture.cpp, CvrRGBATexture.h,
+	  CvrTextureObject.cpp, CvrTextureObject.h: Internal interface
+	  clean-up: get rid of friend'ing of superclass, use Coin
+	  type-system for creating instances.
+
+2004-07-22 10:07  mortene
+
+	* lib/VolumeViz/: misc/CLUT.cpp, misc/CvrCLUT.h,
+	  misc/CvrVoxelChunk.h, misc/VoxelChunk.cpp,
+	  render/2D/Cvr2DTexSubPage.h,
+	  render/common/Cvr2DPaletteTexture.cpp,
+	  render/common/Cvr2DPaletteTexture.h,
+	  render/common/Cvr2DRGBATexture.cpp,
+	  render/common/Cvr2DRGBATexture.h,
+	  render/common/Cvr3DPaletteTexture.cpp,
+	  render/common/Cvr3DPaletteTexture.h,
+	  render/common/Cvr3DRGBATexture.cpp,
+	  render/common/Cvr3DRGBATexture.h,
+	  render/common/CvrPaletteTexture.cpp,
+	  render/common/CvrTextureObject.cpp,
+	  render/common/CvrTextureObject.h: Various internal design
+	  clean-ups. Performance improvement: hash on a key for
+	  CvrTextureObject-instances, to avoid costly linear array
+	  searches.
+
+2004-07-20 15:34  mortene
+
+	* lib/VolumeViz/nodes/: CvrIndexedSetRenderBaseP.cpp,
+	  CvrIndexedSetRenderBaseP.h, CvrNonIndexedSetRenderBaseP.cpp,
+	  CvrNonIndexedSetRenderBaseP.h: Bugfix: corrects the check and
+	  exit for systems without 3d-textures. Clean-ups: get rid of
+	  unneeded enums and header inclusion.
+
+2004-07-20 15:16  mortene
+
+	* lib/VolumeViz/: elements/CvrGLInterpolationElement.h,
+	  elements/GLInterpolationElement.cpp, elements/Makefile.am,
+	  elements/Makefile.in, nodes/CvrIndexedSetRenderBaseP.cpp,
+	  nodes/CvrNonIndexedSetRenderBaseP.cpp, nodes/ObliqueSlice.cpp,
+	  nodes/OrthoSlice.cpp, nodes/SoObliqueSlice.h,
+	  nodes/SoOrthoSlice.h, nodes/VolumeFaceSet.cpp,
+	  nodes/VolumeIndexedFaceSet.cpp,
+	  nodes/VolumeIndexedTriangleStripSet.cpp, nodes/VolumeRender.cpp,
+	  nodes/VolumeRendering.cpp, nodes/VolumeTriangleStripSet.cpp,
+	  render/2D/2DTexPage.cpp, render/2D/2DTexSubPage.cpp,
+	  render/2D/Cvr2DTexPage.h, render/2D/Cvr2DTexSubPage.h,
+	  render/2D/CvrPageHandler.h, render/2D/PageHandler.cpp,
+	  render/3D/3DTexCube.cpp, render/3D/3DTexSubCube.cpp,
+	  render/3D/CubeHandler.cpp, render/3D/Cvr3DTexCube.h,
+	  render/3D/Cvr3DTexSubCube.h, render/3D/CvrCubeHandler.h,
+	  render/common/CvrTextureObject.cpp,
+	  render/common/CvrTextureObject.h: Internal design fixes:
+	  collected common activateTexture() from 2DTexSubPage and
+	  3DTexSubCube into CvrTextureObject. Passing interpolation info on
+	  state stack.
+
+2004-07-20 11:23  mortene
+
+	* aclocal.m4, configure: Bootstrap.
+
+2004-07-20 11:06  mortene
+
+	* configure.ac: Be stricter with compiler warnings.
+
+2004-07-20 11:04  mortene
+
+	* lib/VolumeViz/render/: 2D/2DTexPage.cpp, 2D/2DTexSubPage.cpp,
+	  2D/Cvr2DTexSubPage.h, 3D/3DTexSubCube.cpp,
+	  common/Cvr2DPaletteTexture.h, common/Cvr2DRGBATexture.h,
+	  common/Cvr3DPaletteTexture.h, common/Cvr3DRGBATexture.h,
+	  common/CvrPaletteTexture.cpp, common/CvrTextureObject.cpp,
+	  common/CvrTextureObject.h: Internal design work: make
+	  Cvr2DTexSubPage also use CvrTextureObject for texture handling /
+	  sharing.
+
+2004-07-19 15:29  mortene
+
+	* lib/VolumeViz/: elements/CvrVoxelBlockElement.h,
+	  elements/VoxelBlockElement.cpp, misc/CvrVoxelChunk.h,
+	  misc/VoxelChunk.cpp, nodes/VolumeData.cpp,
+	  nodes/VolumeRender.cpp, readers/VRMemReader.cpp,
+	  readers/VRVolFileReader.cpp, render/2D/2DTexPage.cpp,
+	  render/Pointset/PointRendering.cpp,
+	  render/common/CvrTextureObject.cpp: Minor internal interface fix:
+	  remove unnecessary enum.
+
+2004-07-19 14:56  mortene
+
+	* RELNOTES, lib/VolumeViz/elements/CvrPageSizeElement.h,
+	  lib/VolumeViz/elements/CvrPalettedTexturesElement.h,
+	  lib/VolumeViz/elements/CvrStorageHintElement.h,
+	  lib/VolumeViz/elements/CvrVoxelBlockElement.h,
+	  lib/VolumeViz/elements/Makefile.am,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/elements/PageSizeElement.cpp,
+	  lib/VolumeViz/elements/PalettedTexturesElement.cpp,
+	  lib/VolumeViz/elements/SoVolumeDataElement.h,
+	  lib/VolumeViz/elements/StorageHintElement.cpp,
+	  lib/VolumeViz/elements/VolumeDataElement.cpp,
+	  lib/VolumeViz/elements/VoxelBlockElement.cpp,
+	  lib/VolumeViz/misc/CvrUtil.h, lib/VolumeViz/misc/CvrVoxelChunk.h,
+	  lib/VolumeViz/misc/Util.cpp, lib/VolumeViz/misc/VoxelChunk.cpp,
+	  lib/VolumeViz/nodes/CvrIndexedSetRenderBaseP.cpp,
+	  lib/VolumeViz/nodes/CvrNonIndexedSetRenderBaseP.cpp,
+	  lib/VolumeViz/nodes/ObliqueSlice.cpp,
+	  lib/VolumeViz/nodes/OrthoSlice.cpp,
+	  lib/VolumeViz/nodes/VolumeData.cpp,
+	  lib/VolumeViz/nodes/VolumeFaceSet.cpp,
+	  lib/VolumeViz/nodes/VolumeIndexedFaceSet.cpp,
+	  lib/VolumeViz/nodes/VolumeIndexedTriangleStripSet.cpp,
+	  lib/VolumeViz/nodes/VolumeRender.cpp,
+	  lib/VolumeViz/nodes/VolumeRendering.cpp,
+	  lib/VolumeViz/nodes/VolumeSkin.cpp,
+	  lib/VolumeViz/nodes/VolumeTriangleStripSet.cpp,
+	  lib/VolumeViz/render/2D/2DTexPage.cpp,
+	  lib/VolumeViz/render/2D/Cvr2DTexPage.h,
+	  lib/VolumeViz/render/2D/CvrPageHandler.h,
+	  lib/VolumeViz/render/2D/PageHandler.cpp,
+	  lib/VolumeViz/render/3D/3DTexCube.cpp,
+	  lib/VolumeViz/render/3D/CubeHandler.cpp,
+	  lib/VolumeViz/render/3D/Cvr3DTexCube.h,
+	  lib/VolumeViz/render/3D/CvrCubeHandler.h,
+	  lib/VolumeViz/render/Pointset/PointRendering.cpp,
+	  lib/VolumeViz/render/common/CvrTextureObject.cpp,
+	  lib/VolumeViz/render/common/CvrTextureObject.h: Internal design
+	  clean-up: use state stack for misc variables in SoVolumeData.
+
+2004-07-18 22:05  mortene
+
+	* lib/VolumeViz/: elements/Makefile.in, nodes/Makefile.in,
+	  readers/Makefile.in: Bootstrap.
+
+2004-07-18 22:02  mortene
+
+	* lib/VolumeViz/: nodes/Makefile.am, readers/Makefile.am: Bugfix:
+	  don't install private headers.
+
+2004-07-18 21:57  mortene
+
+	* lib/VolumeViz/: elements/CompressedTexturesElement.cpp,
+	  elements/CvrCompressedTexturesElement.h, elements/Makefile.am,
+	  nodes/VolumeData.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/2DTexSubPage.cpp, render/2D/Cvr2DTexSubPage.h,
+	  render/3D/3DTexCube.cpp, render/3D/3DTexSubCube.cpp,
+	  render/3D/Cvr3DTexSubCube.h, render/common/CvrTextureObject.cpp:
+	  Internal design fix: use an element for info about wanted setting
+	  for texture compression.
+
+2004-07-18 14:54  mortene
+
+	* lib/VolumeViz/render/: 3D/3DTexCube.cpp, 3D/3DTexSubCube.cpp,
+	  common/CvrTextureObject.cpp: Minor clean-ups, ref() from caller.
+
+2004-07-18 14:38  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Misc improvements and
+	  clean-ups to 3d-vs-2d texturing performance tests.
+
+2004-07-16 17:09  mortene
+
+	* lib/VolumeViz/: misc/CLUT.cpp,
+	  render/common/CvrTextureObject.cpp: Important FIXMEs.
+
+2004-07-16 17:07  mortene
+
+	* lib/VolumeViz/render/common/: CvrTextureObject.cpp,
+	  CvrTextureObject.h: Remove faulty compression texture checking.
+
+2004-07-16 17:07  mortene
+
+	* lib/VolumeViz/render/3D/3DTexCube.cpp: Compile fix.
+
+2004-07-16 16:34  mortene
+
+	* lib/VolumeViz/render/common/: CvrTextureManager.cpp,
+	  CvrTextureManager.h: Remove CvrTextureManager class, as it seems
+	  possible to improve the design a lot by using the
+	  CvrTextureObject for its tasks.
+
+2004-07-16 16:28  mortene
+
+	* BUGS.txt: New item.
+
+2004-07-16 16:27  mortene
+
+	* lib/VolumeViz/: misc/CvrVoxelChunk.h, misc/VoxelChunk.cpp,
+	  render/2D/2DTexSubPage.cpp, render/3D/3DTexCube.cpp,
+	  render/3D/3DTexSubCube.cpp, render/3D/Cvr3DTexSubCube.h,
+	  render/common/CvrPaletteTexture.h,
+	  render/common/CvrRGBATexture.h,
+	  render/common/CvrTextureManager.cpp,
+	  render/common/CvrTextureManager.h,
+	  render/common/CvrTextureObject.cpp,
+	  render/common/CvrTextureObject.h, render/common/Makefile.am,
+	  render/common/Makefile.in: Remove CvrTextureManager class, as it
+	  seems possible to improve the design a lot by using the
+	  CvrTextureObject for its tasks.
+
+2004-07-16 15:49  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Robustify texture
+	  performance averaging calculation to not crash and burn on slow
+	  systems.
+
+2004-07-16 11:37  mortene
+
+	* lib/VolumeViz/: misc/CvrVoxelChunk.h, misc/VoxelChunk.cpp,
+	  render/common/CvrTextureManager.cpp,
+	  render/common/CvrTextureManager.h: Tmp remove interface for 2D
+	  textures. Not in use (nor implemented) yet. For clarity and less
+	  unnecessary effort during other dev work.
+
+2004-07-16 10:17  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, SoVolumeFaceSet.h,
+	  SoVolumeIndexedFaceSet.h, SoVolumeIndexedTriangleStripSet.h,
+	  SoVolumeSkin.h, SoVolumeTriangleStripSet.h: Minor style fixes,
+	  remove some unneeded friend'ing.
+
+2004-07-16 09:39  mortene
+
+	* lib/VolumeViz/: misc/VoxelChunk.cpp, render/2D/2DTexSubPage.cpp,
+	  render/3D/3DTexSubCube.cpp,
+	  render/common/Cvr2DPaletteTexture.cpp,
+	  render/common/Cvr2DPaletteTexture.h,
+	  render/common/Cvr2DRGBATexture.cpp,
+	  render/common/Cvr2DRGBATexture.h,
+	  render/common/Cvr3DPaletteTexture.cpp,
+	  render/common/Cvr3DPaletteTexture.h,
+	  render/common/Cvr3DRGBATexture.cpp,
+	  render/common/Cvr3DRGBATexture.h,
+	  render/common/CvrPaletteTexture.cpp,
+	  render/common/CvrPaletteTexture.h,
+	  render/common/CvrRGBATexture.cpp, render/common/CvrRGBATexture.h,
+	  render/common/CvrTextureManager.cpp,
+	  render/common/CvrTextureObject.cpp,
+	  render/common/CvrTextureObject.h: Internal design clean-up:
+	  remove public variable duplicated for all
+	  CvrTextureObject-classes, move to superclass.
+
+2004-07-15 17:02  mortene
+
+	* lib/VolumeViz/render/: 2D/2DTexPage.cpp,
+	  common/Cvr2DPaletteTexture.cpp, common/Cvr2DPaletteTexture.h,
+	  common/Cvr2DRGBATexture.cpp, common/Cvr2DRGBATexture.h,
+	  common/Cvr3DPaletteTexture.h, common/CvrTextureManager.cpp,
+	  common/CvrTextureObject.h: Internal design fix: make
+	  blankUnused() virtual, and define in superclass, to make client
+	  code simpler.
+
+2004-07-15 16:42  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexSubPage.cpp, Cvr2DTexSubPage.h:
+	  Bugfix: display textures on first frame.
+
+2004-07-15 15:52  mortene
+
+	* lib/VolumeViz/render/: 2D/2DTexPage.cpp, 2D/2DTexSubPage.cpp,
+	  2D/Cvr2DTexSubPage.h, common/resourcehandler.c,
+	  common/resourcehandler.h: Connect OpenGL textures to the specific
+	  rendering context. Corrections to the cvr_rc interface.
+
+2004-07-15 15:49  mortene
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp: Bugfix: ouch.
+
+2004-07-15 15:20  mortene
+
+	* lib/VolumeViz/render/common/: Cvr2DRGBATexture.h,
+	  Cvr3DRGBATexture.h, CvrPaletteTexture.h, CvrRGBATexture.h,
+	  CvrTextureManager.cpp, CvrTextureObject.h: Misc clean-up of
+	  internal design.
+
+2004-07-15 14:59  mortene
+
+	* lib/VolumeViz/render/common/: CvrTextureManager.cpp,
+	  CvrTextureObject.cpp, CvrTextureObject.h: Internal design fixes:
+	  much of the point of reference counting is that the object should
+	  destruct itself.
+
+2004-07-14 17:00  mortene
+
+	* aclocal.m4, configure, cfg/errors.txt,
+	  lib/VolumeViz/render/common/Makefile.in: Bootstrap.
+
+2004-07-14 16:59  mortene
+
+	* lib/VolumeViz/render/common/: Makefile.am, resourcehandler.c,
+	  resourcehandler.h: Initial implementation of internal interface
+	  for tracking resources connected to a GL context.
+
+2004-07-14 14:43  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Clean-up: GLCMD()
+	  wrapping not useful now. Remove for clarity.
+
+2004-07-14 14:38  mortene
+
+	* data/maketestvol.cpp: Simple util to generate test volume.
+
+2004-07-14 11:12  mortene
+
+	* lib/VolumeViz/render/: 2D/2DTexSubPage.cpp, 3D/3DTexCube.cpp,
+	  common/CvrTextureManager.cpp: FIXME notes. Disable use of
+	  GL_CLAMP_TO_EDGE, see how that works out.
+
+2004-07-13 19:51  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Tweak: be more slack with
+	  the 3d-to-2d texture performance ratio. When 3d-texturing is not
+	  accelerated, the ratio seems to run in the hundreds, so this
+	  should be safe.
+
+2004-07-12 14:17  mortene
+
+	* lib/VolumeViz/: misc/CLUT.cpp, render/2D/2DTexSubPage.cpp,
+	  render/common/CvrTextureManager.cpp: Codestyle fixes.
+
+2004-07-12 14:17  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Bugfix: must also check
+	  availability of fragment programs before deciding whether or not
+	  paletted textures can be used.
+
+2004-07-12 10:35  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Minor debugging fix: inform
+	  about missing 3d-texture support in GL driver. Also simplified
+	  code for render method decision.
+
+2004-07-12 10:35  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: FIXME notes on unimplemented
+	  storageHint settings.
+
+2004-07-12 10:25  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Better 3D texture perf.
+	  test parameters.
+
+2004-07-12 10:16  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: 3D texture perf. test
+	  adjustments.	Minor doc fix.
+
+2004-07-12 09:06  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Improved debugging of
+	  3d-to-2d texture speed ratios.
+
+2004-07-11 21:51  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Bugfix: initialize full set
+	  of texture data.
+
+2004-07-11 21:50  mortene
+
+	* BUGS.txt: New item.
+
+2004-07-11 21:41  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Clean-up: remove useless
+	  debug code.
+
+2004-07-11 21:38  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Debugging: additional info
+	  on FIXME, wait for feedback from handegar.
+
+2004-07-11 21:29  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Bugfix: now getting more
+	  sensible 3d-to-2d texturing performance ratios. Bogosity was due
+	  to a wildly misplaced glPopMatrix() which caused the projection
+	  matrix to be way off. Also adds more debugging stuff, and a few
+	  more FIXMEs.
+
+2004-07-11 20:36  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Bugfix: plug memory leak,
+	  glReadPixels() buffer was never deallocated again.
+
+2004-07-10 09:12  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Performance test fix:
+	  should of course use glFinish(), not glFlush(), to force cmds to
+	  complete before measuring time spent. Adds FIXME about further
+	  tuning.
+
+2004-07-09 16:46  handegar
+
+	* lib/VolumeViz/misc/CLUT.cpp: Added a debug feature indicating if
+	  fragment program is used for palette lookup or not.
+
+2004-07-09 16:02  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Compile fix: asserts was
+	  inconsistent with latest changes.
+
+2004-07-09 16:01  mortene
+
+	* lib/VolumeViz/render/3D/3DTexCube.cpp: Clean-up: minor
+	  improvements, plus a couple of FIXMEs about the code which
+	  decides 3D texture cube size.
+
+2004-07-09 15:37  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Texture timing: must
+	  glFlush() when timing to increase the chances of not getting
+	  bogus values. Stores timing values in double precision for
+	  increased accuracy. Reports time spent testing in debugging
+	  output. Cleaned up the code a bit.
+
+2004-07-09 15:03  mortene
+
+	* lib/VolumeViz/render/common/CvrTextureManager.cpp: Build fix:
+	  wouldn't build on Windows due to error in SbBox3s header file.
+	  This inserts a work-around.
+
+2004-07-09 10:40  handegar
+
+	* lib/VolumeViz/nodes/: CvrIndexedSetRenderBaseP.cpp,
+	  CvrIndexedSetRenderBaseP.h, CvrNonIndexedSetRenderBaseP.cpp,
+	  CvrNonIndexedSetRenderBaseP.h, SoVolumeFaceSet.h,
+	  SoVolumeIndexedFaceSet.h, SoVolumeIndexedTriangleStripSet.h,
+	  SoVolumeTriangleStripSet.h: Removed unneeded public enum.
+
+2004-07-08 14:47  mortene
+
+	* lib/VolumeViz/: misc/CvrCLUT.h, misc/VoxelChunk.cpp,
+	  nodes/CvrIndexedSetRenderBaseP.cpp,
+	  nodes/CvrNonIndexedSetRenderBaseP.cpp, nodes/ObliqueSlice.cpp,
+	  render/2D/Cvr2DTexSubPage.h, render/3D/3DTexCube.cpp,
+	  render/3D/3DTexSubCube.cpp, render/3D/CubeHandler.cpp,
+	  render/3D/Cvr3DTexSubCube.h, render/common/CvrTextureManager.cpp,
+	  render/common/CvrTextureObject.h: Clean-up: file header inclusion
+	  was a mess, sorted out most of it.
+
+2004-07-08 14:25  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Bugfix: correct string modifiers.
+
+2004-07-08 11:28  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeRender.h, VolumeRender.cpp:
+	  Interface fix: don't extend public/protected parts of interface
+	  willy-nilly. Move enum private. Adds a couple of FIXMEs, and tmp
+	  disables black- and whitelist of recognized cards.
+
+2004-07-08 10:44  mortene
+
+	* BUGS.txt: Update last item.
+
+2004-07-08 10:31  mortene
+
+	* BUGS.txt: New item.
+
+2004-07-07 17:19  handegar
+
+	* lib/VolumeViz/nodes/ObliqueSlice.cpp: More doc.
+
+2004-07-07 16:46  handegar
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Moved picture in doc.
+
+2004-07-07 16:31  handegar
+
+	* lib/VolumeViz/nodes/ObliqueSlice.cpp: Doc fix.
+
+2004-07-07 16:30  handegar
+
+	* lib/VolumeViz/nodes/ObliqueSlice.cpp: Added an illustration to
+	  the doc.
+
+2004-07-07 16:14  handegar
+
+	* lib/VolumeViz/nodes/: VolumeFaceSet.cpp,
+	  VolumeIndexedFaceSet.cpp, VolumeIndexedTriangleStripSet.cpp,
+	  VolumeTriangleStripSet.cpp: Added more 'See also's to the doc.
+
+2004-07-07 16:02  handegar
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Added an image to the
+	  mainpage doc.
+
+2004-07-07 15:24  handegar
+
+	* lib/VolumeViz/nodes/: CvrIndexedSetRenderBaseP.cpp,
+	  CvrNonIndexedSetRenderBaseP.cpp: Minor optimization.
+
+2004-07-07 15:06  handegar
+
+	* lib/VolumeViz/nodes/: CvrIndexedSetRenderBaseP.cpp,
+	  CvrNonIndexedSetRenderBaseP.cpp: SoVertexProperty support fix.
+
+2004-07-07 14:22  handegar
+
+	* lib/VolumeViz/nodes/: CvrIndexedSetRenderBaseP.cpp,
+	  CvrNonIndexedSetRenderBaseP.cpp: Added a some TODOs.
+
+2004-07-06 11:42  mortene
+
+	* BUGS.txt: Suggestion for solution on item #6.
+
+2004-07-06 11:41  mortene
+
+	* docs/simvoleon.doxygen.in, lib/VolumeViz/nodes/VolumeSkin.cpp:
+	  API doc: new node.
+
+2004-07-02 13:11  mortene
+
+	* BUGS.txt: New item.
+
+2004-07-02 12:15  handegar
+
+	* lib/VolumeViz/nodes/: Makefile.am, Makefile.in, SoVolumeSkin.h,
+	  VolumeRendering.cpp, VolumeSkin.cpp: New node: SoVolumeSkin.
+	  Bootstrap.
+
+2004-07-02 10:56  mortene
+
+	* lib/VolumeViz/nodes/VolumeTriangleStripSet.cpp: Minor doc fix.
+
+2004-07-02 09:36  mortene
+
+	* docs/simvoleon.doxygen.in,
+	  lib/VolumeViz/details/ObliqueSliceDetail.cpp,
+	  lib/VolumeViz/nodes/ObliqueSlice.cpp,
+	  lib/VolumeViz/nodes/VolumeFaceSet.cpp,
+	  lib/VolumeViz/nodes/VolumeIndexedFaceSet.cpp,
+	  lib/VolumeViz/nodes/VolumeIndexedTriangleStripSet.cpp,
+	  lib/VolumeViz/nodes/VolumeTriangleStripSet.cpp: Additional API
+	  documentation.
+
+2004-07-01 15:57  handegar
+
+	* lib/VolumeViz/nodes/: SoVolumeFaceSet.h,
+	  SoVolumeIndexedFaceSet.h, SoVolumeIndexedTriangleStripSet.h,
+	  SoVolumeTriangleStripSet.h: Removed 'rayPick()' from headers.
+
+2004-07-01 15:40  handegar
+
+	* lib/VolumeViz/nodes/: VolumeFaceSet.cpp,
+	  VolumeIndexedFaceSet.cpp, VolumeIndexedTriangleStripSet.cpp,
+	  VolumeTriangleStripSet.cpp: Removed 'rayPick' method so that it
+	  will be handled by the parent class instead.	Removed some
+	  obsolete code.
+
+2004-07-01 15:28  handegar
+
+	* lib/VolumeViz/nodes/: CvrFaceSetRenderP.cpp, CvrFaceSetRenderP.h,
+	  CvrIndexedFaceSetRenderP.cpp, CvrIndexedFaceSetRenderP.h,
+	  CvrIndexedSetRenderBaseP.cpp, CvrIndexedSetRenderBaseP.h,
+	  CvrIndexedTriangleStripSetRenderP.cpp,
+	  CvrIndexedTriangleStripSetRenderP.h,
+	  CvrNonIndexedSetRenderBaseP.cpp, CvrNonIndexedSetRenderBaseP.h,
+	  CvrTriangleStripSetRenderP.cpp, CvrTriangleStripSetRenderP.h,
+	  Makefile.am, Makefile.in, SoVolumeFaceSet.h,
+	  SoVolumeIndexedFaceSet.h, SoVolumeIndexedTriangleStripSet.h,
+	  SoVolumeTriangleStripSet.h, VolumeFaceSet.cpp,
+	  VolumeIndexedFaceSet.cpp, VolumeIndexedTriangleStripSet.cpp,
+	  VolumeRendering.cpp, VolumeTriangleStripSet.cpp: New nodes;
+	  SoVolumeTriangleStripSet and SoVolumeIndexedTriangleStripSet.
+	  Code reorganization.	Clean-ups.  Bootstrap.
+
+2004-07-01 15:26  handegar
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, 3DTexSubCube.cpp,
+	  Cvr3DTexCube.h, Cvr3DTexSubCube.h: Some renaming and
+	  code-reogranization.
+
+2004-06-30 12:53  handegar
+
+	* lib/VolumeViz/nodes/: ObliqueSlice.cpp, VolumeRender.cpp: Use
+	  CvrUtil to see if 2D textures shall be used.
+
+2004-06-30 12:51  handegar
+
+	* lib/VolumeViz/misc/: CvrUtil.h, Util.cpp: Added a
+	  'force2DTextureRendering' method.
+
+2004-06-30 11:53  mortene
+
+	* docs/simvoleon.doxygen.in,
+	  lib/VolumeViz/details/ObliqueSliceDetail.cpp,
+	  lib/VolumeViz/details/OrthoSliceDetail.cpp,
+	  lib/VolumeViz/nodes/ObliqueSlice.cpp,
+	  lib/VolumeViz/nodes/VolumeFaceSet.cpp,
+	  lib/VolumeViz/nodes/VolumeIndexedFaceSet.cpp: API documentation
+	  updates and additions.
+
+2004-06-30 11:23  handegar
+
+	* lib/VolumeViz/nodes/: VolumeFaceSet.cpp,
+	  VolumeIndexedFaceSet.cpp: Minor cleanup.
+
+2004-06-30 11:09  mortene
+
+	* Makefile.in, configure, bin/Makefile.in, cfg/config.guess,
+	  cfg/config.sub, html/Makefile.in, lib/Makefile.in,
+	  lib/config.h.in: Bootstrap.
+
+2004-06-30 11:09  mortene
+
+	* configure.ac: Don't check for Coin when not actually building,
+	  e.g. when just generating the doc.
+
+2004-06-30 11:04  handegar
+
+	* lib/VolumeViz/nodes/: VolumeFaceSet.cpp,
+	  VolumeIndexedFaceSet.cpp: Minor fixes.
+
+2004-06-29 18:04  handegar
+
+	* lib/VolumeViz/nodes/: Makefile.am, Makefile.in,
+	  SoVolumeFaceSet.h, VolumeFaceSet.cpp, VolumeRendering.cpp: New
+	  node; 'SoVolumeFaceSet' + bootstrap.
+
+2004-06-29 18:02  handegar
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, 3DTexSubCube.cpp,
+	  Cvr3DTexCube.h, Cvr3DTexSubCube.h: Some cleanups. Added support
+	  for regular faceset intersection test.
+
+2004-06-29 16:40  handegar
+
+	* lib/VolumeViz/nodes/VolumeIndexedFaceSet.cpp: Minor fixes.
+
+2004-06-29 15:31  handegar
+
+	* lib/VolumeViz/nodes/: Makefile.am, Makefile.in,
+	  SoVolumeIndexedFaceSet.h, VolumeIndexedFaceSet.cpp,
+	  VolumeRendering.cpp: New node: SoVolumeIndexedFaceSet.
+
+2004-06-29 15:25  handegar
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, 3DTexSubCube.cpp,
+	  CubeHandler.cpp, Cvr3DTexCube.h, Cvr3DTexSubCube.h: Renamed
+	  method. Small fixes.
+
+2004-06-29 13:27  handegar
+
+	* lib/VolumeViz/nodes/ObliqueSlice.cpp: CVR_FORCE_2D_TEXTURES
+	  envvar fix.
+
+2004-06-29 11:45  mortene
+
+	* docs/announcement-1_0_0.txt,
+	  lib/VolumeViz/elements/TransferFunctionElement.cpp,
+	  lib/VolumeViz/misc/CLUT.cpp,
+	  lib/VolumeViz/nodes/VolumeRender.cpp,
+	  lib/VolumeViz/readers/VRVolFileReader.cpp,
+	  lib/VolumeViz/readers/VolumeReader.cpp: Minor documentation
+	  updates and fixes.
+
+2004-06-29 11:29  mortene
+
+	* configure.ac: Next release will be 1.1.0 (due to API additions),
+	  so bump version number in anticipation of that.
+
+2004-06-29 11:17  mortene
+
+	* NEWS, RELNOTES: Unstubify.
+
+2004-06-28 14:33  handegar
+
+	* lib/VolumeViz/: Makefile.in, C/Makefile.in, elements/Makefile.in,
+	  misc/Makefile.in, nodes/Makefile.am, nodes/Makefile.in,
+	  nodes/VolumeRendering.cpp, nodes/gradients/Makefile.in,
+	  readers/Makefile.in, render/Makefile.in, render/2D/Makefile.in,
+	  render/Pointset/Makefile.in: Bootstrap.
+
+2004-06-28 13:10  handegar
+
+	* lib/VolumeViz/nodes/: ObliqueSlice.cpp, SoObliqueSlice.h: Added
+	  new SoObliqueSlice node.
+
+2004-06-28 12:55  handegar
+
+	* lib/VolumeViz/misc/CvrVoxelChunk.h: Minor changes.
+
+2004-06-28 12:55  handegar
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Added a fixme.
+
+2004-06-28 12:53  handegar
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, 3DTexSubCube.cpp,
+	  CubeHandler.cpp, Cvr3DTexCube.h, Cvr3DTexSubCube.h,
+	  CvrCubeHandler.h, Makefile.in: Added support for the new
+	  CvrTextureManager system.  Added support for the comming
+	  SoObliqeSlice node.
+
+2004-06-28 12:50  handegar
+
+	* lib/VolumeViz/render/common/: Cvr2DPaletteTexture.h,
+	  Cvr2DRGBATexture.h, Cvr3DPaletteTexture.h, Cvr3DRGBATexture.h,
+	  CvrPaletteTexture.h, CvrRGBATexture.h, CvrTextureObject.cpp,
+	  CvrTextureObject.h, Makefile.am, Makefile.in: Fixed the
+	  texture-object system to work better with the new TextureManager.
+	  Bootstrapping.
+
+2004-06-28 12:48  handegar
+
+	* lib/VolumeViz/render/common/: CvrTextureManager.cpp,
+	  CvrTextureManager.h: First version of the new CvrTextureManager
+	  (2D texture support is not implemented yet).
+
+2004-06-25 16:09  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Fixed matrix-state bug for
+	  3D texture performance test.
+
+2004-06-25 16:00  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Removed
+	  'getTransformFromVolumeBoxDimensions()' as it is now in CvrUtil.
+	  + small fix.
+
+2004-06-25 15:57  handegar
+
+	* lib/VolumeViz/misc/: CvrUtil.h, Util.cpp: added
+	  getTransformFromVolumeBoxDimensions() to utils as it is called
+	  from several nodes.
+
+2004-06-25 15:52  handegar
+
+	* lib/VolumeViz/details/: Makefile.am, Makefile.in,
+	  SoObliqueSliceDetail.h: Bootstrapped SoObliqueSliceDetail.
+
+2004-06-24 13:48  mortene
+
+	* lib/VolumeViz/render/3D/3DTexCube.cpp: Debug: report
+	  GL_MAX_3D_TEXTURE_SIZE when CVR_DEBUG is set.
+
+2004-06-23 15:58  mortene
+
+	* BUGS.txt: New item.
+
+2004-06-22 20:22  mortene
+
+	* BUGS.txt: New item.
+
+2004-06-22 16:21  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Debug: make it possible to
+	  turn off white-/black-list checking from the run-time
+	  environment.
+
+2004-06-22 16:14  mortene
+
+	* lib/VolumeViz/: nodes/VolumeRender.cpp,
+	  elements/VolumeDataElement.cpp: Robustness fixes: handle missing
+	  volume data on state stack without asserting or crashing.
+
+2004-06-16 22:03  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Minor debug output
+	  correction.
+
+2004-06-16 14:51  mortene
+
+	* BUGS.txt: New item.
+
+2004-06-16 13:04  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Clean-up: simplify code a little,
+	  get rid of unnecessary casts, etc.
+
+2004-06-16 12:29  handegar
+
+	* lib/VolumeViz/: misc/CLUT.cpp, misc/CvrUtil.h, misc/Util.cpp,
+	  render/2D/2DTexSubPage.cpp, render/3D/3DTexSubCube.cpp: Texture
+	  modulation can now be disabled in exchange for a speedup
+	  (especially when using a fragment program palette lookup).
+
+2004-06-16 11:38  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Doc: fix API doc after we
+	  bugfixed the flipped-y-data issue.
+
+2004-06-16 11:30  mortene
+
+	* lib/VolumeViz/elements/VolumeDataElement.cpp: Clean-up:
+	  simplified code a little bit.
+
+2004-06-16 11:27  mortene
+
+	* lib/VolumeViz/: elements/VolumeDataElement.cpp,
+	  nodes/OrthoSlice.cpp, render/2D/PageHandler.cpp: Make Y-direction
+	  come out correctly for SoOrthoSlice. Move flip-hack code from
+	  PageHandler to VolumeDataElement.
+
+2004-06-16 10:18  mortene
+
+	* lib/VolumeViz/: misc/CvrUtil.h, misc/CvrVoxelChunk.h,
+	  misc/Util.cpp, misc/VoxelChunk.cpp, render/2D/CvrPageHandler.h,
+	  render/2D/PageHandler.cpp, render/3D/3DTexCube.cpp,
+	  render/3D/Cvr3DTexCube.h: Clean-up: remove unnecessary code
+	  duplication.
+
+2004-06-15 17:04  handegar
+
+	* lib/VolumeViz/render/: 2D/CvrPageHandler.h, 2D/PageHandler.cpp,
+	  3D/3DTexCube.cpp, 3D/Cvr3DTexCube.h: Flipped the Y axis for 2D
+	  and 3D rendering. One can still render 'the old way' by setting
+	  the CVS_FLIP_Y_AXIS variable to 1.
+
+2004-06-15 17:04  handegar
+
+	* lib/VolumeViz/misc/: CvrVoxelChunk.h, VoxelChunk.cpp: Flipped the
+	  Y axis for 2D and 3D rendering. One can still render 'the old
+	  way' by setting the CVR_FLIP_Y_AXIS variable to 1.
+
+2004-06-11 13:13  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: FIXME note about possible
+	  performance optimalization.
+
+2004-06-10 16:10  handegar
+
+	* lib/VolumeViz/render/: 2D/2DTexSubPage.cpp, 3D/3DTexSubCube.cpp:
+	  Minor cleanup.
+
+2004-06-10 16:04  handegar
+
+	* lib/VolumeViz/misc/CLUT.cpp: Fixed fragment programs to modulate
+	  texture based on state colour.
+
+2004-06-10 16:03  handegar
+
+	* lib/VolumeViz/: render/2D/2DTexSubPage.cpp,
+	  render/3D/3DTexSubCube.cpp, render/3D/CubeHandler.cpp,
+	  nodes/ObliqueSlice.cpp, nodes/OrthoSlice.cpp,
+	  nodes/VolumeRender.cpp: Modulating texture based on state colour.
+
+2004-06-10 14:37  handegar
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, CubeHandler.cpp,
+	  Cvr3DTexCube.h: Cleanup.
+
+2004-06-10 14:21  handegar
+
+	* lib/VolumeViz/render/3D/CubeHandler.cpp: State change fix.
+
+2004-06-09 18:06  handegar
+
+	* lib/VolumeViz/render/3D/CubeHandler.cpp: Quick fix.
+
+2004-06-09 17:46  mortene
+
+	* lib/VolumeViz/: elements/VolumeDataElement.cpp,
+	  nodes/OrthoSlice.cpp, nodes/VolumeRender.cpp,
+	  render/2D/2DTexPage.cpp: Bugfixes: code didn't work properly when
+	  translations and/or non-uniform scales were embedded in the
+	  SoVolumeData::volumeboxmin/max fields -- now fixed, at least for
+	  SoOrthoSlice and SoVolumeRender 2D-texture rendering. 3D-texture
+	  rendering not tested yet.
+
+2004-06-08 15:21  handegar
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, CubeHandler.cpp,
+	  Cvr3DTexCube.h: Added proper abort-callback support for 3D
+	  textures.  Some minor cleanups.
+
+2004-06-08 15:20  handegar
+
+	* lib/VolumeViz/render/3D/3DTexSubCube.cpp: Minor cleanups.
+
+2004-06-08 09:34  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Clean-up: no need for
+	  texture performance test functions to be member functions, make
+	  them static.
+
+2004-06-07 19:11  handegar
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, 3DTexSubCube.cpp,
+	  Cvr3DTexCube.h: Fixed 3D-texture support when using
+	  MatrixTransform nodes.  Some small cleanups.
+
+2004-06-07 18:18  handegar
+
+	* lib/VolumeViz/render/common/: Cvr3DPaletteTexture.cpp,
+	  Cvr3DRGBATexture.cpp: Fixed a bug in 'blankUnused()'. Unused
+	  texture data is now zero'ed properly before use.
+
+2004-06-04 23:03  mortene
+
+	* lib/VolumeViz/: nodes/VolumeData.cpp,
+	  readers/VRVolFileReader.cpp: API doc fix: document mapping of
+	  byte blocks to world coordinate system.
+
+2004-06-04 22:18  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Bug fix: the speed test
+	  result check was inverted.
+
+2004-06-04 19:33  handegar
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, 3DTexSubCube.cpp,
+	  CubeHandler.cpp, Cvr3DTexSubCube.h: <Ungent hack due to
+	  deadline>: Fixed 3D texturing error when using MatrixTransform
+	  nodes in the SG. (Some issues still remain! Will complete fix
+	  later).
+
+2004-05-21 14:55  handegar
+
+	* lib/VolumeViz/render/3D/3DTexSubCube.cpp: Removed old commented
+	  '#define' line.
+
+2004-05-21 14:51  handegar
+
+	* lib/VolumeViz/render/: 2D/2DTexSubPage.cpp, 3D/3DTexSubCube.cpp:
+	  Fixed missing '#define' leading to broken fragment program
+	  support.
+
+2004-05-19 18:03  handegar
+
+	* lib/VolumeViz/render/3D/3DTexCube.cpp: Fixed issues when a
+	  matrixtransformation changed the SG before the VolNode.
+
+2004-05-13 15:33  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Fixed 'glTexImage3D'
+	  compile error by using proper glglue binding.
+
+2004-05-07 09:20  mortene
+
+	* configure.ac: Bump revision number, include beta letter
+	  versioning.
+
+2004-05-06 15:24  barbara
+
+	* docs/online/download.txt: yes, indeed, it's really changed :-)
+
+2004-05-06 13:27  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Build fix: missing header.
+
+2004-05-06 13:24  mortene
+
+	* lib/VolumeViz/: elements/TransferFunctionElement.cpp,
+	  elements/VolumeDataElement.cpp, nodes/OrthoSlice.cpp,
+	  nodes/TransferFunction.cpp, nodes/VolumeData.cpp,
+	  nodes/VolumeRender.cpp, nodes/VolumeRendering.cpp,
+	  readers/VRMemReader.cpp, readers/VRVolFileReader.cpp,
+	  readers/VolumeReader.cpp: Minor doc fixes.
+
+2004-05-06 13:12  mortene
+
+	* docs/simvoleon.doxygen.in, lib/VolumeViz/nodes/VolumeData.cpp,
+	  lib/VolumeViz/nodes/VolumeRendering.cpp: Minor doc fixes.
+
+2004-05-06 11:21  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Bugfix: getVolumeData()
+	  should return FALSE if no data is available yet. Thanks to
+	  Kristofer Tingdahl.
+
+2004-05-06 10:58  mortene
+
+	* lib/VolumeViz/nodes/: OrthoSlice.cpp, VolumeData.cpp,
+	  VolumeRender.cpp, VolumeRendering.cpp: Name change; SimVoleon ->
+	  SIM Voleon.
+
+2004-05-06 10:55  mortene
+
+	* docs/simvoleon.doxygen.in: Complete set of files.
+
+2004-05-06 10:51  mortene
+
+	* Makefile.am, Makefile.in, configure, configure.ac,
+	  bin/Makefile.in, html/Makefile.am, html/Makefile.in,
+	  lib/Makefile.in, lib/VolumeViz/Makefile.in,
+	  lib/VolumeViz/C/Makefile.in, lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.in, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/gradients/Makefile.in,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/2D/Makefile.in,
+	  lib/VolumeViz/render/3D/Makefile.in,
+	  lib/VolumeViz/render/Pointset/Makefile.in,
+	  lib/VolumeViz/render/common/Makefile.in: Further setup for
+	  generation of API documentation.
+
+2004-05-05 16:09  mortene
+
+	* Makefile.in, aclocal.m4, configure, configure.ac,
+	  bin/Makefile.in, docs/simvoleon.doxygen.in,
+	  docs/doxygen/Coin_logo.png, docs/doxygen/footer.html,
+	  docs/doxygen/header.html, docs/doxygen/stylesheet.css,
+	  lib/Makefile.in, lib/VolumeViz/Makefile.in,
+	  lib/VolumeViz/C/Makefile.in, lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.in, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/gradients/Makefile.in,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/2D/Makefile.in,
+	  lib/VolumeViz/render/3D/Makefile.in,
+	  lib/VolumeViz/render/Pointset/Makefile.in,
+	  lib/VolumeViz/render/common/Makefile.in: Preparing Doxygen doc
+	  generation support.
+
+2004-05-05 15:31  mortene
+
+	* lib/VolumeViz/: misc/CvrVoxelChunk.h, misc/VoxelChunk.cpp,
+	  nodes/SoVolumeData.h, nodes/VolumeData.cpp,
+	  nodes/VolumeRender.cpp, readers/VRMemReader.cpp,
+	  readers/VRVolFileReader.cpp, render/2D/2DTexPage.cpp,
+	  render/3D/3DTexCube.cpp: Removes support for 32-bit voxel values.
+
+2004-05-05 15:23  mortene
+
+	* configure, lib/VolumeViz/details/Makefile.am,
+	  lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/details/ObliqueSliceDetail.cpp,
+	  lib/VolumeViz/details/SoObliqueSliceDetail.h,
+	  lib/VolumeViz/nodes/Makefile.am, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/ObliqueSlice.cpp,
+	  lib/VolumeViz/nodes/ROI.cpp,
+	  lib/VolumeViz/nodes/SoObliqueSlice.h,
+	  lib/VolumeViz/nodes/SoROI.h,
+	  lib/VolumeViz/nodes/VolumeRendering.cpp,
+	  lib/VolumeViz/readers/Makefile.am,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/readers/SoVRMemReader.h: Rip out unimplemented
+	  classes from the public API.
+
+2004-05-05 15:02  mortene
+
+	* configure, lib/config.h.in: Bootstrap.
+
+2004-05-05 15:02  mortene
+
+	* configure.ac: Check for Coin cc_glglue stuff.
+
+2004-05-05 13:11  barbara
+
+	* docs/online/upload.sh: remove upload file due to security
+
+2004-05-04 16:14  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Build fix: HAVE_ARB_... related
+	  functions should have an implementation / entry point, even
+	  though they are just dummy functions, to avoid linking problems.
+
+2004-05-04 14:59  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Cleanup: avoid code duplication.
+
+2004-05-04 14:38  handegar
+
+	* lib/VolumeViz/misc/CLUT.cpp: Palette-EXT for 3D textures fix.
+
+2004-05-04 14:17  mortene
+
+	* BUGS.txt, COPYING, INSTALL, README: Misc updates.
+
+2004-05-04 14:17  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Compile fix: VERSION already defined
+	  in config.h.in.
+
+2004-05-04 12:17  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Removed some unnecessary
+	  code. Removed untested gfx cards from the 3D texture
+	  white/blacklist.
+
+2004-05-04 11:47  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Bugfix: cmp with second,
+	  not milliseconds.
+
+2004-05-04 11:31  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Max time for performance
+	  test is 0.5 s. Pixel mode is restored properly after saving
+	  framebuffer during performance test.
+
+2004-05-03 17:53  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Small viewport fix for the
+	  performance test.
+
+2004-05-03 17:49  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Misc fixes. Framebuffer is
+	  now restored after performance test.
+
+2004-05-03 16:19  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Added a performance test to
+	  determine whether 3D textures are actually rendered using
+	  hardware rather than software.
+
+2004-05-03 15:11  mortene
+
+	* docs/online/: download-binaries.txt, download-cvs.txt,
+	  download-source.txt: Not in use.
+
+2004-04-30 17:28  barbara
+
+	* docs/online/upload.sh: add script for uploading files using
+	  Zope's built in ftp server; the script needs to be run from
+	  within the Oslo network
+
+2004-04-30 17:24  barbara
+
+	* docs/online/: about.txt, download-binaries.txt, download-cvs.txt,
+	  download-source.txt, download.txt, installation.txt, support.txt:
+	  common file for download information
+
+2004-04-30 15:16  mortene
+
+	* docs/online/: about.txt, download-binaries.txt, download-cvs.txt,
+	  download-source.txt, getting-started.txt, installation.txt,
+	  support.txt: Init.
+
+2004-04-30 14:53  mortene
+
+	* docs/online/about.txt: Init.
+
+2004-04-30 11:39  mortene
+
+	* docs/: announcement-1_0_0.txt, resources.txt: Cleanup.
+
+2004-04-30 11:12  mortene
+
+	* docs/announcement-1_0_0.txt: First draft.
+
+2004-04-29 12:28  mortene
+
+	* LICENSE.GPL, lib/VolumeViz/C/basic.h.in,
+	  lib/VolumeViz/details/ObliqueSliceDetail.cpp,
+	  lib/VolumeViz/details/OrthoSliceDetail.cpp,
+	  lib/VolumeViz/details/SoObliqueSliceDetail.h,
+	  lib/VolumeViz/details/SoOrthoSliceDetail.h,
+	  lib/VolumeViz/details/SoVolumeRenderDetail.h,
+	  lib/VolumeViz/details/VolumeRenderDetail.cpp,
+	  lib/VolumeViz/elements/SoTransferFunctionElement.h,
+	  lib/VolumeViz/elements/SoVolumeDataElement.h,
+	  lib/VolumeViz/elements/TransferFunctionElement.cpp,
+	  lib/VolumeViz/elements/VolumeDataElement.cpp,
+	  lib/VolumeViz/misc/CLUT.cpp, lib/VolumeViz/misc/CvrCLUT.h,
+	  lib/VolumeViz/misc/CvrGIMPGradient.h,
+	  lib/VolumeViz/misc/CvrUtil.h, lib/VolumeViz/misc/CvrVoxelChunk.h,
+	  lib/VolumeViz/misc/GIMPGradient.cpp, lib/VolumeViz/misc/Util.cpp,
+	  lib/VolumeViz/misc/VoxelChunk.cpp,
+	  lib/VolumeViz/nodes/ObliqueSlice.cpp,
+	  lib/VolumeViz/nodes/OrthoSlice.cpp, lib/VolumeViz/nodes/ROI.cpp,
+	  lib/VolumeViz/nodes/SoObliqueSlice.h,
+	  lib/VolumeViz/nodes/SoOrthoSlice.h, lib/VolumeViz/nodes/SoROI.h,
+	  lib/VolumeViz/nodes/SoTransferFunction.h,
+	  lib/VolumeViz/nodes/SoVolumeData.h,
+	  lib/VolumeViz/nodes/SoVolumeRender.h,
+	  lib/VolumeViz/nodes/SoVolumeRendering.h,
+	  lib/VolumeViz/nodes/TransferFunction.cpp,
+	  lib/VolumeViz/nodes/VolumeData.cpp,
+	  lib/VolumeViz/nodes/VolumeRender.cpp,
+	  lib/VolumeViz/nodes/VolumeRendering.cpp,
+	  lib/VolumeViz/readers/SoVRMemReader.h,
+	  lib/VolumeViz/readers/SoVRVolFileReader.h,
+	  lib/VolumeViz/readers/SoVolumeReader.h,
+	  lib/VolumeViz/readers/VRMemReader.cpp,
+	  lib/VolumeViz/readers/VRVolFileReader.cpp,
+	  lib/VolumeViz/readers/VolumeReader.cpp,
+	  lib/VolumeViz/render/2D/2DTexPage.cpp,
+	  lib/VolumeViz/render/2D/2DTexSubPage.cpp,
+	  lib/VolumeViz/render/2D/Cvr2DTexPage.h,
+	  lib/VolumeViz/render/2D/Cvr2DTexSubPage.h,
+	  lib/VolumeViz/render/2D/CvrPageHandler.h,
+	  lib/VolumeViz/render/2D/CvrTexManager.h,
+	  lib/VolumeViz/render/2D/PageHandler.cpp,
+	  lib/VolumeViz/render/2D/TexManager.cpp,
+	  lib/VolumeViz/render/2D/texmemfullimg.h,
+	  lib/VolumeViz/render/3D/3DTexCube.cpp,
+	  lib/VolumeViz/render/3D/3DTexSubCube.cpp,
+	  lib/VolumeViz/render/3D/CubeHandler.cpp,
+	  lib/VolumeViz/render/3D/Cvr3DTexCube.h,
+	  lib/VolumeViz/render/3D/Cvr3DTexSubCube.h,
+	  lib/VolumeViz/render/3D/CvrCubeHandler.h,
+	  lib/VolumeViz/render/Pointset/PointRendering.cpp,
+	  lib/VolumeViz/render/Pointset/PointRendering.h,
+	  lib/VolumeViz/render/common/Cvr2DPaletteTexture.cpp,
+	  lib/VolumeViz/render/common/Cvr2DPaletteTexture.h,
+	  lib/VolumeViz/render/common/Cvr2DRGBATexture.cpp,
+	  lib/VolumeViz/render/common/Cvr2DRGBATexture.h,
+	  lib/VolumeViz/render/common/Cvr3DPaletteTexture.cpp,
+	  lib/VolumeViz/render/common/Cvr3DPaletteTexture.h,
+	  lib/VolumeViz/render/common/Cvr3DRGBATexture.cpp,
+	  lib/VolumeViz/render/common/Cvr3DRGBATexture.h,
+	  lib/VolumeViz/render/common/CvrPaletteTexture.cpp,
+	  lib/VolumeViz/render/common/CvrPaletteTexture.h,
+	  lib/VolumeViz/render/common/CvrRGBATexture.cpp,
+	  lib/VolumeViz/render/common/CvrRGBATexture.h,
+	  lib/VolumeViz/render/common/CvrTextureObject.cpp,
+	  lib/VolumeViz/render/common/CvrTextureObject.h: Copyright notice
+	  headers.
+
+2004-04-29 10:50  mortene
+
+	* aclocal.m4, configure, cfg/errors.txt, lib/config.h.in:
+	  Bootstrap.
+
+2004-03-23 11:49  handegar
+
+	* lib/VolumeViz/render/3D/3DTexSubCube.cpp: Compile fix.
+
+2004-03-17 16:06  mortene
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, CubeHandler.cpp:
+	  Compilation fixes.
+
+2004-03-17 16:03  mortene
+
+	* lib/VolumeViz/: elements/SoVolumeDataElement.h,
+	  elements/VolumeDataElement.cpp, render/3D/CubeHandler.cpp: Remove
+	  function which seems redundant.
+
+2004-03-17 16:02  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Compile fixes.
+
+2004-03-17 15:40  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Misc minor cleanups.
+
+2004-03-17 13:01  handegar
+
+	* lib/VolumeViz/render/3D/: 3DTexSubCube.cpp, Cvr3DTexSubCube.h:
+	  Fixed 'glitch' bug for some models.
+
+2004-03-16 16:59  handegar
+
+	* lib/VolumeViz/render/3D/3DTexSubCube.cpp: Removed #define
+	  HAVE_ARB_FRAGMENT_PROGRAM.  Fixed possible palette extension bug.
+
+2004-03-16 16:58  handegar
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Removed #define
+	  HAVE_ARB_FRAGMENT_PROGRAM.  Fixed palette extension error.
+
+2004-03-16 16:57  handegar
+
+	* lib/VolumeViz/misc/CLUT.cpp: Removed #define
+	  HAVE_ARB_FRAGMENT_PROGRAM.
+
+2004-03-16 16:55  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Fixed GL_RENDERER substring
+	  list.
+
+2004-03-16 15:02  handegar
+
+	* configure, configure.ac, lib/VolumeViz/Makefile.am,
+	  lib/VolumeViz/Makefile.in, lib/VolumeViz/render/Makefile.am,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/3D/Makefile.in,
+	  lib/VolumeViz/render/common/Makefile.in: New bootstrap.
+
+2004-03-16 14:43  handegar
+
+	* lib/VolumeViz/render/2D/: CvrPaletteTexture.h, CvrRGBATexture.h,
+	  CvrTextureObject.h, PaletteTexture.cpp, RGBATexture.cpp,
+	  TextureObject.cpp: Removed old texture-object files.
+
+2004-03-16 14:29  handegar
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexSubPage.h, Makefile.am, Makefile.in: Changed to new
+	  texture-object system.
+
+2004-03-16 14:28  handegar
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Small fix.
+
+2004-03-16 14:27  handegar
+
+	* lib/VolumeViz/render/common/: Cvr2DPaletteTexture.cpp,
+	  Cvr2DPaletteTexture.h, Cvr2DRGBATexture.cpp, Cvr2DRGBATexture.h,
+	  Cvr3DPaletteTexture.cpp, Cvr3DPaletteTexture.h,
+	  Cvr3DRGBATexture.cpp, Cvr3DRGBATexture.h, CvrPaletteTexture.cpp,
+	  CvrPaletteTexture.h, CvrRGBATexture.cpp, CvrRGBATexture.h,
+	  CvrTextureObject.cpp, CvrTextureObject.h, Makefile.am,
+	  Makefile.in: Added new texture-object system files.
+
+2004-03-16 14:27  handegar
+
+	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, 3DTexSubCube.cpp,
+	  CubeHandler.cpp, Cvr3DTexCube.h, Cvr3DTexSubCube.h,
+	  CvrCubeHandler.h, Makefile.am, Makefile.in: Added new files for
+	  3D texture support.
+
+2004-03-16 14:26  handegar
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Added support for
+	  loading 8+8 bits texture.
+
+2004-03-16 14:22  handegar
+
+	* lib/VolumeViz/: elements/SoVolumeDataElement.h,
+	  elements/VolumeDataElement.cpp, misc/CLUT.cpp, misc/CvrCLUT.h,
+	  misc/CvrVoxelChunk.h, misc/VoxelChunk.cpp, nodes/OrthoSlice.cpp,
+	  nodes/SoVolumeRender.h, nodes/TransferFunction.cpp,
+	  nodes/VolumeRender.cpp, nodes/VolumeRendering.cpp: New 3D texture
+	  features.
+
+2004-03-15 16:16  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Make glpoints-rendering
+	  available through an enum.
+
+2004-03-15 11:09  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Minor improvement in
+	  debugging output.
+
+2004-02-29 22:57  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Cop a feel when any relevant
+	  set*()-function is used (work-around for crap interface design on
+	  TGS' behalf, really).
+
+2004-02-25 12:25  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: API doc.
+
+2004-02-25 12:25  larsa
+
+	* Makefile.am, Makefile.in: clean fixes
+
+2004-02-25 12:00  larsa
+
+	* Makefile.am, Makefile.in: clean out dsp/dsw files
+
+2004-02-25 11:43  larsa
+
+	* Makefile.in, configure, bin/Makefile.in, lib/Makefile.in,
+	  lib/VolumeViz/Makefile.in, lib/VolumeViz/C/Makefile.in,
+	  lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.in, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/gradients/Makefile.in,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/2D/Makefile.in,
+	  lib/VolumeViz/render/Pointset/Makefile.in: bootstrap
+
+2004-02-25 11:43  larsa
+
+	* configure.ac: src/builddir substs
+
+2004-02-25 11:16  larsa
+
+	* Makefile.in, configure, bin/Makefile.in, lib/Makefile.in,
+	  lib/VolumeViz/Makefile.in, lib/VolumeViz/C/Makefile.in,
+	  lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.in, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/gradients/Makefile.in,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/2D/Makefile.in,
+	  lib/VolumeViz/render/Pointset/Makefile.in: bootstrap
+
+2004-02-25 11:16  larsa
+
+	* configure.ac: msvc dsp setup
+
+2004-02-24 16:12  mortene
+
+	* lib/VolumeViz/: nodes/OrthoSlice.cpp, render/2D/PageHandler.cpp:
+	  Heed glPolygonMode() settings from state.
+
+2004-02-24 12:27  mortene
+
+	* lib/VolumeViz/: nodes/OrthoSlice.cpp, render/2D/PageHandler.cpp:
+	  Bugfix: make sure no GL state changes are made outside our
+	  control.
+
+2004-02-23 11:38  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Bugfixes: changes related to
+	  delayed rendering caused clip plane functionality to not work.
+	  Fixed.
+
+2004-02-22 22:28  mortene
+
+	* aclocal.m4, configure, cfg/errors.txt, lib/VolumeViz/Makefile.in,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/Pointset/Makefile.in: Bootstrap.
+
+2004-02-22 22:25  mortene
+
+	* configure.ac, lib/VolumeViz/Makefile.am,
+	  lib/VolumeViz/nodes/VolumeRender.cpp,
+	  lib/VolumeViz/render/Makefile.am,
+	  lib/VolumeViz/render/Pointset/Makefile.am,
+	  lib/VolumeViz/render/Pointset/Makefile.in,
+	  lib/VolumeViz/render/Pointset/PointRendering.cpp,
+	  lib/VolumeViz/render/Pointset/PointRendering.h: Add silly
+	  rendering method: GL_POINTS.
+
+2004-02-22 22:08  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: FIXME note.
+
+2004-02-17 01:55  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Hack to make it possible to
+	  default to unit-size box.
+
+2004-02-16 12:29  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Bugfix: assert could
+	  give false positives.
+
+2004-02-13 10:29  mortene
+
+	* lib/VolumeViz/: misc/VoxelChunk.cpp, nodes/SoVolumeData.h:
+	  Debugging improvement.
+
+2004-02-12 10:56  mortene
+
+	* BUGS.txt, lib/VolumeViz/nodes/OrthoSlice.cpp,
+	  lib/VolumeViz/nodes/VolumeRender.cpp: Do delayed path rendering.
+
+2004-02-12 10:42  mortene
+
+	* BUGS.txt: New bug.
+
+2004-01-13 11:29  handegar
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, CvrPaletteTexture.h,
+	  CvrRGBATexture.h, CvrTextureObject.h, PaletteTexture.cpp,
+	  RGBATexture.cpp: TextureObject fix to prevent texture artifacts
+	  due to texturecoord inaccuarcies.
+
+2004-01-13 11:24  handegar
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Small fix to make sure
+	  the last slice of the voxeldata is rendered.
+
+2004-01-13 11:01  handegar
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: First version of re-sampling
+	  support for voxel data added.
+
+2004-01-13 10:15  handegar
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Added fallback to
+	  'NumSlicesControl'=ALL mode when 'numSlices'<=0.
+
+2003-12-18 10:22  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Don't show outlines, unless
+	  debugging.
+
+2003-10-31 11:53  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Tmp workaround for problem
+	  manifesting itself in the RIMS application (and probably other
+	  apps using SimVoleon).
+
+2003-10-31 11:50  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Debugging aid for the
+	  NVidia driver problem.
+
+2003-10-30 23:32  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: For reference, keep
+	  non-working attempt at fixing transparent render order issues
+	  around.
+
+2003-10-30 17:01  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Work-around has been
+	  made unnecessary because of a fix in Coin.
+
+2003-10-27 13:31  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Work-around for a
+	  problem found with an OpenGL driver.
+
+2003-10-27 07:18  mortene
+
+	* testcode/.cvsignore: Obsoleted.
+
+2003-10-27 07:11  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: FIXME notes.
+
+2003-10-27 05:14  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: API doc addition.
+
+2003-10-24 16:33  larsa
+
+	* cfg/errors.txt, lib/VolumeViz/Makefile.am,
+	  lib/VolumeViz/Makefile.in, lib/VolumeViz/details/Makefile.am,
+	  lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.am,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.am, lib/VolumeViz/misc/Makefile.in,
+	  lib/VolumeViz/nodes/Makefile.am, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/readers/Makefile.am,
+	  lib/VolumeViz/readers/Makefile.in: catch some install problems,
+	  don't install unchanged headers, bootstrap
+
+2003-10-23 18:39  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Quick bugfix, should
+	  investigate closer why it is necessary to flip Y axis (and if
+	  it's really the correct fix for other datasets than RIM's).
+
+2003-10-22 13:53  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Be more robust on faulty
+	  field values.
+
+2003-10-21 16:13  pederb
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Missing init bugfix.
+
+2003-10-20 11:49  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp: Implements
+	  SoVolumeData::getHistogram().
+
+2003-10-17 20:41  mortene
+
+	* Makefile.am, Makefile.in, aclocal.m4, configure, configure.ac,
+	  cfg/config.guess, cfg/config.sub, cfg/errors.txt, cfg/ltmain.sh,
+	  cfg/simvoleon.m4, lib/VolumeViz/Makefile.in,
+	  testcode/Makefile.in, testcode/OrthoSliceHandler.cpp,
+	  testcode/OrthoSliceHandler.h, testcode/SoOrthoSlice_ctrl.ui,
+	  testcode/SoTransferFunction_ctrl.ui,
+	  testcode/SoVolumeRender_ctrl.ui,
+	  testcode/TransferFunctionHandler.cpp,
+	  testcode/TransferFunctionHandler.h,
+	  testcode/VolumeRenderHandler.cpp, testcode/VolumeRenderHandler.h,
+	  testcode/changingdataset.cpp.in, testcode/examine.cpp.in,
+	  testcode/examinerviewer.cpp.in, testcode/orthoslicer.cpp.in,
+	  testcode/raypick.cpp.in, testcode/readvol.cpp.in,
+	  testcode/rgbload.cpp.in, testcode/simple8bit.cpp.in,
+	  testcode/utility.cpp, testcode/utility.h: Moved all example code
+	  to SoGuiExamples/volumerendering/. Bootstrap.
+
+2003-10-17 20:37  mortene
+
+	* lib/VolumeViz/Makefile.am: Make proper use of suffix for the
+	  SimVoleon library names.
+
+2003-10-11 17:11  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Make volboxmin/max fields
+	  work properly.
+
+2003-10-09 19:01  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp: Make it
+	  possible to set volume dimensions in field in an iv-file.
+
+2003-10-09 18:40  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Support the fileName field.
+
+2003-10-09 18:38  mortene
+
+	* testcode/: .cvsignore, Makefile.in, examinerviewer.cpp.in: New
+	  example, simplest possible examiner viewer to load iv-file
+	  specifications.
+
+2003-10-09 18:37  mortene
+
+	* testcode/: TransferFunctionHandler.cpp,
+	  TransferFunctionHandler.h: Interface with the new
+	  SoQtGradientDialog.
+
+2003-08-12 18:05  mortene
+
+	* BUGS.txt: Misc items.
+
+2003-08-04 14:34  mortene
+
+	* data/raw2vol.cpp: Avoid problems with ASCII writes on MSWin
+	  systems.
+
+2003-07-02 23:34  mortene
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Debug nicety: make it
+	  possible to dump the raw voxel set.
+
+2003-07-02 23:34  mortene
+
+	* BUGS.txt: Another issue to look into.
+
+2003-06-30 15:55  mortene
+
+	* Makefile.am, Makefile.in, lib/VolumeViz/Makefile.am,
+	  lib/VolumeViz/Makefile.in, lib/VolumeViz/render/2D/Makefile.am,
+	  lib/VolumeViz/render/2D/Makefile.in: Build fixes: get 'make
+	  distcheck' to get further along.
+
+2003-06-30 14:51  mortene
+
+	* Makefile.in, configure, bin/Makefile.in: Bootstrap.
+
+2003-06-30 14:51  mortene
+
+	* cfg/wrapmsvc.exe: Sync.
+
+2003-06-30 14:51  mortene
+
+	* configure.ac, bin/Makefile.am, bin/simvoleon-config,
+	  bin/simvoleon-config.in: Generate simvoleon-config to subst
+	  @OBJEXT@.
+
+2003-06-30 14:36  mortene
+
+	* testcode/Makefile.in: Build fix.
+
+2003-06-30 14:33  mortene
+
+	* testcode/Makefile.in: Syntax fixes.
+
+2003-06-30 14:23  mortene
+
+	* testcode/readvol.cpp.in: Minor usage info fix.
+
+2003-06-30 14:04  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Make it possible to programmatically
+	  turn off the GLINT warning.
+
+2003-06-30 13:57  mortene
+
+	* testcode/Makefile.in: Use CYGPATH_W instead of cygwin -w to work
+	  on non-Cygwin systems (doh\!).
+
+2003-06-30 13:21  mortene
+
+	* testcode/Makefile.in: Modify to work in Cygwin environment.
+
+2003-06-30 11:39  mortene
+
+	* testcode/Makefile: Obsoleted.
+
+2003-06-30 11:14  mortene
+
+	* Makefile.in, configure: Bootstrap.
+
+2003-06-30 11:14  mortene
+
+	* configure.ac: Better build setup for the examples.
+
+2003-06-30 11:14  mortene
+
+	* testcode/readvol.cpp.in: Make it possible to swap manip in/out by
+	  a keypress.
+
+2003-06-30 10:55  mortene
+
+	* testcode/: Makefile.in, OrthoSliceHandler.cpp,
+	  TransferFunctionHandler.cpp: Build fixes.
+
+2003-06-27 16:14  mortene
+
+	* testcode/Makefile.in: First steps toward a better build-system
+	  for the examples.
+
+2003-06-27 15:52  mortene
+
+	* testcode/Makefile: MSVC build fixes.
+
+2003-06-27 15:44  mortene
+
+	* Makefile.in, aclocal.m4, configure, bin/Makefile.in,
+	  lib/Makefile.in, lib/VolumeViz/Makefile.in,
+	  lib/VolumeViz/C/Makefile.in, lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.in, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/gradients/Makefile.in,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/2D/Makefile.in: bootstrap
+
+2003-06-27 15:44  mortene
+
+	* Makefile.am, configure.ac, simvoleon.cfg.in, bin/Makefile.am,
+	  bin/simvoleon-config: Generate and install simvoleon-config
+	  script and config data.
+
+2003-06-27 15:35  mortene
+
+	* cfg/ltmain.sh.diff: No longer needed.
+
+2003-06-27 15:33  mortene
+
+	* cfg/: config.guess, config.sub, depcomp, errors.txt, gendsp.sh,
+	  install-sh, ltmain.sh, missing, mkinstalldirs: Updates from
+	  central simacros repository.
+
+2003-06-27 14:29  mortene
+
+	* data/.cvsignore: Ignore raw2vol exe.
+
+2003-06-27 14:29  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Minor API doc fixes.
+
+2003-06-27 14:27  mortene
+
+	* testcode/: TransferFunctionHandler.cpp,
+	  TransferFunctionHandler.h, orthoslicer.cpp.in, readvol.cpp.in:
+	  Map value 0 to transparency in the example utils.
+
+2003-06-27 14:26  mortene
+
+	* testcode/: SoVolumeRender_ctrl.ui, VolumeRenderHandler.cpp:
+	  Better ghosting of unused UI components.
+
+2003-06-27 14:10  mortene
+
+	* BUGS.txt: A couple of items has been found.
+
+2003-06-27 12:20  mortene
+
+	* testcode/.cvsignore: Simplified.
+
+2003-06-27 12:20  mortene
+
+	* testcode/: .cvsignore, Makefile, SoVolumeRender_ctrl.ui,
+	  VolumeRenderHandler.cpp, VolumeRenderHandler.h, readvol.cpp.in:
+	  SoVolumeRender UI control.
+
+2003-06-17 16:21  mortene
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Debugging output only
+	  if CVR_DEBUG is set.
+
+2003-06-17 16:13  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Bugfixes: MANUAL and
+	  AUTOMATIC numSlicesControl wasn't working properly for when
+	  number of slices was less than voxel depth.
+
+2003-06-17 16:10  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: More API doc.
+
+2003-06-17 14:43  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: API documentation.
+
+2003-06-17 14:43  mortene
+
+	* lib/VolumeViz/nodes/ObliqueSlice.cpp: Generate warning when
+	  generatePrimitives is attempted.
+
+2003-05-14 11:50  mortene
+
+	* aclocal.m4, bootstrap, configure, cfg/config.guess,
+	  cfg/config.sub, cfg/doxy4win.pl, cfg/gendsp.sh: Bootstrap.
+
+2003-05-14 11:49  mortene
+
+	* cfg/: ltmain.sh, ltmain.sh.diff: Mac OS X patch.
+
+2003-05-14 11:44  mortene
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Compile fix: cast
+	  input argument to SbMin() to be unambiguous. By kyrah.
+
+2003-03-25 15:55  mortene
+
+	* testcode/readvol.cpp.in: Clipplanemanip.
+
+2003-03-25 15:55  mortene
+
+	* testcode/orthoslicer.cpp.in: Remove spheres.
+
+2003-03-25 15:54  mortene
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Kill a compiler
+	  warning.
+
+2003-03-25 15:54  mortene
+
+	* lib/VolumeViz/render/2D/2DTexPage.cpp: Typo fix.
+
+2003-03-25 15:54  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Graceful handling of GL-error on
+	  glColorTable().
+
+2003-03-25 14:44  mortene
+
+	* lib/VolumeViz/: Makefile.am, Makefile.in: Build fixes.
+
+2003-03-25 14:26  mortene
+
+	* lib/VolumeViz/: Makefile.am, Makefile.in: Build fixes.
+
+2003-03-25 14:05  mortene
+
+	* testcode/orthoslicer.cpp.in: Bugfix: got crash if pick on
+	  geometry.
+
+2003-03-25 10:00  mortene
+
+	* lib/VolumeViz/render/2D/2DTexPage.cpp: Bugfix: check for NULL
+	  pointer.
+
+2003-03-24 16:22  mortene
+
+	* configure, configure.ac: SIMVOLEON_INTERNAL compile flag.
+
+2003-03-24 16:10  mortene
+
+	* lib/VolumeViz/: details/SoObliqueSliceDetail.h,
+	  details/SoOrthoSliceDetail.h, details/SoVolumeRenderDetail.h,
+	  elements/SoTransferFunctionElement.h,
+	  elements/SoVolumeDataElement.h, nodes/SoObliqueSlice.h,
+	  nodes/SoOrthoSlice.h, nodes/SoROI.h, nodes/SoTransferFunction.h,
+	  nodes/SoVolumeData.h, nodes/SoVolumeRender.h,
+	  nodes/SoVolumeRendering.h, readers/SoVRMemReader.h,
+	  readers/SoVRVolFileReader.h, readers/SoVolumeReader.h: Export DLL
+	  API.
+
+2003-03-24 16:04  mortene
+
+	* Makefile.am, Makefile.in, config.h.in, configure, configure.ac,
+	  stamp-h.in, lib/Makefile.in, lib/config.h.in, lib/stamp-h.in,
+	  lib/VolumeViz/Makefile.am, lib/VolumeViz/Makefile.in,
+	  lib/VolumeViz/C/Makefile.am, lib/VolumeViz/C/Makefile.in,
+	  lib/VolumeViz/C/basic.h.in, lib/VolumeViz/details/Makefile.am,
+	  lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.am,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.am, lib/VolumeViz/misc/Makefile.in,
+	  lib/VolumeViz/misc/VoxelChunk.cpp,
+	  lib/VolumeViz/nodes/Makefile.am, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/gradients/Makefile.in,
+	  lib/VolumeViz/readers/Makefile.am,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/2D/Makefile.am,
+	  lib/VolumeViz/render/2D/Makefile.in: Major audit and clean-up of
+	  configure / build setup, partly to get it to work well enough to
+	  build MSVC++ DLLs.
+
+2003-03-24 15:34  mortene
+
+	* lib/VolumeViz/Makefile.in: bootstrap
+
+2003-03-24 15:31  mortene
+
+	* lib/VolumeViz/Makefile.am: Minor fixes.
+
+2003-03-24 15:28  mortene
+
+	* configure: bootstrap
+
+2003-03-24 15:27  mortene
+
+	* configure.ac: Minor fixes.
+
+2003-03-24 15:23  mortene
+
+	* configure, lib/VolumeViz/Makefile.in: Bootstrap.
+
+2003-03-24 15:22  mortene
+
+	* lib/VolumeViz/Makefile.am: Minor fixes.
+
+2003-03-24 14:56  mortene
+
+	* configure.ac: Init libtool.
+
+2003-03-24 14:53  mortene
+
+	* configure: Bootstrap.
+
+2003-03-24 14:49  mortene
+
+	* configure, lib/VolumeViz/Makefile.in: Bootstrap.
+
+2003-03-24 14:48  mortene
+
+	* configure.ac, lib/VolumeViz/Makefile.am: Minor fixes.
+
+2003-03-24 13:17  mortene
+
+	* cfg/wrapmsvc.exe: Distribute wrapmsvc.exe.
+
+2003-03-24 12:15  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Don't restrict texmem
+	  usage until proper resource handling is in place.
+
+2003-03-24 12:07  mortene
+
+	* lib/VolumeViz/readers/VolumeReader.cpp: Code comments.
+
+2003-03-24 12:07  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp: Removes API
+	  method setTextureMemorySize(), kills obsoleted doc.
+
+2003-03-20 16:09  mortene
+
+	* configure, configure.ac: Only accept version 2.0.0 or later of
+	  Coin.
+
+2003-03-20 15:38  mortene
+
+	* Makefile.in, aclocal.m4, config.h.in, configure, lib/Makefile.in,
+	  lib/VolumeViz/Makefile.in, lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.in, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/gradients/Makefile.in,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/2D/Makefile.in: Bootstrap.
+
+2003-03-20 15:38  mortene
+
+	* configure.ac: Clean out misc old gruff.
+
+2003-03-20 15:29  mortene
+
+	* testcode/orthoslicer.cpp.in: Pick operations.
+
+2003-03-20 14:53  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: FIXME note: SoPickedPoint
+	  missing normal.
+
+2003-03-20 14:49  mortene
+
+	* testcode/testapp.cpp.in: Not in use.
+
+2003-03-20 14:46  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Implements support for
+	  picking operations.
+
+2003-03-20 14:36  mortene
+
+	* lib/VolumeViz/details/: ObliqueSliceDetail.cpp,
+	  OrthoSliceDetail.cpp, SoObliqueSliceDetail.h,
+	  SoOrthoSliceDetail.h: Completes implementation.
+
+2003-03-20 14:18  mortene
+
+	* lib/VolumeViz/details/: ObliqueSliceDetail.cpp,
+	  OrthoSliceDetail.cpp, SoObliqueSliceDetail.h,
+	  SoOrthoSliceDetail.h: Corrects function signatures.
+
+2003-03-20 13:48  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Minor refactoring and
+	  function name renaming.
+
+2003-03-20 13:47  mortene
+
+	* lib/VolumeViz/elements/: SoVolumeDataElement.h,
+	  VolumeDataElement.cpp: Convenience methods for querying about
+	  voxel cube dimensions and data type.
+
+2003-03-20 13:46  mortene
+
+	* lib/VolumeViz/misc/: CvrUtil.h, Util.cpp: Pick debugging flag can
+	  now be fetched from CvrUtil.
+
+2003-03-20 12:21  mortene
+
+	* lib/VolumeViz/: elements/SoVolumeDataElement.h,
+	  elements/VolumeDataElement.cpp, nodes/VolumeRender.cpp:
+	  Refactoring: moves objectcoords-to-ijk calculation into
+	  SoVolumeDataElement. Also fixes a bug in the code.
+
+2003-03-19 16:11  mortene
+
+	* testcode/orthoslicer.cpp.in: Add some simple geometry, so one can
+	  see if clipping works.
+
+2003-03-19 16:11  mortene
+
+	* lib/VolumeViz/nodes/: OrthoSlice.cpp, SoOrthoSlice.h:
+	  Implementation of clipping support.
+
+2003-03-18 12:25  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Support the alphaUse field.
+
+2003-03-18 11:49  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, Cvr2DTexPage.h: More
+	  flexible palette handling.
+
+2003-03-18 11:41  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Protect against NULL
+	  palette.
+
+2003-03-15 13:48  mortene
+
+	* testcode/SoOrthoSlice_ctrl.ui: sliceNumber field indicator /
+	  edit, stepsize 1 on slider.
+
+2003-03-14 18:00  mortene
+
+	* lib/VolumeViz/misc/: CLUT.cpp, CvrCLUT.h: Adds copy constructor
+	  and equality + inequality operators.
+
+2003-03-14 17:51  mortene
+
+	* lib/VolumeViz/misc/: CvrUtil.h, Util.cpp: Adds function for CRC32
+	  checksum generation.
+
+2003-03-13 14:30  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexPage.h, Cvr2DTexSubPage.h, CvrPageHandler.h,
+	  PageHandler.cpp: Improves interface for changing palettes.
+
+2003-03-13 14:30  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Move init of predefgradients
+	  to guarantee that they are initialized before use.
+
+2003-03-12 17:24  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Update on FIXME note.
+
+2003-03-12 17:01  mortene
+
+	* lib/VolumeViz/: nodes/OrthoSlice.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/Cvr2DTexPage.h, render/2D/PageHandler.cpp: Cleans up
+	  interface to Cvr2DTexPage a little bit (get rid of init()
+	  method).
+
+2003-03-12 16:29  mortene
+
+	* lib/VolumeViz/render/2D/2DTexPage.cpp: Kills obsoleted code.
+
+2003-03-12 15:26  mortene
+
+	* lib/VolumeViz/misc/: CLUT.cpp, CvrCLUT.h: Reintroduces caching
+	  when converting from CLUT-idx to RGBA. Adds setAlphaUse()
+	  function.
+
+2003-03-12 13:26  mortene
+
+	* testcode/: OrthoSliceHandler.cpp, OrthoSliceHandler.h,
+	  SoOrthoSlice_ctrl.ui, orthoslicer.cpp.in: Add sliceNumber-slider
+	  to SoOrthoSlice test interface.
+
+2003-03-12 12:48  mortene
+
+	* testcode/: Makefile, orthoslicer.cpp.in: TransferFunction UI on
+	  orthoslicer example.
+
+2003-03-09 13:53  mortene
+
+	* configure.ac: Simplifies MSVC++ selection and setup. Also kills a
+	  bug where BUILD_WITH_MSVC could end up not being AC_SUBSTed.
+
+2003-03-07 15:05  mortene
+
+	* testcode/orthoslicer.cpp.in: Add VOL-reading capability.
+
+2003-03-06 16:05  mortene
+
+	* lib/VolumeViz/readers/: SoVRMemReader.h, SoVRVolFileReader.h,
+	  SoVolumeReader.h, VRMemReader.cpp, VRVolFileReader.cpp: Remove
+	  unnecessary extension vs TGS VolumeViz.
+
+2003-03-06 15:50  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Set correct blend mode when
+	  rendering.
+
+2003-03-06 15:38  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Removes obsoleted code
+	  comments. Adds FIXME note.
+
+2003-03-06 15:26  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Cache pages.
+
+2003-03-05 15:43  mortene
+
+	* lib/VolumeViz/nodes/SoVolumeData.h: FIXME.
+
+2003-03-05 15:36  mortene
+
+	* lib/VolumeViz/: elements/VolumeDataElement.cpp,
+	  render/2D/PageHandler.cpp: Refactoring: remove obsoleted code.
+
+2003-03-05 15:32  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Refactoring: fetch page
+	  geometry from SoVolumeDataElement.
+
+2003-03-05 15:18  mortene
+
+	* lib/VolumeViz/: elements/SoVolumeDataElement.h,
+	  elements/VolumeDataElement.cpp, nodes/OrthoSlice.cpp:
+	  Refactoring: moves page geometry calculation from SoOrthoSlice to
+	  SoVolumeDataElement.
+
+2003-03-05 15:03  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Made getPageGeometry()
+	  static.
+
+2003-03-05 14:59  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Simplify code.
+
+2003-03-05 14:55  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Scale by world-space size of
+	  volume.
+
+2003-03-05 14:48  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Position plane correctly
+	  along X and Y.
+
+2003-03-05 14:36  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Position plane correctly
+	  along Z.
+
+2003-03-05 14:35  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: FIXME update.
+
+2003-03-05 13:55  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Minor fixes.
+
+2003-03-05 13:01  mortene
+
+	* lib/VolumeViz/: nodes/OrthoSlice.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/Cvr2DTexPage.h, render/2D/CvrPageHandler.h,
+	  render/2D/PageHandler.cpp: Minor simplification in interface to
+	  Cvr2DTexPage::render().
+
+2003-03-05 13:00  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: FIXMEs.
+
+2003-03-05 12:18  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: Initial GLRender().
+
+2003-03-05 12:18  mortene
+
+	* lib/VolumeViz/render/2D/2DTexPage.cpp: Kill out of date code
+	  comments.
+
+2003-03-05 11:59  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Removes obsolete FIXME.
+
+2003-03-05 11:59  mortene
+
+	* lib/VolumeViz/render/2D/Cvr2DTexPage.h: Private method moved to
+	  private block.
+
+2003-03-05 11:41  mortene
+
+	* testcode/: OrthoSliceHandler.cpp, OrthoSliceHandler.h,
+	  SoOrthoSlice_ctrl.ui: Hook up full UI.
+
+2003-03-05 11:23  mortene
+
+	* testcode/: Makefile, OrthoSliceHandler.cpp, OrthoSliceHandler.h,
+	  SoOrthoSlice_ctrl.ui: SoOrthoSlice UI fixes.
+
+2003-03-04 15:53  mortene
+
+	* testcode/: .cvsignore, Makefile, OrthoSliceHandler.cpp,
+	  OrthoSliceHandler.h, SoOrthoSlice_ctrl.ui, orthoslicer.cpp.in:
+	  Test UI for SoOrthoSlice (stubbed as of yet).
+
+2003-03-04 15:20  mortene
+
+	* lib/VolumeViz/nodes/: OrthoSlice.cpp, SoOrthoSlice.h: Implements
+	  computeBBox().
+
+2003-03-03 15:34  mortene
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Init slice classes.
+
+2003-03-03 15:16  mortene
+
+	* testcode/: .cvsignore, Makefile, orthoslicer.cpp.in: New example.
+
+2003-02-24 13:37  mortene
+
+	* lib/VolumeViz/nodes/: Makefile.am, Makefile.in, ObliqueSlice.cpp,
+	  SoObliqueSlice.h: Adds code skeleton for SoObliqueSlice.
+
+2003-02-21 13:02  mortene
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: API doc updates.
+
+2003-02-21 12:02  mortene
+
+	* testcode/: .cvsignore, Makefile, changingdataset.cpp.in: Adds new
+	  example, this one tests how we react to changing volume data.
+
+2003-02-21 10:45  mortene
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp: Library documentation.
+
+2003-02-21 10:39  mortene
+
+	* lib/VolumeViz/nodes/: VolumeData.cpp, VolumeRendering.cpp:
+	  Library documentation.
+
+2003-02-20 21:30  mortene
+
+	* testcode/: .cvsignore, Makefile, simple8bit.cpp.in: New example.
+
+2003-02-20 21:30  mortene
+
+	* testcode/examine.cpp.in: Minor fix: corrects memory deallocation.
+
+2003-02-20 21:29  mortene
+
+	* testcode/: utility.cpp, utility.h: Misc fixes. Adds new method to
+	  generate 8-bit data.
+
+2003-02-20 15:29  mortene
+
+	* testcode/utility.cpp: Code clean-ups.
+
+2003-02-20 15:23  mortene
+
+	* lib/VolumeViz/details/VolumeRenderDetail.cpp: Compilation fix.
+
+2003-02-20 15:13  mortene
+
+	* testcode/utility.cpp: Simplifications.
+
+2003-02-20 15:03  mortene
+
+	* testcode/examine.cpp.in: Simplified.
+
+2003-02-20 14:34  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, Cvr2DTexPage.h: Update
+	  pages used for rendering if the SoVolumeData node changes.
+
+2003-02-20 12:32  mortene
+
+	* lib/VolumeViz/: misc/CvrUtil.h, misc/CvrVoxelChunk.h,
+	  misc/Util.cpp, misc/VoxelChunk.cpp, readers/VRMemReader.cpp,
+	  readers/VRVolFileReader.cpp, render/2D/2DTexPage.cpp: Moved
+	  buildSubPage() methods from CvrUtil to CvrVoxelChunk.
+
+2003-02-20 12:32  mortene
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp: computeBBox() early cut.
+
+2003-02-20 11:33  mortene
+
+	* lib/VolumeViz/nodes/: Makefile.am, Makefile.in, OrthoSlice.cpp,
+	  SoOrthoSlice.h: Adds OrthoSlice to build.
+
+2003-02-20 11:04  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: FIXME about serious bug.
+
+2003-02-20 11:03  mortene
+
+	* lib/VolumeViz/details/: ObliqueSliceDetail.cpp,
+	  OrthoSliceDetail.cpp, SoObliqueSliceDetail.h,
+	  SoOrthoSliceDetail.h, SoVolumeRenderDetail.h,
+	  VolumeRenderDetail.cpp: Const everything that can be const'ed.
+
+2003-02-20 10:09  mortene
+
+	* testcode/raypick.cpp.in: Display information about ray picks.
+
+2003-02-20 09:30  mortene
+
+	* lib/VolumeViz/details/VolumeRenderDetail.cpp: Ignore input
+	  argument to getProfileDataPos() if NULL.
+
+2003-02-19 16:07  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: API doc.
+
+2003-02-19 15:30  mortene
+
+	* lib/VolumeViz/details/: SoVolumeRenderDetail.h,
+	  VolumeRenderDetail.cpp: Full implementation.
+
+2003-02-19 13:04  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Compilation fix.
+
+2003-02-18 15:34  mortene
+
+	* lib/VolumeViz/details/: SoVolumeRenderDetail.h,
+	  VolumeRenderDetail.cpp: Adds skeleton for additional method.
+
+2003-02-18 15:33  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Completes
+	  SoVolumeRender-part of the rayPick()-support.
+
+2003-02-18 14:15  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Better debug reporting.
+
+2003-02-18 14:04  mortene
+
+	* lib/VolumeViz/: misc/CvrVoxelChunk.h, misc/VoxelChunk.cpp,
+	  render/2D/2DTexSubPage.cpp: Minor internal interface cleanups.
+
+2003-02-18 13:34  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp: Adds new
+	  API method getVoxelValue().
+
+2003-02-18 10:18  mortene
+
+	* README: Misc updates.
+
+2003-02-18 09:39  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Implements code to convert
+	  from object coordinate space to voxel coordinate space.
+
+2003-02-18 09:39  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Adds API doc.
+
+2003-02-17 17:30  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Add debugging stuff.
+
+2003-02-17 16:10  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeRender.h, VolumeRender.cpp: Initial
+	  work on ray pick support.
+
+2003-02-17 16:09  mortene
+
+	* testcode/raypick.cpp.in: Bugfix: scale visible bbox.
+
+2003-02-17 16:07  mortene
+
+	* testcode/raypick.cpp.in: Adds visible bounding box.
+
+2003-02-17 16:06  mortene
+
+	* testcode/Makefile: bugfix
+
+2003-02-17 12:37  mortene
+
+	* Makefile.in, config.h.in, configure, lib/Makefile.in,
+	  lib/VolumeViz/Makefile.in, lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.in, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/gradients/Makefile.in,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/2D/Makefile.in: Bootstrap.
+
+2003-02-17 12:37  mortene
+
+	* testcode/Makefile: Adds in rgbload example.
+
+2003-02-17 12:36  mortene
+
+	* lib/VolumeViz/Makefile.am: Add details into library.
+
+2003-02-17 12:08  mortene
+
+	* configure.ac, lib/VolumeViz/Makefile.am, lib/VolumeViz/dummy.cpp,
+	  testcode/Makefile: Name switcheroo VolumeViz -> SimVoleon.
+
+2003-02-17 11:31  mortene
+
+	* testcode/: Makefile, examine.cpp.in, raypick.cpp.in, utility.cpp,
+	  utility.h: Refactor common code.
+
+2003-02-17 11:23  mortene
+
+	* testcode/: examine.cpp.in, readvol.cpp.in: Make bounding box
+	  marker unpickable.
+
+2003-02-17 11:22  mortene
+
+	* testcode/.cvsignore: Ignore generated files.
+
+2003-02-17 11:22  mortene
+
+	* testcode/Makefile: Make rules for additional examples.
+
+2003-02-17 11:22  mortene
+
+	* testcode/raypick.cpp.in: New example, adapted from
+	  SoGuiExamples/actions/raypick, to test picking functionality.
+
+2003-02-14 15:20  mortene
+
+	* lib/VolumeViz/: details/SoObliqueSliceDetail.h,
+	  details/SoOrthoSliceDetail.h, details/SoVolumeRenderDetail.h,
+	  nodes/VolumeRendering.cpp: Init detail classes.
+
+2003-02-14 15:10  mortene
+
+	* configure, configure.ac, lib/VolumeViz/Makefile.am,
+	  lib/VolumeViz/Makefile.in, lib/VolumeViz/details/Makefile.am,
+	  lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/details/ObliqueSliceDetail.cpp,
+	  lib/VolumeViz/details/OrthoSliceDetail.cpp,
+	  lib/VolumeViz/details/SoObliqueSliceDetail.h,
+	  lib/VolumeViz/details/SoOrthoSliceDetail.h,
+	  lib/VolumeViz/details/SoVolumeRenderDetail.h,
+	  lib/VolumeViz/details/VolumeRenderDetail.cpp: Adds skeleton files
+	  and configure/build setup for detail classes.
+
+2003-02-11 19:06  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Code comment clarification.
+
+2003-02-11 15:13  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexSubPage.h: Implements instant updates for paletted
+	  textures.
+
+2003-02-11 15:12  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Kill unneeded includes.
+
+2003-02-11 15:12  mortene
+
+	* lib/VolumeViz/misc/CvrVoxelChunk.h: Expose getCLUT() method.
+
+2003-02-11 15:12  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Flipped the Y axis for 2D and
+	  3D rendering. One can still render 'the old way' by setting the
+	  CVR_FLIP_Y_AXIS variable to 1.
+
+2003-02-11 12:37  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, Cvr2DTexPage.h: Bugfix:
+	  row and col arguments were out of order.
+
+2003-02-11 12:29  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, Cvr2DTexPage.h,
+	  PageHandler.cpp: Moves tracking and decisions upon changes to the
+	  SoTransferFunction nodes from PageHandler to 2DTexPage.
+
+2003-02-11 11:56  mortene
+
+	* lib/VolumeViz/misc/CvrVoxelChunk.h: Interface faux pas.
+
+2003-02-11 11:49  mortene
+
+	* lib/VolumeViz/: misc/CvrVoxelChunk.h, misc/VoxelChunk.cpp,
+	  render/2D/2DTexPage.cpp: Refactoring.
+
+2003-02-10 14:49  mortene
+
+	* lib/VolumeViz/misc/: CvrVoxelChunk.h, VoxelChunk.cpp: Share CLUTs
+	  between multiple textures.
+
+2003-02-10 11:28  mortene
+
+	* lib/VolumeViz/: misc/CLUT.cpp, misc/CvrCLUT.h,
+	  misc/VoxelChunk.cpp, render/2D/2DTexSubPage.cpp,
+	  render/2D/PaletteTexture.cpp: Reference counting on CLUTs.
+
+2003-02-10 11:28  mortene
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Debugging output
+	  changes.
+
+2003-02-05 17:06  mortene
+
+	* lib/VolumeViz/misc/: CvrVoxelChunk.h, VoxelChunk.cpp: Check if we
+	  should and can use paletted textures before we use them.
+
+2003-02-05 16:08  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: API documentation for
+	  usePalettedTextures.
+
+2003-02-05 14:39  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Refactored much code over to
+	  the CvrCLUT class.
+
+2003-02-05 14:39  mortene
+
+	* lib/VolumeViz/misc/: CLUT.cpp, CvrCLUT.h: Add lookup-function
+	  which maps from index to RGBA values.
+
+2003-02-05 14:34  mortene
+
+	* testcode/readvol.cpp.in: Took out a couple of obsoleted hacks.
+
+2003-02-05 14:30  mortene
+
+	* testcode/: TransferFunctionHandler.cpp,
+	  TransferFunctionHandler.h: Connect up the shift and offset
+	  fields.
+
+2003-02-04 19:45  mortene
+
+	* lib/VolumeViz/: misc/CvrVoxelChunk.h, misc/VoxelChunk.cpp,
+	  render/2D/2DTexPage.cpp, render/2D/2DTexSubPage.cpp,
+	  render/2D/Cvr2DTexSubPage.h: Support for paletted textures.
+
+2003-02-04 19:41  mortene
+
+	* lib/VolumeViz/render/2D/CvrTextureObject.h: Make a common
+	  abstract interface for misc services in the texture-class
+	  abstractions.
+
+2003-02-04 19:40  mortene
+
+	* lib/VolumeViz/render/2D/: CvrPaletteTexture.h,
+	  PaletteTexture.cpp: Connect a color-lookup table to the
+	  PaletteTexture class.
+
+2003-02-04 19:38  mortene
+
+	* lib/VolumeViz/render/2D/: CvrRGBATexture.h, RGBATexture.cpp: Some
+	  refactoring: moved code from 2DTexPage.
+
+2003-02-04 19:35  mortene
+
+	* lib/VolumeViz/misc/CLUT.cpp: Fix code comment typo.
+
+2003-02-04 19:33  mortene
+
+	* lib/VolumeViz/misc/: CLUT.cpp, CvrCLUT.h: Implements support for
+	  transparency thresholds.
+
+2003-02-04 17:11  mortene
+
+	* lib/VolumeViz/misc/: CLUT.cpp, CvrCLUT.h: Handle floating point
+	  CLUT specifications.
+
+2003-02-04 16:31  mortene
+
+	* lib/VolumeViz/misc/: CLUT.cpp, CvrCLUT.h: Interface to OpenGL's
+	  paletted textures.
+
+2003-02-03 12:02  mortene
+
+	* lib/VolumeViz/misc/: CLUT.cpp, CvrCLUT.h, Makefile.am,
+	  Makefile.in: Datatype abstraction for a color-lookup table.
+
+2003-02-02 16:41  mortene
+
+	* docs/resources.txt: New item.
+
+2003-02-02 16:41  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Conform to latest
+	  changes of the GL-wrapper.
+
+2003-01-31 13:34  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Some FIXME notes, code
+	  comments and additional debugging support.
+
+2003-01-31 13:33  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: API doc for Composition
+	  enum.
+
+2003-01-29 15:28  mortene
+
+	* testcode/tabula/README: Explain dir purpose.
+
+2003-01-29 15:28  mortene
+
+	* testcode/tabula/glutclut.c: Testing CLUT textures.
+
+2003-01-08 14:33  mortene
+
+	* testcode/.cvsignore: Ignore generated files.
+
+2003-01-07 12:17  mortene
+
+	* lib/VolumeViz/misc/: CvrUtil.h, Util.cpp: Global debug indicator.
+
+2002-12-12 13:42  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Documents reMap(), and
+	  makes it behave better.
+
+2002-12-12 13:41  mortene
+
+	* lib/VolumeViz/render/2D/: CvrPageHandler.h, PageHandler.cpp:
+	  Re-make slices when transferfunction changes.
+
+2002-12-12 13:41  mortene
+
+	* testcode/: Makefile, SoTransferFunction_ctrl.ui,
+	  TransferFunctionHandler.cpp, TransferFunctionHandler.h,
+	  readvol.cpp.in: Adds test UI for SoTransferFunction node.
+
+2002-12-12 13:40  mortene
+
+	* testcode/rgbload.cpp.in: Bounding box around cube.
+
+2002-12-11 14:18  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Kills a couple of
+	  obsoleted FIXMEs.
+
+2002-12-11 14:18  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Minor optimization.
+
+2002-12-11 14:07  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Make it possible to
+	  debug without texture memory limits.
+
+2002-12-11 13:48  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Bugfix: only blank out
+	  transfer lookup-table when necessary.
+
+2002-12-11 12:15  mortene
+
+	* aclocal.m4, config.h.in, configure, cfg/errors.txt: Bootstrap.
+
+2002-12-11 12:14  mortene
+
+	* configure.ac: Detect fatal compiler errors, and make it possible
+	  to turn off optimizations.
+
+2002-12-10 14:26  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Bugfix: slices would
+	  have come out with the wrong depth if the abort-callback skipped
+	  any of them.
+
+2002-12-10 13:16  mortene
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Bugfix: divide by zero.
+
+2002-12-10 13:13  mortene
+
+	* lib/VolumeViz/: misc/VoxelChunk.cpp, nodes/VolumeRendering.cpp,
+	  render/2D/2DTexPage.cpp, render/2D/2DTexSubPage.cpp,
+	  render/2D/CvrPaletteTexture.h, render/2D/CvrRGBATexture.h,
+	  render/2D/CvrTextureObject.h, render/2D/Makefile.am,
+	  render/2D/Makefile.in, render/2D/PaletteTexture.cpp,
+	  render/2D/RGBATexture.cpp, render/2D/TextureObject.cpp: Add
+	  different datatype abstractions for RGBA and paletted textures.
+
+2002-12-10 13:11  mortene
+
+	* lib/VolumeViz/Makefile.in: Bootstrap.
+
+2002-12-10 11:34  mortene
+
+	* lib/VolumeViz/: misc/VoxelChunk.cpp, readers/VRMemReader.cpp:
+	  Compile fixes, GCC 2.96.
+
+2002-12-09 15:09  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexSubPage.cpp, Cvr2DTexSubPage.h:
+	  Bugfix: had a regression on non-power-of-two textures.
+
+2002-12-06 15:47  mortene
+
+	* data/resources.txt, docs/resources.txt: Doc update.
+
+2002-12-06 15:41  mortene
+
+	* lib/VolumeViz/: nodes/VolumeData.cpp, render/2D/2DTexPage.cpp:
+	  Minor cleanup.
+
+2002-12-06 15:34  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexSubPage.h: Interface fixes.
+
+2002-12-06 15:34  mortene
+
+	* lib/VolumeViz/render/2D/: CvrTextureObject.h, TextureObject.cpp:
+	  Make getRGBABuffer() const.
+
+2002-12-06 15:15  mortene
+
+	* lib/VolumeViz/nodes/SoTransferFunction.h: Kill a minor FIXME.
+
+2002-12-06 14:34  mortene
+
+	* lib/VolumeViz/: misc/CvrUtil.h, misc/Util.cpp,
+	  readers/VRMemReader.cpp, readers/VRVolFileReader.cpp,
+	  render/2D/2DTexPage.cpp: Fixes to CvrUtil::buildSubPage()
+	  interface.
+
+2002-12-06 14:27  mortene
+
+	* lib/VolumeViz/nodes/: SoTransferFunction.h, TransferFunction.cpp:
+	  Clean out obsoleted code.
+
+2002-12-06 14:25  mortene
+
+	* lib/VolumeViz/render/2D/2DTexPage.cpp: Use
+	  CvrVoxelChunk::transfer().
+
+2002-12-06 14:24  mortene
+
+	* lib/VolumeViz/: Makefile.am, misc/CvrVoxelChunk.h,
+	  misc/VoxelChunk.cpp: Transfer code moved to CvrVoxelChunk to
+	  improve internal interfaces.
+
+2002-12-06 14:23  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Pass on the values set
+	  in reMap().
+
+2002-12-06 14:22  mortene
+
+	* lib/VolumeViz/render/2D/: CvrTextureObject.h, TextureObject.cpp:
+	  Adds API method getDimensions(). Protect against non-power-of-two
+	  dimensions.
+
+2002-12-06 14:21  mortene
+
+	* lib/VolumeViz/elements/: SoTransferFunctionElement.h,
+	  TransferFunctionElement.cpp: SoTransferFunction needs to pass
+	  along it's reMap() values.
+
+2002-12-03 15:42  mortene
+
+	* lib/VolumeViz/: misc/CvrUtil.h, misc/CvrVoxelChunk.h,
+	  misc/Util.cpp, misc/VoxelChunk.cpp, nodes/SoTransferFunction.h,
+	  nodes/TransferFunction.cpp, readers/VRMemReader.cpp,
+	  readers/VRVolFileReader.cpp, render/2D/2DTexPage.cpp: Converts
+	  code to use VoxelChunk abstraction.
+
+2002-12-03 15:08  mortene
+
+	* docs/resources.txt: Pointers to resources on volume
+	  vizualisation.
+
+2002-12-03 13:57  mortene
+
+	* lib/VolumeViz/: nodes/SoTransferFunction.h,
+	  nodes/TransferFunction.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/CvrTextureObject.h, render/2D/Makefile.am,
+	  render/2D/Makefile.in, render/2D/TextureObject.cpp: Adds new
+	  datatype to handle OpenGL texture objects with a more friendly
+	  interface than native OpenGL.
+
+2002-12-03 13:55  mortene
+
+	* lib/VolumeViz/misc/: CvrVoxelChunk.h, Makefile.am, Makefile.in,
+	  VoxelChunk.cpp: Adds new datatype to handle and transfer chunks
+	  of voxel data.
+
+2002-12-03 09:56  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: FIXME about a bug, tmp
+	  fixed with a hack.
+
+2002-12-03 09:55  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Updates/corrects some
+	  of the info on paletted textures.
+
+2002-12-02 13:54  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Use OpenGL 1.2 optional
+	  function glBlendEquation() through the Coin OpenGL extension
+	  abstraction interface.
+
+2002-12-02 13:08  pederb
+
+	* lib/VolumeViz/readers/VolumeReader.cpp: Check HAVE_UNISTD_H and
+	  HAVE_SYS_TYPES_H.
+
+2002-12-02 12:59  pederb
+
+	* lib/VolumeViz/misc/: GIMPGradient.cpp, Util.cpp: Win32 compile
+	  fixes.
+
+2002-12-02 11:29  mortene
+
+	* testcode/readvol.cpp.in: Remove bug case, it's now been fixed.
+
+2002-12-02 11:27  mortene
+
+	* lib/VolumeViz/: nodes/VolumeRender.cpp,
+	  render/2D/CvrPageHandler.h, render/2D/PageHandler.cpp: Support
+	  for SoVolumeRender::composition MAX_INTENSITY and SUM_INTENSITY.
+
+2002-12-02 10:17  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp: Remove
+	  unused extension storage hints.
+
+2002-12-01 22:27  mortene
+
+	* testcode/readvol.cpp.in: FIXME note about strangeness in mixing
+	  vol-data and other geometry.
+
+2002-12-01 18:26  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Bugfix: check for
+	  NULL-pointer.
+
+2002-12-01 18:18  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Resolve a FIXME about
+	  pixel arithmetic when rendering.
+
+2002-12-01 16:41  mortene
+
+	* lib/VolumeViz/: nodes/SoVolumeRender.h, nodes/VolumeRender.cpp,
+	  render/2D/CvrPageHandler.h, render/2D/PageHandler.cpp: Implements
+	  support for SoVolumeRender::setAbortCallback().
+
+2002-12-01 16:00  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexSubPage.cpp, TexManager.cpp:
+	  Writes up some information on GL texture handle I came over.
+
+2002-12-01 15:59  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Performance
+	  improvement: cache transfered values in an index table.
+
+2002-12-01 12:54  mortene
+
+	* lib/VolumeViz/: nodes/VolumeRender.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/2DTexSubPage.cpp, render/2D/Cvr2DTexPage.h,
+	  render/2D/Cvr2DTexSubPage.h, render/2D/CvrPageHandler.h,
+	  render/2D/PageHandler.cpp: Implements support for the
+	  SoVolumeRender::interpolation field.
+
+2002-12-01 12:53  mortene
+
+	* lib/VolumeViz/render/2D/TexManager.cpp: Suggested strategy for
+	  exploring the texmem capability of the current context.
+
+2002-12-01 12:51  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Removes remains of old
+	  LRU-system for subpages.
+
+2002-11-29 14:26  mortene
+
+	* lib/VolumeViz/: nodes/SoTransferFunction.h,
+	  nodes/TransferFunction.cpp, render/2D/2DTexPage.cpp: Detect fully
+	  transparent pages, and skip them during rendering.
+
+2002-11-29 14:11  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Removes code committed
+	  by mistake.
+
+2002-11-29 12:09  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexSubPage.cpp, Cvr2DTexSubPage.h:
+	  Minor cleanup: count bits-per-texel, instead of a byte-fraction.
+
+2002-11-29 12:08  mortene
+
+	* lib/VolumeViz/render/2D/: CvrTexManager.h, Makefile.am,
+	  TexManager.cpp: Setup for a texture manager class.
+
+2002-11-29 12:07  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Documents interpolation
+	  field.
+
+2002-11-29 11:27  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, Cvr2DTexPage.h,
+	  PageHandler.cpp: Remove all traces of the obsolete LRU-system.
+
+2002-11-29 11:25  mortene
+
+	* lib/VolumeViz/nodes/: TransferFunction.cpp, VolumeData.cpp:
+	  Proper inclusion of Coin tidbits functions.
+
+2002-11-29 10:59  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexSubPage.cpp, Cvr2DTexSubPage.h:
+	  Minor cleanup: count contribution per texel in bits, not bytes.
+
+2002-11-29 10:54  mortene
+
+	* lib/VolumeViz/: nodes/VolumeData.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/CvrPageHandler.h, render/2D/PageHandler.cpp:
+	  SoVolumeData::setPageSize() now heeded.
+
+2002-11-28 14:44  mortene
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Disable description
+	  string print-out, as the code is yet buggy.
+
+2002-11-28 14:32  mortene
+
+	* data/raw2vol.cpp: Quick'n'dirty RAW -> VOL converter.
+
+2002-11-28 13:58  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Need only render
+	  front-faces of polygons.
+
+2002-11-28 13:52  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexSubPage.h: Render 2D texture quads exactly within the
+	  volumedata boundaries.
+
+2002-11-27 16:05  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexPage.h, CvrPageHandler.h, PageHandler.cpp: Makes
+	  corrections for when dimensions doesn't match subpagesizes
+	  exactly.
+
+2002-11-27 10:38  mortene
+
+	* testcode/rgbload.cpp.in: Cleans up code.
+
+2002-11-27 10:09  mortene
+
+	* testcode/rgbload.cpp.in: Set a size that corresponds with the
+	  actual data input.
+
+2002-11-27 09:41  mortene
+
+	* lib/VolumeViz/misc/Util.cpp: Bugfix: faulty assert.
+
+2002-11-27 08:38  mortene
+
+	* testcode/rgbload.cpp.in: Default to not resize/resample dataset.
+
+2002-11-27 08:37  mortene
+
+	* lib/VolumeViz/readers/: VRMemReader.cpp, VolumeReader.cpp: Misc
+	  FIXMEs.
+
+2002-11-26 15:45  mortene
+
+	* testcode/rgbload.cpp.in: Bugfix in printf output formatting.
+
+2002-11-26 15:22  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexSubPage.h: Handle border cases where the actual texture
+	  size does not match the size of a subpage.
+
+2002-11-26 14:52  mortene
+
+	* lib/VolumeViz/render/2D/: CvrPageHandler.h, PageHandler.cpp:
+	  Render in correct order for y-axis pages. Minor code cleanups.
+
+2002-11-26 14:52  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Tmp make it less likely
+	  that we use the debug image when texmem is full.
+
+2002-11-26 14:50  mortene
+
+	* lib/VolumeViz/render/2D/texmemfullimg.h: Use an image that makes
+	  debugging easier (due to more transparency).
+
+2002-11-26 14:49  mortene
+
+	* lib/VolumeViz/misc/Util.cpp: Better commenting of code.
+
+2002-11-25 20:39  mortene
+
+	* lib/VolumeViz/: readers/VRMemReader.cpp,
+	  readers/VRVolFileReader.cpp, render/2D/2DTexPage.cpp: Use
+	  buildSub-function from CvrUtil.
+
+2002-11-25 20:38  mortene
+
+	* lib/VolumeViz/misc/: CvrUtil.h, Util.cpp: Make interface to
+	  buildSubPage-functions more convenient.
+
+2002-11-25 20:25  mortene
+
+	* lib/VolumeViz/: Makefile.in, misc/Makefile.in: Bootstrap.
+
+2002-11-25 20:24  mortene
+
+	* lib/VolumeViz/misc/: CvrUtil.h, Makefile.am, Util.cpp: New class
+	  with static utility functions.
+
+2002-11-25 20:00  mortene
+
+	* lib/VolumeViz/readers/VRMemReader.cpp: Handle page-cutting with
+	  different dimensions on target buffer and source data.
+
+2002-11-25 19:57  mortene
+
+	* lib/VolumeViz/: readers/VRMemReader.cpp,
+	  readers/VRVolFileReader.cpp, render/2D/2DTexPage.cpp: Extend the
+	  page-building functions with an extra argument, to make it
+	  possible to pass in the width of the target buffer.
+
+2002-11-25 19:18  mortene
+
+	* lib/VolumeViz/render/2D/2DTexPage.cpp: Truncate coordinates if
+	  subpagesize is larger than the available volume data. Adds debug
+	  code for dumping page textures to image bitmaps on disk.
+
+2002-11-25 15:46  mortene
+
+	* lib/VolumeViz/readers/VRMemReader.cpp: Simplify and clearify the
+	  code that extracts subpages along the x-axis.
+
+2002-11-25 15:10  mortene
+
+	* lib/VolumeViz/readers/VRMemReader.cpp: Minor optimalizations,
+	  readability fixes.
+
+2002-11-25 15:05  mortene
+
+	* lib/VolumeViz/readers/VRMemReader.cpp: Simplify and clearify the
+	  code that extracts subpages along the y-axis.
+
+2002-11-25 14:49  mortene
+
+	* lib/VolumeViz/readers/VRMemReader.cpp: Simplify and clearify the
+	  code that extracts subpages along the z-axis.
+
+2002-11-25 12:58  mortene
+
+	* lib/VolumeViz/readers/VRMemReader.cpp: Use fixed-width integer
+	  bit types, to avoid unpleasent surprises on non-32-bits-intel
+	  platforms.
+
+2002-11-25 12:40  mortene
+
+	* lib/VolumeViz/: Makefile.am, dummy.cpp: Trick Automake into
+	  setting us up with CXXLINK for linking, and not the default
+	  CCLINK.
+
+2002-11-24 22:06  mortene
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Some extra debugging
+	  code.
+
+2002-11-24 22:06  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: FIXME note about
+	  possible optimalization.
+
+2002-11-24 22:05  mortene
+
+	* testcode/rgbload.cpp.in: Show simage error message on failure to
+	  load slices.
+
+2002-11-24 21:37  mortene
+
+	* lib/VolumeViz/render/2D/: CvrPageHandler.h, PageHandler.cpp:
+	  Bugfix: calculation of page indices to render could go wrong due
+	  to rounding errors.
+
+2002-11-24 16:34  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexPage.h, Cvr2DTexSubPage.h: Move code for subpage
+	  rendering to Cvr2DTexSubPage. Adds debugging backdoor for
+	  rendering an outlay of all subpages used.
+
+2002-11-24 15:48  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Inserts debugging
+	  backdoor for locking 2D slice rendering along a principal axis.
+
+2002-11-24 15:47  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Some code reorganization:
+	  moves all code directly related to rendering of 2D texture slices
+	  out of SoVolumeRender and into render/2D/.
+
+2002-11-24 15:24  mortene
+
+	* lib/VolumeViz/: nodes/VolumeData.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/2DTexSubPage.cpp, render/2D/Cvr2DTexPage.h,
+	  render/2D/Cvr2DTexSubPage.h, render/2D/CvrPageHandler.h,
+	  render/2D/PageHandler.cpp: Some code reorganization: moves all
+	  code directly related to rendering of 2D texture slices out of
+	  SoVolumeRender and into render/2D/.
+
+2002-11-24 14:24  mortene
+
+	* lib/VolumeViz/render/2D/PageHandler.cpp: Bugfix: y-axis direction
+	  came out upside-down.
+
+2002-11-24 13:46  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexSubPage.h: Make code more robust and communicate
+	  exceptional situations during development.
+
+2002-11-24 13:44  mortene
+
+	* lib/VolumeViz/render/2D/: CvrPageHandler.h, PageHandler.cpp:
+	  Bugfix: subpagesize should have 3 components.
+
+2002-11-24 11:20  mortene
+
+	* testcode/readvol.cpp.in: Obsolete debug output.
+
+2002-11-22 15:50  mortene
+
+	* lib/VolumeViz/: nodes/SoVolumeData.h, nodes/VolumeData.cpp,
+	  nodes/VolumeRender.cpp, render/2D/CvrPageHandler.h,
+	  render/2D/Makefile.am, render/2D/Makefile.in,
+	  render/2D/PageHandler.cpp: Adds a separate PageHandler entity, to
+	  extract code specific to 2D texture slice rendering from
+	  SoVolumeRender and SoVolumeData.
+
+2002-11-22 15:50  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, Cvr2DTexPage.h: Don't
+	  use SoOrthoSlice enum.
+
+2002-11-22 14:10  mortene
+
+	* lib/VolumeViz/: nodes/SoVolumeData.h, nodes/VolumeData.cpp,
+	  nodes/VolumeRender.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/Cvr2DTexPage.h: A pile of interface design cleanups.
+
+2002-11-22 11:42  mortene
+
+	* lib/VolumeViz/render/2D/2DTexPage.cpp: Flip vertical direction of
+	  rendering to match the actual layout of the volumedata.
+
+2002-11-21 18:36  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Additional FIXME comments.
+
+2002-11-21 18:36  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Bugfix: corrects texture
+	  quad size settings when viewing along X axis.
+
+2002-11-21 17:16  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexSubPage.cpp, Cvr2DTexSubPage.h,
+	  texmemfullimg.h: Use a default dummy image if texture memory is
+	  full.
+
+2002-11-21 17:15  mortene
+
+	* lib/VolumeViz/render/2D/2DTexPage.cpp: Doc updates and a FIXME.
+
+2002-11-21 16:20  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Compilation fix: interface
+	  of Cvr2DTexPage has changed -- sync.
+
+2002-11-21 16:19  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, Cvr2DTexPage.h: Major
+	  cleanup and simplification of the render() method.
+
+2002-11-21 16:19  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Default to GL_NEAREST
+	  interpolation of textures.
+
+2002-11-21 16:09  mortene
+
+	* testcode/readvol.cpp.in: More testcode, for transferfunctions
+	  among other things.
+
+2002-11-21 15:38  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp: Document
+	  API and simplify handling of subpagesize dimensions.
+
+2002-11-21 15:29  mortene
+
+	* lib/VolumeViz/nodes/ROI.cpp: Disabled render code, as it wasn't
+	  working anyway.
+
+2002-11-21 12:06  mortene
+
+	* lib/VolumeViz/readers/VolumeReader.cpp: Removes some old
+	  debugging cruft.
+
+2002-11-21 12:06  mortene
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Shift away header
+	  data, point m_data at the first actual voxel in the file.
+
+2002-11-21 10:23  mortene
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp: Code cleanups, removes
+	  redundant variables.
+
+2002-11-20 20:33  mortene
+
+	* lib/VolumeViz/: nodes/VolumeData.cpp, readers/SoVRMemReader.h,
+	  readers/VRMemReader.cpp, readers/VRVolFileReader.cpp: Improves
+	  handling of geometric volumesize settings.
+
+2002-11-20 20:29  mortene
+
+	* lib/VolumeViz/readers/VolumeReader.cpp: Remove printf().
+
+2002-11-20 15:05  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Implements action behavior
+	  for SoGetBoundingBoxAction.
+
+2002-11-20 14:55  mortene
+
+	* lib/VolumeViz/: elements/Makefile.in, misc/Makefile.in:
+	  Bootstrap.
+
+2002-11-20 14:55  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeRender.h, VolumeRender.cpp:
+	  Implements support for numSlicesControl field.
+
+2002-11-20 14:54  mortene
+
+	* lib/VolumeViz/nodes/ROI.cpp: Compilation fix.
+
+2002-11-20 14:53  mortene
+
+	* lib/VolumeViz/readers/: SoVolumeReader.h, Makefile.in: Let
+	  SoVolumeData access a protected member (tmp design ugliness).
+	  Bootstrap.
+
+2002-11-20 14:53  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, Cvr2DTexPage.h:
+	  Interface cleanup: improve function signature.
+
+2002-11-20 14:52  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp: Implements
+	  getVolumeData(). Removes non-TGS method getDimensions().
+	  Implement action traversal for all relevant actions. Use a more
+	  elegant power-of-two check.
+
+2002-11-20 11:34  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp: Misc fixes
+	  and documentation for the texture memory usage control.
+
+2002-11-20 11:15  mortene
+
+	* lib/VolumeViz/: nodes/Makefile.in, nodes/VolumeData.cpp,
+	  render/2D/2DTexPage.cpp, render/2D/2DTexSubPage.cpp,
+	  render/2D/Cvr2DTexPage.h, render/2D/Cvr2DTexSubPage.h,
+	  render/2D/Makefile.in: Improve management of available texture
+	  memory.
+
+2002-11-19 22:14  mortene
+
+	* aclocal.m4, configure: Bootstrap.
+
+2002-11-19 22:09  mortene
+
+	* configure.ac, lib/VolumeViz/nodes/TransferFunction.cpp,
+	  lib/VolumeViz/nodes/VolumeData.cpp,
+	  lib/VolumeViz/render/2D/2DTexPage.cpp,
+	  lib/VolumeViz/render/2D/2DTexSubPage.cpp: Introduce a
+	  module-specific compiler debug define; CVR_DEBUG. Misc minor
+	  debug-code cleanups.
+
+2002-11-19 21:59  mortene
+
+	* lib/VolumeViz/render/2D/2DTexSubPage.cpp: Debugging code to track
+	  GL texture problems.
+
+2002-11-19 16:09  larsa
+
+	* README: "there's another one"
+
+2002-11-19 15:49  larsa
+
+	* README: "there's one"
+
+2002-11-19 15:38  larsa
+
+	* README: name suggestion
+
+2002-11-19 15:36  mortene
+
+	* lib/VolumeViz/: nodes/VolumeData.cpp, render/2D/2DTexPage.cpp,
+	  render/2D/2DTexSubPage.cpp, render/2D/Cvr2DTexPage.h,
+	  render/2D/Cvr2DTexSubPage.h: Interface cleanups.
+
+2002-11-19 15:22  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexPage.h, Cvr2DTexSubPage.h: Major restructuring of the
+	  interface between 2D texture pages and subpages.
+
+2002-11-19 13:57  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Simplify code.
+
+2002-11-19 13:56  mortene
+
+	* lib/VolumeViz/render/2D/: 2DTexPage.cpp, 2DTexSubPage.cpp,
+	  Cvr2DTexPage.h, Cvr2DTexSubPage.h: Fix terminology: slice and
+	  page is now called page and subpage.
+
+2002-11-19 11:45  mortene
+
+	* lib/VolumeViz/: Makefile.am, Makefile.in: Reintroduces misc/ code
+	  in build. Bootstrap.
+
+2002-11-19 11:44  mortene
+
+	* lib/VolumeViz/render/2D/2DTexPage.cpp: Interface of transfer
+	  function was changed, so sync. Store old code for making texture
+	  palettes.
+
+2002-11-19 11:43  mortene
+
+	* lib/VolumeViz/nodes/: SoTransferFunction.h, TransferFunction.cpp:
+	  Clean out unused code. Improve interface of transfer method.
+
+2002-11-19 11:26  mortene
+
+	* configure, lib/VolumeViz/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.in: Bootstrap.
+
+2002-11-19 11:26  mortene
+
+	* configure.ac, lib/VolumeViz/Makefile.am,
+	  lib/VolumeViz/misc/Makefile.am: Resurrect misc/ source code
+	  directory.
+
+2002-11-19 11:25  mortene
+
+	* lib/VolumeViz/: misc/CvrGIMPGradient.h, misc/GIMPGradient.cpp,
+	  nodes/TransferFunction.cpp: Factored gradient handling code out
+	  of SoTransferFunction into a class CvrGIMPGradient.
+
+2002-11-19 11:09  mortene
+
+	* lib/VolumeViz/misc/Makefile.am: Resurrect Makefile.am for misc/
+	  directory.
+
+2002-11-19 10:34  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Implements support for
+	  user-specified colormaps.
+
+2002-11-19 09:41  mortene
+
+	* lib/VolumeViz/nodes/: SoTransferFunction.h, TransferFunction.cpp:
+	  Implements reMap(). Proper action handling for all relevant
+	  actions.
+
+2002-11-18 22:16  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Handle big-endian CPUs
+	  in translation.
+
+2002-11-18 14:46  mortene
+
+	* configure, configure.ac, lib/VolumeViz/Makefile.am,
+	  lib/VolumeViz/Makefile.in, lib/VolumeViz/misc/Makefile.am,
+	  lib/VolumeViz/misc/Makefile.in,
+	  lib/VolumeViz/misc/SoVolumeDataPage.h,
+	  lib/VolumeViz/misc/SoVolumeDataSlice.h,
+	  lib/VolumeViz/misc/VolumeDataPage.cpp,
+	  lib/VolumeViz/misc/VolumeDataSlice.cpp,
+	  lib/VolumeViz/nodes/SoTransferFunction.h,
+	  lib/VolumeViz/nodes/VolumeData.cpp,
+	  lib/VolumeViz/nodes/VolumeRendering.cpp,
+	  lib/VolumeViz/render/Makefile.am,
+	  lib/VolumeViz/render/Makefile.in,
+	  lib/VolumeViz/render/2D/2DTexPage.cpp,
+	  lib/VolumeViz/render/2D/2DTexSubPage.cpp,
+	  lib/VolumeViz/render/2D/Cvr2DTexPage.h,
+	  lib/VolumeViz/render/2D/Cvr2DTexSubPage.h,
+	  lib/VolumeViz/render/2D/Makefile.am,
+	  lib/VolumeViz/render/2D/Makefile.in: Code layout / refactoring
+	  fix: renamed and moved internal classes SoVolumeDataSlice and
+	  SoVolumeDataPage to Cvr2DTexPage and Cvr2DTexSubPage,
+	  respectively.
+
+2002-11-18 14:10  mortene
+
+	* lib/VolumeViz/misc/: SoVolumeDataPage.h, VolumeDataPage.cpp:
+	  Kills unused code.
+
+2002-11-18 14:07  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp: Misc code
+	  cleanups.
+
+2002-11-18 14:06  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Minor fixes to variable
+	  types. Extra code comments.
+
+2002-11-18 14:06  mortene
+
+	* lib/VolumeViz/misc/: SoVolumeDataSlice.h, VolumeDataSlice.cpp:
+	  Get rid of the unused numBytesSW variable.
+
+2002-11-17 21:59  mortene
+
+	* testcode/readvol.cpp.in: Some SoTransferFunction test code added.
+
+2002-11-17 21:58  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: More assert checks.
+
+2002-11-17 21:58  mortene
+
+	* lib/VolumeViz/misc/VolumeDataSlice.cpp: Fix crash bug on
+	  volumedata with dimensions that are not all a power of two.
+
+2002-11-13 13:35  mortene
+
+	* lib/VolumeViz/nodes/: TransferFunction.cpp,
+	  gradients/BLUE_RED.gg, gradients/GLOW.gg, gradients/Makefile.am,
+	  gradients/Makefile.in, gradients/PHYSICS.gg,
+	  gradients/SEISMIC.gg, gradients/STANDARD.gg: Adds remaining
+	  predefined colormap gradients for SoTransferFunction.
+
+2002-11-13 13:33  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Some FIXME notices about code
+	  to investigate.
+
+2002-11-13 12:38  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Read gradients from
+	  header files.
+
+2002-11-13 12:30  mortene
+
+	* configure, configure.ac, lib/VolumeViz/nodes/Makefile.am,
+	  lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/gradients/Makefile.am,
+	  lib/VolumeViz/nodes/gradients/Makefile.in,
+	  lib/VolumeViz/nodes/gradients/grad2h.sh: Adds setup for
+	  auto-generating GIMP gradient files into C header files.
+	  Bootstrap.
+
+2002-11-13 12:29  mortene
+
+	* lib/VolumeViz/nodes/gradients/: GREY.gg, TEMPERATURE.gg: GIMP
+	  gradients for predef colormaps.
+
+2002-11-13 12:09  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Bugfixed gradient
+	  conversion. Adds TEMPERATURE predefined colormap.
+
+2002-11-13 10:01  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: GIMP gradient ->
+	  SoTransferFunction::predefColorMap conversion functions
+	  completed.
+
+2002-11-12 15:47  mortene
+
+	* lib/VolumeViz/nodes/: SoTransferFunction.h, TransferFunction.cpp:
+	  First (dummy) transferfunction in place.
+
+2002-11-12 14:20  mortene
+
+	* lib/VolumeViz/nodes/TransferFunction.cpp: Make data transfer work
+	  with MSB-machines.
+
+2002-11-12 13:59  mortene
+
+	* lib/VolumeViz/misc/VolumeDataPage.cpp: Catch some unhandled cases
+	  with asserts.
+
+2002-11-12 13:38  mortene
+
+	* testcode/readvol.cpp.in: Simplify and robustify a little bit.
+
+2002-11-12 13:35  mortene
+
+	* lib/VolumeViz/nodes/: SoTransferFunction.h, TransferFunction.cpp:
+	  Make rendering work with 8-bits and 16-bits voxel data. Just a
+	  quick hack until transferfunctions are properly implemented.
+
+2002-11-11 15:45  mortene
+
+	* lib/VolumeViz/misc/: SoVolumeDataPage.h, SoVolumeDataSlice.h,
+	  VolumeDataPage.cpp, VolumeDataSlice.cpp: Cleans up page handling
+	  from slices.
+
+2002-11-11 14:29  mortene
+
+	* lib/VolumeViz/nodes/ROI.cpp: Compilation fixes.
+
+2002-11-11 14:14  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.h, VolumeData.cpp,
+	  VolumeRender.cpp: Simplified invocation of slice rendering
+	  methods (collects common code for different axes).
+
+2002-11-11 13:16  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Simplify code that handles
+	  construction of 2D slices.
+
+2002-11-11 13:16  mortene
+
+	* lib/VolumeViz/nodes/SoVolumeData.h: Update to FIXME notice about
+	  API item.
+
+2002-11-11 12:18  mortene
+
+	* lib/VolumeViz/nodes/VolumeData.cpp: Portability fixes (don't use
+	  bool).
+
+2002-11-11 12:11  mortene
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp: Simplify GLRender()-code.
+
+2002-11-11 10:45  mortene
+
+	* configure, configure.ac, cfg/mkinstalldirs,
+	  lib/VolumeViz/elements/Makefile.am,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/elements/SoTransferFunctionElement.cpp,
+	  lib/VolumeViz/elements/SoVolumeDataElement.cpp,
+	  lib/VolumeViz/elements/TransferFunctionElement.cpp,
+	  lib/VolumeViz/elements/VolumeDataElement.cpp,
+	  lib/VolumeViz/misc/Makefile.am, lib/VolumeViz/misc/Makefile.in,
+	  lib/VolumeViz/misc/SoVolumeDataPage.cpp,
+	  lib/VolumeViz/misc/SoVolumeDataSlice.cpp,
+	  lib/VolumeViz/misc/VolumeDataPage.cpp,
+	  lib/VolumeViz/misc/VolumeDataSlice.cpp,
+	  lib/VolumeViz/nodes/Makefile.am, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/ROI.cpp, lib/VolumeViz/nodes/SoROI.cpp,
+	  lib/VolumeViz/nodes/SoTransferFunction.cpp,
+	  lib/VolumeViz/nodes/SoVolumeData.cpp,
+	  lib/VolumeViz/nodes/SoVolumeRender.cpp,
+	  lib/VolumeViz/nodes/SoVolumeRendering.cpp,
+	  lib/VolumeViz/nodes/TransferFunction.cpp,
+	  lib/VolumeViz/nodes/VolumeData.cpp,
+	  lib/VolumeViz/nodes/VolumeRender.cpp,
+	  lib/VolumeViz/nodes/VolumeRendering.cpp,
+	  lib/VolumeViz/readers/Makefile.am,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/readers/SoVRMemReader.cpp,
+	  lib/VolumeViz/readers/SoVRVolFileReader.cpp,
+	  lib/VolumeViz/readers/SoVolumeReader.cpp,
+	  lib/VolumeViz/readers/VRMemReader.cpp,
+	  lib/VolumeViz/readers/VRVolFileReader.cpp,
+	  lib/VolumeViz/readers/VolumeReader.cpp: Rename all .cpp source
+	  code files to exclude the superfluous So-prefix. Bootstrap.
+
+2002-11-11 10:33  mortene
+
+	* lib/VolumeViz/: misc/SoVolumeDataPage.cpp,
+	  nodes/SoVolumeData.cpp: Move doc on paletted textures closer to
+	  code.
+
+2002-11-11 10:26  mortene
+
+	* lib/VolumeViz/: misc/SoVolumeDataPage.cpp, nodes/SoROI.cpp,
+	  nodes/SoVolumeData.cpp, nodes/SoVolumeRender.cpp: Clean up header
+	  dependencies -- use Inventor/system/gl.h instead of GL/gl.h.
+
+2002-11-11 10:21  mortene
+
+	* lib/VolumeViz/nodes/SoTransferFunction.cpp: Bugfixes, takes care
+	  of non-portable casting.
+
+2002-11-11 10:20  mortene
+
+	* lib/VolumeViz/readers/: SoVRVolFileReader.cpp, SoVolumeReader.h:
+	  Quick'n'dirty VOL reader.
+
+2002-11-11 10:19  mortene
+
+	* lib/VolumeViz/readers/SoVRMemReader.cpp: Factor out
+	  buildSubSlice*() functions, so they can be used from other
+	  readers.
+
+2002-11-11 10:00  mortene
+
+	* testcode/readvol.cpp.in: Complete the example code to work with
+	  SoVRVolFileReader.
+
+2002-11-11 09:59  mortene
+
+	* aclocal.m4, configure, cfg/mkinstalldirs: Bootstrap.
+
+2002-11-11 09:59  mortene
+
+	* configure.ac: Default to build and install a shared library.
+
+2002-11-09 19:47  mortene
+
+	* lib/VolumeViz/misc/SoVolumeDataSlice.cpp: Less include
+	  dependencies.
+
+2002-11-09 14:01  mortene
+
+	* lib/VolumeViz/readers/: SoVRMemReader.cpp, SoVRMemReader.h: Don't
+	  duplicate the data pointer from the superclass.
+
+2002-11-09 14:00  mortene
+
+	* lib/VolumeViz/nodes/: SoVolumeData.cpp, SoVolumeData.h: Unconst
+	  the volume data pointer of setVolumeData() -- as in the TGS API.
+
+2002-11-09 13:52  mortene
+
+	* testcode/readvol.cpp.in: Test application for trying out VOL file
+	  reader.
+
+2002-11-09 13:52  mortene
+
+	* lib/VolumeViz/readers/: SoVRVolFileReader.cpp,
+	  SoVRVolFileReader.h: Beginnings of support for the VOL file
+	  format.
+
+2002-11-09 13:52  mortene
+
+	* lib/VolumeViz/readers/SoVolumeReader.cpp: Implements fileSize()
+	  and parts of other methods.
+
+2002-11-09 12:43  mortene
+
+	* lib/VolumeViz/nodes/SoVolumeRender.cpp: Reverse a change pederb
+	  made that causes one of the examples to fail.
+
+2002-11-09 12:34  mortene
+
+	* testcode/: examine.cpp.in, testapp.cpp.in: Compilation fixes.
+
+2002-11-08 15:12  mortene
+
+	* ChangeLog: Stub file to quiet Automake.
+
+2002-11-08 15:11  mortene
+
+	* AUTHORS, COPYING, ChangeLog, Makefile.in, NEWS, README,
+	  aclocal.m4, bootstrap, config.h.in, configure, configure.ac,
+	  configure.in, cfg/config.guess, cfg/config.sub, cfg/depcomp,
+	  cfg/install-sh, cfg/missing, cfg/mkinstalldirs, lib/Makefile.in,
+	  lib/VolumeViz/Makefile.in, lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.in, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/readers/Makefile.in: Regenerate build setup.
+	  Bootstrap.
+
+2002-11-08 14:10  mortene
+
+	* LICENSE.GPL, README: Not under the GNU GPL. License TBD.
+
+2002-11-08 14:04  mortene
+
+	* lib/VolumeViz/readers/: Makefile.am, SoVRVolFileReader.cpp,
+	  SoVRVolFileReader.h: Adds code and interface skeleton files for
+	  SoVRVolFileReader class.
+
+2002-11-08 12:01  mortene
+
+	* lib/VolumeViz/: misc/SoVolumeDataSlice.cpp,
+	  misc/SoVolumeDataSlice.h, nodes/SoOrthoSlice.h,
+	  nodes/SoVolumeData.h, readers/SoVRMemReader.cpp,
+	  readers/SoVRMemReader.h, readers/SoVolumeReader.cpp,
+	  readers/SoVolumeReader.h: Misc code cleanups, FIXME notices,
+	  cosmetics.
+
+2002-11-08 12:00  mortene
+
+	* lib/VolumeViz/nodes/SoVolumeData.cpp: Minor code comment updates.
+
+2002-11-07 17:31  mortene
+
+	* testcode/rgbload.cpp.in: Compilation fix.
+
+2002-11-07 17:30  mortene
+
+	* lib/VolumeViz/: misc/SoVolumeDataSlice.cpp,
+	  misc/SoVolumeDataSlice.h, nodes/SoOrthoSlice.h,
+	  nodes/SoVolumeData.cpp, nodes/SoVolumeRendering.h,
+	  readers/SoVRMemReader.cpp, readers/SoVRMemReader.h,
+	  readers/SoVolumeReader.h: Misc minor cleanups in code.
+
+2002-11-07 17:21  mortene
+
+	* lib/VolumeViz/: misc/SoVolumeDataSlice.cpp,
+	  misc/SoVolumeDataSlice.h, nodes/SoOrthoSlice.h,
+	  nodes/SoTransferFunction.cpp, nodes/SoTransferFunction.h,
+	  nodes/SoVolumeData.cpp, nodes/SoVolumeData.h,
+	  nodes/SoVolumeRendering.h, readers/SoVRMemReader.cpp,
+	  readers/SoVRMemReader.h, readers/SoVolumeReader.h: Moves DataType
+	  enum from SoVolumeRendering to SoVolumeData to better comply with
+	  TGS's VolumeViz.
+
+2002-11-07 16:55  mortene
+
+	* lib/VolumeViz/nodes/SoVolumeRendering.cpp: Protect init() against
+	  multiple invocations.
+
+2002-11-06 14:36  mortene
+
+	* lib/VolumeViz/nodes/SoTransferFunction.cpp: Missed one grave init
+	  error.
+
+2002-11-06 14:28  mortene
+
+	* lib/VolumeViz/nodes/: SoROI.cpp, SoROI.h, SoTransferFunction.cpp,
+	  SoVolumeData.cpp, SoVolumeRender.cpp, SoVolumeRender.h: Bugfixes
+	  for the initClass() and constructor methods -- should now set up
+	  all nodes and node fields correctly.
+
+2002-11-06 13:50  mortene
+
+	* lib/VolumeViz/nodes/: SoROI.cpp, SoTransferFunction.cpp,
+	  SoVolumeRender.cpp, SoVolumeRendering.cpp: Corrects the element
+	  enabling.
+
+2002-11-06 13:45  mortene
+
+	* testcode/: examine.cpp.in, rgbload.cpp.in, testapp.cpp.in: Use
+	  SoVolumeRendering::init() to init volviz system.
+
+2002-11-06 13:44  mortene
+
+	* lib/VolumeViz/nodes/: SoROI.cpp, SoTransferFunction.cpp,
+	  SoVolumeData.cpp, SoVolumeRender.cpp: Fixes to the initialization
+	  setup.
+
+2002-11-06 13:43  mortene
+
+	* lib/VolumeViz/nodes/SoVolumeRendering.cpp: Fixes to the
+	  initialization setup. Implemented
+	  SoVolumeRendering::isSupported().
+
+2002-11-06 13:43  mortene
+
+	* lib/VolumeViz/nodes/SoVolumeRendering.h: Cosmetics.
+
+2002-11-06 11:07  mortene
+
+	* lib/VolumeViz/: elements/SoTransferFunctionElement.cpp,
+	  elements/SoVolumeDataElement.cpp, nodes/SoVolumeRendering.cpp,
+	  readers/SoVRMemReader.cpp, readers/SoVRMemReader.h,
+	  readers/SoVolumeReader.cpp, readers/SoVolumeReader.h: Cosmetic
+	  changes.
+
+2002-11-06 11:02  mortene
+
+	* lib/VolumeViz/nodes/: SoObliqueSlice.h, SoOrthoSlice.h,
+	  SoROI.cpp, SoROI.h, SoTransferFunction.cpp, SoTransferFunction.h,
+	  SoVolumeData.cpp, SoVolumeData.h, SoVolumeRender.cpp,
+	  SoVolumeRendering.cpp, SoVolumeRendering.h: Cosmetic changes.
+
+2002-11-06 10:37  mortene
+
+	* lib/VolumeViz/misc/: SoVolumeDataPage.cpp, SoVolumeDataPage.h,
+	  SoVolumeDataSlice.cpp, SoVolumeDataSlice.h: Cosmetic changes.
+
+2002-11-06 10:05  mortene
+
+	* lib/VolumeViz/misc/: SoSFBox3s.cpp, SoSFBox3s.h: Removed, as
+	  field is now part of Coin 2.
+
+2002-11-06 10:04  mortene
+
+	* lib/VolumeViz/elements/SoTransferFunctionElement.cpp: Compilation
+	  fixes.
+
+2002-11-06 10:00  mortene
+
+	* lib/VolumeViz/elements/: Makefile.am,
+	  SoTransferFunctionElement.cpp, SoTransferFunctionElement.h,
+	  SoVolumeDataElement.cpp, SoVolumeDataElement.h: Codestyle
+	  cleanups.
+
+2002-11-06 09:45  mortene
+
+	* testcode/rgbload.cpp.in: Tiny compilation fix.
+
+2002-11-04 15:46  pederb
+
+	* lib/VolumeViz/nodes/: SoVolumeRender.cpp, SoVolumeRendering.cpp:
+	  Transfer function element bugfix. Switched to alpha test
+	  rendering instead of blending.
+
+2002-11-04 12:33  pederb
+
+	* configure, configure.in, lib/VolumeViz/Makefile.am,
+	  lib/VolumeViz/Makefile.in: Win32 compile/link fix.
+
+2002-11-04 12:33  pederb
+
+	* lib/VolumeViz/readers/SoVRMemReader.cpp: Removed dummy line.
+
+2002-11-04 12:32  pederb
+
+	* lib/VolumeViz/nodes/SoVolumeData.cpp: Bugfix
+
+2002-10-30 15:27  mortene
+
+	* testcode/rgbload.cpp.in: Couple of robustifications.
+
+2002-10-30 15:23  mortene
+
+	* testcode/testapp.cpp: Replaced by toolkit-independent .in-file.
+
+2002-10-30 15:23  mortene
+
+	* testcode/testapp.cpp.in: Toolkit-independent, compiler-error free
+	  version of the (early, unfinished) roi-test.
+
+2002-10-30 15:21  pederb
+
+	* testcode/rgbload.cpp.in: New testapp.
+
+2002-10-30 15:10  mortene
+
+	* testcode/examine.cpp.in: Kill compiler warnings.
+
+2002-10-30 10:18  pederb
+
+	* Makefile.in, aclocal.m4, configure, configure.in,
+	  lib/VolumeViz/Makefile.am, lib/VolumeViz/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.am,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/misc/Makefile.am, lib/VolumeViz/misc/Makefile.in,
+	  lib/VolumeViz/misc/SoVolumeDataPage.cpp,
+	  lib/VolumeViz/misc/SoVolumeDataSlice.cpp,
+	  lib/VolumeViz/misc/SoVolumeDataSlice.h,
+	  lib/VolumeViz/nodes/Makefile.am, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/SoROI.h,
+	  lib/VolumeViz/nodes/SoVolumeData.cpp,
+	  lib/VolumeViz/nodes/SoVolumeData.h,
+	  lib/VolumeViz/nodes/SoVolumeRendering.cpp,
+	  lib/VolumeViz/readers/Makefile.am,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/readers/SoVRMemReader.cpp, testcode/examine.cpp.in,
+	  testcode/testapp.cpp: Lots of UNIX compile/build fixes.
+
+2002-10-29 17:08  pederb
+
+	* lib/VolumeViz/: misc/SoVolumeDataPage.cpp,
+	  misc/SoVolumeDataSlice.cpp, misc/SoVolumeDataSlice.h,
+	  nodes/SoTransferFunction.cpp, nodes/SoVolumeData.cpp,
+	  nodes/SoVolumeData.h, nodes/SoVolumeRendering.cpp,
+	  nodes/SoVolumeRendering.h, readers/SoVRMemReader.h,
+	  readers/SoVolumeReader.h: gcc compile fixes.
+
+2002-08-29 12:47  torbjorv
+
+	* lib/VolumeViz/misc/SoVolumeDataPage.cpp: Bug in comment.
+
+2002-08-29 12:47  torbjorv
+
+	* lib/VolumeViz/nodes/SoVolumeData.cpp: More documentation. Section
+	  VOLUMEREADER is extended. Section REFACTORING is added.
+
+2002-08-29 10:16  mortene
+
+	* lib/VolumeViz/nodes/SoVolumeData.cpp: Fix typos, re-break doc for
+	  readability.
+
+2002-08-28 15:44  torbjorv
+
+	* lib/VolumeViz/nodes/SoVolumeRendering.h: Cosmetics.
+	  Documentation/FIXMEs.
+
+2002-08-28 15:43  torbjorv
+
+	* lib/VolumeViz/: misc/SoSFBox3s.cpp, misc/SoSFBox3s.h,
+	  misc/SoVolumeDataPage.cpp, misc/SoVolumeDataPage.h,
+	  misc/SoVolumeDataSlice.cpp, misc/SoVolumeDataSlice.h,
+	  elements/SoTransferFunctionElement.cpp,
+	  elements/SoTransferFunctionElement.h: Cosmetics. Documentation.
+
+2002-08-28 15:42  torbjorv
+
+	* lib/VolumeViz/nodes/: SoROI.cpp, SoROI.h, SoTransferFunction.cpp,
+	  SoTransferFunction.h, SoVolumeData.cpp, SoVolumeData.h,
+	  SoVolumeRender.cpp, SoVolumeRender.h, SoVolumeRendering.cpp:
+	  Cosmetic code changes. Documentation, please check out
+	  SoVolumeData.cpp
+
+2002-08-28 15:41  torbjorv
+
+	* lib/VolumeViz/readers/: SoVRMemReader.cpp, SoVRMemReader.h,
+	  SoVolumeReader.cpp, SoVolumeReader.h: Cosmetic code changes.
+	  Documentation.
+
+2002-08-14 14:10  torbjorv
+
+	* lib/VolumeViz/: misc/SoVolumeDataPage.cpp,
+	  misc/SoVolumeDataPage.h, misc/SoVolumeDataSlice.cpp,
+	  misc/SoVolumeDataSlice.h, nodes/SoVolumeData.cpp,
+	  nodes/SoVolumeData.h: Support for restricting use of hardware
+	  texturememory.
+
+2002-08-14 12:13  torbjorv
+
+	* lib/VolumeViz/nodes/: SoROI.cpp, SoTransferFunction.cpp,
+	  SoVolumeData.cpp, SoVolumeRender.cpp, SoVolumeRendering.cpp,
+	  SoVolumeRendering.h: Modified the TODO-list. Fixed the
+	  glColorTableEXT-bug.
+
+2002-08-14 12:12  torbjorv
+
+	* lib/VolumeViz/misc/SoVolumeDataPage.cpp: Fixed the
+	  glColorTableEXT bug. Still not thoroughly tested.
+
+2002-08-13 15:51  torbjorv
+
+	* testcode/testapp.cpp: Just adding this for backup. Will create
+	  several examples/testprogs later.
+
+2002-08-13 15:50  torbjorv
+
+	* lib/VolumeViz/nodes/SoROI.cpp: Support for transferfunctions and
+	  different dataformats.
+
+2002-08-13 15:49  torbjorv
+
+	* lib/VolumeViz/nodes/: SoTransferFunction.cpp,
+	  SoTransferFunction.h, SoVolumeData.cpp, SoVolumeRender.cpp,
+	  SoVolumeRendering.cpp, SoVolumeRendering.h: Added support for
+	  transferfunctions. Moved the definitions for gl-extensions.
+
+2002-08-13 15:48  torbjorv
+
+	* lib/VolumeViz/misc/: SoVolumeDataPage.cpp, SoVolumeDataPage.h,
+	  SoVolumeDataSlice.cpp, SoVolumeDataSlice.h: Added support for
+	  different formats of inputdata.
+
+2002-08-13 15:47  torbjorv
+
+	* lib/VolumeViz/readers/SoVRMemReader.cpp: Backup.
+
+2002-08-13 15:46  torbjorv
+
+	* lib/VolumeViz/elements/: SoTransferFunctionElement.cpp,
+	  SoTransferFunctionElement.h, SoVolumeDataElement.cpp,
+	  SoVolumeDataElement.h: Added a transferfunctionelement, and made
+	  some small changes in volumedataelement.
+
+2002-08-09 16:05  torbjorv
+
+	* lib/VolumeViz/misc/: SoVolumeDataPage.cpp, SoVolumeDataSlice.cpp,
+	  SoVolumeDataSlice.h: Containerclasses for volumedata.
+
+2002-08-09 16:01  torbjorv
+
+	* lib/VolumeViz/readers/: SoVRMemReader.cpp, SoVRMemReader.h,
+	  SoVolumeReader.cpp, SoVolumeReader.h: Finished the reader for
+	  memoryprovided volumedata. Still missing support for different
+	  voxelformats (paletted).
+
+2002-08-09 15:58  torbjorv
+
+	* lib/VolumeViz/nodes/: SoROI.cpp, SoVolumeData.cpp,
+	  SoVolumeData.h, SoVolumeRender.cpp, SoVolumeRendering.h:
+	  Done restructuring the volumedata and functionality among pages
+	  and slices Textures are now built using the specified reader.
+
+2002-08-07 18:36  torbjorv
+
+	* lib/VolumeViz/readers/: SoVRMemReader.cpp, SoVRMemReader.h,
+	  SoVolumeReader.cpp, SoVolumeReader.h: Memoryprovided volumedata
+	  will be read through this reader.
+
+2002-08-07 18:35  torbjorv
+
+	* lib/VolumeViz/nodes/: SoObliqueSlice.h, SoOrthoSlice.h,
+	  SoROI.cpp, SoROI.h, SoTransferFunction.h, SoVolumeData.cpp,
+	  SoVolumeData.h, SoVolumeRender.cpp, SoVolumeRender.h,
+	  SoVolumeRendering.h: Lots of updates. Rearranging both code and
+	  data.
+
+2002-08-07 18:32  torbjorv
+
+	* lib/VolumeViz/misc/: SoVolumeDataPage.cpp, SoVolumeDataPage.h,
+	  SoVolumeDataSlice.cpp, SoVolumeDataSlice.h: Restructuring
+	  dataorganizing in SoVolumeData.
+
+2002-08-02 14:05  torbjorv
+
+	* lib/VolumeViz/nodes/: SoROI.h, SoVolumeData.cpp, SoVolumeData.h,
+	  SoVolumeRender.cpp, SoVolumeRendering.cpp: Implemented some more
+	  functionality to get the SoROI-node to work.
+
+2002-08-02 13:13  torbjorv
+
+	* lib/VolumeViz/nodes/SoROI.cpp: Region Of Interest-node for the
+	  VolumeViz-system.
+
+2002-08-02 13:11  torbjorv
+
+	* lib/VolumeViz/misc/: SoSFBox3s.cpp, SoSFBox3s.h: Field-container
+	  for SbBox3s. Needed for the VolumeViz-system. Will be moved to
+	  Coin.
+
+2002-07-30 13:50  mortene
+
+	* COPYING, INSTALL, README, THANKS, TODO: Misc initialization to
+	  info files.
+
+2002-07-29 10:53  mortene
+
+	* .cvsignore, AUTHORS, COPYING, ChangeLog, INSTALL, LICENSE.GPL,
+	  Makefile.am, Makefile.in, NEWS, README, THANKS, TODO, aclocal.m4,
+	  bootstrap, config.h.in, configure, configure.in, stamp-h.in,
+	  cfg/config.guess, cfg/config.sub, cfg/depcomp, cfg/install-sh,
+	  testcode/examine.cpp.in, testcode/testapp.cpp, cfg/ltmain.sh,
+	  cfg/missing, cfg/mkinstalldirs, lib/Makefile.am, lib/Makefile.in,
+	  lib/VolumeViz/Makefile.am, lib/VolumeViz/Makefile.in,
+	  lib/VolumeViz/details/Makefile.am,
+	  lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.am,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/elements/SoVolumeDataElement.cpp,
+	  lib/VolumeViz/elements/SoVolumeDataElement.h,
+	  lib/VolumeViz/nodes/Makefile.am, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/SoObliqueSlice.h,
+	  lib/VolumeViz/nodes/SoOrthoSlice.h, lib/VolumeViz/nodes/SoROI.h,
+	  lib/VolumeViz/nodes/SoTransferFunction.cpp,
+	  lib/VolumeViz/nodes/SoTransferFunction.h,
+	  lib/VolumeViz/nodes/SoVolumeData.cpp,
+	  lib/VolumeViz/nodes/SoVolumeData.h,
+	  lib/VolumeViz/nodes/SoVolumeRender.cpp,
+	  lib/VolumeViz/nodes/SoVolumeRender.h,
+	  lib/VolumeViz/nodes/SoVolumeRendering.cpp,
+	  lib/VolumeViz/nodes/SoVolumeRendering.h,
+	  lib/VolumeViz/readers/Makefile.am,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/readers/SoVolumeReader.cpp,
+	  lib/VolumeViz/readers/SoVolumeReader.h: Initial import of
+	  sourcecode for volume visualization extension developed by
+	  Torbjorn Vik.
+
+2002-07-29 10:53  mortene
+
+	* .cvsignore, AUTHORS, COPYING, ChangeLog, INSTALL, LICENSE.GPL,
+	  Makefile.am, Makefile.in, NEWS, README, THANKS, TODO, aclocal.m4,
+	  bootstrap, config.h.in, configure, configure.in, stamp-h.in,
+	  cfg/config.guess, cfg/config.sub, cfg/depcomp, cfg/install-sh,
+	  testcode/examine.cpp.in, testcode/testapp.cpp, cfg/ltmain.sh,
+	  cfg/missing, cfg/mkinstalldirs, lib/Makefile.am, lib/Makefile.in,
+	  lib/VolumeViz/Makefile.am, lib/VolumeViz/Makefile.in,
+	  lib/VolumeViz/details/Makefile.am,
+	  lib/VolumeViz/details/Makefile.in,
+	  lib/VolumeViz/elements/Makefile.am,
+	  lib/VolumeViz/elements/Makefile.in,
+	  lib/VolumeViz/elements/SoVolumeDataElement.cpp,
+	  lib/VolumeViz/elements/SoVolumeDataElement.h,
+	  lib/VolumeViz/nodes/Makefile.am, lib/VolumeViz/nodes/Makefile.in,
+	  lib/VolumeViz/nodes/SoObliqueSlice.h,
+	  lib/VolumeViz/nodes/SoOrthoSlice.h, lib/VolumeViz/nodes/SoROI.h,
+	  lib/VolumeViz/nodes/SoTransferFunction.cpp,
+	  lib/VolumeViz/nodes/SoTransferFunction.h,
+	  lib/VolumeViz/nodes/SoVolumeData.cpp,
+	  lib/VolumeViz/nodes/SoVolumeData.h,
+	  lib/VolumeViz/nodes/SoVolumeRender.cpp,
+	  lib/VolumeViz/nodes/SoVolumeRender.h,
+	  lib/VolumeViz/nodes/SoVolumeRendering.cpp,
+	  lib/VolumeViz/nodes/SoVolumeRendering.h,
+	  lib/VolumeViz/readers/Makefile.am,
+	  lib/VolumeViz/readers/Makefile.in,
+	  lib/VolumeViz/readers/SoVolumeReader.cpp,
+	  lib/VolumeViz/readers/SoVolumeReader.h: Initial revision
+
