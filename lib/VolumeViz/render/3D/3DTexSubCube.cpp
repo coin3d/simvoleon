@@ -29,7 +29,6 @@
 
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
-#include <Inventor/SbClip.h>
 #include <Inventor/SbMatrix.h>
 #include <Inventor/SbViewVolume.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -154,20 +153,17 @@ Cvr3DTexSubCube::intersectFaceSet(const SbVec3f * vertexlist,
                                   const unsigned int length,
                                   const SbMatrix & m)
 {
-
-  SbClip cubeclipper;
+  this->clippoly.reset();
 
   SbVec3f a;
   unsigned int idx = 0;
   for (unsigned int i=0;i<length;++i) {
     for (int j=0;j<numVertices[i];++j) {
       m.multVecMatrix(vertexlist[idx++], a);
-      cubeclipper.addVertex(a);
+      this->clippoly.addVertex(a);
     }
-    this->clipPolygonAgainstCube(cubeclipper);
-    cubeclipper.reset();
+    this->clipPolygonAgainstCube();
   }
-
 }
 
 // Check if this cube is intersected by a triangle strip set.
@@ -177,8 +173,7 @@ Cvr3DTexSubCube::intersectTriangleStripSet(const SbVec3f * vertexlist,
                                            const unsigned int length,
                                            const SbMatrix & m)
 {
-
-  SbClip cubeclipper;
+  this->clippoly.reset();
 
   SbVec3f a;
   unsigned int idx = 0;
@@ -188,10 +183,10 @@ Cvr3DTexSubCube::intersectTriangleStripSet(const SbVec3f * vertexlist,
     for (int j=0;j<numVertices[i];++j) {
 
       m.multVecMatrix(vertexlist[idx++], a);
-      cubeclipper.addVertex(a);
+      this->clippoly.addVertex(a);
       if (counter == 2) {
-        this->clipPolygonAgainstCube(cubeclipper);
-        cubeclipper.reset();
+        this->clipPolygonAgainstCube();
+        this->clippoly.reset();
 
         if (j == (numVertices[i] - 1)) break; // Strip finished.
 
@@ -212,8 +207,7 @@ Cvr3DTexSubCube::intersectIndexedTriangleStripSet(const SbVec3f * vertexlist,
                                                   const unsigned int numindices,
                                                   const SbMatrix & m)
 {
-
-  SbClip cubeclipper;
+  this->clippoly.reset();
 
   SbVec3f a;
   int counter = 0;
@@ -224,10 +218,10 @@ Cvr3DTexSubCube::intersectIndexedTriangleStripSet(const SbVec3f * vertexlist,
     }
     else {
       m.multVecMatrix(vertexlist[indices[i]], a);
-      cubeclipper.addVertex(a);
+      this->clippoly.addVertex(a);
       if (counter == 2) {
-        this->clipPolygonAgainstCube(cubeclipper);
-        cubeclipper.reset();
+        this->clipPolygonAgainstCube();
+        this->clippoly.reset();
         if ((i >= numindices) || indices[i+1] == -1) continue;
         counter = 0;
         i -= 2;
@@ -246,31 +240,30 @@ Cvr3DTexSubCube::intersectIndexedFaceSet(const SbVec3f * vertexlist,
                                          const unsigned int numindices,
                                          const SbMatrix & m)
 {
-
-  SbClip cubeclipper;
+  this->clippoly.reset();
 
   SbVec3f a;
   for (unsigned int i=0;i<numindices;++i) {
     if (indices[i] != -1) {
       m.multVecMatrix(vertexlist[indices[i]], a);
-      cubeclipper.addVertex(a);
-    } else { // Index == -1. Clip polygon.
-      this->clipPolygonAgainstCube(cubeclipper);
-      cubeclipper.reset();
+      this->clippoly.addVertex(a);
+    }
+    else { // Index == -1. Clip polygon.
+      this->clipPolygonAgainstCube();
+      this->clippoly.reset();
     }
   }
 
-  this->clipPolygonAgainstCube(cubeclipper);
-
+  this->clipPolygonAgainstCube();
 }
 
 // Check if this cube is intersected by the viewport aligned clip plane.
 void
 Cvr3DTexSubCube::intersectSlice(const SbVec3f * sliceplanecorners)
 {
-  SbClip cubeclipper;
-  for (unsigned int i=0; i < 4; i++) { cubeclipper.addVertex(sliceplanecorners[i]); }
-  this->clipPolygonAgainstCube(cubeclipper);
+  this->clippoly.reset();
+  for (unsigned int i=0; i < 4; i++) { this->clippoly.addVertex(sliceplanecorners[i]); }
+  this->clipPolygonAgainstCube();
 }
 
 // Check if this cube is intersected by the viewport aligned clip plane.
@@ -279,7 +272,7 @@ Cvr3DTexSubCube::intersectSlice(const SbViewVolume & viewvolume,
                                 const float viewdistance,
                                 const SbMatrix & m)
 {
-  SbClip cubeclipper;
+  this->clippoly.reset();
 
   // FIXME: Can we rewrite this to support viewport shells for proper
   // perspective? (20040227 handegar)
@@ -301,35 +294,35 @@ Cvr3DTexSubCube::intersectSlice(const SbViewVolume & viewvolume,
   m.multVecMatrix(c, c);
   m.multVecMatrix(d, d);
 
-  cubeclipper.addVertex(a);
-  cubeclipper.addVertex(b);
-  cubeclipper.addVertex(c);
-  cubeclipper.addVertex(d);
+  this->clippoly.addVertex(a);
+  this->clippoly.addVertex(b);
+  this->clippoly.addVertex(c);
+  this->clippoly.addVertex(d);
 
-  this->clipPolygonAgainstCube(cubeclipper);
+  this->clipPolygonAgainstCube();
 }
 
 // Internal method
 void
-Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper)
+Cvr3DTexSubCube::clipPolygonAgainstCube(void)
 {
   /*
-    NB!: the 'cubeclipper' object must have been initialized with a
+    NB!: the 'this->clippoly' object must have been initialized with a
     polygon *before* this function is called to have an effect.
   */
 
   for (unsigned int j=0; j < 6; j++) {
-    cubeclipper.clip(this->clipplanes[j]);
+    this->clippoly.clip(this->clipplanes[j]);
   }
 
-  const unsigned int result = cubeclipper.getNumVertices();
+  const unsigned int result = this->clippoly.getNumVertices();
 
   if (result >= 3) {
     subcube_slice slice;
     SbVec3f vert;
     
     for (unsigned int i=0; i < result; i++) {
-      cubeclipper.getVertex(i, vert);
+      this->clippoly.getVertex(i, vert);
       // FIXME: this will alloc lots (?) of memory each frame, which
       // probably affects performance. 20041007 mortene.
       slice.vertex.append(vert);

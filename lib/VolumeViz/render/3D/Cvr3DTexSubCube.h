@@ -28,8 +28,8 @@
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbPlane.h>
 #include <Inventor/lists/SbList.h>
+#include <Inventor/SbClip.h>
 
-class SbClip;
 class SbMatrix;
 class SbViewVolume;
 class SoGLRenderAction;
@@ -87,7 +87,7 @@ private:
   void activateCLUT(const SoGLRenderAction * action); 
   void deactivateCLUT(const SoGLRenderAction * action); 
  
-  void clipPolygonAgainstCube(SbClip & cubeclipper);
+  void clipPolygonAgainstCube(void);
 
   const CvrTextureObject * textureobject;
   const CvrCLUT * clut;
@@ -104,6 +104,7 @@ private:
   SbList <subcube_slice> volumeslices;
 
   SbPlane clipplanes[6];
+  SbClip clippoly;
 };
 
 #endif // !SIMVOLEON_CVR3DTEXSUBPAGE_H
