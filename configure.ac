@@ -102,7 +102,7 @@ AC_SUBST([SIMVOLEON_EXTRA_LIBS], [$LIBS])
 
 # *******************************************************************
 
-AM_INIT_AUTOMAKE(SimVoleon, $VERSION)
+AM_INIT_AUTOMAKE(SIMVoleon, $VERSION)
 
 #  Default to not building a static library. Can be overridden by the
 #  user with --enable-static.
@@ -307,36 +307,22 @@ if $sim_ac_build_library; then
     [AC_MSG_ERROR(could not compile and link against Coin)]
   )
 
-  AC_MSG_CHECKING([if Coin version is >= 2.0.0])
+  AC_MSG_CHECKING([if Coin version is >= 2.3.0])
   AC_TRY_COMPILE(
      [#include <Inventor/SbBasic.h>],
      [#if (COIN_MAJOR_VERSION < 2)
       #error hepp
-      #endif],
+      #endif
+      #if (COIN_MAJOR_VERSION == 2)
+        #if (COIN_MINOR_VERSION < 3)
+        #error hepp
+        #endif
+      #endif
+     ],
      [AC_MSG_RESULT(yes)],
      [AC_MSG_RESULT(no)
-      AC_MSG_ERROR(SimVoleon needs Coin v2.0.0 or newer.)
+      AC_MSG_ERROR(SIM Voleon needs Coin v2.3.0 or newer.)
      ]
-  )
-
-  # *******************************************************************
-  # The ARB fragment programs uses recent parts of the cc_glglue
-  # interface in Coin, so check for that.
-  #
-  # FIXME: should not depend on such a recent Coin version (in fact,
-  # none has been officially released yet). The better solution is to
-  # make cc_glglue importable into other projects -- it is also needed
-  # in SIM Scenery, for instance. 20040505 mortene.
-  
-  AC_MSG_CHECKING([if Coin provides fragment program interface])
-  AC_TRY_COMPILE(
-     [#include <Inventor/C/glue/gl.h>],
-     [(void)cc_glglue_has_arb_fragment_program(NULL);
-      cc_glglue_glProgramString(NULL, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB, 1, NULL);
-     ],
-     [AC_MSG_RESULT(yes)
-      AC_DEFINE([HAVE_ARB_FRAGMENT_PROGRAM],, [define to use Coin cc_glglue fragment program interface])],
-     [AC_MSG_RESULT(no)]
   )
 
   if $SIMVOLEON_STATIC && $BUILD_WITH_MSVC; then
@@ -371,19 +357,19 @@ if $BUILD_WITH_MSVC; then
   debugfile="`pwd`/lib/VolumeViz/simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.pdb"
   debugfile=`cygpath -w "$debugfile" | sed 's,\\\\,\\\\\\\\,g'`
   if $SIMVOLEON_STATIC; then
-    SIM_AC_CONFIGURATION_SETTING([SimVoleon build type], [static .lib])
+    SIM_AC_CONFIGURATION_SETTING([SIM Voleon build type], [static .lib])
     LIBFLAGS="-LIB $LIBFLAGS"
     LIBFLAGS="$LIBFLAGS /OUT:simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.lib"
   else
     LIBFLAGS="-DLL /INCREMENTAL:NO $LIBFLAGS"
     case $enable_symbols in
     no | false)
-      SIM_AC_CONFIGURATION_SETTING([SimVoleon build type],
+      SIM_AC_CONFIGURATION_SETTING([SIM Voleon build type],
                                    [dynamic .dll, no symbols])
       LIBFLAGS="$LIBFLAGS /RELEASE"
       ;;
     *)
-      SIM_AC_CONFIGURATION_SETTING([SimVoleon build type],
+      SIM_AC_CONFIGURATION_SETTING([SIM Voleon build type],
                                    [dynamic .dll + .pdb])
       CFLAGS="/Fd$debugfile -g $CFLAGS"
       CXXFLAGS="/Fd$debugfile -g $CXXFLAGS"
@@ -420,7 +406,7 @@ SIM_AC_UNIQIFY_LIST(LIBS, $LIBS)
 # **************************************************************************
 # Microsoft Developer Studio Project files
 
-SIM_AC_MSVC_DSP_SETUP([SIMVOLEON], [SimVoleon], [simvoleon], [-I$simvoleon_build_dir/lib -I$simvoleon_src_dir/lib])
+SIM_AC_MSVC_DSP_SETUP([SIMVOLEON], [SIM Voleon], [simvoleon], [-I$simvoleon_build_dir/lib -I$simvoleon_src_dir/lib])
 
 # *******************************************************************
 
