@@ -119,15 +119,7 @@ datatype2bytesize(const SoVolumeData::DataType type)
   return voxelsize;
 }
 
-/*!
-  Returns a raw image with Z as horisontal and Y as vertical axis.
-  Assumes that the provided data is in RGBA-form. Caller deletes of
-  course.
-
-  This function and the similar functions for Y- and Z-axis should be
-  fairly optimized. The innerloops could be unrolled a few times to
-  get even more speed. But that would mess up the code.
-*/
+// Copies rows of z-axis data down the y-axis.
 void
 buildSubSliceX(const void * input,
                void * output,
@@ -138,50 +130,41 @@ buildSubSliceX(const void * input,
 {
   uint8_t * input8bits = (uint8_t *)input;
   uint8_t * output8bits = (uint8_t *)output;
-  uint16_t * input16bits = (uint16_t *)input;
-  uint16_t * output16bits = (uint16_t *)output;
-  uint32_t * input32bits = (uint32_t *)input;
-  uint32_t * output32bits = (uint32_t *)output;
+
+  assert(pageidx >= 0);
+  assert(pageidx < dim[1]);
 
   SbVec2s ssmin, ssmax;
   cutslice.getBounds(ssmin, ssmax);
 
-  int xOffset = pageidx;
-  int yOffset = ssmin[1] * dim[0];
-  int yLimit = ssmax[1] * dim[0];
   int zAdd = dim[0] * dim[1];
-  int zStart = ssmin[0] * dim[0] * dim[1];
 
-  while (yOffset < yLimit) {
-    int zOffset = zStart + xOffset + yOffset;
-    int zLimit  = ssmax[0] * dim[0] * dim[1]
-                + xOffset + yOffset;
+  const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
+  assert(nrhorizvoxels > 0);
+  const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
+  assert(nrvertvoxels > 0);
 
-    switch (type) {
+  const unsigned int staticoffset =
+    pageidx + ssmin[1] * dim[0] + ssmin[0] * zAdd;
 
-      case SoVolumeData::UNSIGNED_BYTE:
-        while (zOffset < zLimit) {
-          *output8bits++ = input8bits[zOffset];
-          zOffset += zAdd;
-        }
-        break;
+  const unsigned int voxelsize = datatype2bytesize(type);
 
-      case SoVolumeData::UNSIGNED_SHORT:
-        while (zOffset < zLimit) {
-          *output16bits++ = input16bits[zOffset];
-          zOffset += zAdd;
-        }
-        break;
+  for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
+    const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
+    const uint8_t * srcptr = &(input8bits[inoffset * voxelsize]);
 
-      case SoVolumeData::RGBA:
-        while (zOffset < zLimit) {
-          *output32bits++ = input32bits[zOffset];
-          zOffset += zAdd;
-        }
-        break;
+    // FIXME: nrhorizvoxels here should be actual width of
+    // subpages, in case it's not 2^n. 20021125 mortene.
+    uint8_t * dstptr = &(output8bits[nrhorizvoxels * rowidx * voxelsize]);
+
+    // FIXME: try to optimize this loop. 20021125 mortene.
+    for (unsigned int horizidx = 0; horizidx < nrhorizvoxels; horizidx++) {
+      *dstptr++ = *srcptr++;
+      if (voxelsize > 1) *dstptr++ = *srcptr++;
+      if (voxelsize == 4) { *dstptr++ = *srcptr++; *dstptr++ = *srcptr++; }
+
+      srcptr += zAdd * voxelsize - voxelsize;
     }
-
-    yOffset += dim[0];
   }
 }
 
@@ -225,7 +208,7 @@ buildSubSliceY(const void * input,
   }
 }
 
-// Copies rows of x-axis data along the y-axis.
+// Copies rows of x-axis data down the y-axis.
 void
 buildSubSliceZ(const void * input, void * output,
                const int pageidx,
