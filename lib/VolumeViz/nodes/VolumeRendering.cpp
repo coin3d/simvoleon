@@ -365,22 +365,31 @@ SoVolumeRendering::initClass(void)
 SoVolumeRendering::HW_SupportStatus
 SoVolumeRendering::isSupported(HW_Feature feature)
 {
+  // The API of this function is rather bogus, as we need a GL context
+  // id to figure out what is supported and not.
+  //
+  // FIXME: here's an idea for a fix: on the very first GLRender(),
+  // for e.g. the SoVolumeData node (which is the only node guaranteed
+  // to have to be used for any volume rendering to work), query these
+  // settings, and set them up in a lib-internal class. 20041008
+  // mortene.
+
   switch (feature) {
 
   case SoVolumeRendering::HW_VOLUMEPRO:
     return SoVolumeRendering::NO;
 
   case SoVolumeRendering::HW_3DTEXMAP:
-    // FIXME: update this when support is in place. 20021106 mortene.
-    return SoVolumeRendering::NO;
+    // FIXME: return a better indication of actual capability. 20041008 mortene.
+    return SoVolumeRendering::UNKNOWN;
 
   case SoVolumeRendering::HW_TEXCOLORMAP:
-    // FIXME: update this when support is in place. 20021106 mortene.
-    return SoVolumeRendering::NO;
+    // FIXME: return a better indication of actual capability. 20041008 mortene.
+    return SoVolumeRendering::UNKNOWN;
 
   case SoVolumeRendering::HW_TEXCOMPRESSION:
-    // FIXME: update this when support is in place. 20021106 mortene.
-    return SoVolumeRendering::NO;
+    // FIXME: return a better indication of actual capability. 20041008 mortene.
+    return SoVolumeRendering::UNKNOWN;
 
   default:
     assert(FALSE && "unknown feature");
