@@ -177,7 +177,13 @@ SoROI::GLRender(SoGLRenderAction *action)
   SbVec3f volumeMin, volumeMax;
   SbBox3f volumeSize = volumeData->getVolumeSize();
   volumeSize.getBounds(volumeMin, volumeMax);
-  SbVec3s dimensions = volumeData->getDimensions();
+
+  SbVec3s dimensions;
+  void * data;
+  SoVolumeData::DataType type;
+  SbBool ok = volumeData->getVolumeData(dimensions, data, type);
+  assert(ok);
+
   SbVec3s minSlice, maxSlice;
   SbBox3s sliceBox;
   this->box.getValue(sliceBox);
