@@ -21,8 +21,26 @@
  *
 \**************************************************************************/
 
-// FIXME: not yet implemented. 20040505 mortene.
+/*!
+  \class SoObliqueSlice VolumeViz/nodes/SoObliqueSlice.h
+  \brief Render a slice of the volume data, with any orientation.
 
+  Insert a node of this type after an SoVolumeData node in the scene
+  graph to render a single slice from the full volume data set. The
+  slice is specified as a plane with any orientation and position
+  within the volume.
+
+  Note that this node will not work with OpenGL drivers too old to
+  contain support for 3D-texturing. All OpenGL drivers of version 1.2
+  and onwards supports 3D-texturing, as does also older OpenGL drivers
+  with the \c GL_EXT_texture3D extension. If none of these are
+  available, and this node is still attempted used, a warning message
+  will be output through Coin's SoDebugError::postWarning().
+
+  \sa SoVolumeFaceSet, SoVolumeRender, SoOrthoSlice
+*/
+
+// *************************************************************************
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>

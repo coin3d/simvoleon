@@ -21,6 +21,29 @@
  *
 \**************************************************************************/
 
+/*!
+  \class SoVolumeFaceSet VolumeViz/nodes/SoVolumeFaceSet.h
+  \brief Render a set of faces within the volume.
+
+  This node works somewhat like the SoObliqueSlice node, but instead
+  of a single plane cutting through the full volume, one can set up an
+  arbitrary number of polygon faces inside (and outside) the volume,
+  where the voxel values which the polygons are cutting through will
+  be shown mapped onto the faces.
+
+  Coordinates, materials, normals, and other settings for the polygons
+  should be specified as for the Coin SoFaceSet node, so see class
+  documentation of that class for more information.
+
+  Note that this node will not work with OpenGL drivers too old to
+  contain support for 3D-texturing. See the extended comments on
+  SoObliqueSlice for more information.
+
+  \sa SoVolumeIndexedFaceSet, SpVolumeRender, SoOrthoSlice, SoObliqueSlice
+*/
+
+// *************************************************************************
+
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>

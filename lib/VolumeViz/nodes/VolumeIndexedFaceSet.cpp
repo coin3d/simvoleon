@@ -21,6 +21,24 @@
  *
 \**************************************************************************/
 
+/*!
+  \class SoVolumeIndexedFaceSet VolumeViz/nodes/SoVolumeIndexedFaceSet.h
+  \brief Render a set of faces within the volume.
+
+  This node works like the SoVolumeFaceSet node, but specifies vertex
+  indices in a slightly different manner. See documentation of
+  SoVolumeFaceSet and Coin's SoIndexedFaceSet for further
+  documentation.
+
+  Note that this node will not work with OpenGL drivers too old to
+  contain support for 3D-texturing. See the extended comments on
+  SoObliqueSlice for more information.
+
+  \sa SoVolumeFaceSet, SoVolumeRender, SoOrthoSlice, SoObliqueSlice
+*/
+
+// *************************************************************************
+
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>

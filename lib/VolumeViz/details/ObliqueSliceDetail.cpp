@@ -21,22 +21,22 @@
  *
 \**************************************************************************/
 
-// FIXME: class not yet in use. 20040505 mortene.
-
 /*!
   \class SoObliqueSliceDetail SoObliqueSliceDetail.h VolumeViz/details/SoObliqueSliceDetail.h
-  \brief The SoObliqueSliceDetail FIXME: doc
-
-  FIXME: doc
+  \brief The SoObliqueSliceDetail contains details of a pick operation on SoObliqueSlice geometry.
 */
+
+// *************************************************************************
 
 #include <stddef.h>
 #include <VolumeViz/details/SoObliqueSliceDetail.h>
 #include <Inventor/SbName.h>
 
+// *************************************************************************
 
 SO_DETAIL_SOURCE(SoObliqueSliceDetail);
 
+// *************************************************************************
 
 SoObliqueSliceDetail::SoObliqueSliceDetail(void)
 {
@@ -54,6 +54,8 @@ SoObliqueSliceDetail::initClass(void)
   SO_DETAIL_INIT_CLASS(SoObliqueSliceDetail, SoDetail);
 }
 
+// *************************************************************************
+
 // doc in super
 SoDetail *
 SoObliqueSliceDetail::copy(void) const
@@ -63,20 +65,39 @@ SoObliqueSliceDetail::copy(void) const
   return copy;
 }
 
+// *************************************************************************
+
+/*!
+  Returns unit coordinates of the pick point, in the volume's local
+  coordinate system.
+
+  \sa getValueDataPos()
+*/
 const SbVec3f &
 SoObliqueSliceDetail::getValueObjectPos(void) const
 {
   return this->objectcoords;
 }
 
+/*!
+  Returns coordinates of the voxel at the pick point, in the volume's
+  voxel coordinate system.
+
+  \sa getValueObjectPos(), getValue()
+*/
 const SbVec3s &
 SoObliqueSliceDetail::getValueDataPos(void) const
 {
   return this->ijkcoords;
 }
 
+/*!
+  Returns value of the picked voxel.
+*/
 unsigned int
 SoObliqueSliceDetail::getValue(void) const
 {
   return this->voxelvalue;
 }
+
+// *************************************************************************

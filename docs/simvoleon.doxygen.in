@@ -362,6 +362,8 @@ WARN_LOGFILE           =
 INPUT                  = \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeData.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeData.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/details/SoObliqueSliceDetail.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/details/ObliqueSliceDetail.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/details/SoOrthoSliceDetail.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/details/OrthoSliceDetail.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/details/SoVolumeRenderDetail.h \
@@ -370,12 +372,18 @@ INPUT                  = \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/elements/TransferFunctionElement.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/elements/SoVolumeDataElement.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/elements/VolumeDataElement.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoObliqueSlice.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/ObliqueSlice.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoOrthoSlice.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/OrthoSlice.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoTransferFunction.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/TransferFunction.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeRender.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeRender.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeFaceSet.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeFaceSet.cpp \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeIndexedFaceSet.h \
+@path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeIndexedFaceSet.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/SoVolumeRendering.h \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/nodes/VolumeRendering.cpp \
 @path_tag@@voleon_src_dir@/lib/VolumeViz/readers/SoVRVolFileReader.h \

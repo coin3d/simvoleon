@@ -23,18 +23,20 @@
 
 /*!
   \class SoOrthoSliceDetail SoOrthoSliceDetail.h VolumeViz/details/SoOrthoSliceDetail.h
-  \brief The SoOrthoSliceDetail FIXME: doc
-
-  FIXME: doc
+  \brief The SoOrthoSliceDetail contains details of a pick operation on SoOrthoSlice geometry.
 */
+
+// *************************************************************************
 
 #include <stddef.h>
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
 #include <Inventor/SbName.h>
 
+// *************************************************************************
 
 SO_DETAIL_SOURCE(SoOrthoSliceDetail);
 
+// *************************************************************************
 
 SoOrthoSliceDetail::SoOrthoSliceDetail(void)
 {
@@ -52,6 +54,8 @@ SoOrthoSliceDetail::initClass(void)
   SO_DETAIL_INIT_CLASS(SoOrthoSliceDetail, SoDetail);
 }
 
+// *************************************************************************
+
 // doc in super
 SoDetail *
 SoOrthoSliceDetail::copy(void) const
@@ -61,20 +65,39 @@ SoOrthoSliceDetail::copy(void) const
   return copy;
 }
 
+// *************************************************************************
+
+/*!
+  Returns unit coordinates of the pick point, in the volume's local
+  coordinate system.
+
+  \sa getValueDataPos()
+*/
 const SbVec3f &
 SoOrthoSliceDetail::getValueObjectPos(void) const
 {
   return this->objectcoords;
 }
 
+/*!
+  Returns coordinates of the voxel at the pick point, in the volume's
+  voxel coordinate system.
+
+  \sa getValueObjectPos(), getValue()
+*/
 const SbVec3s &
 SoOrthoSliceDetail::getValueDataPos(void) const
 {
   return this->ijkcoords;
 }
 
+/*!
+  Returns value of the picked voxel.
+*/
 unsigned int
 SoOrthoSliceDetail::getValue(void) const
 {
   return this->voxelvalue;
 }
+
+// *************************************************************************
