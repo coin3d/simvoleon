@@ -193,7 +193,7 @@ Cvr2DTexSubPage::activateCLUT(const SoGLRenderAction * action)
 
   // FIXME: should check if the same clut is already current 
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
-  this->clut->activate(glw);
+  this->clut->activate(glw, CvrCLUT::TEXTURE2D);
 }
 
 

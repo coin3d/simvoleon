@@ -81,7 +81,6 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap)
   this->nrentries = nrcols;
   this->nrcomponents = 4;
   this->datatype = INTS;
-  this->texturetype = CvrCLUT::TEXTURE2D; // Default
 
   const int blocksize = this->nrentries * this->nrcomponents;
   this->int_entries = new uint8_t[blocksize];
@@ -104,7 +103,6 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
   this->nrentries = nrcols;
   this->nrcomponents = nrcomponents;
   this->datatype = FLOATS;
-  this->texturetype = CvrCLUT::TEXTURE2D; // Default
 
   const int blocksize = this->nrentries * this->nrcomponents;
   const int copysize = blocksize * sizeof(float);
@@ -123,7 +121,6 @@ CvrCLUT::commonConstructor(void)
   this->fragmentprograminitialized = FALSE;
   this->palettehaschanged = TRUE;
   this->palettelookuptexture = 0;
-  this->texturetype = CvrCLUT::TEXTURE2D; // Default
 
   this->refcount = 0;
 
@@ -142,7 +139,6 @@ CvrCLUT::CvrCLUT(const CvrCLUT & clut)
   this->nrentries = clut.nrentries;
   this->nrcomponents = clut.nrcomponents;
   this->datatype = clut.datatype;
-  this->texturetype = clut.texturetype;
   this->usefragmentprogramlookup = clut.usefragmentprogramlookup;
   this->fragmentprograminitialized = clut.fragmentprograminitialized;
   this->palettehaschanged = clut.palettehaschanged;
@@ -280,35 +276,38 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue)
   //
   // FIXME: yes, this must be bound to the specific GL
   // context. 20040716 mortene.
-  cc_glglue_glGenPrograms(glue, 1, &this->palettelookupprogramid);
-  cc_glglue_glBindProgram(glue, GL_FRAGMENT_PROGRAM_ARB, this->palettelookupprogramid);
 
-  // Setup fragment program according to texture type.
+  // Two programs, one each for 2D textures and 3D textures.
+  cc_glglue_glGenPrograms(glue, 2, this->palettelookupprogramid);
 
-  const char * texenvmode =  // Is texture mod. disabled by an envvar?
-    CvrUtil::dontModulateTextures() ?
-    palettelookupprogram_replace : palettelookupprogram_modulate;
+  for (int i=CvrCLUT::TEXTURE2D; i <= CvrCLUT::TEXTURE3D; i++) {
+    cc_glglue_glBindProgram(glue, GL_FRAGMENT_PROGRAM_ARB,
+                            this->palettelookupprogramid[i]);
 
-  assert(((this->texturetype == CvrCLUT::TEXTURE3D) ||
-          (this->texturetype == CvrCLUT::TEXTURE2D)) && "Unknown texture type.");
+    // Setup fragment program according to texture type.
 
-  SbString fragmentprogram;
-  fragmentprogram.sprintf(palettelookupprogram,
-                          this->texturetype == CvrCLUT::TEXTURE3D ? "3D" : "2D",
-                          texenvmode);
+    const char * texenvmode =  // Is texture mod. disabled by an envvar?
+      CvrUtil::dontModulateTextures() ?
+      palettelookupprogram_replace : palettelookupprogram_modulate;
 
-  cc_glglue_glProgramString(glue, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
-                            fragmentprogram.getLength(), fragmentprogram.getString());
+    SbString fragmentprogram;
+    fragmentprogram.sprintf(palettelookupprogram,
+                            i == CvrCLUT::TEXTURE2D ? "2D" : "3D",
+                            texenvmode);
 
-  // FIXME: Maybe a wrapper for catching fragment program errors
-  // should be a part of GLUE... (20031204 handegar)
-  GLint errorPos;
-  GLenum err = glGetError();
-  if (err) {
-    glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorPos);
-    SoDebugError::postWarning("CvrCLUT::initFragmentPrograms",
-                              "Error in fragment program! (byte pos: %d) '%s'.\n",
-                              errorPos, glGetString(GL_PROGRAM_ERROR_STRING_ARB));
+    cc_glglue_glProgramString(glue, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
+                              fragmentprogram.getLength(), fragmentprogram.getString());
+
+    // FIXME: Maybe a wrapper for catching fragment program errors
+    // should be a part of GLUE... (20031204 handegar)
+    GLenum err = glGetError();
+    if (err) {
+      GLint errorPos;
+      glGetIntegerv(GL_PROGRAM_ERROR_POSITION_ARB, &errorPos);
+      SoDebugError::postWarning("CvrCLUT::initFragmentPrograms",
+                                "Error in fragment program! (byte pos: %d) '%s'.\n",
+                                errorPos, glGetString(GL_PROGRAM_ERROR_STRING_ARB));
+    }
   }
 #endif // HAVE_ARB_FRAGMENT_PROGRAM
 }
@@ -362,7 +361,7 @@ CvrCLUT::deactivate(const cc_glglue * glw) const
 
 
 void
-CvrCLUT::activate(const cc_glglue * glw) const
+CvrCLUT::activate(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
 {
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
   // FIXME: We should maybe do a better test than this (Ie. not base
@@ -389,7 +388,8 @@ CvrCLUT::activate(const cc_glglue * glw) const
     glBindTexture(GL_TEXTURE_1D, this->palettelookuptexture);
 
     cc_glglue_glActiveTexture(glw, GL_TEXTURE0);
-    cc_glglue_glBindProgram(glw, GL_FRAGMENT_PROGRAM_ARB, this->palettelookupprogramid);
+    cc_glglue_glBindProgram(glw, GL_FRAGMENT_PROGRAM_ARB,
+                            this->palettelookupprogramid[texturetype]);
 
     glEnable(GL_FRAGMENT_PROGRAM_ARB);
 
@@ -418,7 +418,7 @@ CvrCLUT::activate(const cc_glglue * glw) const
   // PROXY_TEXTURE_2D first.
 
   cc_glglue_glColorTable(glw,
-                         (this->texturetype == CvrCLUT::TEXTURE2D) ?
+                         (texturetype == CvrCLUT::TEXTURE2D) ?
                          GL_TEXTURE_2D : GL_TEXTURE_3D, /* target */
                          GL_RGBA, /* GL internalformat */
                          this->nrentries, /* nr of paletteentries */
@@ -464,7 +464,7 @@ CvrCLUT::activate(const cc_glglue * glw) const
   // Sanity check.
   GLint actualsize;
   cc_glglue_glGetColorTableParameteriv(glw,
-                                       (this->texturetype == CvrCLUT::TEXTURE2D) ?
+                                       (texturetype == CvrCLUT::TEXTURE2D) ?
                                        GL_TEXTURE_2D : GL_TEXTURE_3D,
                                        GL_COLOR_TABLE_WIDTH, &actualsize);
 
@@ -486,18 +486,6 @@ CvrCLUT::setAlphaUse(AlphaUse policy)
 
   this->alphapolicy = policy;
   this->regenerateGLColorData();
-}
-
-void
-CvrCLUT::setTextureType(TextureType type)
-{
-  this->texturetype = type;
-}
-
-CvrCLUT::TextureType
-CvrCLUT::getTextureType(void) const
-{
-  return this->texturetype;
 }
 
 void
