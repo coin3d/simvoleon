@@ -1,5 +1,5 @@
-#ifndef COIN_SOORTHOSLICE_H
-#define COIN_SOORTHOSLICE_H
+#ifndef SIMVOLEON_SOORTHOSLICE_H
+#define SIMVOLEON_SOORTHOSLICE_H
 
 /**************************************************************************\
  *
@@ -69,4 +69,4 @@ private:
   class SoOrthoSliceP * pimpl;
 };
 
-#endif // !COIN_SOORTHOSLICE_H
+#endif // !SIMVOLEON_SOORTHOSLICE_H

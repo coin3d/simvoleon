@@ -1,5 +1,5 @@
-#ifndef SIMVOLEON_SOOBLIQUESLICE_H
-#define SIMVOLEON_SOOBLIQUESLICE_H
+#ifndef SIMVOLEON_CVRGLINTERPOLATIONELEMENT_H
+#define SIMVOLEON_CVRGLINTERPOLATIONELEMENT_H
 
 /**************************************************************************\
  *
@@ -24,40 +24,27 @@
  *
 \**************************************************************************/
 
-#include <Inventor/nodes/SoShape.h>
-#include <Inventor/fields/SoSFPlane.h>
-#include <Inventor/fields/SoSFEnum.h>
-#include <VolumeViz/C/basic.h>
+#include <Inventor/elements/SoInt32Element.h>
+#include <Inventor/system/gl.h>
 
 // *************************************************************************
 
-class SIMVOLEON_DLL_API SoObliqueSlice : public SoShape {
-  typedef SoShape inherited;
-
-  SO_NODE_HEADER(SoObliqueSlice);
+class CvrGLInterpolationElement : public SoInt32Element {
+  typedef SoInt32Element inherited;
+  SO_ELEMENT_HEADER(CvrGLInterpolationElement);
 
 public:
   static void initClass(void);
-  SoObliqueSlice(void);
+  virtual void init(SoState * state);
+  static const CvrGLInterpolationElement * getInstance(SoState * const state);
 
-  enum Interpolation { NEAREST, LINEAR };
-  enum AlphaUse { ALPHA_AS_IS, ALPHA_OPAQUE, ALPHA_BINARY };
-
-  SoSFPlane plane;
-  SoSFEnum interpolation;
-  SoSFEnum alphaUse;
+  static void set(SoState * state, GLenum val);
+  static GLenum get(SoState * state);
 
 protected:
-  ~SoObliqueSlice();
-
-  virtual void GLRender(SoGLRenderAction * action);
-  virtual void rayPick(SoRayPickAction * action);
-  virtual void generatePrimitives(SoAction * action);
-  virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
-
-private:
-  friend class SoObliqueSliceP;
-  class SoObliqueSliceP * pimpl;
+  virtual ~CvrGLInterpolationElement();
 };
 
-#endif // !SIMVOLEON_SOOBLIQUESLICE_H
+// *************************************************************************
+
+#endif // !SIMVOLEON_CVRGLINTERPOLATIONELEMENT_H

@@ -179,8 +179,7 @@ Cvr2DTexPage::releaseAllSubPages(void)
 void
 Cvr2DTexPage::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
-                     const SbVec3f & horizspan, const SbVec3f & verticalspan,
-                     Cvr2DTexSubPage::Interpolation interpolation)
+                     const SbVec3f & horizspan, const SbVec3f & verticalspan)
 {
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
 
@@ -213,9 +212,7 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
       // optimization measure (both for rendering speed and texture
       // memory usage). 20021121 mortene.
 
-      pageitem->page->render(action, upleft, subpagewidth, subpageheight,
-                             interpolation);
-
+      pageitem->page->render(action, upleft, subpagewidth, subpageheight);
     }
   }
 }

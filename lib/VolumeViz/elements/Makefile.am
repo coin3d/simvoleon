@@ -9,6 +9,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
 RegularSources = \
 	CompressedTexturesElement.cpp \
+	GLInterpolationElement.cpp \
 	PalettedTexturesElement.cpp \
 	PageSizeElement.cpp \
 	StorageHintElement.cpp \
@@ -22,6 +23,7 @@ PublicHeaders = \
 
 PrivateHeaders = \
 	CvrCompressedTexturesElement.h \
+	CvrGLInterpolationElement.h \
 	CvrPalettedTexturesElement.h \
 	CvrPageSizeElement.h \
 	CvrStorageHintElement.h \

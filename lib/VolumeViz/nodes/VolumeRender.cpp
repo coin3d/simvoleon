@@ -57,6 +57,7 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 
+#include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
@@ -411,6 +412,8 @@ SoVolumeRender::initClass(void)
 
   SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
   SO_ENABLE(SoRayPickAction, SoModelMatrixElement);
+
+  SO_ENABLE(SoGLRenderAction, CvrGLInterpolationElement);
 }
 
 // doc in super
@@ -550,6 +553,14 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     }
   }
 
+  GLenum interp;
+  switch (this->interpolation.getValue()) {
+  case NEAREST: interp = GL_NEAREST; break;
+  case LINEAR: interp = GL_LINEAR; break;
+  default: assert(FALSE && "invalid value in interpolation field"); break;
+  }
+
+  CvrGLInterpolationElement::set(state, interp);
 
   // viewport-aligned 3D textures
   if (rendermethod == SoVolumeRenderP::TEXTURE3D) {
@@ -561,13 +572,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
       PRIVATE(this)->cubehandler = new CvrCubeHandler();
     }
 
-    Cvr3DTexSubCube::Interpolation interp;
-    switch (this->interpolation.getValue()) {
-    case NEAREST: interp = Cvr3DTexSubCube::NEAREST; break;
-    case LINEAR: interp = Cvr3DTexSubCube::LINEAR; break;
-    default: assert(FALSE && "invalid value in interpolation field"); break;
-    }
-
     CvrCubeHandler::Composition composit;
     switch (this->composition.getValue()) {
     case ALPHA_BLENDING: composit = CvrCubeHandler::ALPHA_BLENDING; break;
@@ -576,10 +580,9 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     default: assert(FALSE && "invalid value in composition field"); break;
     }
 
-    // FIXME: wouldn't it be better to push stuff like the
-    // interpolation and composition info onto the state stack
-    // instead? 20040715 mortene.
-    PRIVATE(this)->cubehandler->render(action, numslices, interp, composit,
+    // FIXME: wouldn't it be better to push composition info onto the
+    // state stack instead? 20040715 mortene.
+    PRIVATE(this)->cubehandler->render(action, numslices, composit,
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
 
@@ -597,13 +600,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
       PRIVATE(this)->pagehandler = new CvrPageHandler(action);
     }
 
-    Cvr2DTexSubPage::Interpolation interp;
-    switch (this->interpolation.getValue()) {
-    case NEAREST: interp = Cvr2DTexSubPage::NEAREST; break;
-    case LINEAR: interp = Cvr2DTexSubPage::LINEAR; break;
-    default: assert(FALSE && "invalid value in interpolation field"); break;
-    }
-
     CvrPageHandler::Composition composit;
     switch (this->composition.getValue()) {
     case ALPHA_BLENDING: composit = CvrPageHandler::ALPHA_BLENDING; break;
@@ -612,10 +608,9 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     default: assert(FALSE && "invalid value in composition field"); break;
     }
 
-    // FIXME: wouldn't it be better to push stuff like the
-    // interpolation and composition info onto the state stack
-    // instead? 20040715 mortene.
-    PRIVATE(this)->pagehandler->render(action, numslices, interp, composit,
+    // FIXME: wouldn't it be better to push composition info onto the
+    // state stack instead? 20040715 mortene.
+    PRIVATE(this)->pagehandler->render(action, numslices, composit,
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
   }

@@ -178,6 +178,7 @@
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
+#include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrPageSizeElement.h>
 #include <VolumeViz/elements/CvrPalettedTexturesElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
@@ -242,6 +243,7 @@ SoVolumeRendering::init(void)
 
   SoTransferFunctionElement::initClass();
   CvrCompressedTexturesElement::initClass();
+  CvrGLInterpolationElement::initClass();
   CvrPageSizeElement::initClass();
   CvrPalettedTexturesElement::initClass();
   CvrStorageHintElement::initClass();

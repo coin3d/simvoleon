@@ -67,12 +67,10 @@
 // *************************************************************************
 
 GLuint Cvr2DTexSubPage::emptyimgname[1] = { 0 };
-SbBool Cvr2DTexSubPage::detectedtextureswapping = FALSE;
 
 // *************************************************************************
 
-// FIXME: first argument should be const. 20040716 mortene.
-Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
+Cvr2DTexSubPage::Cvr2DTexSubPage(const SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
                                  const SbVec2s & pagesize,
                                  const SbVec2s & texsize)
@@ -145,79 +143,6 @@ Cvr2DTexSubPage::setPalette(const CvrCLUT * newclut)
 
 // *************************************************************************
 
-// FIXME: this is as good as identical to the same function in
-// Cvr3DTexSubCube, so move to CvrTextureObject. 20040720 mortene.
-void
-Cvr2DTexSubPage::activateTexture(const SoGLRenderAction * action,
-                                 // FIXME: pass interpolation info on
-                                 // the stack. 20040720 mortene.
-                                 Interpolation interpolation) const
-{
-  const GLuint texid = this->texobj->getGLTexture(action);
-
-  glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, texid);
-
-  GLenum interp = 0;
-  switch (interpolation) {
-  case NEAREST: interp = GL_NEAREST; break;
-  case LINEAR: interp = GL_LINEAR; break;
-  default: assert(FALSE); break;
-  }
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interp);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, interp);
-
-  assert(glGetError() == GL_NO_ERROR);
-
-#if CVR_DEBUG && 0 // debug
-  // FIXME: glAreTexturesResident() is OpenGL 1.1 only. 20021119 mortene.
-  GLboolean residences[1];
-  GLboolean resident = glAreTexturesResident(1, &(res->texid), residences);
-  if (!resident) {
-    SoDebugError::postWarning("Cvr2DTexSubPage::activateTexture",
-                              "texture %d not resident", res->texid);
-    Cvr2DTexSubPage::detectedtextureswapping = TRUE;
-  }
-
-  // For reference, here's some information from Thomas Roell of Xi
-  // Graphics on glAreTexturesResident() from c.g.a.opengl:
-  //
-  // [...]
-  //
-  //   With regards to glAreTexturesResident(), this is kind of
-  //   tricky. This function returns which textures are currently
-  //   resident is HW accessable memory (AGP, FB, TB). It does not
-  //   return whether a set of textures could be made resident at a
-  //   future point of time. A lot of OpenGL implementations (APPLE &
-  //   XiGraphics for example) do cache a texture upon first use with
-  //   3D primitive. Hence unless you had used a texture before it
-  //   will not be resident. N.b that usually operations like
-  //   glBindTexture, glTex*Image and so on will not make a texture
-  //   resident for such caching implementations.
-  //
-  // [...]
-  //
-  // Additional information from Ian D Romanick (IBM engineer doing
-  // Linux OpenGL work):
-  //
-  // [...]
-  //
-  //   AreTexturesResident is basically worthless, IMO.  All OpenGL
-  //   rendering happens in a VERY high latency pipeline.  When an
-  //   application calls AreTexturesResident, the textures may all be
-  //   resident at that time.  However, there may already be
-  //   primitives in the pipeline that will cause those textures to be
-  //   removed from texturable memory before more primitives can be
-  //   put in the pipe.
-  //
-  // [...]
-  //
-  // 20021201 mortene.
-
-#endif // debug
-}
-
 // Set up the image used (for debugging purposes) when texture memory
 // is full.
 void
@@ -286,13 +211,12 @@ Cvr2DTexSubPage::deactivateCLUT(const SoGLRenderAction * action)
 void
 Cvr2DTexSubPage::render(const SoGLRenderAction * action,
                         const SbVec3f & upleft,
-                        SbVec3f widthvec, SbVec3f heightvec,
-                        Interpolation interpolation)
+                        SbVec3f widthvec, SbVec3f heightvec)
 {
 
   // Texture binding/activation must happen before setting the
   // palette, or the previous palette will be used.
-  this->activateTexture(action, interpolation);
+  this->texobj->activateTexture(action);
   if (this->isPaletted()) { this->activateCLUT(action); }
 
   // Scale span of GL quad to match the visible part of the

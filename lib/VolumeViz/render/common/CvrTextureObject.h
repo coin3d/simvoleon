@@ -59,7 +59,7 @@ public:
 
   const SbVec3s & getDimensions(void) const;
 
-  GLuint getGLTexture(const SoGLRenderAction * action) const;
+  void activateTexture(const SoGLRenderAction * action) const;
 
   virtual SbBool isPaletted(void) const = 0;
   virtual void blankUnused(const SbVec3s & texsize) const = 0;
@@ -79,6 +79,8 @@ private:
                                              const SbBox2s & cutslice,
                                              const unsigned int axisidx,
                                              const int pageidx);
+
+  GLuint getGLTexture(const SoGLRenderAction * action) const;
 
   static SoType classTypeId;
   SbVec3s dimensions;

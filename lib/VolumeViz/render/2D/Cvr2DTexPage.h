@@ -1,5 +1,5 @@
-#ifndef COIN_CVR2DTEXPAGE_H
-#define COIN_CVR2DTEXPAGE_H
+#ifndef SIMVOLEON_CVR2DTEXPAGE_H
+#define SIMVOLEON_CVR2DTEXPAGE_H
 
 /**************************************************************************\
  *
@@ -39,8 +39,7 @@ public:
   ~Cvr2DTexPage();
 
   void render(SoGLRenderAction * action, const SbVec3f & origo,
-              const SbVec3f & horizspan, const SbVec3f & verticalspan,
-              Cvr2DTexSubPage::Interpolation interpolation);
+              const SbVec3f & horizspan, const SbVec3f & verticalspan);
 
   void setPalette(const CvrCLUT * c);
   const CvrCLUT * getPalette(void) const;
@@ -71,4 +70,4 @@ private:
   const CvrCLUT * clut;
 };
 
-#endif // !COIN_CVR2DTEXPAGE_H
+#endif // !SIMVOLEON_CVR2DTEXPAGE_H

@@ -34,6 +34,7 @@
 #include <Inventor/SbBox2s.h>
 
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
+#include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
@@ -442,6 +443,72 @@ CvrTextureObject::newTextureObject(const SoGLRenderAction * action,
   get_texturedict()->enter((unsigned long)newtexobj, (void *)obj);
 
   return newtexobj;
+}
+
+// *************************************************************************
+
+void
+CvrTextureObject::activateTexture(const SoGLRenderAction * action) const
+{
+  const GLuint texid = this->getGLTexture(action);
+
+  const GLenum gltextypeenum = this->getGLTextureEnum();
+
+  glEnable(gltextypeenum);
+  glBindTexture(gltextypeenum, texid);
+
+  const GLenum interp = CvrGLInterpolationElement::get(action->getState());
+  glTexParameteri(gltextypeenum, GL_TEXTURE_MAG_FILTER, interp);
+  glTexParameteri(gltextypeenum, GL_TEXTURE_MIN_FILTER, interp);
+
+  assert(glGetError() == GL_NO_ERROR);
+
+#if CVR_DEBUG && 0 // debug
+  // FIXME: glAreTexturesResident() is OpenGL 1.1 only. 20021119 mortene.
+  GLboolean residences[1];
+  GLboolean resident = glAreTexturesResident(1, &texid, residences);
+  if (!resident) {
+    SoDebugError::postWarning("Cvr2DTexSubPage::activateTexture",
+                              "texture %d not resident", texid);
+    Cvr2DTexSubPage::detectedtextureswapping = TRUE;
+  }
+
+  // For reference, here's some information from Thomas Roell of Xi
+  // Graphics on glAreTexturesResident() from c.g.a.opengl:
+  //
+  // [...]
+  //
+  //   With regards to glAreTexturesResident(), this is kind of
+  //   tricky. This function returns which textures are currently
+  //   resident is HW accessable memory (AGP, FB, TB). It does not
+  //   return whether a set of textures could be made resident at a
+  //   future point of time. A lot of OpenGL implementations (APPLE &
+  //   XiGraphics for example) do cache a texture upon first use with
+  //   3D primitive. Hence unless you had used a texture before it
+  //   will not be resident. N.b that usually operations like
+  //   glBindTexture, glTex*Image and so on will not make a texture
+  //   resident for such caching implementations.
+  //
+  // [...]
+  //
+  // Additional information from Ian D Romanick (IBM engineer doing
+  // Linux OpenGL work):
+  //
+  // [...]
+  //
+  //   AreTexturesResident is basically worthless, IMO.  All OpenGL
+  //   rendering happens in a VERY high latency pipeline.  When an
+  //   application calls AreTexturesResident, the textures may all be
+  //   resident at that time.  However, there may already be
+  //   primitives in the pipeline that will cause those textures to be
+  //   removed from texturable memory before more primitives can be
+  //   put in the pipe.
+  //
+  // [...]
+  //
+  // 20021201 mortene.
+
+#endif // debug
 }
 
 // *************************************************************************

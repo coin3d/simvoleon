@@ -197,7 +197,6 @@ CvrPageHandler::setPalette(const CvrCLUT * c)
 
 void
 CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
-                       Cvr2DTexSubPage::Interpolation interpolation,
                        CvrPageHandler::Composition composition,
                        SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
                        void * abortcbdata)
@@ -352,7 +351,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
       // that can give better rendering quality of the volume.
 
       Cvr2DTexPage * page = this->getSlice(action, AXISIDX, pageidx);
-      page->render(action, origo, horizspan, verticalspan, interpolation);
+      page->render(action, origo, horizspan, verticalspan);
     }
     else {
       assert((abortcode == SoVolumeRender::SKIP) &&

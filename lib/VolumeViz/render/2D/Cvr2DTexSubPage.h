@@ -1,5 +1,5 @@
-#ifndef COIN_CVR2DTEXSUBPAGE_H
-#define COIN_CVR2DTEXSUBPAGE_H
+#ifndef SIMVOLEON_CVR2DTEXSUBPAGE_H
+#define SIMVOLEON_CVR2DTEXSUBPAGE_H
 
 /**************************************************************************\
  *
@@ -36,24 +36,19 @@ class CvrCLUT;
 
 class Cvr2DTexSubPage {
 public:
-  Cvr2DTexSubPage(SoGLRenderAction * action,
+  Cvr2DTexSubPage(const SoGLRenderAction * action,
                   const CvrTextureObject * texobj,
                   const SbVec2s & pagesize, 
                   const SbVec2s & texsize);
   ~Cvr2DTexSubPage();
 
-  enum Interpolation { NEAREST, LINEAR };
-
   void render(const SoGLRenderAction * action,
-              const SbVec3f & upleft, SbVec3f widthvec, SbVec3f heightvec,
-              Interpolation interpolation);
+              const SbVec3f & upleft, SbVec3f widthvec, SbVec3f heightvec);
 
   SbBool isPaletted(void) const;
   void setPalette(const CvrCLUT * newclut);
 
 private:
-  void activateTexture(const SoGLRenderAction * actio, Interpolation interp) const;
-
   void activateCLUT(const SoGLRenderAction * action);
   void deactivateCLUT(const SoGLRenderAction * action);
 
@@ -62,11 +57,10 @@ private:
   static GLuint emptyimgname[1];
   SbVec2f texmaxcoords;
   SbVec2f quadpartfactors;
-  static SbBool detectedtextureswapping;
   unsigned int bitspertexel;
   const CvrCLUT * clut;
   const CvrTextureObject * texobj;
 };
 
 
-#endif // !COIN_CVR2DTEXSUBPAGE_H
+#endif // !SIMVOLEON_CVR2DTEXSUBPAGE_H

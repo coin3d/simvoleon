@@ -1,5 +1,5 @@
-#ifndef COIN_CVRPAGEHANDLER_H
-#define COIN_CVRPAGEHANDLER_H
+#ifndef SIMVOLEON_CVRPAGEHANDLER_H
+#define SIMVOLEON_CVRPAGEHANDLER_H
 
 /**************************************************************************\
  *
@@ -44,7 +44,6 @@ public:
   enum Composition { MAX_INTENSITY, SUM_INTENSITY, ALPHA_BLENDING };
 
   void render(SoGLRenderAction * action, unsigned int numslices,
-              Cvr2DTexSubPage::Interpolation interpolation,
               CvrPageHandler::Composition composition,
               SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
               void * abortcbdata);
@@ -71,4 +70,4 @@ private:
   const CvrCLUT * clut;
 };
 
-#endif // !COIN_CVRPAGEHANDLER_H
+#endif // !SIMVOLEON_CVRPAGEHANDLER_H

@@ -197,6 +197,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 # RegularSources   - source files compiled in this directory
 RegularSources = \
 	CompressedTexturesElement.cpp \
+	GLInterpolationElement.cpp \
 	PalettedTexturesElement.cpp \
 	PageSizeElement.cpp \
 	StorageHintElement.cpp \
@@ -212,6 +213,7 @@ PublicHeaders = \
 
 PrivateHeaders = \
 	CvrCompressedTexturesElement.h \
+	CvrGLInterpolationElement.h \
 	CvrPalettedTexturesElement.h \
 	CvrPageSizeElement.h \
 	CvrStorageHintElement.h \
@@ -243,6 +245,7 @@ LIBRARIES = $(noinst_LIBRARIES)
 elements_lst_AR = $(AR) cru
 elements_lst_LIBADD =
 am__objects_1 = CompressedTexturesElement.$(OBJEXT) \
+	GLInterpolationElement.$(OBJEXT) \
 	PalettedTexturesElement.$(OBJEXT) PageSizeElement.$(OBJEXT) \
 	StorageHintElement.$(OBJEXT) VoxelBlockElement.$(OBJEXT) \
 	VolumeDataElement.$(OBJEXT) TransferFunctionElement.$(OBJEXT)
@@ -252,15 +255,18 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libelements_la_LDFLAGS =
 libelements_la_LIBADD =
-am__objects_3 = CompressedTexturesElement.lo PalettedTexturesElement.lo \
-	PageSizeElement.lo StorageHintElement.lo VoxelBlockElement.lo \
-	VolumeDataElement.lo TransferFunctionElement.lo
+am__objects_3 = CompressedTexturesElement.lo GLInterpolationElement.lo \
+	PalettedTexturesElement.lo PageSizeElement.lo \
+	StorageHintElement.lo VoxelBlockElement.lo VolumeDataElement.lo \
+	TransferFunctionElement.lo
 am_libelements_la_OBJECTS = $(am__objects_3)
 libelements_la_OBJECTS = $(am_libelements_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CompressedTexturesElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CompressedTexturesElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/GLInterpolationElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/GLInterpolationElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/PageSizeElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/PageSizeElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/PalettedTexturesElement.Plo \
@@ -327,6 +333,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CompressedTexturesElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CompressedTexturesElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GLInterpolationElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GLInterpolationElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PageSizeElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PageSizeElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PalettedTexturesElement.Plo@am__quote@

@@ -33,14 +33,14 @@
 #include <Inventor/errors/SoDebugError.h>
 
 #include <VolumeViz/elements/CvrStorageHintElement.h>
+#include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-
-#include "SoVolumeIndexedFaceSet.h"
+#include <VolumeViz/nodes/SoVolumeIndexedFaceSet.h>
 
 // *************************************************************************
 
@@ -128,9 +128,10 @@ CvrIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
 
     // Fetch texture quality
     float texturequality = SoTextureQualityElement::get(state);
-    Cvr3DTexSubCube::Interpolation interp;
-    if (texturequality >= 0.1f) interp = Cvr3DTexSubCube::LINEAR;
-    else interp = Cvr3DTexSubCube::NEAREST;
+    GLenum interp;
+    if (texturequality >= 0.1f) { interp = GL_LINEAR; }
+    else { interp = GL_NEAREST; }
+    CvrGLInterpolationElement::set(state, interp);
 
     // Fetch vertices and normals from the stack
     const SoCoordinateElement * coords;
@@ -163,7 +164,7 @@ CvrIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
                                                Cvr3DTexCube::INDEXEDFACE_SET :
                                                Cvr3DTexCube::INDEXEDTRIANGLESTRIP_SET);
 
-    this->cube->renderIndexedSet(action, origo, interp, vertexarray,
+    this->cube->renderIndexedSet(action, origo, vertexarray,
                                  cindices, numindices, type);
 
     glPopAttrib();

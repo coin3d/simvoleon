@@ -1,5 +1,5 @@
-#ifndef COIN_CVRCUBEHANDLER_H
-#define COIN_CVRCUBEHANDLER_H
+#ifndef SIMVOLEON_CVRCUBEHANDLER_H
+#define SIMVOLEON_CVRCUBEHANDLER_H
 
 /**************************************************************************\
  *
@@ -50,13 +50,11 @@ public:
   enum Composition { MAX_INTENSITY, SUM_INTENSITY, ALPHA_BLENDING };
 
   void render(SoGLRenderAction * action, unsigned int numslices,
-              Cvr3DTexSubCube::Interpolation interpolation,
               CvrCubeHandler::Composition composition,
               SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
               void * abortcbdata);
 
   void renderObliqueSlice(SoGLRenderAction * action,
-                          Cvr3DTexSubCube::Interpolation interpolation,
                           SoObliqueSlice::AlphaUse alphause,
                           const SbPlane plane);
 
@@ -74,4 +72,4 @@ private:
   const CvrCLUT * clut;
 };
 
-#endif // !COIN_CVRCUBEHANDLER_H
+#endif // !SIMVOLEON_CVRCUBEHANDLER_H

@@ -64,8 +64,9 @@
 #include <Inventor/elements/SoModelMatrixElement.h>
 
 #include <VolumeViz/details/SoObliqueSliceDetail.h>
-#include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/render/3D/Cvr3DTexCube.h>
 #include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
@@ -202,6 +203,8 @@ SoObliqueSlice::initClass(void)
   SO_ENABLE(SoGLRenderAction, SoLazyElement);
 
   SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
+
+  SO_ENABLE(SoGLRenderAction, CvrGLInterpolationElement);
 }
 
 void
@@ -273,49 +276,41 @@ SoObliqueSlice::GLRender(SoGLRenderAction * action)
 
   const SbVec3s & voxcubedims = vbelem->getVoxelCubeDimensions();
 
-  int rendermethod = SoObliqueSlice::TEXTURE2D; // this is the default
-  const int storagehint = CvrStorageHintElement::get(state);
-  if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
-    const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
-    if (cc_glglue_has_3d_textures(glue) && !CvrUtil::force2DTextureRendering()) {
-      rendermethod = SoObliqueSlice::TEXTURE3D;
-    }
-  }
- 
-  if (rendermethod == SoObliqueSlice::TEXTURE2D) {
+  const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
+  if (!cc_glglue_has_3d_textures(glue)) {
     static SbBool flag = FALSE;
     if (!flag) {
       SoDebugError::postWarning("SoObliqueSlice::GLRender", 
-                                "ObliqueSlice is not implemented for 2D textures.");
+                                "Your OpenGL driver does not support 3D "
+                                "textures, which is needed for rendering the "
+                                "SoObliqueSlice.");
       flag = TRUE;
     }
     goto done;
   }
-  else if (rendermethod == SoObliqueSlice::TEXTURE3D) {
-     
-    if (!PRIVATE(this)->cubehandler) {
-      PRIVATE(this)->cubehandler = new CvrCubeHandler();
-    }
 
-    Cvr3DTexSubCube::Interpolation interp;
-    switch (this->interpolation.getValue()) {
-    case NEAREST: interp = Cvr3DTexSubCube::NEAREST; break;
-    case LINEAR: interp = Cvr3DTexSubCube::LINEAR; break;
-    default: assert(FALSE && "invalid value in interpolation field"); break;
-    }
-    
-    SoObliqueSlice::AlphaUse alphause;    
-    switch (this->alphaUse.getValue()) {
-    case ALPHA_AS_IS: alphause = SoObliqueSlice::ALPHA_AS_IS; break;
-    case ALPHA_OPAQUE: alphause = SoObliqueSlice::ALPHA_OPAQUE; break;
-    case ALPHA_BINARY: alphause = SoObliqueSlice::ALPHA_BINARY; break;
-    default: assert(FALSE && "invalid value in AlphaUse field"); break;
-    }
-    
-    PRIVATE(this)->cubehandler->renderObliqueSlice(action, interp, alphause, this->plane.getValue());
-    
+     
+  if (!PRIVATE(this)->cubehandler) {
+    PRIVATE(this)->cubehandler = new CvrCubeHandler();
   }
-  else assert(FALSE && "Unknown render method!");
+
+  GLenum interp;
+  switch (this->interpolation.getValue()) {
+  case NEAREST: interp = GL_NEAREST; break;
+  case LINEAR: interp = GL_LINEAR; break;
+  default: assert(FALSE && "invalid value in interpolation field"); break;
+  }
+  CvrGLInterpolationElement::set(state, interp);
+    
+  SoObliqueSlice::AlphaUse alphause;    
+  switch (this->alphaUse.getValue()) {
+  case ALPHA_AS_IS: alphause = SoObliqueSlice::ALPHA_AS_IS; break;
+  case ALPHA_OPAQUE: alphause = SoObliqueSlice::ALPHA_OPAQUE; break;
+  case ALPHA_BINARY: alphause = SoObliqueSlice::ALPHA_BINARY; break;
+  default: assert(FALSE && "invalid value in AlphaUse field"); break;
+  }
+    
+  PRIVATE(this)->cubehandler->renderObliqueSlice(action, alphause, this->plane.getValue());
 
  done:
   state->pop();

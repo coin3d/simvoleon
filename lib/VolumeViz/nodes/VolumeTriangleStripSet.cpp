@@ -56,6 +56,7 @@
 #include <Inventor/elements/SoClipPlaneElement.h>
 #include <Inventor/elements/SoTextureQualityElement.h>
 
+#include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
@@ -114,6 +115,8 @@ void
 SoVolumeTriangleStripSet::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoVolumeTriangleStripSet, SoTriangleStripSet, "SoTriangleStripSet");
+
+  SO_ENABLE(SoGLRenderAction, CvrGLInterpolationElement);
 }
 
 void

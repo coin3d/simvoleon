@@ -39,6 +39,7 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/nodes/SoTriangleStripSet.h>
 
+#include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
@@ -46,8 +47,7 @@
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-
-#include "SoVolumeFaceSet.h"
+#include <VolumeViz/nodes/SoVolumeFaceSet.h>
 
 // *************************************************************************
 
@@ -132,9 +132,10 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
 
     // Fetch texture quality
     float texturequality = SoTextureQualityElement::get(state);
-    Cvr3DTexSubCube::Interpolation interp;
-    if (texturequality >= 0.1f) interp = Cvr3DTexSubCube::LINEAR;
-    else interp = Cvr3DTexSubCube::NEAREST;
+    GLenum interp;
+    if (texturequality >= 0.1f) { interp = GL_LINEAR; }
+    else { interp = GL_NEAREST; }
+    CvrGLInterpolationElement::set(state, interp);
 
     // Fetch vertices and normals from the stack
     const SoCoordinateElement * coords;
@@ -157,7 +158,7 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
                                                   Cvr3DTexCube::FACE_SET :
                                                   Cvr3DTexCube::TRIANGLESTRIP_SET);
 
-    this->cube->renderNonindexedSet(action, origo, interp,
+    this->cube->renderNonindexedSet(action, origo,
                                     vertexarray,
                                     numVertices.getValues(this->master->startIndex.getValue()),
                                     numVertices.getNum(),

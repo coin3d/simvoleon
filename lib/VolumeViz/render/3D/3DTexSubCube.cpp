@@ -102,80 +102,6 @@ Cvr3DTexSubCube::setPalette(const CvrCLUT * newclut)
 
 // *************************************************************************
 
-// FIXME: second argument should be passed on state stack. 20040716 mortene.
-//
-// FIXME: almost identical with 2DTexSubPage's ditto, should be
-// possible to share. 20040719 mortene.
-void
-Cvr3DTexSubCube::activateTexture(const SoGLRenderAction * action, Interpolation interpolation) const
-{
-  const GLuint texid = this->textureobject->getGLTexture(action);
-
-  glEnable(GL_TEXTURE_3D);
-  glBindTexture(GL_TEXTURE_3D, texid);
-
-  GLenum interp = 0;
-  switch (interpolation) {
-  case NEAREST: interp = GL_NEAREST; break;
-  case LINEAR: interp = GL_LINEAR; break;
-  default: assert(FALSE); break;
-  }
-
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, interp);
-  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, interp);
-
-  assert(glGetError() == GL_NO_ERROR);
-
-#if CVR_DEBUG && 0 // debug
-  // FIXME: glAreTexturesResident() is OpenGL 1.1 only. 20021119 mortene.
-  GLboolean residences[1];
-  GLboolean resident = glAreTexturesResident(1, this->texturename, residences);
-  if (!resident) {
-    SoDebugError::postWarning("Cvr3DTexSubCube::activateTexture",
-                              "texture %d not resident", this->texturename);
-    Cvr3DTexSubCube::detectedtextureswapping = TRUE;
-  }
-
-  // For reference, here's some information from Thomas Roell of Xi
-  // Graphics on glAreTexturesResident() from c.g.a.opengl:
-  //
-  // [...]
-  //
-  //   With regards to glAreTexturesResident(), this is kind of
-  //   tricky. This function returns which textures are currently
-  //   resident is HW accessable memory (AGP, FB, TB). It does not
-  //   return whether a set of textures could be made resident at a
-  //   future point of time. A lot of OpenGL implementations (APPLE &
-  //   XiGraphics for example) do cache a texture upon first use with
-  //   3D primitive. Hence unless you had used a texture before it
-  //   will not be resident. N.b that usually operations like
-  //   glBindTexture, glTex*Image and so on will not make a texture
-  //   resident for such caching implementations.
-  //
-  // [...]
-  //
-  // Additional information from Ian D Romanick (IBM engineer doing
-  // Linux OpenGL work):
-  //
-  // [...]
-  //
-  //   AreTexturesResident is basically worthless, IMO.  All OpenGL
-  //   rendering happens in a VERY high latency pipeline.  When an
-  //   application calls AreTexturesResident, the textures may all be
-  //   resident at that time.  However, there may already be
-  //   primitives in the pipeline that will cause those textures to be
-  //   removed from texturable memory before more primitives can be
-  //   put in the pipe.
-  //
-  // [...]
-  //
-  // 20021201 mortene.
-
-#endif // debug
-}
-
-// *************************************************************************
-
 // FIXME: almost identical with 2DTexSubPage's ditto, should be
 // possible to share. 20040719 mortene.
 
@@ -466,8 +392,7 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cu
 // *************************************************************************
 
 void
-Cvr3DTexSubCube::render(const SoGLRenderAction * action,
-                        Interpolation interpolation)
+Cvr3DTexSubCube::render(const SoGLRenderAction * action)
 {
   // FIXME: A separate method for rendering sorted tris should be
   // made. This would be useful for the facesets. (20040630 handegar)
@@ -477,7 +402,7 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
 
   // Texture binding/activation must happen before setting the
   // palette, or the previous palette will be used.
-  this->activateTexture(action, interpolation);
+  this->textureobject->activateTexture(action);
 
   if (this->textureobject->isPaletted())  // Switch on palette rendering
     this->activateCLUT(action);

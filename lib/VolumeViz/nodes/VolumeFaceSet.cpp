@@ -61,6 +61,7 @@
 #include <Inventor/elements/SoClipPlaneElement.h>
 #include <Inventor/elements/SoTextureQualityElement.h>
 
+#include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
@@ -117,6 +118,8 @@ void
 SoVolumeFaceSet::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoVolumeFaceSet, SoFaceSet, "SoFaceSet");
+
+  SO_ENABLE(SoGLRenderAction, CvrGLInterpolationElement);
 }
 
 void

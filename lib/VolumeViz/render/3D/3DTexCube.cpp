@@ -189,12 +189,11 @@ Cvr3DTexCube::calculateOptimalSubCubeSize(void)
 // Called by all the 'render*()' methods after the intersection test.
 void
 Cvr3DTexCube::renderResult(SoGLRenderAction * action,
-                           Cvr3DTexSubCube::Interpolation interpolation,
                            SbList <Cvr3DTexSubCubeItem *> subcubelist)
 {
   // Render all subcubes.
   for (int i=0;i<subcubelist.getLength();++i) {
-    subcubelist[i]->cube->render(action, interpolation);
+    subcubelist[i]->cube->render(action);
   }
   // Draw lines around each subcube if requested by the 'CVR_SUBCUBE_FRAMES' envvar.
   if (this->rendersubcubeoutline) {
@@ -210,7 +209,6 @@ Cvr3DTexCube::renderResult(SoGLRenderAction * action,
 void
 Cvr3DTexCube::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
-                     const Cvr3DTexSubCube::Interpolation interpolation,
                      const unsigned int numslices)
 {
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
@@ -299,15 +297,13 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
         sizeof(Cvr3DTexSubCubeItem *),
         subcube_qsort_compare);
 
-  renderResult(action, interpolation, subcubelist);
-
+  this->renderResult(action, subcubelist);
 }
 
 // Renders *one* slice of the volume according to the specified
 // plane. Loads all the subcubes needed.
 void
 Cvr3DTexCube::renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & origo,
-                                 const Cvr3DTexSubCube::Interpolation interpolation,
                                  const SbPlane plane)
 {
 
@@ -371,15 +367,13 @@ Cvr3DTexCube::renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & orig
     }
   }
 
-  renderResult(action, interpolation, subcubelist);
-
+  this->renderResult(action, subcubelist);
 }
 
 // Renders a indexed faceset inside the volume. Loads all the subcubes needed.
 void
 Cvr3DTexCube::renderIndexedSet(SoGLRenderAction * action,
                                const SbVec3f & origo,
-                               const Cvr3DTexSubCube::Interpolation interpolation,
                                const SbVec3f * vertexarray,
                                const int * indices,
                                const unsigned int numindices,
@@ -439,15 +433,13 @@ Cvr3DTexCube::renderIndexedSet(SoGLRenderAction * action,
     }
   }
 
-  renderResult(action, interpolation, subcubelist);
-
+  this->renderResult(action, subcubelist);
 }
 
 // Renders a nonindexed faceset inside the volume. Loads all the subcubes needed.
 void
 Cvr3DTexCube::renderNonindexedSet(SoGLRenderAction * action,
                                   const SbVec3f & origo,
-                                  const Cvr3DTexSubCube::Interpolation interpolation,
                                   const SbVec3f * vertexarray,
                                   const int * numVertices,
                                   const unsigned int listlength,
@@ -507,8 +499,7 @@ Cvr3DTexCube::renderNonindexedSet(SoGLRenderAction * action,
     }
   }
 
-  renderResult(action, interpolation, subcubelist);
-
+  this->renderResult(action, subcubelist);
 }
 
 

@@ -96,7 +96,6 @@ CvrCubeHandler::setPalette(const CvrCLUT * c)
 
 void
 CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
-                       Cvr3DTexSubCube::Interpolation interpolation,
                        CvrCubeHandler::Composition composition,
                        SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
                        void * abortcbdata)
@@ -191,7 +190,7 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   SbVec3f origo(-((float) dims[0]) / 2.0f, -((float) dims[1]) / 2.0f, -((float) dims[2]) / 2.0f);
 
   if (abortfunc != NULL) { this->volumecube->setAbortCallback(abortfunc, abortcbdata); }
-  this->volumecube->render(action, origo, interpolation, numslices);
+  this->volumecube->render(action, origo, numslices);
 
   glPopAttrib();
 }
@@ -199,7 +198,6 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
 void
 CvrCubeHandler::renderObliqueSlice(SoGLRenderAction * action,
-                                   Cvr3DTexSubCube::Interpolation interpolation,
                                    SoObliqueSlice::AlphaUse alphause,
                                    SbPlane plane)
 {
@@ -245,7 +243,7 @@ CvrCubeHandler::renderObliqueSlice(SoGLRenderAction * action,
   const SbVec3s & dims = vbelem->getVoxelCubeDimensions();
   SbVec3f origo(-((float) dims[0]) / 2.0f, -((float) dims[1]) / 2.0f, -((float) dims[2]) / 2.0f);
 
-  this->volumecube->renderObliqueSlice(action, origo, interpolation, plane);
+  this->volumecube->renderObliqueSlice(action, origo, plane);
 
   glPopAttrib();
 }

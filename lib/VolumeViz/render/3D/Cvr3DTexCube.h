@@ -1,5 +1,5 @@
-#ifndef COIN_CVR3DTEXPAGE_H
-#define COIN_CVR3DTEXPAGE_H
+#ifndef SIMVOLEON_CVR3DTEXPAGE_H
+#define SIMVOLEON_CVR3DTEXPAGE_H
 
 /**************************************************************************\
  *
@@ -41,22 +41,18 @@ public:
   enum IndexedSetType { INDEXEDFACE_SET, INDEXEDTRIANGLESTRIP_SET };
 
   void render(SoGLRenderAction * action, const SbVec3f & origo,
-              const Cvr3DTexSubCube::Interpolation interpolation,
               const unsigned int numslices);
 
   void renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & origo,
-                          const Cvr3DTexSubCube::Interpolation interpolation,
                           const SbPlane plane);
  
   void renderIndexedSet(SoGLRenderAction * action, const SbVec3f & origo,
-                        const Cvr3DTexSubCube::Interpolation interpolation,
                         const SbVec3f * vertexarray,
                         const int * indices,
                         const unsigned int numindices,
                         const enum IndexedSetType type);
 
   void renderNonindexedSet(SoGLRenderAction * action, const SbVec3f & origo,
-                           const Cvr3DTexSubCube::Interpolation interpolation,
                            const SbVec3f * vertexarray,
                            const int * numVertices,
                            const unsigned int listlength,
@@ -79,7 +75,6 @@ private:
   int calcSubCubeIdx(int row, int col, int depth) const;
   void calculateOptimalSubCubeSize();
   void renderResult(SoGLRenderAction * action, 
-                    Cvr3DTexSubCube::Interpolation interpolation, 
                     SbList <Cvr3DTexSubCubeItem *> subcubelist);
 
   class Cvr3DTexSubCubeItem ** subcubes;
@@ -99,4 +94,4 @@ private:
 
 };
 
-#endif // !COIN_CVR3DTEXPAGE_H
+#endif // !SIMVOLEON_CVR3DTEXPAGE_H

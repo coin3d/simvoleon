@@ -1,5 +1,5 @@
-#ifndef COIN_CVR3DTEXSUBCUBE_H
-#define COIN_CVR3DTEXSUBCUBE_H
+#ifndef SIMVOLEON_CVR3DTEXSUBCUBE_H
+#define SIMVOLEON_CVR3DTEXSUBCUBE_H
 
 /**************************************************************************\
  *
@@ -46,9 +46,7 @@ public:
                   const SbVec3s & texsize);
   ~Cvr3DTexSubCube();
 
-  enum Interpolation { NEAREST, LINEAR };
-
-  void render(const SoGLRenderAction * action, Interpolation interpolation);
+  void render(const SoGLRenderAction * action);
   void renderBBox(const SoGLRenderAction * action, int counter); // Debug method
 
   // FIXME: do these need to be private? Investigate. 20040716 mortene.
@@ -93,7 +91,6 @@ public:
   void setDistanceFromCamera(float dist);
 
 private:
-  void activateTexture(const SoGLRenderAction * action, Interpolation interpolation) const;
   void activateCLUT(const SoGLRenderAction * action); 
   void deactivateCLUT(const SoGLRenderAction * action); 
  
@@ -118,4 +115,4 @@ private:
   SbList <SbVec3f *> texcoordlist;
 };
 
-#endif //COIN_CVR3DTEXSUBPAGE_H
+#endif // !SIMVOLEON_CVR3DTEXSUBPAGE_H

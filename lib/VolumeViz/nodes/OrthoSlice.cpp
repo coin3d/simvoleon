@@ -50,6 +50,7 @@
 #include <VolumeViz/nodes/SoOrthoSlice.h>
 
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
+#include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrPageSizeElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
@@ -207,6 +208,8 @@ SoOrthoSlice::initClass(void)
 
   SO_ENABLE(SoPickAction, SoTransferFunctionElement);
   SO_ENABLE(SoPickAction, SoClipPlaneElement);
+
+  SO_ENABLE(SoGLRenderAction, CvrGLInterpolationElement);
 }
 
 // doc in super
@@ -438,14 +441,18 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  // FIXME: ugly cast
-  Cvr2DTexSubPage::Interpolation ip =
-    (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue();
+  GLenum interp;
+  switch (this->interpolation.getValue()) {
+  case NEAREST: interp = GL_NEAREST; break;
+  case LINEAR: interp = GL_LINEAR; break;
+  default: assert(FALSE && "invalid value in interpolation field"); break;
+  }
+  CvrGLInterpolationElement::set(state, interp);
 
   SbVec3f origo, horizspan, verticalspan;
   vbelem->getPageGeometry(axisidx, slicenr, origo, horizspan, verticalspan);
 
-  texpage->render(action, origo, horizspan, verticalspan, ip);
+  texpage->render(action, origo, horizspan, verticalspan);
 
   // Even though we do state->pop(), we must also push/pop low-level
   // GL.
