@@ -307,8 +307,12 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // of two, or where dimensions are smaller than this->subpagesize.
   const SbVec2s texsize(subpagemax - subpagemin);
 
+  // Must clear the unused texture area to prevent artifacts due to
+  // inaccuracies when calculating texture coords.
   if (texobj->getTypeId() == CvrRGBATexture::getClassTypeId()) {
-    ((CvrRGBATexture *)texobj)->blankUnused(texsize);
+    ((CvrRGBATexture *) texobj)->blankUnused(texsize);
+  } else if (texobj->getTypeId() == CvrPaletteTexture::getClassTypeId()) {
+    ((CvrPaletteTexture *) texobj)->blankUnused(texsize);
   }
   
 #if 0 // DEBUG: dump all transfered textures to bitmap files.

@@ -20,6 +20,7 @@ public:
   void setCLUT(const CvrCLUT * table);
   const CvrCLUT * getCLUT(void) const;
 
+  virtual void blankUnused(const SbVec2s & texsize) const;
   virtual void dumpToPPM(const char * filename) const;
 
 private:

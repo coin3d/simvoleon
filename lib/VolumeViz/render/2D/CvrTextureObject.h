@@ -18,6 +18,7 @@ public:
   const SbVec2s & getDimensions(void) const;
 
   virtual void dumpToPPM(const char * filename) const = 0;
+  virtual void blankUnused(const SbVec2s & texsize) const = 0;
 
 private:
   SbVec2s dimensions;

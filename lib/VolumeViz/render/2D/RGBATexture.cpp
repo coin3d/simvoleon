@@ -48,7 +48,7 @@ CvrRGBATexture::getRGBABuffer(void) const
 // Blank out unused texture parts, to make sure we don't get any
 // artifacts due to fp-inaccuracies when rendering.
 void
-CvrRGBATexture::blankUnused(const SbVec2s & texsize)
+CvrRGBATexture::blankUnused(const SbVec2s & texsize) const
 {
   assert(this->rgbabuffer);
 

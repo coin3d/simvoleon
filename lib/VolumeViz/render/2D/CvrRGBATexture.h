@@ -3,7 +3,6 @@
 
 #include <VolumeViz/render/2D/CvrTextureObject.h>
 
-
 class CvrRGBATexture : public CvrTextureObject {
 public:
   static void initClass(void);
@@ -15,7 +14,8 @@ public:
   static SoType getClassTypeId(void);
 
   uint32_t * getRGBABuffer(void) const;
-  void blankUnused(const SbVec2s & texsize);
+
+  virtual void blankUnused(const SbVec2s & texsize) const;
   virtual void dumpToPPM(const char * filename) const;
 
 private:

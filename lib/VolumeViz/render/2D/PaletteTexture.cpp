@@ -62,6 +62,33 @@ CvrPaletteTexture::getCLUT(void) const
   return this->clut;
 }
 
+// Blank out unused texture parts, to make sure we don't get any
+// artifacts due to fp-inaccuracies when rendering.
+void
+CvrPaletteTexture::blankUnused(const SbVec2s & texsize) const
+{
+  assert(this->indexbuffer);
+  
+  SbVec2s texobjdims = this->getDimensions();
+  {
+    for (short y=texsize[1]; y < texobjdims[1]; y++) {
+      for (short x=0; x < texobjdims[0]; x++) {
+        this->indexbuffer[y * texobjdims[0] + x] = 0x00;
+      }
+    }
+  }
+  {
+    for (short x=texsize[0]; x < texobjdims[0]; x++) {
+      for (short y=0; y < texobjdims[1]; y++) {
+        this->indexbuffer[y * texobjdims[0] + x] = 0x00;
+      }
+    }
+  }
+
+}
+
+
+
 void
 CvrPaletteTexture::dumpToPPM(const char * filename) const
 {
