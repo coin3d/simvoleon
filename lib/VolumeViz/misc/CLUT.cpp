@@ -42,6 +42,7 @@
 
 #include <VolumeViz/elements/CvrPalettedTexturesElement.h>
 #include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrResourceManager.h>
 
 class SoState;
 
@@ -72,9 +73,10 @@ static const char * palettelookupprogram_modulate =
 static const char * palettelookupprogram_replace =
 "MOV result.color, R0";
 
-// FIXME: fragment programs should be bound to a specific GL context,
-// and remade for each new context. 20041103 mortene.
-GLuint CvrCLUT::fragmentprogramid[2] = { 0, 0 };
+// This is just to have a guaranteed unique pointer value for the
+// CvrResourceManager::getInstance() for data which is common for
+// CvrCLUT instances (over one GL context).
+static const char * CVRCLUT_STATIC_KEYID = "foobar";
 
 // *************************************************************************
 
@@ -121,9 +123,6 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
 void
 CvrCLUT::commonConstructor(void)
 {
-  this->palettehaschanged = TRUE;
-  this->palettelookuptexture = 0;
-
   this->refcount = 0;
 
   this->transparencythresholds[0] = 0;
@@ -141,8 +140,6 @@ CvrCLUT::CvrCLUT(const CvrCLUT & clut)
   this->nrentries = clut.nrentries;
   this->nrcomponents = clut.nrcomponents;
   this->datatype = clut.datatype;
-  this->palettehaschanged = TRUE; // regenerate, as we don't share GL-texture
-  this->palettelookuptexture = 0; // don't share texture id either
 
   const int blocksize = this->nrentries * this->nrcomponents;
 
@@ -174,12 +171,29 @@ CvrCLUT::CvrCLUT(const CvrCLUT & clut)
 
 CvrCLUT::~CvrCLUT()
 {
+  this->killAllGLContextData();
+
   if (this->datatype == INTS)
     delete[] this->int_entries;
   if (this->datatype == FLOATS)
     delete[] this->flt_entries;
 
   delete[] this->glcolors;
+}
+
+void
+CvrCLUT::killAllGLContextData(void)
+{
+  this->killAll1DTextures();
+
+  const unsigned int len = (unsigned int)this->contextlist.getLength();
+  for (unsigned int i = 0; i < len; i++) {
+    struct GLContextStorage * c = this->contextlist[i];
+    CvrResourceManager * rm = CvrResourceManager::getInstance(c->ctxid);
+    rm->remove(this);
+    delete c;
+  }
+  this->contextlist.truncate(0);
 }
 
 // *************************************************************************
@@ -266,22 +280,15 @@ CvrCLUT::setTransparencyThresholds(uint32_t low, uint32_t high)
 }
 
 void
-CvrCLUT::initFragmentProgram(const cc_glglue * glue)
+CvrCLUT::initFragmentProgram(const cc_glglue * glue,
+                             CvrCLUT::GlobalGLContextStorage * ctxstorage)
 {
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
-  // FIXME: What about mutiple GL contexts (as with
-  // soshape_bumpmap.cpp for example)?? Each context would need its
-  // own programs. (20040312 handegar)
-  //
-  // FIXME: yes, this must be bound to the specific GL
-  // context. 20040716 mortene.
-
   // Two programs, one each for 2D textures and 3D textures.
-  cc_glglue_glGenPrograms(glue, 2, CvrCLUT::fragmentprogramid);
+  cc_glglue_glGenPrograms(glue, 2, ctxstorage->fragmentprogramid);
 
   for (int i=CvrCLUT::TEXTURE2D; i <= CvrCLUT::TEXTURE3D; i++) {
     cc_glglue_glBindProgram(glue, GL_FRAGMENT_PROGRAM_ARB,
-                            CvrCLUT::fragmentprogramid[i]);
+                            ctxstorage->fragmentprogramid[i]);
 
     // Setup fragment program according to texture type.
 
@@ -308,24 +315,20 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue)
                                 errorPos, glGetString(GL_PROGRAM_ERROR_STRING_ARB));
     }
   }
-#endif // HAVE_ARB_FRAGMENT_PROGRAM
 }
 
 // Initializes the 1D-texture set up for the fragment program to use
 // for palette entry lookups.
 void
-CvrCLUT::initPaletteTexture(const cc_glglue * glue)
+CvrCLUT::initPaletteTexture(const cc_glglue * glue,
+                            CvrCLUT::GLContextStorage * ctxstorage)
 {
-  // FIXME: can probably reuse texture id. 20041103 mortene.
+  assert(ctxstorage->texture1Dclut == 0);
 
-  if (this->palettelookuptexture != 0)
-    glDeleteTextures(1, &this->palettelookuptexture);
-
-  // FIXME: this must be bound to the specific GL context. 20040716 mortene.
-  glGenTextures(1, &this->palettelookuptexture);
+  glGenTextures(1, &ctxstorage->texture1Dclut);
 
   glEnable(GL_TEXTURE_1D);
-  glBindTexture(GL_TEXTURE_1D, this->palettelookuptexture);
+  glBindTexture(GL_TEXTURE_1D, ctxstorage->texture1Dclut);
 
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -344,26 +347,121 @@ CvrCLUT::initPaletteTexture(const cc_glglue * glue)
 // *************************************************************************
 
 void
-CvrCLUT::activateFragmentProgram(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
+CvrCLUT::contextDeletedCB(void * closure, uint32_t ctxid)
 {
-  // Shall we generate a new palette texture?
-  if (this->palettehaschanged) {
-    ((CvrCLUT*)this)->initPaletteTexture(glw);
-    ((CvrCLUT*)this)->palettehaschanged = FALSE;
+  CvrResourceManager * rm = CvrResourceManager::getInstance(ctxid);
+
+  if (closure) { // dynamic (per-CvrCLUT) data
+    void * ptr;
+    const SbBool ok = rm->get(closure, ptr);
+    assert(ok);
+    CvrCLUT::GLContextStorage * ctxstorage = (CvrCLUT::GLContextStorage *)ptr;
+
+    if (ctxstorage->texture1Dclut != 0) {
+      // FIXME: this resource deletion has not been tested
+      // to work yet. 20041111 mortene.
+#if CVR_DEBUG && 0 // debug
+      SoDebugError::postInfo("CvrCLUT::contextDeletedCB",
+                             "deleting 1D-texture %u from GL context %u\n",
+                             ctxstorage->texture1Dclut, ctxid);
+#endif // debug
+
+      glDeleteTextures(1, &ctxstorage->texture1Dclut);
+    }
+
+    rm->remove(closure);
+    ((CvrCLUT *)closure)->contextlist.removeItem(ctxstorage);
+    delete ctxstorage;
+  }
+  else { // static/global data for all CvrCLUT instances
+    void * ptr;
+    const SbBool ok = rm->get(CVRCLUT_STATIC_KEYID, ptr);
+    assert(ok);
+
+    CvrCLUT::GlobalGLContextStorage * ctxstorage =
+      (CvrCLUT::GlobalGLContextStorage *)ptr;
+
+    if (ctxstorage->fragmentprogramid[0] != 0) {
+      // FIXME: this resource deletion has not been tested
+      // to work yet. 20041111 mortene.
+#if CVR_DEBUG && 0 // debug
+      SoDebugError::postInfo("CvrCLUT::contextDeletedCB",
+                             "deleting fragment programs %u & %u from "
+                             "GL context %u\n",
+                             ctxstorage->fragmentprogramid[0],
+                             ctxstorage->fragmentprogramid[1],
+                             ctxid);
+#endif // debug
+
+      const cc_glglue * glw = cc_glglue_instance(ctxid);
+      cc_glglue_glDeletePrograms(glw, 2, ctxstorage->fragmentprogramid);
+    }
+
+    rm->remove(CVRCLUT_STATIC_KEYID);
+    delete ctxstorage;
+  }
+}
+
+CvrCLUT::GLContextStorage *
+CvrCLUT::getGLContextStorage(uint32_t ctxid)
+{
+  CvrResourceManager * rm = CvrResourceManager::getInstance(ctxid);
+  void * ptr;
+  const SbBool ok = rm->get(this, ptr);
+  if (!ok) {
+    ptr = new CvrCLUT::GLContextStorage(ctxid);
+    rm->set(this, ptr, CvrCLUT::contextDeletedCB, this);
+    CvrCLUT::GLContextStorage * ctxstruct = (CvrCLUT::GLContextStorage *)ptr;
+    this->contextlist.append(ctxstruct);
   }
 
-  if (CvrCLUT::fragmentprogramid[0] == 0) {
-    CvrCLUT::initFragmentProgram(glw);
+  return (CvrCLUT::GLContextStorage *)ptr;
+}
+
+CvrCLUT::GlobalGLContextStorage *
+CvrCLUT::getGlobalGLContextStorage(uint32_t ctxid)
+{
+  CvrResourceManager * rm = CvrResourceManager::getInstance(ctxid);
+  void * ptr;
+  const SbBool ok = rm->get(CVRCLUT_STATIC_KEYID, ptr);
+  if (!ok) {
+    ptr = new CvrCLUT::GlobalGLContextStorage;
+    rm->set(CVRCLUT_STATIC_KEYID, ptr, CvrCLUT::contextDeletedCB, NULL);
+  }
+
+  return (CvrCLUT::GlobalGLContextStorage *)ptr;
+}
+
+// *************************************************************************
+
+void
+CvrCLUT::activateFragmentProgram(uint32_t ctxid, CvrCLUT::TextureType texturetype) const
+{
+  const cc_glglue * glw = cc_glglue_instance(ctxid);
+  CvrCLUT * thisp = (CvrCLUT *)this;
+
+  CvrCLUT::GLContextStorage * ctxstorage = thisp->getGLContextStorage(ctxid);
+
+  // Shall we generate a new palette texture?
+  if (ctxstorage->texture1Dclut == 0) {
+    thisp->initPaletteTexture(glw, ctxstorage);
+  }
+
+  CvrCLUT::GlobalGLContextStorage * ctxstaticstorage =
+    CvrCLUT::getGlobalGLContextStorage(ctxid);
+
+  if (ctxstaticstorage->fragmentprogramid[0] == 0) {
+    CvrCLUT::initFragmentProgram(glw, ctxstaticstorage);
   }
 
   // FIXME: What should we do if unit #1 is already taken? (20040310 handegar)
   cc_glglue_glActiveTexture(glw, GL_TEXTURE1);
   glEnable(GL_TEXTURE_1D);
-  glBindTexture(GL_TEXTURE_1D, this->palettelookuptexture);
+  glBindTexture(GL_TEXTURE_1D, ctxstorage->texture1Dclut);
 
   cc_glglue_glActiveTexture(glw, GL_TEXTURE0);
   cc_glglue_glBindProgram(glw, GL_FRAGMENT_PROGRAM_ARB,
-                          CvrCLUT::fragmentprogramid[texturetype]);
+                          ctxstaticstorage->fragmentprogramid[texturetype]);
 
   glEnable(GL_FRAGMENT_PROGRAM_ARB);
 }
@@ -406,7 +504,7 @@ CvrCLUT::activatePalette(const cc_glglue * glw, CvrCLUT::TextureType texturetype
 
     if (warn) {
       warn = FALSE;
-      SoDebugError::postWarning("CvrCLUT::activate",
+      SoDebugError::postWarning("CvrCLUT::activatePalette",
                                 "glColorTable(GL_TEXTURE_2D/3D, ...) caused "
                                 "glGetError()==0x%x (dec==%d)",
                                 err, err);
@@ -418,7 +516,7 @@ CvrCLUT::activatePalette(const cc_glglue * glw, CvrCLUT::TextureType texturetype
       if (strcmp((const char *)glGetString(GL_VERSION), VERSION_GL) == 0 &&
           strcmp((const char *)glGetString(GL_VENDOR), VENDOR) == 0 &&
           strcmp((const char *)glGetString(GL_RENDERER), RENDERER) == 0) {
-        SoDebugError::postWarning("CvrCLUT::activate",
+        SoDebugError::postWarning("CvrCLUT::activatePalette",
                                   "This is a known problem with this driver "
                                   "(vendor='%s', renderer='%s', version='%s') "
                                   "and seems to be harmless. Turn off this "
@@ -443,10 +541,12 @@ CvrCLUT::activatePalette(const cc_glglue * glw, CvrCLUT::TextureType texturetype
   Activates the palette we carry, for OpenGL.
 */
 void
-CvrCLUT::activate(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
+CvrCLUT::activate(uint32_t ctxid, CvrCLUT::TextureType texturetype) const
 {
+  const cc_glglue * glw = cc_glglue_instance(ctxid);
+
   if (CvrCLUT::useFragmentProgramLookup(glw)) {
-    this->activateFragmentProgram(glw, texturetype);
+    this->activateFragmentProgram(ctxid, texturetype);
   }
   else if (CvrCLUT::usePaletteExtension(glw)) {
     this->activatePalette(glw, texturetype);
@@ -463,9 +563,7 @@ void
 CvrCLUT::deactivate(const cc_glglue * glw) const
 {
   if (CvrCLUT::useFragmentProgramLookup(glw)) {
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
     glDisable(GL_FRAGMENT_PROGRAM_ARB);
-#endif // HAVE_ARB_FRAGMENT_PROGRAM
     cc_glglue_glActiveTexture(glw, GL_TEXTURE1);
     glDisable(GL_TEXTURE_1D);
     cc_glglue_glActiveTexture(glw, GL_TEXTURE0);
@@ -547,7 +645,21 @@ CvrCLUT::regenerateGLColorData(void)
     }
   }
 
-  this->palettehaschanged = TRUE;
+  this->killAll1DTextures();
+}
+
+// *************************************************************************
+
+void
+CvrCLUT::killAll1DTextures(void)
+{
+  const unsigned int len = (unsigned int)this->contextlist.getLength();
+  for (unsigned int i = 0; i < len; i++) {
+    struct GLContextStorage * c = this->contextlist[i];
+    CvrResourceManager * rm = CvrResourceManager::getInstance(c->ctxid);
+    rm->killTexture(c->texture1Dclut);
+    c->texture1Dclut = 0;
+  }
 }
 
 // *************************************************************************
@@ -625,10 +737,7 @@ CvrCLUT::useFragmentProgramLookup(const cc_glglue * glw)
 
   if (disable_fragprog) { return FALSE; }
 
-  SbBool usefragmentprogramsupport = FALSE;
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
-  usefragmentprogramsupport = cc_glglue_has_arb_fragment_program(glw);
-#endif // HAVE_ARB_FRAGMENT_PROGRAM
+  SbBool usefragmentprogramsupport = cc_glglue_has_arb_fragment_program(glw);
   return usefragmentprogramsupport;
 }
 

@@ -50,7 +50,6 @@
 #include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
-#include <VolumeViz/render/common/resourcehandler.h>
 
 // *************************************************************************
 

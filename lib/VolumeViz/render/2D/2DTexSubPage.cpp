@@ -40,7 +40,6 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr2DRGBATexture.h>
-#include <VolumeViz/render/common/resourcehandler.h>
 
 #include "texmemfullimg.h"
 
@@ -192,8 +191,7 @@ Cvr2DTexSubPage::activateCLUT(const SoGLRenderAction * action)
   assert(this->clut != NULL);
 
   // FIXME: should check if the same clut is already current 
-  const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
-  this->clut->activate(glw, CvrCLUT::TEXTURE2D);
+  this->clut->activate(action->getCacheContext(), CvrCLUT::TEXTURE2D);
 }
 
 

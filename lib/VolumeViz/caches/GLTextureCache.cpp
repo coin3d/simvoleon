@@ -25,42 +25,38 @@
 
 #include <limits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
-#include <VolumeViz/render/common/resourcehandler.h>
+#include <VolumeViz/misc/CvrResourceManager.h>
 
 // *************************************************************************
 
 CvrGLTextureCache::CvrGLTextureCache(SoState * state)
   : SoCache(state)
 {
-  this->texid = NULL;
+  this->texid = 0;
   this->glctxid = UINT_MAX;
   this->dead = FALSE;
 }
 
 CvrGLTextureCache::~CvrGLTextureCache()
 {
-  if (!this->isDead()) {
-    // Re-register with NULL for the closure pointer, to signify that
-    // it can no longer be cast to a "this" instance-pointer.
-    cvr_rc_unregister_resource(this->glctxid, this->texid);
-    cvr_rc_register_resource(this->glctxid, this->texid,
-                             CvrGLTextureCache::texDestructionCB, NULL);
-    cvr_rc_tag_resource_dead(this->glctxid, this->texid);
+  if (!this->isDead() && (this->texid != 0)) {
+    CvrResourceManager * rm = CvrResourceManager::getInstance(this->glctxid);
+    rm->killTexture(this->texid);
+    rm->remove(this);
   }
 }
 
 // *************************************************************************
 
 void
-CvrGLTextureCache::texDestructionCB(uint32_t ctxid, void * resource,
-                                    void * closure)
+CvrGLTextureCache::texDestructionCB(void * closure, uint32_t ctxid)
 {
-  GLuint * texid = (GLuint *)resource;
-  glDeleteTextures(1, texid);
-  delete[] texid;
-
   CvrGLTextureCache * thisp = (CvrGLTextureCache *)closure;
-  if (thisp) { thisp->dead = TRUE; thisp->texid = NULL; }
+
+  glDeleteTextures(1, &thisp->texid);
+
+  thisp->dead = TRUE;
+  thisp->texid = 0;
 }
 
 // *************************************************************************
@@ -68,30 +64,30 @@ CvrGLTextureCache::texDestructionCB(uint32_t ctxid, void * resource,
 void
 CvrGLTextureCache::setGLTextureId(const SoGLRenderAction * action, GLuint id)
 {
-  assert((this->texid == NULL) && "can not reset texid value");
+  assert((this->texid == 0) && "can not reset texid value");
   assert(!this->dead);
 
-  this->texid = new GLuint[1];
-  this->texid[0] = id;
-
+  this->texid = id;
   this->glctxid = action->getCacheContext();
 
-  cvr_rc_register_resource(this->glctxid, this->texid,
-                           CvrGLTextureCache::texDestructionCB, this);
+  CvrResourceManager * rm = CvrResourceManager::getInstance(this->glctxid);
+  rm->set(this, NULL, CvrGLTextureCache::texDestructionCB, this);
 }
 
 GLuint
 CvrGLTextureCache::getGLTextureId(void) const
 {
   assert(!this->dead);
-  return this->texid[0];
+  return this->texid;
 }
+
+// *************************************************************************
 
 /*! Returns \c TRUE if the texture has been deallocated.
 
     This would usually be due to GL context destruction. It could also
-    happen on other whims of the cvr_rc resource handler, e.g. it
-    could be thrown out due to texture aging.
+    happen on other whims of internal resource manager, e.g. it could
+    be thrown out due to texture aging.
 
     Client code which owns this cache should regularly check the
     isDead() flag and unref() the cache if detected to be \c TRUE.

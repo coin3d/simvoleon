@@ -1,5 +1,5 @@
-#ifndef SIMVOLEON_CVRGLTEXTURECACHE_H
-#define SIMVOLEON_CVRGLTEXTURECACHE_H
+#ifndef SIMVOLEON_CVRRESOURCEMANAGER_H
+#define SIMVOLEON_CVRRESOURCEMANAGER_H
 
 /**************************************************************************\
  *
@@ -24,34 +24,44 @@
  *
 \**************************************************************************/
 
-#include <Inventor/caches/SoCache.h>
+#include <Inventor/SbDict.h>
+#include <Inventor/lists/SbList.h>
 #include <Inventor/system/gl.h>
-
-class SoState;
-class SoGLRenderAction;
 
 // *************************************************************************
 
-class CvrGLTextureCache : public SoCache {
-  typedef SoCache inherited;
-
+class CvrResourceManager {
 public:
-  CvrGLTextureCache(SoState * state);
-  ~CvrGLTextureCache();
+  static CvrResourceManager * getInstance(uint32_t ctxid);
 
-  void setGLTextureId(const SoGLRenderAction * action, GLuint id);
-  GLuint getGLTextureId(void) const;
+  typedef void ToBeDeletedCB(void * closure, uint32_t contextid);
 
-  SbBool isDead(void) const;
+  void set(const void * resourceholder, void * resource, ToBeDeletedCB * cb, void * cbclosure);
+  SbBool get(const void * resourceholder, void *& resource) const;
+  void remove(const void * resourceholder);
+
+  void killTexture(const GLuint id);
 
 private:
-  static void texDestructionCB(void * closure, uint32_t ctxid);
+  CvrResourceManager(uint32_t ctxid);
+  ~CvrResourceManager();
 
-  GLuint texid;
-  SbBool dead;
-  uint32_t glctxid;
+  uint32_t ctxid;
+  static SbDict * managers;
+  SbDict resourceholders;
+
+  struct cb {
+    const void * resourceholder;
+    ToBeDeletedCB * func;
+    void * closure;
+  };
+
+  SbList<struct cb> cblist;
+  SbList<GLuint> dyingtextureids;
+  void GLContextMadeCurrent(uint32_t contextid);
+  static void GLContextMadeCurrentCB(void * closure, uint32_t contextid);
 };
 
 // *************************************************************************
 
-#endif // !SIMVOLEON_CVRGLTEXTURECACHE_H
+#endif // !SIMVOLEON_CVRRESOURCEMANAGER_H

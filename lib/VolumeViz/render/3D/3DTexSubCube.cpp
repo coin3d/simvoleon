@@ -131,8 +131,7 @@ Cvr3DTexSubCube::activateCLUT(const SoGLRenderAction * action)
   assert(this->clut != NULL);
 
   // FIXME: should check if the same clut is already current
-  const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
-  this->clut->activate(glw, CvrCLUT::TEXTURE3D);
+  this->clut->activate(action->getCacheContext(), CvrCLUT::TEXTURE3D);
 }
 
 void

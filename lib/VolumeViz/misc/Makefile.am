@@ -10,6 +10,7 @@ SOURCES = \
 	VoxelChunk.cpp CvrVoxelChunk.h \
 	CLUT.cpp CvrCLUT.h \
 	Util.cpp CvrUtil.h \
+	ResourceManager.cpp CvrResourceManager.h \
 	GIMPGradient.cpp CvrGIMPGradient.h
 
 libmisc_la_SOURCES = $(SOURCES)

@@ -26,6 +26,7 @@
 
 #include <Inventor/SbBasic.h>
 #include <Inventor/system/gl.h>
+#include <Inventor/lists/SbList.h>
 
 struct cc_glglue;
 class SoGLRenderAction;
@@ -50,7 +51,7 @@ public:
 
   enum TextureType { TEXTURE2D = 0, TEXTURE3D = 1 };
 
-  void activate(const cc_glglue * glw, TextureType t) const;
+  void activate(uint32_t ctxid, TextureType t) const;
   void deactivate(const cc_glglue * glw) const;
 
   void lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const;
@@ -70,9 +71,35 @@ private:
   void commonConstructor(void);
   void regenerateGLColorData(void);
 
-  static void initFragmentProgram(const cc_glglue * glue);
-  void initPaletteTexture(const cc_glglue * glue);
-  void activateFragmentProgram(const cc_glglue * glw, CvrCLUT::TextureType t) const;
+  struct GLContextStorage {
+    GLContextStorage::GLContextStorage(uint32_t id)
+    {
+      this->texture1Dclut = 0;
+      this->ctxid = id;
+    }
+    
+    GLuint texture1Dclut;
+    uint32_t ctxid;
+  };
+  SbList<struct GLContextStorage *> contextlist;
+  struct GlobalGLContextStorage {
+    GlobalGLContextStorage::GlobalGLContextStorage(void)
+    {
+      this->fragmentprogramid[0] = this->fragmentprogramid[1] = 0;
+    }
+    
+    GLuint fragmentprogramid[2];
+  };
+  static GlobalGLContextStorage * getGlobalGLContextStorage(uint32_t ctxid);
+  GLContextStorage * getGLContextStorage(uint32_t ctxid);
+  static void contextDeletedCB(void * closure, uint32_t contextid);
+
+  void killAll1DTextures(void);
+  void killAllGLContextData(void);
+
+  static void initFragmentProgram(const cc_glglue * glue, GlobalGLContextStorage * ctxstorage);
+  void initPaletteTexture(const cc_glglue * glue, GLContextStorage * ctxstorage);
+  void activateFragmentProgram(uint32_t ctxid, CvrCLUT::TextureType t) const;
   void activatePalette(const cc_glglue * glw, CvrCLUT::TextureType t) const;
 
   unsigned int nrentries;
@@ -91,11 +118,8 @@ private:
 
   uint8_t * glcolors;
 
-  SbBool palettehaschanged;
-  GLuint palettelookuptexture;
-  static GLuint fragmentprogramid[2];
-
   int refcount;
+
   friend class nop; // to avoid g++ compiler warning on the private constructor
 };
 
