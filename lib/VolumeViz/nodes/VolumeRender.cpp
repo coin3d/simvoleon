@@ -34,6 +34,8 @@
 
 // *************************************************************************
 
+#include <VolumeViz/nodes/SoVolumeRender.h>
+
 #include <string.h>
 #include <limits.h> // UINT_MAX
 #include <float.h> // DBL_MAX
@@ -58,7 +60,6 @@
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoCube.h>
 
-#include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>

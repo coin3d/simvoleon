@@ -31,7 +31,6 @@
 
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
 
 // *************************************************************************
 

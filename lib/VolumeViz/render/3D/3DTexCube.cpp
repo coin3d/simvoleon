@@ -43,7 +43,6 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/3D/Cvr3DTexSubCube.h>

@@ -42,7 +42,6 @@
 #include <VolumeViz/misc/CvrGIMPGradient.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/gradients/BLUE_RED.h>
 #include <VolumeViz/nodes/gradients/GLOW.h>
 #include <VolumeViz/nodes/gradients/GREY.h>

@@ -48,8 +48,6 @@ FIXME
 #include <Inventor/sensors/SoFieldSensor.h>
 #include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 
