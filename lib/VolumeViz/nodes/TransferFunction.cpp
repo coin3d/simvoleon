@@ -99,6 +99,15 @@ SoTransferFunction::GLRender(SoGLRenderAction * action)
 }
 
 
+// FIXME: expose tidbits.h properly from Coin. 20021109 mortene.
+extern "C" {
+enum CoinEndiannessValues { COIN_HOST_IS_UNKNOWNENDIAN = -1, COIN_HOST_IS_LITTLEENDIAN = 0, COIN_HOST_IS_BIGENDIAN = 1 };
+extern int coin_host_get_endianness(void);
+}
+
+static int endianness = COIN_HOST_IS_UNKNOWNENDIAN;
+
+
 /*!
   Transfers voxel data from input buffer to output buffer, according
   to specified parameters.
@@ -115,6 +124,10 @@ SoTransferFunction::transfer(const void * input,
                              int & paletteFormat,
                              int & palettesize)
 {
+  endianness = coin_host_get_endianness();
+  assert(endianness != COIN_HOST_IS_UNKNOWNENDIAN && "weird hardware!");
+
+
   // FIXME: the RGBA datatype for inputdata should be killed,
   // methinks. 20021112 mortene.
 
@@ -152,13 +165,23 @@ SoTransferFunction::transfer(const void * input,
     uint32_t * outp = new uint32_t[size[0] * size[1]];
     const uint8_t * inp = (const uint8_t *)input;
 
-    for (int j=0; j < size[0]*size[1]; j++) {
-      // FIXME: this probably only works on LSB machines. 20021112 mortene.
-      outp[j] =
-        (0 << 0) | // red
-        (uint32_t(inp[j]) << 8) | // green
-        (0 << 16) |  // blue
-        ((inp[j] ? 0xff : 0) << 24); // alpha
+    if (endianness == COIN_HOST_IS_LITTLEENDIAN) {
+      for (int j=0; j < size[0]*size[1]; j++) {
+        outp[j] =
+          (0 << 0) | // red
+          (uint32_t(inp[j]) << 8) | // green
+          (0 << 16) |  // blue
+          ((inp[j] ? 0xff : 0) << 24); // alpha
+      }
+    }
+    else {
+      for (int j=0; j < size[0]*size[1]; j++) {
+        outp[j] =
+          (0 << 24) | // red
+          (uint32_t(inp[j]) << 16) | // green
+          (0 << 8) |  // blue
+          ((inp[j] ? 0xff : 0) << 0); // alpha
+      }
     }
 
     output = outp;
@@ -180,13 +203,23 @@ SoTransferFunction::transfer(const void * input,
     uint32_t * outp = new uint32_t[size[0] * size[1]];
     const uint16_t * inp = (const uint16_t *)input;
 
-    for (int j=0; j < size[0]*size[1]; j++) {
-      // FIXME: this probably only works on LSB machines. 20021112 mortene.
-      outp[j] =
-        (0 << 0) | // red
-        (uint32_t(inp[j] & 0x00ff) << 8) | // green
-        (uint32_t((inp[j] >> 8) & 0x00ff) << 16) | // blue
-        ((inp[j] ? 0xff : 0) << 24); // alpha
+    if (endianness == COIN_HOST_IS_LITTLEENDIAN) {
+      for (int j=0; j < size[0]*size[1]; j++) {
+        outp[j] =
+          (0 << 0) | // red
+          (uint32_t(inp[j] & 0x00ff) << 8) | // green
+          (uint32_t((inp[j] >> 8) & 0x00ff) << 16) | // blue
+          ((inp[j] ? 0xff : 0) << 24); // alpha
+      }
+    }
+    else {
+      for (int j=0; j < size[0]*size[1]; j++) {
+        outp[j] =
+          (0 << 24) | // red
+          (uint32_t(inp[j] & 0x00ff) << 16) | // green
+          (uint32_t((inp[j] >> 8) & 0x00ff) << 8) | // blue
+          ((inp[j] ? 0xff : 0) << 0); // alpha
+      }
     }
 
     output = outp;
@@ -196,7 +229,7 @@ SoTransferFunction::transfer(const void * input,
   assert(FALSE && "unknown input format");
 
 #else
-  // FIXME: tmp disabled all use of paletted and compressed
+  // FIXME: tmp disabled all use of paletted (and compressed?)
   // textures. (The code wasn't working at all, as far as I could
   // see.) 20021112 mortene.
   
