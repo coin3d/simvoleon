@@ -14,13 +14,16 @@
 
 @SET_MAKE@
 
+# NOTES:
+#   This Makefile.am relies on $(htmldir) being AC_SUBST'ed into place...
+
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
 VPATH = @srcdir@
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
-top_builddir = ../../../..
+top_builddir = ..
 
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = @INSTALL@
@@ -185,147 +188,21 @@ voleon_build_dir = @voleon_build_dir@
 voleon_html_dir = @voleon_html_dir@
 voleon_man_dir = @voleon_man_dir@
 voleon_src_dir = @voleon_src_dir@
-DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
-
-@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = 3Drender.lst
-@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = lib3Drender.la
-
-SOURCES = \
-	CubeHandler.cpp CvrCubeHandler.h \
-	3DTexSubCube.cpp Cvr3DTexSubCube.h \
-	3DTexCube.cpp Cvr3DTexCube.h
-
-
-lib3Drender_la_SOURCES = $(SOURCES)
-
-3Drender_lst_SOURCES = $(SOURCES)
-subdir = lib/VolumeViz/render/3D
+subdir = html
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/lib/config.h
 CONFIG_CLEAN_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-
-3Drender_lst_AR = $(AR) cru
-3Drender_lst_LIBADD =
-am__objects_1 = CubeHandler.$(OBJEXT) 3DTexSubCube.$(OBJEXT) \
-	3DTexCube.$(OBJEXT)
-am_3Drender_lst_OBJECTS = $(am__objects_1)
-3Drender_lst_OBJECTS = $(am_3Drender_lst_OBJECTS)
-LTLIBRARIES = $(noinst_LTLIBRARIES)
-
-lib3Drender_la_LDFLAGS =
-lib3Drender_la_LIBADD =
-am__objects_2 = CubeHandler.lo 3DTexSubCube.lo 3DTexCube.lo
-am_lib3Drender_la_OBJECTS = $(am__objects_2)
-lib3Drender_la_OBJECTS = $(am_lib3Drender_la_OBJECTS)
-depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/3DTexCube.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/3DTexCube.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/3DTexSubCube.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/3DTexSubCube.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/CubeHandler.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CubeHandler.Po
-CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
-	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
-LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
-	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
-	$(AM_CXXFLAGS) $(CXXFLAGS)
-CXXLD = $(CXX)
-CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
-	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-DIST_SOURCES = $(3Drender_lst_SOURCES) $(lib3Drender_la_SOURCES)
+DIST_SOURCES =
 DIST_COMMON = Makefile.am Makefile.in
-SOURCES = \
-	CubeHandler.cpp CvrCubeHandler.h \
-	3DTexSubCube.cpp Cvr3DTexSubCube.h \
-	3DTexCube.cpp Cvr3DTexCube.h
-
-
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .cpp .lo .o .obj
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  lib/VolumeViz/render/3D/Makefile
+	  $(AUTOMAKE) --gnu  html/Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
-
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-3Drender.lst: $(3Drender_lst_OBJECTS) $(3Drender_lst_DEPENDENCIES) 
-	-rm -f 3Drender.lst
-	$(3Drender_lst_AR) 3Drender.lst $(3Drender_lst_OBJECTS) $(3Drender_lst_LIBADD)
-	$(RANLIB) 3Drender.lst
-
-clean-noinstLTLIBRARIES:
-	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
-	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
-	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
-	  test "$$dir" = "$$p" && dir=.; \
-	  echo "rm -f \"$${dir}/so_locations\""; \
-	  rm -f "$${dir}/so_locations"; \
-	done
-lib3Drender.la: $(lib3Drender_la_OBJECTS) $(lib3Drender_la_DEPENDENCIES) 
-	$(CXXLINK)  $(lib3Drender_la_LDFLAGS) $(lib3Drender_la_OBJECTS) $(lib3Drender_la_LIBADD) $(LIBS)
-
-mostlyclean-compile:
-	-rm -f *.$(OBJEXT) core *.core
-
-distclean-compile:
-	-rm -f *.tab.c
-
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3DTexCube.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3DTexCube.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3DTexSubCube.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3DTexSubCube.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CubeHandler.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CubeHandler.Po@am__quote@
-
-distclean-depend:
-	-rm -rf ./$(DEPDIR)
-
-.cpp.o:
-@am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; \
-@am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
-
-.cpp.obj:
-@am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o $@ `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(srcdir)/$<'; fi`; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Po"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; \
-@am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `if test -f '$<'; then $(CYGPATH_W) '$<'; else $(CYGPATH_W) '$(srcdir)/$<'; fi`
-
-.cpp.lo:
-@am__fastdepCXX_TRUE@	if $(LTCXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" \
-@am__fastdepCXX_TRUE@	  -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<; \
-@am__fastdepCXX_TRUE@	then mv -f "$(DEPDIR)/$*.Tpo" "$(DEPDIR)/$*.Plo"; \
-@am__fastdepCXX_TRUE@	else rm -f "$(DEPDIR)/$*.Tpo"; exit 1; \
-@am__fastdepCXX_TRUE@	fi
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -336,63 +213,15 @@ clean-libtool:
 distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
-
-ETAGS = etags
-ETAGSFLAGS =
-
-CTAGS = ctags
-CTAGSFLAGS =
-
 tags: TAGS
-
-ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
-	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
-	unique=`for i in $$list; do \
-	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
-	  done | \
-	  $(AWK) '    { files[$$0] = 1; } \
-	       END { for (i in files) print i; }'`; \
-	mkid -fID $$unique
-
-TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
-		$(TAGS_FILES) $(LISP)
-	tags=; \
-	here=`pwd`; \
-	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
-	unique=`for i in $$list; do \
-	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
-	  done | \
-	  $(AWK) '    { files[$$0] = 1; } \
-	       END { for (i in files) print i; }'`; \
-	test -z "$(ETAGS_ARGS)$$tags$$unique" \
-	  || $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
-	     $$tags $$unique
+TAGS:
 
 ctags: CTAGS
-CTAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
-		$(TAGS_FILES) $(LISP)
-	tags=; \
-	here=`pwd`; \
-	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
-	unique=`for i in $$list; do \
-	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
-	  done | \
-	  $(AWK) '    { files[$$0] = 1; } \
-	       END { for (i in files) print i; }'`; \
-	test -z "$(CTAGS_ARGS)$$tags$$unique" \
-	  || $(CTAGS) $(CTAGSFLAGS) $(AM_CTAGSFLAGS) $(CTAGS_ARGS) \
-	     $$tags $$unique
+CTAGS:
 
-GTAGS:
-	here=`$(am__cd) $(top_builddir) && pwd` \
-	  && cd $(top_srcdir) \
-	  && gtags -i $(GTAGS_ARGS) $$here
-
-distclean-tags:
-	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
-top_distdir = ../../../..
+top_distdir = ..
 distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
 
 distdir: $(DISTFILES)
@@ -424,7 +253,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES) $(LTLIBRARIES)
+all-am: Makefile all-local
 
 installdirs:
 install: install-am
@@ -453,13 +282,11 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLIBRARIES \
-	clean-noinstLTLIBRARIES mostlyclean-am
+clean-am: clean-generic clean-libtool clean-local mostlyclean-am
 
 distclean: distclean-am
 
-distclean-am: clean-am distclean-compile distclean-depend \
-	distclean-generic distclean-libtool distclean-tags
+distclean-am: clean-am distclean-generic distclean-libtool
 
 dvi: dvi-am
 
@@ -469,7 +296,7 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-data-local
 
 install-exec-am:
 
@@ -485,8 +312,7 @@ maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-am
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool
+mostlyclean-am: mostlyclean-generic mostlyclean-libtool
 
 pdf: pdf-am
 
@@ -496,25 +322,97 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-info-am
+uninstall-am: uninstall-info-am uninstall-local
 
-.PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLIBRARIES clean-noinstLTLIBRARIES \
-	ctags distclean distclean-compile distclean-depend \
-	distclean-generic distclean-libtool distclean-tags distdir dvi \
-	dvi-am info info-am install install-am install-data \
-	install-data-am install-exec install-exec-am install-info \
-	install-info-am install-man install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-info-am
+.PHONY: all all-am all-local check check-am clean clean-generic \
+	clean-libtool clean-local distclean distclean-generic \
+	distclean-libtool distdir dvi dvi-am info info-am install \
+	install-am install-data install-data-am install-data-local \
+	install-exec install-exec-am install-info install-info-am \
+	install-man install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-generic mostlyclean-libtool pdf pdf-am \
+	ps ps-am uninstall uninstall-am uninstall-info-am \
+	uninstall-local
 
 
-3Drender.lst: $(3Drender_lst_OBJECTS)
-	@echo "Linking $@..."; \
-	rm -f $@; \
-	for i in $(3Drender_lst_OBJECTS); do echo $$i >>$@; done
+# **************************************************************************
+# build trickery
+
+@BUILD_HTMLPAGES_TRUE@$(top_builddir)/docs/simvoleon.doxygen: $(top_srcdir)/docs/simvoleon.doxygen.in $(top_builddir)/config.status
+@BUILD_HTMLPAGES_TRUE@	@( cd $(top_builddir); $(MAKE) docs/simvoleon.doxygen )
+
+@BUILD_HTMLPAGES_TRUE@index.html: $(top_builddir)/docs/simvoleon.doxygen
+@BUILD_HTMLPAGES_TRUE@	@( cd ..; \
+@BUILD_HTMLPAGES_TRUE@	echo " $(sim_ac_doxygen_exe) docs/simvoleon.doxygen"; \
+@BUILD_HTMLPAGES_TRUE@	"$(sim_ac_doxygen_exe)" docs/simvoleon.doxygen )
+
+@BUILD_HTMLPAGES_TRUE@filelist.txt: index.html
+@BUILD_HTMLPAGES_TRUE@	@if cmp -s $(top_srcdir)/docs/doxygen/Coin_logo.png Coin_logo.png; then :; else \
+@BUILD_HTMLPAGES_TRUE@	  echo  " cp $(top_srcdir)/docs/doxygen/Coin_logo.png ."; \
+@BUILD_HTMLPAGES_TRUE@	  cp $(top_srcdir)/docs/doxygen/Coin_logo.png .; \
+@BUILD_HTMLPAGES_TRUE@	fi
+@BUILD_HTMLPAGES_TRUE@	@ls -1 | egrep '(\.html|\.png|\.gif|\.css)$$' >filelist.txt
+
+@BUILD_HTMLPAGES_TRUE@all-local: filelist.txt
+
+# **************************************************************************
+# install trickery
+# - uninstall after "make clean" will regenerate docs - ought to be fixed
+
+@BUILD_HTMLPAGES_TRUE@install-data-local: install-html
+
+@BUILD_HTMLPAGES_TRUE@uninstall-local: uninstall-html
+
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@install-html: filelist.txt
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	@$(NORMAL_INSTALL)
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	$(mkinstalldirs) "$(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Documentation"
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	@echo " ln -sf Versions/Current/Documentation $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Documentation"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	ln -sf Versions/Current/Documentation "$(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Documentation"
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	@destdir="$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Documentation"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	list="`cat filelist.txt`"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	for file in $$list; do \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	  echo " $(INSTALL_DATA) $$file $(DESTDIR)$$destdir/$$file"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	  $(INSTALL_DATA) $$file "$(DESTDIR)$$destdir/$$file"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	done
+
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@uninstall-html: filelist.txt
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	@$(NORMAL_UNINSTALL)
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	@destdir="$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Documentation"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	list="`cat filelist.txt`"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	for file in $$list; do \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	  echo " rm -f $(DESTDIR)$(destdir)/$$file"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	  rm -f "$(DESTDIR)$(destdir)/$$file"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	done
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	@echo " rmdir $(DESTDIR)$(destdir)"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	rmdir $(DESTDIR)$(destdir) 2>/dev/null; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_TRUE@	:
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@install-html: filelist.txt
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	@$(NORMAL_INSTALL)
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	$(mkinstalldirs) $(DESTDIR)$(htmldir)
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	@list="`cat filelist.txt`"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	for file in $$list; do \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	  echo " $(INSTALL_DATA) $$file $(DESTDIR)$(htmldir)/$$file"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	  $(INSTALL_DATA) $$file "$(DESTDIR)$(htmldir)/$$file"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	done
+
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@uninstall-html: filelist.txt
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	@$(NORMAL_UNINSTALL)
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	@list="`cat filelist.txt`"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	for file in $$list; do \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	  echo " rm -f $(DESTDIR)$(htmldir)/$$file"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	  rm -f "$(DESTDIR)$(htmldir)/$$file"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	done
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	@echo " rmdir $(DESTDIR)$(htmldir)"; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	rmdir $(DESTDIR)$(htmldir) 2>/dev/null; \
+@BUILD_HTMLPAGES_TRUE@@MAC_FRAMEWORK_FALSE@	:
+
+# IRIX make barfs if clean-local is moved inside the conditional clause.
+# Automake bug?  20011025 larsa
+clean-local:
+	@if test -f filelist.txt; then \
+	  cat filelist.txt | xargs rm -f filelist.txt; \
+	fi
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

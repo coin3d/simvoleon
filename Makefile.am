@@ -1,6 +1,21 @@
-## Process this file with automake to generate Makefile.in.
+# **************************************************************************
 
-SUBDIRS = bin lib
+if BUILD_LIBRARY
+SRCDIRS = lib
+else
+SRCDIRS =
+endif
+
+if BUILD_HTMLPAGES
+HTMLDIRS = html
+else
+HTMLDIRS =
+endif
+
+# **************************************************************************
+
+SUBDIRS = bin $(SRCDIRS) $(HTMLDIRS)
+
 
 BUILT_SOURCES = \
 	lib/VolumeViz/C/basic.h \
@@ -37,3 +52,10 @@ built-sources: $(BUILT_SOURCES)
 
 lib/VolumeViz/C/basic.h: $(srcdir)/lib/VolumeViz/C/basic.h.in config.status
 	@./config.status --header=$@
+
+docs/simvoleon.doxygen: $(srcdir)/docs/simvoleon.doxygen.in config.status
+	@if test -d docs; then :; else mkdir docs; fi
+	@./config.status --file=$@:$@.in
+	@$(srcdir)/cfg/doxy4win.pl docs/simvoleon.doxygen
+
+# **************************************************************************

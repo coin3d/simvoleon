@@ -67,6 +67,12 @@ AC_DEFINE_UNQUOTED([SIMVOLEON_VERSION], ["$SIMVOLEON_VERSION"],
   [define this to the full libSimVoleon major.minor.micro version number])
 
 # **************************************************************************
+# FIXME: Mac OS X support not in place yet. 20040506 mortene.
+
+AC_SUBST([MAC_FRAMEWORK], false)
+AM_CONDITIONAL([MAC_FRAMEWORK], false)
+
+# **************************************************************************
 #  Locate C++ compiler and set C++ as the default language to use
 #  in tests. The configure script will automatically terminate if
 #  it doesn't find a C++ compiler.
@@ -304,7 +310,7 @@ AC_TRY_COMPILE(
 # make cc_glglue importable into other projects -- it is also needed
 # in SIM Scenery, for instance. 20040505 mortene.
 
-AC_MSG_CHECKING([if Coin version is recent enough to provide fragment program interface])
+AC_MSG_CHECKING([if Coin provides fragment program interface])
 AC_TRY_COMPILE(
    [#include <Inventor/C/glue/gl.h>],
    [(void)cc_glglue_has_arb_fragment_program(NULL);
@@ -388,6 +394,7 @@ SIM_AC_MSVC_DSP_SETUP([SIMVOLEON], [SimVoleon], [simvoleon], [-I$simvoleon_build
 
 AC_OUTPUT([
         Makefile
+        html/Makefile
         bin/Makefile
         bin/simvoleon-config
         lib/Makefile
