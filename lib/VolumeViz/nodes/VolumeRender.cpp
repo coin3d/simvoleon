@@ -968,6 +968,13 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
                                             GLuint * texture3did,
                                             GLuint * texture2dids)
 {
+  // FIXME: I only get a rate of (3D / 2D) texture rendering slightly
+  // over 3 for my non-3D-texture capable RIVA TNT2, which seems to be
+  // way off -- 3D textures seems much, much slower than that when
+  // actually rendering volumes with them. So this probably needs some
+  // tuning. Should perhaps render larger triangles to get a more
+  // accurate comparison? 20040710 mortene.
+
   unsigned int i;
   const float xp = (rand() * 5.0f) / RAND_MAX;
   const float yp = (rand() * 5.0f) / RAND_MAX;
@@ -990,7 +997,7 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
     glEnd();
   }
 
-  glFlush();
+  glFinish();
 
   timelist3d.append((SbTime::getTimeOfDay() - t).getValue());
 
@@ -1011,7 +1018,7 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
     glEnd();
   }
 
-  glFlush();
+  glFinish();
 
   timelist2d.append((SbTime::getTimeOfDay() - t).getValue());
 }
