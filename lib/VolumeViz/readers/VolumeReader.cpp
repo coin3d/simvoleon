@@ -24,8 +24,9 @@
 /*!
   \class SoVolumeReader VolumeViz/readers/SoVolumeReader.h
   \brief Abstract superclass for all volume data reader classes.
-  \ingroup volviz
 */
+
+// *************************************************************************
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>

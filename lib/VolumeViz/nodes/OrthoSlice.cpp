@@ -21,6 +21,19 @@
  *
 \**************************************************************************/
 
+/*!
+  \class SoOrthoSlice VolumeViz/nodes/SoOrthoSlice.h
+  \brief Render one orthogonal slice of the volume data.
+
+  Insert a node of this type after an SoVolumeData node in the scene
+  graph to render a single, axis-aligned slice from the full volume
+  data set.
+
+  \sa SoVolumeRender
+*/
+
+// *************************************************************************
+
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/elements/SoGLClipPlaneElement.h>

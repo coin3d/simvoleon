@@ -24,7 +24,6 @@
 /*!
   \class SoVolumeData VolumeViz/nodes/SoVolumeData.h
   \brief The main interface for setting up volume data sets.
-  \ingroup volviz
 
   This node class provides the interface for setting up the voxel data
   to be rendered. For a complete, stand-alone usage example, see the

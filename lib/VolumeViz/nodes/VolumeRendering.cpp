@@ -152,7 +152,6 @@
 /*!
   \class SoVolumeRendering VolumeViz/nodes/SoVolumeRendering.h
   \brief Abstract base class for all nodes related to volume rendering.
-  \ingroup volviz
 
   The sole purpose of this class is really just to initialize the
   volume rendering framework, and to provide a convenient method for
@@ -244,6 +243,10 @@ SoVolumeRendering::init(void)
   CvrTextureObject::initClass();
 }
 
+/*!
+  Sets up initialization for data common to all instances of this
+  class, like submitting necessary information to the type system.
+*/
 void
 SoVolumeRendering::initClass(void)
 {

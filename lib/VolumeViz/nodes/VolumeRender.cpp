@@ -21,6 +21,18 @@
  *
 \**************************************************************************/
 
+/*!
+  \class SoVolumeRender VolumeViz/nodes/SoVolumeRender.h
+  \brief Render the full volume.
+
+  Insert a node of this type after an SoVolumeData node in the scene
+  graph to render the full volume data set.
+
+  \sa SoOrthoSlice
+*/
+
+// *************************************************************************
+
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>

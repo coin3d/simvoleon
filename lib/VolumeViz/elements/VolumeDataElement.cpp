@@ -24,8 +24,9 @@
 /*!
   \class SoVolumeDataElement VolumeViz/elements/SoVolumeDataElement.h
   \brief This class stores a reference to the current set of volume data.
-  \ingroup volviz
 */
+
+// *************************************************************************
 
 #include <assert.h>
 
@@ -36,9 +37,11 @@
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
+// *************************************************************************
 
 SO_ELEMENT_SOURCE(SoVolumeDataElement);
 
+// *************************************************************************
 
 void
 SoVolumeDataElement::initClass(void)

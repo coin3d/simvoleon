@@ -24,8 +24,15 @@
 /*!
   \class SoTransferFunction VolumeViz/nodes/SoTransferFunction.h
   \brief Contains the transfer function definition.
-  \ingroup volviz
+
+  This node sets up the mapping from voxel data values to actual
+  on-screen color values and transparency / opaqueness. It has a set
+  of pre-defined color maps, commonly used in e.g. seismic
+  visualization, and the option to set up one's own free-form color
+  map lookup table.
 */
+
+// *************************************************************************
 
 #include <VolumeViz/nodes/SoTransferFunction.h>
 

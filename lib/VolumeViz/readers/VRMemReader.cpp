@@ -27,7 +27,6 @@
 /*!
   \class SoVRMemReader VolumeViz/readers/SoVRMemReader.h
   \brief FIXME: doc
-  \ingroup volviz
 */
 
 // *************************************************************************

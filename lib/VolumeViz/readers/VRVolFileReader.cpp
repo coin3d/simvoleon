@@ -24,19 +24,15 @@
 /*!
   \class SoVRVolFileReader VolumeViz/readers/SoVRVolFileReader.h
   \brief Loader for files in the VOL data format.
-  \ingroup volviz
 
   This class reads volume data from files in the data format used in
   the book «Introduction To Volume Rendering», by Lichtenbelt, Crane
   and Naqvi (Hewlett-Packard / Prentice Hall), ISBN 0-13-861683-3.
 
-  The data format is laid out as follows:
-
-  First there is a header block like this:
-
-  FIXME: fill in this space.. 20021108 mortene.
+  FIXME: describe format in detail. 20021108 mortene.
 */
 
+// *************************************************************************
 
 #include <VolumeViz/readers/SoVRVolFileReader.h>
 #include <VolumeViz/misc/CvrUtil.h>
@@ -188,6 +184,10 @@ SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data)
   delete output;
 }
 
+/*!
+  \a data should be a pointer to a character string with the full
+  filename of a file in VOL-format.
+*/
 void
 SoVRVolFileReader::setUserData(void * data)
 {

@@ -24,13 +24,18 @@
 /*!
   \class SoTransferFunctionElement VolumeViz/elements/SoTransferFunctionElement.h
   \brief This class stores a reference to the current transfer function.
-  \ingroup volviz
 */
+
+// *************************************************************************
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <assert.h>
 
+// *************************************************************************
+
 SO_ELEMENT_SOURCE(SoTransferFunctionElement);
+
+// *************************************************************************
 
 void
 SoTransferFunctionElement::initClass(void)
