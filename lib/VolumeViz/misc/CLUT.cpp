@@ -11,9 +11,6 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
-// FIXME: This one should be defined by the configuration
-// script.  (20040315 handegar)
-#define HAVE_ARB_FRAGMENT_PROGRAM
 
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
 static const char * cvrclut_palettelookupprogram3d = 
