@@ -6,6 +6,18 @@
     - what is volume rendering
     - why volume rendering
     - list features of SimVoleon
+
+      (Here's one were we're better than TGS VolumeViz:) The volume
+      rendering of SimVoleon works well on volume data sets of any
+      dimensions. With other volume rendering systems, is often
+      necessary to accommodate the rendering system by pre-processing
+      the dataset to be of power-of-two dimensions, either to avoid
+      the rendering to take up an extraordinary amount of resources
+      related to texture-mapping, or from down-right failing. This
+      restriction is not present in SimVoleon, which works well with
+      different dimensions along the principal axes, and with any
+      non-power-of-two dimension.
+
     - list limitations of SimVoleon
 
   The simplest possible usage example, which sets up a complete
@@ -113,6 +125,8 @@
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoROI.h>
+#include <VolumeViz/nodes/SoOrthoSlice.h>
+#include <VolumeViz/nodes/SoObliqueSlice.h>
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
 #include <VolumeViz/details/SoObliqueSliceDetail.h>
@@ -175,6 +189,8 @@ SoVolumeRendering::init(void)
   SoTransferFunction::initClass();
 
   SoVolumeRender::initClass();
+  SoOrthoSlice::initClass();
+  SoObliqueSlice::initClass();
 
   SoVolumeRenderDetail::initClass();
   SoOrthoSliceDetail::initClass();
