@@ -1,3 +1,4 @@
+SUBDIRS = gradients
 
 INCLUDES = -I$(top_srcdir)/lib
 
