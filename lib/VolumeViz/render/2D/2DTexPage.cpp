@@ -325,18 +325,9 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   delete input;
 
 #if 0 // DEBUG: dump slice parts before slicebuf transformation to bitmap files.
-  uint8_t * slicebuf = (uint8_t *)slice->getBuffer();
   SbString s;
   s.sprintf("/tmp/pretransfslice-%04d-%03d-%03d.pgm", this->sliceIdx, row, col);
-  FILE * f = fopen(s.getString(), "w");
-  assert(f);
-  (void)fprintf(f, "P2\n%d %d 255\n",  // width height maxcolval
-                slice->getDimensions()[0], slice->getDimensions()[1]);
-
-  for (int i=0; i < slice->getDimensions()[0] * slice->getDimensions()[1]; i++) {
-    fprintf(f, "%d\n", slicebuf[i]);
-  }
-  fclose(f);
+  slice->dumpToPPM(s.getString());
 #endif // DEBUG
 
   // FIXME: optimalization measure; should be able to save on texture

@@ -418,3 +418,22 @@ CvrVoxelChunk::initPredefGradients(void)
 #endif // DEBUG
   }
 }
+
+// For debugging purposes.
+void
+CvrVoxelChunk::dumpToPPM(const char * filename) const
+{
+  // FIXME: only handles UINT_8 type chunks yet.
+
+  uint8_t * slicebuf = (uint8_t *)this->getBuffer();
+  FILE * f = fopen(filename, "w");
+  assert(f);
+  (void)fprintf(f, "P2\n%d %d 255\n",  // width height maxcolval
+                this->getDimensions()[0], this->getDimensions()[1]);
+
+  const int nrvoxels = this->getDimensions()[0] * this->getDimensions()[1];
+  for (int i=0; i < nrvoxels; i++) {
+    (void)fprintf(f, "%d\n", slicebuf[i]);
+  }
+  (void)fclose(f);
+}
