@@ -1,6 +1,3 @@
-#ifndef SOVOLUMEFACESET_H
-#define SOVOLUMEFACESET_H
-
 /**************************************************************************\
  *
  *  This file is part of the SIM Voleon visualization library.
@@ -24,40 +21,16 @@
  *
 \**************************************************************************/
 
-#include <Inventor/nodes/SoFaceSet.h>
-#include <Inventor/fields/SoSFBool.h>
-#include <Inventor/fields/SoSFFloat.h>
+// Internal class
 
-#include <VolumeViz/C/basic.h>
-#include <VolumeViz/render/3D/Cvr3DTexCube.h>
+#include "CvrFaceSetRenderP.h"
+#include "SoVolumeFaceSet.h"
 
-
-class SIMVOLEON_DLL_API SoVolumeFaceSet : public SoFaceSet {
-  typedef SoFaceSet inherited;
-  SO_NODE_HEADER(SoVolumeFaceSet);
-  
-public:
-  static void initClass();  
-  SoVolumeFaceSet();
-
-  SoSFBool clipGeometry;  
-  SoSFFloat offset;
-   
-protected:
-  ~SoVolumeFaceSet();
-
-  virtual void GLRender(SoGLRenderAction *action);
-  virtual void rayPick(SoRayPickAction * action);
-
-private:  
-  friend class SoVolumeFaceSetP;
-  class SoVolumeFaceSetP * pimpl;
-
-  enum RenderingMethod { TEXTURE3D, TEXTURE2D, UNKNOWN };
-
-  friend class CvrNonIndexedSetRenderBaseP;
-  friend class CvrFaceSetRenderP;
-
-};
-
-#endif /* SOVOLUMEFACESET_H */
+void
+CvrFaceSetRenderP::getVertexData(SoState *state, 
+                                 const SoCoordinateElement *&coords, 
+                                 const SbVec3f *&normals, 
+                                 const SbBool neednormals)
+{
+  ((SoVolumeFaceSet *) master)->getVertexData(state, coords, normals, neednormals);
+}

@@ -21,24 +21,6 @@
  *
 \**************************************************************************/
 
-/*!
-  \class SoVolumeIndexedFaceSet VolumeViz/nodes/SoVolumeIndexedFaceSet.h
-  \brief Render a set of faces within the volume.
-
-  This node works like the SoVolumeFaceSet node, but specifies vertex
-  indices in a slightly different manner. See documentation of
-  SoVolumeFaceSet and Coin's SoIndexedFaceSet for further
-  documentation.
-
-  Note that this node will not work with OpenGL drivers too old to
-  contain support for 3D-texturing. See the extended comments on
-  SoObliqueSlice for more information.
-
-  \sa SoVolumeFaceSet, SoVolumeRender, SoOrthoSlice, SoObliqueSlice
-*/
-
-// *************************************************************************
-
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
@@ -56,32 +38,33 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
-#include "SoVolumeIndexedFaceSet.h"
-#include "CvrIndexedFaceSetRenderP.h"
+#include "SoVolumeIndexedTriangleStripSet.h"
+#include "CvrIndexedTriangleStripSetRenderP.h"
 
 // *************************************************************************
 
-SO_NODE_SOURCE(SoVolumeIndexedFaceSet);
+SO_NODE_SOURCE(SoVolumeIndexedTriangleStripSet);
 
 // *************************************************************************
 
-class SoVolumeIndexedFaceSetP {
+class SoVolumeIndexedTriangleStripSetP {
 public:
-  SoVolumeIndexedFaceSetP(SoVolumeIndexedFaceSet * master)
+  SoVolumeIndexedTriangleStripSetP(SoVolumeIndexedTriangleStripSet * master)
   {
-    this->master = master;   
-    this->renderp = new CvrIndexedFaceSetRenderP(master);
-    this->renderp->clipgeometryshape = new SoIndexedFaceSet;
-    this->renderp->clipgeometryshape->ref();    
+    this->master = master; 
+    this->renderp = new CvrIndexedTriangleStripSetRenderP(master);
+    this->renderp->clipgeometryshape = new SoIndexedTriangleStripSet;
+    this->renderp->clipgeometryshape->ref();   
   }
-  ~SoVolumeIndexedFaceSetP() {
+
+  ~SoVolumeIndexedTriangleStripSetP() {
     this->renderp->clipgeometryshape->unref();
     delete this->renderp;
   }
-  CvrIndexedFaceSetRenderP * renderp;
+  CvrIndexedTriangleStripSetRenderP * renderp;
 
 private:
-  SoVolumeIndexedFaceSet * master;
+  SoVolumeIndexedTriangleStripSet * master;
 };
 
 #define PRIVATE(p) (p->pimpl)
@@ -89,29 +72,29 @@ private:
 
 // *************************************************************************
 
-SoVolumeIndexedFaceSet::SoVolumeIndexedFaceSet(void)
+SoVolumeIndexedTriangleStripSet::SoVolumeIndexedTriangleStripSet(void)
 {
-  SO_NODE_CONSTRUCTOR(SoVolumeIndexedFaceSet);
-  PRIVATE(this) = new SoVolumeIndexedFaceSetP(this);
- 
+  SO_NODE_CONSTRUCTOR(SoVolumeIndexedTriangleStripSet);
+  PRIVATE(this) = new SoVolumeIndexedTriangleStripSetP(this);
+
   SO_NODE_ADD_FIELD(clipGeometry, (FALSE));
-  SO_NODE_ADD_FIELD(offset, (0.0f));
+  SO_NODE_ADD_FIELD(offset, (0.0f)); 
 }
 
-SoVolumeIndexedFaceSet::~SoVolumeIndexedFaceSet(void)
+SoVolumeIndexedTriangleStripSet::~SoVolumeIndexedTriangleStripSet(void)
 {
-  delete PRIVATE(this); 
+  delete PRIVATE(this);
 }
 
 // Doc from parent class.
 void
-SoVolumeIndexedFaceSet::initClass(void)
+SoVolumeIndexedTriangleStripSet::initClass(void)
 {
-  SO_NODE_INIT_CLASS(SoVolumeIndexedFaceSet, SoIndexedFaceSet, "SoIndexedFaceSet");
+  SO_NODE_INIT_CLASS(SoVolumeIndexedTriangleStripSet, SoIndexedTriangleStripSet, "SoIndexedTriangleStripSet");
 }
 
 void
-SoVolumeIndexedFaceSet::GLRender(SoGLRenderAction * action)
+SoVolumeIndexedTriangleStripSet::GLRender(SoGLRenderAction * action)
 {
 
   // FIXME: need to make sure we're not cached in a renderlist
@@ -128,13 +111,13 @@ SoVolumeIndexedFaceSet::GLRender(SoGLRenderAction * action)
     action->addDelayedPath(action->getCurPath()->copy());
     return;
   }
-  
+
   PRIVATE(this)->renderp->GLRender(action, this->offset.getValue(), this->clipGeometry.getValue());
-  
+
 }
 
 void
-SoVolumeIndexedFaceSet::rayPick(SoRayPickAction * action)
+SoVolumeIndexedTriangleStripSet::rayPick(SoRayPickAction * action)
 {
   // FIXME: Implement me? (20040628 handegar)
 }

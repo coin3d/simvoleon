@@ -32,6 +32,7 @@
 #include <VolumeViz/render/3D/Cvr3DTexCube.h>
 
 
+
 class SIMVOLEON_DLL_API SoVolumeIndexedFaceSet : public SoIndexedFaceSet {
   typedef SoIndexedFaceSet inherited;
   SO_NODE_HEADER(SoVolumeIndexedFaceSet);
@@ -42,6 +43,7 @@ public:
 
   SoSFBool clipGeometry;  
   SoSFFloat offset;
+
    
 protected:
   ~SoVolumeIndexedFaceSet();
@@ -54,6 +56,9 @@ private:
   class SoVolumeIndexedFaceSetP * pimpl;
 
   enum RenderingMethod { TEXTURE3D, TEXTURE2D, UNKNOWN };
+
+  friend class CvrIndexedFaceSetRenderP;
+  friend class CvrIndexedSetRenderBaseP;
 
 };
 

@@ -14,9 +14,17 @@ SOURCES = \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
 	ObliqueSlice.cpp \
+	OrthoSlice.cpp \
 	VolumeFaceSet.cpp \
 	VolumeIndexedFaceSet.cpp \
-	OrthoSlice.cpp 
+	VolumeTriangleStripSet.cpp \
+	VolumeIndexedTriangleStripSet.cpp \
+	CvrIndexedSetRenderBaseP.cpp \
+	CvrNonIndexedSetRenderBaseP.cpp \
+	CvrFaceSetRenderP.cpp \
+	CvrIndexedFaceSetRenderP.cpp \
+	CvrTriangleStripSetRenderP.cpp \
+	CvrIndexedTriangleStripSetRenderP.cpp
 
 # FIXME: not yet implemented. 20040505 mortene.
 #	ROI.cpp
@@ -33,9 +41,17 @@ libnodesinc_HEADERS = \
 	SoTransferFunction.h \
 	SoVolumeData.h \
 	SoVolumeRender.h \
+	SoVolumeRendering.h \
 	SoVolumeFaceSet.h \
 	SoVolumeIndexedFaceSet.h \
-	SoVolumeRendering.h 
+	SoVolumeTriangleStripSet.h \
+	SoVolumeIndexedTriangleStripSet.h \
+	CvrIndexedSetRenderBaseP.h \
+	CvrNonIndexedSetRenderBaseP.h \
+	CvrFaceSetRenderP.h \
+	CvrIndexedFaceSetRenderP.h \
+	CvrTriangleStripSetRenderP.h \
+	CvrIndexedTriangleStripSetRenderP.h 
 
 # FIXME: not yet implemented. 20040505 mortene
 #	SoROI.h 

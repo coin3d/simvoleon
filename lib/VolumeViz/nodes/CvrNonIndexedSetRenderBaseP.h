@@ -1,5 +1,5 @@
-#ifndef SOVOLUMEFACESET_H
-#define SOVOLUMEFACESET_H
+#ifndef CVR_NONINDEXEDSETRENDERBASEP_H
+#define CVR_NONINDEXEDSETRENDERBASEP_H
 
 /**************************************************************************\
  *
@@ -24,40 +24,38 @@
  *
 \**************************************************************************/
 
-#include <Inventor/nodes/SoFaceSet.h>
-#include <Inventor/fields/SoSFBool.h>
-#include <Inventor/fields/SoSFFloat.h>
+// Internal class
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/elements/SoCoordinateElement.h>
+#include <Inventor/nodes/SoNonIndexedShape.h>
+#include <Inventor/fields/SoMFInt32.h>
 
-#include <VolumeViz/C/basic.h>
 #include <VolumeViz/render/3D/Cvr3DTexCube.h>
 
+class CvrNonIndexedSetRenderBaseP {
 
-class SIMVOLEON_DLL_API SoVolumeFaceSet : public SoFaceSet {
-  typedef SoFaceSet inherited;
-  SO_NODE_HEADER(SoVolumeFaceSet);
-  
 public:
-  static void initClass();  
-  SoVolumeFaceSet();
+  virtual void getVertexData(SoState *state, 
+                             const SoCoordinateElement *&coords, 
+                             const SbVec3f *&normals, 
+                             const SbBool neednormals) = 0;
+  
+  void GLRender(SoGLRenderAction * action, 
+                const float offset,
+                const SbBool clipGeometry,
+                SoMFInt32 & numVertices);
+  
+  enum SetType { FACESET, TRIANGLESTRIPSET };
 
-  SoSFBool clipGeometry;  
-  SoSFFloat offset;
-   
+  Cvr3DTexCube * cube;
+  const CvrCLUT * clut;
+  uint32_t parentnodeid;
+  SoNonIndexedShape * clipgeometryshape; 
+  enum SetType type;
+
 protected:
-  ~SoVolumeFaceSet();
-
-  virtual void GLRender(SoGLRenderAction *action);
-  virtual void rayPick(SoRayPickAction * action);
-
-private:  
-  friend class SoVolumeFaceSetP;
-  class SoVolumeFaceSetP * pimpl;
-
-  enum RenderingMethod { TEXTURE3D, TEXTURE2D, UNKNOWN };
-
-  friend class CvrNonIndexedSetRenderBaseP;
-  friend class CvrFaceSetRenderP;
+  SoNonIndexedShape * master; 
 
 };
 
-#endif /* SOVOLUMEFACESET_H */
+#endif // CVR_NONINDEXEDSETRENDERBASEP_H

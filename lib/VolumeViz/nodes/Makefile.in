@@ -199,9 +199,17 @@ SOURCES = \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
 	ObliqueSlice.cpp \
+	OrthoSlice.cpp \
 	VolumeFaceSet.cpp \
 	VolumeIndexedFaceSet.cpp \
-	OrthoSlice.cpp 
+	VolumeTriangleStripSet.cpp \
+	VolumeIndexedTriangleStripSet.cpp \
+	CvrIndexedSetRenderBaseP.cpp \
+	CvrNonIndexedSetRenderBaseP.cpp \
+	CvrFaceSetRenderP.cpp \
+	CvrIndexedFaceSetRenderP.cpp \
+	CvrTriangleStripSetRenderP.cpp \
+	CvrIndexedTriangleStripSetRenderP.cpp
 
 
 
@@ -219,9 +227,17 @@ libnodesinc_HEADERS = \
 	SoTransferFunction.h \
 	SoVolumeData.h \
 	SoVolumeRender.h \
+	SoVolumeRendering.h \
 	SoVolumeFaceSet.h \
 	SoVolumeIndexedFaceSet.h \
-	SoVolumeRendering.h 
+	SoVolumeTriangleStripSet.h \
+	SoVolumeIndexedTriangleStripSet.h \
+	CvrIndexedSetRenderBaseP.h \
+	CvrNonIndexedSetRenderBaseP.h \
+	CvrFaceSetRenderP.h \
+	CvrIndexedFaceSetRenderP.h \
+	CvrTriangleStripSetRenderP.h \
+	CvrIndexedTriangleStripSetRenderP.h 
 
 subdir = lib/VolumeViz/nodes
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -234,8 +250,15 @@ nodes_lst_AR = $(AR) cru
 nodes_lst_LIBADD =
 am__objects_1 = TransferFunction.$(OBJEXT) VolumeData.$(OBJEXT) \
 	VolumeRender.$(OBJEXT) VolumeRendering.$(OBJEXT) \
-	ObliqueSlice.$(OBJEXT) VolumeFaceSet.$(OBJEXT) \
-	VolumeIndexedFaceSet.$(OBJEXT) OrthoSlice.$(OBJEXT)
+	ObliqueSlice.$(OBJEXT) OrthoSlice.$(OBJEXT) \
+	VolumeFaceSet.$(OBJEXT) VolumeIndexedFaceSet.$(OBJEXT) \
+	VolumeTriangleStripSet.$(OBJEXT) \
+	VolumeIndexedTriangleStripSet.$(OBJEXT) \
+	CvrIndexedSetRenderBaseP.$(OBJEXT) \
+	CvrNonIndexedSetRenderBaseP.$(OBJEXT) \
+	CvrFaceSetRenderP.$(OBJEXT) CvrIndexedFaceSetRenderP.$(OBJEXT) \
+	CvrTriangleStripSetRenderP.$(OBJEXT) \
+	CvrIndexedTriangleStripSetRenderP.$(OBJEXT)
 am_nodes_lst_OBJECTS = $(am__objects_1)
 nodes_lst_OBJECTS = $(am_nodes_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
@@ -243,13 +266,30 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
 am__objects_2 = TransferFunction.lo VolumeData.lo VolumeRender.lo \
-	VolumeRendering.lo ObliqueSlice.lo VolumeFaceSet.lo \
-	VolumeIndexedFaceSet.lo OrthoSlice.lo
+	VolumeRendering.lo ObliqueSlice.lo OrthoSlice.lo \
+	VolumeFaceSet.lo VolumeIndexedFaceSet.lo \
+	VolumeTriangleStripSet.lo VolumeIndexedTriangleStripSet.lo \
+	CvrIndexedSetRenderBaseP.lo CvrNonIndexedSetRenderBaseP.lo \
+	CvrFaceSetRenderP.lo CvrIndexedFaceSetRenderP.lo \
+	CvrTriangleStripSetRenderP.lo \
+	CvrIndexedTriangleStripSetRenderP.lo
 am_libnodes_la_OBJECTS = $(am__objects_2)
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/ObliqueSlice.Plo \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrFaceSetRenderP.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrFaceSetRenderP.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrIndexedFaceSetRenderP.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrIndexedFaceSetRenderP.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrIndexedSetRenderBaseP.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrIndexedSetRenderBaseP.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrIndexedTriangleStripSetRenderP.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrIndexedTriangleStripSetRenderP.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrNonIndexedSetRenderBaseP.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrNonIndexedSetRenderBaseP.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrTriangleStripSetRenderP.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrTriangleStripSetRenderP.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/ObliqueSlice.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/ObliqueSlice.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/OrthoSlice.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/OrthoSlice.Po \
@@ -261,10 +301,14 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeFaceSet.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeIndexedFaceSet.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeIndexedFaceSet.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/VolumeIndexedTriangleStripSet.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/VolumeIndexedTriangleStripSet.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRender.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRender.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeRendering.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/VolumeRendering.Po
+@AMDEP_TRUE@	./$(DEPDIR)/VolumeRendering.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/VolumeTriangleStripSet.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/VolumeTriangleStripSet.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -290,9 +334,17 @@ SOURCES = \
 	VolumeRender.cpp \
 	VolumeRendering.cpp \
 	ObliqueSlice.cpp \
+	OrthoSlice.cpp \
 	VolumeFaceSet.cpp \
 	VolumeIndexedFaceSet.cpp \
-	OrthoSlice.cpp 
+	VolumeTriangleStripSet.cpp \
+	VolumeIndexedTriangleStripSet.cpp \
+	CvrIndexedSetRenderBaseP.cpp \
+	CvrNonIndexedSetRenderBaseP.cpp \
+	CvrFaceSetRenderP.cpp \
+	CvrIndexedFaceSetRenderP.cpp \
+	CvrTriangleStripSetRenderP.cpp \
+	CvrIndexedTriangleStripSetRenderP.cpp
 
 
 all: all-recursive
@@ -325,6 +377,18 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrFaceSetRenderP.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrFaceSetRenderP.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrIndexedFaceSetRenderP.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrIndexedFaceSetRenderP.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrIndexedSetRenderBaseP.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrIndexedSetRenderBaseP.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrIndexedTriangleStripSetRenderP.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrIndexedTriangleStripSetRenderP.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrNonIndexedSetRenderBaseP.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrNonIndexedSetRenderBaseP.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrTriangleStripSetRenderP.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrTriangleStripSetRenderP.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObliqueSlice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObliqueSlice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSlice.Plo@am__quote@
@@ -337,10 +401,14 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeFaceSet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeIndexedFaceSet.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeIndexedFaceSet.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeIndexedTriangleStripSet.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeIndexedTriangleStripSet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRender.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRender.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRendering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRendering.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeTriangleStripSet.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeTriangleStripSet.Po@am__quote@
 
 distclean-depend:
 	-rm -rf ./$(DEPDIR)

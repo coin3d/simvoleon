@@ -21,40 +21,16 @@
  *
 \**************************************************************************/
 
-/*!
-  \class SoVolumeFaceSet VolumeViz/nodes/SoVolumeFaceSet.h
-  \brief Render a set of faces within the volume.
-
-  This node works somewhat like the SoObliqueSlice node, but instead
-  of a single plane cutting through the full volume, one can set up an
-  arbitrary number of polygon faces inside (and outside) the volume,
-  where the voxel values which the polygons are cutting through will
-  be shown mapped onto the faces.
-
-  Coordinates, materials, normals, and other settings for the polygons
-  should be specified as for the Coin SoFaceSet node, so see class
-  documentation of that class for more information.
-
-  Note that this node will not work with OpenGL drivers too old to
-  contain support for 3D-texturing. See the extended comments on
-  SoObliqueSlice for more information.
-
-  \sa SoVolumeIndexedFaceSet, SpVolumeRender, SoOrthoSlice, SoObliqueSlice
-*/
-
-// *************************************************************************
-
-#include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
+
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoGLLazyElement.h>
-#include <Inventor/bundles/SoMaterialBundle.h>
-#include <Inventor/bundles/SoTextureCoordinateBundle.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoCoordinateElement.h>
 #include <Inventor/elements/SoClipPlaneElement.h>
 #include <Inventor/elements/SoTextureQualityElement.h>
+#include <Inventor/nodes/SoTriangleStripSet.h>
 
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
@@ -63,91 +39,23 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
+#include "CvrNonIndexedSetRenderBaseP.h"
 #include "SoVolumeFaceSet.h"
-#include "CvrFaceSetRenderP.h"
-
-// *************************************************************************
-
-SO_NODE_SOURCE(SoVolumeFaceSet);
-
-// *************************************************************************
-
-class SoVolumeFaceSetP {
-public:
-  SoVolumeFaceSetP(SoVolumeFaceSet * master)
-  {
-    this->master = master; 
-    this->renderp = new CvrFaceSetRenderP(master);
-    this->renderp->clipgeometryshape = new SoFaceSet;
-    this->renderp->clipgeometryshape->ref();
-  }
-  ~SoVolumeFaceSetP()
-  {
-    this->renderp->clipgeometryshape->unref();
-    delete this->renderp;
-  } 
-  CvrFaceSetRenderP * renderp;
-
-private:
-  SoVolumeFaceSet * master;
-};
-
-#define PRIVATE(p) (p->pimpl)
-#define PUBLIC(p) (p->master)
-
-// *************************************************************************
-
-SoVolumeFaceSet::SoVolumeFaceSet(void)
-{
-  SO_NODE_CONSTRUCTOR(SoVolumeFaceSet);
-  PRIVATE(this) = new SoVolumeFaceSetP(this);
-  SO_NODE_ADD_FIELD(clipGeometry, (FALSE));
-  SO_NODE_ADD_FIELD(offset, (0.0f));
-}
-
-SoVolumeFaceSet::~SoVolumeFaceSet(void)
-{  
-  delete PRIVATE(this);
-}
-
-// Doc from parent class.
-void
-SoVolumeFaceSet::initClass(void)
-{
-  SO_NODE_INIT_CLASS(SoVolumeFaceSet, SoFaceSet, "SoFaceSet");
-}
 
 void
-SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
+CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action, 
+                                      const float offset,
+                                      const SbBool clipGeometry,
+                                      SoMFInt32 & numVertices)
 {
 
-  // FIXME: need to make sure we're not cached in a renderlist
-  if (!this->shouldGLRender(action)) return;
 
-  // Render at the end, in case the volume is partly (or fully)
-  // transparent.
-  //
-  // FIXME: this makes rendering a bit slower, so we should perhaps
-  // keep a flag around to know whether or not this is actually
-  // necessary. 20040212 mortene.
-  
-  if (!action->isRenderingDelayedPaths()) {
-    action->addDelayedPath(action->getCurPath()->copy());
-    return;
-  }
-  
-  PRIVATE(this)->renderp->GLRender(action, 
-                                   this->offset.getValue(), 
-                                   this->clipGeometry.getValue(),
-                                   this->numVertices);
-  
-  /*
   // FIXME: Support for 'offset' must be implemented. (20040628
   // handegar)
-  if (this->offset.getValue() != 0) {
+  if (offset != 0) {
     static SbBool flag = FALSE;
     if (!flag) {
-      SoDebugError::postWarning("SoVolumeFaceSet::GLRender", 
+      SoDebugError::postWarning("CvrNonIndexedSetRenderBaseP::GLRender", 
                                 "Support for offset > 0 not implemented yet.");
       flag = TRUE;
     }
@@ -167,7 +75,7 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
 
   SbMatrix volumetransform;
   CvrUtil::getTransformFromVolumeBoxDimensions(volumedataelement, volumetransform);
-  SoModelMatrixElement::mult(state, this, volumetransform);
+  SoModelMatrixElement::mult(state, this->master, volumetransform);
      
   SbVec3s dims = volumedataelement->getVoxelCubeDimensions();
   SbVec3f origo(-((float) dims[0]) / 2.0f, -((float) dims[1]) / 2.0f, -((float) dims[2]) / 2.0f);
@@ -207,13 +115,13 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);       
 
-    if (!PRIVATE(this)->cube) { PRIVATE(this)->cube = new Cvr3DTexCube(volumedata->getReader()); }
+    if (!this->cube) { this->cube = new Cvr3DTexCube(volumedata->getReader()); }
 
     const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
     const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
-    if (PRIVATE(this)->clut != c) { 
-      PRIVATE(this)->cube->setPalette(c); 
-      PRIVATE(this)->clut = c;
+    if (this->clut != c) { 
+      this->cube->setPalette(c); 
+      this->clut = c;
     }
     
     // Fetch texture quality
@@ -227,9 +135,10 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
     const SbVec3f * normals;
     SbBool neednormals = FALSE;
 
+   
     const SbVec3f * vertexarray;
-    SoVertexProperty * vertprop = (SoVertexProperty *) this->vertexProperty.getValue();
-    if (vertprop != NULL) vertexarray = vertprop->vertex.getValues(this->startIndex.getValue());
+    SoVertexProperty * vertprop = (SoVertexProperty *) this->master->vertexProperty.getValue();
+    if (vertprop != NULL) vertexarray = vertprop->vertex.getValues(this->master->startIndex.getValue());
     else {
       this->getVertexData(state, coords, normals, neednormals);
       vertexarray = coords->getArrayPtr3();
@@ -238,11 +147,16 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
     // FIXME: Lighting is not properly handeled yet. (20040630 handegar)
     glDisable(GL_LIGHTING);
     
-    PRIVATE(this)->cube->renderNonindexedSet(action, origo, interp, 
-                                             vertexarray, 
-                                             this->numVertices.getValues(this->startIndex.getValue()),
-                                             this->numVertices.getNum(),
-                                             Cvr3DTexCube::FACE_SET);
+    const Cvr3DTexCube::NonindexedSetType type = ((this->type == FACESET) ? 
+                                                  Cvr3DTexCube::FACE_SET : 
+                                                  Cvr3DTexCube::TRIANGLESTRIP_SET);
+    
+    this->cube->renderNonindexedSet(action, origo, interp, 
+                                    vertexarray, 
+                                    numVertices.getValues(this->master->startIndex.getValue()),
+                                    numVertices.getNum(),
+                                    type);
+   
     glPopAttrib();
 
   }
@@ -250,32 +164,36 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
 
   // 'un-Transform' model matrix before rendering clip geometry.
   state->pop();
-  */
-  /*
+  
   // Render the geometry which are outside the volume cube as polygons.
-  if (this->clipGeometry.getValue()) {
+  if (clipGeometry) {
     
     // Is there a clipplane left for us to use?
     GLint maxclipplanes = 0;
     glGetIntegerv(GL_MAX_CLIP_PLANES, &maxclipplanes);    
-    const SoClipPlaneElement * elem = SoClipPlaneElement::getInstance(action->getState());
+    const SoClipPlaneElement * elem = SoClipPlaneElement::getInstance(state);
     if (elem->getNum() > (maxclipplanes-1)) {
       static SbBool flag = FALSE;
       if (!flag) {
         flag = TRUE;
-        SoDebugError::postWarning("SoVolumeFaceSet::GLRender", 
+        SoDebugError::postWarning("CvrNonIndexedSetRenderBaseP::GLRender", 
                                   "\"clipGeometry TRUE\": Not enough clip planes available. (max=%d)", 
                                   maxclipplanes);
       }
       return;
     }
 
-    if (PRIVATE(this)->parentnodeid != this->getNodeId()) { // Changed recently?
+    if (this->parentnodeid != this->master->getNodeId()) { // Changed recently?
       int i=0;
-      for (i=0;i<this->numVertices.getNum();++i)
-        PRIVATE(this)->clipgeometryfaceset->numVertices.set1Value(i, this->numVertices[i]);
+      for (i=0;i<numVertices.getNum();++i) {
+        if (this->type == FACESET)
+          ((SoFaceSet *) this->clipgeometryshape)->numVertices.set1Value(i, numVertices[i]);
+        else
+          ((SoTriangleStripSet *) this->clipgeometryshape)->numVertices.set1Value(i, numVertices[i]);
+      }
+
       // No need to copy texture coords as the face set shall always be untextured.
-      PRIVATE(this)->parentnodeid = this->getNodeId();
+      this->parentnodeid = this->master->getNodeId();
     }
   
     SbPlane cubeplanes[6];
@@ -314,18 +232,11 @@ SoVolumeFaceSet::GLRender(SoGLRenderAction * action)
       // FIXME: It would have been nice to have a 'remove' or a 'replace'
       // method in the SoClipPlaneElement so that we wouldn't have to
       // push and pop the state. (20040630 handegar)
-      SoClipPlaneElement::add(state, this, cubeplanes[i]);    
-      PRIVATE(this)->clipgeometryfaceset->GLRender(action);
+      SoClipPlaneElement::add(state, this->master, cubeplanes[i]);    
+      this->clipgeometryshape->GLRender(action);
       state->pop();
     }    
   }
-  */  
-
+  
+ 
 }
-
-void
-SoVolumeFaceSet::rayPick(SoRayPickAction * action)
-{
-  // FIXME: Implement me? (20040628 handegar)
-}
-

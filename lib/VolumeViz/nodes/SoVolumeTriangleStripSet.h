@@ -1,5 +1,5 @@
-#ifndef SOVOLUMEFACESET_H
-#define SOVOLUMEFACESET_H
+#ifndef SOVOLUMETRIANGLESTRIPSET_H
+#define SOVOLUMETRIANGLESTRIPSET_H
 
 /**************************************************************************\
  *
@@ -24,7 +24,7 @@
  *
 \**************************************************************************/
 
-#include <Inventor/nodes/SoFaceSet.h>
+#include <Inventor/nodes/SoTriangleStripSet.h>
 #include <Inventor/fields/SoSFBool.h>
 #include <Inventor/fields/SoSFFloat.h>
 
@@ -32,32 +32,32 @@
 #include <VolumeViz/render/3D/Cvr3DTexCube.h>
 
 
-class SIMVOLEON_DLL_API SoVolumeFaceSet : public SoFaceSet {
-  typedef SoFaceSet inherited;
-  SO_NODE_HEADER(SoVolumeFaceSet);
+class SIMVOLEON_DLL_API SoVolumeTriangleStripSet : public SoTriangleStripSet {
+  typedef SoTriangleStripSet inherited;
+  SO_NODE_HEADER(SoVolumeTriangleStripSet);
   
 public:
   static void initClass();  
-  SoVolumeFaceSet();
+  SoVolumeTriangleStripSet();
 
   SoSFBool clipGeometry;  
   SoSFFloat offset;
    
 protected:
-  ~SoVolumeFaceSet();
+  ~SoVolumeTriangleStripSet();
 
   virtual void GLRender(SoGLRenderAction *action);
   virtual void rayPick(SoRayPickAction * action);
 
 private:  
-  friend class SoVolumeFaceSetP;
-  class SoVolumeFaceSetP * pimpl;
+  friend class SoVolumeTriangleStripSetP;
+  class SoVolumeTriangleStripSetP * pimpl;
 
   enum RenderingMethod { TEXTURE3D, TEXTURE2D, UNKNOWN };
 
   friend class CvrNonIndexedSetRenderBaseP;
-  friend class CvrFaceSetRenderP;
+  friend class CvrTriangleStripSetRenderP;
 
 };
 
-#endif /* SOVOLUMEFACESET_H */
+#endif /* SOVOLUMETRIANGLESTRIPSET_H */

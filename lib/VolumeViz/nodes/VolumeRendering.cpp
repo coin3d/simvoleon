@@ -176,6 +176,8 @@
 #include <VolumeViz/nodes/SoObliqueSlice.h>
 #include <VolumeViz/nodes/SoVolumeFaceSet.h>
 #include <VolumeViz/nodes/SoVolumeIndexedFaceSet.h>
+#include <VolumeViz/nodes/SoVolumeTriangleStripSet.h>
+#include <VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h>
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
 #include <VolumeViz/details/SoObliqueSliceDetail.h>
@@ -242,6 +244,8 @@ SoVolumeRendering::init(void)
 
   SoVolumeFaceSet::initClass();
   SoVolumeIndexedFaceSet::initClass();
+  SoVolumeTriangleStripSet::initClass();
+  SoVolumeIndexedTriangleStripSet::initClass();
 
   SoVolumeRenderDetail::initClass();
   SoOrthoSliceDetail::initClass();

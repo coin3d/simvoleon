@@ -1,5 +1,5 @@
-#ifndef SOVOLUMEFACESET_H
-#define SOVOLUMEFACESET_H
+#ifndef CVR_TRIANGLESTRIPSETRENDERP_H
+#define CVR_TRIANGLESTRIPSETRENDERP_H
 
 /**************************************************************************\
  *
@@ -24,40 +24,26 @@
  *
 \**************************************************************************/
 
-#include <Inventor/nodes/SoFaceSet.h>
-#include <Inventor/fields/SoSFBool.h>
-#include <Inventor/fields/SoSFFloat.h>
+// Internal class
+#include "CvrNonIndexedSetRenderBaseP.h"
 
-#include <VolumeViz/C/basic.h>
-#include <VolumeViz/render/3D/Cvr3DTexCube.h>
+class CvrTriangleStripSetRenderP : public CvrNonIndexedSetRenderBaseP {
 
-
-class SIMVOLEON_DLL_API SoVolumeFaceSet : public SoFaceSet {
-  typedef SoFaceSet inherited;
-  SO_NODE_HEADER(SoVolumeFaceSet);
-  
 public:
-  static void initClass();  
-  SoVolumeFaceSet();
+ 
+  CvrTriangleStripSetRenderP(SoVolumeTriangleStripSet * master) {
+    this->master = master;
+    this->cube = NULL;
+    this->clut = NULL;
+    this->parentnodeid = master->getNodeId();  
+    this->type = CvrNonIndexedSetRenderBaseP::TRIANGLESTRIPSET;
+  }
 
-  SoSFBool clipGeometry;  
-  SoSFFloat offset;
-   
-protected:
-  ~SoVolumeFaceSet();
-
-  virtual void GLRender(SoGLRenderAction *action);
-  virtual void rayPick(SoRayPickAction * action);
-
-private:  
-  friend class SoVolumeFaceSetP;
-  class SoVolumeFaceSetP * pimpl;
-
-  enum RenderingMethod { TEXTURE3D, TEXTURE2D, UNKNOWN };
-
-  friend class CvrNonIndexedSetRenderBaseP;
-  friend class CvrFaceSetRenderP;
-
+  virtual void getVertexData(SoState *state, 
+                             const SoCoordinateElement *&coords, 
+                             const SbVec3f *&normals, 
+                             const SbBool neednormals);
+        
 };
 
-#endif /* SOVOLUMEFACESET_H */
+#endif
