@@ -10,7 +10,10 @@ class SoVolumeRendering : public SoNode {
   SO_NODE_HEADER(SoVolumeRendering);
 
 public:
+  static void init(void);
+
   static void initClass(void);
+  SoVolumeRendering();
 
   enum HW_Feature {
     HW_VOLUMEPRO,
@@ -20,14 +23,9 @@ public:
   };
 
   enum HW_SupportStatus { NO, YES, UNKNOWN };
-
   enum Axis { X, Y, Z };
   enum DataType { UNSIGNED_BYTE, UNSIGNED_SHORT, RGBA };
 
-  SoVolumeRendering();
-
-  // FIXME: Unimplemented functions. 08282002 torbjorv.
-  static void init();
   HW_SupportStatus isSupported(HW_Feature feature);
 
 protected:
