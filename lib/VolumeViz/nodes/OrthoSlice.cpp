@@ -188,6 +188,9 @@ SoOrthoSlice::SoOrthoSlice(void)
   SO_NODE_ADD_FIELD(alphaUse, (ALPHA_BINARY));
   SO_NODE_ADD_FIELD(clippingSide, (BACK));
   SO_NODE_ADD_FIELD(clipping, (FALSE));
+
+  // FIXME: implement proper support for alternateRep field. 20041008 mortene.
+  SO_NODE_ADD_FIELD(alternateRep, (NULL));
 }
 
 SoOrthoSlice::~SoOrthoSlice()
@@ -212,12 +215,16 @@ SoOrthoSlice::initClass(void)
   SO_ENABLE(SoGLRenderAction, CvrGLInterpolationElement);
 }
 
+// *************************************************************************
+
 // doc in super
 SbBool
 SoOrthoSlice::affectsState(void) const
 {
   return this->clipping.getValue();
 }
+
+// *************************************************************************
 
 // Find the plane definition.
 SbPlane
@@ -662,6 +669,38 @@ SoOrthoSliceP::renderBox(SoGLRenderAction * action, SbBox3f box)
   glEnd();
 
   glPopAttrib();
+}
+
+// *************************************************************************
+
+// Overridden so we can give special attention to alternateRep.
+void
+SoOrthoSlice::write(SoWriteAction * action)
+{
+  // FIXME: implement proper support for alternateRep field. 20041008 mortene.
+  if (this->alternateRep.getValue() != NULL) {
+    SoDebugError::postWarning("SoOrthoSlice::write",
+                              "no support for alternateRep field yet, "
+                              "alternate geometry ignored");
+  }
+
+  inherited::write(action);
+}
+
+// Overridden so we can give special attention to alternateRep.
+SbBool
+SoOrthoSlice::readInstance(SoInput * in, unsigned short flags)
+{
+  const SbBool ret = inherited::readInstance(in, flags);
+
+  // FIXME: implement proper support for alternateRep field. 20041008 mortene.
+  if (this->alternateRep.getValue() != NULL) {
+    SoDebugError::postWarning("SoOrthoSlice::readInstance",
+                              "no support for alternateRep field yet, "
+                              "alternate geometry ignored");
+  }
+
+  return ret;
 }
 
 // *************************************************************************

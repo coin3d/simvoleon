@@ -28,8 +28,11 @@
 #include <Inventor/fields/SoSFUInt32.h>
 #include <Inventor/fields/SoSFEnum.h>
 #include <Inventor/fields/SoSFBool.h>
+#include <Inventor/fields/SoSFNode.h>
+
 #include <VolumeViz/C/basic.h>
 
+// *************************************************************************
 
 class SIMVOLEON_DLL_API SoOrthoSlice : public SoShape {
   typedef SoShape inherited;
@@ -46,14 +49,15 @@ public:
   enum AlphaUse { ALPHA_AS_IS, ALPHA_OPAQUE, ALPHA_BINARY };
   enum ClippingSide { FRONT, BACK };
 
-  virtual SbBool affectsState(void) const;
-
   SoSFUInt32 sliceNumber;
   SoSFEnum axis;
   SoSFEnum interpolation;
   SoSFEnum alphaUse;
   SoSFEnum clippingSide;
   SoSFBool clipping;
+  SoSFNode alternateRep;
+
+  virtual SbBool affectsState(void) const;
 
 protected:
   ~SoOrthoSlice();
@@ -63,6 +67,9 @@ protected:
   virtual void rayPick(SoRayPickAction * action);
   virtual void generatePrimitives(SoAction * action);
   virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
+  virtual void write(SoWriteAction * action);
+
+  virtual SbBool readInstance(SoInput * in, unsigned short flags);
 
 private:
   friend class SoOrthoSliceP;
