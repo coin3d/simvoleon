@@ -23,6 +23,8 @@
 
 // This datatype is a color lookup table.
 
+// *************************************************************************
+
 #include <assert.h>
 #include <string.h>
 
@@ -38,8 +40,19 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
+// *************************************************************************
 
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+// Fragment programs for using an index value to look up a color from
+// a 1D texture.
+//
+// This is a supplement and an eventual replacement for the palette
+// extension. ATI doesn't have that extension, and NVIDIA has
+// threatened to remove it from their drivers (and actually did so for
+// a few versions before re-introducing it).
+
+// FIXME: programs for handling 2D and 3D are almost identical --
+// avoid duplication. 20040504 mortene.
+
 static const char * cvrclut_palettelookupprogram3d = 
 "!!ARBfp1.0\n"
 "TEMP R0;\n"
@@ -47,6 +60,7 @@ static const char * cvrclut_palettelookupprogram3d =
 "TEX R0, R0.x, texture[1], 1D;\n"
 "MOV result.color, R0;\n"
 "END\n";
+
 static const char * cvrclut_palettelookupprogram2d = 
 "!!ARBfp1.0\n"
 "TEMP R0;\n"
@@ -54,8 +68,8 @@ static const char * cvrclut_palettelookupprogram2d =
 "TEX R0, R0.x, texture[1], 1D;\n"
 "MOV result.color, R0;\n"
 "END\n";
-#endif
 
+// *************************************************************************
 
 // colormap values are between 0 and 255
 CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap)
@@ -171,6 +185,8 @@ CvrCLUT::~CvrCLUT()
   delete[] this->glcolors;
 }
 
+// *************************************************************************
+
 void
 CvrCLUT::ref(void) const
 {
@@ -192,6 +208,8 @@ CvrCLUT::getRefCount(void) const
 {
   return this->refcount;
 }
+
+// *************************************************************************
 
 // Equality comparison between the color lookup tables. The comparison
 // will be quick, as it's based on having a checksum for the color
@@ -228,6 +246,7 @@ operator!=(const CvrCLUT & c1, const CvrCLUT & c2)
   return ! operator==(c1, c2);
 }
 
+// *************************************************************************
 
 // Everything below "low" (but not including) and above "high" (but
 // not including), will be fully transparent.
@@ -249,10 +268,10 @@ CvrCLUT::setTransparencyThresholds(uint32_t low, uint32_t high)
   this->regenerateGLColorData();
 }
 
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
 void
 CvrCLUT::initFragmentProgram(const cc_glglue * glue)
 {
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
   
   // FIXME: What about mutiple GL contexts (as with
   // soshape_bumpmap.cpp for example)?? Each context would need its
@@ -279,15 +298,14 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue)
                               "Error in fragment program! (byte pos: %d) '%s'.\n",
                               errorPos, glGetString(GL_PROGRAM_ERROR_STRING_ARB));    
   }
-  
-}
-#endif
 
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+#endif  
+}
+
 void
 CvrCLUT::initPaletteTexture(const cc_glglue * glue)
 {
-  
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
   if (this->palettelookuptexture != 0) 
     glDeleteTextures(1, &this->palettelookuptexture);
   
@@ -305,13 +323,12 @@ CvrCLUT::initPaletteTexture(const cc_glglue * glue)
   glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA8, this->nrentries, 0, GL_RGBA, 
                GL_UNSIGNED_BYTE, (GLvoid *) this->glcolors);
 
-}
 #endif
+}
 
 void
 CvrCLUT::deactivate(const cc_glglue * glw) const
 {
-
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
   if (!this->usefragmentprogramlookup) 
     return;
@@ -321,19 +338,12 @@ CvrCLUT::deactivate(const cc_glglue * glw) const
   glDisable(GL_TEXTURE_1D);
   cc_glglue_glActiveTexture(glw, GL_TEXTURE0);
 #endif
-
 }
 
 
 void
 CvrCLUT::activate(const cc_glglue * glw) const
 {
-  
-  // FIXME: The GeForceFX generation does not support palette texture
-  // properly in hardware any longer. These cards should use fragment
-  // programs instead. The palette extension will come up in the
-  // extension list, but we should avoid using it. (20040310 handegar)
-
 #ifdef HAVE_ARB_FRAGMENT_PROGRAM
   // FIXME: We should maybe do a better test than this (Ie. not base
   // the test on glue) (20040310 handegar)
@@ -517,5 +527,4 @@ CvrCLUT::regenerateGLColorData(void)
   }
 
   this->palettehaschanged = TRUE;
-
 }
