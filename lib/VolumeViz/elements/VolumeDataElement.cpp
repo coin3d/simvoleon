@@ -179,9 +179,9 @@ SoVolumeDataElement::getPageGeometry(const int axis, const int slicenr,
   // downwards.
 
   switch (axis) {
-  case 0: origo = SbVec3f(depth, qmax[1], qmin[0]); break;
+  case 0: origo = SbVec3f(depth, -qmax[1], qmin[0]); break;
   case 1: origo = SbVec3f(qmin[0], depth, qmin[1]); break;
-  case 2: origo = SbVec3f(qmin[0], qmax[1], depth); break;
+  case 2: origo = SbVec3f(qmin[0], -qmax[1], depth); break;
   default: assert(FALSE); break;
   }
 
@@ -191,18 +191,15 @@ SoVolumeDataElement::getPageGeometry(const int axis, const int slicenr,
   switch (axis) {
   case 0:
     horizspan = SbVec3f(0, 0, width);
-    verticalspan = SbVec3f(0, -height, 0);
+    verticalspan = SbVec3f(0, height, 0);
     break;
   case 1:
-    // The last component is "flipped" to make the y-direction slices
-    // not come out upside-down. FIXME: should really investigate if
-    // this is the correct fix. 20021124 mortene.
     horizspan = SbVec3f(width, 0, 0);
     verticalspan = SbVec3f(0, 0, height);
     break;
   case 2:
     horizspan = SbVec3f(width, 0, 0);
-    verticalspan = SbVec3f(0, -height, 0);
+    verticalspan = SbVec3f(0, height, 0);
     break;
   default: assert(FALSE); break;
   }
@@ -212,7 +209,7 @@ SoVolumeDataElement::getPageGeometry(const int axis, const int slicenr,
 
   // This is here to support client code which depends on an old bug:
   // data was flipped on the Y axis.
-  if (!CvrUtil::useFlippedYAxis()) {
+  if (CvrUtil::useFlippedYAxis()) {
     if (axis != 1) {
       verticalspan = -verticalspan;
       origo[1] = -origo[1];
