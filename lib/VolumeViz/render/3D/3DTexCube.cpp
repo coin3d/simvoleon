@@ -56,7 +56,9 @@ public:
   uint32_t volumedataid; // FIXME: seems bogus to store this here, as
                          // all sub-cubes will have the same
                          // value. 20040916 mortene.
-  SbBool invisible;
+
+  SbBool invisible; // If this flag is set, the value of "cube" should
+                    // be NULL.
 
   // Distance from camera projection point (in the near plane) to the
   // sub-cube's center. Used for comparison with other sub-cubes when
@@ -205,7 +207,7 @@ Cvr3DTexCube::renderResult(const SoGLRenderAction * action,
 {
   // Render all subcubes.
   for (int i=0;i<subcubelist.getLength();++i) {
-    subcubelist[i]->cube->render(action);
+    subcubelist[i]->cube->render(action); 
   }
   subcubelist.truncate(0);
 }
@@ -303,9 +305,9 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
           cubeitem = this->buildSubCube(action, subcubeorigo, colidx, rowidx, depthidx); 
         }
         assert(cubeitem != NULL);
-        assert(cubeitem->cube != NULL);
 
         if (cubeitem->invisible) continue;
+        assert(cubeitem->cube != NULL);
         subcubelist.append(cubeitem);
 
         SbBox3f subbbox(subcubeorigo, subcubeorigo + subcubeheight + subcubewidth + subcubedepth);
@@ -730,6 +732,11 @@ Cvr3DTexCube::setPalette(const CvrCLUT * c)
         // get a NULL-ptr crash if I leave it out when using RGBA
         // textures and changing the palette. (Reproducible on
         // ASK.trh.sim.no.) Investigate further. 20030325 mortene.
+        //
+        // FIXME: subc->cube can be NULL if it was a completely
+        // transparent set of voxels, and we're *not* using paletted
+        // textures. I guess that means this should be converted to an
+        // assert on this fact. 20041018 mortene.
         if (subc && subc->cube) {
           if (subc->cube->isPaletted()) { subc->cube->setPalette(this->clut); }
           else { this->releaseSubCube(row, col, depth); }

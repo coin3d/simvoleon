@@ -485,11 +485,11 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   const SbBool paletted = CvrCLUT::usePaletteTextures(action);
   const SbBool is2d = (axisidx != UINT_MAX);
 
-  SoType t;
-  if (is2d && paletted) { t = Cvr2DPaletteTexture::getClassTypeId(); }
-  else if (is2d) { t = Cvr2DRGBATexture::getClassTypeId(); }
-  else if (paletted) { t = Cvr3DPaletteTexture::getClassTypeId(); }
-  else { t = Cvr3DRGBATexture::getClassTypeId(); }
+  SoType createtype;
+  if (is2d && paletted) { createtype = Cvr2DPaletteTexture::getClassTypeId(); }
+  else if (is2d) { createtype = Cvr2DRGBATexture::getClassTypeId(); }
+  else if (paletted) { createtype = Cvr3DPaletteTexture::getClassTypeId(); }
+  else { createtype = Cvr3DRGBATexture::getClassTypeId(); }
 
   struct CvrTextureObject::EqualityComparison incoming;
   incoming.sovolumedata_id = vbelem->getNodeId();
@@ -498,7 +498,8 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   incoming.axisidx = axisidx; // For 2D tex
   incoming.pageidx = pageidx; // For 2D tex
   
-  CvrTextureObject * obj = CvrTextureObject::findInstanceMatch(t, incoming);
+  CvrTextureObject * obj =
+    CvrTextureObject::findInstanceMatch(createtype, incoming);
   if (obj) { return obj; }
 
   const SbVec3s & voxdims = vbelem->getVoxelCubeDimensions();
@@ -513,7 +514,8 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   else { cubechunk = input->buildSubCube(cutcube); }
   delete input;
 
-  CvrTextureObject * newtexobj = (CvrTextureObject *)t.createInstance();
+  CvrTextureObject * newtexobj = (CvrTextureObject *)
+    createtype.createInstance();
 
   // The actual dimensions of the GL texture must be values that are
   // power-of-two's:
@@ -525,8 +527,9 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   cubechunk->transfer(action, newtexobj, invisible);
   delete cubechunk;
 
-  // If completely transparent
-  if (invisible) { return NULL; }
+  // If completely transparent, and not in palette mode, we need not
+  // bother with a texture object for this slice/brick at all:
+  if (invisible && !paletted) { return NULL; }
 
   // Must clear unused texture area to prevent artifacts due to
   // floating point inaccuracies when calculating texture coords.
