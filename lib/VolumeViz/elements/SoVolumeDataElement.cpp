@@ -1,29 +1,15 @@
 /**************************************************************************\
  *
- *  This file is part of the Coin 3D visualization library.
- *  Copyright (C) 1998-2001 by Systems in Motion.  All rights reserved.
- *  
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU General Public License
- *  version 2 as published by the Free Software Foundation.  See the
- *  file LICENSE.GPL at the root directory of this source distribution
- *  for more details.
+ *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
  *
- *  If you desire to use Coin with software that is incompatible
- *  licensewise with the GPL, and / or you would like to take
- *  advantage of the additional benefits with regard to our support
- *  services, please contact Systems in Motion about acquiring a Coin
- *  Professional Edition License.  See <URL:http://www.coin3d.org> for
- *  more information.
- *
- *  Systems in Motion, Prof Brochs gate 6, 7030 Trondheim, NORWAY
- *  <URL:http://www.sim.no>, <mailto:support@sim.no>
+ *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
+ *  http:// www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
  *
 \**************************************************************************/
 
 /*!
-  \class SoVolumeDataElement Inventor/elements/SoVolumeDataElement.h
-  \brief The SoVolumeDataElement class is yet to be documented.
+  \class SoVolumeDataElement VolumeViz/elements/SoVolumeDataElement.h
+  \brief 
   \ingroup elements
 
   FIXME: write doc.
@@ -33,29 +19,6 @@
 #include <Inventor/nodes/SoNode.h>
 #include <assert.h>
 
-/*!
-  \fn SoVolumeDataElement::numCoords
-
-  FIXME: write doc.
-*/
-
-/*!
-  \fn SoVolumeDataElement::coords3D
-
-  FIXME: write doc.
-*/
-
-/*!
-  \fn SoVolumeDataElement::coords4D
-
-  FIXME: write doc.
-*/
-
-/*!
-  \fn SoVolumeDataElement::areCoords3D
-
-  FIXME: write doc.
-*/
 
 SO_ELEMENT_SOURCE(SoVolumeDataElement);
 

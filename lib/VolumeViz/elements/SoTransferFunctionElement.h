@@ -7,40 +7,40 @@
  *
 \**************************************************************************/
 
-#ifndef COIN_SOVOLUMEDATAELEMENT_H
-#define COIN_SOVOLUMEDATAELEMENT_H
+#ifndef COIN_SOTRANSFERFUNCTIONELEMENT_H
+#define COIN_SOTRANSFERFUNCTIONELEMENT_H
 
 #include <Inventor/elements/SoReplacedElement.h>
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec4f.h>
 
-class SoVolumeData;
+class SoTransferFunction;
 
-class SoVolumeDataElement : public SoReplacedElement {
+class SoTransferFunctionElement : public SoReplacedElement {
   typedef SoReplacedElement inherited;
 
-  SO_ELEMENT_HEADER(SoVolumeDataElement);
+  SO_ELEMENT_HEADER(SoTransferFunctionElement);
 public:
   static void initClass(void);
 protected:
-  virtual ~SoVolumeDataElement();
+  virtual ~SoTransferFunctionElement();
 
 public:
   virtual void init(SoState * state);
-  static void setVolumeData(SoState * const state, 
-                            SoNode * const node,
-                            SoVolumeData * volumeData);
+  static void setTransferFunction(SoState * const state, 
+                                  SoNode * const node,
+                                  SoTransferFunction * transferFunction);
 
-  SoVolumeData * getVolumeData() const;
-  static const SoVolumeDataElement * getInstance(SoState * const state);
+  SoTransferFunction * getTransferFunction() const;
+  static const SoTransferFunctionElement * getInstance(SoState * const state);
 
   virtual void print(FILE * file) const;
 
 protected:
-  SoVolumeData * volumeData;
+  SoTransferFunction * transferFunction;
 
 private:
   static void clean(void);
 };
 
-#endif // !COIN_SOVOLUMEDATAELEMENT_H
+#endif // !COIN_SOTRANSFERFUNCTIONELEMENT_H
