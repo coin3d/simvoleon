@@ -1,6 +1,8 @@
 #include <VolumeViz/render/2D/CvrPageHandler.h>
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 #include <VolumeViz/readers/SoVolumeReader.h>
+#include <Inventor/C/tidbits.h>
+#include <Inventor/errors/SoDebugError.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -13,6 +15,7 @@ CvrPageHandler::CvrPageHandler(const SbVec3s & voldatadims,
 
   this->subpagesize[0] = 64;
   this->subpagesize[1] = 64;
+  this->subpagesize[2] = 64;
 
   this->slices[0] = NULL;
   this->slices[1] = NULL;
@@ -34,31 +37,37 @@ CvrPageHandler::renderOrthoSlice(SoState * state,
                                  // axis: 0, 1, 2 for X, Y or Z axis.
                                  unsigned int axis)
 {
-  SbVec2f max, min;
-  quad.getBounds(min, max);
+  SbVec2f qmax, qmin;
+  quad.getBounds(qmin, qmax);
 
   SbVec3f origo, horizspan, verticalspan;
-  const float width = max[0] - min[0];
-  const float height = max[1] - min[1];
+  const float width = qmax[0] - qmin[0];
+  const float height = qmax[1] - qmin[1];
 
   if (axis == 0) {
-    origo = SbVec3f(depth, min[1], min[0]);
+    origo = SbVec3f(depth, qmin[1], qmin[0]);
     horizspan = SbVec3f(0, 0, width);
     verticalspan = SbVec3f(0, height, 0);
   }
   else if (axis == 1) {
-    origo = SbVec3f(min[0], depth, min[1]);
+    origo = SbVec3f(qmin[0], depth, qmin[1]);
     horizspan = SbVec3f(width, 0, 0);
     verticalspan = SbVec3f(0, 0, height);
   }
   else if (axis == 2) {
-    origo = SbVec3f(min[0], min[1], depth);
+    origo = SbVec3f(qmin[0], qmin[1], depth);
     horizspan = SbVec3f(width, 0, 0);
     verticalspan = SbVec3f(0, height, 0);
   }
   else assert(FALSE);
 
   Cvr2DTexPage * slice = this->getSlice(axis, sliceIdx);
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("CvrPageHandler::renderOrthoSlice",
+                         "origo==[%f, %f, %f]",
+                         origo[0], origo[1], origo[2]);
+#endif // debug
 
   slice->render(state, origo, horizspan, verticalspan,
                 0 /*FIXME: PRIVATE(this)->tick*/);
@@ -94,8 +103,11 @@ CvrPageHandler::getSlice(const unsigned int AXISIDX, unsigned int sliceidx)
       (AXISIDX == 1 ?
        SbVec2s(this->subpagesize[0], this->subpagesize[2]) :
        SbVec2s(this->subpagesize[0], this->subpagesize[1]));
-    
-    assert(pagesize[0] > 0 && pagesize[1] > 0);
+
+    assert(coin_is_power_of_two(this->subpagesize[0]));
+    assert(coin_is_power_of_two(this->subpagesize[1]));
+    assert(coin_is_power_of_two(this->subpagesize[2]));
+
     newslice->init(this->reader, sliceidx, AXISIDX, pagesize);
 
     this->slices[AXISIDX][sliceidx] = newslice;
@@ -153,6 +165,9 @@ SoVolumeDataP::releaseLRUPage(void)
   // Searching for least recently used page.
 
   // FIXME: should really be stored in a heap data structure. 20021120 mortene.
+  //
+  // FIXME: update, just a double-linked list will do the trick --
+  // just link a page used and move it to front. 20021124 mortene.
 
   for (int dim=0; dim < 3; dim++) {
     if (this->slices[dim]) {

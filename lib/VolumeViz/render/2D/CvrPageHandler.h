@@ -25,7 +25,7 @@ public:
 private:
   Cvr2DTexPage ** slices[3];
   unsigned int voldatadims[3];
-  unsigned int subpagesize[2];
+  unsigned int subpagesize[3];
   SoVolumeReader * reader;
 };
 
