@@ -195,8 +195,9 @@ Cvr3DTexCube::renderResult(SoGLRenderAction * action,
                            SbList <Cvr3DTexSubCubeItem *> subcubelist)
 {  
   // Render all subcubes.
-  for (int i=0;i<subcubelist.getLength();++i)
+  for (int i=0;i<subcubelist.getLength();++i) {
     subcubelist[i]->cube->render(action, interpolation);
+  }
   // Draw lines around each subcube if requested by the 'CVR_SUBCUBE_FRAMES' envvar.
   if (this->rendersubcubeoutline) {
     for (int i=0;i<subcubelist.getLength();++i)
@@ -378,13 +379,17 @@ Cvr3DTexCube::renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & orig
 
 // Renders a indexed faceset inside the volume. Loads all the subcubes needed.
 void 
-Cvr3DTexCube::renderIndexedFaceSet(SoGLRenderAction * action, 
-                                   const SbVec3f & origo,
-                                   const Cvr3DTexSubCube::Interpolation interpolation,
-                                   const SbVec3f * vertexarray,
-                                   const int * indices,
-                                   const unsigned int numindices)
+Cvr3DTexCube::renderIndexedSet(SoGLRenderAction * action, 
+                               const SbVec3f & origo,
+                               const Cvr3DTexSubCube::Interpolation interpolation,
+                               const SbVec3f * vertexarray,
+                               const int * indices,
+                               const unsigned int numindices,
+                               const enum IndexedSetType type)
 {
+
+  assert(vertexarray);
+  assert(indices);
 
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
   
@@ -411,13 +416,25 @@ Cvr3DTexCube::renderIndexedFaceSet(SoGLRenderAction * action,
         
         SbVec3f subcubeorigo = origo +
           subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
-               
-        cubeitem->cube->checkIntersectionIndexedFaceSet(subcubeorigo, 
-                                                        vertexarray,
-                                                        indices,
-                                                        numindices,
-                                                        SoModelMatrixElement::get(state).inverse());
-        
+             
+        SbMatrix invmodelmatrix = SoModelMatrixElement::get(state).inverse();
+
+        if (type == Cvr3DTexCube::INDEXEDFACE_SET) {
+          cubeitem->cube->checkIntersectionIndexedFaceSet(subcubeorigo, 
+                                                          vertexarray,
+                                                          indices,
+                                                          numindices,
+                                                          invmodelmatrix);
+        }
+        else if (type == Cvr3DTexCube::INDEXEDTRIANGLESTRIP_SET) {
+          cubeitem->cube->checkIntersectionIndexedTriangleStripSet(subcubeorigo, 
+                                                                   vertexarray,
+                                                                   indices,
+                                                                   numindices,
+                                                                   invmodelmatrix);
+        }
+        else assert(FALSE && "Unknown set type!");
+
         subcubelist.append(cubeitem);
 
       }
@@ -428,15 +445,19 @@ Cvr3DTexCube::renderIndexedFaceSet(SoGLRenderAction * action,
 
 }
 
-// Renders a faceset inside the volume. Loads all the subcubes needed.
+// Renders a nonindexed faceset inside the volume. Loads all the subcubes needed.
 void 
-Cvr3DTexCube::renderFaceSet(SoGLRenderAction * action, 
-                            const SbVec3f & origo,
-                            const Cvr3DTexSubCube::Interpolation interpolation,
-                            const SbVec3f * vertexarray,
-                            const int * numVertices,
-                            const unsigned int listlength)
+Cvr3DTexCube::renderNonindexedSet(SoGLRenderAction * action, 
+                                  const SbVec3f & origo,
+                                  const Cvr3DTexSubCube::Interpolation interpolation,
+                                  const SbVec3f * vertexarray,
+                                  const int * numVertices,
+                                  const unsigned int listlength,
+                                  const enum NonindexedSetType type)
 {
+
+  assert(vertexarray);
+  assert(numVertices);
 
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
   
@@ -464,21 +485,35 @@ Cvr3DTexCube::renderFaceSet(SoGLRenderAction * action,
         SbVec3f subcubeorigo = origo +
           subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
         
-        cubeitem->cube->checkIntersectionFaceSet(subcubeorigo, 
-                                                 vertexarray,
-                                                 numVertices,
-                                                 listlength,
-                                                 SoModelMatrixElement::get(state).inverse());
+        SbMatrix invmodelmatrix = SoModelMatrixElement::get(state).inverse();
+
+        if (type == Cvr3DTexCube::FACE_SET) {
+          cubeitem->cube->checkIntersectionFaceSet(subcubeorigo, 
+                                                   vertexarray,
+                                                   numVertices,
+                                                   listlength,
+                                                   invmodelmatrix);
+        }
+        else if (type == Cvr3DTexCube::TRIANGLESTRIP_SET) {         
+          cubeitem->cube->checkIntersectionTriangleStripSet(subcubeorigo, 
+                                                            vertexarray,
+                                                            numVertices,
+                                                            listlength,
+                                                            invmodelmatrix);
+        }
+        else assert(FALSE && "Unknown set type!");
         
         subcubelist.append(cubeitem);
 
       }
     }
   }
-  
+
   renderResult(action, interpolation, subcubelist);
   
 }
+
+
 
 
 int

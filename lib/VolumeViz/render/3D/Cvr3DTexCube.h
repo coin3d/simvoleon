@@ -36,6 +36,9 @@ public:
   Cvr3DTexCube(SoVolumeReader * reader);
   ~Cvr3DTexCube();
   
+  enum NonindexedSetType { FACE_SET, TRIANGLESTRIP_SET };
+  enum IndexedSetType { INDEXEDFACE_SET, INDEXEDTRIANGLESTRIP_SET };
+
   void render(SoGLRenderAction * action, const SbVec3f & origo,
               const Cvr3DTexSubCube::Interpolation interpolation,
               const unsigned int numslices);
@@ -44,18 +47,20 @@ public:
                           const Cvr3DTexSubCube::Interpolation interpolation,
                           const SbPlane plane);
  
-  void renderIndexedFaceSet(SoGLRenderAction * action, const SbVec3f & origo,
-                            const Cvr3DTexSubCube::Interpolation interpolation,
-                            const SbVec3f * vertexarray,
-                            const int * indices,
-                            const unsigned int numindices);
+  void renderIndexedSet(SoGLRenderAction * action, const SbVec3f & origo,
+                        const Cvr3DTexSubCube::Interpolation interpolation,
+                        const SbVec3f * vertexarray,
+                        const int * indices,
+                        const unsigned int numindices,
+                        const enum IndexedSetType type);
 
-  void renderFaceSet(SoGLRenderAction * action, const SbVec3f & origo,
-                     const Cvr3DTexSubCube::Interpolation interpolation,
-                     const SbVec3f * vertexarray,
-                     const int * numVertices,
-                     const unsigned int listlength);
-
+  void renderNonindexedSet(SoGLRenderAction * action, const SbVec3f & origo,
+                           const Cvr3DTexSubCube::Interpolation interpolation,
+                           const SbVec3f * vertexarray,
+                           const int * numVertices,
+                           const unsigned int listlength,
+                           const enum NonindexedSetType type);
+  
   void setPalette(const CvrCLUT * c);
   const CvrCLUT * getPalette(void) const;
   
@@ -90,6 +95,7 @@ private:
   void * abortfuncdata;
 
   const CvrCLUT * clut;
+
 };
 
 #endif // !COIN_CVR3DTEXPAGE_H

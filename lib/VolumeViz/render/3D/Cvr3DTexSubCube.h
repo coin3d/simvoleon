@@ -71,11 +71,23 @@ public:
                                   const unsigned int length,
                                   const SbMatrix m);
 
+  SbBool checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo, 
+                                           const SbVec3f * vertexlist,
+                                           const int * numVertices,
+                                           const unsigned int length,
+                                           const SbMatrix m);
+
   SbBool checkIntersectionIndexedFaceSet(const SbVec3f & cubeorigo, 
                                          const SbVec3f * vertexlist,
                                          const int * indices,
                                          const unsigned int numindices,
                                          const SbMatrix m);
+
+  SbBool checkIntersectionIndexedTriangleStripSet(const SbVec3f & cubeorigo, 
+                                                  const SbVec3f * vertexlist,
+                                                  const int * indices,
+                                                  const unsigned int numindices,
+                                                  const SbMatrix m);
 
   static void * subcube_clipperCB(const SbVec3f & v0, void * vdata0, 
                                   const SbVec3f & v1, void * vdata1,

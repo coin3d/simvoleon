@@ -248,6 +248,85 @@ Cvr3DTexSubCube::checkIntersectionFaceSet(const SbVec3f & cubeorigo,
 
 }
 
+// Check if this cube is intersected by a triangle strip set.
+SbBool 
+Cvr3DTexSubCube::checkIntersectionTriangleStripSet(const SbVec3f & cubeorigo, 
+                                                   const SbVec3f * vertexlist,
+                                                   const int * numVertices,
+                                                   const unsigned int length,
+                                                   const SbMatrix m)
+{
+  
+  SbClip cubeclipper(this->subcube_clipperCB, this);
+  this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
+  cubeclipper.reset();
+  
+  SbVec3f a;
+  unsigned int idx = 0;
+  for (unsigned int i=0;i<length;++i) {
+
+    int counter = 0;
+    for (int j=0;j<numVertices[i];++j) {
+
+      m.multVecMatrix(vertexlist[idx++], a);
+      cubeclipper.addVertex(a);
+      if (counter == 2) {
+        this->clipPolygonAgainstCube(cubeclipper, cubeorigo);    
+        cubeclipper.reset();
+
+        if (j == (numVertices[i] - 1)) break; // Strip finished.
+
+        counter = 0;       
+        j -= 2; 
+        idx -= 2;
+      } 
+      else counter++;
+
+    }
+  }
+
+  return TRUE;
+
+}
+
+// Check if this cube is intersected by an indexed triangle strip set.
+SbBool 
+Cvr3DTexSubCube::checkIntersectionIndexedTriangleStripSet(const SbVec3f & cubeorigo, 
+                                                          const SbVec3f * vertexlist,
+                                                          const int * indices,
+                                                          const unsigned int numindices,
+                                                          const SbMatrix m)
+{
+  
+  SbClip cubeclipper(this->subcube_clipperCB, this);
+  this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
+  cubeclipper.reset();
+  
+  SbVec3f a;
+  int counter = 0;
+  for (unsigned int i=0;i<numindices;++i) {
+    if (indices[i] == -1) {
+      counter = 0;
+      continue;
+    } 
+    else {     
+      m.multVecMatrix(vertexlist[indices[i]], a);
+      cubeclipper.addVertex(a);
+      if (counter == 2) {
+        this->clipPolygonAgainstCube(cubeclipper, cubeorigo);    
+        cubeclipper.reset();        
+        if ((i >= numindices) || indices[i+1] == -1) continue;
+        counter = 0;       
+        i -= 2; 
+      } 
+      else counter++;
+    }    
+  }
+  
+  return TRUE;
+
+}
+
 
 // Check if this cube is intersected by an indexed faceset.
 SbBool 
@@ -387,9 +466,12 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
                         Interpolation interpolation)
 {
 
+  // FIXME: A separate method for rendering sorted tris should be
+  // made. This would be useful for the facesets. (20040630 handegar)
+
   if (this->volumeslices.getLength() == 0) 
     return;
-  
+
   // Texture binding/activation must happen before setting the
   // palette, or the previous palette will be used.
   this->activateTexture(interpolation);
