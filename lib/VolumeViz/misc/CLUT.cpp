@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include <Inventor/SbBasic.h>
+#include <Inventor/C/tidbits.h>
 #include <Inventor/errors/SoDebugError.h>
 
 #include <VolumeViz/misc/CvrCLUT.h>
@@ -215,6 +216,11 @@ CvrCLUT::activate(const cc_glglue * glw) const
   if (err != GL_NO_ERROR) {
     static SbBool warn = TRUE;
     if (warn) {
+      const char * env = coin_getenv("CVR_NO_GLINT_WARN");
+      if (env && atoi(env) > 0) { warn = FALSE; }
+    }
+
+    if (warn) {
       warn = FALSE;
       SoDebugError::postWarning("CvrCLUT::activate",
                                 "glColorTable(GL_TEXTURE_2D, ...) caused "
@@ -231,7 +237,9 @@ CvrCLUT::activate(const cc_glglue * glw) const
         SoDebugError::postWarning("CvrCLUT::activate",
                                   "This is a known problem with this driver "
                                   "(vendor='%s', renderer='%s', version='%s') "
-                                  "and seems to be harmless.",
+                                  "and seems to be harmless. Turn off this "
+                                  "warning by setting the environment "
+                                  "variable CVR_NO_GLINT_WARN=1.",
                                   VENDOR, RENDERER, VERSION);
       }
     }
