@@ -311,8 +311,21 @@ CvrTextureManager::transferTex3GL(SoGLRenderAction * action,
     assert(glGetError() == GL_NO_ERROR);
 
     GLint wrapenum = GL_CLAMP;
-    // FIXME: investigate if this is really what we want. 20021120 mortene.
+    // FIXME: avoid using GL_CLAMP_TO_EDGE, since it may not be
+    // available on all drivers. (Notably, it is missing from the
+    // Microsoft OpenGL 1.1 software renderer, which is often used for
+    // offscreen rendering on MSWin systems.)
+    //
+    // Let this code be disabled for a while, and fix any visual
+    // artifacts showing up -- preferably *without* re-enabling the
+    // use of GL_CLAMP_TO_EDGE again. Eventually, we should simply
+    // just remove the below disabled code, if we find that we can
+    // actually do without it.
+    //
+    // 20040714 mortene.
+#if 0
     if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
+#endif
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrapenum);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, wrapenum);
     glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrapenum);

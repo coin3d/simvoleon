@@ -159,6 +159,10 @@ Cvr3DTexCube::calculateOptimalSubCubeSize(void)
   // of this size, should instead use Coin's
   // cc_glglue_is_texture_size_legal() (at least in combination with
   // the subcubesize found here). 20040709 mortene.
+  //
+  // UPDATE: the above Coin cc_glglue function was introduced with
+  // Coin 2.3, so we can't use this without first separating out the
+  // gl-wrapper, as planned. 20040714 mortene.
 
   // FIXME: should also heed the value set for
   // SoVolumeData::setPageSize() (see item #005 in BUGS.txt). 20040709 mortene.
