@@ -19,9 +19,15 @@ public:
   void activate(const cc_glglue * glw) const;
   void lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const;
 
+  // Note: must match the enum in SoOrthoSlice.
+  enum AlphaUse { ALPHA_AS_IS, ALPHA_OPAQUE, ALPHA_BINARY };
+
+  void setAlphaUse(AlphaUse policy);
+
 private:
   ~CvrCLUT();
   void commonConstructor(void);
+  void regenerateGLColorData(void);
 
   unsigned int nrentries;
   unsigned int nrcomponents;
@@ -33,8 +39,9 @@ private:
   };
 
   uint32_t transparencythresholds[2];
-  uint8_t * transparentblock;
-  int transparentblockentries;
+  AlphaUse alphapolicy;
+
+  uint8_t * glcolors;
 
   int refcount;
   friend class nop; // to avoid g++ compiler warning on the private constructor
