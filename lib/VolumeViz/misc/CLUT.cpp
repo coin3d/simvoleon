@@ -46,7 +46,7 @@
 // a 1D texture.
 //
 // This is a supplement and an eventual replacement for the palette
-// extension. ATI doesn't have that extension, and NVIDIA has
+// extension. ATI doesn't have the extension, and NVIDIA has
 // threatened to remove it from their drivers (and actually did so for
 // a few versions before re-introducing it).
 
@@ -58,7 +58,7 @@ static const char * cvrclut_palettelookupprogram3d =
 "TEMP R0;\n"
 "TEX R0.x, fragment.texcoord[0], texture[0], 3D;\n"
 "TEX R0, R0.x, texture[1], 1D;\n"
-"MOV result.color, R0;\n"
+"MUL result.color, state.material.diffuse, R0;\n"
 "END\n";
 
 static const char * cvrclut_palettelookupprogram2d = 
@@ -66,7 +66,7 @@ static const char * cvrclut_palettelookupprogram2d =
 "TEMP R0;\n"
 "TEX R0.x, fragment.texcoord[0], texture[0], 2D;\n"
 "TEX R0, R0.x, texture[1], 1D;\n"
-"MOV result.color, R0;\n"
+"MUL result.color, state.material.diffuse, R0;\n"
 "END\n";
 
 // *************************************************************************
