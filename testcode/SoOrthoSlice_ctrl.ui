@@ -213,6 +213,19 @@
             </rect>
         </property>
     </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>sliceNumberEdit</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>502</x>
+                <y>17</y>
+                <width>52</width>
+                <height>27</height>
+            </rect>
+        </property>
+    </widget>
     <widget class="QSlider">
         <property name="name">
             <cstring>sliceNumberSlider</cstring>
@@ -225,21 +238,11 @@
                 <height>24</height>
             </rect>
         </property>
+        <property name="pageStep">
+            <number>1</number>
+        </property>
         <property name="orientation">
             <enum>Horizontal</enum>
-        </property>
-    </widget>
-    <widget class="QLineEdit">
-        <property name="name">
-            <cstring>sliceNumberEdit</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>502</x>
-                <y>17</y>
-                <width>52</width>
-                <height>27</height>
-            </rect>
         </property>
     </widget>
 </widget>
