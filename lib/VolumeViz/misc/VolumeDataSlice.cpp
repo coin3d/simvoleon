@@ -53,6 +53,8 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader, int sliceIdx,
                              SoOrthoSlice::Axis axis,
                              const SbVec2s & pageSize)
 {
+  assert(pageSize[0] > 0 && pageSize[1] > 0);
+
   this->releaseAllPages();
 
   this->reader = reader;
@@ -63,6 +65,10 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader, int sliceIdx,
   SbVec3s dim;
   SbBox3f size;
   reader->getDataChar(size, this->dataType, dim);
+
+  assert(dim[0] > 0);
+  assert(dim[1] > 0);
+  assert(dim[2] > 0);
 
   switch (axis) {
     case SoOrthoSlice::X:
@@ -81,8 +87,18 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader, int sliceIdx,
       break;
   }
 
-  this->numCols = this->dimensions[0] / this->pageSize[0];
-  this->numRows = this->dimensions[1] / this->pageSize[1];
+#if 0 // debug
+  SoDebugError::postInfo("void SoVolumeDataSlice::init",
+                         "this->dimensions=[%d, %d], this->pageSize=[%d, %d]",
+                         this->dimensions[0], this->dimensions[1],
+                         this->pageSize[0], this->pageSize[1]);
+#endif // debug
+
+  this->numCols = (this->dimensions[0] + this->pageSize[0] - 1) / this->pageSize[0];
+  this->numRows = (this->dimensions[1] + this->pageSize[1] - 1) / this->pageSize[1];
+
+  assert(this->numCols > 0);
+  assert(this->numRows > 0);
 }
 
 
@@ -318,8 +334,20 @@ void SoVolumeDataSlice::render(SoState * state,
 int
 SoVolumeDataSlice::calcPageIdx(int row, int col) const
 {
-  assert((row >= 0) && (row < this->numRows));
-  assert((col >= 0) && (col < this->numCols));
+#if 1 // FIXME: base this on a compiler variable ("COINVOL_DEBUG" or something). 20021117 mortene.
+  if (! ((row >= 0) && (row < this->numRows))) {
+    SoDebugError::post("SoVolumeDataSlice::calcPageIdx",
+                       "row %d out of bounds, this->numRows==%d",
+                       row, this->numRows);
+    assert(FALSE);
+  }
+  if (! ((col >= 0) && (col < this->numCols))) {
+    SoDebugError::post("SoVolumeDataSlice::calcPageIdx",
+                       "col %d out of bounds, this->numCols==%d",
+                       col, this->numCols);
+    assert(FALSE);
+  }
+#endif // debug
 
   return (row * this->numCols) + col;
 }
