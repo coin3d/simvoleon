@@ -288,6 +288,8 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
     assert(pageidx < this->voldatadims[AXISIDX]);
 
     SoVolumeRender::AbortCode abortcode =
+      (abortfunc == NULL) ?
+      SoVolumeRender::CONTINUE :
       abortfunc(numslices, pageidx + 1, abortcbdata);
 
     if (abortcode == SoVolumeRender::ABORT) break;
