@@ -32,15 +32,19 @@
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoObliqueSlice.h>
 
+// *************************************************************************
+
 class Cvr3DTexCube;
 class SoVolumeReader;
 class SoVolumeData;
 class SoState;
 class SoGLRenderAction;
 
+// *************************************************************************
+
 class CvrCubeHandler {
 public:
-  CvrCubeHandler(const SbVec3s & voldatadims, SoVolumeReader * reader);
+  CvrCubeHandler(void);
   ~CvrCubeHandler();
 
   enum Composition { MAX_INTENSITY, SUM_INTENSITY, ALPHA_BLENDING };
@@ -67,7 +71,6 @@ private:
   void setPalette(const CvrCLUT * c);
 
   Cvr3DTexCube * volumecube;
-  SoVolumeReader * reader;
   const CvrCLUT * clut;
 };
 

@@ -27,13 +27,13 @@
 #include <Inventor/SbVec2s.h>
 #include <Inventor/misc/SoState.h>
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
-#include <VolumeViz/readers/SoVolumeReader.h>
 
+// *************************************************************************
 
 class Cvr2DTexPage {
 
 public:
-  Cvr2DTexPage(SoVolumeReader * reader,
+  Cvr2DTexPage(const SoGLRenderAction * action,
                const unsigned int axis, const unsigned int sliceidx,
                const SbVec2s & subpagetexsize);
   ~Cvr2DTexPage();
@@ -59,7 +59,6 @@ private:
   int calcSubPageIdx(int row, int col) const;
 
   class Cvr2DTexSubPageItem ** subpages;
-  SoVolumeReader * reader;
 
   unsigned int axis;
   unsigned int sliceidx;

@@ -31,6 +31,9 @@
 class SoVolumeData;
 class SbVec3f;
 
+#if (SIMVOLEON_MAJOR_VERSION == 2)
+#error Obsoleted class -- remove with SIM Voleon 2.0.0 release.
+#endif
 
 class SIMVOLEON_DLL_API SoVolumeDataElement : public SoReplacedElement {
   typedef SoReplacedElement inherited;

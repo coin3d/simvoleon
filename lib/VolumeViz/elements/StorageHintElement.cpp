@@ -1,6 +1,3 @@
-#ifndef SIMVOLEON_CVRUTIL_H
-#define SIMVOLEON_CVRUTIL_H
-
 /**************************************************************************\
  *
  *  This file is part of the SIM Voleon visualization library.
@@ -24,28 +21,55 @@
  *
 \**************************************************************************/
 
-#include <Inventor/SbBasic.h>
+#include <VolumeViz/elements/CvrStorageHintElement.h>
 
-class SbMatrix;
-class CvrVoxelBlockElement;
-
-// *************************************************************************
-
-class CvrUtil {
-public:
-  static SbBool doDebugging(void);
-  static SbBool debugRayPicks(void);
-
-  static SbBool useFlippedYAxis(void);
-  static SbBool dontModulateTextures(void);
-  static SbBool force2DTextureRendering(void);
-  
-  static uint32_t crc32(uint8_t * buf, unsigned int len);
-
-  static void getTransformFromVolumeBoxDimensions(const CvrVoxelBlockElement * vd,
-                                                  SbMatrix & m);
-};
+#include <assert.h>
 
 // *************************************************************************
 
-#endif // !SIMVOLEON_CVRUTIL_H
+SO_ELEMENT_SOURCE(CvrStorageHintElement);
+
+// *************************************************************************
+
+void
+CvrStorageHintElement::initClass(void)
+{
+  SO_ELEMENT_INIT_CLASS(CvrStorageHintElement, inherited);
+}
+
+
+CvrStorageHintElement::~CvrStorageHintElement(void)
+{
+}
+
+void
+CvrStorageHintElement::init(SoState * state)
+{
+  inherited::init(state);
+  this->data = TRUE; // default to use paletted textures
+}
+
+const CvrStorageHintElement *
+CvrStorageHintElement::getInstance(SoState * const state)
+{
+  return (const CvrStorageHintElement *)
+    CvrStorageHintElement::getConstElement(state,
+                                           CvrStorageHintElement::classStackIndex);
+}
+
+// *************************************************************************
+
+void
+CvrStorageHintElement::set(SoState * state, int val)
+{
+  SoInt32Element::set(CvrStorageHintElement::classStackIndex,
+                      state, NULL, val);
+}
+
+int
+CvrStorageHintElement::get(SoState * state)
+{
+  return SoInt32Element::get(CvrStorageHintElement::classStackIndex, state);
+}
+
+// *************************************************************************

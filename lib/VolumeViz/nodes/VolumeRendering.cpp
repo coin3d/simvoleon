@@ -171,25 +171,29 @@
 // *************************************************************************
 
 #include <VolumeViz/nodes/SoVolumeRendering.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/nodes/SoVolumeRender.h>
-#include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/nodes/SoOrthoSlice.h>
-#include <VolumeViz/nodes/SoObliqueSlice.h>
-#include <VolumeViz/nodes/SoVolumeSkin.h>
-#include <VolumeViz/nodes/SoVolumeFaceSet.h>
-#include <VolumeViz/nodes/SoVolumeIndexedFaceSet.h>
-#include <VolumeViz/nodes/SoVolumeTriangleStripSet.h>
-#include <VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h>
-#include <VolumeViz/details/SoVolumeRenderDetail.h>
-#include <VolumeViz/details/SoOrthoSliceDetail.h>
-#include <VolumeViz/details/SoObliqueSliceDetail.h>
-#include <VolumeViz/render/common/CvrTextureObject.h>
 
 #include <Inventor/actions/SoGLRenderAction.h>
 
+#include <VolumeViz/details/SoObliqueSliceDetail.h>
+#include <VolumeViz/details/SoOrthoSliceDetail.h>
+#include <VolumeViz/details/SoVolumeRenderDetail.h>
+#include <VolumeViz/elements/CvrCompressedTexturesElement.h>
+#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrPalettedTexturesElement.h>
+#include <VolumeViz/elements/CvrStorageHintElement.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/nodes/SoObliqueSlice.h>
+#include <VolumeViz/nodes/SoOrthoSlice.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/SoVolumeFaceSet.h>
+#include <VolumeViz/nodes/SoVolumeIndexedFaceSet.h>
+#include <VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h>
+#include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/nodes/SoVolumeSkin.h>
+#include <VolumeViz/nodes/SoVolumeTriangleStripSet.h>
+#include <VolumeViz/render/common/CvrTextureObject.h>
 
 // *************************************************************************
 
@@ -236,8 +240,12 @@ SoVolumeRendering::init(void)
   if (SoVolumeRenderingP::wasinitialized) return;
   SoVolumeRenderingP::wasinitialized = TRUE;
 
-  SoVolumeDataElement::initClass();
   SoTransferFunctionElement::initClass();
+  CvrCompressedTexturesElement::initClass();
+  CvrPageSizeElement::initClass();
+  CvrPalettedTexturesElement::initClass();
+  CvrStorageHintElement::initClass();
+  CvrVoxelBlockElement::initClass();
 
   SoVolumeRendering::initClass();
   SoVolumeData::initClass();

@@ -21,15 +21,19 @@
  *
 \**************************************************************************/
 
-#include <string.h>
-
 #include <VolumeViz/misc/CvrUtil.h>
-#include <VolumeViz/misc/CvrVoxelChunk.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
+
+#include <string.h>
 
 #include <Inventor/SbRotation.h>
 #include <Inventor/SbLinear.h>
 #include <Inventor/C/tidbits.h>
+
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+
+// *************************************************************************
 
 // Returns a value indicating whether or not to spit out debugging
 // information during execution. Debugging is turned on by the user by
@@ -160,12 +164,11 @@ CvrUtil::crc32(uint8_t * buf, unsigned int len)
 }
 
 void
-CvrUtil::getTransformFromVolumeBoxDimensions(const SoVolumeDataElement * vd,
+CvrUtil::getTransformFromVolumeBoxDimensions(const CvrVoxelBlockElement * vd,
                                              SbMatrix & m)
 {
-  const SbVec3s voxcubedims = vd->getVoxelCubeDimensions();
-  const SoVolumeData * node = vd->getVolumeData();
-  const SbBox3f localbox = node->getVolumeSize();
+  const SbVec3s & voxcubedims = vd->getVoxelCubeDimensions();
+  const SbBox3f & localbox = vd->getUnitDimensionsBox();
 
   const SbVec3f
     localspan((localbox.getMax()[0] - localbox.getMin()[0]) / voxcubedims[0],

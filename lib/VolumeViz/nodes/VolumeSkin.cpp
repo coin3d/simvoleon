@@ -42,15 +42,15 @@
 
 // *************************************************************************
 
+#include <VolumeViz/nodes/SoVolumeSkin.h>
+
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/SbLinear.h>
 
-#include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/nodes/SoOrthoSlice.h>
-#include <VolumeViz/nodes/SoVolumeSkin.h>
 
 // *************************************************************************
 
@@ -118,7 +118,6 @@ void
 SoVolumeSkin::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoVolumeSkin, SoShape, "SoShape");
-  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }
 
 void
@@ -133,10 +132,10 @@ SoVolumeSkinP::buildSkinCube(SoGLRenderAction * action)
     this->cubesides[i].distance = 0.0f;
   }
 
-  const SoVolumeDataElement * volumedataelement =
-    SoVolumeDataElement::getInstance(action->getState());
-  assert(volumedataelement != NULL);
-  const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+  const CvrVoxelBlockElement * vbelem =
+    CvrVoxelBlockElement::getInstance(action->getState());
+  assert(vbelem != NULL);
+  const SbVec3s & voxcubedims = vbelem->getVoxelCubeDimensions();
 
   const int maxslicesx = voxcubedims[0]-1;
   const int maxslicesy = voxcubedims[1]-1;
@@ -263,10 +262,11 @@ SoVolumeSkin::generatePrimitives(SoAction * action)
 void
 SoVolumeSkin::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
-  const SoVolumeDataElement * volumedataelement =
-    SoVolumeDataElement::getInstance(action->getState());
-  assert(volumedataelement != NULL);
-  const SbVec3s dims = volumedataelement->getVoxelCubeDimensions();
+  const CvrVoxelBlockElement * vbelem =
+    CvrVoxelBlockElement::getInstance(action->getState());
+  if (vbelem == NULL) { return; }
+
+  const SbVec3s & dims = vbelem->getVoxelCubeDimensions();
 
   center = SbVec3f(0, 0, 0);
   box.extendBy(SbVec3f(-dims[0]/2.0f, -dims[1]/2.0f, -dims[2]/2.0f));

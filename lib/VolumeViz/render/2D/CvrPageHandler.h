@@ -31,7 +31,6 @@
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
 class Cvr2DTexPage;
-class SoVolumeReader;
 class SoVolumeData;
 class SoState;
 class SoGLRenderAction;
@@ -39,7 +38,7 @@ class SoGLRenderAction;
 
 class CvrPageHandler {
 public:
-  CvrPageHandler(const SbVec3s & voldatadims, SoVolumeReader * reader);
+  CvrPageHandler(const SoGLRenderAction * action);
   ~CvrPageHandler();
 
   enum Composition { MAX_INTENSITY, SUM_INTENSITY, ALPHA_BLENDING };
@@ -58,7 +57,8 @@ public:
 private:
   unsigned int getCurrentAxis(const SbVec3f & viewvec) const;
   void getViewVector(SoGLRenderAction * action, SbVec3f & direction) const;
-  Cvr2DTexPage * getSlice(const unsigned int AXISIDX, unsigned int sliceidx);
+  Cvr2DTexPage * getSlice(const SoGLRenderAction * action,
+                          const unsigned int AXISIDX, unsigned int sliceidx);
 
   void comparePageSize(const SbVec3s & currsubpagesize);
   void setPalette(const CvrCLUT * c);
@@ -66,7 +66,6 @@ private:
   Cvr2DTexPage ** slices[3];
   unsigned int voldatadims[3];
   SbVec3s subpagesize;
-  SoVolumeReader * reader;
 
   uint32_t transferfuncid;
   const CvrCLUT * clut;

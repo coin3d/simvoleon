@@ -64,7 +64,8 @@
 #include <Inventor/elements/SoModelMatrixElement.h>
 
 #include <VolumeViz/details/SoObliqueSliceDetail.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/render/3D/Cvr3DTexCube.h>
 #include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
@@ -197,11 +198,9 @@ SoObliqueSlice::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoObliqueSlice, SoShape, "SoShape");
 
-  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoLazyElement);
 
-  SO_ENABLE(SoRayPickAction, SoVolumeDataElement);
   SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
 }
 
@@ -226,12 +225,8 @@ SoObliqueSlice::GLRender(SoGLRenderAction * action)
   SoState * state = action->getState();
    
   // Fetching the current volumedata
-  const SoVolumeDataElement * volumedataelement =
-    SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL);
-
-  SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  if (volumedata == NULL) {
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  if (vbelem == NULL) {
     static SbBool first = TRUE;
     if (first) {
       SoDebugError::post("SoObliqueSlice::GLRender",
@@ -273,14 +268,13 @@ SoObliqueSlice::GLRender(SoGLRenderAction * action)
   state->push();
 
   SbMatrix volumetransform;
-  CvrUtil::getTransformFromVolumeBoxDimensions(volumedataelement, volumetransform);
+  CvrUtil::getTransformFromVolumeBoxDimensions(vbelem, volumetransform);
   SoModelMatrixElement::mult(state, this, volumetransform);
 
-  const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+  const SbVec3s & voxcubedims = vbelem->getVoxelCubeDimensions();
 
-  int rendermethod, storagehint; 
-  rendermethod = SoObliqueSlice::TEXTURE2D; // this is the default
-  storagehint = volumedata->storageHint.getValue();
+  int rendermethod = SoObliqueSlice::TEXTURE2D; // this is the default
+  const int storagehint = CvrStorageHintElement::get(state);
   if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
     const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
     if (cc_glglue_has_3d_textures(glue) && !CvrUtil::force2DTextureRendering()) {
@@ -300,7 +294,7 @@ SoObliqueSlice::GLRender(SoGLRenderAction * action)
   else if (rendermethod == SoObliqueSlice::TEXTURE3D) {
      
     if (!PRIVATE(this)->cubehandler) {
-      PRIVATE(this)->cubehandler = new CvrCubeHandler(voxcubedims, volumedata->getReader());
+      PRIVATE(this)->cubehandler = new CvrCubeHandler();
     }
 
     Cvr3DTexSubCube::Interpolation interp;
@@ -330,15 +324,11 @@ SoObliqueSlice::GLRender(SoGLRenderAction * action)
 void
 SoObliqueSlice::rayPick(SoRayPickAction * action)
 {
-
-if (!this->shouldRayPick(action)) return;
+  if (!this->shouldRayPick(action)) return;
 
   SoState * state = action->getState();
-
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL);
-  const SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  if (volumedata == NULL) { return; }
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  if (vbelem == NULL) { return; }
 
   this->computeObjectSpaceRay(action);
   const SbLine & ray = action->getLine();
@@ -349,9 +339,9 @@ if (!this->shouldRayPick(action)) return;
   if (sliceplane.intersect(ray, intersection) && // returns FALSE if parallel
       action->isBetweenPlanes(intersection)) {
 
-    SbVec3s ijk = volumedataelement->objectCoordsToIJK(intersection);
+    SbVec3s ijk = vbelem->objectCoordsToIJK(intersection);
 
-    const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+    const SbVec3s & voxcubedims = vbelem->getVoxelCubeDimensions();
     const SbBox3s voxcubebounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
 
     if (voxcubebounds.intersect(ijk)) {
@@ -368,13 +358,12 @@ if (!this->shouldRayPick(action)) return;
 
       detail->objectcoords = intersection;
       detail->ijkcoords = ijk;
-      detail->voxelvalue = volumedata->getVoxelValue(ijk);
+      detail->voxelvalue = vbelem->getVoxelValue(ijk);
     }
   }
 
   // Common clipping plane handling.
   SoObliqueSlice::doAction(action);
-
 }
 
 void
@@ -397,13 +386,10 @@ void
 SoObliqueSlice::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
   SoState * state = action->getState();
-  const SoVolumeDataElement * volumedataelement =
-    SoVolumeDataElement::getInstance(state);
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  if (vbelem == NULL) return;
 
-  if (volumedataelement == NULL) return;
-  const SoVolumeData * volumedata = volumedataelement->getVolumeData();
-
-  SbBox3f vdbox = volumedata->getVolumeSize();
+  const SbBox3f & vdbox = vbelem->getUnitDimensionsBox();
 
   box.extendBy(vdbox);
   center = vdbox.getCenter();

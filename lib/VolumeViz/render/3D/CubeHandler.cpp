@@ -35,24 +35,20 @@
 #include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/errors/SoDebugError.h>
 
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/readers/SoVolumeReader.h>
 #include <VolumeViz/render/3D/Cvr3DTexCube.h>
 
+// *************************************************************************
 
-CvrCubeHandler::CvrCubeHandler(const SbVec3s & voldatadims,
-                               SoVolumeReader * reader)
+CvrCubeHandler::CvrCubeHandler(void)
 {
   this->volumecube = NULL;
   this->clut = NULL;
-
-  this->reader = reader;
 }
 
 CvrCubeHandler::~CvrCubeHandler()
@@ -107,12 +103,10 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
 {
   SoState * state = action->getState();
 
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL);
-  SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  assert(volumedata != NULL);
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  assert(vbelem != NULL);
  
-  if (this->volumecube == NULL) { this->volumecube = new Cvr3DTexCube(this->reader); }
+  if (this->volumecube == NULL) { this->volumecube = new Cvr3DTexCube(action); }
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
@@ -193,7 +187,7 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   }
 
   assert(glGetError() == GL_NO_ERROR);
-  SbVec3s dims = volumedataelement->getVoxelCubeDimensions();
+  const SbVec3s & dims = vbelem->getVoxelCubeDimensions();
   SbVec3f origo(-((float) dims[0]) / 2.0f, -((float) dims[1]) / 2.0f, -((float) dims[2]) / 2.0f);
 
   if (abortfunc != NULL) { this->volumecube->setAbortCallback(abortfunc, abortcbdata); }
@@ -211,12 +205,10 @@ CvrCubeHandler::renderObliqueSlice(SoGLRenderAction * action,
 {
   SoState * state = action->getState();
 
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL);
-  SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  assert(volumedata != NULL);
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  assert(vbelem != NULL);
  
-  if (this->volumecube == NULL) { this->volumecube = new Cvr3DTexCube(this->reader); }
+  if (this->volumecube == NULL) { this->volumecube = new Cvr3DTexCube(action); }
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
@@ -250,7 +242,7 @@ CvrCubeHandler::renderObliqueSlice(SoGLRenderAction * action,
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   assert(glGetError() == GL_NO_ERROR);
   
-  SbVec3s dims = volumedataelement->getVoxelCubeDimensions();
+  const SbVec3s & dims = vbelem->getVoxelCubeDimensions();
   SbVec3f origo(-((float) dims[0]) / 2.0f, -((float) dims[1]) / 2.0f, -((float) dims[2]) / 2.0f);
 
   this->volumecube->renderObliqueSlice(action, origo, interpolation, plane);

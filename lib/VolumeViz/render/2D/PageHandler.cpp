@@ -21,6 +21,8 @@
  *
 \**************************************************************************/
 
+#include <VolumeViz/render/2D/CvrPageHandler.h>
+
 #include <stdlib.h>
 #include <assert.h>
 
@@ -33,25 +35,26 @@
 #include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/elements/SoGLLazyElement.h>
 
-#include <VolumeViz/render/2D/CvrPageHandler.h>
-
-#include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/readers/SoVolumeReader.h>
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 
+// *************************************************************************
 
-CvrPageHandler::CvrPageHandler(const SbVec3s & voldatadims,
-                               SoVolumeReader * reader)
+CvrPageHandler::CvrPageHandler(const SoGLRenderAction * action)
 {
-  this->voldatadims[0] = voldatadims[0];
-  this->voldatadims[1] = voldatadims[1];
-  this->voldatadims[2] = voldatadims[2];
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
+  assert(vbelem);
+
+  const SbVec3s & dims = vbelem->getVoxelCubeDimensions();
+  this->voldatadims[0] = dims[0];
+  this->voldatadims[1] = dims[1];
+  this->voldatadims[2] = dims[2];
 
   this->subpagesize = SbVec3s(64, 64, 64);
 
@@ -60,8 +63,6 @@ CvrPageHandler::CvrPageHandler(const SbVec3s & voldatadims,
   this->slices[2] = NULL;
 
   this->clut = NULL;
-
-  this->reader = reader;
 }
 
 CvrPageHandler::~CvrPageHandler()
@@ -202,16 +203,13 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
                        void * abortcbdata)
 {
   SoState * state = action->getState();
+  this->comparePageSize(CvrPageSizeElement::get(state));
 
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL);
-  SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  assert(volumedata != NULL);
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
 
-  this->comparePageSize(volumedata->getPageSize());
 
   // FIXME: should have an assert-check that the volume dimensions
-  // hasn't changed versus our this->voldatadims
+  // hasn't changed versus our this->voldatadims. 20040719 mortene.
 
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
@@ -338,9 +336,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
     if (abortcode == SoVolumeRender::ABORT) break;
 
     if (abortcode == SoVolumeRender::CONTINUE) {
-      volumedataelement->getPageGeometry(AXISIDX, pageidx,
-                                         origo, horizspan, verticalspan);
-
+      vbelem->getPageGeometry(AXISIDX, pageidx, origo, horizspan, verticalspan);
 
       // This is done to support client code depending on an old bug:
       // data along the Y axis used to be rendered flipped.
@@ -355,7 +351,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
       // dimensions), we should still render it at the new depth, as
       // that can give better rendering quality of the volume.
 
-      Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
+      Cvr2DTexPage * page = this->getSlice(action, AXISIDX, pageidx);
       page->render(action, origo, horizspan, verticalspan, interpolation);
     }
     else {
@@ -376,7 +372,8 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 }
 
 Cvr2DTexPage *
-CvrPageHandler::getSlice(const unsigned int AXISIDX, unsigned int sliceidx)
+CvrPageHandler::getSlice(const SoGLRenderAction * action,
+                         const unsigned int AXISIDX, unsigned int sliceidx)
 {
   assert(AXISIDX <= 2);
   assert(sliceidx < this->voldatadims[AXISIDX]);
@@ -400,8 +397,7 @@ CvrPageHandler::getSlice(const unsigned int AXISIDX, unsigned int sliceidx)
     SbVec2s pagesize = SbVec2s(this->subpagesize[(AXISIDX == 0) ? 2 : 0],
                                this->subpagesize[(AXISIDX == 1) ? 2 : 1]);
 
-    Cvr2DTexPage * newslice =
-      new Cvr2DTexPage(this->reader, AXISIDX, sliceidx, pagesize);
+    Cvr2DTexPage * newslice = new Cvr2DTexPage(action, AXISIDX, sliceidx, pagesize);
     newslice->setPalette(this->clut);
 
     this->slices[AXISIDX][sliceidx] = newslice;

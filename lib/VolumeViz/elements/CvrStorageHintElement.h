@@ -1,5 +1,5 @@
-#ifndef SIMVOLEON_CVRUTIL_H
-#define SIMVOLEON_CVRUTIL_H
+#ifndef SIMVOLEON_CVRSTORAGEHINTELEMENT_H
+#define SIMVOLEON_CVRSTORAGEHINTELEMENT_H
 
 /**************************************************************************\
  *
@@ -24,28 +24,23 @@
  *
 \**************************************************************************/
 
-#include <Inventor/SbBasic.h>
+#include <Inventor/elements/SoInt32Element.h>
 
-class SbMatrix;
-class CvrVoxelBlockElement;
 
-// *************************************************************************
+class CvrStorageHintElement : public SoInt32Element {
+  typedef SoInt32Element inherited;
+  SO_ELEMENT_HEADER(CvrStorageHintElement);
 
-class CvrUtil {
 public:
-  static SbBool doDebugging(void);
-  static SbBool debugRayPicks(void);
+  static void initClass(void);
+  virtual void init(SoState * state);
+  static const CvrStorageHintElement * getInstance(SoState * const state);
 
-  static SbBool useFlippedYAxis(void);
-  static SbBool dontModulateTextures(void);
-  static SbBool force2DTextureRendering(void);
-  
-  static uint32_t crc32(uint8_t * buf, unsigned int len);
+  static void set(SoState * state, int val);
+  static int get(SoState * state);
 
-  static void getTransformFromVolumeBoxDimensions(const CvrVoxelBlockElement * vd,
-                                                  SbMatrix & m);
+protected:
+  virtual ~CvrStorageHintElement();
 };
 
-// *************************************************************************
-
-#endif // !SIMVOLEON_CVRUTIL_H
+#endif // !SIMVOLEON_CVRSTORAGEHINTELEMENT_H

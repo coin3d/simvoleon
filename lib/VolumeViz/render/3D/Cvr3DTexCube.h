@@ -26,14 +26,15 @@
 
 #include <Inventor/SbVec3s.h>
 #include <Inventor/misc/SoState.h>
-#include <VolumeViz/readers/SoVolumeReader.h>
 #include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
+
+// *************************************************************************
 
 class Cvr3DTexCube {
   
 public:
-  Cvr3DTexCube(SoVolumeReader * reader);
+  Cvr3DTexCube(SoGLRenderAction * action);
   ~Cvr3DTexCube();
   
   enum NonindexedSetType { FACE_SET, TRIANGLESTRIP_SET };

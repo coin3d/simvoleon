@@ -36,8 +36,8 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
+#include <VolumeViz/elements/CvrPalettedTexturesElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrGIMPGradient.h>
 #include <VolumeViz/misc/CvrUtil.h>
@@ -57,11 +57,14 @@
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
 #include <VolumeViz/render/common/CvrRGBATexture.h>
 
+// *************************************************************************
+
 const unsigned int COLOR_TABLE_PREDEF_SIZE = 256;
 uint8_t CvrVoxelChunk::PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][COLOR_TABLE_PREDEF_SIZE][4];
 
 SbDict * CvrVoxelChunk::CLUTdict = NULL;
 
+// *************************************************************************
 
 // Allocates an uninitialized buffer for storing enough voxel data to
 // fit into the given dimensions with space per voxel allocated
@@ -72,7 +75,7 @@ SbDict * CvrVoxelChunk::CLUTdict = NULL;
 // responsibility to a) not destruct that buffer before this instance
 // is destructed, and b) to deallocate the buffer data.
 CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, UnitSize type,
-                             void * buffer)
+                             const void * buffer)
 {
 
   assert(dimensions[0] > 0);
@@ -108,7 +111,7 @@ CvrVoxelChunk::bufferSize(void) const
 }
 
 // Returns the buffer start pointer.
-void *
+const void *
 CvrVoxelChunk::getBuffer(void) const
 {
   return this->voxelbuffer;
@@ -117,7 +120,7 @@ CvrVoxelChunk::getBuffer(void) const
 // Returns the buffer start pointer. Convenience method to return the
 // pointer casted to the correct size. Don't use this method unless
 // the unitsize type is UINT_8.
-uint8_t *
+const uint8_t *
 CvrVoxelChunk::getBuffer8(void) const
 {
   assert(this->unitsize == UINT_8);
@@ -127,7 +130,7 @@ CvrVoxelChunk::getBuffer8(void) const
 // Returns the buffer start pointer. Convenience method to return the
 // pointer casted to the correct size. Don't use this method unless
 // the unitsize type is UINT_16.
-uint16_t *
+const uint16_t *
 CvrVoxelChunk::getBuffer16(void) const
 {
   assert(this->unitsize == UINT_16);
@@ -233,15 +236,10 @@ SbBool
 CvrVoxelChunk::usePaletteTextures(const SoGLRenderAction * action)
 {
   SoState * state = action->getState();
-  const SoVolumeDataElement * vdelement = SoVolumeDataElement::getInstance(state);
-  assert(vdelement != NULL);
-  const SoVolumeData * volumedatanode = vdelement->getVolumeData();
-  assert(volumedatanode != NULL);
-
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
 
   // Check if paletted textures is wanted by the app programmer.
-  const SbBool apiusepalette = volumedatanode->usePalettedTexture.getValue();
+  const SbBool apiusepalette = CvrPalettedTexturesElement::get(state);
   SbBool usepalettetex = apiusepalette;
 
   const char * env;

@@ -47,6 +47,8 @@
 
 // *************************************************************************
 
+#include <VolumeViz/nodes/SoVolumeFaceSet.h>
+
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
@@ -59,14 +61,11 @@
 #include <Inventor/elements/SoClipPlaneElement.h>
 #include <Inventor/elements/SoTextureQualityElement.h>
 
-#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
-#include "SoVolumeFaceSet.h"
 #include "CvrFaceSetRenderP.h"
 
 // *************************************************************************

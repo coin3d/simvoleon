@@ -30,6 +30,7 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/render/common/Cvr2DRGBATexture.h>
@@ -341,10 +342,10 @@ CvrTextureObject::create(const SoGLRenderAction * action,
                          const SbBox3s & cutcube)
 {
   SoState * state = action->getState();
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  const SoVolumeData * voldata = volumedataelement->getVolumeData();
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  assert(vbelem != NULL);
 
-  textureobj * obj = find_textureobject_3D(voldata->getNodeId(), cutcube);
+  textureobj * obj = find_textureobject_3D(vbelem->getNodeId(), cutcube);
 
   if (obj != NULL) {
     // FIXME: make to work for 2D textures aswell. 20040716 mortene.
@@ -353,10 +354,11 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   }
 
   CvrTextureObject * newobj =
-    CvrTextureObject::new3DTextureObject(action, voldata, texsize, cutcube);
+    CvrTextureObject::new3DTextureObject(action, texsize, cutcube);
+
   obj = new textureobj;
   obj->object = newobj;
-  obj->voldataid = voldata->getNodeId();
+  obj->voldataid = vbelem->getNodeId();
   obj->cutcube = cutcube;
   // FIXME: make to work for 2D textures aswell. 20040716 mortene.
   obj->texturetype = TEXTURE3D;
@@ -367,21 +369,20 @@ CvrTextureObject::create(const SoGLRenderAction * action,
 
 CvrTextureObject *
 CvrTextureObject::new3DTextureObject(const SoGLRenderAction * action,
-                                     const SoVolumeData * voldata,
                                      const SbVec3s & texsize,
                                      const SbBox3s & cutcube)
 {
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
+  assert(vbelem != NULL);
 
-  SbVec3s vddims;
-  void * dataptr;
-  SoVolumeData::DataType type;
-  SbBool ok = voldata->getVolumeData(vddims, dataptr, type);
-  assert(ok);
+  const SbVec3s & vddims = vbelem->getVoxelCubeDimensions();
+  const void * dataptr = vbelem->getVoxels();
+  CvrVoxelBlockElement::VoxelSize size = vbelem->getType();
 
   CvrVoxelChunk::UnitSize vctype;
-  switch (type) {
-  case SoVolumeData::UNSIGNED_BYTE: vctype = CvrVoxelChunk::UINT_8; break;
-  case SoVolumeData::UNSIGNED_SHORT: vctype = CvrVoxelChunk::UINT_16; break;
+  switch (size) {
+  case CvrVoxelBlockElement::UINT_8: vctype = CvrVoxelChunk::UINT_8; break;
+  case CvrVoxelBlockElement::UINT_16: vctype = CvrVoxelChunk::UINT_16; break;
   default: assert(FALSE); break;
   }
 
@@ -398,7 +399,6 @@ CvrTextureObject::new3DTextureObject(const SoGLRenderAction * action,
   // Must clear unused texture area to prevent artifacts due to
   // floating point inaccuracies when calculating texture coords.
   newtexobj->blankUnused(texsize);
-  const SbVec3s realtexsize = newtexobj->getDimensions();
 
   return newtexobj;
 }

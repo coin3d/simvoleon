@@ -57,8 +57,9 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/render/2D/CvrPageHandler.h>
 #include <VolumeViz/render/3D/CvrCubeHandler.h>
@@ -162,8 +163,6 @@ public:
 
   CvrPageHandler * pagehandler; // For 2D page rendering
   CvrCubeHandler * cubehandler; // For 3D cube rendering
-
-  static void getTransformFromVolumeBoxDimensions(const SoVolumeDataElement * vd, SbMatrix & m);
 
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
   void * abortfuncdata;
@@ -406,16 +405,12 @@ SoVolumeRender::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoVolumeRender, SoShape, "SoShape");
 
-  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoModelMatrixElement);
   SO_ENABLE(SoGLRenderAction, SoLazyElement);
 
-  SO_ENABLE(SoRayPickAction, SoVolumeDataElement);
   SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
   SO_ENABLE(SoRayPickAction, SoModelMatrixElement);
-
-  SO_ENABLE(SoGetBoundingBoxAction, SoVolumeDataElement);
 }
 
 // doc in super
@@ -454,11 +449,9 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   SoState * state = action->getState();
 
   // Fetching the current volumedata
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL);
-  SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  const CvrVoxelBlockElement * vbelement = CvrVoxelBlockElement::getInstance(state);
 
-  if (volumedata == NULL) {
+  if (vbelement == NULL) {
     static SbBool first = TRUE;
     if (first) {
       SoDebugError::postWarning("SoVolumeRender::GLRender",
@@ -493,7 +486,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     return;
   }
 
-  const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+  const SbVec3s & voxcubedims = vbelement->getVoxelCubeDimensions();
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("SoVolumeRender::GLRender", "voxcubedims==[%d, %d, %d]",
                          voxcubedims[0], voxcubedims[1], voxcubedims[2]);
@@ -516,7 +509,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   // *** so state->pop() is done before returning.
 
   SbMatrix volumetransform;
-  CvrUtil::getTransformFromVolumeBoxDimensions(volumedataelement, volumetransform);
+  CvrUtil::getTransformFromVolumeBoxDimensions(vbelement, volumetransform);
   SoModelMatrixElement::mult(state, this, volumetransform);
 
   int rendermethod;
@@ -535,7 +528,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   rendermethod = SoVolumeRenderP::TEXTURE2D; // we consider this the default
 
   if (!CvrUtil::force2DTextureRendering()) {
-    const int storagehint = volumedata->storageHint.getValue();
+    const int storagehint = CvrStorageHintElement::get(state);
     if (storagehint == SoVolumeData::TEX3D ||
         storagehint == SoVolumeData::AUTO ||
         // FIXME: should also warn on attempts to use the VOLUMEPRO
@@ -565,7 +558,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     if (numslices == 0) goto done;
 
     if (!PRIVATE(this)->cubehandler) {
-      PRIVATE(this)->cubehandler = new CvrCubeHandler(voxcubedims, volumedata->getReader());
+      PRIVATE(this)->cubehandler = new CvrCubeHandler();
     }
 
     Cvr3DTexSubCube::Interpolation interp;
@@ -601,10 +594,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     if (numslices == 0) goto done;
 
     if (!PRIVATE(this)->pagehandler) {
-      PRIVATE(this)->pagehandler = new CvrPageHandler(voxcubedims, volumedata->getReader());
-      // FIXME: needs to be invalidated / deallocated when
-      // SoVolumeData get replaced by one with different
-      // voxcubedims. handegar.
+      PRIVATE(this)->pagehandler = new CvrPageHandler(action);
     }
 
     Cvr2DTexSubPage::Interpolation interp;
@@ -677,15 +667,13 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
   if (!this->shouldRayPick(action)) return;
 
   SoState * state = action->getState();
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL);
-  const SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  if (volumedata == NULL) { return; }
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  if (vbelem == NULL) { return; }
 
   this->computeObjectSpaceRay(action);
   const SbLine & ray = action->getLine();
 
-  SbBox3f objbbox = volumedata->getVolumeSize();
+  const SbBox3f & objbbox = vbelem->getUnitDimensionsBox();
 
   SbVec3f mincorner, maxcorner;
   objbbox.getBounds(mincorner, maxcorner);
@@ -746,7 +734,7 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
     transferfunctionelement->getTransferFunction();
   assert(transferfunction != NULL);
 
-  const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+  const SbVec3s & voxcubedims = vbelem->getVoxelCubeDimensions();
 
   // Find objectspace-dimensions of a voxel.
   const SbVec3f size = maxcorner - mincorner;
@@ -764,7 +752,7 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
   SbVec3s ijk, lastijk(-1, -1, -1);
 
   const SbBox3s voxelbounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
-  const SoVolumeData::DataType voxeltype = volumedataelement->getVoxelDataType();
+  const CvrVoxelBlockElement::VoxelSize voxeltype = vbelem->getType();
 
   SoPickedPoint * pp = NULL;
   SoVolumeRenderDetail * detail = NULL;
@@ -783,7 +771,7 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
     // fixed an offset bug in the objectCoordsToIJK() method
     // today. 20030320 mortene.
 
-    ijk = volumedataelement->objectCoordsToIJK(objectcoord);
+    ijk = vbelem->objectCoordsToIJK(objectcoord);
     if (!voxelbounds.intersect(ijk)) break;
 
     if (!action->isBetweenPlanes(objectcoord)) {
@@ -814,7 +802,7 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
         clut->ref();
       }
 
-      const uint32_t voxelvalue = volumedata->getVoxelValue(ijk);
+      const uint32_t voxelvalue = vbelem->getVoxelValue(ijk);
       uint8_t rgba[4];
       clut->lookupRGBA(voxelvalue, rgba);
 
@@ -836,12 +824,10 @@ SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
 {
   SoState * state = action->getState();
 
-  const SoVolumeDataElement * vdelem = SoVolumeDataElement::getInstance(state);
-  assert(vdelem && "element enabled for node, should always be available");
-  const SoVolumeData * volumedata = vdelem->getVolumeData();
-  if (volumedata == NULL) { return; }
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  if (vbelem == NULL) { return; }
 
-  const SbBox3f vdbox = volumedata->getVolumeSize();
+  const SbBox3f & vdbox = vbelem->getUnitDimensionsBox();
   if (vdbox.isEmpty()) { return; }
 
   box.extendBy(vdbox);

@@ -29,7 +29,6 @@
 #include <Inventor/system/gl.h>
 
 class SoGLRenderAction;
-class SoVolumeData;
 class SbBox3s;
 
 // *************************************************************************
@@ -65,7 +64,6 @@ protected:
 private:
   SbBool findGLTexture(const SoGLRenderAction * action, GLuint & texid) const;
   static CvrTextureObject * new3DTextureObject(const SoGLRenderAction * action,
-                                               const SoVolumeData * voldata,
                                                const SbVec3s & texsize,
                                                const SbBox3s & cutcube);
 

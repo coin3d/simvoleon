@@ -1,5 +1,5 @@
-#ifndef SIMVOLEON_CVRUTIL_H
-#define SIMVOLEON_CVRUTIL_H
+#ifndef SIMVOLEON_CVRPAGESIZEELEMENT_H
+#define SIMVOLEON_CVRPAGESIZEELEMENT_H
 
 /**************************************************************************\
  *
@@ -24,28 +24,34 @@
  *
 \**************************************************************************/
 
-#include <Inventor/SbBasic.h>
-
-class SbMatrix;
-class CvrVoxelBlockElement;
+#include <Inventor/SbVec3s.h>
+#include <Inventor/elements/SoSubElement.h>
 
 // *************************************************************************
 
-class CvrUtil {
+class CvrPageSizeElement : public SoElement {
+  typedef SoElement inherited;
+
+  SO_ELEMENT_HEADER(CvrPageSizeElement);
+
 public:
-  static SbBool doDebugging(void);
-  static SbBool debugRayPicks(void);
+  static void initClass(void);
+  virtual void init(SoState * state);
+  static const CvrPageSizeElement * getInstance(SoState * const state);
 
-  static SbBool useFlippedYAxis(void);
-  static SbBool dontModulateTextures(void);
-  static SbBool force2DTextureRendering(void);
-  
-  static uint32_t crc32(uint8_t * buf, unsigned int len);
+  virtual SbBool matches(const SoElement * element) const;
+  virtual SoElement * copyMatchInfo(void) const;
 
-  static void getTransformFromVolumeBoxDimensions(const CvrVoxelBlockElement * vd,
-                                                  SbMatrix & m);
+  static void set(SoState * state, const SbVec3s & value);
+  static SbVec3s get(SoState * state);
+
+protected:
+  virtual ~CvrPageSizeElement();
+
+private:
+  SbVec3s pagesize;
 };
 
 // *************************************************************************
 
-#endif // !SIMVOLEON_CVRUTIL_H
+#endif // !SIMVOLEON_CVRPAGESIZEELEMENT_H

@@ -37,16 +37,14 @@
 #include <Inventor/elements/SoViewingMatrixElement.h>
 #include <Inventor/errors/SoDebugError.h>
 
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
-#include <VolumeViz/render/common/CvrPaletteTexture.h>
-#include <VolumeViz/render/common/CvrRGBATexture.h>
 
 // *************************************************************************
 
@@ -61,7 +59,7 @@ public:
 
 // *************************************************************************
 
-Cvr3DTexCube::Cvr3DTexCube(SoVolumeReader * reader)
+Cvr3DTexCube::Cvr3DTexCube(SoGLRenderAction * action)
 {
 
   this->clut = NULL;
@@ -70,10 +68,8 @@ Cvr3DTexCube::Cvr3DTexCube(SoVolumeReader * reader)
   this->subcubesize = SbVec3s(0, 0, 0);
   this->calculateOptimalSubCubeSize();
 
-  SbVec3s dim;
-  SbBox3f size;
-  SoVolumeData::DataType dummy;
-  reader->getDataChar(size, dummy, dim);
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
+  const SbVec3s & dim = vbelem->getVoxelCubeDimensions();
 
   assert(dim[0] > 0);
   assert(dim[1] > 0);
@@ -595,10 +591,8 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
   SbBox3s subcubecut = SbBox3s(subcubemin, subcubemax);
 
   SoState * state = action->getState();
-  const SoVolumeDataElement * vdelement = SoVolumeDataElement::getInstance(state);
-  assert(vdelement != NULL);
-  SoVolumeData * voldatanode = vdelement->getVolumeData();
-  assert(voldatanode != NULL);
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  assert(vbelem != NULL);
 
   const SbVec3s texsize(subcubemax - subcubemin);
   const CvrTextureObject * texobj = CvrTextureObject::create(action, texsize, subcubecut);
@@ -614,7 +608,7 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
   }
 
   Cvr3DTexSubCubeItem * pitem = new Cvr3DTexSubCubeItem(cube);
-  pitem->volumedataid = voldatanode->getNodeId();
+  pitem->volumedataid = vbelem->getNodeId();
   pitem->invisible = (texobj == NULL) ? TRUE : FALSE;
 
   const int idx = this->calcSubCubeIdx(row, col, depth);
@@ -678,8 +672,9 @@ Cvr3DTexCube::getSubCube(SoState * state, int col, int row, int depth)
   Cvr3DTexSubCubeItem * subp = this->subcubes[idx];
 
   if (subp) {
-    const SoVolumeData * volumedata = SoVolumeDataElement::getInstance(state)->getVolumeData();
-    uint32_t volumedataid = volumedata->getNodeId();
+    const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+    assert(vbelem != NULL);
+    uint32_t volumedataid = vbelem->getNodeId();
 
     if (subp->volumedataid != volumedataid) {
       // FIXME: it could perhaps be a decent optimalization to store a

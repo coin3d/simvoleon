@@ -26,3 +26,12 @@ SIM Voleon 1.1.0
   ..which will preserve the old, buggy behavior. Note however that we
   expect to remove support for the old behavior with the next major
   release (i.e. SIM Voleon release 2.0.0).
+
+
+* SoVolumeDataElement obsoleted.
+
+  This element is no longer used, and will be removed from the public
+  interface from the next major release. It is unlikely that any
+  client code was using this element, but if so, get in touch at
+  <coin-support@coin3d.org> to get information about how to handle
+  this change.

@@ -38,15 +38,16 @@ class SbBox2s;
 class CvrVoxelChunk {
 public:
   // Note that enum values matches nr of bytes pr voxel. Don't change this.
+  // FIXME: remove this, use enum from CvrVoxelBlockElement instead. 20040719 mortene.
   enum UnitSize { UINT_8 = 1, UINT_16 = 2 };
 
   CvrVoxelChunk(const SbVec3s & dimensions, UnitSize type,
-                void * buffer = NULL);
+                const void * buffer = NULL);
   ~CvrVoxelChunk();
 
-  void * getBuffer(void) const;
-  uint8_t * getBuffer8(void) const;
-  uint16_t * getBuffer16(void) const;
+  const void * getBuffer(void) const;
+  const uint8_t * getBuffer8(void) const;
+  const uint16_t * getBuffer16(void) const;
 
   unsigned int bufferSize(void) const;
 
@@ -80,7 +81,7 @@ private:
   static void initPredefGradients(void);
 
   SbBool destructbuffer;
-  void * voxelbuffer;
+  const void * voxelbuffer;
   SbVec3s dimensions;
   UnitSize unitsize;
 };

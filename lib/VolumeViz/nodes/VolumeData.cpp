@@ -52,6 +52,8 @@
   automatically by the SIM Voleon rendering system.
 */
 
+// *************************************************************************
+
 #include <VolumeViz/nodes/SoVolumeData.h>
 
 #include <limits.h>
@@ -70,7 +72,10 @@
 #include <Inventor/system/gl.h>
 
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/elements/CvrPalettedTexturesElement.h>
+#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrStorageHintElement.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
 #include <VolumeViz/readers/SoVRVolFileReader.h>
 #include <VolumeViz/misc/CvrUtil.h>
@@ -236,12 +241,15 @@ SoVolumeData::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoVolumeData, SoVolumeRendering, "SoVolumeRendering");
 
-  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
-  SO_ENABLE(SoCallbackAction, SoVolumeDataElement);
-  SO_ENABLE(SoGetBoundingBoxAction, SoVolumeDataElement);
-  SO_ENABLE(SoPickAction, SoVolumeDataElement);
+  SO_ENABLE(SoGLRenderAction, CvrVoxelBlockElement);
+  SO_ENABLE(SoCallbackAction, CvrVoxelBlockElement);
+  SO_ENABLE(SoGetBoundingBoxAction, CvrVoxelBlockElement);
+  SO_ENABLE(SoPickAction, CvrVoxelBlockElement);
 
   SO_ENABLE(SoGLRenderAction, CvrCompressedTexturesElement);
+  SO_ENABLE(SoGLRenderAction, CvrPalettedTexturesElement);
+  SO_ENABLE(SoGLRenderAction, CvrPageSizeElement);
+  SO_ENABLE(SoGLRenderAction, CvrStorageHintElement);
 }
 
 /*!
@@ -378,6 +386,9 @@ SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
 uint32_t
 SoVolumeData::getVoxelValue(const SbVec3s & voxelpos) const
 {
+  // FIXME: this function is also present in CvrVoxelBlockElement.
+  // Refactor to common util function. 20040719 mortene.
+
   assert(voxelpos[0] < PRIVATE(this)->dimensions[0]);
   assert(voxelpos[1] < PRIVATE(this)->dimensions[1]);
   assert(voxelpos[2] < PRIVATE(this)->dimensions[2]);
@@ -472,7 +483,19 @@ SoVolumeData::getPageSize(void) const
 void
 SoVolumeData::doAction(SoAction * action)
 {
-  SoVolumeDataElement::setVolumeData(action->getState(), this, this);
+  CvrVoxelBlockElement::VoxelSize s;
+  switch (PRIVATE(this)->datatype) {
+  case UNSIGNED_BYTE: s = CvrVoxelBlockElement::UINT_8; break;
+  case UNSIGNED_SHORT: s = CvrVoxelBlockElement::UINT_16; break;
+  default: assert(FALSE); break;
+  }
+
+  const uint8_t * voxels = (const uint8_t *)
+    (PRIVATE(this)->reader ? PRIVATE(this)->reader->m_data : NULL);
+
+  CvrVoxelBlockElement::set(action->getState(), this, s,
+                            PRIVATE(this)->dimensions, voxels,
+                            this->getVolumeSize());
 }
 
 void
@@ -480,8 +503,11 @@ SoVolumeData::GLRender(SoGLRenderAction * action)
 {
   this->doAction(action);
 
-  CvrCompressedTexturesElement::set(action->getState(),
-                                    this->useCompressedTexture.getValue());
+  SoState * s = action->getState();
+  CvrCompressedTexturesElement::set(s, this->useCompressedTexture.getValue());
+  CvrPalettedTexturesElement::set(s, this->usePalettedTexture.getValue());
+  CvrPageSizeElement::set(s, this->getPageSize());
+  CvrStorageHintElement::set(s, this->storageHint.getValue());
 }
 
 void

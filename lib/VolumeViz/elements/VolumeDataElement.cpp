@@ -28,6 +28,10 @@
 
 // *************************************************************************
 
+// NOTE: this class is obsoleted!! Will be removed from SIM Voleon 2.0.0.
+
+// *************************************************************************
+
 #include <assert.h>
 
 #include <Inventor/SbBox3f.h>

@@ -38,14 +38,12 @@
 
 #include <Inventor/actions/SoGLRenderAction.h>
 
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/readers/SoVolumeReader.h>
 
 // *************************************************************************
 
@@ -54,21 +52,18 @@ PointRendering::render(SoGLRenderAction * action)
 {
   SoState * state = action->getState();
 
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL);
-  SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  assert(volumedata != NULL);
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  assert(vbelem != NULL);
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
 
-  SbVec3s dimension;
-  void * data;
-  SoVolumeData::DataType type;
+  const SbVec3s & dimension = vbelem->getVoxelCubeDimensions();
+  const void * data = vbelem->getVoxels();
+  CvrVoxelBlockElement::VoxelSize type = vbelem->getType();
   
-  volumedata->getVolumeData(dimension, data, type);
   // FIXME: support 16-bit data. 20040220 mortene.
-  assert(type == SoVolumeData::UNSIGNED_BYTE && "unsupported datatype");
+  assert(type == CvrVoxelBlockElement::UINT_8 && "unsupported datatype");
   const uint8_t * voxels = (const uint8_t *)data;
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);

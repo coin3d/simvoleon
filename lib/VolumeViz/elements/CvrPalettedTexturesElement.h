@@ -1,5 +1,5 @@
-#ifndef SIMVOLEON_CVRUTIL_H
-#define SIMVOLEON_CVRUTIL_H
+#ifndef SIMVOLEON_CVRPALETTEDTEXTURESELEMENT_H
+#define SIMVOLEON_CVRPALETTEDTEXTURESELEMENT_H
 
 /**************************************************************************\
  *
@@ -24,28 +24,26 @@
  *
 \**************************************************************************/
 
-#include <Inventor/SbBasic.h>
-
-class SbMatrix;
-class CvrVoxelBlockElement;
+#include <Inventor/elements/SoInt32Element.h>
 
 // *************************************************************************
 
-class CvrUtil {
+class CvrPalettedTexturesElement : public SoInt32Element {
+  typedef SoInt32Element inherited;
+  SO_ELEMENT_HEADER(CvrPalettedTexturesElement);
+
 public:
-  static SbBool doDebugging(void);
-  static SbBool debugRayPicks(void);
+  static void initClass(void);
+  virtual void init(SoState * state);
+  static const CvrPalettedTexturesElement * getInstance(SoState * const state);
 
-  static SbBool useFlippedYAxis(void);
-  static SbBool dontModulateTextures(void);
-  static SbBool force2DTextureRendering(void);
-  
-  static uint32_t crc32(uint8_t * buf, unsigned int len);
+  static void set(SoState * state, SbBool val);
+  static SbBool get(SoState * state);
 
-  static void getTransformFromVolumeBoxDimensions(const CvrVoxelBlockElement * vd,
-                                                  SbMatrix & m);
+protected:
+  virtual ~CvrPalettedTexturesElement();
 };
 
 // *************************************************************************
 
-#endif // !SIMVOLEON_CVRUTIL_H
+#endif // !SIMVOLEON_CVRPALETTEDTEXTURESELEMENT_H

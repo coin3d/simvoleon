@@ -21,27 +21,24 @@
  *
 \**************************************************************************/
 
+#include <VolumeViz/render/2D/Cvr2DTexPage.h>
+
 #include <limits.h>
 #include <string.h>
 
 #include <Inventor/C/tidbits.h>
+#include <Inventor/SbBox2s.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 
-#include <VolumeViz/render/2D/Cvr2DTexPage.h>
-
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
-#include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/render/common/CvrRGBATexture.h>
-#include <VolumeViz/render/common/CvrPaletteTexture.h>
-#include <VolumeViz/render/common/Cvr2DRGBATexture.h>
-#include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
+#include <VolumeViz/render/common/CvrTextureObject.h>
 
 // *************************************************************************
 
@@ -59,7 +56,7 @@ public:
 
 // *************************************************************************
 
-Cvr2DTexPage::Cvr2DTexPage(SoVolumeReader * reader,
+Cvr2DTexPage::Cvr2DTexPage(const SoGLRenderAction * action,
                            const unsigned int axis,
                            const unsigned int sliceidx,
                            const SbVec2s & subpagetexsize)
@@ -75,12 +72,9 @@ Cvr2DTexPage::Cvr2DTexPage(SoVolumeReader * reader,
   this->sliceidx = sliceidx;
   this->axis = axis;
   this->subpagesize = subpagetexsize;
-  this->reader = reader;
 
-  SbVec3s dim;
-  SbBox3f size;
-  SoVolumeData::DataType dummy;
-  this->reader->getDataChar(size, dummy, dim);
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
+  const SbVec3s & dim = vbelem->getVoxelCubeDimensions();
 
   assert(dim[0] > 0);
   assert(dim[1] > 0);
@@ -276,21 +270,16 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   SbBox2s subpagecut = SbBox2s(subpagemin, subpagemax);
   
   SoState * state = action->getState();
-  const SoVolumeDataElement * vdelement = SoVolumeDataElement::getInstance(state);
-  assert(vdelement != NULL);
-  SoVolumeData * voldatanode = vdelement->getVolumeData();
-  assert(voldatanode != NULL);
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
 
-  SbVec3s vddims;
-  void * dataptr;
-  SoVolumeData::DataType type;
-  SbBool ok = voldatanode->getVolumeData(vddims, dataptr, type);
-  assert(ok);
+  const SbVec3s & vddims = vbelem->getVoxelCubeDimensions();
+  const uint8_t * dataptr = vbelem->getVoxels();
+  CvrVoxelBlockElement::VoxelSize size = vbelem->getType();
 
   CvrVoxelChunk::UnitSize vctype;
-  switch (type) {
-  case SoVolumeData::UNSIGNED_BYTE: vctype = CvrVoxelChunk::UINT_8; break;
-  case SoVolumeData::UNSIGNED_SHORT: vctype = CvrVoxelChunk::UINT_16; break;
+  switch (size) {
+  case CvrVoxelBlockElement::UINT_8: vctype = CvrVoxelChunk::UINT_8; break;
+  case CvrVoxelBlockElement::UINT_16: vctype = CvrVoxelChunk::UINT_16; break;
   default: assert(FALSE); break;
   }
   
@@ -351,7 +340,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   texobj->unref();
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
-  pitem->volumedataid = voldatanode->getNodeId();
+  pitem->volumedataid = vbelem->getNodeId();
   pitem->invisible = invisible;
 
   const int idx = this->calcSubPageIdx(row, col);
@@ -411,8 +400,8 @@ Cvr2DTexPage::getSubPage(SoState * state, int col, int row)
   Cvr2DTexSubPageItem * subp = this->subpages[idx];
 
   if (subp) {
-    const SoVolumeData * volumedata = SoVolumeDataElement::getInstance(state)->getVolumeData();
-    uint32_t volumedataid = volumedata->getNodeId();
+    const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+    uint32_t volumedataid = vbelem->getNodeId();
 
     if (subp->volumedataid != volumedataid) {
       // FIXME: it could perhaps be a decent optimalization to store a

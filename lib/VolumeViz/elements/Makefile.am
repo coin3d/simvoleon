@@ -9,6 +9,10 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
 RegularSources = \
 	CompressedTexturesElement.cpp \
+	PalettedTexturesElement.cpp \
+	PageSizeElement.cpp \
+	StorageHintElement.cpp \
+	VoxelBlockElement.cpp \
 	VolumeDataElement.cpp \
 	TransferFunctionElement.cpp
 
@@ -17,7 +21,11 @@ PublicHeaders = \
 	SoTransferFunctionElement.h
 
 PrivateHeaders = \
-	CvrCompressedTexturesElement.h
+	CvrCompressedTexturesElement.h \
+	CvrPalettedTexturesElement.h \
+	CvrPageSizeElement.h \
+	CvrStorageHintElement.h \
+	CvrVoxelBlockElement.h
 
 # **************************************************************************
 

@@ -50,8 +50,9 @@
 #include <VolumeViz/nodes/SoOrthoSlice.h>
 
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
+#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
@@ -82,7 +83,7 @@ public:
     return this->page;
   }
 
-  const SoVolumeData * sovolumedata;
+  uint32_t volumedataid;
   Cvr2DTexPage * page;
 };
 
@@ -116,7 +117,7 @@ public:
   }
 
   static void renderBox(SoGLRenderAction * action, SbBox3f box);
-  Cvr2DTexPage * getPage(const int axis, const int slice, SoVolumeData * v);
+  Cvr2DTexPage * getPage(const SoGLRenderAction * action, const int axis, const int slice);
   SbPlane getSliceAsPlane(SoAction * action) const;
   SbBool confirmValidInContext(SoState * state) const;
 
@@ -199,13 +200,11 @@ SoOrthoSlice::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoOrthoSlice, SoShape, "SoShape");
 
-  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoGLClipPlaneElement);
   SO_ENABLE(SoGLRenderAction, SoModelMatrixElement);
   SO_ENABLE(SoGLRenderAction, SoLazyElement);
 
-  SO_ENABLE(SoPickAction, SoVolumeDataElement);
   SO_ENABLE(SoPickAction, SoTransferFunctionElement);
   SO_ENABLE(SoPickAction, SoClipPlaneElement);
 }
@@ -221,9 +220,8 @@ SoOrthoSlice::affectsState(void) const
 SbPlane
 SoOrthoSliceP::getSliceAsPlane(SoAction * action) const
 {
-  const SoVolumeDataElement * volumedataelement =
-    SoVolumeDataElement::getInstance(action->getState());
-  assert(volumedataelement != NULL);
+  const CvrVoxelBlockElement * vbelem =
+    CvrVoxelBlockElement::getInstance(action->getState());
 
   const int axis = PUBLIC(this)->axis.getValue();
 
@@ -240,13 +238,13 @@ SoOrthoSliceP::getSliceAsPlane(SoAction * action) const
 
   // Finding a point in the plane:
 
-  const SbBox3f spacesize = volumedataelement->getVolumeData()->getVolumeSize();
+  const SbBox3f & spacesize = vbelem->getUnitDimensionsBox();
   SbVec3f spacemin, spacemax;
   spacesize.getBounds(spacemin, spacemax);
 
   SbVec3f origo = spacesize.getCenter();
 
-  const SbVec3s dimensions = volumedataelement->getVoxelCubeDimensions();
+  const SbVec3s & dimensions = vbelem->getVoxelCubeDimensions();
   const float depthprslice = (spacemax[axis] - spacemin[axis]) / dimensions[axis];
   const float depth = spacemin[axis] + PUBLIC(this)->sliceNumber.getValue() * depthprslice;
   origo[axis] = depth;
@@ -273,13 +271,8 @@ SbBool
 SoOrthoSliceP::confirmValidInContext(SoState * state) const
 {
   // Fetching the current volumedata
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  // FIXME: allow missing SoVolumeData (just don't render, react to
-  // picking or set up a non-empty bbox). 20031021 mortene.
-  assert(volumedataelement != NULL);
-  SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  // FIXME: as above. 20031021 mortene.
-  assert(volumedata != NULL);
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  assert(vbelem != NULL);
 
   const int axisidx = PUBLIC(this)->axis.getValue();
   if (axisidx < SoOrthoSlice::X || axisidx > SoOrthoSlice::Z) {
@@ -290,7 +283,7 @@ SoOrthoSliceP::confirmValidInContext(SoState * state) const
   }
 
   const int slicenr = PUBLIC(this)->sliceNumber.getValue();
-  const short slices = volumedataelement->getVoxelCubeDimensions()[axisidx];
+  const short slices = vbelem->getVoxelCubeDimensions()[axisidx];
   if (slicenr < 0 || slicenr >= slices) {
     // I don't think this can legally happen, so assert if no slices
     // are available. mortene.
@@ -309,6 +302,13 @@ void
 SoOrthoSlice::GLRender(SoGLRenderAction * action)
 {
   SoState * state = action->getState();
+
+  // Fetching the current volumedata information.
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  // FIXME: should have a warning message upon missing
+  // SoVolumeData. 20040719 mortene.
+  if (vbelem == NULL) { return; }
+
   if (!PRIVATE(this)->confirmValidInContext(state)) { return; }
 
   // Render at the end, in case the volume is partly (or fully)
@@ -376,17 +376,13 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   // debug
   if (SoOrthoSliceP::debug) { SoOrthoSliceP::renderBox(action, slicebox); }
 
-  // Fetching the current volumedata information.
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  SoVolumeData * volumedata = volumedataelement->getVolumeData();
-
   // Extract volume placement and scale information, and place it on
   // the model matrix stack. This lets the subsequent render code work
   // with a 1x1x1 size volume in unit coordinates, without
   // e.g. bothering about any scale and/or translation embedded in the
   // SoVolumeData::volumeboxmin/max fields.
   {
-    const SbBox3f localbox = volumedata->getVolumeSize();
+    const SbBox3f & localbox = vbelem->getUnitDimensionsBox();
     const SbVec3f
       localspan((localbox.getMax()[0] - localbox.getMin()[0]),
                 (localbox.getMax()[1] - localbox.getMin()[1]),
@@ -409,12 +405,12 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   // This is done to support client code depending on an old bug: data
   // along the Y axis used to be rendered flipped.
   if (CvrUtil::useFlippedYAxis() && (axisidx == Y)) {
-    const short ydim = volumedataelement->getVoxelCubeDimensions()[Y];
+    const short ydim = vbelem->getVoxelCubeDimensions()[Y];
     pageslice = (ydim - 1) - pageslice;
   }
 
   Cvr2DTexPage * texpage =
-    PRIVATE(this)->getPage(axisidx, pageslice, volumedata);
+    PRIVATE(this)->getPage(action, axisidx, pageslice);
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   CvrCLUT * c = new CvrCLUT(*CvrVoxelChunk::getCLUT(tfelement));
@@ -447,8 +443,7 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
     (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue();
 
   SbVec3f origo, horizspan, verticalspan;
-  volumedataelement->getPageGeometry(axisidx, slicenr,
-                                     origo, horizspan, verticalspan);
+  vbelem->getPageGeometry(axisidx, slicenr, origo, horizspan, verticalspan);
 
   texpage->render(action, origo, horizspan, verticalspan, ip);
 
@@ -465,28 +460,31 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
 }
 
 Cvr2DTexPage *
-SoOrthoSliceP::getPage(const int axis, const int slice, SoVolumeData * voldata)
+SoOrthoSliceP::getPage(const SoGLRenderAction * action,
+                       const int axis, const int slice)
 {
   while (this->cachedpages[axis].getLength() <= slice) {
     this->cachedpages[axis].append(NULL);
   }
 
+  SoState * state = action->getState();
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+
   CachedPage * cp = this->cachedpages[axis][slice];
 
   // Check validity.
-  if (cp && (cp->sovolumedata != voldata)) { delete cp; cp = NULL; }
+  if (cp && (cp->volumedataid != vbelem->getNodeId())) { delete cp; cp = NULL; }
 
   if (!cp) {
-    SbVec3s pagesize = voldata->getPageSize();
+    const SbVec3s & pagesize = CvrPageSizeElement::get(state);
     // Pagesize according to axis: X => [Z, Y], Y => [X, Z], Z => [X, Y].
     SbVec2s subpagesize =
       SbVec2s(pagesize[(axis == 0) ? 2 : 0], pagesize[(axis == 1) ? 2 : 1]);
 
-    Cvr2DTexPage * page =
-      new Cvr2DTexPage(voldata->getReader(), axis, slice, subpagesize);
+    Cvr2DTexPage * page = new Cvr2DTexPage(action, axis, slice, subpagesize);
 
     this->cachedpages[axis][slice] = cp = new CachedPage(page, PUBLIC(this));
-    cp->sovolumedata = voldata;
+    cp->volumedataid = vbelem->getNodeId();
   }
 
   return cp->getPage();
@@ -500,11 +498,8 @@ SoOrthoSlice::rayPick(SoRayPickAction * action)
   SoState * state = action->getState();
   if (!PRIVATE(this)->confirmValidInContext(state)) { return; }
 
-  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
-  assert(volumedataelement != NULL);
-  const SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  if (volumedata == NULL) { return; }
-
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  if (vbelem == NULL) { return; }
 
   this->computeObjectSpaceRay(action);
   const SbLine & ray = action->getLine();
@@ -515,9 +510,9 @@ SoOrthoSlice::rayPick(SoRayPickAction * action)
   if (sliceplane.intersect(ray, intersection) && // returns FALSE if parallel
       action->isBetweenPlanes(intersection)) {
 
-    SbVec3s ijk = volumedataelement->objectCoordsToIJK(intersection);
+    SbVec3s ijk = vbelem->objectCoordsToIJK(intersection);
 
-    const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
+    const SbVec3s & voxcubedims = vbelem->getVoxelCubeDimensions();
     const SbBox3s voxcubebounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
 
     if (voxcubebounds.intersect(ijk)) {
@@ -534,7 +529,7 @@ SoOrthoSlice::rayPick(SoRayPickAction * action)
 
       detail->objectcoords = intersection;
       detail->ijkcoords = ijk;
-      detail->voxelvalue = volumedata->getVoxelValue(ijk);
+      detail->voxelvalue = vbelem->getVoxelValue(ijk);
     }
   }
 
@@ -564,21 +559,14 @@ SoOrthoSlice::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
   SoState * state = action->getState();
   if (!PRIVATE(this)->confirmValidInContext(state)) { return; }
 
-  const SoVolumeDataElement * volumedataelement =
-    SoVolumeDataElement::getInstance(state);
-  if (volumedataelement == NULL) return;
-  SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  if (volumedata == NULL) return;
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  if (vbelem == NULL) return;
 
-  SbBox3f vdbox = volumedata->getVolumeSize();
+  SbBox3f vdbox = vbelem->getUnitDimensionsBox();
   SbVec3f bmin, bmax;
   vdbox.getBounds(bmin, bmax);
 
-  SbVec3s dimensions;
-  void * data;
-  SoVolumeData::DataType type;
-  SbBool ok = volumedata->getVolumeData(dimensions, data, type);
-  assert(ok);
+  const SbVec3s & dimensions = vbelem->getVoxelCubeDimensions();
 
   const int axisidx = (int)axis.getValue();
   const int slice = this->sliceNumber.getValue();
