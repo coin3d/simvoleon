@@ -50,7 +50,7 @@
   for the application programmer. </li>
 
   <li> Provides interaction possibilities for direct queries in the 3D
-  scene on the volumetric data. </li>
+  scene on the volumetric data through picking support. </li>
 
   <li> Volumes are visualized by using functionality which is assisted
   by dedicated 3D hardware on most modern graphics cards, namely 2D
@@ -60,9 +60,12 @@
   automatically done on graphics card which supports hardware assisted
   3D texture mapping. </li>
 
-  <li> Transfer functions can be manipulated in realtime using the
-  EXT_texture_palette or the ARB_fragment_program OpenGL
+  <li> Colour transfer functions can be manipulated in realtime using the
+  EXT_paletted_texture or the ARB_fragment_program OpenGL
   extension. </li>
+
+  <li> Maximum Intensity Projection and Sum Intensity Projection is
+  supported through hardware if available. </li>
 
   <center>
    <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-spine.png">
@@ -150,6 +153,55 @@
     return 0;
   }
   \endcode
+
+
+  <b>Hardware requirements:</b> 
+  <ul>
+
+  <li>
+  SIMVoleon can render volumes using both 2D and 3D textures. The
+  former will demand three times more texture memory than the latter,
+  due to the static axis alignment for the volume slices. 3D textures
+  provide the best rendering quality. SIMVoleon will do a performance
+  test of the hosts graphics card at startup to determine whether the
+  3D texture support, if present, is hardware accelerated or not. If
+  the support is not hardware accelerated (which is the case with many
+  older cards), SIMVoleon will fall back to regular 2D texture
+  rendering.
+
+  Beware that certain nodes requires true 3D texture support to be
+  present to function properly (e.g. SoObliqueSlice).
+  </li>
+
+  <li>
+  Due to the fact that volume data sets are usually quite large,
+  memory is an important factor for volume rendering. It is also
+  important to remember that 2D texture rendering requires three times
+  more memory than 3D texture rendering. It is recommended that
+  at least 32 MB of memory is available, depending on the size of the
+  data sets used.
+  </li>
+
+  <li>
+  SIMVoleon will take advantage of the EXT_paletted_texture or the
+  ARB_fragment_program OpenGL extension if available for palette
+  rendering. If neither of these extensions are present, all data sets
+  will be converted into RGBA textures before uploaded by OpenGL,
+  multiplying the memory usage by four.
+  </li>
+
+  </ul>
+
+  <center>
+   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-engine.png">
+  </center>
+
+  SIMVoleon does currently support loading of VOL files, which is a
+  format introduces by the book <i>"Introduction To Volume
+  Rendering"</i>, by Lichtenbelt, Crane and Naqvi (Hewlett-Packard /
+  Prentice Hall), <i>ISBN 0-13-861683-3</i>. (See the
+  SoVRVolFileReader class doc for info). Support for more file-formats
+  can be added by extending the SoVolumeReader class.
 
   Beware that large voxel sets are divided into sub cubes. The largest
   default sub cube size is set to 128x128x128 to comply with the TGS
