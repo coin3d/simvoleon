@@ -1,6 +1,9 @@
 #include <Inventor/@Gui@/So@Gui@.h>
 #include <Inventor/@Gui@/viewers/So@Gui@ExaminerViewer.h>
 #include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoSphere.h>
+#include <Inventor/nodes/SoTranslation.h>
+
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
@@ -57,8 +60,31 @@ main(int argc, char ** argv)
   OrthoSliceHandler * osdia = new OrthoSliceHandler(orthoslice, volumedata);
 
   // Add SoVolumeRender to scene graph
-  SoVolumeRender * volrend = new SoVolumeRender();
-//   root->addChild(volrend);
+  if (0) { // enable or disable this at will
+    SoVolumeRender * volrend = new SoVolumeRender();
+    root->addChild(volrend);
+  }
+
+  // These spheres are here just for testing the cutting
+  // functionality.
+  {
+    const SbBox3f & volumebbox = volumedata->getVolumeSize();
+    float dx, dy, dz;
+    volumebbox.getSize(dx, dy, dz);
+    float mindim = SbMin(dx, SbMin(dy, dz));
+
+    SoSphere * sph = new SoSphere;
+    sph->radius = mindim * 0.1f;
+
+    SoTranslation * translate0 = new SoTranslation;
+    translate0->translation.setValue(0, 0, volumebbox.getMin()[2] - dz);
+    SoTranslation * translate1 = new SoTranslation;
+    translate1->translation.setValue(0, 0, volumebbox.getMax()[2] + dz);
+    root->addChild(translate0);
+    root->addChild(sph);
+    root->addChild(translate1);
+    root->addChild(sph);
+  }
 
   So@Gui@ExaminerViewer * viewer = new So@Gui@ExaminerViewer(window);
   viewer->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
