@@ -464,7 +464,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os simvoleon_src_dir simvoleon_build_dir BUILD_WITH_MSVC BUILD_WITH_MSVC_TRUE BUILD_WITH_MSVC_FALSE SIMVOLEON_MSVC_LIBC SIMVOLEON_MAJOR_VERSION SIMVOLEON_MINOR_VERSION SIMVOLEON_MICRO_VERSION SIMVOLEON_BETA_VERSION SIMVOLEON_VERSION LT_CURRENT LT_REVISION LT_AGE MAC_FRAMEWORK MAC_FRAMEWORK_TRUE MAC_FRAMEWORK_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP CXX CXXFLAGS ac_ct_CXX SIMVOLEON_EXTRA_CPPFLAGS SIMVOLEON_EXTRA_CFLAGS SIMVOLEON_EXTRA_CXXFLAGS SIMVOLEON_EXTRA_LDFLAGS SIMVOLEON_EXTRA_LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CONFIG SUFFIX CXXCPP EGREP MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB F77 FFLAGS ac_ct_F77 LIBTOOL DSUFFIX BUILD_LIBRARY_TRUE BUILD_LIBRARY_FALSE htmldir VOLEON_DOC_HTML voleon_html_dir VOLEON_DOC_MAN voleon_man_dir BUILD_MANPAGES_TRUE BUILD_MANPAGES_FALSE BUILD_HTMLPAGES_TRUE BUILD_HTMLPAGES_FALSE sim_ac_doxygen_exe sim_ac_perl_exe path_tag voleon_build_dir voleon_src_dir sim_ac_coin_configcmd LIBFLAGS COMPILER ac_compiler_gnu SIMVOLEON_DSP_LIBS SIMVOLEON_DSP_INCS SIMVOLEON_DSP_DEFS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os simvoleon_src_dir simvoleon_build_dir ac_unique_file sim_ac_relative_src_dir sim_ac_relative_src_dir_p BUILD_WITH_MSVC BUILD_WITH_MSVC_TRUE BUILD_WITH_MSVC_FALSE SIMVOLEON_MSVC_LIBC SIMVOLEON_MAJOR_VERSION SIMVOLEON_MINOR_VERSION SIMVOLEON_MICRO_VERSION SIMVOLEON_BETA_VERSION SIMVOLEON_VERSION LT_CURRENT LT_REVISION LT_AGE MAC_FRAMEWORK MAC_FRAMEWORK_TRUE MAC_FRAMEWORK_FALSE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP CXX CXXFLAGS ac_ct_CXX SIMVOLEON_EXTRA_CPPFLAGS SIMVOLEON_EXTRA_CFLAGS SIMVOLEON_EXTRA_CXXFLAGS SIMVOLEON_EXTRA_LDFLAGS SIMVOLEON_EXTRA_LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CONFIG SUFFIX CXXCPP EGREP MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB F77 FFLAGS ac_ct_F77 LIBTOOL DSUFFIX BUILD_LIBRARY_TRUE BUILD_LIBRARY_FALSE htmldir VOLEON_DOC_HTML voleon_html_dir VOLEON_DOC_MAN voleon_man_dir BUILD_MANPAGES_TRUE BUILD_MANPAGES_FALSE BUILD_HTMLPAGES_TRUE BUILD_HTMLPAGES_FALSE sim_ac_doxygen_exe sim_ac_perl_exe path_tag voleon_build_dir voleon_src_dir sim_ac_coin_configcmd LIBFLAGS COMPILER ac_compiler_gnu SIMVOLEON_DSP_LIBS SIMVOLEON_DSP_INCS SIMVOLEON_DSP_DEFS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1621,6 +1621,64 @@ test -n "$target_alias" &&
 
 simvoleon_build_dir=`pwd`
 simvoleon_src_dir=`cd $srcdir; pwd`
+
+
+
+
+
+
+temp_build_dir=`pwd`
+temp_src_dir=`cd "$srcdir"; pwd`
+
+temp_up=""
+temp_down=""
+
+while test "$temp_build_dir" != "$temp_src_dir"; do
+  srclen=`echo "$temp_src_dir" | wc -c`
+  buildlen=`echo "$temp_build_dir" | wc -c`
+  if test $srclen -gt $buildlen; then
+    # cut source tail, insert into temp_up
+    temp_src_tail=`echo "$temp_src_dir" | sed -e 's,.*/,,g'`
+    temp_src_dir=`echo "$temp_src_dir" | sed -e 's,/[^/]*\$,,g'`
+    if test x"$temp_up" = "x"; then
+      temp_up="$temp_src_tail"
+    else
+      temp_up="$temp_src_tail/$temp_up"
+    fi
+  else
+    # cut build tail, increase temp_down
+    temp_build_dir=`echo "$temp_build_dir" | sed -e 's,/[^/]*\$,,g'`
+    if test x"$temp_down" = "x"; then
+      temp_down=..
+    else
+      temp_down="../$temp_down"
+    fi
+  fi
+done
+
+if test x"$temp_down" = "x"; then
+  if test x"$temp_up" = "x"; then
+    sim_ac_relative_src_dir="."
+  else
+    sim_ac_relative_src_dir="$temp_up"
+  fi
+else
+  if test x"$temp_up" = "x"; then
+    sim_ac_relative_src_dir="$temp_down"
+  else
+    sim_ac_relative_src_dir="$temp_down/$temp_up"
+  fi
+fi
+
+# this gives false positives on windows, but that's ok for now...
+if test -f $sim_ac_relative_src_dir/$ac_unique_file; then
+  sim_ac_relative_src_dir_p=true;
+else
+  sim_ac_relative_src_dir_p=false;
+fi
+
+ # useful to have to check the relative path
+
 
 
 
@@ -5794,7 +5852,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5797 "configure"' > conftest.$ac_ext
+  echo '#line 5855 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -6181,7 +6239,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:6184:" \
+echo "$as_me:6242:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -7192,11 +7250,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7195: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7253: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7199: \$? = $ac_status" >&5
+   echo "$as_me:7257: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -7424,11 +7482,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7427: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7485: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7431: \$? = $ac_status" >&5
+   echo "$as_me:7489: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -7491,11 +7549,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7494: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7552: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:7498: \$? = $ac_status" >&5
+   echo "$as_me:7556: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -9503,7 +9561,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9506 "configure"
+#line 9564 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9601,7 +9659,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9604 "configure"
+#line 9662 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11735,11 +11793,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11738: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11796: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:11742: \$? = $ac_status" >&5
+   echo "$as_me:11800: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -11802,11 +11860,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11805: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11863: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:11809: \$? = $ac_status" >&5
+   echo "$as_me:11867: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -13045,7 +13103,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 13048 "configure"
+#line 13106 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13143,7 +13201,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 13146 "configure"
+#line 13204 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13965,11 +14023,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13968: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14026: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13972: \$? = $ac_status" >&5
+   echo "$as_me:14030: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -14032,11 +14090,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14035: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14093: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14039: \$? = $ac_status" >&5
+   echo "$as_me:14097: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -15972,11 +16030,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15975: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16033: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15979: \$? = $ac_status" >&5
+   echo "$as_me:16037: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -16204,11 +16262,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16207: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16265: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16211: \$? = $ac_status" >&5
+   echo "$as_me:16269: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -16271,11 +16329,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16274: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16332: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16278: \$? = $ac_status" >&5
+   echo "$as_me:16336: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -18283,7 +18341,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18286 "configure"
+#line 18344 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -18381,7 +18439,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18384 "configure"
+#line 18442 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -21880,6 +21938,7 @@ fi
 echo "$as_me:$LINENO: result: $sim_cv_coin_avail" >&5
 echo "${ECHO_T}$sim_cv_coin_avail" >&6
     sim_ac_coin_avail=$sim_cv_coin_avail
+
     if $sim_ac_coin_avail; then :; else
       { echo "$as_me:$LINENO: WARNING:
 Compilation and/or linking with the Coin main library SDK failed, for
@@ -21901,12 +21960,98 @@ describing the situation where this failed.
 " >&2;}
     fi
   else # no 'coin-config' found
-    locations=`IFS="${sim_ac_pathsep}"; for p in $sim_ac_path; do echo " -> $p/coin-config"; done`
-    { echo "$as_me:$LINENO: WARNING: cannot find 'coin-config' at any of these locations:
+
+# FIXME: test for Coin without coin-config script here
+    if test x"$COINDIR" != x""; then
+      sim_ac_coindir=`cygpath -u "$COINDIR" 2>/dev/null || echo "$COINDIR"`
+      if test -d $sim_ac_coindir/bin && test -d $sim_ac_coindir/lib && test -d $sim_ac_coindir/include/Inventor; then
+        # using newest version (last alphabetically) in case of multiple libs
+        sim_ac_coin_lib_file=`echo $sim_ac_coindir/lib/coin*.lib | sed -e 's,.* ,,g'`
+        if test -f $sim_ac_coin_lib_file; then
+          sim_ac_coin_lib_name=`echo $sim_ac_coin_lib_file | sed -e 's,.*/,,g' -e 's,.lib,,'`
+          sim_ac_save_cppflags=$CPPFLAGS
+          sim_ac_save_libs=$LIBS
+          sim_ac_save_ldflags=$LDFLAGS
+          CPPFLAGS="$CPPFLAGS -I$sim_ac_coindir/include"
+          if test -f $sim_ac_coindir/bin/$sim_ac_coin_lib_name.dll; then
+            CPPFLAGS="$CPPFLAGS -DCOIN_DLL"
+          fi
+          LDFLAGS="$LDFLAGS -L$sim_ac_coindir/lib"
+          LIBS="-l$sim_ac_coin_lib_name -lopengl32 $LIBS"
+
+          ac_ext=cc
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+          cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <Inventor/SoDB.h>
+int
+main ()
+{
+SoDB::init();
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  sim_cv_coin_avail=true
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+sim_cv_coin_avail=false
+fi
+rm -f conftest.$ac_objext conftest$ac_exeext conftest.$ac_ext
+
+          ac_ext=cc
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+          CPPFLAGS=$sim_ac_save_cppflags
+          LDFLAGS=$sim_ac_save_ldflags
+          LIBS=$sim_ac_save_libs
+          sim_ac_coin_avail=$sim_cv_coin_avail
+        fi
+      fi
+    fi
+
+    if $sim_ac_coin_avail; then
+      sim_ac_coin_cppflags=-I$sim_ac_coindir/include
+      if test -f $sim_ac_coindir/bin/$sim_ac_coin_lib_name.dll; then
+        sim_ac_coin_cppflags="$sim_ac_coin_cppflags -DCOIN_DLL"
+      fi
+      sim_ac_coin_ldflags=-L$sim_ac_coindir/lib
+      sim_ac_coin_libs="-l$sim_ac_coin_lib_name -lopengl32"
+      sim_ac_coin_datadir=$sim_ac_coindir/data
+    else
+      locations=`IFS="${sim_ac_pathsep}"; for p in $sim_ac_path; do echo " -> $p/coin-config"; done`
+      { echo "$as_me:$LINENO: WARNING: cannot find 'coin-config' at any of these locations:
 $locations" >&5
 echo "$as_me: WARNING: cannot find 'coin-config' at any of these locations:
 $locations" >&2;}
-    { echo "$as_me:$LINENO: WARNING:
+      { echo "$as_me:$LINENO: WARNING:
 Need to be able to run 'coin-config' to figure out how to build and link
 against the Coin library. To rectify this problem, you most likely need
 to a) install Coin if it has not been installed, b) add the Coin install
@@ -21918,6 +22063,7 @@ against the Coin library. To rectify this problem, you most likely need
 to a) install Coin if it has not been installed, b) add the Coin install
 bin/ directory to your PATH environment variable.
 " >&2;}
+    fi
   fi
 fi
 
@@ -22350,9 +22496,9 @@ fi
     esac
   done
 
-  CC=$simvoleon_src_dir/cfg/gendsp.sh
-  CXX=$simvoleon_src_dir/cfg/gendsp.sh
-  CXXLD=$simvoleon_src_dir/cfg/gendsp.sh
+  CC=$simvoleon_build_dir/cfg/gendsp.sh
+  CXX=$simvoleon_build_dir/cfg/gendsp.sh
+  CXXLD=$simvoleon_build_dir/cfg/gendsp.sh
   # Yes, this is totally bogus stuff, but don't worry about it.  As long
   # as gendsp.sh recognizes it...  20030219 larsa
   CPPFLAGS="$CPPFLAGS -Ddspfile=$simvoleon_build_dir/simvoleon$SIMVOLEON_MAJOR_VERSION.dsp"
@@ -22361,8 +22507,8 @@ fi
 
   # this can't be set up at the point the libtool script is generated
   mv libtool libtool.bak
-  sed -e "s%^CC=\"gcc\"%CC=\"$simvoleon_src_dir/cfg/gendsp.sh\"%" \
-      -e "s%^CC=\".*/wrapmsvc.exe\"%CC=\"$simvoleon_src_dir/cfg/gendsp.sh\"%" \
+  sed -e "s%^CC=\"gcc\"%CC=\"$simvoleon_build_dir/cfg/gendsp.sh\"%" \
+      -e "s%^CC=\".*/wrapmsvc.exe\"%CC=\"$simvoleon_build_dir/cfg/gendsp.sh\"%" \
       <libtool.bak >libtool
   rm -f libtool.bak
   chmod 755 libtool
@@ -22375,7 +22521,7 @@ fi
 
 # *******************************************************************
 
-                                                                                                                                                                                              ac_config_files="$ac_config_files Makefile html/Makefile bin/Makefile bin/simvoleon-config lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/caches/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile lib/VolumeViz/render/3D/Makefile lib/VolumeViz/render/common/Makefile lib/VolumeViz/render/Pointset/Makefile"
+                                                                                                                                                                                                        ac_config_files="$ac_config_files Makefile html/Makefile bin/Makefile bin/simvoleon-config lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/caches/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile lib/VolumeViz/render/3D/Makefile lib/VolumeViz/render/common/Makefile lib/VolumeViz/render/Pointset/Makefile cfg/gendsp.sh"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -22992,6 +23138,7 @@ do
   "lib/VolumeViz/render/3D/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/3D/Makefile" ;;
   "lib/VolumeViz/render/common/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/common/Makefile" ;;
   "lib/VolumeViz/render/Pointset/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/Pointset/Makefile" ;;
+  "cfg/gendsp.sh" ) CONFIG_FILES="$CONFIG_FILES cfg/gendsp.sh" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "lib/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS lib/config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
@@ -23093,6 +23240,9 @@ s,@target_vendor@,$target_vendor,;t t
 s,@target_os@,$target_os,;t t
 s,@simvoleon_src_dir@,$simvoleon_src_dir,;t t
 s,@simvoleon_build_dir@,$simvoleon_build_dir,;t t
+s,@ac_unique_file@,$ac_unique_file,;t t
+s,@sim_ac_relative_src_dir@,$sim_ac_relative_src_dir,;t t
+s,@sim_ac_relative_src_dir_p@,$sim_ac_relative_src_dir_p,;t t
 s,@BUILD_WITH_MSVC@,$BUILD_WITH_MSVC,;t t
 s,@BUILD_WITH_MSVC_TRUE@,$BUILD_WITH_MSVC_TRUE,;t t
 s,@BUILD_WITH_MSVC_FALSE@,$BUILD_WITH_MSVC_FALSE,;t t
@@ -23829,6 +23979,10 @@ if test "$no_create" != yes; then
   $ac_cs_success || { (exit 1); exit 1; }
 fi
 
+
+if test -f cfg/gendsp.sh; then
+  chmod +x cfg/gendsp.sh
+fi
 
 # *******************************************************************
 
