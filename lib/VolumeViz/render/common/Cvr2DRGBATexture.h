@@ -39,7 +39,7 @@ public:
   SbVec2s dimensions;
 
   virtual uint32_t * getRGBABuffer(void) const;
-  void blankUnused(const SbVec2s & texsize) const;
+  virtual void blankUnused(const SbVec3s & texsize) const;
 
 protected:
   Cvr2DRGBATexture(const SbVec2s & size);

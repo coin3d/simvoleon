@@ -40,7 +40,7 @@ public:
   SbVec2s dimensions;
   virtual uint8_t * getIndex8Buffer(void) const;
 
-  void blankUnused(const SbVec2s & texsize) const;
+  virtual void blankUnused(const SbVec3s & texsize) const;
   void dumpToPPM(const char * filename) const;
 
 private:

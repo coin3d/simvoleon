@@ -27,6 +27,9 @@
 #include <Inventor/SoType.h>
 #include <Inventor/system/gl.h>
 
+class SbVec3s;
+
+// *************************************************************************
 
 class CvrTextureObject {
 public:
@@ -43,6 +46,8 @@ public:
   uint32_t getRefCount(void) const;
   void ref(void) const;
   void unref(void) const;
+
+  virtual void blankUnused(const SbVec3s & texsize) const = 0;
 
 protected:
   // Constructor and destructor is protected as only the texture

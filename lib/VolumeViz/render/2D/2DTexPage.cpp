@@ -334,15 +334,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   // Must clear the unused texture area to prevent artifacts due to
   // inaccuracies when calculating texture coords.
- 
-  // FIXME: blankUnused() should be a common method on the
-  // superclass. 20040715 mortene.
-  if (texobj->getTypeId() == Cvr2DRGBATexture::getClassTypeId()) {
-    ((Cvr2DRGBATexture *) texobj)->blankUnused(texsize);
-  } else if (texobj->getTypeId() == Cvr2DPaletteTexture::getClassTypeId()) {
-    ((Cvr2DPaletteTexture *) texobj)->blankUnused(texsize);
-  }
-  
+   texobj->blankUnused(SbVec3s(texsize[0], texsize[1], 1));
 
 #if 0 // DEBUG: dump all transfered textures to bitmap files.
   SbString s;

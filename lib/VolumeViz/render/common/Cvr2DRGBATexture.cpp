@@ -22,8 +22,12 @@
 \**************************************************************************/
 
 #include <VolumeViz/render/common/Cvr2DRGBATexture.h>
-#include <Inventor/SbName.h>
+
 #include <assert.h>
+#include <Inventor/SbName.h>
+#include <Inventor/SbVec3s.h>
+
+// *************************************************************************
 
 // Don't set value explicitly to SoType::badType(), to avoid a bug in
 // Sun CC v4.0. (Bitpattern 0x0000 equals SoType::badType()).
@@ -31,6 +35,8 @@ SoType Cvr2DRGBATexture::classTypeId;
 
 SoType Cvr2DRGBATexture::getTypeId(void) const { return Cvr2DRGBATexture::classTypeId; }
 SoType Cvr2DRGBATexture::getClassTypeId(void) { return Cvr2DRGBATexture::classTypeId; }
+
+// *************************************************************************
 
 void
 Cvr2DRGBATexture::initClass(void)
@@ -50,6 +56,8 @@ Cvr2DRGBATexture::~Cvr2DRGBATexture()
 {
 }
 
+// *************************************************************************
+
 // Returns pointer to RGBA buffer. Allocates memory for it if
 // necessary.
 uint32_t *
@@ -67,9 +75,10 @@ Cvr2DRGBATexture::getRGBABuffer(void) const
 // Blank out unused texture parts, to make sure we don't get any
 // artifacts due to fp-inaccuracies when rendering.
 void
-Cvr2DRGBATexture::blankUnused(const SbVec2s & texsize) const
+Cvr2DRGBATexture::blankUnused(const SbVec3s & texsize) const
 {
   assert(this->rgbabuffer);
+  assert(texsize[2] == 1);
 
   SbVec2s texobjdims = this->dimensions;
   {
@@ -87,4 +96,3 @@ Cvr2DRGBATexture::blankUnused(const SbVec2s & texsize) const
     }
   }
 }
-

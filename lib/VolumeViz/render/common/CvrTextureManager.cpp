@@ -243,21 +243,21 @@ CvrTextureManager::new3DTextureObject(SoGLRenderAction * action,
   
   // Must clear unused texture area to prevent artifacts due to
   // floating point inaccuracies when calculating texture coords.
+  newtexobj->blankUnused(texsize);
+
   SbVec3s realtexsize;
   if (newtexobj->getTypeId() == Cvr3DRGBATexture::getClassTypeId()) {
-    ((Cvr3DRGBATexture *) newtexobj)->blankUnused(texsize);
     realtexsize = ((Cvr3DRGBATexture *) newtexobj)->dimensions;
-  } else if (newtexobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()) {
-    ((Cvr3DPaletteTexture *) newtexobj)->blankUnused(texsize);
+  }
+  else if (newtexobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()) {
     realtexsize = ((Cvr3DPaletteTexture *) newtexobj)->dimensions;
   }
   
   newtexobj->setTextureCompressed(voldata->useCompressedTexture.getValue());
-  transferTex3GL(action, newtexobj, realtexsize);
+  CvrTextureManager::transferTex3GL(action, newtexobj, realtexsize);
  
   return newtexobj;
 }
-
 
 CvrTextureObject *
 CvrTextureManager::new2DTextureObject(SoGLRenderAction * action, 
@@ -268,7 +268,6 @@ CvrTextureManager::new2DTextureObject(SoGLRenderAction * action,
   assert(FALSE && "Not implementet yet.");
   return NULL;
 }
-
 
 void
 CvrTextureManager::transferTex2GL(SoGLRenderAction * action,
