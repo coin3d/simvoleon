@@ -1,14 +1,17 @@
 
 m4_define([SIMVOLEON_MAJOR], [1])
 m4_define([SIMVOLEON_MINOR], [0])
-m4_define([SIMVOLEON_MICRO], [0])
+m4_define([SIMVOLEON_MICRO], [1])
+m4_define([SIMVOLEON_BETA], [a])
 
 # Converted to Libtool versioning.
 m4_define([SC_ABI_CURRENT], [m4_eval((SIMVOLEON_MAJOR*20)+SIMVOLEON_MINOR)])
 m4_define([SC_ABI_REVISION], [SIMVOLEON_MICRO])
 m4_define([SC_ABI_AGE], [SIMVOLEON_MINOR])
 
-AC_INIT([SimVoleon], [SIMVOLEON_MAJOR.SIMVOLEON_MINOR.SIMVOLEON_MICRO], [coin-support@coin3d.org])
+AC_INIT([SIM Voleon],
+        [SIMVOLEON_MAJOR.SIMVOLEON_MINOR.SIMVOLEON_MICRO[]SIMVOLEON_BETA],
+        [coin-support@coin3d.org])
 
 AC_CONFIG_SRCDIR(lib/VolumeViz/nodes/VolumeRendering.cpp)
 AC_CONFIG_AUX_DIR(cfg)
@@ -46,8 +49,8 @@ fi
 AC_SUBST([SIMVOLEON_MAJOR_VERSION], [SIMVOLEON_MAJOR])
 AC_SUBST([SIMVOLEON_MINOR_VERSION], [SIMVOLEON_MINOR])
 AC_SUBST([SIMVOLEON_MICRO_VERSION], [SIMVOLEON_MICRO])
-AC_SUBST([SIMVOLEON_VERSION], [SIMVOLEON_MAJOR.SIMVOLEON_MINOR.SIMVOLEON_MICRO])
-
+AC_SUBST([SIMVOLEON_BETA_VERSION], [SIMVOLEON_BETA])
+AC_SUBST([SIMVOLEON_VERSION], [$SIMVOLEON_MAJOR_VERSION.$SIMVOLEON_MINOR_VERSION.$SIMVOLEON_MICRO_VERSION$SIMVOLEON_BETA_VERSION])
 VERSION=$SIMVOLEON_VERSION
 
 # Libtool versioning
@@ -65,6 +68,10 @@ AC_DEFINE_UNQUOTED([SIMVOLEON_MICRO_VERSION], [$SIMVOLEON_MICRO_VERSION],
   [define this to the libSimVoleon release version number])
 AC_DEFINE_UNQUOTED([SIMVOLEON_VERSION], ["$SIMVOLEON_VERSION"],
   [define this to the full libSimVoleon major.minor.micro version number])
+if test x"$SIMVOLEON_BETA_VERSION" = x""; then :; else
+  AC_DEFINE_UNQUOTED([SIMVOLEON_BETA_VERSION], [$SIMVOLEON_BETA_VERSION],
+    [define this to the libSimVoleon beta version letter])
+fi
 
 # **************************************************************************
 # FIXME: Mac OS X support not in place yet. 20040506 mortene.
