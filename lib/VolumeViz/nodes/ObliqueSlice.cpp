@@ -30,6 +30,10 @@
   slice is specified as a plane with any orientation and position
   within the volume.
 
+  <center>
+   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-obliqueslice.png">
+  </center>
+
   Note that this node will not work with OpenGL drivers too old to
   contain support for 3D-texturing. All OpenGL drivers of version 1.2
   and onwards supports 3D-texturing, as does also older OpenGL drivers
