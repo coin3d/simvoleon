@@ -42,8 +42,8 @@
 
   <li> It is fully portable over the full range of platforms also
   supported by the Coin library, including all versions of Microsoft
-  Windows, Apple's Macintosh OS X, Linux, Sun Solaris, SGI IRIX, and
-  most other UNIX variants.</li>
+  Windows, Mac OS X, Linux, Sun Solaris, SGI IRIX, and most other 
+  UNIX variants.</li>
 
   <li> Integrates smoothly with traditional polygonal 3D data
   visualization from the Coin library, in a manner which is effortless
