@@ -1,0 +1,34 @@
+SectionEnd
+# **************************************************************************
+Section "SDK Shell Parts"
+SectionIn 1 3
+
+SetCompress auto
+SetOverwrite on
+
+SetOutPath $INSTDIR\bin
+File @win_prefix@\bin\simvoleon-config
+# wrapmsvc.exe should already be installed from Coin installation
+# File @win_prefix@\bin\wrapmsvc.exe
+
+# SIM Voleon has no man page
+#SetOutPath $INSTDIR\man\man1
+#File @win_prefix@\man\man1\*.1
+
+SetOutPath $INSTDIR\share\aclocal
+File @win_prefix@\share\aclocal\simvoleon.m4
+
+SetOutPath $INSTDIR\share\Coin\conf
+File @win_prefix@\share\Coin\conf\simvoleon-default.cfg
+File @win_prefix@\share\Coin\conf\simvoleon-debug.cfg
+# File @win_prefix@\share\Coin\conf\simvoleon-static.cfg
+# File @win_prefix@\share\Coin\conf\simvoleon-static-debug.cfg
+
+SectionEnd
+# **************************************************************************
+Section "Source Code"
+SectionIn 3
+
+SetCompress auto
+SetOverwrite on
+

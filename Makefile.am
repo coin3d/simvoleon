@@ -30,7 +30,8 @@ CLEANFILES = \
 EXTRA_DIST = \
 	simvoleon.cfg.in \
 	cfg/errors.txt \
-	cfg/wrapmsvc.exe
+	cfg/wrapmsvc.exe \
+	cfg/gendsp.sh
 
 m4datadir = $(datadir)/aclocal
 dist_m4data_DATA = cfg/simvoleon.m4
@@ -51,5 +52,19 @@ docs/simvoleon.doxygen: $(srcdir)/docs/simvoleon.doxygen.in config.status
 	@if test -d docs; then :; else mkdir docs; fi
 	@./config.status --file=$@:$@.in
 	@$(srcdir)/cfg/doxy4win.pl docs/simvoleon.doxygen
+
+# **************************************************************************
+# misc rules for automatic NSIS packaging.
+# main: `windows-packages'
+
+windows-files:
+	@if test -d windows; then :; else mkdir windows; fi
+	@for file in $(top_srcdir)/packaging/windows/NSIS/*.in; do \
+	  basename=`echo $$file | sed 's/^.*\///g; s/\.in$$//'`; \
+	  ./config.status --file=windows/$$basename:$$file; \
+	done
+
+windows-packages: windows-files
+	@( cd windows; $(MAKE) VERSION=$(VERSION) )
 
 # **************************************************************************

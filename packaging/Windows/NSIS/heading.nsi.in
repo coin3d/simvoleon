@@ -1,0 +1,56 @@
+# **************************************************************************
+# SuperPIMP (NSIS) Configuration File for the SIM Voleon installer.
+# See http://www.nullsoft.com/free/nsis/ for SuperPIMP information.
+# **************************************************************************
+# Authors:
+#   Lars J. Aas <larsa@sim.no>
+
+Name "@PACKAGE@ @sdk_version@"
+OutFile "@PACKAGE_TARNAME@-v@sdk_version@-install.exe"
+SilentInstall "normal"
+CRCCheck "on"
+
+LicenseText "GNU General Public License"
+LicenseData LICENSE.TXT
+
+ComponentText "Installing the @PACKAGE_NAME@ library"
+InstType "Binary SDK"
+InstType "Run-Time Only"
+InstType "Full"
+
+DirText "Where to install @PACKAGE_NAME@"
+InstallDir "D:\Coin3D"
+InstallDirRegKey HKEY_LOCAL_MACHINE SOFTWARE\Coin3D InstallPath
+
+# **************************************************************************
+Section "Run-Time Library"
+SectionIn 1 2 3
+
+SetCompress auto
+SetOverwrite on
+
+SetOutPath $INSTDIR\bin
+File @win_prefix@\bin\@PACKAGE@@SIMVOLEON_MAJOR_VERSION@.dll
+
+SetOutPath $INSTDIR\html
+File simvoleon-sdk.html
+
+SectionEnd
+# **************************************************************************
+Section "Binary SDK"
+SectionIn 1 3
+
+SetCompress auto
+SetOverwrite on
+
+SetOutPath $INSTDIR\bin
+File @win_prefix@\bin\@PACKAGE@@SIMVOLEON_MAJOR_VERSION@.dll
+File @win_prefix@\bin\@PACKAGE@@SIMVOLEON_MAJOR_VERSION@d.dll
+File @win_prefix@\bin\@PACKAGE@@SIMVOLEON_MAJOR_VERSION@d.pdb
+
+SetOutPath $INSTDIR\lib
+File @win_prefix@\lib\@PACKAGE@@SIMVOLEON_MAJOR_VERSION@.lib
+File @win_prefix@\lib\@PACKAGE@@SIMVOLEON_MAJOR_VERSION@d.lib
+# File @win_prefix@\lib\@PACKAGE@@SIMVOLEON_MAJOR_VERSION@s.lib
+# File @win_prefix@\lib\@PACKAGE@@SIMVOLEON_MAJOR_VERSION@sd.lib
+
