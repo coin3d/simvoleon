@@ -387,25 +387,14 @@ CvrCLUT::activate(const cc_glglue * glw) const
   // FIXME: should probably check if all is ok by using
   // PROXY_TEXTURE_2D first.
 
-  if (this->texturetype == CvrCLUT::TEXTURE3D) {
-    cc_glglue_glColorTable(glw,
-                           GL_TEXTURE_3D, /* target */
-                           GL_RGBA, /* GL internalformat */
-                           this->nrentries, /* nr of paletteentries */
-                           GL_RGBA, /* palette entry format */
-                           GL_UNSIGNED_BYTE, /* palette entry unit type */
-                           this->glcolors); /* data ptr */
-  }
-  else if(this->texturetype == CvrCLUT::TEXTURE2D) {
-    cc_glglue_glColorTable(glw,
-                           GL_TEXTURE_2D, /* target */
-                           GL_RGBA, /* GL internalformat */
-                           this->nrentries, /* nr of paletteentries */
-                           GL_RGBA, /* palette entry format */
-                           GL_UNSIGNED_BYTE, /* palette entry unit type */
-                           this->glcolors); /* data ptr */
-  } 
-  else { assert(FALSE && "Unknown texture type!"); }
+  cc_glglue_glColorTable(glw,
+                         (this->texturetype == CvrCLUT::TEXTURE2D) ?
+                         GL_TEXTURE_2D : GL_TEXTURE_3D, /* target */
+                         GL_RGBA, /* GL internalformat */
+                         this->nrentries, /* nr of paletteentries */
+                         GL_RGBA, /* palette entry format */
+                         GL_UNSIGNED_BYTE, /* palette entry unit type */
+                         this->glcolors); /* data ptr */
 
   // Error checking.
 
@@ -444,13 +433,10 @@ CvrCLUT::activate(const cc_glglue * glw) const
 
   // Sanity check.
   GLint actualsize;
-  if (this->texturetype == CvrCLUT::TEXTURE3D) {
-    cc_glglue_glGetColorTableParameteriv(glw, GL_TEXTURE_3D, GL_COLOR_TABLE_WIDTH, &actualsize);
-  }
-  else if(this->texturetype == CvrCLUT::TEXTURE2D) {
-    cc_glglue_glGetColorTableParameteriv(glw, GL_TEXTURE_2D, GL_COLOR_TABLE_WIDTH, &actualsize);
-  }
-  else { assert(FALSE && "Unknown texture type!"); }
+  cc_glglue_glGetColorTableParameteriv(glw,
+                                       (this->texturetype == CvrCLUT::TEXTURE2D) ?
+                                       GL_TEXTURE_2D : GL_TEXTURE_3D,
+                                       GL_COLOR_TABLE_WIDTH, &actualsize);
 
   assert(actualsize == (GLint)this->nrentries);
 }
