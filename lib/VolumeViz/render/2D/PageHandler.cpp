@@ -159,7 +159,7 @@ CvrPageHandler::setPalette(const CvrCLUT * c)
   for (unsigned int axis = 0; axis < 3; axis++) {
     if (this->slices[axis] != NULL) {
       for (unsigned int i = 0; i < this->voldatadims[axis]; i++) {
-        this->slices[axis][i]->setPalette(c);
+        if (this->slices[axis][i]) { this->slices[axis][i]->setPalette(c); }
       }
     }
   }
@@ -275,25 +275,26 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
   SbVec3f camvec;
   this->getViewVector(action, camvec);
-  const int AXISIDX = this->getCurrentAxis(camvec);
+  const unsigned int AXISIDX = this->getCurrentAxis(camvec);
+  const unsigned int DEPTH = this->voldatadims[AXISIDX];
 
   SbVec3f origo, horizspan, verticalspan;
 
   for (unsigned int i = 0; i < numslices; i++) {
     // Find nearest integer page idx (as number of pages to render
     // need not match the number of actual volume data pages).
-    unsigned int pageidx = (unsigned int)
-      ((float(i)/float(numslices)) * float(this->voldatadims[AXISIDX]) + 0.5f);
-    // If rendering in reverse order.
-    if (camvec[AXISIDX] < 0) { pageidx = numslices - pageidx - 1; }
+    const float fraction = float(i) / float(numslices); // fraction of rendering
+    unsigned int pageidx = (unsigned int) (fraction * float(DEPTH - 1) + 0.5f);
+    assert(pageidx < DEPTH);
 
-    assert(pageidx < numslices);
-    assert(pageidx < this->voldatadims[AXISIDX]);
+    // If rendering in reverse order.
+    if (camvec[AXISIDX] < 0) { pageidx = DEPTH - pageidx - 1; }
+    assert(pageidx < DEPTH);
 
     SoVolumeRender::AbortCode abortcode =
       (abortfunc == NULL) ?
       SoVolumeRender::CONTINUE :
-      abortfunc(numslices, pageidx + 1, abortcbdata);
+      abortfunc(numslices, i + 1, abortcbdata);
 
     if (abortcode == SoVolumeRender::ABORT) break;
 
@@ -303,7 +304,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
       // Pages along Y-axis is in opposite order of those along X- and
       // Z-axis.
-      if (AXISIDX == 1)  { pageidx = numslices - pageidx - 1; }
+      if (AXISIDX == 1)  { pageidx = DEPTH - pageidx - 1; }
       // Note: even if this is the same page as the last one
       // (numSlices in SoVolumeRender can be larger than the actual
       // dimensions), we should still render it at the new depth, as
