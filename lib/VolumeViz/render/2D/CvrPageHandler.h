@@ -16,7 +16,7 @@ public:
   CvrPageHandler(const SbVec3s & voldatadims, SoVolumeReader * reader);
   ~CvrPageHandler();
 
-  void render(SoGLRenderAction * action, int numslices);
+  void render(SoGLRenderAction * action, unsigned int numslices);
   unsigned int getCurrentAxis(SoGLRenderAction * action) const;
 
   void releaseAllSlices(void);
@@ -28,8 +28,9 @@ private:
 
   Cvr2DTexPage * getSlice(const unsigned int AXISIDX, unsigned int sliceidx);
 
-  void renderOnePage(SoGLRenderAction * action, const SbBox2f & quad,
-                     float depth, unsigned int pageidx, unsigned int axis);
+  void renderOnePage(SoGLRenderAction * action, Cvr2DTexPage * page,
+                     const SbBox2f & quad, float depth,
+                     const unsigned int AXISIDX);
 
   Cvr2DTexPage ** slices[3];
   unsigned int voldatadims[3];

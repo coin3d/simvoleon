@@ -114,7 +114,7 @@ CvrPageHandler::getCurrentAxis(SoGLRenderAction * action) const
 }
 
 void
-CvrPageHandler::render(SoGLRenderAction * action, int numslices)
+CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices)
 {
   SoState * state = action->getState();
 
@@ -139,17 +139,13 @@ CvrPageHandler::render(SoGLRenderAction * action, int numslices)
   this->getViewVector(action, camvec);
   const int AXISIDX = this->getCurrentAxis(camvec);
 
-  float depth;
-  float depthAdder;
+  float depth = volmin[AXISIDX];
+  float depthprslice = (volmax[AXISIDX] - volmin[AXISIDX]) / numslices;
 
   // Render in reverse order?
   if (camvec[AXISIDX] < 0)  {
-    depthAdder = -(volmax[AXISIDX] - volmin[AXISIDX]) / numslices;
     depth = volmax[AXISIDX];
-  }
-  else {
-    depthAdder = (volmax[AXISIDX] - volmin[AXISIDX]) / numslices;
-    depth = volmin[AXISIDX];
+    depthprslice = -depthprslice;
   }
 
   const SbBox2f QUAD = (AXISIDX == 2) ? // along Z?
@@ -171,6 +167,7 @@ CvrPageHandler::render(SoGLRenderAction * action, int numslices)
 
   glDisable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
+  // FIXME: change to GL_FRONT after everything works well. 20021126 mortene.
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   // FIXME: this is a reversion of a change that pederb made on
@@ -195,20 +192,24 @@ CvrPageHandler::render(SoGLRenderAction * action, int numslices)
 
   glDisable(GL_CULL_FACE);
 
-  for (int i = 0; i < numslices; i++) {
+  for (unsigned int i = 0; i < numslices; i++) {
     // Find nearest integer page idx (as number of pages to render
     // need not match the number of actual volume data pages).
-    int pageidx = (int)
+    unsigned int pageidx = (unsigned int)
       ((float(i)/float(numslices)) * float(this->voldatadims[AXISIDX]) + 0.5f);
-
-    assert(pageidx >= 0);
-    assert(pageidx < numslices);
-
     // If rendering in reverse order.
-    if (depthAdder < 0) { pageidx = numslices - pageidx - 1; }
+    if (depthprslice < 0) { pageidx = numslices - pageidx - 1; }
+    // Pages along Y-axis is in opposite order of those along X- and
+    // Z-axis.
+    if (AXISIDX == 1)  { pageidx = numslices - pageidx - 1; }
 
-    this->renderOnePage(action, QUAD, depth, pageidx, AXISIDX);
-    depth += depthAdder;
+    assert(pageidx < numslices);
+    assert(pageidx < this->voldatadims[AXISIDX]);
+
+    Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
+    this->renderOnePage(action, page, QUAD, depth, AXISIDX);
+
+    depth += depthprslice;
   }
 
   glPopAttrib();
@@ -216,11 +217,10 @@ CvrPageHandler::render(SoGLRenderAction * action, int numslices)
 
 void
 CvrPageHandler::renderOnePage(SoGLRenderAction * action,
+                              Cvr2DTexPage * page,
                               const SbBox2f & quad, float depth,
-                              unsigned int pageidx, unsigned int axis)
+                              const unsigned int AXISIDX)
 {
-  assert(pageidx < this->voldatadims[axis]);
-
   SbVec2f qmax, qmin;
   quad.getBounds(qmin, qmax);
 
@@ -228,12 +228,12 @@ CvrPageHandler::renderOnePage(SoGLRenderAction * action,
   const float width = qmax[0] - qmin[0];
   const float height = qmax[1] - qmin[1];
 
-  if (axis == 0) {
+  if (AXISIDX == 0) {
     origo = SbVec3f(depth, qmin[1], qmin[0]);
     horizspan = SbVec3f(0, 0, width);
     verticalspan = SbVec3f(0, height, 0);
   }
-  else if (axis == 1) {
+  else if (AXISIDX == 1) {
     // The last component is "flipped" to make the y-direction slices
     // not come out upside-down. FIXME: should really investigate if
     // this is the correct fix. 20021124 mortene.
@@ -241,14 +241,12 @@ CvrPageHandler::renderOnePage(SoGLRenderAction * action,
     horizspan = SbVec3f(width, 0, 0);
     verticalspan = SbVec3f(0, 0, -height);
   }
-  else if (axis == 2) {
+  else if (AXISIDX == 2) {
     origo = SbVec3f(qmin[0], qmin[1], depth);
     horizspan = SbVec3f(width, 0, 0);
     verticalspan = SbVec3f(0, height, 0);
   }
   else assert(FALSE);
-
-  Cvr2DTexPage * slice = this->getSlice(axis, pageidx);
 
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("CvrPageHandler::renderOnePage",
@@ -256,8 +254,7 @@ CvrPageHandler::renderOnePage(SoGLRenderAction * action,
                          origo[0], origo[1], origo[2]);
 #endif // debug
 
-  slice->render(action, origo, horizspan, verticalspan,
-                0 /*FIXME: PRIVATE(this)->tick*/);
+  page->render(action, origo, horizspan, verticalspan, 0 /*FIXME: PRIVATE(this)->tick*/);
 }
 
 
