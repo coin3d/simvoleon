@@ -17,6 +17,20 @@ CvrUtil::doDebugging(void)
   return do_debugging == 1 ? TRUE : FALSE;
 }
 
+// If this environment flag is set, output debugging information
+// specifically about raypick-related operations.
+SbBool
+CvrUtil::debugRayPicks(void)
+{
+  static int CVR_DEBUG_RAYPICKS = -1;
+  if (CVR_DEBUG_RAYPICKS == -1) {
+    const char * env = coin_getenv("CVR_DEBUG_RAYPICKS");
+    CVR_DEBUG_RAYPICKS = env && (atoi(env) > 0);
+  }
+  return (CVR_DEBUG_RAYPICKS == 0) ? FALSE : TRUE;
+}
+
+
 static uint32_t crc32_precalc_table[] = {
   0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
   0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
