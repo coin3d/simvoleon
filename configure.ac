@@ -153,7 +153,9 @@ if $BUILD_WITH_MSVC; then
   rm -f vc60.pdb
   LIBFLAGS="$LIBFLAGS $sim_ac_msvcrt_LIBLDFLAGS"
   LIBS="$LIBS $sim_ac_msvcrt_LIBLIBS"
-  if $SIMVOLEON_STATIC; then :; else
+  if $SIMVOLEON_STATIC; then
+    SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS -DSIMVOLEON_NOT_DLL"
+  else
     CPPFLAGS="-DSIMVOLEON_MAKE_DLL $CPPFLAGS"
     SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS -DSIMVOLEON_DLL"
   fi
@@ -163,9 +165,6 @@ if $BUILD_WITH_MSVC; then
     SIM_AC_CONFIGURATION_SETTING([SimVoleon build type], [static .lib])
     LIBFLAGS="-LIB $LIBFLAGS"
     LIBFLAGS="$LIBFLAGS /OUT:SimVoleon$SIMVOLEON_MAJOR_VERSION.lib"
-    SIMVOLEON_EXTRA_CPPFLAGS="-I$includedir"
-    SIMVOLEON_EXTRA_LDFLAGS="-L$libdir"
-    SIMVOLEON_EXTRA_LIBS=
   else
     LIBFLAGS="-DLL /INCREMENTAL:NO $LIBFLAGS"
     case $enable_symbols in
@@ -177,8 +176,8 @@ if $BUILD_WITH_MSVC; then
     *)
       SIM_AC_CONFIGURATION_SETTING([SimVoleon build type],
                                    [dynamic .dll + .pdb])
-      CFLAGS="/Fd$debugfile $CFLAGS"
-      CXXFLAGS="/Fd$debugfile $CXXFLAGS"
+      CFLAGS="/Fd$debugfile -g $CFLAGS"
+      CXXFLAGS="/Fd$debugfile -g $CXXFLAGS"
       LIBFLAGS="$LIBFLAGS /DEBUG /PDB:SimVoleon$SIMVOLEON_MAJOR_VERSION.pdb"
       ;;
     esac
