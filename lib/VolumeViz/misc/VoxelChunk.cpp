@@ -132,7 +132,7 @@ CvrVoxelChunk::getUnitSize(void) const
 
 // Converts the transferfunction's colormap into a CvrCLUT object.
 CvrCLUT *
-CvrVoxelChunk::makeCLUT(SoGLRenderAction * action)
+CvrVoxelChunk::makeCLUT(const SoGLRenderAction * action)
 {
   SoState * state = action->getState();
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
@@ -181,7 +181,7 @@ CvrVoxelChunk::makeCLUT(SoGLRenderAction * action)
 // Fetch a CLUT that represents the current
 // SoTransferFunction. Facilitates sharing of palettes.
 CvrCLUT *
-CvrVoxelChunk::getCLUT(SoGLRenderAction * action)
+CvrVoxelChunk::getCLUT(const SoGLRenderAction * action)
 {
   if (!CvrVoxelChunk::CLUTdict) {
     // FIXME: dealloc at exit
