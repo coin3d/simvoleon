@@ -264,8 +264,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     // If rendering in reverse order.
     if (depthAdder < 0) { pageidx = lastpageidx - pageidx; }
 
-    volumedata->renderOrthoSlice(state, QUAD, depth, pageidx,
-                                 transferfunction, AXISIDX);
+    volumedata->renderOrthoSlice(state, QUAD, depth, pageidx, AXISIDX);
     depth += depthAdder;
   }
 

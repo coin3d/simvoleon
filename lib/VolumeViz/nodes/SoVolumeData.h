@@ -72,7 +72,6 @@ public:
                         const SbBox2f & quad,
                         float depth,
                         int sliceIdx,
-                        SoTransferFunction * transferFunction,
                         int axis);
 
   void setPageSize(int size);

@@ -20,6 +20,11 @@
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 #include <limits.h>
 
+// FIXME: expose tidbits.h properly from Coin. 20021122 mortene.
+extern "C" {
+extern SbBool coin_is_power_of_two(unsigned int);
+}
+
 
 /*
 DICTIONARY
@@ -281,8 +286,8 @@ public:
   long tick;
 
   // FIXME: this is fubar -- we need a global manager, of course, as
-  // there can be more than one voxelcube in the scene at
-  // once. 20021118 mortene.
+  // there can be more than one voxelcube in the scene at once. These
+  // should probably be static variables in that manager. 20021118 mortene.
   unsigned int maxnrtexels;
   unsigned int maxtexmem;
 
@@ -292,11 +297,6 @@ public:
 
   void releaseAllSlices();
   void releaseSlices(const Axis AXISIDX);
-
-  void managePages(void);
-  void releaseLRUPage(void);
-
-  SbBool isPowerOfTwo(unsigned int x);
 
 private:
   SoVolumeData * master;
@@ -425,7 +425,7 @@ void
 SoVolumeData::setPageSize(int size)
 {
   assert(size > 0);
-  assert(PRIVATE(this)->isPowerOfTwo(size));
+  assert(coin_is_power_of_two(size));
   this->setPageSize(SbVec3s(size, size, size));
 }
 
@@ -443,10 +443,12 @@ SoVolumeData::setPageSize(const SbVec3s & texsize)
 {
   SbVec3s size = texsize;
 
+  // FIXME: texsize dimensions must also be >=
+  // GL_MAX_TEXTURE_SIZE. 20021122 mortene.
   assert(size[0] > 0 && size[1] > 0 && size[2] > 0);
-  assert(PRIVATE(this)->isPowerOfTwo(size[0]));
-  assert(PRIVATE(this)->isPowerOfTwo(size[1]));
-  assert(PRIVATE(this)->isPowerOfTwo(size[2]));
+  assert(coin_is_power_of_two(size[0]));
+  assert(coin_is_power_of_two(size[1]));
+  assert(coin_is_power_of_two(size[2]));
 
   SbBool rebuildX = FALSE;
   SbBool rebuildY = FALSE;
@@ -527,40 +529,37 @@ SoVolumeData::renderOrthoSlice(SoState * state,
                                const SbBox2f & quad,
                                float depth,
                                int sliceIdx,
-                               SoTransferFunction * transferFunction,
                                // axis: 0, 1, 2 for X, Y or Z axis.
                                int axis)
 {
   SbVec2f max, min;
   quad.getBounds(min, max);
 
-  Cvr2DTexPage * slice =
-    PRIVATE(this)->getSlice((SoVolumeDataP::Axis)axis, sliceIdx);
+  SbVec3f origo, horizspan, verticalspan;
+  const float width = max[0] - min[0];
+  const float height = max[1] - min[1];
 
-  SbVec3f v[4];
   if (axis == SoVolumeDataP::X) {
-    v[0] = SbVec3f(depth, min[1], min[0]);
-    v[1] = SbVec3f(depth, min[1], max[0]);
-    v[2] = SbVec3f(depth, max[1], max[0]);
-    v[3] = SbVec3f(depth, max[1], min[0]);
+    origo = SbVec3f(depth, min[1], min[0]);
+    horizspan = SbVec3f(0, 0, width);
+    verticalspan = SbVec3f(0, height, 0);
   }
   else if (axis == SoVolumeDataP::Y) {
-    v[0] = SbVec3f(min[0], depth, min[1]);
-    v[1] = SbVec3f(max[0], depth, min[1]);
-    v[2] = SbVec3f(max[0], depth, max[1]);
-    v[3] = SbVec3f(min[0], depth, max[1]);
+    origo = SbVec3f(min[0], depth, min[1]);
+    horizspan = SbVec3f(width, 0, 0);
+    verticalspan = SbVec3f(0, 0, height);
   }
   else if (axis == SoVolumeDataP::Z) {
-    v[0] = SbVec3f(min[0], min[1], depth);
-    v[1] = SbVec3f(max[0], min[1], depth);
-    v[2] = SbVec3f(max[0], max[1], depth);
-    v[3] = SbVec3f(min[0], max[1], depth);
+    origo = SbVec3f(min[0], min[1], depth);
+    horizspan = SbVec3f(width, 0, 0);
+    verticalspan = SbVec3f(0, height, 0);
   }
   else assert(FALSE);
 
-  slice->render(state, v, transferFunction, PRIVATE(this)->tick);
+  Cvr2DTexPage * slice =
+    PRIVATE(this)->getSlice((SoVolumeDataP::Axis)axis, sliceIdx);
 
-  PRIVATE(this)->managePages();
+  slice->render(state, origo, horizspan, verticalspan, PRIVATE(this)->tick);
 }
 
 /*!
@@ -676,49 +675,10 @@ SoVolumeDataP::getSlice(const SoVolumeDataP::Axis AXISIDX, int sliceidx)
   return this->slices[AXISIDX][sliceidx];
 }
 
-SbBool
-SoVolumeDataP::isPowerOfTwo(unsigned int x)
-{
-  return (x != 0) && ((x & (x - 1)) == 0);
-}
-
 void
 SoVolumeDataP::releaseAllSlices(void)
 {
   for (int i = 0; i < 3; i++) { this->releaseSlices((Axis)i); }
-}
-
-void
-SoVolumeDataP::releaseLRUPage(void)
-{
-  Cvr2DTexSubPage * lru_subpage = NULL;
-  Cvr2DTexPage * lru_page = NULL;
-  long lowesttick = LONG_MAX;
-
-  // Searching for least recently used page.
-
-  // FIXME: should really be stored in a heap data structure. 20021120 mortene.
-
-  for (int dim=0; dim < 3; dim++) {
-    if (this->slices[dim]) {
-      for (int i = 0; i < this->dimensions[dim]; i++) {
-        Cvr2DTexPage * page = this->slices[dim][i];
-        if (page) {
-          long tickval;
-          Cvr2DTexSubPage * subpage = page->getLRUSubPage(tickval);
-          SbBool newlow = (lru_subpage == NULL);
-          if (!newlow) { newlow = subpage && (lowesttick > tickval); }
-          if (newlow) {
-            lru_page = page;
-            lru_subpage = subpage;
-            lowesttick = tickval;
-          }
-        }
-      }
-    }
-  }
-
-  lru_page->releaseSubPage(lru_subpage);
 }
 
 void
@@ -733,25 +693,6 @@ SoVolumeDataP::releaseSlices(const SoVolumeDataP::Axis AXISIDX)
 
   delete[] this->slices[AXISIDX];
 }
-
-void
-SoVolumeDataP::managePages(void)
-{
-  // FIXME: this functionality should really be part of a global
-  // manager for the 2D texture pages (and for 3D textures later).
-  // 20021120 mortene.
-
-  // Keep both measures within maxlimits
-
-  while (Cvr2DTexSubPage::totalTextureMemoryUsed() > this->maxtexmem) {
-    this->releaseLRUPage();
-  }
-
-  while (Cvr2DTexSubPage::totalNrOfTexels() > this->maxnrtexels) {
-    this->releaseLRUPage();
-  }
-}
-
 
 /****************** UNIMPLEMENTED FUNCTIONS ******************************/
 // FIXME: Implement these functions. torbjorv 08282002

@@ -1,5 +1,7 @@
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 #include <limits.h>
@@ -34,34 +36,33 @@ Cvr2DTexPage::Cvr2DTexPage(void)
   this->subpages = NULL;
   this->axis = SoOrthoSlice::Z;
   this->sliceIdx = 0;
-  this->reader = NULL;
   this->dataType = SoVolumeData::RGBA;
+  this->reader = NULL;
 }
 
 
 Cvr2DTexPage::~Cvr2DTexPage()
 {
-  this->reader = NULL;
   this->releaseAllSubPages();
 }
 
 
-void Cvr2DTexPage::init(SoVolumeReader * reader, int sliceIdx,
-                        SoOrthoSlice::Axis axis,
+void Cvr2DTexPage::init(SoVolumeReader * reader,
+                        int sliceidx, SoOrthoSlice::Axis axis,
                         const SbVec2s & subpagetexsize)
 {
   assert(subpagetexsize[0] > 0 && subpagetexsize[1] > 0);
 
   this->releaseAllSubPages();
 
-  this->reader = reader;
-  this->sliceIdx = sliceIdx;
+  this->sliceIdx = sliceidx;
   this->axis = axis;
   this->subpagesize = subpagetexsize;
+  this->reader = reader;
 
   SbVec3s dim;
   SbBox3f size;
-  reader->getDataChar(size, this->dataType, dim);
+  this->reader->getDataChar(size, this->dataType, dim);
 
   assert(dim[0] > 0);
   assert(dim[1] > 0);
@@ -236,27 +237,20 @@ Cvr2DTexPage::renderGLQuad(const SbVec3f & lowleft, const SbVec3f & lowright,
   \a quadcoords specifies the "real" local space coordinates for the
   full page.
 */
-void Cvr2DTexPage::render(SoState * state, const SbVec3f quadcoords[4],
-                          SoTransferFunction * transferfunc,
+void Cvr2DTexPage::render(SoState * state,
+                          const SbVec3f & origo,
+                          const SbVec3f & horizspan,
+                          const SbVec3f & verticalspan,
                           long tick)
 {
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("void Cvr2DTexPage::render",
-                         "v0=[%f, %f, %f], "
-                         "v1=[%f, %f, %f], "
-                         "v2=[%f, %f, %f], "
-                         "v3=[%f, %f, %f]",
-                         quadcoords[0][0], quadcoords[0][1], quadcoords[0][2],
-                         quadcoords[1][0], quadcoords[1][1], quadcoords[1][2],
-                         quadcoords[2][0], quadcoords[2][1], quadcoords[2][2],
-                         quadcoords[3][0], quadcoords[3][1], quadcoords[3][2]);
-#endif // debug
+  // Fetching the current transfer function.
+  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+  assert(tfelement != NULL); // FIXME: handle gracefully? 20021122 mortene.
+  SoTransferFunction * transferfunc = tfelement->getTransferFunction();
+  assert(transferfunc); // FIXME: handle gracefully. 20021122 mortene.
 
-  assert(this->reader);
-  assert(transferfunc);
-
-  SbVec3f subpagewidth = (quadcoords[1] - quadcoords[0]) / this->nrcolumns;
-  SbVec3f subpageheight = (quadcoords[3] - quadcoords[0]) / this->nrrows;
+  SbVec3f subpagewidth = horizspan / this->nrcolumns;
+  SbVec3f subpageheight = verticalspan / this->nrrows;
 
   for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
 
@@ -271,7 +265,7 @@ void Cvr2DTexPage::render(SoState * state, const SbVec3f quadcoords[4],
       pageitem->page->activate();
       pageitem->lasttick = tick;
 
-      SbVec3f lowleft = quadcoords[0] +
+      SbVec3f lowleft = origo +
         // horizontal shift to correct column, renders left-to-right
         subpagewidth * colidx +
         // vertical shift to correct row, renders top-to-bottom
@@ -306,7 +300,6 @@ Cvr2DTexPage::calcSubPageIdx(int row, int col) const
 Cvr2DTexSubPageItem *
 Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
 {
-  assert(this->reader);
   assert(transferfunc);
 
   assert(this->getSubPage(col, row, transferfunc) == NULL);
@@ -330,7 +323,7 @@ Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
     this->axis == SoOrthoSlice::X ?
     SoVolumeReader::X : (this->axis == SoOrthoSlice::Y ?
                          SoVolumeReader::Y : SoVolumeReader::Z);
-  reader->getSubSlice(subSlice, sliceIdx, texture, ax);
+  this->reader->getSubSlice(subSlice, this->sliceIdx, texture, ax);
 
   uint32_t * transferredTexture = transferfunc->transfer(texture,
                                                          this->dataType,
