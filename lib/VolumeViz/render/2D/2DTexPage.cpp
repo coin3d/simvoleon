@@ -192,8 +192,8 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
 
   // Find the "local 3D-space" size of each subpage.
 
-  SbVec3f subpagewidth = horizspan * this->subpagesize[0];
-  SbVec3f subpageheight = verticalspan * this->subpagesize[1];
+  SbVec3f subpagewidth = horizspan * float(this->subpagesize[0]) / float(this->dimensions[0]);
+  SbVec3f subpageheight = verticalspan * float(this->subpagesize[1]) / float(this->dimensions[1]);
 
   SoState * state = action->getState();
 

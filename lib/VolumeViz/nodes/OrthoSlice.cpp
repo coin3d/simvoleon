@@ -40,10 +40,12 @@
 #include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/elements/SoGLLazyElement.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/SoPickedPoint.h>
 #include <Inventor/system/gl.h>
 #include <Inventor/C/tidbits.h>
+#include <Inventor/SbRotation.h>
 
 #include <VolumeViz/nodes/SoOrthoSlice.h>
 
@@ -197,12 +199,12 @@ SoOrthoSlice::initClass(void)
   SO_NODE_INIT_CLASS(SoOrthoSlice, SoShape, "SoShape");
 
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
-  SO_ENABLE(SoPickAction, SoVolumeDataElement);
-
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
-  SO_ENABLE(SoPickAction, SoTransferFunctionElement);
-
   SO_ENABLE(SoGLRenderAction, SoGLClipPlaneElement);
+  SO_ENABLE(SoGLRenderAction, SoModelMatrixElement);
+
+  SO_ENABLE(SoPickAction, SoVolumeDataElement);
+  SO_ENABLE(SoPickAction, SoTransferFunctionElement);
   SO_ENABLE(SoPickAction, SoClipPlaneElement);
 }
 
@@ -213,32 +215,41 @@ SoOrthoSlice::affectsState(void) const
   return this->clipping.getValue();
 }
 
+// Find the plane definition.
 SbPlane
 SoOrthoSliceP::getSliceAsPlane(SoAction * action) const
 {
-  // Find the plane definition.
   const SoVolumeDataElement * volumedataelement =
     SoVolumeDataElement::getInstance(action->getState());
   assert(volumedataelement != NULL);
 
-  // Note that the following code could be made faster by just setting
-  // the planenormal to point along the correct axis, and find the
-  // slice world coordinate point. This would be simple, as an
-  // SoOrthoSlice is guaranteed to be normal to one of the principal
-  // axes.
-  //
-  // Using the SoVolumeDataElement::getPageGeometry() method is rather
-  // convenient, though.
+  const int axis = PUBLIC(this)->axis.getValue();
 
-  SbVec3f origo, horizspan, verticalspan;
-  volumedataelement->getPageGeometry(PUBLIC(this)->axis.getValue(),
-                                     PUBLIC(this)->sliceNumber.getValue(),
-                                     origo, horizspan, verticalspan);
+  // Finding the plane normal is straight forward -- it's the same as
+  // the SoOrthoSlice axis:
 
-  SbVec3f planenormal = horizspan.cross(verticalspan);
-  if (PUBLIC(this)->clippingSide.getValue() == SoOrthoSlice::BACK) {
+  SbVec3f planenormal(axis == SoOrthoSlice::X ? 1 : 0,
+                      axis == SoOrthoSlice::Y ? 1 : 0,
+                      axis == SoOrthoSlice::Z ? 1 : 0);
+
+  if (PUBLIC(this)->clippingSide.getValue() == SoOrthoSlice::FRONT) {
     planenormal.negate();
   }
+
+  // Finding a point in the plane:
+
+  const SbBox3f spacesize = volumedataelement->getVolumeData()->getVolumeSize();
+  SbVec3f spacemin, spacemax;
+  spacesize.getBounds(spacemin, spacemax);
+
+  SbVec3f origo = spacesize.getCenter();
+
+  const SbVec3s dimensions = volumedataelement->getVoxelCubeDimensions();
+  const float depthprslice = (spacemax[axis] - spacemin[axis]) / dimensions[axis];
+  const float depth = spacemin[axis] + PUBLIC(this)->sliceNumber.getValue() * depthprslice;
+  origo[axis] = depth;
+
+  // Return local unit coordinate system plane:
 
   return SbPlane(planenormal, origo);
 }
@@ -363,9 +374,30 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   // debug
   if (SoOrthoSliceP::debug) { SoOrthoSliceP::renderBox(action, slicebox); }
 
-  // Fetching the current volumedata
+  // Fetching the current volumedata information.
   const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
   SoVolumeData * volumedata = volumedataelement->getVolumeData();
+
+  // Extract volume placement and scale information, and place it on
+  // the model matrix stack. This lets the subsequent render code work
+  // with a 1x1x1 size volume in unit coordinates, without
+  // e.g. bothering about any scale and/or translation embedded in the
+  // SoVolumeData::volumeboxmin/max fields.
+  {
+    const SbBox3f localbox = volumedata->getVolumeSize();
+    const SbVec3f
+      localspan((localbox.getMax()[0] - localbox.getMin()[0]),
+                (localbox.getMax()[1] - localbox.getMin()[1]),
+                (localbox.getMax()[2] - localbox.getMin()[2]));
+
+    const SbVec3f localtrans =
+      (localbox.getMax() - localbox.getMin()) / 2.0f + localbox.getMin();
+
+    SbMatrix m;
+    m.setTransform(localtrans, SbRotation::identity(), localspan);
+    SoModelMatrixElement::mult(state, this, m);
+  }
+
 
   const int axisidx = this->axis.getValue();
   const int slicenr = this->sliceNumber.getValue();
@@ -386,10 +418,6 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   const CvrCLUT * pageclut = texpage->getPalette();
   if ((pageclut == NULL) || (*pageclut != *c)) { texpage->setPalette(c); }
   c->unref();
-
-  SbVec3f origo, horizspan, verticalspan;
-  volumedataelement->getPageGeometry(axisidx, slicenr,
-                                     origo, horizspan, verticalspan);
 
   // This must be done, as we want to control stuff in the GL state
   // machine. Without it, state changes could trigger outside our
@@ -412,10 +440,14 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   Cvr2DTexSubPage::Interpolation ip =
     (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue();
 
+  SbVec3f origo, horizspan, verticalspan;
+  volumedataelement->getPageGeometry(axisidx, slicenr,
+                                     origo, horizspan, verticalspan);
+
   texpage->render(action, origo, horizspan, verticalspan, ip);
 
-  // FIXME: we do state->pop() now, so this isn't really necessary,
-  // is it? 20040223 mortene.
+  // Even though we do state->pop(), we must also push/pop low-level
+  // GL.
   glPopAttrib();
 
   state->pop();

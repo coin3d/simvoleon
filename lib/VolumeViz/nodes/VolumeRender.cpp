@@ -46,10 +46,12 @@
 #include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/elements/SoGLTextureEnabledElement.h>
 #include <Inventor/elements/SoGLTexture3EnabledElement.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/bundles/SoMaterialBundle.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/SoPickedPoint.h>
 #include <Inventor/SbTime.h>
+#include <Inventor/SbRotation.h>
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
@@ -139,6 +141,8 @@ public:
 
   CvrPageHandler * pagehandler; // For 2D page rendering
   CvrCubeHandler * cubehandler; // For 3D cube rendering
+
+  static void getTransformFromVolumeBoxDimensions(const SoVolumeDataElement * vd, SbMatrix & m);
 
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
   void * abortfuncdata;
@@ -375,9 +379,39 @@ SoVolumeRender::initClass(void)
 
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoGLRenderAction, SoModelMatrixElement);
 
   SO_ENABLE(SoRayPickAction, SoVolumeDataElement);
   SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
+  SO_ENABLE(SoRayPickAction, SoModelMatrixElement);
+}
+
+void
+SoVolumeRenderP::getTransformFromVolumeBoxDimensions(const SoVolumeDataElement * vd,
+                                                     SbMatrix & m)
+{
+  const SbVec3s voxcubedims = vd->getVoxelCubeDimensions();
+  const SoVolumeData * node = vd->getVolumeData();
+  const SbBox3f localbox = node->getVolumeSize();
+
+  const SbVec3f
+    localspan((localbox.getMax()[0] - localbox.getMin()[0]) / voxcubedims[0],
+              (localbox.getMax()[1] - localbox.getMin()[1]) / voxcubedims[1],
+              (localbox.getMax()[2] - localbox.getMin()[2]) / voxcubedims[2]);
+
+  const SbVec3f localtrans =
+    (localbox.getMax() - localbox.getMin()) / 2.0f + localbox.getMin();
+
+#if 0 // debug, remove when 3D textures have been confirmed to work
+  printf("voxcubedims: <%d, %d, %d>\n", voxcubedims[0], voxcubedims[1], voxcubedims[2]);
+  printf("localbox: <%f, %f, %f> -> <%f, %f, %f>\n",
+         localbox.getMin()[0], localbox.getMin()[1], localbox.getMin()[2],
+         localbox.getMax()[0], localbox.getMax()[1], localbox.getMax()[2]);
+  printf("localspan: "); localspan.print(stdout); printf("\n");
+  printf("localtrans: "); localtrans.print(stdout); printf("\n");
+#endif // debug
+
+  m.setTransform(localtrans, SbRotation::identity(), localspan);
 }
 
 // doc in super
@@ -444,6 +478,14 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     return;
   }
 
+  state->push();
+  // *** Below this point, don't invoke "return", but do "goto done;",
+  // *** so state->pop() is done before returning.
+
+  SbMatrix volumetransform;
+  SoVolumeRenderP::getTransformFromVolumeBoxDimensions(volumedataelement, volumetransform);
+  SoModelMatrixElement::mult(state, this, volumetransform);
+
   const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
 
 #if CVR_DEBUG && 0 // debug
@@ -452,30 +494,30 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
                          voxcubedims[0], voxcubedims[1], voxcubedims[2]);
 #endif // debug
 
+  int rendermethod, storagehint;
 
   static int renderwithglpoints = -1;
   if (renderwithglpoints == -1) {
     const char * env = coin_getenv("CVR_FORCE_GLPOINTRENDERING");
     renderwithglpoints = env && (atoi(env) > 0);
   }
+
   if (renderwithglpoints) {
     PointRendering::render(action);
-    return;
+    goto done;
   }
 
-
-  const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
-
-  int rendermethod = SoVolumeRender::TEXTURE2D; // Default
-  const int storagehint = volumedata->storageHint.getValue();
+  rendermethod = SoVolumeRender::TEXTURE2D; // this is the default
+  storagehint = volumedata->storageHint.getValue();
   if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
+    const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
     if (cc_glglue_has_3d_textures(glue) && !PRIVATE(this)->force2dtextures) {
       if (PRIVATE(this)->use3DTexturing(glue)) {
         rendermethod = SoVolumeRender::TEXTURE3D;
       }
     }
   }
-  else if(storagehint == SoVolumeData::TEX2D || storagehint == SoVolumeData::AUTO) {
+  else if (storagehint == SoVolumeData::TEX2D || storagehint == SoVolumeData::AUTO) {
     // Do nothing. 2D texturing is the default.
   }
   else {
@@ -487,7 +529,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   if (rendermethod == SoVolumeRender::TEXTURE3D) {
 
     const int numslices = PRIVATE(this)->calculateNrOf3DSlices(action, voxcubedims);
-    if (numslices == 0) return;
+    if (numslices == 0) goto done;
 
     if (!PRIVATE(this)->cubehandler) {
       PRIVATE(this)->cubehandler = new CvrCubeHandler(voxcubedims, volumedata->getReader());
@@ -516,9 +558,12 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   }
   // axis-aligned 2D textures
   else if (rendermethod == SoVolumeRender::TEXTURE2D) {
+    // let model matrix contain *all* scaling, so the render code can
+    // simply work with a unit cube:
+    SoModelMatrixElement::scaleBy(state, this, SbVec3f(voxcubedims[0], voxcubedims[1], voxcubedims[2]));
 
     const int numslices = PRIVATE(this)->calculateNrOf2DSlices(action, voxcubedims);
-    if (numslices == 0) return;
+    if (numslices == 0) goto done;
 
     if (!PRIVATE(this)->pagehandler) {
       PRIVATE(this)->pagehandler = new CvrPageHandler(voxcubedims, volumedata->getReader());
@@ -550,6 +595,8 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     assert(FALSE && "Rendering method not implemented/supported.");
   }
 
+ done:
+  state->pop();
 }
 
 // doc in super

@@ -142,13 +142,20 @@ SoVolumeDataElement::objectCoordsToIJK(const SbVec3f & objectpos) const
   return ijk;
 }
 
+// The returned vectors will be:
+//
+// * origo: starting position for the next quadface, in coordinates
+//   normalized to be within a unit cube
+//
+// * horizspan, verticalspan: normalized direction vectors which
+//   defines the directions to the corners of the slice quad
 void
 SoVolumeDataElement::getPageGeometry(const int axis, const int slicenr,
                                      SbVec3f & origo,
                                      SbVec3f & horizspan,
                                      SbVec3f & verticalspan) const
 {
-  SbBox3f spacesize = this->nodeptr->getVolumeSize();
+  SbBox3f spacesize(SbVec3f(-0.5, -0.5, -0.5), SbVec3f(0.5, 0.5, 0.5));
   SbVec3f spacemin, spacemax;
   spacesize.getBounds(spacemin, spacemax);
 
@@ -200,19 +207,6 @@ SoVolumeDataElement::getPageGeometry(const int axis, const int slicenr,
   default: assert(FALSE); break;
   }
 
-  const SbVec3f SCALE((spacemax[0] - spacemin[0]) / dimensions[0],
-                      (spacemax[1] - spacemin[1]) / dimensions[1],
-                      (spacemax[2] - spacemin[2]) / dimensions[2]);
-
-  const SbVec2f QUADSCALE = (axis == 2) ?
-    SbVec2f(SCALE[0], SCALE[1]) :
-    ((axis == 0) ?
-     SbVec2f(SCALE[2], SCALE[1]) :
-     SbVec2f(SCALE[0], SCALE[2]));
-
   horizspan.normalize();
-  horizspan *= QUADSCALE[0];
   verticalspan.normalize();
-  verticalspan *= QUADSCALE[1];
-
 }
