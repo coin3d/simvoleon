@@ -203,7 +203,8 @@ CvrVoxelChunk::getCLUT(const SoGLRenderAction * action)
     clut = CvrVoxelChunk::makeCLUT(action);
     // FIXME: ref(), or else we'd get dangling pointers to destructed
     // CvrCLUT entries in the dict. Should provide a "destructing now"
-    // callback on the CvrCLUT class to clean up the design.
+    // callback on the CvrCLUT class to clean up the design, as this
+    // is a resource leak as it now stands.
     clut->ref();
     SbBool r = CvrVoxelChunk::CLUTdict->enter(transferfunc->getNodeId(), clut);
     assert(r == TRUE && "clut should not exist on nodeid");
