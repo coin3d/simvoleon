@@ -69,7 +69,6 @@ SoVolumeDataPage::SoVolumeDataPage(void)
   this->paletteFormat = 0;
   this->paletteSize = 0;
   this->numBytesHW = 0;
-  this->numBytesSW = 0;
 }
 
 
@@ -115,25 +114,9 @@ void SoVolumeDataPage::setData(Storage storage,
     this->data = new unsigned char[size[0]*size[1]*4];
     memcpy(this->data, bytes, size[0]*size[1]*4);
 
-    if (!palette)
-      numBytesSW += size[0]*size[1]*4;      // RGBA-data
-    else {
-      if (paletteSize > 256)
-        numBytesSW += size[0]*size[1]*2;    // indexed, short
-      else
-        numBytesSW += size[0]*size[1];      // indexed, byte
-    }
-
     if (palette != NULL) {
       this->palette = new unsigned char[sizeof(unsigned char)*paletteSize];
       (void)memcpy(this->palette, palette, sizeof(float)*paletteSize);
-
-      switch (paletteFormat) {
-      case GL_RGBA:
-        numBytesSW += paletteSize*4;
-        break;
-      default: assert(FALSE && "what should happen here?"); // FIXME: <-. 20021112 mortene.
-      }
     }
   }
   else {
@@ -275,5 +258,4 @@ SoVolumeDataPage::release(void)
   this->paletteFormat = 0;
   this->paletteSize = 0;
   this->numBytesHW = 0;
-  this->numBytesSW = 0;
 }
