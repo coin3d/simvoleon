@@ -1,0 +1,74 @@
+#include <Inventor/@Gui@/So@Gui@.h>
+#include <Inventor/@Gui@/viewers/So@Gui@ExaminerViewer.h>
+#include <Inventor/nodes/SoCube.h>
+#include <Inventor/nodes/SoDirectionalLight.h>
+#include <Inventor/nodes/SoDrawStyle.h>
+#include <Inventor/nodes/SoLightModel.h>
+#include <Inventor/nodes/SoPerspectiveCamera.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/nodes/SoVolumeRendering.h>
+#include <VolumeViz/readers/SoVRVolFileReader.h>
+
+
+int
+main(int argc, char ** argv)
+{
+  @WIDGET@ window = So@Gui@::init(argv[0]);
+  SoVolumeRendering::init();
+
+  assert(argc == 2);
+
+  SoSeparator *root = new SoSeparator;
+  root->ref();
+
+  SoPerspectiveCamera * myCamera = new SoPerspectiveCamera;
+  myCamera->position = SbVec3f(0.0f, 0.0f, 5.0f);
+  root->addChild(myCamera);
+  root->addChild(new SoDirectionalLight);
+
+  SoLightModel * lm = new SoLightModel;
+  lm->model = SoLightModel::BASE_COLOR;
+  root->addChild(lm);
+
+  SoDrawStyle *drawStyle = new SoDrawStyle;
+  drawStyle->style = SoDrawStyle::LINES;
+  root->addChild(drawStyle);
+  root->addChild(new SoCube);
+
+  SoVRVolFileReader * filereader = new SoVRVolFileReader;
+  filereader->setUserData(argv[1]);
+  exit(1); // XXX
+
+  // Add VolumeData to scene graph
+  SoVolumeData * pVolData = new SoVolumeData();
+//   pVolData->setVolumeData(dim, (unsigned char *)pData, SoVolumeData::RGBA);
+//   pVolData->setVolumeSize(SbBox3f(-1, -1, -1, 1, 1, 1));
+
+  root->addChild(pVolData);
+
+  // Add TransferFunction (color map) to scene graph
+  SoTransferFunction *pTransFunc = new SoTransferFunction();
+  root->addChild(pTransFunc);
+
+  // Add VolumeRender to scene graph
+  SoVolumeRender * pVolRend = new SoVolumeRender();
+  root->addChild(pVolRend);
+  pVolRend->numSlices = 64;
+
+  So@Gui@ExaminerViewer * ex1 = new So@Gui@ExaminerViewer(window);
+  myCamera->viewAll(root, ex1->getViewportRegion());
+  ex1->setSceneGraph(root);
+
+  ex1->show();
+  So@Gui@::show(window);
+  So@Gui@::mainLoop();
+  delete ex1;
+
+  delete filereader;
+
+  root->unref();
+  return 0;
+}
