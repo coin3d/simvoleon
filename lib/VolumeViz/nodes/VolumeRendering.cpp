@@ -161,8 +161,8 @@
   boost the performance if your graphics card can handle it. Call
   SoVolumeData::setPageSize(const SbVec3s & size) to adjust the
   maximum sub cube size. Keep in mind that allowing really large 3D
-  textures might lead to trashing of other textures which again might
-  degrade performance, depending on your scene.
+  textures might cause other textures to be swapped out of graphics
+  memory, leading to reduced performance.
 
   \sa The documentation for the \COIN library: <http://doc.coin3d.org/Coin>.
   \sa The documentation for the SoQt library: <http://doc.coin3d.org/SoQt>.
