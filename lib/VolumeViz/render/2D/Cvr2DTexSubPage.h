@@ -6,9 +6,11 @@
 #include <Inventor/SbVec3f.h>
 #include <Inventor/misc/SoState.h>
 #include <Inventor/system/gl.h>
+#include <Inventor/C/glue/gl.h>
 
 class SoGLRenderAction;
 class CvrTextureObject;
+class CvrCLUT;
 
 
 class Cvr2DTexSubPage {
@@ -20,7 +22,8 @@ public:
 
   enum Interpolation { NEAREST, LINEAR };
 
-  void render(const SbVec3f & upleft, SbVec3f widthvec, SbVec3f heightvec,
+  void render(const cc_glglue * glw,
+              const SbVec3f & upleft, SbVec3f widthvec, SbVec3f heightvec,
               Interpolation interpolation) const;
 
   static unsigned int totalNrOfTexels(void);
@@ -31,6 +34,9 @@ private:
                       const CvrTextureObject * texobj);
 
   void activateTexture(Interpolation interpolation) const;
+  void activateCLUT(const cc_glglue * glw) const;
+
+  static void bindTexMemFullImage(const cc_glglue * glw);
 
   GLuint texturename[1];
   static GLuint emptyimgname[1];
@@ -41,6 +47,7 @@ private:
   static unsigned int texmembytes;
   static SbBool detectedtextureswapping;
   unsigned int bitspertexel;
+  const CvrCLUT * clut;
 };
 
 

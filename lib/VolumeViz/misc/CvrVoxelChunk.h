@@ -6,6 +6,7 @@
 
 class CvrTextureObject;
 class SoGLRenderAction;
+class CvrCLUT;
 
 
 class CvrVoxelChunk {
@@ -34,6 +35,8 @@ private:
   void * voxelbuffer;
   SbVec3s dimensions;
   UnitSize unitsize;
+
+  CvrCLUT * makeCLUT(SoGLRenderAction * action) const;
 
   // The simple idea for speeding up transfer of volume data is to
   // dynamically fill in an index array, so each transfer value

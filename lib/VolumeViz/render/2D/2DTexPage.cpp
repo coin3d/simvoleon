@@ -211,6 +211,8 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
                      const SbVec2f & spacescale,
                      Cvr2DTexSubPage::Interpolation interpolation)
 {
+  const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
+
   // Find the "local 3D-space" size of each subpage.
 
   SbVec3f subpagewidth = horizspan;
@@ -243,7 +245,7 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
       // optimization measure (both for rendering speed and texture
       // memory usage). 20021121 mortene.
 
-      pageitem->page->render(upleft, subpagewidth, subpageheight,
+      pageitem->page->render(glglue, upleft, subpagewidth, subpageheight,
                              interpolation);
 
     }
@@ -361,50 +363,15 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // of two, or where dimensions are smaller than this->subpagesize.
   const SbVec2s texsize(subpagemax - subpagemin);
 
-  // FIXME: must be changed when we support paletted
-  // textures. 20021210 mortene.
-  assert(texobj->getTypeId() == CvrRGBATexture::getClassTypeId());
-  uint32_t * texture = ((CvrRGBATexture *)texobj)->getRGBABuffer();
-
-  // Blank out unused texture parts, to make sure we don't get any
-  // artifacts due to fp-inaccuracies when rendering.
-  {
-    SbVec2s texobjdims = texobj->getDimensions();
-    for (short y=texsize[1]; y < texobjdims[1]; y++) {
-      for (short x=0; x < texobjdims[0]; x++) {
-        // FIXME: this assumes "texture" points at 4-byte array. Must
-        // fix when we start using paletted textures again. 20021128 mortene.
-        texture[y * texobjdims[0] + x] = 0x00000000;
-      }
-    }
+  if (texobj->getTypeId() == CvrRGBATexture::getClassTypeId()) {
+    ((CvrRGBATexture *)texobj)->blankUnused(texsize);
   }
-  {
-    SbVec2s texobjdims = texobj->getDimensions();
-    for (short x=texsize[0]; x < texobjdims[0]; x++) {
-      for (short y=0; y < texobjdims[1]; y++) {
-        // FIXME: this assumes "texture" points at 4-byte array. Must
-        // fix when we start using paletted textures again. 20021128 mortene.
-        texture[y * texobjdims[0] + x] = 0x00000000;
-      }
-    }
-  }
-
+  
 #if 0 // DEBUG: dump all transfered textures to bitmap files.
   SbString s;
   s.sprintf("/tmp/posttransftex-%04d-%03d-%03d.ppm", this->sliceIdx, row, col);
-  FILE * f = fopen(s.getString(), "w");
-  assert(f);
-  (void)fprintf(f, "P3\n%d %d 255\n",  // width height maxcolval
-                this->subpagesize[0], this->subpagesize[1]);
-
-  for (int i=0; i < this->subpagesize[0] * this->subpagesize[1]; i++) {
-    uint32_t rgba = texture[i];
-    fprintf(f, "%d %d %d\n",
-            rgba & 0xff, (rgba & 0xff00) >> 8,  (rgba & 0xff0000) >> 16);
-  }
-  fclose(f);
+  texobj->dumpToPPM(s.getString());
 #endif // DEBUG
-
 
   Cvr2DTexSubPage * page = NULL;
   if (!invisible) {

@@ -1,6 +1,7 @@
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 #include <VolumeViz/render/2D/CvrRGBATexture.h>
 #include <VolumeViz/render/2D/CvrPaletteTexture.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
@@ -69,6 +70,7 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                                  const SbVec2s & texsize)
 {
   this->bitspertexel = 0;
+  this->clut = NULL;
 
   assert(pagesize[0] >= 0);
   assert(pagesize[1] >= 0);
@@ -211,6 +213,41 @@ Cvr2DTexSubPage::activateTexture(Interpolation interpolation) const
 #endif // debug
 }
 
+// Set up the image used (for debugging purposes) when texture memory
+// is full.
+void
+Cvr2DTexSubPage::bindTexMemFullImage(const cc_glglue * glw)
+{
+  // FIXME: requires > OpenGL 1.0, should go through wrapper.
+  glGenTextures(1, Cvr2DTexSubPage::emptyimgname);
+  glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
+  // FIXME: never freed. 20021121 mortene.
+    
+  // Check format of GIMP-exported "texmem full" image.
+  assert(coin_is_power_of_two(tex_image.width));
+  assert(coin_is_power_of_two(tex_image.height));
+  assert(tex_image.bytes_per_pixel == 4);
+
+  glTexImage2D(GL_TEXTURE_2D,
+               0,
+               tex_image.bytes_per_pixel,
+               tex_image.width, tex_image.height,
+               0,
+               GL_RGBA,
+               GL_UNSIGNED_BYTE,
+               tex_image.pixel_data);
+
+  const int texels = tex_image.width * tex_image.height;
+  Cvr2DTexSubPage::nroftexels += texels;
+  Cvr2DTexSubPage::texmembytes += texels * tex_image.bytes_per_pixel;
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+}
+
 // If no palette specified, this function assumes RGBA data. If a
 // palette is specified, the input data should be indices into the
 // palette.  The function uses the palette's size to decide whether
@@ -219,114 +256,28 @@ void
 Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
                                 const CvrTextureObject * texobj)
 {
-  // FIXME: paletted textures are currently disabled. (The following
-  // data should eventually be available from CvrTextureObject.)
-  // 20021206 mortene.
-  const float * palette = NULL;
-  const int palettesize = 0;
-
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
 
   if (Cvr2DTexSubPage::emptyimgname[0] == 0) {
-    glGenTextures(1, Cvr2DTexSubPage::emptyimgname);
-    glBindTexture(GL_TEXTURE_2D, Cvr2DTexSubPage::emptyimgname[0]);
-    // FIXME: never freed. 20021121 mortene.
-    
-    // Check format of GIMP-exported "texmem full" image.
-    assert(coin_is_power_of_two(tex_image.width));
-    assert(coin_is_power_of_two(tex_image.height));
-    assert(tex_image.bytes_per_pixel == 4);
-
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 tex_image.bytes_per_pixel,
-                 tex_image.width, tex_image.height,
-                 0,
-                 GL_RGBA,
-                 GL_UNSIGNED_BYTE,
-                 tex_image.pixel_data);
-
-    const int texels = tex_image.width * tex_image.height;
-    Cvr2DTexSubPage::nroftexels += texels;
-    Cvr2DTexSubPage::texmembytes += texels * tex_image.bytes_per_pixel;
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    Cvr2DTexSubPage::bindTexMemFullImage(glw);
   }
 
   int colorformat;
-  int bytes_pr_unit = GL_UNSIGNED_BYTE;
 
-  // Uploading standard RGBA-texture
-  if (palette == NULL) {
+  SbBool paletted = texobj->getTypeId() == CvrPaletteTexture::getClassTypeId();
+  // only knows two types
+  assert(paletted || texobj->getTypeId() == CvrRGBATexture::getClassTypeId());
+
+  // For uploading standard RGBA-texture
+  if (!paletted) {
     colorformat = 4;
     this->bitspertexel = 32; // 8 bits each R, G, B & A
   }
-  // Uploading paletted texture
+  // For uploading paletted texture
   else {
-    // FIXME: this limitation is of course not good, and should be
-    // lifted. It would BTW probably be better to check for this
-    // extension somewhere else before trying to make paletted
-    // textures. 20021112 mortene.
-    assert(cc_glglue_has_paletted_textures(glw) && "can't handle palette-textures");
-
-    // Check size of indices
-    if (palettesize > 256) bytes_pr_unit = GL_UNSIGNED_SHORT;
-
-    // Setting palette
-    // FIXME: does this need to be called _after_ glBindTextures()?
-    // 20021121 mortene.
-    cc_glglue_glColorTable(glw,
-                           GL_TEXTURE_2D,
-                           GL_RGBA,
-                           palettesize,
-                           GL_RGBA,
-                           GL_FLOAT,
-                           palette);
-
-    // Checking what palettesize we actually got
-    int actualPaletteSize;
-    cc_glglue_glGetColorTableParameteriv(glw, GL_TEXTURE_2D,
-                                         GL_COLOR_TABLE_WIDTH,
-                                         &actualPaletteSize);
-
-    switch (actualPaletteSize) {
-    case 2:
-      colorformat = GL_COLOR_INDEX1_EXT;
-      this->bitspertexel = 1;
-      break;
-
-    case 4:
-      colorformat = GL_COLOR_INDEX2_EXT;
-      this->bitspertexel = 2;
-      break;
-
-    case 16:
-      colorformat = GL_COLOR_INDEX4_EXT;
-      this->bitspertexel = 4;
-      break;
-
-    case 256:
-      colorformat = GL_COLOR_INDEX8_EXT;
-      this->bitspertexel = 8;
-      break;
-
-    case 65536:
-      colorformat = GL_COLOR_INDEX16_EXT;
-      this->bitspertexel = 16;
-      break;
-
-    default:
-      // FIXME: this can indeed hit, I've seen actualPaletteSize
-      // become 8. If some palette sizes are indeed unsupported by
-      // OpenGL, we should probably resize our palette to the nearest
-      // upward. 20021106 mortene.
-      assert(FALSE && "unknown palette size");
-      break;
-    }
+    colorformat = GL_COLOR_INDEX8_EXT;
+    this->bitspertexel = 8;
+    this->clut = ((CvrPaletteTexture *)texobj)->getCLUT();
   }
 
   const int nrtexels = this->texdims[0] * this->texdims[1];
@@ -372,9 +323,9 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
     assert(glGetError() == GL_NO_ERROR);
 
-    // FIXME: must be changed when we support paletted
-    // textures. 20021210 mortene.
-    assert(texobj->getTypeId() == CvrRGBATexture::getClassTypeId());
+    void * imgptr = NULL;
+    if (paletted) imgptr = ((CvrPaletteTexture *)texobj)->getIndex8Buffer();
+    else imgptr = ((CvrRGBATexture *)texobj)->getRGBABuffer();
 
     glTexImage2D(GL_TEXTURE_2D,
                  0,
@@ -382,11 +333,10 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
                  this->texdims[0],
                  this->texdims[1],
                  0,
-                 palette == NULL ? GL_RGBA : GL_COLOR_INDEX,
-                 bytes_pr_unit,
-                 // FIXME: must be changed when we support paletted
-                 // textures. 20021206 mortene.
-                 ((CvrRGBATexture *)texobj)->getRGBABuffer());
+                 paletted ? GL_COLOR_INDEX: GL_RGBA,
+                 GL_UNSIGNED_BYTE,
+                 imgptr);
+                 
     assert(glGetError() == GL_NO_ERROR);
 
     GLint wrapenum = GL_CLAMP;
@@ -400,10 +350,21 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
 }
 
 void
-Cvr2DTexSubPage::render(const SbVec3f & upleft,
+Cvr2DTexSubPage::activateCLUT(const cc_glglue * glw) const
+{
+  // FIXME: should check if the same clut is already current
+  if (this->clut) {
+    this->clut->activate(glw);
+  }
+}
+
+void
+Cvr2DTexSubPage::render(const cc_glglue * glw,
+                        const SbVec3f & upleft,
                         SbVec3f widthvec, SbVec3f heightvec,
                         Interpolation interpolation) const
 {
+  this->activateCLUT(glw);
   this->activateTexture(interpolation);
 
   glBegin(GL_QUADS);

@@ -4,6 +4,7 @@
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/misc/CvrGIMPGradient.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 
 #include <../nodes/gradients/GREY.h>
 #include <../nodes/gradients/TEMPERATURE.h>
@@ -14,6 +15,7 @@
 #include <../nodes/gradients/SEISMIC.h>
 
 #include <Inventor/C/tidbits.h>
+#include <Inventor/C/glue/gl.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/misc/SoState.h>
 #include <Inventor/errors/SoDebugError.h>
@@ -21,11 +23,13 @@
 #include <assert.h>
 #include <string.h> // memcpy()
 
-uint32_t CvrVoxelChunk::transfertable[256];
-SbBool CvrVoxelChunk::transferdone[256];
+const unsigned int COLOR_TABLE_PREDEF_SIZE = 256;
+
+uint32_t CvrVoxelChunk::transfertable[COLOR_TABLE_PREDEF_SIZE];
+SbBool CvrVoxelChunk::transferdone[COLOR_TABLE_PREDEF_SIZE];
 uint32_t CvrVoxelChunk::transfertablenodeid = 0;
 
-uint8_t CvrVoxelChunk::PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];
+uint8_t CvrVoxelChunk::PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][COLOR_TABLE_PREDEF_SIZE][4];
 
 
 // Allocates an uninitialized buffer for storing enough voxel data to
@@ -147,13 +151,60 @@ compileRGBABigEndian(const uint8_t red, const uint8_t green,
     (uint32_t(blue) << 8) | (uint32_t(opaqueness) << 0);
 }
 
-// Transfers voxel data from input buffer to output buffer, according
-// to specified parameters.
-//
-// Output buffer is allocated within the function.
-//
-// The "invisible" flag will be set according to whether or not
-// there's at least one texel that's not fully transparent.
+// Converts the transferfunction's colormap into a CvrCLUT object.
+CvrCLUT *
+CvrVoxelChunk::makeCLUT(SoGLRenderAction * action) const
+{
+  SoState * state = action->getState();
+  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+  assert(tfelement != NULL);
+  SoTransferFunction * transferfunc = tfelement->getTransferFunction();
+  assert(transferfunc != NULL);
+
+  const int predefmapidx = transferfunc->predefColorMap.getValue();
+  assert(predefmapidx >= SoTransferFunction::NONE);
+  assert(predefmapidx <= SoTransferFunction::SEISMIC);
+
+  CvrCLUT * clut = NULL;
+  unsigned int nrcols = 0;
+
+  if (predefmapidx != SoTransferFunction::NONE) {
+    uint8_t * predefmap = &(CvrVoxelChunk::PREDEFGRADIENTS[predefmapidx][0][0]);
+    nrcols = COLOR_TABLE_PREDEF_SIZE;
+    clut = new CvrCLUT(nrcols, predefmap);
+  }
+  else {
+    const float * colormap = transferfunc->colorMap.getValues(0);
+    const int colormaptype = transferfunc->colorMapType.getValue();
+
+    unsigned int nrcomponents = 0;
+    switch (colormaptype) {
+    case SoTransferFunction::ALPHA: nrcomponents = 1; break;
+    case SoTransferFunction::LUM_ALPHA: nrcomponents = 2; break;
+    case SoTransferFunction::RGBA: nrcomponents = 4; break;
+    default: assert(FALSE && "invalid SoTransferFunction::colorMapType value"); break;
+    }
+
+    nrcols = transferfunc->colorMap.getNum() / nrcomponents;
+    assert((transferfunc->colorMap.getNum() % nrcomponents) == 0);
+
+    clut = new CvrCLUT(nrcols, nrcomponents, colormap);
+  }
+
+  uint32_t transparencythresholds[2];
+  tfelement->getTransparencyThresholds(transparencythresholds[0],
+                                       transparencythresholds[1]);
+  clut->setTransparencyThresholds(transparencythresholds[0],
+                                  SbMin(nrcols - 1, transparencythresholds[1]));
+  return clut;
+}
+
+/*!
+  Transfers voxel data to a texture.
+
+  The "invisible" flag will be set according to whether or not there's
+  at least one texel that's not fully transparent.
+*/
 CvrTextureObject *
 CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
 {
@@ -216,9 +267,24 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
   }
 
   else if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
-    CvrRGBATexture * rgbatex = new CvrRGBATexture(texsize);
-    texobj = rgbatex;
+    CvrRGBATexture * rgbatex = NULL;
+    CvrPaletteTexture * palettetex = NULL;
 
+    const CvrCLUT * clut = this->makeCLUT(action);
+
+    // FIXME: check if palette textures can and should be used XXX XXX
+    // XXX
+    if (TRUE) {
+      palettetex = new CvrPaletteTexture(texsize);
+      palettetex->setCLUT(clut);
+      texobj = palettetex;
+    }
+    else {
+      rgbatex = new CvrRGBATexture(texsize);
+      texobj = rgbatex;
+    }
+
+#if 1 // XXX kill XXX
     const float * colormap = NULL;
     int nrcols = 0;
     int colormaptype = 0;
@@ -247,88 +313,112 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
       assert((transferfunc->colorMap.getNum() % nrcomponents) == 0);
     }
 
-    int32_t shiftval = transferfunc->shift.getValue();
-    int32_t offsetval = transferfunc->offset.getValue();
-
     uint32_t transparencythresholds[2];
     tfelement->getTransparencyThresholds(transparencythresholds[0],
                                          transparencythresholds[1]);
+#endif // XXX kill XXX
+
+    int32_t shiftval = transferfunc->shift.getValue();
+    int32_t offsetval = transferfunc->offset.getValue();
 
     const uint8_t * inputbytebuffer = this->getBuffer8();
-    uint32_t * output = rgbatex->getRGBABuffer();
 
-    for (unsigned int y=0; y < (unsigned int)size[1]; y++) {
-      for (unsigned int x=0; x < (unsigned int)size[0]; x++) {
+    if (palettetex) {
+      uint8_t * output = palettetex->getIndex8Buffer();
 
-        const uint8_t voldataidx = inputbytebuffer[y * size[0] + x];
-        const int texelidx = y * texsize[0] + x;
+      for (unsigned int y=0; y < (unsigned int)size[1]; y++) {
+        for (unsigned int x=0; x < (unsigned int)size[0]; x++) {
 
-        if (CvrVoxelChunk::transferdone[voldataidx]) {
-          output[texelidx] = CvrVoxelChunk::transfertable[voldataidx];
+          // FIXME: too simple, need to heed shift, offset and
+          // reMap()-values, for instance
 
-          if (invisible) {
-            uint8_t alpha =
-              (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
-              ((output[texelidx] & 0xff000000) > 24) :
-              (output[texelidx] & 0x000000ff);
-            invisible = (alpha == 0x00);
-          }
-
-          continue;
+          const int voxelidx = y * size[0] + x;
+          const int texelidx = y * texsize[0] + x;
+          output[texelidx] = inputbytebuffer[voxelidx];
         }
+      }
 
-        uint8_t inval = voldataidx << shiftval;
-        inval += offsetval;
+      // FIXME: should set this correctly to optimize
+      invisible = FALSE;
+    }
+    else { // RGBA texture
+      uint32_t * output = rgbatex->getRGBABuffer();
 
-        if ((inval == 0x00) || // FIXME: not sure about this.. 20021119 mortene.
-            (inval < transparencythresholds[0]) ||
-            (inval > transparencythresholds[1])) {
-          output[texelidx] = 0x00000000;
-        }
-        else {
-          uint8_t rgba[4];
+      for (unsigned int y=0; y < (unsigned int)size[1]; y++) {
+        for (unsigned int x=0; x < (unsigned int)size[0]; x++) {
 
-          if (predefmapidx == SoTransferFunction::NONE) {
-            assert(inval < nrcols);
-            const float * colvals = &(colormap[inval * nrcomponents]);
-            switch (colormaptype) {
-            case SoTransferFunction::ALPHA:
-              rgba[0] = rgba[1] = rgba[2] = rgba[3] = uint8_t(colvals[0] * 255.0f);
-              break;
+          const uint8_t voldataidx = inputbytebuffer[y * size[0] + x];
+          const int texelidx = y * texsize[0] + x;
 
-            case SoTransferFunction::LUM_ALPHA:
-              rgba[0] = rgba[1] = rgba[2] = uint8_t(colvals[0] * 255.0f);
-              rgba[3] = uint8_t(colvals[1] * 255.0f);
-              break;
+          if (CvrVoxelChunk::transferdone[voldataidx]) {
+            output[texelidx] = CvrVoxelChunk::transfertable[voldataidx];
 
-            case SoTransferFunction::RGBA:
-              rgba[0] = uint8_t(colvals[0] * 255.0f);
-              rgba[1] = uint8_t(colvals[1] * 255.0f);
-              rgba[2] = uint8_t(colvals[2] * 255.0f);
-              rgba[3] = uint8_t(colvals[3] * 255.0f);
-              break;
-
-            default:
-              assert(FALSE && "impossible");
-              break;
+            if (invisible) {
+              uint8_t alpha =
+                (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
+                ((output[texelidx] & 0xff000000) > 24) :
+                (output[texelidx] & 0x000000ff);
+              invisible = (alpha == 0x00);
             }
-          }
-          else { // using one of the predefined colormaps
-            rgba[0] = predefmap[inval * 4 + 0];
-            rgba[1] = predefmap[inval * 4 + 1];
-            rgba[2] = predefmap[inval * 4 + 2];
-            rgba[3] = predefmap[inval * 4 + 3];
+
+            continue;
           }
 
-          output[texelidx] = (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
-            compileRGBALittleEndian(rgba[0], rgba[1], rgba[2], rgba[3]) :
-            compileRGBABigEndian(rgba[0], rgba[1], rgba[2], rgba[3]);
+          uint8_t inval = voldataidx << shiftval;
+          inval += offsetval;
 
-          invisible = invisible && (rgba[3] == 0x00);
-        }
+          if ((inval == 0x00) || // FIXME: not sure about this.. 20021119 mortene.
+              (inval < transparencythresholds[0]) ||
+              (inval > transparencythresholds[1])) {
+            output[texelidx] = 0x00000000;
+          }
+          else {
+            uint8_t rgba[4];
+
+            if (predefmapidx == SoTransferFunction::NONE) {
+              assert(inval < nrcols);
+              const float * colvals = &(colormap[inval * nrcomponents]);
+              switch (colormaptype) {
+              case SoTransferFunction::ALPHA:
+                rgba[0] = rgba[1] = rgba[2] = rgba[3] = uint8_t(colvals[0] * 255.0f);
+                break;
+
+              case SoTransferFunction::LUM_ALPHA:
+                rgba[0] = rgba[1] = rgba[2] = uint8_t(colvals[0] * 255.0f);
+                rgba[3] = uint8_t(colvals[1] * 255.0f);
+                break;
+
+              case SoTransferFunction::RGBA:
+                rgba[0] = uint8_t(colvals[0] * 255.0f);
+                rgba[1] = uint8_t(colvals[1] * 255.0f);
+                rgba[2] = uint8_t(colvals[2] * 255.0f);
+                rgba[3] = uint8_t(colvals[3] * 255.0f);
+                break;
+
+              default:
+                assert(FALSE && "impossible");
+                break;
+              }
+            }
+            else { // using one of the predefined colormaps
+              rgba[0] = predefmap[inval * 4 + 0];
+              rgba[1] = predefmap[inval * 4 + 1];
+              rgba[2] = predefmap[inval * 4 + 2];
+              rgba[3] = predefmap[inval * 4 + 3];
+            }
+
+            output[texelidx] = (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
+              compileRGBALittleEndian(rgba[0], rgba[1], rgba[2], rgba[3]) :
+              compileRGBABigEndian(rgba[0], rgba[1], rgba[2], rgba[3]);
+
+            invisible = invisible && (rgba[3] == 0x00);
+          }
       
-        CvrVoxelChunk::transferdone[voldataidx] = TRUE;
-        CvrVoxelChunk::transfertable[voldataidx] = output[texelidx];
+          // FIXME XXX FIXME XXX tmp disables table speed-up to allow
+          // changes to transferfunction data
+          //         CvrVoxelChunk::transferdone[voldataidx] = TRUE;
+          CvrVoxelChunk::transfertable[voldataidx] = output[texelidx];
+        }
       }
     }
   }
@@ -347,12 +437,12 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
 void
 CvrVoxelChunk::blankoutTransferTable(void)
 {
-  for (unsigned int i=0; i < 256; i++) {
+  for (unsigned int i=0; i < COLOR_TABLE_PREDEF_SIZE; i++) {
     CvrVoxelChunk::transferdone[i] = FALSE;
   }
 }
 
-// Initialize all 256-value predefined colormaps.
+// Initialize all predefined colormaps.
 void
 CvrVoxelChunk::initPredefGradients(void)
 {
@@ -365,14 +455,15 @@ CvrVoxelChunk::initPredefGradients(void)
     CvrGIMPGradient * gg = CvrGIMPGradient::read(gradientbufs[j]);
     gg->convertToIntArray(CvrVoxelChunk::PREDEFGRADIENTS[j+1]);
 
-#if 0 // DEBUG: spits out a 256x1 image of the colormap.
+#if 0 // DEBUG: spits out a COLOR_TABLE_PREDEF_SIZEx1 image of the colormap.
     SbString s;
     s.sprintf("/tmp/gradient-%d.ppm", j + 1);
     FILE * f = fopen(s.getString(), "w");
     assert(f);
-    (void)fprintf(f, "P3\n256 1 255\n"); // width height maxcolval
+    // width height maxcolval
+    (void)fprintf(f, "P3\n%d 1 255\n", COLOR_TABLE_PREDEF_SIZE);
 
-    for (int i=0; i < 256; i++) {
+    for (unsigned int i=0; i < COLOR_TABLE_PREDEF_SIZE; i++) {
       fprintf(f, "%d %d %d\n",
               CvrVoxelChunk::PREDEFGRADIENTS[TEMPERATURE][i][0],
               CvrVoxelChunk::PREDEFGRADIENTS[TEMPERATURE][i][1],
