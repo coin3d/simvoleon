@@ -4,10 +4,14 @@
   \ingroup volviz
 */
 
+#include <assert.h>
+
+#include <Inventor/SbBox3f.h>
+#include <Inventor/errors/SoDebugError.h>
+
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-#include <Inventor/SbBox3f.h>
-#include <assert.h>
+
 
 SO_ELEMENT_SOURCE(SoVolumeDataElement);
 
@@ -55,6 +59,40 @@ SoVolumeDataElement::getInstance(SoState * const state)
   return (const SoVolumeDataElement *)
     SoVolumeDataElement::getConstElement(state,
                                          SoVolumeDataElement::classStackIndex);
+}
+
+SbVec3s
+SoVolumeDataElement::objectToIJKCoordinates(const SbVec3f & objectpos) const
+{
+  SbVec3s voxeldims;
+  void * voxelptr;
+  SoVolumeData::DataType voxeltype;
+  SbBool ok = this->nodeptr->getVolumeData(voxeldims, voxelptr, voxeltype);
+  assert(ok);
+
+  const SbBox3f volsize = this->nodeptr->getVolumeSize();
+  const SbVec3f & mincorner = volsize.getMin();
+  const SbVec3f size = volsize.getMax() - mincorner;
+
+  SbVec3s ijk;
+  for (int i=0; i < 3; i++) {
+    const float normcoord = (objectpos[i] - mincorner[i]) / size[i];
+    ijk[i] = (short)(normcoord * voxeldims[i]);
+  }
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("SoVolumeDataElement::objectToIJKCoordinates",
+                         "objectpos==<%f, %f, %f>, volumesize== <%f, %f, %f>, "
+                         "mincorner==<%f, %f, %f>, voxeldims==<%d, %d, %d> ==>"
+                         " ijk==<%d, %d, %d>",
+                         objectpos[0], objectpos[1], objectpos[2],
+                         size[0], size[1], size[2],
+                         mincorner[0], mincorner[1], mincorner[2],
+                         voxeldims[0], voxeldims[1], voxeldims[2],
+                         ijk[0], ijk[1], ijk[2]);
+#endif // debug
+
+  return ijk;
 }
 
 void

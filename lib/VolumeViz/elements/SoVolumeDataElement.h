@@ -2,6 +2,7 @@
 #define COIN_SOVOLUMEDATAELEMENT_H
 
 #include <Inventor/elements/SoReplacedElement.h>
+#include <Inventor/SbVec3s.h>
 
 class SoVolumeData;
 class SbVec3f;
@@ -20,6 +21,11 @@ public:
 
   SoVolumeData * getVolumeData(void) const;
   static const SoVolumeDataElement * getInstance(SoState * const state);
+
+  // The following public functions are convenience methods,
+  // collecting common code working on SoVolumeData instances.
+
+  SbVec3s objectToIJKCoordinates(const SbVec3f & objectpos) const;
 
   void getPageGeometry(const int axis, const int slicenr,
                        SbVec3f & origo,

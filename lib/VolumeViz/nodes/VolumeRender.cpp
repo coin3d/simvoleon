@@ -46,11 +46,6 @@ public:
   unsigned int calculateNrOfSlices(SoGLRenderAction * action,
                                    const SbVec3s & dimensions);
 
-  SbVec3s objectToIJKCoordinates(const SbVec3f & objectpos,
-                                 const SbVec3f & volumesize,
-                                 const SbVec3f & mincorner,
-                                 const SbVec3s & voxeldimensions) const;
-
   CvrPageHandler * pagehandler;
 
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
@@ -359,6 +354,15 @@ void
 SoVolumeRender::generatePrimitives(SoAction * action)
 {
   // FIXME: implement me? 20021120 mortene.
+
+#if CVR_DEBUG && 1 // debug
+  static SbBool warn = TRUE;
+  if (warn) {
+    SoDebugError::postInfo("SoVolumeRender::generatePrimitives",
+                           "not yet implemented");
+    warn = FALSE;
+  }
+#endif // debug
 }
 
 /*!
@@ -481,9 +485,12 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
     // x-direction, at least), as can be seen from the
     // SimVoleon/testcode/raypick example (either that or it could be
     // the actual 2D texture-slice rendering that is wrong). 20030220 mortene.
+    //
+    // UPDATE: this might have been fixed now, at least I found and
+    // fixed an offset bug in the objectToIJKCoordinates() method
+    // today. 20030320 mortene.
 
-    ijk = PRIVATE(this)->objectToIJKCoordinates(objectcoord, size, mincorner,
-                                                voxeldimensions);
+    ijk = volumedataelement->objectToIJKCoordinates(objectcoord);
     if (!voxelbounds.intersect(ijk)) break;
 
     if (!action->isBetweenPlanes(objectcoord)) {
@@ -525,20 +532,6 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
   }
 
   if (clut) clut->unref();
-}
-
-SbVec3s
-SoVolumeRenderP::objectToIJKCoordinates(const SbVec3f & objectpos,
-                                        const SbVec3f & volumesize,
-                                        const SbVec3f & mincorner,
-                                        const SbVec3s & voxeldimensions) const
-{
-  SbVec3s ijk;
-  for (int i=0; i < 3; i++) {
-    const float normcoord = (objectpos[i] - mincorner[i]) / volumesize[i];
-    ijk[i] = short(normcoord * (voxeldimensions[i] - 1.0f));
-  }
-  return ijk;
 }
 
 // doc in super
