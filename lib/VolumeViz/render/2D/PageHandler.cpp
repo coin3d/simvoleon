@@ -147,7 +147,6 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
                        Cvr2DTexSubPage::Interpolation interpolation,
                        SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
                        void * abortcbdata)
-
 {
   SoState * state = action->getState();
 
@@ -264,25 +263,10 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   glEnable(GL_TEXTURE_2D);
   glPolygonMode(GL_FRONT, GL_FILL);
 
-  // FIXME: this is a reversion of a change that pederb made on
-  // 20021104 that made the CoinVol/testcode/example program fail
-  // (nothing gets drawn). Need to check with pederb what he tried to
-  // accomplish with the change. (The log message says "Switched to
-  // alpha test rendering instead of blending.") 20021109 mortene.
-#if 1
+  // FIXME: how does this cooperate with the other geometry in a Coin
+  // scene graph? Do we need to delay rendering? 20021109 mortene.
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-#else
-  // FIXME: add proper transparency test. For now I've just disabled
-  // blending and enabled glAlphaTest instead (looks better, and delayed
-  // rendering is not required). pederb, 2002-11-04
-  // glEnable(GL_BLEND);
-  // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  // this is to enable alpha test
-  glAlphaFunc(GL_GREATER, 0.5f);
-  glEnable(GL_ALPHA_TEST);
-#endif
 
   // FIXME: what's this good for? 20021128 mortene.
   glDisable(GL_CULL_FACE);
