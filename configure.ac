@@ -70,6 +70,15 @@ AC_PROG_CXX
 AC_LANG_CPLUSPLUS
 
 # *******************************************************************
+#  These are used for constructing the simvoleon-config file.
+
+AC_SUBST([SIMVOLEON_EXTRA_CPPFLAGS], [$CPPFLAGS])
+AC_SUBST([SIMVOLEON_EXTRA_CFLAGS], [])
+AC_SUBST([SIMVOLEON_EXTRA_CXXFLAGS], [])
+AC_SUBST([SIMVOLEON_EXTRA_LDFLAGS], [$LDFLAGS])
+AC_SUBST([SIMVOLEON_EXTRA_LIBS], [$LIBS])
+
+# *******************************************************************
 
 AM_INIT_AUTOMAKE(SimVoleon, $VERSION)
 
@@ -79,6 +88,26 @@ AM_DISABLE_STATIC
 
 #  Files to cram results from the configure tests into.
 AM_CONFIG_HEADER(lib/config.h)
+
+# *******************************************************************
+# Configure an alternate installation?
+
+AC_ARG_WITH(
+  [alternate],
+  [AC_HELP_STRING([--with-alternate=string],
+                  [specify name of alternate configuration])],
+  [CONFIG=$withval],
+  [CONFIG=default])
+
+AC_ARG_WITH(
+  [suffix],
+  [AC_HELP_STRING([--with-suffix=string],
+                  [specify library name suffix (e.g. "_g")])],
+  [SUFFIX=$withval],
+  [SUFFIX=])
+
+AC_SUBST(CONFIG)
+AC_SUBST(SUFFIX)
 
 # *******************************************************************
 # Compiler checking.
@@ -204,13 +233,28 @@ else
   SIMVOLEON_EXTRA_LIBS="-lSimVoleon $SIMVOLEON_EXTRA_LIBS"
 fi
 
+# *******************************************************************
 
+AC_SUBST([COMPILER], ["$CXX"])
+# don't report source hierarchy path to wrapmsvc.exe from simvoleon-config
+if $BUILD_WITH_MSVC; then COMPILER="wrapmsvc.exe"; fi
+
+AC_SUBST([ac_compiler_gnu])
+
+# *******************************************************************
+
+SIM_AC_UNIQIFY_OPTION_LIST(SIMVOLEON_EXTRA_CPPFLAGS, -I$includedir $SIMVOLEON_EXTRA_CPPFLAGS)
+SIM_AC_UNIQIFY_OPTION_LIST(SIMVOLEON_EXTRA_LDFLAGS, -L$libdir $SIMVOLEON_EXTRA_LDFLAGS)
+SIM_AC_UNIQIFY_OPTION_LIST(SIMVOLEON_EXTRA_LIBS, $SIMVOLEON_EXTRA_LIBS)
 SIM_AC_UNIQIFY_LIST(CPPFLAGS, $CPPFLAGS)
 SIM_AC_UNIQIFY_LIST(LDFLAGS, $LDFLAGS)
 SIM_AC_UNIQIFY_LIST(LIBS, $LIBS)
 
+# *******************************************************************
+
 AC_OUTPUT([
         Makefile
+        bin/Makefile
         lib/Makefile
         lib/VolumeViz/Makefile
         lib/VolumeViz/C/Makefile
@@ -224,6 +268,8 @@ AC_OUTPUT([
 	lib/VolumeViz/render/2D/Makefile
 ])
 
+# *******************************************************************
+
 SIM_AC_CONFIGURATION_SETTING([Install prefix], [$prefix])
 
 SIM_AC_CONFIGURATION_SUMMARY
@@ -231,3 +277,5 @@ SIM_AC_CONFIGURATION_SUMMARY
 echo ""
 echo "Now, run 'make' and 'make install' to install $PACKAGE"
 echo ""
+
+# *******************************************************************
