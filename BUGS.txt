@@ -110,4 +110,10 @@
 
     20040708 mortene.
 
+    UPDATE 20040708 mortene: Gerhard Reitmayr says it is indeed
+    possible to connect together several Doxygen documentation
+    generations, and provided this link for doc on this feature:
+
+        http://www.stack.nl/~dimitri/doxygen/doxytag_usage.html
+
 ========================================================================
