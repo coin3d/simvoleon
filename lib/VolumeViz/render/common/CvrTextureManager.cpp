@@ -179,22 +179,8 @@ CvrTextureManager::finalizeTextureObject(const CvrTextureObject * texobject)
     // FIXME: This must be fixed the day we support 16 or 24 bits
     // textures. (20040625 handegar)
     const int voxelsize = palette ? 1 : 4;
-    unsigned int nrtexels = 0;
-
-    if (tex3d) {         
-      SbVec3s size;
-      // FIXME: crap design, dimensions data should be in
-      // superclass. 20040715 mortene.
-      if (palette) size = ((const Cvr3DPaletteTexture *)texobject)->dimensions;
-      else size = ((const Cvr3DRGBATexture *)texobject)->dimensions;
-      nrtexels = size[0] * size[1] * size[2];
-    }
-    else {
-      SbVec2s size;
-      if (palette) size = ((const Cvr2DPaletteTexture *)texobject)->dimensions;
-      else size = ((const Cvr2DRGBATexture *)texobject)->dimensions;
-      nrtexels = size[0] * size[1];
-    }
+    const SbVec3s size = texobject->getDimensions();
+    unsigned int nrtexels = size[0] * size[1] * size[2];
 
     CvrTextureManager::totalnumberoftexels -= nrtexels;
     CvrTextureManager::totaltexturesize -= nrtexels * voxelsize;
@@ -244,14 +230,7 @@ CvrTextureManager::new3DTextureObject(SoGLRenderAction * action,
   // Must clear unused texture area to prevent artifacts due to
   // floating point inaccuracies when calculating texture coords.
   newtexobj->blankUnused(texsize);
-
-  SbVec3s realtexsize;
-  if (newtexobj->getTypeId() == Cvr3DRGBATexture::getClassTypeId()) {
-    realtexsize = ((Cvr3DRGBATexture *) newtexobj)->dimensions;
-  }
-  else if (newtexobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()) {
-    realtexsize = ((Cvr3DPaletteTexture *) newtexobj)->dimensions;
-  }
+  const SbVec3s realtexsize = newtexobj->getDimensions();
   
   newtexobj->setTextureCompressed(voldata->useCompressedTexture.getValue());
   CvrTextureManager::transferTex3GL(action, newtexobj, realtexsize);

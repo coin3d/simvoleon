@@ -22,9 +22,12 @@
 \**************************************************************************/
 
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
-#include <Inventor/SbName.h>
+
 #include <assert.h>
 #include <Inventor/C/tidbits.h>
+#include <Inventor/SbName.h>
+
+// *************************************************************************
 
 // Don't set value explicitly to SoType::badType(), to avoid a bug in
 // Sun CC v4.0. (Bitpattern 0x0000 equals SoType::badType()).
@@ -32,6 +35,8 @@ SoType Cvr3DRGBATexture::classTypeId;
 
 SoType Cvr3DRGBATexture::getTypeId(void) const { return Cvr3DRGBATexture::classTypeId; }
 SoType Cvr3DRGBATexture::getClassTypeId(void) { return Cvr3DRGBATexture::classTypeId; }
+
+// *************************************************************************
 
 void
 Cvr3DRGBATexture::initClass(void)
@@ -42,14 +47,9 @@ Cvr3DRGBATexture::initClass(void)
 }
 
 Cvr3DRGBATexture::Cvr3DRGBATexture(const SbVec3s & size)
+  : inherited(size)
 {
   assert(Cvr3DRGBATexture::classTypeId != SoType::badType());
-
-  assert(coin_is_power_of_two(size[0]));
-  assert(coin_is_power_of_two(size[1]));
-  assert(coin_is_power_of_two(size[2]));
-  
-  this->dimensions = size;
 }
 
 Cvr3DRGBATexture::~Cvr3DRGBATexture()
@@ -64,7 +64,8 @@ Cvr3DRGBATexture::getRGBABuffer(void) const
   if (this->rgbabuffer == NULL) {
     // Cast away constness.
     Cvr3DRGBATexture * that = (Cvr3DRGBATexture *)this;
-    that->rgbabuffer = new uint32_t[this->dimensions[0] * this->dimensions[1] * this->dimensions[2]];
+    const SbVec3s dims = this->getDimensions();
+    that->rgbabuffer = new uint32_t[dims[0] * dims[1] * dims[2]];
   }
 
   return this->rgbabuffer;
@@ -75,38 +76,42 @@ Cvr3DRGBATexture::getRGBABuffer(void) const
 void
 Cvr3DRGBATexture::blankUnused(const SbVec3s & texsize) const
 {
-  assert(this->rgbabuffer); 
+  assert(this->rgbabuffer);
   unsigned short x, y, z;
-  
+
+  const SbVec3s dims = this->getDimensions();
+
   // Bottom 'slab'
-  for (z=texsize[2]; z < this->dimensions[2]; z++) {  
-    for (x=0;x<this->dimensions[0];++x) {
-      for (y=0;y<this->dimensions[1];++y) {
-        this->rgbabuffer[(z * this->dimensions[0] * this->dimensions[1]) + 
-                         (y * this->dimensions[0]) + x] = 0x00000000;
+  for (z=texsize[2]; z < dims[2]; z++) {
+    for (x=0;x<dims[0];++x) {
+      for (y=0;y<dims[1];++y) {
+        this->rgbabuffer[(z * dims[0] * dims[1]) +
+                         (y * dims[0]) + x] = 0x00000000;
 
       }
-    }    
+    }
   }
 
   // Front 'slab'
   for (z=0;z<texsize[2];++z) {
     for (x=0;x<texsize[0];++x) {
-      for (y=texsize[1];y<this->dimensions[1];++y) {
-        this->rgbabuffer[(z * this->dimensions[0] * this->dimensions[1]) + 
-                         (y * this->dimensions[0]) + x] = 0x00000000;
+      for (y=texsize[1];y<dims[1];++y) {
+        this->rgbabuffer[(z * dims[0] * dims[1]) +
+                         (y * dims[0]) + x] = 0x00000000;
       }
-    }    
+    }
   }
 
   // Right 'slab'
   for (z=0;z<texsize[2];++z) {
-    for (x=texsize[0];x<this->dimensions[0];++x) {
-      for (y=0;y<this->dimensions[1];++y) {
-        this->rgbabuffer[(z * this->dimensions[0] * this->dimensions[1]) + 
-                         (y * this->dimensions[0]) + x] = 0x00000000;        
+    for (x=texsize[0];x<dims[0];++x) {
+      for (y=0;y<dims[1];++y) {
+        this->rgbabuffer[(z * dims[0] * dims[1]) +
+                         (y * dims[0]) + x] = 0x00000000;
       }
-    }    
+    }
   }
-  
+
 }
+
+// *************************************************************************

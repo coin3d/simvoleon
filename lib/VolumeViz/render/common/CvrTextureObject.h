@@ -25,9 +25,8 @@
 \**************************************************************************/
 
 #include <Inventor/SoType.h>
+#include <Inventor/SbVec3s.h>
 #include <Inventor/system/gl.h>
-
-class SbVec3s;
 
 // *************************************************************************
 
@@ -38,27 +37,30 @@ public:
   virtual SoType getTypeId(void) const = 0;
   static SoType getClassTypeId(void);
 
+  uint32_t getRefCount(void) const;
+  void ref(void) const;
+  void unref(void) const;
+
+  const SbVec3s & getDimensions(void) const;
+
   GLuint getOpenGLTextureId(void) const; 
   SbBool textureCompressed() const;
   void setTextureCompressed(SbBool flag);
   void setOpenGLTextureId(GLuint textureid);
-
-  uint32_t getRefCount(void) const;
-  void ref(void) const;
-  void unref(void) const;
 
   virtual void blankUnused(const SbVec3s & texsize) const = 0;
 
 protected:
   // Constructor and destructor is protected as only the texture
   // manager is allowed to create and remove TextureObjects.
-  CvrTextureObject(void);
+  CvrTextureObject(const SbVec3s & size);
   virtual ~CvrTextureObject();
 
 private:
   static SoType classTypeId;
   GLuint opengltextureid;
   SbBool iscompressed;
+  SbVec3s dimensions;
   uint32_t refcounter;
 
   // FIXME: This should be removed as soon as the 2D texture support is

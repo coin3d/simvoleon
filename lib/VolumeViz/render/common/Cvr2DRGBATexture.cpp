@@ -46,10 +46,10 @@ Cvr2DRGBATexture::initClass(void)
     SoType::createType(CvrTextureObject::getClassTypeId(), "Cvr2DRGBATexture");
 }
 
-Cvr2DRGBATexture::Cvr2DRGBATexture(const SbVec2s & size)
+Cvr2DRGBATexture::Cvr2DRGBATexture(const SbVec3s & size)
+  : inherited(size)
 {
   assert(Cvr2DRGBATexture::classTypeId != SoType::badType());
-  this->dimensions = size;
 }
 
 Cvr2DRGBATexture::~Cvr2DRGBATexture()
@@ -66,7 +66,8 @@ Cvr2DRGBATexture::getRGBABuffer(void) const
   if (this->rgbabuffer == NULL) {
     // Cast away constness.
     Cvr2DRGBATexture * that = (Cvr2DRGBATexture *)this;
-    that->rgbabuffer = new uint32_t[this->dimensions[0] * this->dimensions[1]];
+    const SbVec3s dims = this->getDimensions();
+    that->rgbabuffer = new uint32_t[dims[0] * dims[1]];
   }
 
   return this->rgbabuffer;
@@ -80,7 +81,7 @@ Cvr2DRGBATexture::blankUnused(const SbVec3s & texsize) const
   assert(this->rgbabuffer);
   assert(texsize[2] == 1);
 
-  SbVec2s texobjdims = this->dimensions;
+  const SbVec3s texobjdims = this->getDimensions();
   {
     for (short y=texsize[1]; y < texobjdims[1]; y++) {
       for (short x=0; x < texobjdims[0]; x++) {
@@ -96,3 +97,5 @@ Cvr2DRGBATexture::blankUnused(const SbVec3s & texsize) const
     }
   }
 }
+
+// *************************************************************************

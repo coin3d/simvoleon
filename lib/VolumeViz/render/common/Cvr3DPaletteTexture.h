@@ -31,13 +31,14 @@ class CvrCLUT;
 
 
 class Cvr3DPaletteTexture : public CvrPaletteTexture {
+  typedef CvrPaletteTexture inherited;
+
 public:
   static void initClass(void);
 
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
-  SbVec3s dimensions;
   virtual uint8_t * getIndex8Buffer(void) const;
 
   virtual void blankUnused(const SbVec3s & texsize) const;

@@ -29,20 +29,19 @@
 
 
 class Cvr2DRGBATexture : public CvrRGBATexture {
+  typedef CvrRGBATexture inherited;
+
 public:
   static void initClass(void);
 
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
-  // FIXME: should be part of superclass. 20040715 mortene.
-  SbVec2s dimensions;
-
   virtual uint32_t * getRGBABuffer(void) const;
   virtual void blankUnused(const SbVec3s & texsize) const;
 
 protected:
-  Cvr2DRGBATexture(const SbVec2s & size);
+  Cvr2DRGBATexture(const SbVec3s & size);
   virtual ~Cvr2DRGBATexture();
 
 private:

@@ -556,12 +556,12 @@ CvrVoxelChunk::transfer2D(SoGLRenderAction * action, SbBool & invisible) const
     SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
 
     if (usepalettetex) {
-      palettetex = new Cvr2DPaletteTexture(texsize);
+      palettetex = new Cvr2DPaletteTexture(SbVec3s(texsize[0], texsize[1], 1));
       palettetex->setCLUT(clut);
       texobj = palettetex;
     }
     else {
-      rgbatex = new Cvr2DRGBATexture(texsize);
+      rgbatex = new Cvr2DRGBATexture(SbVec3s(texsize[0], texsize[1], 1));
       texobj = rgbatex;
     }
 

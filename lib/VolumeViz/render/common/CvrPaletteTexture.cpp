@@ -41,7 +41,8 @@ CvrPaletteTexture::initClass(void)
     SoType::createType(CvrTextureObject::getClassTypeId(), "CvrPaletteTexture");
 }
 
-CvrPaletteTexture::CvrPaletteTexture()
+CvrPaletteTexture::CvrPaletteTexture(const SbVec3s & size)
+  : inherited(size)
 {
   assert(CvrPaletteTexture::classTypeId != SoType::badType());
   this->indexbuffer = NULL;

@@ -47,10 +47,11 @@ Cvr2DPaletteTexture::initClass(void)
     SoType::createType(CvrTextureObject::getClassTypeId(), "Cvr2DPaletteTexture");
 }
 
-Cvr2DPaletteTexture::Cvr2DPaletteTexture(const SbVec2s & size)
+Cvr2DPaletteTexture::Cvr2DPaletteTexture(const SbVec3s & size)
+  : inherited(size)
 {
   assert(Cvr2DPaletteTexture::classTypeId != SoType::badType());
-  this->dimensions = size;
+  assert(size[2] == 1);
 }
 
 Cvr2DPaletteTexture::~Cvr2DPaletteTexture()
@@ -67,7 +68,8 @@ Cvr2DPaletteTexture::getIndex8Buffer(void) const
   if (this->indexbuffer == NULL) {
     // Cast away constness.
     Cvr2DPaletteTexture * that = (Cvr2DPaletteTexture *)this;
-    that->indexbuffer = new uint8_t[this->dimensions[0] * this->dimensions[1]];
+    const SbVec3s dim = this->getDimensions();
+    that->indexbuffer = new uint8_t[dim[0] * dim[1]];
   }
 
   return this->indexbuffer;
@@ -81,7 +83,7 @@ Cvr2DPaletteTexture::blankUnused(const SbVec3s & texsize) const
   assert(this->indexbuffer);
   assert(texsize[2] == 1);
   
-  SbVec2s texobjdims = this->dimensions;
+  const SbVec3s texobjdims = this->getDimensions();
   {
     for (short y=texsize[1]; y < texobjdims[1]; y++) {
       for (short x=0; x < texobjdims[0]; x++) {
@@ -106,7 +108,7 @@ Cvr2DPaletteTexture::dumpToPPM(const char * filename) const
   FILE * f = fopen(filename, "w");
   assert(f);
 
-  SbVec2s texobjdims = this->dimensions;
+  const SbVec3s texobjdims = this->getDimensions();
   // width height maxcolval
   (void)fprintf(f, "P3\n%d %d 255\n", texobjdims[0], texobjdims[1]);
 

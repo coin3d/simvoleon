@@ -30,6 +30,8 @@ class CvrCLUT;
 
 
 class CvrPaletteTexture : public CvrTextureObject {
+  typedef CvrTextureObject inherited;
+
 public:
   static void initClass(void);
 
@@ -42,7 +44,7 @@ public:
   const CvrCLUT * getCLUT(void) const;
 
 protected:
-  CvrPaletteTexture(void);
+  CvrPaletteTexture(const SbVec3s & size);
   virtual ~CvrPaletteTexture();
 
   uint8_t * indexbuffer;

@@ -31,20 +31,21 @@ class CvrCLUT;
 
 
 class Cvr2DPaletteTexture : public CvrPaletteTexture {
+  typedef CvrPaletteTexture inherited;
+
 public:
   static void initClass(void);
 
   virtual SoType getTypeId(void) const;
   static SoType getClassTypeId(void);
 
-  SbVec2s dimensions;
   virtual uint8_t * getIndex8Buffer(void) const;
 
   virtual void blankUnused(const SbVec3s & texsize) const;
   void dumpToPPM(const char * filename) const;
 
 private:
-  Cvr2DPaletteTexture(const SbVec2s & size);
+  Cvr2DPaletteTexture(const SbVec3s & size);
   virtual ~Cvr2DPaletteTexture();
 
   static SoType classTypeId;

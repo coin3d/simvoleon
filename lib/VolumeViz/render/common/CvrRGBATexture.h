@@ -28,6 +28,8 @@
 
 
 class CvrRGBATexture : public CvrTextureObject {
+  typedef CvrTextureObject inherited;
+
 public:
   static void initClass(void);
 
@@ -37,7 +39,7 @@ public:
   virtual uint32_t * getRGBABuffer(void) const;
 
 protected:
-  CvrRGBATexture(void);
+  CvrRGBATexture(const SbVec3s & size);
   virtual ~CvrRGBATexture();
 
   uint32_t * rgbabuffer;

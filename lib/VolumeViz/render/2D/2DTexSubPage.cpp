@@ -109,17 +109,9 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
   this->texobj = texobj;
   this->texobj->ref();
 
-  // FIXME: dimensions should be common variable in
-  // superclass. 20040715 mortene.
-  if (this->texobj->getTypeId() == Cvr2DPaletteTexture::getClassTypeId()) {
-    this->texdims = ((Cvr2DPaletteTexture *) this->texobj)->dimensions;
-  }
-  else if (this->texobj->getTypeId() == Cvr2DRGBATexture::getClassTypeId()) {
-    this->texdims = ((Cvr2DRGBATexture *) this->texobj)->dimensions;
-  }
-  else {
-    assert(FALSE && "Cannot initialize a 2D texture cube with a 3D texture object");
-  }
+  const SbVec3s dims = this->texobj->getDimensions();
+  assert((dims[2] == 1) && "Cannot initialize a 2D texture cube with a 3D texture object");
+  this->texdims.setValue(dims[0], dims[1]);
 
   // Calculates part of texture to show.
   this->texmaxcoords = SbVec2f(1.0f, 1.0f);

@@ -54,7 +54,6 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
                                  const SbVec3s & originaltexsize,
                                  const SbBool compresstextures)
 {
-
   this->ispaletted = FALSE;
   this->clut = NULL;
 
@@ -66,25 +65,17 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
   this->origo = SbVec3f(0, 0, 0); // Default value
 
   // Actual dimensions of texture bitmap memory block.  
-  this->texdims = SbVec3s(0, 0, 0);
+  this->texdims = texobj->getDimensions();
 
   if (texobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()) {
-    this->texdims = ((Cvr3DPaletteTexture *) texobj)->dimensions;
     this->clut = ((Cvr3DPaletteTexture *)texobj)->getCLUT();
     this->clut->ref();
     this->ispaletted = TRUE;
-  }
-  else if (texobj->getTypeId() == Cvr3DRGBATexture::getClassTypeId()) {
-    this->texdims = ((Cvr3DRGBATexture *) texobj)->dimensions;
-  }
-  else {
-    assert(FALSE && "Cannot initialize a 3D texture cube using a 2D texture object.");
   }
 
   this->textureobject = texobj;
   this->distancefromcamera = 0;
   this->originaltexsize = originaltexsize;
-
 }
 
 
@@ -93,6 +84,8 @@ Cvr3DTexSubCube::~Cvr3DTexSubCube()
   CvrTextureManager::finalizeTextureObject(this->textureobject);
   if (this->clut) this->clut->unref();
 }
+
+// *************************************************************************
 
 SbBool
 Cvr3DTexSubCube::isPaletted(void) const
@@ -112,6 +105,8 @@ Cvr3DTexSubCube::setPalette(const CvrCLUT * newclut)
 
   ((CvrCLUT *) this->clut)->setTextureType(CvrCLUT::TEXTURE3D);
 }
+
+// *************************************************************************
 
 void
 Cvr3DTexSubCube::activateTexture(Interpolation interpolation) const

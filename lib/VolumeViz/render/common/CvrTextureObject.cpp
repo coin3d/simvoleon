@@ -55,17 +55,32 @@ CvrTextureObject::initClass(void)
 
 }
 
-CvrTextureObject::CvrTextureObject()
+CvrTextureObject::CvrTextureObject(const SbVec3s & size)
 {
   assert(CvrTextureObject::classTypeId != SoType::badType());
   this->opengltextureid = 0; // id=0 => texture has not been uploaded to texture mem. 
   this->iscompressed = FALSE;
   this->refcounter = 0;
+
+  assert(coin_is_power_of_two(size[0]));
+  assert(coin_is_power_of_two(size[1]));
+  assert(coin_is_power_of_two(size[2]));
+  this->dimensions = size;
 }
 
 CvrTextureObject::~CvrTextureObject()
 {
 }
+
+// *************************************************************************
+
+const SbVec3s &
+CvrTextureObject::getDimensions(void) const
+{
+  return this->dimensions;
+}
+
+// *************************************************************************
 
 GLuint 
 CvrTextureObject::getOpenGLTextureId(void) const
