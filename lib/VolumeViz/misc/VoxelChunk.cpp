@@ -32,6 +32,10 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/misc/SoState.h>
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif // HAVE_CONFIG_H
+
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
@@ -256,21 +260,29 @@ CvrVoxelChunk::usePaletteTextures(SoGLRenderAction * action)
   if (force_rgba) usepalettetex = FALSE;
 
   // If we requested paletted textures, does OpenGL support them?
+  // Texture paletting can also be done with fragment
+  // programs. (E.g. ATI drivers don't have the palette-texture
+  // extension, but newer cards supports fragment programs.)
   //
   // (FIXME: one more thing to check versus OpenGL is that the palette
   // size can fit. 2003???? mortene.)
   const SbBool haspalettetextures = cc_glglue_has_paletted_textures(glw);
-  usepalettetex = usepalettetex && haspalettetextures;
+  SbBool hasfragmentprogramsupport = FALSE;
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+  hasfragmentprogramsupport = cc_glglue_has_arb_fragment_program(glw);
+#endif // HAVE_ARB_FRAGMENT_PROGRAM
+  usepalettetex = usepalettetex && (haspalettetextures || hasfragmentprogramsupport);
 
   static SbBool first = TRUE;
   if (first && CvrUtil::doDebugging()) {
     SoDebugError::postInfo("CvrVoxelChunk::usePaletteTextures",
                            "returns %d (SoVolumeData::usePalettedTexture==%d, "
                            "force_paletted==%d, force_rgba==%d, "
-                           "OpenGL-has-palette-textures==%d)",
+                           "OpenGL-has-palette-texture-extension==%d), "
+                           "OpenGL-has-fragment-programs==%d)",
                            usepalettetex,
                            apiusepalette, force_paletted, force_rgba,
-                           haspalettetextures);
+                           haspalettetextures, hasfragmentprogramsupport);
     first = FALSE;
   }
 
