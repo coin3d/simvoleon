@@ -329,6 +329,16 @@ CvrCLUT::initPaletteTexture(const cc_glglue * glue)
 
   glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA8, this->nrentries, 0, GL_RGBA,
                GL_UNSIGNED_BYTE, (GLvoid *) this->glcolors);
+
+  if (CvrUtil::doDebugging()) {
+    static SbBool flag = FALSE;
+    if (!flag) {
+      SoDebugError::postInfo("CvrCLUT::initPaletteTexture", 
+                             "Using a fragment program as palette lookup mechanism.");
+      flag = TRUE;
+    }
+  }
+
 #endif
 }
 
