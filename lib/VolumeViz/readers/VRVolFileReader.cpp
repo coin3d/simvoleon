@@ -297,6 +297,15 @@ SoVRVolFileReader::setUserData(void * data)
   (void)memmove(this->m_data, (uint8_t *)this->m_data + volh->header_length,
                 filesize - volh->header_length);
 
+  const char * env = coin_getenv("CVR_DEBUG_DUMP_RAW");
+  if (env) {
+    FILE * f = fopen(env, "w");
+    assert(f); // FIXME: handle in robust manner. 20030702 mortene.
+    // FIXME: error check next two. 20030702 mortene.
+    fwrite(this->m_data, 1, filesize - volh->header_length, f);
+    fclose(f);
+  }
+
   PRIVATE(this)->valid = TRUE;
 }
 
