@@ -25,4 +25,3 @@ elements.lst: $(elements_lst_OBJECTS)
 	@echo "Linking $@..."; \
 	rm -f $@; \
 	for i in $(elements_lst_OBJECTS); do echo $$i >>$@; done
-

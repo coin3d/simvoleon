@@ -1,12 +1,3 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http:// www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
 /*!
   \class SoTransferFunctionElement VolumeViz/elements/SoTransferFunctionElement.h
   \brief 
@@ -22,77 +13,55 @@
 
 SO_ELEMENT_SOURCE(SoTransferFunctionElement);
 
-/*!
-  This static method initializes static data for the
-  SoTransferFunctionElement class.
-*/
-
 void
 SoTransferFunctionElement::initClass(void)
 {
-  static int first = 0;
-  if (first == 1) return;
-  first = 1;
   SO_ELEMENT_INIT_CLASS(SoTransferFunctionElement, inherited);
 }
 
-
-/*!
-  The destructor.
-*/
 
 SoTransferFunctionElement::~SoTransferFunctionElement(void)
 {
 }
 
-//! FIXME: write doc.
-
 void
 SoTransferFunctionElement::init(SoState * state)
 {
   inherited::init(state);
-  transferFunction = NULL;
+  this->transferFunction = NULL;
 }
-
-//! FIXME: write doc.
 
 void
 SoTransferFunctionElement::setTransferFunction(SoState * const state,
-                          SoNode * const node,
-                          SoTransferFunction * transferFunction)
+                                               SoNode * const node,
+                                               SoTransferFunction * func)
 {
-  SoTransferFunctionElement * elem =
-    (SoTransferFunctionElement *)SoElement::getElement(state, 
-                                                       classStackIndex);
+  SoTransferFunctionElement * elem = (SoTransferFunctionElement *)
+    SoTransferFunctionElement::::getElement(state, SoTransferFunctionElement::classStackIndex);
+
   if (elem) {
-    elem->transferFunction = transferFunction;
-  }// if
+    elem->transferFunction = func;
+  }
 }
 
 
-//! FIXME: write doc.
-
 SoTransferFunction *
-SoTransferFunctionElement::getTransferFunction() const
+SoTransferFunctionElement::getTransferFunction(void) const
 {
   return this->transferFunction;
 }
 
 
-//! FIXME: write doc.
-
 const SoTransferFunctionElement *
 SoTransferFunctionElement::getInstance(SoState * const state)
 {
-  return (SoTransferFunctionElement *)
-    (getConstElement(state, classStackIndex));
+  return (const SoTransferFunctionElement *)
+    SoTransferFunctionElement::getConstElement(state, SoTransferFunctionElement::classStackIndex));
 }
 
 
-
-//! FIXME: write doc.
-
 void
-SoTransferFunctionElement::print(FILE * /* file */) const
+SoTransferFunctionElement::print(FILE * file) const
 {
+  // FIXME: stub. 20021106 mortene.
 }
