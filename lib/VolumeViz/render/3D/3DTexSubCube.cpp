@@ -30,9 +30,9 @@
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
+#include <VolumeViz/render/common/CvrTextureManager.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
-#include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
 #include <Inventor/elements/SoModelMatrixElement.h>
@@ -46,42 +46,21 @@
 
 // *************************************************************************
 
-// debugging: keep this around until the peculiar NVidia bug with
-// 1- or 2-pixel width textures has been analyzed. 20031031 mortene.
-
-#define GLSYNCHRON 0
-
-#if GLSYNCHRON
-#define GLCMD(x) do { printf("%s\n", #x); x; glFinish(); } while(0)
-#else
-#define GLCMD(x) do { x; } while(0)
-#endif
-
-// *************************************************************************
-
-unsigned int Cvr3DTexSubCube::nroftexels = 0;
-unsigned int Cvr3DTexSubCube::texmembytes = 0;
-GLuint Cvr3DTexSubCube::emptyimgname[1] = { 0 };
-SbBool Cvr3DTexSubCube::detectedtextureswapping = FALSE;
-
-// *************************************************************************
-
 Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
                                  const SbVec3f & cubesize,
                                  const SbVec3s & originaltexsize,
                                  const SbBool compresstextures)
 {
-  this->bitspertexel = 0;
-  this->clut = NULL;
+
   this->ispaletted = FALSE;
-  
+  this->clut = NULL;
+
   assert(cubesize[0] >= 0);
   assert(cubesize[1] >= 0);
   assert(cubesize[2] >= 0);
   
   this->dimensions = cubesize;
-  this->subcubestruct = NULL;
   this->origo = SbVec3f(0, 0, 0); // Default value
 
   // Actual dimensions of texture bitmap memory block.  
@@ -89,6 +68,9 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
 
   if (texobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()) {
     this->texdims = ((Cvr3DPaletteTexture *) texobj)->dimensions;
+    this->clut = ((Cvr3DPaletteTexture *)texobj)->getCLUT();
+    this->clut->ref();
+    this->ispaletted = TRUE;
   }
   else if (texobj->getTypeId() == Cvr3DRGBATexture::getClassTypeId()) {
     this->texdims = ((Cvr3DRGBATexture *) texobj)->dimensions;
@@ -97,11 +79,7 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
     assert(FALSE && "Cannot initialize a 3D texture cube using a 2D texture object.");
   }
 
-  this->compresstextures = compresstextures;
-  const char * envstr = coin_getenv("CVR_COMPRESS_TEXTURES");
-  if (envstr) { this->compresstextures = (compresstextures || atoi(envstr) > 0 ? TRUE : FALSE); }
-
-  this->transferTex3GL(action, texobj);
+  this->textureobject = texobj;
   this->distancefromcamera = 0;
   this->originaltexsize = originaltexsize;
 
@@ -109,13 +87,8 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
 
 
 Cvr3DTexSubCube::~Cvr3DTexSubCube()
-{
-  if (this->texturename[0] != 0) {
-    // FIXME: I'm pretty sure this is invoked outside of a GL context
-    // from various places in the code. 20030306 mortene.
-    GLCMD(glDeleteTextures(1, this->texturename)); 
-  }
-
+{ 
+  CvrTextureManager::finalizeTextureObject(this->textureobject);
   if (this->clut) this->clut->unref();
 }
 
@@ -132,24 +105,15 @@ Cvr3DTexSubCube::setPalette(const CvrCLUT * newclut)
   this->clut = newclut;
   this->clut->ref();
 
-  CvrCLUT * tmpclut = (CvrCLUT *) this->clut;
-  tmpclut->setTextureType(CvrCLUT::TEXTURE3D);
+  ((CvrCLUT *) this->clut)->setTextureType(CvrCLUT::TEXTURE3D);
 }
 
-// FIXME: Some magic has to be done to make this one work with OpenGL 1.0.
-// torbjorv 08052002
 void
 Cvr3DTexSubCube::activateTexture(Interpolation interpolation) const
 {
 
-  GLCMD(glEnable(GL_TEXTURE_3D));
-
-  if (this->texturename[0] == 0) {
-    GLCMD(glBindTexture(GL_TEXTURE_3D, Cvr3DTexSubCube::emptyimgname[0]));
-    return;
-  }
-
-  GLCMD(glBindTexture(GL_TEXTURE_3D, this->texturename[0]));
+  glEnable(GL_TEXTURE_3D);
+  glBindTexture(GL_TEXTURE_3D, this->textureobject->getOpenGLTextureId());
   
   GLenum interp = 0;
   switch (interpolation) {
@@ -158,8 +122,8 @@ Cvr3DTexSubCube::activateTexture(Interpolation interpolation) const
   default: assert(FALSE); break;
   }
 
-  GLCMD(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, interp));
-  GLCMD(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, interp));
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, interp);
+  glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, interp);
 
   assert(glGetError() == GL_NO_ERROR);
 
@@ -212,136 +176,6 @@ Cvr3DTexSubCube::activateTexture(Interpolation interpolation) const
 }
 
 
-// If no palette specified, this function assumes RGBA data. If a
-// palette is specified, the input data should be indices into the
-// palette.  The function uses the palette's size to decide whether
-// the indices are byte or short.
-void
-Cvr3DTexSubCube::transferTex3GL(SoGLRenderAction * action,
-                                const CvrTextureObject * texobj)
-{
-  const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
-
-  int colorformat;
-
-
-  this->ispaletted = (texobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId());
-  // only knows two types
-  assert(this->ispaletted || texobj->getTypeId() == Cvr3DRGBATexture::getClassTypeId());
-
-  // For uploading standard RGBA-texture
-  if (!this->ispaletted) {
-    colorformat = 4;
-    this->bitspertexel = 32; // 8 bits each R, G, B & A
-  }
-  // For uploading paletted texture
-  else {
-    colorformat = GL_COLOR_INDEX8_EXT;
-    this->bitspertexel = 8;
-    if (this->clut) this->clut->unref();
-    this->clut = ((Cvr3DPaletteTexture *)texobj)->getCLUT();
-    this->clut->ref();    
-  }
-
-  const int nrtexels = this->texdims[0] * this->texdims[1] * this->texdims[2];
-  const int texmem = int(float(nrtexels) * float(this->bitspertexel) / 8.0f);
-
-  // This is a debugging backdoor to test stuff with no limits on how
-  // much texture memory we can use.
-
-  // FIXME: there are no restrictions on texture memory yet -- it
-  // needs support in other areas of the library. So until proper
-  // resource handling is in place, anything goes. 20030324 mortene.
-
-  static int unlimited_texmem = 1;
-  if (unlimited_texmem == -1) {
-    const char * envstr = coin_getenv("CVR_UNLIMITED_TEXMEM");
-    if (envstr) { unlimited_texmem = atoi(envstr) > 0 ? 1 : 0; }
-    else unlimited_texmem = 0;
-  }
-
-
-  // FIXME: limits should be stored in a global texture manager class
-  // or some such. 20021121 mortene.
-  if (!unlimited_texmem &&
-      (//Cvr3DTexSubCube::detectedtextureswapping ||
-       ((nrtexels + Cvr3DTexSubCube::nroftexels) > (16*1024*1024)) ||
-       ((texmem + Cvr3DTexSubCube::texmembytes) > (64*1024*1024)))) {
-#if CVR_DEBUG && 1 // debug
-    static SbBool first = TRUE;
-    if (first) {
-      SoDebugError::postInfo("Cvr3DTexSubCube::transferTex2GL",
-                             "filled up textures, nrtexels==%d, texmembytes==%d",
-                             Cvr3DTexSubCube::nroftexels,
-                             Cvr3DTexSubCube::texmembytes);
-      first = FALSE;
-    }
-#endif // debug
-    this->texturename[0] = 0;
-  }
-  else {
-    Cvr3DTexSubCube::nroftexels += nrtexels;
-    Cvr3DTexSubCube::texmembytes += texmem;
-
-    // FIXME: these functions are only supported in opengl 1.1+...
-    // torbjorv 08052002
-    GLCMD(glGenTextures(1, this->texturename));
-    assert(glGetError() == GL_NO_ERROR);
-
-    GLCMD(glEnable(GL_TEXTURE_3D));
-    GLCMD(glBindTexture(GL_TEXTURE_3D, this->texturename[0]));
-    assert(glGetError() == GL_NO_ERROR);
-
-    GLint wrapenum = GL_CLAMP;
-    // FIXME: investigate if this is really what we want. 20021120 mortene.
-    if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
-    GLCMD(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, wrapenum));
-    GLCMD(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, wrapenum));
-    GLCMD(glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, wrapenum));
-    assert(glGetError() == GL_NO_ERROR);
-
- 
-    void * imgptr = NULL;
-    if (this->ispaletted) imgptr = ((CvrPaletteTexture *)texobj)->getIndex8Buffer();
-    else imgptr = ((CvrRGBATexture *)texobj)->getRGBABuffer();
-
-    // FIXME: Combining texture compression and GL_COLOR_INDEX doesn't
-    // seem to work on NVIDIA cards (tested on GeForceFX 5600 &
-    // GeForce2 MX) (20040316 handegar)
-    int palettetype = GL_COLOR_INDEX;
-
-#ifdef HAVE_ARB_FRAGMENT_PROGRAM
-    if (cc_glglue_has_arb_fragment_program(glw)) 
-      palettetype = GL_LUMINANCE;
-#endif
-      
-    // FIXME: Is this way of compressing textures OK? (20040303 handegar)
-    if (cc_glue_has_texture_compression(glw) && 
-        this->compresstextures &&
-        palettetype != GL_COLOR_INDEX) {
-      if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
-      else colorformat = GL_COMPRESSED_INTENSITY_ARB;
-    }
-      
-    if (!CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
-      GLCMD(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE));
-
-    cc_glglue_glTexImage3D(glw,
-                           GL_TEXTURE_3D,
-                           0,
-                           colorformat,
-                           this->texdims[0], this->texdims[1], this->texdims[2],
-                           0,
-                           this->ispaletted ? palettetype : GL_RGBA,
-                           GL_UNSIGNED_BYTE,
-                           imgptr);
-
-    assert(glGetError() == GL_NO_ERROR);
-    
-  }
-
-}
-
 void
 Cvr3DTexSubCube::activateCLUT(const SoGLRenderAction * action)
 {
@@ -384,6 +218,35 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
 }
 
 
+// Check if this cube is intersected by a polygon.
+SbBool 
+Cvr3DTexSubCube::checkIntersectionIndexedPolygon(SbVec3f const & cubeorigo, 
+                                                 const SbVec3f * vertexlist,
+                                                 const int * indices,
+                                                 const unsigned int numindices,
+                                                 SbMatrix m)
+{
+  
+  SbClip cubeclipper(this->subcube_clipperCB, this);
+  this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
+  cubeclipper.reset();
+  
+  SbVec3f a;
+  for (unsigned int i=0;i<numindices;++i) {
+    if (indices[i] != -1) {
+      m.multVecMatrix(vertexlist[indices[i]], a);
+      cubeclipper.addVertex(a);
+    } else { // Index == -1. Clip polygon.
+      this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
+      cubeclipper.reset();
+    }    
+  }
+
+  return this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
+
+}
+
+
 // Check if this cube is intersected by the viewport aligned clip plane.
 SbBool 
 Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo, 
@@ -392,11 +255,13 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
 {
   
   SbClip cubeclipper(this->subcube_clipperCB, this);
-  this->origo = cubeorigo;
+  this->origo = cubeorigo; // 'origo' is used by the 'renderBBox()'
   cubeclipper.reset();
 
   // FIXME: Can we rewrite this to support viewport shells for proper
   // perspective? (20040227 handegar)
+  // NOTE: If viewport shells is to be support, a separate method
+  // must be added for the standard ObliqueSlice rendering.
 
   SbVec3f a, b, c, d;
   a = viewvolume.getPlanePoint(viewdistance, SbVec2f(-2.0f,  2.0f));
@@ -414,8 +279,21 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
   cubeclipper.addVertex(c);
   cubeclipper.addVertex(d);
 
-  // ClockWise direction for all planes
-  
+  return this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
+
+}
+
+// Internal method
+SbBool
+Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cubeorigo)
+{
+  /*
+    NB!: the 'cubeclipper' object must have been initialized with a
+    polygon *before* this function is called to have an effect.
+  */
+
+
+  // Clockwise direction for all planes  
   // Back plane
   cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f), 
                            cubeorigo,
@@ -468,6 +346,7 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
   }
   
   return FALSE;
+
 }
 
 
@@ -478,23 +357,23 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
 
   if (this->volumeslices.getLength() == 0) 
     return;
-
+  
   // Texture binding/activation must happen before setting the
   // palette, or the previous palette will be used.
   this->activateTexture(interpolation);
-
-  if (this->ispaletted) // Switch ON palette rendering
+   
+  if (this->ispaletted)  // Switch on palette rendering
     this->activateCLUT(action);
-  
+      
   if (CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
  
   // FIXME: Maybe we should build a vertex array instead of making
   // glVertex3f calls. Would probably give a performance
-  // gain. (20040312 handegar)
+  // boost. (20040312 handegar)
  
   for(int i=this->volumeslices.getLength()-1;i>=0;--i) {   
-    
+
     glBegin(GL_TRIANGLE_FAN);
     for (int j=0;j<this->volumeslices[i].vertex.getLength(); ++j) {
       glTexCoord3fv(this->volumeslices[i].texcoord[j].getValue());
@@ -509,10 +388,10 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
   }
 
   this->volumeslices.truncate(0);
-
+  
   if (this->ispaletted) // Switch OFF palette rendering
     this->deactivateCLUT(action);
-
+  
 }
 
 // For debugging purposes
@@ -541,7 +420,6 @@ Cvr3DTexSubCube::renderBBox(const SoGLRenderAction * action, int counter)
 
 }
 
-
 float
 Cvr3DTexSubCube::getDistanceFromCamera()
 {
@@ -554,15 +432,3 @@ Cvr3DTexSubCube::setDistanceFromCamera(float dist)
   this->distancefromcamera = dist;
 }
 
-
-unsigned int
-Cvr3DTexSubCube::totalNrOfTexels(void)
-{
-  return Cvr3DTexSubCube::nroftexels;
-}
-
-unsigned int
-Cvr3DTexSubCube::totalTextureMemoryUsed(void)
-{
-  return Cvr3DTexSubCube::texmembytes;
-}

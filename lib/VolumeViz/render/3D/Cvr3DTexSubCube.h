@@ -46,13 +46,6 @@ struct subcube_slice {
   SbList <SbVec3f> vertex;  
 };
 
-struct subcube_vertexinfo {
-  SbVec3f vertex;
-  SbVec3f texcoord;
-  int neighbours[3];
-};
-
-
 class Cvr3DTexSubCube {
 public:
   Cvr3DTexSubCube(SoGLRenderAction * action,
@@ -70,12 +63,14 @@ public:
   SbBool isPaletted(void) const;
   void setPalette(const CvrCLUT * newclut);
 
-  static unsigned int totalNrOfTexels(void);
-  static unsigned int totalTextureMemoryUsed(void);
-
   SbBool checkIntersectionSlice(SbVec3f const & cubeorigo, 
                                 const SbViewVolume & viewvolume, 
                                 float viewdistance, SbMatrix);
+  SbBool checkIntersectionIndexedPolygon(SbVec3f const & cubeorigo, 
+                                         const SbVec3f * vertexlist,
+                                         const int * indices,
+                                         const unsigned int numindices,
+                                         SbMatrix m);
 
   static void * subcube_clipperCB(const SbVec3f & v0, void * vdata0, 
                                   const SbVec3f & v1, void * vdata1,
@@ -85,31 +80,24 @@ public:
   float getDistanceFromCamera();
   void setDistanceFromCamera(float dist);
 
-
 private:
-  void transferTex3GL(SoGLRenderAction * action,
-                      const CvrTextureObject * texobj);
-  
+   
   void activateTexture(Interpolation interpolation) const;
   void activateCLUT(const SoGLRenderAction * action); 
   void deactivateCLUT(const SoGLRenderAction * action); 
  
-  GLuint texturename[1];
-  static GLuint emptyimgname[1];
+  SbBool clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cubeorigo);
+
+  const CvrTextureObject * textureobject;
+  const CvrCLUT * clut;
+
   SbVec3s texdims;
   SbVec3s originaltexsize;
   SbVec3f dimensions;
   SbVec3f origo;
-
-  static unsigned int nroftexels;
-  static unsigned int texmembytes;
-  static SbBool detectedtextureswapping;
-  unsigned int bitspertexel;
-  const CvrCLUT * clut;
   SbBool ispaletted;
-  SbBool compresstextures;
+
   float distancefromcamera;
-  subcube_vertexinfo * subcubestruct;
 
   SbList <subcube_slice> volumeslices;
   SbList <SbVec3f *> texcoordlist;

@@ -27,7 +27,6 @@
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
-#include <Inventor/system/gl.h>
 #include <Inventor/SbLinear.h>
 #include <Inventor/SbViewVolume.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
@@ -36,11 +35,9 @@
 #include <Inventor/elements/SoViewingMatrixElement.h>
 
 #include <VolumeViz/render/3D/Cvr3DTexCube.h>
-
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/misc/CvrUtil.h>
-#include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
@@ -48,6 +45,9 @@
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
+
+#include <VolumeViz/render/common/CvrTextureManager.h>
+
 
 
 // *************************************************************************
@@ -187,8 +187,9 @@ Cvr3DTexCube::calculateOptimalSubCubeSize()
 
 }
 
+
 // Renders arbitrary positioned quad, textured for the cube (slice)
-// represented by this object. Automatically loads all cubes needed.
+// represented by this object. Loads all the cubes needed.
 void
 Cvr3DTexCube::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
@@ -231,13 +232,10 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
         Cvr3DTexSubCube * cube = NULL;
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
 
-        if (cubeitem == NULL) {
-          cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx);
-        }
+        if (cubeitem == NULL) { cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx); }
         assert(cubeitem != NULL);
 
-        if (cubeitem->invisible)
-          continue;
+        if (cubeitem->invisible) continue;
         assert(cubeitem->cube != NULL);
 
         SbVec3f subcubeorigo = origo +
@@ -298,6 +296,157 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
 
 }
 
+// Renders *one* slice of the volume according to the specified
+// plane. Loads all the subcubes needed.
+void 
+Cvr3DTexCube::renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & origo,
+                                 Cvr3DTexSubCube::Interpolation interpolation,
+                                 const SbPlane plane)
+{
+
+  const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
+  
+  SoState * state = action->getState();
+
+  SbVec3f subcubewidth = SbVec3f(this->subcubesize[0], 0, 0);
+  SbVec3f subcubeheight = SbVec3f(0, this->subcubesize[1], 0);
+  SbVec3f subcubedepth = SbVec3f(0, 0, this->subcubesize[2]);
+
+ 
+  const float dist = plane.getDistanceFromOrigin();
+  SbVec3f z = plane.getNormal();
+  SbVec3f y(z[2], -z[1], z[0]);
+  SbVec3f x = y.cross(z);
+  x.normalize();
+  y = z.cross(x);
+  y.normalize();
+
+  SbMatrix m, t;
+  m.makeIdentity();
+  m[0][0] = x[0]; m[0][1] = x[1]; m[0][2] = x[2];
+  m[1][0] = y[0]; m[1][1] = y[1]; m[1][2] = y[2];
+  m[2][0] = z[0]; m[2][1] = z[1]; m[2][2] = z[2];
+
+  t.setTranslate(plane.getNormal() * dist);
+  m = m * t;
+
+  SbViewVolume viewvolume;
+  // FIXME: Is this the correct way to setup a viewvolume? The
+  // important goal is that the object is completely inside the ortho
+  // area. (20040628 handegar)
+  const float viewvolumesize = (subcubewidth + subcubeheight + subcubedepth).length();
+  viewvolume.ortho(-viewvolumesize, viewvolumesize, -viewvolumesize, viewvolumesize, 0.01, 100);
+  viewvolume.transform(m);
+
+  SbList <Cvr3DTexSubCubeItem *> subcubelist;
+
+  for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
+    for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
+      for (int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
+
+        Cvr3DTexSubCube * cube = NULL;
+        Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
+
+        if (cubeitem == NULL) { cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx); }
+        assert(cubeitem != NULL);
+
+        if (cubeitem->invisible) continue;
+        assert(cubeitem->cube != NULL);
+        
+        SbVec3f subcubeorigo = origo +
+          subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
+               
+        cubeitem->cube->checkIntersectionSlice(subcubeorigo, viewvolume, 0,
+                                               SoModelMatrixElement::get(state).inverse());
+        
+        subcubelist.append(cubeitem);
+
+      }
+    }
+  }
+
+  // Render all subcubes.
+  for (int i=0;i<subcubelist.getLength();++i)
+    subcubelist[i]->cube->render(action, interpolation);
+
+   // Draw lines around each subcube if requested by the 'CVR_SUBCUBE_FRAMES' envvar.
+  if (this->rendersubcubeoutline) {    
+    glColor3f(1.0f, 1.0f, 1.0f);
+    for (int i=0;i<subcubelist.getLength();++i)
+      subcubelist[i]->cube->renderBBox(action, i);
+  }
+  
+  subcubelist.truncate(0);
+
+}
+
+// Renders a polygon inside the volume. Loads all the subcubes needed.
+void 
+Cvr3DTexCube::renderIndexedPolygon(SoGLRenderAction * action, const SbVec3f & origo,
+                                   Cvr3DTexSubCube::Interpolation interpolation,
+                                   const SbVec3f * vertexarray,
+                                   const int * indices,
+                                   const unsigned int numindices)
+{
+
+  // FIXME: Does not work yet. (20040628 handegar)
+  assert(FALSE && "Cvr3DTexCube::renderIndexedPolygon() does not work properly yet.");
+
+  const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
+  
+  SoState * state = action->getState();
+
+  SbVec3f subcubewidth = SbVec3f(this->subcubesize[0], 0, 0);
+  SbVec3f subcubeheight = SbVec3f(0, this->subcubesize[1], 0);
+  SbVec3f subcubedepth = SbVec3f(0, 0, this->subcubesize[2]);
+
+  SbList <Cvr3DTexSubCubeItem *> subcubelist;
+
+  for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
+    for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
+      for (int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
+
+        Cvr3DTexSubCube * cube = NULL;
+        Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
+
+        if (cubeitem == NULL) { cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx); }
+        assert(cubeitem != NULL);
+
+        if (cubeitem->invisible) continue;
+        assert(cubeitem->cube != NULL);
+        
+        SbVec3f subcubeorigo = origo +
+          subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
+               
+        cubeitem->cube->checkIntersectionIndexedPolygon(subcubeorigo, 
+                                                        vertexarray,
+                                                        indices,
+                                                        numindices,
+                                                        SoModelMatrixElement::get(state).inverse());
+        
+        subcubelist.append(cubeitem);
+
+      }
+    }
+  }
+
+  // Render all subcubes.
+  for (int i=0;i<subcubelist.getLength();++i)
+    subcubelist[i]->cube->render(action, interpolation);
+
+   // Draw lines around each subcube if requested by the 'CVR_SUBCUBE_FRAMES' envvar.
+  if (this->rendersubcubeoutline) {    
+    glColor3f(1.0f, 1.0f, 1.0f);
+    for (int i=0;i<subcubelist.getLength();++i)
+      subcubelist[i]->cube->renderBBox(action, i);
+  }
+  
+  subcubelist.truncate(0);
+
+}
+
+
+
 
 int
 Cvr3DTexCube::calcSubCubeIdx(int row, int col, int depth) const
@@ -324,7 +473,7 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
   // cubes, and make cubes able to map to several "slice indices". Not
   // sure if this can be much of a gain -- but look into it. 20021124 mortene.
 
-  assert(this->getSubCube(action->getState(), col, row, depth) == NULL);
+  assert((this->getSubCube(action->getState(), col, row, depth) == NULL) && "Subcube already created!");
 
   // First Cvr3DTexSubCube ever in this slice?
   if (this->subcubes == NULL) {
@@ -375,58 +524,17 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
 #endif // debug
   SbBox3s subcubecut = SbBox3s(subcubemin, subcubemax);
 
-
   SoState * state = action->getState();
   const SoVolumeDataElement * vdelement = SoVolumeDataElement::getInstance(state);
   assert(vdelement != NULL);
   SoVolumeData * voldatanode = vdelement->getVolumeData();
   assert(voldatanode != NULL);
-
-  SbVec3s vddims;
-  void * dataptr;
-  SoVolumeData::DataType type;
-  SbBool ok = voldatanode->getVolumeData(vddims, dataptr, type);
-  assert(ok);
-
-  CvrVoxelChunk::UnitSize vctype;
-  switch (type) {
-  case SoVolumeData::UNSIGNED_BYTE: vctype = CvrVoxelChunk::UINT_8; break;
-  case SoVolumeData::UNSIGNED_SHORT: vctype = CvrVoxelChunk::UINT_16; break;
-  default: assert(FALSE); break;
-  }
-
-  // FIXME: improve buildSubCube() interface to fix this roundabout
-  // way of calling it. 20021206 mortene.
-  CvrVoxelChunk * input = new CvrVoxelChunk(vddims, vctype, dataptr);
-  CvrVoxelChunk * cubechunk = input->buildSubCube(subcubecut);
-  delete input;
-
-  // FIXME: optimalization measure; should be able to save on texture
-  // memory by not using full cubes where only parts of them are
-  // actually covered by texture (volume data does more often than not
-  // fail to match dimensions perfectly with 2^n values). 20021125 mortene.
-
-  SbBool invisible;
-  CvrTextureObject * texobj = cubechunk->transfer3D(action, invisible);
-  delete cubechunk;
-
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("Cvr3DTexCube::buildSubCube",
-                         "detected invisible cube at [%d, %d, %d]", row, col, depth);
-#endif // debug
-
-  // Size of the texture that we're actually using. Will be less than
-  // this->subcubesize on datasets where dimensions are not all power
-  // of two, or where dimensions are smaller than this->subcubesize.
+  
   const SbVec3s texsize(subcubemax - subcubemin);
-
-  // Must clear the unused texture area to prevent artifacts due to
-  // inaccuracies when calculating texture coords.
-  if (texobj->getTypeId() == Cvr3DRGBATexture::getClassTypeId()) {
-    ((Cvr3DRGBATexture *) texobj)->blankUnused(texsize);
-  } else if (texobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()) {
-    ((Cvr3DPaletteTexture *) texobj)->blankUnused(texsize);
-  }
+  const CvrTextureObject * texobj = CvrTextureManager::getTextureObject(action, voldatanode, texsize, subcubecut);  
+  SbBool invisible = FALSE;
+  if (texobj == NULL)
+    invisible = TRUE;
 
   Cvr3DTexSubCube * cube = NULL;
   if (!invisible) {
@@ -437,9 +545,7 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
                                voldatanode->useCompressedTexture.getValue());
     cube->setPalette(this->clut);
   }
-
-  delete texobj;
-
+ 
   Cvr3DTexSubCubeItem * pitem = new Cvr3DTexSubCubeItem(cube);
   pitem->volumedataid = voldatanode->getNodeId();
   pitem->invisible = invisible;

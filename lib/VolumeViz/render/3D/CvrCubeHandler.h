@@ -27,15 +27,16 @@
 #include <Inventor/SbBox2f.h>
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3s.h>
+
 #include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/nodes/SoObliqueSlice.h>
 
 class Cvr3DTexCube;
 class SoVolumeReader;
 class SoVolumeData;
 class SoState;
 class SoGLRenderAction;
-
 
 class CvrCubeHandler {
 public:
@@ -50,6 +51,11 @@ public:
               SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
               void * abortcbdata);
 
+  void renderObliqueSlice(SoGLRenderAction * action,
+                          Cvr3DTexSubCube::Interpolation interpolation,
+                          SoObliqueSlice::AlphaUse alphause,
+                          const SbPlane plane);
+
   unsigned int getCurrentAxis(SoGLRenderAction * action) const;
 
   void releaseAllSlices(void);
@@ -61,11 +67,7 @@ private:
   void setPalette(const CvrCLUT * c);
 
   Cvr3DTexCube * volumecube;
-  unsigned int voldatadims[3];
-  SbVec3s subcubesize;
   SoVolumeReader * reader;
-
-  uint32_t transferfuncid;
   const CvrCLUT * clut;
 };
 

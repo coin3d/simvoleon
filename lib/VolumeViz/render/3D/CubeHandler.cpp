@@ -32,13 +32,13 @@
 #include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/elements/SoGLLazyElement.h>
 
-#include <VolumeViz/render/3D/CvrCubeHandler.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/readers/SoVolumeReader.h>
+#include <VolumeViz/render/3D/CvrCubeHandler.h>
 #include <VolumeViz/render/3D/Cvr3DTexCube.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
@@ -47,9 +47,6 @@
 CvrCubeHandler::CvrCubeHandler(const SbVec3s & voldatadims,
                                SoVolumeReader * reader)
 {
-  this->voldatadims[0] = voldatadims[0];
-  this->voldatadims[1] = voldatadims[1];
-  this->voldatadims[2] = voldatadims[2];
   this->volumecube = NULL;
   this->clut = NULL;
 
@@ -95,7 +92,6 @@ CvrCubeHandler::setPalette(const CvrCLUT * c)
   this->clut = c;
   this->clut->ref();  
   this->volumecube->setPalette(c);
-
 }
 
 void
@@ -112,11 +108,7 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   SoVolumeData * volumedata = volumedataelement->getVolumeData();
   assert(volumedata != NULL);
  
-  // FIXME: should have an assert-check that the volume dimensions
-  // hasn't changed versus our this->voldatadims  
-  if (this->volumecube == NULL) {  
-    this->volumecube = new Cvr3DTexCube(this->reader);
-  }
+  if (this->volumecube == NULL) { this->volumecube = new Cvr3DTexCube(this->reader); }
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
@@ -197,21 +189,67 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   }
 
   assert(glGetError() == GL_NO_ERROR);
+  SbVec3s dims = volumedataelement->getVoxelCubeDimensions();
+  SbVec3f origo(-((float) dims[0]) / 2.0f, -((float) dims[1]) / 2.0f, -((float) dims[2]) / 2.0f);
 
-    
-  SbVec3s tmp = volumedataelement->getVoxelCubeDimensions();
-  SbVec3f dimensions;
-  dimensions[0] = (float) tmp[0];
-  dimensions[1] = (float) tmp[1];
-  dimensions[2] = (float) tmp[2];
-
-  SbVec3f origo;
-  origo = SbVec3f(-dimensions[0] / 2.0f, -dimensions[1] / 2.0f, -dimensions[2] / 2.0f);
-
-  if (abortfunc != NULL) {
-    this->volumecube->setAbortCallback(abortfunc, abortcbdata);
-  }
+  if (abortfunc != NULL) { this->volumecube->setAbortCallback(abortfunc, abortcbdata); }
   this->volumecube->render(action, origo, interpolation, numslices);
+
+  glPopAttrib();
+}
+
+
+void
+CvrCubeHandler::renderObliqueSlice(SoGLRenderAction * action,
+                                   Cvr3DTexSubCube::Interpolation interpolation,
+                                   SoObliqueSlice::AlphaUse alphause,
+                                   SbPlane plane)
+{
+  SoState * state = action->getState();
+
+  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
+  assert(volumedataelement != NULL);
+  SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  assert(volumedata != NULL);
+ 
+  if (this->volumecube == NULL) { this->volumecube = new Cvr3DTexCube(this->reader); }
+
+  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+  CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
+  if (this->clut != c) {  
+    switch(alphause) {
+    case SoObliqueSlice::ALPHA_AS_IS: c->setAlphaUse(CvrCLUT::ALPHA_AS_IS); break;
+    case SoObliqueSlice::ALPHA_OPAQUE: c->setAlphaUse(CvrCLUT::ALPHA_OPAQUE); break;
+    case SoObliqueSlice::ALPHA_BINARY: c->setAlphaUse(CvrCLUT::ALPHA_BINARY); break;    
+    }
+    this->setPalette(c);  
+  }
+
+  // This must be done, as we want to control stuff in the GL state
+  // machine. Without it, state changes could trigger outside our
+  // control.
+  SoGLLazyElement::getInstance(state)->send(state, SoLazyElement::ALL_MASK);
+
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+  glDisable(GL_LIGHTING);
+  glEnable(GL_TEXTURE_3D);
+
+  // FIXME: how does the blending cooperate with the other geometry in
+  // a Coin scene graph? Do we need to delay rendering? 20021109 mortene.
+  //
+  // UPDATE: yes, we do, or geometry that is traversed after this will
+  // not be rendered through the transparent parts because it fails
+  // the Z-buffer test.
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  assert(glGetError() == GL_NO_ERROR);
+  
+  SbVec3s dims = volumedataelement->getVoxelCubeDimensions();
+  SbVec3f origo(-((float) dims[0]) / 2.0f, -((float) dims[1]) / 2.0f, -((float) dims[2]) / 2.0f);
+
+  this->volumecube->renderObliqueSlice(action, origo, interpolation, plane);
 
   glPopAttrib();
 }
