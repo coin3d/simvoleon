@@ -78,9 +78,11 @@ int
 main(int argc, char ** argv)
 {
   if (argc < 2) {
-    fprintf(stderr, "\nUsage: %s dataset.vol\n\n", argv[0]);
+    (void)fprintf(stderr, "\nUsage: %s dataset.vol\n\n", argv[0]);
     exit(1);
   }
+
+  (void)printf("\nNote: use 'm' to turn clip-plane manipulator on / off.\n\n");
 
   @WIDGET@ window = So@Gui@::init(argv[0]);
   SoVolumeRendering::init();
