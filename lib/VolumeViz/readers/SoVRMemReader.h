@@ -12,21 +12,27 @@
 #define COIN_SOVRMEMREADER_H
 
 #include <VolumeViz/readers/SoVolumeReader.h>
+#include <Inventor/SbBox3f.h>
 
 class SoVRMemReader : public SoVolumeReader{
 public:
   SoVRMemReader();
   ~SoVRMemReader();
   void setUserData(void * data);
-  void getDataChar(SbBox3f &size, SoVolumeData::DataType &type, SbVec3s &dim);
+  void getDataChar(SbBox3f &size, SoVolumeRendering::DataType &type, SbVec3s &dim);
   void getSubSlice( SbBox2s &subSlice, 
                     int sliceNumber, 
                     void * data, 
-                    SoVolumeData::Axis axis);
+                    SoVolumeRendering::Axis axis 
+                    = SoVolumeRendering::Z);
 
-  void setData(const SbVec3s &dimension, 
+  void setData(const SbVec3s &dimensions, 
                const void *data, 
-               SoVolumeData::DataType type=SoVolumeData::UNSIGNED_BYTE);
+               const SbBox3f &volumeSize,
+               SoVolumeRendering::DataType type 
+               = SoVolumeRendering::UNSIGNED_BYTE);
+
+  void setVolumeSize(const SbBox3f &size);
 private:
   friend class SoVRMemReader;
   class SoVRMemReaderP * pimpl;
