@@ -336,6 +336,13 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
   PRIVATE(this)->datatype = type;
 }
 
+/*!
+  Returns information about the voxel \a dimensions, a data pointer to
+  the memory block of voxels, and a \a type indicator for how many
+  bytes are used for each voxel.
+
+  The return value is \c FALSE if the data could not be loaded.
+ */
 SbBool
 SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
                             SoVolumeData::DataType & type) const
@@ -343,6 +350,7 @@ SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
   dimensions = SbVec3s(PRIVATE(this)->dimensions);
   data = PRIVATE(this)->reader->m_data;
   type = PRIVATE(this)->datatype;
+  // FIXME: how could this become FALSE for us?
   return TRUE;
 }
 
