@@ -26,10 +26,10 @@ public:
   enum NumSlicesControl { ALL, MANUAL, AUTOMATIC };
 
   enum AbortCode { CONTINUE, ABORT, SKIP };
-  typedef AbortCode SoVolumeRenderAbortCB(int totalSlices, int thisSlice, 
-                                          void * userData);
+  typedef AbortCode SoVolumeRenderAbortCB(int totalslices, int thisslice, 
+                                          void * userdata);
 
-  void setAbortCallback (SoVolumeRenderAbortCB *func, void *userData=NULL);
+  void setAbortCallback(SoVolumeRenderAbortCB * func, void * userdata = NULL);
 
   SoSFEnum interpolation;
   SoSFEnum composition;

@@ -5,6 +5,7 @@
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3s.h>
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
+#include <VolumeViz/nodes/SoVolumeRender.h>
 
 class Cvr2DTexPage;
 class SoVolumeReader;
@@ -18,7 +19,10 @@ public:
   ~CvrPageHandler();
 
   void render(SoGLRenderAction * action, unsigned int numslices,
-              Cvr2DTexSubPage::Interpolation interpolation);
+              Cvr2DTexSubPage::Interpolation interpolation,
+              SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
+              void * abortcbdata);
+
   unsigned int getCurrentAxis(SoGLRenderAction * action) const;
 
   void releaseAllSlices(void);

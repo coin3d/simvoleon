@@ -21,6 +21,9 @@ public:
   {
     this->master = master;
     this->pagehandler = NULL;
+
+    this->abortfunc = NULL;
+    this->abortfuncdata = NULL;
   }
 
   ~SoVolumeRenderP()
@@ -32,6 +35,9 @@ public:
                                    const SbVec3s & dimensions);
 
   CvrPageHandler * pagehandler;
+
+  SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
+  void * abortfuncdata;
 
 private:
   SoVolumeRender * master;
@@ -231,7 +237,9 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     default: assert(FALSE && "invalid value in interpolation field"); break;
     }
 
-    PRIVATE(this)->pagehandler->render(action, numslices, interp);
+    PRIVATE(this)->pagehandler->render(action, numslices, interp,
+                                       PRIVATE(this)->abortfunc,
+                                       PRIVATE(this)->abortfuncdata);
   }
 }
 
@@ -257,4 +265,56 @@ SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
   SbBox3f vdbox = volumedata->getVolumeSize();
   box.extendBy(vdbox);
   center = vdbox.getCenter();
+}
+
+/*!
+  \enum SoVolumeRender::AbortCode
+
+  The set of valid values that should be returned from a function set
+  up in SoVolumeRender::setAbortCallback().
+*/
+/*!
+  \var SoVolumeRender::AbortCode SoVolumeRender::CONTINUE
+  Continue rendering in the usual manner.
+*/
+/*!
+  \var SoVolumeRender::AbortCode SoVolumeRender::ABORT
+  Don't render any more textured slices of the volume.
+*/
+/*!
+  \var SoVolumeRender::AbortCode SoVolumeRender::SKIP
+  Skip the next textured slice, and resume rendering on the next after
+  that. (The abort callback function will still be called again.)
+*/
+/*!
+  \typedef AbortCode SoVolumeRender::SoVolumeRenderAbortCB(int totalslices, int thisslice,  void * userdata)
+
+  The function signature for callback function pointers to be passed
+  in to SoVolumeRender::setAbortCallback().
+
+  \a totalslices is the total number of textured slices that is
+  expected to be rendered, unless the callback choose to abort or skip
+  any of them.
+
+  \a thisslice is the index number of the next slice to render. Note
+  that they are rendered back-to-front, and that they are numbered
+  from 1 to \a totalslices.
+
+  \a userdata is the second argument given to
+  SoVolumeRender::setAbortCallback() when the callback was set up.
+*/
+
+/*!
+  Lets the application programmer supply a callback function, by which
+  it will be possible to either prematurely abort the rendering of a
+  set of slices, or to skip certain slices.
+
+  Both of these measures are of course optimizations of rendering
+  performance controlled from client code.
+*/
+void
+SoVolumeRender::setAbortCallback(SoVolumeRenderAbortCB * func, void * userdata)
+{
+  PRIVATE(this)->abortfunc = func;
+  PRIVATE(this)->abortfuncdata = userdata;
 }

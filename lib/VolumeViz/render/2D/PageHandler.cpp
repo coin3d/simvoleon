@@ -144,7 +144,10 @@ CvrPageHandler::comparePageSize(const SbVec3s & currsubpagesize)
 
 void
 CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
-                       Cvr2DTexSubPage::Interpolation interpolation)
+                       Cvr2DTexSubPage::Interpolation interpolation,
+                       SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
+                       void * abortcbdata)
+
 {
   SoState * state = action->getState();
 
@@ -300,14 +303,25 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
     assert(pageidx < numslices);
     assert(pageidx < this->voldatadims[AXISIDX]);
 
-    // Note: even if this is the same page as the last one (numSlices
-    // in SoVolumeRender can be larger than the actual dimensions), we
-    // should still render it at the new depth, as that can give
-    // better rendering quality of the volume.
-    Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
-    origo[AXISIDX] = depth;
-    page->render(action, origo, horizspan, verticalspan, QUADSCALE,
-                 interpolation);
+    SoVolumeRender::AbortCode abortcode =
+      abortfunc(numslices, pageidx + 1, abortcbdata);
+
+    if (abortcode == SoVolumeRender::ABORT) break;
+
+    if (abortcode == SoVolumeRender::CONTINUE) {
+      // Note: even if this is the same page as the last one
+      // (numSlices in SoVolumeRender can be larger than the actual
+      // dimensions), we should still render it at the new depth, as
+      // that can give better rendering quality of the volume.
+      Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
+      origo[AXISIDX] = depth;
+      page->render(action, origo, horizspan, verticalspan, QUADSCALE,
+                   interpolation);
+    }
+    else {
+      assert((abortcode == SoVolumeRender::SKIP) &&
+             "invalid return value from SoVolumeRender::setAbortCallback() method");
+    }
 
     depth += depthprslice;
   }
@@ -316,7 +330,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   SbTime renderend = SbTime::getTimeOfDay();
   SbTime rendertime = renderend - renderstart;
   SoDebugError::postInfo("CvrPageHandler::render",
-                         "all slices along axis %d in %f seconds",
+                         "rendered slices along axis %d in %f seconds",
                          AXISIDX, rendertime.getValue());
 #endif // debug
 
