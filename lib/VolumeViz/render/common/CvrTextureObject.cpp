@@ -129,6 +129,19 @@ SbDict * CvrTextureObject::instancedict = NULL;
 
 // *************************************************************************
 
+static SbBool
+cvr_debug_textureuse(void)
+{
+  static int val = -1;
+  if (val == -1) {
+    const char * env = coin_getenv("CVR_DEBUG_TEXTUREUSE");
+    val = env && (atoi(env) > 0);
+  }
+  return val > 0 ? TRUE : FALSE;
+}
+
+// *************************************************************************
+
 void
 CvrTextureObject::initClass(void)
 {
@@ -290,11 +303,14 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   glBindTexture(gltextypeenum, texid);
   assert(glGetError() == GL_NO_ERROR);
 
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("CvrTextureObject::getGLTexture",
-                         "glBindTexture(%s, %u)",
-                         (gltextypeenum == GL_TEXTURE_2D) ? "GL_TEXTURE_2D" : "GL_TEXTURE_3D",
-                         texid); 
+#if CVR_DEBUG
+  if (cvr_debug_textureuse()) {
+    SoDebugError::postInfo("CvrTextureObject::getGLTexture",
+                           "initial glBindTexture(%s, %u) in GL context %u",
+                           (gltextypeenum == GL_TEXTURE_2D) ? "GL_TEXTURE_2D" : "GL_TEXTURE_3D",
+                           texid,
+                           action->getCacheContext());
+  }
 #endif // debug
 
   const uint32_t glctxid = action->getCacheContext();
@@ -592,11 +608,13 @@ CvrTextureObject::activateTexture(const SoGLRenderAction * action) const
   glEnable(gltextypeenum);
   glBindTexture(gltextypeenum, texid);
 
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("CvrTextureObject::activeTexture",
-                         "glBindTexture(%s, %u)",
-                         (gltextypeenum == GL_TEXTURE_2D) ? "GL_TEXTURE_2D" : "GL_TEXTURE_3D",
-                         texid); 
+#if CVR_DEBUG
+  if (cvr_debug_textureuse()) {
+    SoDebugError::postInfo("CvrTextureObject::activeTexture",
+                           "glBindTexture(%s, %u) in GL context %u",
+                           (gltextypeenum == GL_TEXTURE_2D) ? "GL_TEXTURE_2D" : "GL_TEXTURE_3D",
+                           texid, action->getCacheContext());
+  }
 #endif // debug
 
   const GLenum interp = CvrGLInterpolationElement::get(action->getState());
