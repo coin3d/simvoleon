@@ -7190,12 +7190,70 @@ fi
 #
 
 AC_DEFUN([SIM_AC_COMPILER_CPLUSPLUS_FATAL_ERRORS], [
+  SIM_AC_COMPILER_CPLUSPLUS_ENV_OK
   SIM_AC_COMPILER_INLINE_FOR
   SIM_AC_COMPILER_SWITCH_IN_VIRTUAL_DESTRUCTOR
   SIM_AC_COMPILER_CRAZY_GCC296_BUG
   SIM_AC_COMPILER_BUILTIN_EXPECT
 ])
 
+
+# Usage:
+#     SIM_AC_COMPILER_CPLUSPLUS_ENV_OK
+#
+# Description:
+#   Checks that the C++ compiler environment can compile, link and run an
+#   executable. We do this before the other checks, so we can smoke out
+#   a fubar environment before trying anything else, because otherwise the
+#   error message from the failing check would be bogus.
+#
+#   (I.e. we've had reports from people that the GCC 2.96 crazy-bug checks
+#   hits, even though they didn't have GCC 2.96. Upon closer inspection,
+#   the reason for failure was simply that some other part of the compiler
+#   environment was fubar.)
+
+AC_DEFUN([SIM_AC_COMPILER_CPLUSPLUS_ENV_OK], [
+AC_LANG_PUSH(C++)
+
+AC_CACHE_CHECK(
+  [if the C++ compiler environment is ok],
+  sim_cv_c_compiler_env_ok,
+  [AC_TRY_RUN([
+// Just any old C++ source code. It might be useful
+// to try to add in more standard C++ features that
+// we depend on, like classes using templates (or
+// even multiple templates), etc etc.  -mortene.
+
+#include <stdio.h>
+
+class myclass {
+public:
+  myclass(void) { value = 0.0f; }
+  float value;
+};
+
+int
+main(void)
+{
+  myclass proj;
+  proj.value = 42;
+  return 0;
+}
+],
+  [sim_cv_c_compiler_env_ok=true],
+  [sim_cv_c_compiler_env_ok=false],
+  [sim_cv_c_compiler_env_ok=true
+   AC_MSG_WARN([can't check for fully working C++ environment when cross-compiling, assuming it's ok])])
+])
+
+AC_LANG_POP
+
+if $sim_cv_c_compiler_env_ok; then
+  :
+else
+  SIM_AC_ERROR(c--fubarenvironment)
+fi
+])
 
 
 # Usage:
