@@ -1,20 +1,5 @@
 ========================================================================
 
-000 Suspected ray-pick bug.
-
-    When picking orthoslices, it seems like there is a bug yielding
-    wrong results.
-
-    My best bet so far is that one or more of the axes are "flipped"
-    in the intersection calculations. Investigate further.
-
-    Note that this is probably buggy not only for SoOrthoSlice, but
-    also for SoVolumeRender.
-
-    20030427 mortene.
-
-========================================================================
-
 001 The set of 2D texture slices doesn't seem to cover the full
     extents of the bounding box.
 
@@ -243,13 +228,4 @@
 
     20040817 mortene.
 
-========================================================================
-
-016 SoVolumeSkin ray-picks should generate an SoVolumeSkinDetail.
-
-    ..to be compatible with TGS VolumeViz. Not yet implemented in SIM
-    Voleon, should be taken care of.
-
-    20040902 mortene.
- 
 ========================================================================
