@@ -906,23 +906,13 @@ SoVolumeRenderP::setupPerformanceTestTextures(GLuint * texture3did,
                                               GLuint * texture2dids,
                                               const cc_glglue * glglue)
 {
-  unsigned char * volumedataset;
-  const int texturesize = 16;
+  const unsigned int TEXTUREDIMENSION = 16;
+  const unsigned int TEXTUREBUFSIZE =
+    TEXTUREDIMENSION * TEXTUREDIMENSION * TEXTUREDIMENSION * 4;
 
-  volumedataset = new unsigned char[texturesize * texturesize * texturesize * 4];
-  for (int i=0;i<(texturesize*4); i+=4) {
-    for (int j=0;j<texturesize;++j) {
-      for (int k=0;k<texturesize;++k) {
-        volumedataset[i + (j*texturesize) + (k*texturesize*texturesize) + 0] =  // R
-          (unsigned char) (256 * ((float) rand()/RAND_MAX));
-        volumedataset[i + (j*texturesize) + (k*texturesize*texturesize) + 1] =  // G
-          (unsigned char) (256 * ((float) rand()/RAND_MAX));
-        volumedataset[i + (j*texturesize) + (k*texturesize*texturesize) + 2] =  // B
-          (unsigned char) (256 * ((float) rand()/RAND_MAX));
-        volumedataset[i + (j*texturesize) + (k*texturesize*texturesize) + 3] =  // A
-          (unsigned char) (256 * ((float) rand()/RAND_MAX));
-      }
-    }
+  uint8_t * volumedataset = new uint8_t[TEXTUREBUFSIZE];
+  for (unsigned int i = 0; i < TEXTUREBUFSIZE; i++) {
+    volumedataset[i] = (uint8_t)(rand() % 256);
   }
 
   // Setup 3D texture
@@ -935,7 +925,8 @@ SoVolumeRenderP::setupPerformanceTestTextures(GLuint * texture3did,
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP);
   cc_glglue_glTexImage3D(glglue,
-                         GL_TEXTURE_3D, 0, GL_RGBA, texturesize, texturesize, texturesize,
+                         GL_TEXTURE_3D, 0, GL_RGBA,
+                         TEXTUREDIMENSION, TEXTUREDIMENSION, TEXTUREDIMENSION,
                          0, GL_RGBA, GL_UNSIGNED_BYTE, volumedataset);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -949,16 +940,16 @@ SoVolumeRenderP::setupPerformanceTestTextures(GLuint * texture3did,
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texturesize, texturesize, 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, volumedataset);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTUREDIMENSION, TEXTUREDIMENSION,
+               0, GL_RGBA, GL_UNSIGNED_BYTE, volumedataset);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
   glBindTexture(GL_TEXTURE_2D, texture2dids[1]);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texturesize, texturesize, 0, GL_RGBA,
-               GL_UNSIGNED_BYTE, volumedataset);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTUREDIMENSION, TEXTUREDIMENSION,
+               0, GL_RGBA, GL_UNSIGNED_BYTE, volumedataset);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
@@ -1079,9 +1070,6 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
 
   GLuint texture3did[1];
   GLuint texture2dids[2];
-  // FIXME: I'm seeing only partly textured polygons in the test (ca
-  // the bottom halves are just unicolored). Looks like the textures
-  // are not filled up properly from the next call. 20040711 mortene.
   SoVolumeRenderP::setupPerformanceTestTextures(texture3did, texture2dids, glue);
 
   glPixelTransferf(GL_RED_SCALE, 1.0f);  // Setting to initial values
