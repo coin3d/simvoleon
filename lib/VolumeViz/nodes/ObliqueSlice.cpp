@@ -358,7 +358,7 @@ SoObliqueSlice::rayPick(SoRayPickAction * action)
         if (!flag) {
           SoDebugError::postWarning("SoObliqueSlice::rayPick", 
                                     "RayPick'ing will not be correct for SoObliqueSlice when the "
-                                    "obsolete CVR_USE_FLIPPED_Y_AXIS flag is active.");
+                                    "obsolete CVR_USE_FLIPPED_Y_AXIS envvar is active.");
           flag = TRUE;
         }
       }

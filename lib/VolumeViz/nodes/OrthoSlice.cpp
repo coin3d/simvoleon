@@ -543,7 +543,7 @@ SoOrthoSlice::rayPick(SoRayPickAction * action)
         if (!flag) {
           SoDebugError::postWarning("SoOrthoSlice::rayPick", 
                                     "RayPick'ing will not be correct for SoOrthoSlice when the "
-                                    "obsolete CVR_USE_FLIPPED_Y_AXIS flag is active.");
+                                    "obsolete CVR_USE_FLIPPED_Y_AXIS envvar is active.");
           flag = TRUE;
         }
       }
