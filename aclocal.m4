@@ -7193,6 +7193,7 @@ AC_DEFUN([SIM_AC_COMPILER_CPLUSPLUS_FATAL_ERRORS], [
   SIM_AC_COMPILER_INLINE_FOR
   SIM_AC_COMPILER_SWITCH_IN_VIRTUAL_DESTRUCTOR
   SIM_AC_COMPILER_CRAZY_GCC296_BUG
+  SIM_AC_COMPILER_BUILTIN_EXPECT
 ])
 
 
@@ -7209,6 +7210,7 @@ AC_DEFUN([SIM_AC_COMPILER_CPLUSPLUS_FATAL_ERRORS], [
 
 AC_DEFUN([SIM_AC_COMPILER_INLINE_FOR], [
 
+AC_LANG_PUSH(C++)
 AC_CACHE_CHECK(
   [if the compiler handles for() loops in inlined constructors],
   sim_cv_c_inlinefor,
@@ -7224,6 +7226,7 @@ inline TestClass::TestClass(int) { for (int i=0; i<1; i++) i=0; }
                  [sim_cv_c_inlinefor=yes],
                  [sim_cv_c_inlinefor=no])
 ])
+AC_LANG_POP
 
 if test x"$sim_cv_c_inlinefor" = x"yes"; then
   ifelse([$1], , :, [$1])
@@ -7247,6 +7250,7 @@ fi
 
 AC_DEFUN([SIM_AC_COMPILER_SWITCH_IN_VIRTUAL_DESTRUCTOR], [
 
+AC_LANG_PUSH(C++)
 AC_CACHE_CHECK(
   [if the compiler handles switch statements in virtual destructors],
   sim_cv_c_virtualdestrswitch,
@@ -7257,6 +7261,7 @@ hepp::~hepp() { switch(0) { } }
 [],
                   [sim_cv_c_virtualdestrswitch=yes],
                   [sim_cv_c_virtualdestrswitch=no])])
+AC_LANG_POP
 
 if test x"$sim_cv_c_virtualdestrswitch" = x"yes"; then
   ifelse([$1], , :, [$1])
@@ -7279,6 +7284,7 @@ fi
 
 AC_DEFUN([SIM_AC_COMPILER_CRAZY_GCC296_BUG], [
 
+AC_LANG_PUSH(C++)
 AC_CACHE_CHECK(
   [if this is a version of GCC with a known nasty optimization bug],
   sim_cv_c_gcctwonightysixbug,
@@ -7320,6 +7326,7 @@ main(void)
   [sim_cv_c_gcctwonightysixbug=false
    AC_MSG_WARN([can't check for GCC bug when cross-compiling, assuming it's ok])])
 ])
+AC_LANG_POP
 
 
 if $sim_cv_c_gcctwonightysixbug; then
@@ -7329,6 +7336,54 @@ else
   ifelse([$1], , :, [$1])
 fi
 ])
+
+# **************************************************************************
+# SIM_AC_COMPILER_BUILTIN_EXPECT
+
+AC_DEFUN([SIM_AC_COMPILER_BUILTIN_EXPECT], [
+AC_LANG_PUSH(C++)
+AC_MSG_CHECKING([for __builtin_expect()])
+sim_ac_builtin_expect=false
+AC_TRY_LINK([
+  #include <assert.h>
+], [
+  if ( __builtin_expect(!!(1), 1) ? 1 : 0 ) {
+    /* nada */
+  }
+], [sim_ac_builtin_expect=true])
+
+sim_ac_assert_uses_builtin_expect=false
+if $sim_ac_builtin_expect; then
+  AC_MSG_RESULT([found])
+  AC_DEFINE([HAVE___BUILTIN_EXPECT], 1, [Define if compiler has __builtin_expect() macro])
+
+  AC_MSG_CHECKING([if assert() uses __builtin_expect()])
+  cat <<EOF > conftest.c
+#include <assert.h>
+
+int main(int argc, char ** argv) {
+  assert(argv);
+}
+EOF
+  if test x"$CPP" = x; then
+    AC_MSG_ERROR([cpp not detected - aborting.  notify maintainer at coin-support@coin3d.org.])
+  fi
+  echo "$CPP $CPPFLAGS conftest.c" >&AS_MESSAGE_LOG_FD
+  sim_ac_builtin_expect_line=`$CPP $CPPFLAGS conftest.c 2>&AS_MESSAGE_LOG_FD | grep "__builtin_expect"`
+  if test x"$sim_ac_builtin_expect_line" = x""; then
+    AC_MSG_RESULT([no])
+  else
+    sim_ac_assert_uses_builtin_expect=true
+    AC_MSG_RESULT([yes])
+    AC_DEFINE([HAVE_ASSERT_WITH_BUILTIN_EXPECT], 1, [Define if assert() uses __builtin_expect()])
+  fi
+else
+  AC_MSG_RESULT([not found])
+fi
+
+AC_LANG_POP
+]) # SIM_AC_COMPILER_BUILTIN_EXPECT
+
 
 # Add --enable-maintainer-mode option to configure.
 # From Jim Meyering
@@ -7705,7 +7760,7 @@ if test x"$enable_warnings" = x"yes"; then
     ## 1169: External/internal linkage conflicts with a previous declaration.
     ##       We get this for the "friend operators" in SbString.h
 
-    sim_ac_bogus_warnings="-woff 3115,3262,1174,1209,1355,1375,3201,1110,1506,1169"
+    sim_ac_bogus_warnings="-woff 3115,3262,1174,1209,1355,1375,3201,1110,1506,1169,1210"
 
     case $CC in
     cc | "cc "* | CC | "CC "* )

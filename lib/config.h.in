@@ -1,5 +1,8 @@
 /* lib/config.h.in.  Generated from configure.ac by autoheader.  */
 
+/* Define if assert() uses __builtin_expect() */
+#undef HAVE_ASSERT_WITH_BUILTIN_EXPECT
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -29,6 +32,9 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+
+/* Define if compiler has __builtin_expect() macro */
+#undef HAVE___BUILTIN_EXPECT
 
 /* Name of package */
 #undef PACKAGE
