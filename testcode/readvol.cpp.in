@@ -92,6 +92,29 @@ main(int argc, char ** argv)
 //   voldata->setVolumeSize(SbBox3f(-2, -2, -1, 2, 2, 1));
 //   voldata->setVolumeSize(SbBox3f(-160, -160, -17, 160, 160, 17));
 
+#if 0 // FIXME: y-axis aligned slices mostly disappears for
+      // LOBSTER.VOL if this is enabled..? 20021201 mortene.
+  { // Show bounding box.
+    SoLightModel * lm = new SoLightModel;
+    lm->model = SoLightModel::BASE_COLOR;
+    root->addChild(lm);
+
+    SoDrawStyle *drawStyle = new SoDrawStyle;
+    drawStyle->style = SoDrawStyle::LINES;
+    root->addChild(drawStyle);
+
+    SoCube * volcage = new SoCube;
+    const SbBox3f volspan = voldata->getVolumeSize();
+
+    float dx, dy, dz;
+    volspan.getSize(dx, dy, dz);
+    volcage->width = dx;
+    volcage->height = dy;
+    volcage->depth = dz;
+    root->addChild(volcage);
+  }
+#endif
+
   root->addChild(voldata);
 
 #if 1 // FIXME: handle missing transferfunction. 20021117 mortene.
@@ -111,28 +134,32 @@ main(int argc, char ** argv)
 #endif
 
   // Add VolumeRender to scene graph
-  SoVolumeRender * pVolRend = new SoVolumeRender();
-  root->addChild(pVolRend);
+  SoVolumeRender * volrendnode = new SoVolumeRender();
+  volrendnode->interpolation = SoVolumeRender::NEAREST;
+  root->addChild(volrendnode);
 
-  SoLightModel * lm = new SoLightModel;
-  lm->model = SoLightModel::BASE_COLOR;
-  root->addChild(lm);
+  { // Show bounding box.
+    SoLightModel * lm = new SoLightModel;
+    lm->model = SoLightModel::BASE_COLOR;
+    root->addChild(lm);
 
-  SoDrawStyle *drawStyle = new SoDrawStyle;
-  drawStyle->style = SoDrawStyle::LINES;
-  root->addChild(drawStyle);
+    SoDrawStyle *drawStyle = new SoDrawStyle;
+    drawStyle->style = SoDrawStyle::LINES;
+    root->addChild(drawStyle);
 
-  SoCube * volcage = new SoCube;
-  const SbBox3f volspan = voldata->getVolumeSize();
+    SoCube * volcage = new SoCube;
+    const SbBox3f volspan = voldata->getVolumeSize();
 
-  float dx, dy, dz;
-  volspan.getSize(dx, dy, dz);
-  volcage->width = dx;
-  volcage->height = dy;
-  volcage->depth = dz;
-  root->addChild(volcage);
+    float dx, dy, dz;
+    volspan.getSize(dx, dy, dz);
+    volcage->width = dx;
+    volcage->height = dy;
+    volcage->depth = dz;
+    root->addChild(volcage);
+  }
 
   So@Gui@ExaminerViewer * ex = new So@Gui@ExaminerViewer(window);
+  ex->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
   ex->setSceneGraph(root);
 
 #if 0
