@@ -1,6 +1,6 @@
 INCLUDES = -I$(top_srcdir)/lib
 
-SUBDIRS = elements nodes readers render .
+SUBDIRS = elements misc nodes readers render .
 
 if BUILD_WITH_MSVC
 lib_LIBRARIES = VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib

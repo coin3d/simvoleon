@@ -232,9 +232,10 @@ AC_OUTPUT([
         Makefile
         lib/Makefile
         lib/VolumeViz/Makefile
+	lib/VolumeViz/elements/Makefile
+	lib/VolumeViz/misc/Makefile
 	lib/VolumeViz/nodes/Makefile
 	lib/VolumeViz/nodes/gradients/Makefile
-	lib/VolumeViz/elements/Makefile
 	lib/VolumeViz/readers/Makefile
 	lib/VolumeViz/render/Makefile
 	lib/VolumeViz/render/2D/Makefile
