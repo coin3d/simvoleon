@@ -1,13 +1,17 @@
-#include <VolumeViz/nodes/SoOrthoSlice.h>
-
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
+
+#include <VolumeViz/nodes/SoOrthoSlice.h>
+
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
+#include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
 
 // *************************************************************************
 
@@ -20,7 +24,6 @@ public:
   CachedPage(Cvr2DTexPage * page, SoOrthoSlice * node)
   {
     this->page = page;
-    this->alphause = node->alphaUse.getValue();
   }
 
   ~CachedPage()
@@ -33,15 +36,8 @@ public:
     return this->page;
   }
 
-  SbBool isValid(SoOrthoSlice * node) const
-  {
-    if (this->alphause != node->alphaUse.getValue()) { return FALSE; }
-    return TRUE;
-  }
-
-private:
+  const SoVolumeData * sovolumedata;
   Cvr2DTexPage * page;
-  int alphause;
 };
 
 // *************************************************************************
@@ -72,7 +68,7 @@ public:
   static void renderBox(SoGLRenderAction * action, SbBox3f box);
 
   Cvr2DTexPage * getPage(const int axis, const int slice, SoVolumeData * v);
-  
+
 private:
   SbList<CachedPage*> cachedpages[3];
   SoOrthoSlice * master;
@@ -143,6 +139,8 @@ SoOrthoSlice::affectsState(void) const
 void
 SoOrthoSlice::GLRender(SoGLRenderAction * action)
 {
+  SoState * state = action->getState();
+
   // FIXME: need to make sure we're not cached in a renderlist
 
   // FIXME: rendering needs to be delayed to get order correctly.
@@ -155,7 +153,6 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   SoOrthoSliceP::renderBox(action, slicebox);
 
   // Fetching the current volumedata
-  SoState * state = action->getState();
   const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
   assert(volumedataelement != NULL);
   SoVolumeData * volumedata = volumedataelement->getVolumeData();
@@ -164,7 +161,16 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   const int axisidx = this->axis.getValue();
   const int slicenr = this->sliceNumber.getValue();
 
-  Cvr2DTexPage * page = PRIVATE(this)->getPage(axisidx, slicenr, volumedata);
+  Cvr2DTexPage * texpage = PRIVATE(this)->getPage(axisidx, slicenr, volumedata);
+
+  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+  CvrCLUT * c = new CvrCLUT(*CvrVoxelChunk::getCLUT(tfelement));
+  c->setAlphaUse((CvrCLUT::AlphaUse)this->alphaUse.getValue());
+
+  c->ref();
+  const CvrCLUT * pageclut = texpage->getPalette();
+  if ((pageclut == NULL) || (*pageclut != *c)) { texpage->setPalette(c); }
+  c->unref();
 
   SbVec3f origo, horizspan, verticalspan;
   volumedataelement->getPageGeometry(axisidx, slicenr,
@@ -178,9 +184,11 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  page->render(action, origo, horizspan, verticalspan,
-               // FIXME: ugly cast
-               (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue());
+  // FIXME: ugly cast
+  Cvr2DTexSubPage::Interpolation ip =
+    (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue();
+
+  texpage->render(action, origo, horizspan, verticalspan, ip);
 
   glPopAttrib();
 }
@@ -188,17 +196,14 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
 Cvr2DTexPage *
 SoOrthoSliceP::getPage(const int axis, const int slice, SoVolumeData * voldata)
 {
-  Cvr2DTexPage * page = NULL;
-
   while (this->cachedpages[axis].getLength() <= slice) {
     this->cachedpages[axis].append(NULL);
   }
 
   CachedPage * cp = this->cachedpages[axis][slice];
-  if (cp) {
-    if (cp->isValid(PUBLIC(this))) { page = cp->getPage(); }
-    else { delete cp; cp = NULL; }
-  }
+
+  // Check validity.
+  if (cp && (cp->sovolumedata != voldata)) { delete cp; cp = NULL; }
 
   if (!cp) {
     SbVec3s pagesize = voldata->getPageSize();
@@ -206,12 +211,14 @@ SoOrthoSliceP::getPage(const int axis, const int slice, SoVolumeData * voldata)
     SbVec2s subpagesize =
       SbVec2s(pagesize[(axis == 0) ? 2 : 0], pagesize[(axis == 1) ? 2 : 1]);
 
-    page = new Cvr2DTexPage(voldata->getReader(), axis, slice, subpagesize);
+    Cvr2DTexPage * page =
+      new Cvr2DTexPage(voldata->getReader(), axis, slice, subpagesize);
 
     this->cachedpages[axis][slice] = cp = new CachedPage(page, PUBLIC(this));
+    cp->sovolumedata = voldata;
   }
 
-  return page;
+  return cp->getPage();
 }
 
 void
