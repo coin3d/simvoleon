@@ -28,7 +28,10 @@ SO_NODE_SOURCE(SoVolumeRendering);
 
 class SoVolumeRenderingP {
 public:
+  static SbBool wasinitialized;
 };
+
+SbBool SoVolumeRenderingP::wasinitialized = FALSE;
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
@@ -50,10 +53,18 @@ SoVolumeRendering::~SoVolumeRendering()
 /*!
   Does all necessary class initializations of the volume rendering
   system.
+
+  Application programmers must call this method explicitly at the
+  start of the application, before any volume rendering nodes are
+  made. It must be invoked \e after SoXt::init() / SoQt::init() /
+  SoWin::init(), though.
  */
 void
 SoVolumeRendering::init(void)
 {
+  if (SoVolumeRenderingP::wasinitialized) return;
+  SoVolumeRenderingP::wasinitialized = TRUE;
+
   SoVolumeDataElement::initClass();
   SoTransferFunctionElement::initClass();
 
