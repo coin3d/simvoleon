@@ -111,6 +111,72 @@ SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
 
 // *************************************************************************
 
+// *************************************************************************
+
+/*!
+  \enum SoVolumeRender::Composition
+
+  Enumeration of available types of composition for partly translucent
+  volumes.
+*/
+/*!
+  \var SoVolumeRender::Composition SoVolumeRender::ALPHA_BLENDING
+
+  Composes volume by rendering voxels with higher opacity such that
+  they progressively obscures voxels behind them.
+
+  This is an approximation of the visual appearance of the penetration
+  and reflection of light through a transparent material.
+
+  The blending function for this is known as the "over" operator.
+*/
+/*!
+  \var SoVolumeRender::Composition SoVolumeRender::MAX_INTENSITY
+
+  For each on-screen projected pixel, the voxel with the highest alpha
+  intensity along that projection ray will be rendered.
+
+  This is for instance useful in medical imaging as a contrast
+  enhancing operator for visualizing blood-flows.
+
+  Note that the availability of this composition mode for rendering
+  with 2D- and 3D-textureslices will be dependent on features of the
+  underlying rendering library.
+
+  (Specifically, the OpenGL driver must support \c glBlendEquation(),
+  which is part of the optional "imaging" API-subset of OpenGL version
+  1.2 and later.)
+*/
+/*!
+  \var SoVolumeRender::Composition SoVolumeRender::SUM_INTENSITY
+
+  For each on-screen projected pixel, the intensity of all voxels
+  along that projection ray will be summed up before rendering.
+
+  This gives an appearance similar to medical X-ray images.  The
+  blending function is known as the "attenuate" operator.
+
+  Note that the availability of this composition mode for rendering
+  with 2D- and 3D-textureslices will be dependent on features of the
+  underlying rendering library.
+
+  (Specifically, the OpenGL driver must support \c glBlendEquation(),
+  which is part of the optional "imaging" API-subset of OpenGL version
+  1.2 and later.)
+*/
+
+/*!
+  \var SoSFEnum SoVolumeRender::composition
+
+  How to compose the projected volume rendering.  See
+  SoVolumeRender::Composition.
+
+  Default value is SoVolumeRender::ALPHA_BLENDING.
+*/
+
+
+// *************************************************************************
+
 SoVolumeRender::SoVolumeRender(void)
 {
   SO_NODE_CONSTRUCTOR(SoVolumeRender);
