@@ -22,3 +22,6 @@
 * OpenDX (at www.opendx.org) has volume rendering capabilities.
 
 * VTK has volume rendering.
+
+* http://www-graphics.stanford.edu/~levoy/, researcher with lots of work
+  relating to volume data.
