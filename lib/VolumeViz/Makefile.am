@@ -35,8 +35,8 @@ libSimVoleon_la_LDFLAGS = \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@.lib: Makefile \
-  $(libsimvoleon_lib_OBJECTS) \
-  $(libsimvoleon_lib_DEPENDENCIES)
+  $(simvoleon_lib_OBJECTS) \
+  $(simvoleon_lib_DEPENDENCIES)
 	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@"; \
 	rm -f "$$basename.dll" "$$basename.lib"; \
 	echo "Linking $$basename.lib..."; \
