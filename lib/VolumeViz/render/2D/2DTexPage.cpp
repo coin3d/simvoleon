@@ -5,6 +5,7 @@
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/render/2D/CvrTextureObject.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
@@ -341,10 +342,9 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // fail to match dimensions perfectly with 2^n values). 20021125 mortene.
 
   SbBool invisible;
-  uint32_t * texture =
+  CvrTextureObject * texobj =
     transferfunc->transfer(slicebuf, this->dataType, this->subpagesize,
                            invisible);
-
   delete[] slicebuf;
 
 #if CVR_DEBUG && 0 // debug
@@ -360,6 +360,8 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // this->subpagesize on datasets where dimensions are not all power
   // of two, or where dimensions are smaller than this->subpagesize.
   const SbVec2s texsize(subpagemax - subpagemin);
+
+  uint32_t * texture = texobj->getRGBABuffer();
 
   // Blank out unused texture parts, to make sure we don't get any
   // artifacts due to fp-inaccuracies when rendering.
@@ -406,7 +408,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
                                palette, paletteSize);
   }
 
-  delete[] texture;
+  delete texobj;
   delete[] palette;
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);

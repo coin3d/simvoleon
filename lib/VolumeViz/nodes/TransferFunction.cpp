@@ -15,6 +15,7 @@
 #include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrGIMPGradient.h>
+#include <VolumeViz/render/2D/CvrTextureObject.h>
 
 // *************************************************************************
 
@@ -173,7 +174,7 @@ compileRGBABigEndian(const uint8_t red, const uint8_t green,
 //
 // The "invisible" flag will be set according to whether or not
 // there's at least one texel that's not fully transparent.
-uint32_t *
+CvrTextureObject *
 SoTransferFunction::transfer(const uint8_t * input, 
                              SoVolumeData::DataType inputdatatype,
                              const SbVec2s & size,
@@ -206,10 +207,10 @@ SoTransferFunction::transfer(const uint8_t * input,
     assert(endianness != COIN_HOST_IS_UNKNOWNENDIAN && "weird hardware!");
   }
 
+  CvrTextureObject * texobj = new CvrTextureObject(size);
+  uint32_t * output = texobj->getRGBABuffer();
+
   const unsigned int nrelements = size[0]*size[1];
-
-  uint32_t * output = new uint32_t[nrelements];
-
   invisible = TRUE;
 
   // Handling RGBA inputdata. Just forwarding to output
@@ -353,7 +354,7 @@ SoTransferFunction::transfer(const uint8_t * input,
     }
   }
 
-  return output;
+  return texobj;
 }
 
 void

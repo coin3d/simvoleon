@@ -104,7 +104,9 @@ INCLUDES = -I$(top_srcdir)/lib
 SOURCES = \
 	PageHandler.cpp CvrPageHandler.h \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
-	2DTexPage.cpp Cvr2DTexPage.h
+	2DTexPage.cpp Cvr2DTexPage.h \
+	TextureObject.cpp CvrTextureObject.h \
+	TexManager.cpp CvrTexManager.h
 
 
 lib2Drender_la_SOURCES = $(SOURCES)
@@ -119,13 +121,15 @@ LIBRARIES = $(noinst_LIBRARIES)
 2Drender_lst_AR = $(AR) cru
 2Drender_lst_LIBADD =
 am_2Drender_lst_OBJECTS = PageHandler.$(OBJEXT) 2DTexSubPage.$(OBJEXT) \
-	2DTexPage.$(OBJEXT)
+	2DTexPage.$(OBJEXT) TextureObject.$(OBJEXT) \
+	TexManager.$(OBJEXT)
 2Drender_lst_OBJECTS = $(am_2Drender_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 lib2Drender_la_LDFLAGS =
 lib2Drender_la_LIBADD =
-am_lib2Drender_la_OBJECTS = PageHandler.lo 2DTexSubPage.lo 2DTexPage.lo
+am_lib2Drender_la_OBJECTS = PageHandler.lo 2DTexSubPage.lo 2DTexPage.lo \
+	TextureObject.lo TexManager.lo
 lib2Drender_la_OBJECTS = $(am_lib2Drender_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -137,7 +141,9 @@ depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 @AMDEP_TRUE@DEP_FILES = $(DEPDIR)/2DTexPage.Plo $(DEPDIR)/2DTexPage.Po \
 @AMDEP_TRUE@	$(DEPDIR)/2DTexSubPage.Plo \
 @AMDEP_TRUE@	$(DEPDIR)/2DTexSubPage.Po $(DEPDIR)/PageHandler.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/PageHandler.Po
+@AMDEP_TRUE@	$(DEPDIR)/PageHandler.Po $(DEPDIR)/TexManager.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/TexManager.Po $(DEPDIR)/TextureObject.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/TextureObject.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -160,7 +166,9 @@ DIST_COMMON = Makefile.am Makefile.in
 SOURCES = \
 	PageHandler.cpp CvrPageHandler.h \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
-	2DTexPage.cpp Cvr2DTexPage.h
+	2DTexPage.cpp Cvr2DTexPage.h \
+	TextureObject.cpp CvrTextureObject.h \
+	TexManager.cpp CvrTexManager.h
 
 
 all: all-am
@@ -210,6 +218,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/2DTexSubPage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/PageHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/PageHandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TexManager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TexManager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TextureObject.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TextureObject.Po@am__quote@
 
 distclean-depend:
 	-rm -rf $(DEPDIR)
