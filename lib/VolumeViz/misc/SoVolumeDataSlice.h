@@ -38,7 +38,6 @@ public:
   int numTexels;
   int numPages;
   int numBytesHW;
-  int numBytesSW;
 
 private:
   void releaseLRUPage(void);

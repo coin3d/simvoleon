@@ -122,7 +122,6 @@ SoVolumeDataSlice::releasePage(SoVolumeDataPage * page)
 
     this->numPages--;
     this->numTexels -= this->pageSize[0] * this->pageSize[1];
-    this->numBytesSW -= p->page->numBytesSW;
     this->numBytesHW -= p->page->numBytesHW;
 
     if (p->next) { p->next->prev = p->prev; }
@@ -160,8 +159,9 @@ SoVolumeDataSlice::getLRUPage(void)
   for (int i = 0; i < NRPAGES; i++) {
     SoVolumeDataPageItem * pitem = this->pages[i];
     while (pitem != NULL) {
-      if (LRUPage == NULL) { LRUPage = pitem->page; }
-      else if (pitem->page->lastuse < LRUPage->lastuse) { LRUPage = pitem->page; }
+      if ((LRUPage == NULL) || (pitem->page->lastuse < LRUPage->lastuse)) {
+        LRUPage = pitem->page;
+      }
       pitem = pitem->next;
     }
   }
@@ -391,11 +391,6 @@ SoVolumeDataSlice::buildPage(int col, int row,
                              (col + 1) * this->pageSize[0],
                              (row + 1) * this->pageSize[1]);
 
-  void * transferredTexture = NULL;
-  float * palette = NULL;
-  int paletteDataType;
-  int outputDataType;
-  int paletteSize;
   int texturebuffersize = this->pageSize[0] * this->pageSize[1] * 4;
   unsigned char * texture = new unsigned char[texturebuffersize];
 
@@ -405,6 +400,11 @@ SoVolumeDataSlice::buildPage(int col, int row,
                          SoVolumeReader::Y : SoVolumeReader::Z);
   reader->getSubSlice(subSlice, sliceIdx, texture, ax);
 
+  void * transferredTexture = NULL;
+  float * palette = NULL;
+  int paletteDataType;
+  int outputDataType;
+  int paletteSize;
   transferFunction->transfer(texture,
                              this->dataType,
                              this->pageSize,
@@ -434,7 +434,6 @@ SoVolumeDataSlice::buildPage(int col, int row,
 
   this->numTexels += this->pageSize[0] * this->pageSize[1];
   this->numPages++;
-  this->numBytesSW += page->numBytesSW;
   this->numBytesHW += page->numBytesHW;
 
   return page;
