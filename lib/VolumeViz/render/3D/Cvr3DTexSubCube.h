@@ -81,11 +81,6 @@ public:
                                         const SbMatrix & m);
 
 private:
-  static void * subcube_clipperCB(const SbVec3f & v0, void * vdata0, 
-                                  const SbVec3f & v1, void * vdata1,
-                                  const SbVec3f & newvertex,
-                                  void * userdata);
-
   void renderSlices(const SoGLRenderAction * action, SbBool wireframe);
   void renderBBox(void) const;
 
@@ -107,7 +102,6 @@ private:
   };
 
   SbList <subcube_slice> volumeslices;
-  SbList <SbVec3f> texcoordlist;
 
   SbPlane clipplanes[6];
 };

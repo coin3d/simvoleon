@@ -37,8 +37,6 @@
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/misc/SoState.h>
 
-
-
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
@@ -149,27 +147,6 @@ Cvr3DTexSubCube::deactivateCLUT(const SoGLRenderAction * action)
 
 // *************************************************************************
 
-// Calculates new texture coordinates, and the "clip-vector"
-// representing the plane's intersection line with the box.
-void *
-Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
-                                   const SbVec3f & v1, void * vdata1,
-                                   const SbVec3f & newvertex,
-                                   void * userdata)
-{
-
-  Cvr3DTexSubCube * obj = (Cvr3DTexSubCube *) userdata;
-  SbVec3f dist = newvertex - obj->origo;
-
-  const SbVec3s texdims = obj->textureobject->getDimensions();
-  
-  const SbVec3f v(dist[0] / texdims[0], dist[1] / texdims[1], dist[2] / texdims[2]);
-  obj->texcoordlist.append(v);
-
-  const unsigned int lastidx = obj->texcoordlist.getLength() - 1;
-  return (void *)(&(obj->texcoordlist[lastidx]));
-}
-
 // Check if this cube is intersected by a faceset.
 void
 Cvr3DTexSubCube::intersectFaceSet(const SbVec3f * vertexlist,
@@ -178,7 +155,7 @@ Cvr3DTexSubCube::intersectFaceSet(const SbVec3f * vertexlist,
                                   const SbMatrix & m)
 {
 
-  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
+  SbClip cubeclipper;
 
   SbVec3f a;
   unsigned int idx = 0;
@@ -201,7 +178,7 @@ Cvr3DTexSubCube::intersectTriangleStripSet(const SbVec3f * vertexlist,
                                            const SbMatrix & m)
 {
 
-  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
+  SbClip cubeclipper;
 
   SbVec3f a;
   unsigned int idx = 0;
@@ -236,7 +213,7 @@ Cvr3DTexSubCube::intersectIndexedTriangleStripSet(const SbVec3f * vertexlist,
                                                   const SbMatrix & m)
 {
 
-  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
+  SbClip cubeclipper;
 
   SbVec3f a;
   int counter = 0;
@@ -270,7 +247,7 @@ Cvr3DTexSubCube::intersectIndexedFaceSet(const SbVec3f * vertexlist,
                                          const SbMatrix & m)
 {
 
-  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
+  SbClip cubeclipper;
 
   SbVec3f a;
   for (unsigned int i=0;i<numindices;++i) {
@@ -291,10 +268,8 @@ Cvr3DTexSubCube::intersectIndexedFaceSet(const SbVec3f * vertexlist,
 void
 Cvr3DTexSubCube::intersectSlice(const SbVec3f * sliceplanecorners)
 {
-  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
-
+  SbClip cubeclipper;
   for (unsigned int i=0; i < 4; i++) { cubeclipper.addVertex(sliceplanecorners[i]); }
-
   this->clipPolygonAgainstCube(cubeclipper);
 }
 
@@ -304,7 +279,7 @@ Cvr3DTexSubCube::intersectSlice(const SbViewVolume & viewvolume,
                                 const float viewdistance,
                                 const SbMatrix & m)
 {
-  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
+  SbClip cubeclipper;
 
   // FIXME: Can we rewrite this to support viewport shells for proper
   // perspective? (20040227 handegar)
@@ -355,48 +330,19 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper)
     
     for (unsigned int i=0; i < result; i++) {
       cubeclipper.getVertex(i, vert);
-      // FIXME: this will alloc lots of memory each frame, which
+      // FIXME: this will alloc lots (?) of memory each frame, which
       // probably affects performance. 20041007 mortene.
       slice.vertex.append(vert);
-      SbVec3f * texcoord = (SbVec3f *) cubeclipper.getVertexData(i);
-      if (!texcoord) {
-        // There is no texture coordinate if a vertex of the polygon
-        // set up for the SbClip instance was inside the subcube, so
-        // we calculate it by this little hack.
-        texcoord = (SbVec3f *)
-          Cvr3DTexSubCube::subcube_clipperCB(vert, NULL, vert, NULL, vert, this);
-      }
-      // FIXME: this will alloc lots of memory each frame, which
+
+      const SbVec3f dist = vert - this->origo;
+      const SbVec3s texdims = this->textureobject->getDimensions();
+      const SbVec3f v(dist[0] / texdims[0], dist[1] / texdims[1], dist[2] / texdims[2]);
+
+      // FIXME: this will alloc lots (?) of memory each frame, which
       // probably affects performance. 20041007 mortene.
-      slice.texcoord.append(*texcoord);
+      slice.texcoord.append(v);
     }
     
-#if 0 // debug
-    static unsigned int maxlen = 0;
-    static unsigned int maxresult = 0;
-    static float avglen = 0;
-    static float alllen = 0;
-    static unsigned int nrruns = 0;
-
-    const unsigned int l = this->texcoordlist.getLength();
-    alllen += l;
-    nrruns++;
-    avglen = alllen / nrruns;
-    if (l > 20) {
-      printf("texcoordlist length==%u (vertices==%u)\n", l, result);
-    }
-    if (l > maxlen) {
-      maxlen = l;
-      printf("texcoordlist max length: %d (avglen==%f)\n", maxlen, avglen);
-    }
-    if (result > maxresult) {
-      maxresult = result;
-      printf("result max==%u (texcoordlist len==%u)\n", maxresult, l);
-    }
-#endif // debug
-
-    this->texcoordlist.truncate(0);
-   
     this->volumeslices.append(slice);
   }
 }
