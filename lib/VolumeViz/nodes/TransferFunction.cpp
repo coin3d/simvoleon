@@ -208,8 +208,6 @@ SoTransferFunction::transfer(const void * input,
 
   // Handling RGBA inputdata. Just forwarding to output
   if (inputdatatype == SoVolumeData::RGBA) {
-    // FIXME: this is of course completely wrong -- the data should be
-    // handled according to the SoTransferFunction settings. 20021112 mortene.
     (void)memcpy(output, input, size[0]*size[1]*sizeof(int));
     return;
   }
@@ -221,9 +219,28 @@ SoTransferFunction::transfer(const void * input,
     uint32_t * outp = (uint32_t *)output;
     const uint8_t * inp = (const uint8_t *)input;
 
-    const int cmap = this->predefColorMap.getValue();
-    assert(cmap >= GREY); // FIXME: "NONE" not handled yet. 20021113 mortene.
-    assert(cmap <= SEISMIC);
+    int colormaptype = this->colorMapType.getValue();
+    int nrcomponents = 1;
+    switch (colormaptype) {
+    case ALPHA: nrcomponents = 1; break;
+    case LUM_ALPHA: nrcomponents = 2; break;
+    case RGBA: nrcomponents = 4; break;
+    default: assert(FALSE && "invalid SoTransferFunction::colorMapType value"); break;
+    }
+
+    const float * colormap = this->colorMap.getValues(0);
+    int nrcols = this->colorMap.getNum() / nrcomponents;
+    // FIXME: a bit strict this, should warn instead. 20021119 mortene.
+    assert((this->colorMap.getNum() % nrcomponents) == 0);
+
+    uint8_t * predefmap = NULL;
+    const int predefmapidx = this->predefColorMap.getValue();
+    assert(predefmapidx >= NONE);
+    assert(predefmapidx <= SEISMIC);
+
+    if (predefmapidx != NONE) {
+      predefmap = &(SoTransferFunctionP::PREDEFGRADIENTS[predefmapidx][0][0]);
+    }
 
     int32_t shiftval = this->shift.getValue();
     int32_t offsetval = this->offset.getValue();
@@ -240,7 +257,44 @@ SoTransferFunction::transfer(const void * input,
         outp[j] = 0x00000000;
       }
       else {
-        uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[cmap][inval];
+        uint8_t rgba[4];
+
+        if (predefmapidx == NONE) {
+          assert(inval < nrcols);
+          const float * colvals = &(colormap[inval * nrcomponents]);
+#if 1 // ROBUSTNESS
+          for (int cvchk = 0; cvchk < nrcomponents; cvchk++) {
+            assert(colvals[cvchk] >= 0.0f && colvals[cvchk] <= 1.0f);
+          }
+#endif // robustness
+          switch (colormaptype) {
+          case ALPHA:
+            rgba[0] = rgba[1] = rgba[2] = rgba[3] = uint8_t(colvals[0] * 255.0f);
+            break;
+
+          case LUM_ALPHA:
+            rgba[0] = rgba[1] = rgba[2] = uint8_t(colvals[0] * 255.0f);
+            rgba[3] = uint8_t(colvals[1] * 255.0f);
+            break;
+
+          case RGBA:
+            rgba[0] = uint8_t(colvals[0] * 255.0f);
+            rgba[1] = uint8_t(colvals[1] * 255.0f);
+            rgba[2] = uint8_t(colvals[2] * 255.0f);
+            rgba[3] = uint8_t(colvals[3] * 255.0f);
+            break;
+
+          default:
+            assert(FALSE && "impossible");
+            break;
+          }
+        }
+        else { // using one of the predefined colormaps
+          rgba[0] = predefmap[inval * 4 + 0];
+          rgba[1] = predefmap[inval * 4 + 1];
+          rgba[2] = predefmap[inval * 4 + 2];
+          rgba[3] = predefmap[inval * 4 + 3];
+        }
 
         outp[j] = (endianness == COIN_HOST_IS_LITTLEENDIAN) ?
           compileRGBALittleEndian(rgba[0], rgba[1], rgba[2], rgba[3]) :
