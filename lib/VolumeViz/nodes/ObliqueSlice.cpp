@@ -115,6 +115,9 @@ SoObliqueSlice::SoObliqueSlice(void)
   SO_NODE_ADD_FIELD(plane, (SbPlane(SbVec3f(0, 0, 1), 0)));
   SO_NODE_ADD_FIELD(interpolation, (LINEAR));
   SO_NODE_ADD_FIELD(alphaUse, (ALPHA_BINARY));
+
+  // FIXME: implement proper support for alternateRep field. 20041008 mortene.
+  SO_NODE_ADD_FIELD(alternateRep, (NULL));
 }
 
 SoObliqueSlice::~SoObliqueSlice()
@@ -186,6 +189,12 @@ SoObliqueSlice::~SoObliqueSlice()
   The plane defining the slice.
   
   Default value is an XY plane.
+*/
+
+/*!
+  \var SoSFNode SoObliqueSlice::alternateRep
+  NOTE: support for this field not yet implemented in SIM Voleon.
+  \since SIM Voleon 2.0
 */
 
 // *************************************************************************
@@ -398,3 +407,37 @@ SoObliqueSlice::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
   box.extendBy(vdbox);
   center = vdbox.getCenter();
 }
+
+// *************************************************************************
+
+// Overridden so we can give special attention to alternateRep.
+void
+SoObliqueSlice::write(SoWriteAction * action)
+{
+  // FIXME: implement proper support for alternateRep field. 20041008 mortene.
+  if (this->alternateRep.getValue() != NULL) {
+    SoDebugError::postWarning("SoObliqueSlice::write",
+                              "no support for alternateRep field yet, "
+                              "alternate geometry ignored");
+  }
+
+  inherited::write(action);
+}
+
+// Overridden so we can give special attention to alternateRep.
+SbBool
+SoObliqueSlice::readInstance(SoInput * in, unsigned short flags)
+{
+  const SbBool ret = inherited::readInstance(in, flags);
+
+  // FIXME: implement proper support for alternateRep field. 20041008 mortene.
+  if (this->alternateRep.getValue() != NULL) {
+    SoDebugError::postWarning("SoObliqueSlice::readInstance",
+                              "no support for alternateRep field yet, "
+                              "alternate geometry ignored");
+  }
+
+  return ret;
+}
+
+// *************************************************************************

@@ -54,7 +54,6 @@
 #include <VolumeViz/elements/CvrPageSizeElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 #include <VolumeViz/misc/CvrCLUT.h>
@@ -154,6 +153,12 @@ int SoOrthoSliceP::debug = -1;
   Decides where the slice will be made through the volume.
 
   Default value is 0.
+*/
+
+/*!
+  \var SoSFNode SoOrthoSlice::alternateRep
+  NOTE: support for this field not yet implemented in SIM Voleon.
+  \since SIM Voleon 2.0
 */
 
 // *************************************************************************

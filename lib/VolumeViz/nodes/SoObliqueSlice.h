@@ -24,9 +24,11 @@
  *
 \**************************************************************************/
 
-#include <Inventor/nodes/SoShape.h>
-#include <Inventor/fields/SoSFPlane.h>
 #include <Inventor/fields/SoSFEnum.h>
+#include <Inventor/fields/SoSFNode.h>
+#include <Inventor/fields/SoSFPlane.h>
+#include <Inventor/nodes/SoShape.h>
+
 #include <VolumeViz/C/basic.h>
 
 // *************************************************************************
@@ -46,6 +48,7 @@ public:
   SoSFPlane plane;
   SoSFEnum interpolation;
   SoSFEnum alphaUse;
+  SoSFNode alternateRep;
 
 protected:
   ~SoObliqueSlice();
@@ -54,6 +57,9 @@ protected:
   virtual void rayPick(SoRayPickAction * action);
   virtual void generatePrimitives(SoAction * action);
   virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
+  virtual void write(SoWriteAction * action);
+
+  virtual SbBool readInstance(SoInput * in, unsigned short flags);
 
 private:
   friend class SoObliqueSliceP;
