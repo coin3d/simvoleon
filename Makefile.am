@@ -31,7 +31,14 @@ EXTRA_DIST = \
 	simvoleon.cfg.in \
 	cfg/errors.txt \
 	cfg/wrapmsvc.exe \
-	cfg/gendsp.sh
+	cfg/gendsp.sh \
+	packaging/Windows/NSIS/Makefile.in \
+	packaging/Windows/NSIS/bfheader.nsi.in \
+	packaging/Windows/NSIS/footer.nsi.in \
+	packaging/Windows/NSIS/heading.nsi.in \
+	packaging/Windows/NSIS/middle.nsi.in \
+	packaging/Windows/NSIS/post.nsi.in \
+	packaging/Windows/NSIS/simvoleon-sdk.html.in
 
 m4datadir = $(datadir)/aclocal
 dist_m4data_DATA = cfg/simvoleon.m4
