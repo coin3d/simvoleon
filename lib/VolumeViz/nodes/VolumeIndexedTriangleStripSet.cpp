@@ -35,7 +35,7 @@
   SoObliqueSlice for more information.
 
   \sa SoVolumeIndexedFaceSet, SoVolumeRender, SoOrthoSlice, SoObliqueSlice
-  \sa SoVolumeTriangleStripSet
+  \sa SoVolumeTriangleStripSet, SoVolumeFaceSet
 
   \since SIM Voleon 1.1
 */
