@@ -30,6 +30,7 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
+#include <Inventor/elements/SoGLLazyElement.h>
 
 #include <VolumeViz/render/3D/CvrCubeHandler.h>
 
@@ -121,6 +122,11 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
   if (this->clut != c) { this->setPalette(c); }
+
+  // This must be done, as we want to control stuff in the GL state
+  // machine. Without it, state changes could trigger outside our
+  // control.
+  SoGLLazyElement::getInstance(state)->send(state, SoLazyElement::ALL_MASK);
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
