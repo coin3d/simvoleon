@@ -188,7 +188,7 @@ main(int argc, char ** argv)
 
   volumeData->setVolumeData( dim,
                              (unsigned char *)pData,
-                             SoVolumeRendering::UNSIGNED_SHORT);
+                             SoVolumeData::UNSIGNED_SHORT);
 
   pTransFunc->colorMap.setNum(65536*4);
   float * p = pTransFunc->colorMap.startEditing();
