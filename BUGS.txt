@@ -237,3 +237,18 @@ for suggestions for major improvements and new features.
     20040920 mortene.
 
 ========================================================================
+
+019 Missing SoTransferFunction should be handled with more grace.
+
+    According to the VolumeViz API-doc, a *missing* SoTransferFunction
+    should cause a volume to be rendered with the default
+    SoTransferFunction::GREY color map.
+
+    Best way to fix this is probably to kill the
+    SoTransferFunctionElement, and replace it with a new element which
+    actually carries the current transferfunction on the stack
+    (instead of just a pointer back to the SoTransferFunction node).
+
+    20040920 mortene.
+
+========================================================================
