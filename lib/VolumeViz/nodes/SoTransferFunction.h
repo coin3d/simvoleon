@@ -63,14 +63,9 @@ private:
 
   // FIXME: clean up interface. 20021106 mortene.
   friend class Cvr2DTexPage;
-  void transfer(const void * input,
-                SoVolumeData::DataType inputDataType,
-                const SbVec2s & size,
-                void *& output,
-                int &outputFormat,
-                float *& palette,
-                int &paletteFormat,
-                int &paletteSize);
+  uint32_t * transfer(const uint8_t * input,
+                      SoVolumeData::DataType inputdatatype,
+                      const SbVec2s & size) const;
 };
 
 #endif // !COIN_SOTRANSFERFUNCTION_H
