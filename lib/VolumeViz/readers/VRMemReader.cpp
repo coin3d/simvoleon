@@ -1,8 +1,13 @@
+// FIXME: get rid of this class, as I don't think it adds anything of
+// real value..? 20021126 mortene.
+
 /*!
   \class SoVRMemReader VolumeViz/readers/SoVRMemReader.h
   \brief FIXME: doc
   \ingroup volviz
 */
+
+// *************************************************************************
 
 #include <VolumeViz/readers/SoVRMemReader.h>
 #include <VolumeViz/misc/CvrUtil.h>

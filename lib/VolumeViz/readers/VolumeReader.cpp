@@ -82,15 +82,15 @@ SoVolumeReader::fileSize(void)
   }
 }
 
+// FIXME: unimplemented methods follows. 20021108 mortene.
+
 void *
 SoVolumeReader::getBuffer(int64_t offset, unsigned int size)
 {
   return NULL;
 }
 
-// FIXME: unimplemented methods. 20021108 mortene.
-
-int SoVolumeReader::bytesToInt(unsigned char * ptr, int sizeBytes) { return 0x0000; }
-void SoVolumeReader::swapBytes(int * intPtr, int sizeBytes) { return; }
+int SoVolumeReader::bytesToInt(unsigned char * ptr, int sizebytes) { return 0x0000; }
+void SoVolumeReader::swapBytes(int * intptr, int sizebytes) { return; }
 
 // *************************************************************************
