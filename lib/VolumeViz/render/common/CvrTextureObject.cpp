@@ -79,15 +79,10 @@ CvrTextureObject::initClass(void)
   CvrTextureObject::instancedict = new SbDict;
 }
 
-CvrTextureObject::CvrTextureObject(const SbVec3s & size)
+CvrTextureObject::CvrTextureObject(void)
 {
   assert(CvrTextureObject::classTypeId != SoType::badType());
   this->refcounter = 0;
-
-  assert(coin_is_power_of_two(size[0]));
-  assert(coin_is_power_of_two(size[1]));
-  assert(coin_is_power_of_two(size[2]));
-  this->dimensions = size;
 }
 
 #if 0 // FIXME: this must be done in a callback for the resource
@@ -376,6 +371,9 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   CvrTextureObject * obj = CvrTextureObject::findInstanceMatch(incoming);
   if (obj) { return obj; }
 
+  assert(coin_is_power_of_two(texsize[0]));
+  assert(coin_is_power_of_two(texsize[1]));
+  assert(coin_is_power_of_two(texsize[2]));
 
   const SbVec3s & voxdims = vbelem->getVoxelCubeDimensions();
   const void * dataptr = vbelem->getVoxels();
@@ -394,12 +392,14 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   const SbBool paletted = CvrCLUT::usePaletteTextures(action);
   SbBool invisible = FALSE;
 
-  CvrTextureObject * newtexobj;
-  // FIXME: use SoType::createInstance() for the below stuff. 20040721 mortene.
-  if (is2d && paletted) { newtexobj = new Cvr2DPaletteTexture(texsize); }
-  else if (is2d) { newtexobj = new Cvr2DRGBATexture(texsize); }
-  else if (paletted) { newtexobj = new Cvr3DPaletteTexture(texsize); }
-  else { newtexobj = new Cvr3DRGBATexture(texsize); }
+  SoType t;
+  if (is2d && paletted) { t = Cvr2DPaletteTexture::getClassTypeId(); }
+  else if (is2d) { t = Cvr2DRGBATexture::getClassTypeId(); }
+  else if (paletted) { t = Cvr3DPaletteTexture::getClassTypeId(); }
+  else { t = Cvr3DRGBATexture::getClassTypeId(); }
+
+  CvrTextureObject * newtexobj = (CvrTextureObject *)t.createInstance();
+  newtexobj->dimensions = texsize;
 
   cubechunk->transfer(action, newtexobj, invisible);
 

@@ -42,14 +42,12 @@ public:
   void blankUnused(const SbVec3s & texsize) const;
 
 protected:
-  Cvr3DRGBATexture(const SbVec3s & size);
+  Cvr3DRGBATexture(void);
   virtual ~Cvr3DRGBATexture();
 
 private:
   static SoType classTypeId;
-
-  // FIXME: most likely an indication of bad design. 20040715 mortene.
-  friend class CvrTextureObject;
+  static void * createInstance(void);
 };
 
 #endif // !SIMVOLEON_CVR3DRGBATEXTURE_H

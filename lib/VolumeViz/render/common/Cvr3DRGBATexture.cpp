@@ -36,6 +36,8 @@ SoType Cvr3DRGBATexture::classTypeId;
 SoType Cvr3DRGBATexture::getTypeId(void) const { return Cvr3DRGBATexture::classTypeId; }
 SoType Cvr3DRGBATexture::getClassTypeId(void) { return Cvr3DRGBATexture::classTypeId; }
 
+void * Cvr3DRGBATexture::createInstance(void) { return new Cvr3DRGBATexture; }
+
 // *************************************************************************
 
 void
@@ -43,11 +45,11 @@ Cvr3DRGBATexture::initClass(void)
 {
   assert(Cvr3DRGBATexture::classTypeId == SoType::badType());
   Cvr3DRGBATexture::classTypeId =
-    SoType::createType(CvrRGBATexture::getClassTypeId(), "Cvr3DRGBATexture");
+    SoType::createType(CvrRGBATexture::getClassTypeId(), "Cvr3DRGBATexture",
+                       Cvr3DRGBATexture::createInstance);
 }
 
-Cvr3DRGBATexture::Cvr3DRGBATexture(const SbVec3s & size)
-  : inherited(size)
+Cvr3DRGBATexture::Cvr3DRGBATexture(void)
 {
   assert(Cvr3DRGBATexture::classTypeId != SoType::badType());
 }
@@ -55,6 +57,8 @@ Cvr3DRGBATexture::Cvr3DRGBATexture(const SbVec3s & size)
 Cvr3DRGBATexture::~Cvr3DRGBATexture()
 {
 }
+
+// *************************************************************************
 
 // Returns pointer to RGBA buffer. Allocates memory for it if
 // necessary.

@@ -36,6 +36,8 @@ SoType Cvr2DRGBATexture::classTypeId;
 SoType Cvr2DRGBATexture::getTypeId(void) const { return Cvr2DRGBATexture::classTypeId; }
 SoType Cvr2DRGBATexture::getClassTypeId(void) { return Cvr2DRGBATexture::classTypeId; }
 
+void * Cvr2DRGBATexture::createInstance(void) { return new Cvr2DRGBATexture; }
+
 // *************************************************************************
 
 void
@@ -43,11 +45,11 @@ Cvr2DRGBATexture::initClass(void)
 {
   assert(Cvr2DRGBATexture::classTypeId == SoType::badType());
   Cvr2DRGBATexture::classTypeId =
-    SoType::createType(CvrRGBATexture::getClassTypeId(), "Cvr2DRGBATexture");
+    SoType::createType(CvrRGBATexture::getClassTypeId(), "Cvr2DRGBATexture",
+                       Cvr2DRGBATexture::createInstance);
 }
 
-Cvr2DRGBATexture::Cvr2DRGBATexture(const SbVec3s & size)
-  : inherited(size)
+Cvr2DRGBATexture::Cvr2DRGBATexture(void)
 {
   assert(Cvr2DRGBATexture::classTypeId != SoType::badType());
 }

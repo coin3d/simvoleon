@@ -66,9 +66,9 @@ public:
   virtual GLenum getGLTextureEnum(void) const = 0;
 
 protected:
-  // Constructor and destructor is protected as instances should be
-  // made through the create() function.
-  CvrTextureObject(const SbVec3s & size);
+  // Constructor and destructor is protected as instances should
+  // always be made through the create() function.
+  CvrTextureObject(void);
   virtual ~CvrTextureObject();
 
 private:

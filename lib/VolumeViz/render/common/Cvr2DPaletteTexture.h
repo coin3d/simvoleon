@@ -45,13 +45,13 @@ public:
 
   void dumpToPPM(const char * filename) const;
 
-private:
-  Cvr2DPaletteTexture(const SbVec3s & size);
+protected:
+  Cvr2DPaletteTexture(void);
   virtual ~Cvr2DPaletteTexture();
 
+private:
   static SoType classTypeId;
-
-  friend class CvrTextureObject;
+  static void * createInstance(void);
 };
 
 #endif // !SIMVOLEON_CVR2DPALETTETEXTURE_H

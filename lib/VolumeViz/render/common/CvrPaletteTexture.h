@@ -46,7 +46,7 @@ public:
   virtual SbBool isPaletted(void) const { return TRUE; }
 
 protected:
-  CvrPaletteTexture(const SbVec3s & size);
+  CvrPaletteTexture(void);
   virtual ~CvrPaletteTexture();
 
   uint8_t * indexbuffer;

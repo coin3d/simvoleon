@@ -36,6 +36,8 @@ SoType Cvr3DPaletteTexture::classTypeId;
 SoType Cvr3DPaletteTexture::getTypeId(void) const { return Cvr3DPaletteTexture::classTypeId; }
 SoType Cvr3DPaletteTexture::getClassTypeId(void) { return Cvr3DPaletteTexture::classTypeId; }
 
+void * Cvr3DPaletteTexture::createInstance(void) { return new Cvr3DPaletteTexture; }
+
 // *************************************************************************
 
 void
@@ -43,11 +45,12 @@ Cvr3DPaletteTexture::initClass(void)
 {
   assert(Cvr3DPaletteTexture::classTypeId == SoType::badType());
   Cvr3DPaletteTexture::classTypeId =
-    SoType::createType(CvrPaletteTexture::getClassTypeId(), "Cvr3DPaletteTexture");
+    SoType::createType(CvrPaletteTexture::getClassTypeId(),
+                       "Cvr3DPaletteTexture",
+                       Cvr3DPaletteTexture::createInstance);
 }
 
-Cvr3DPaletteTexture::Cvr3DPaletteTexture(const SbVec3s & size)
-  : inherited(size)
+Cvr3DPaletteTexture::Cvr3DPaletteTexture(void)
 {
   assert(Cvr3DPaletteTexture::classTypeId != SoType::badType());
 }

@@ -45,8 +45,7 @@ CvrRGBATexture::initClass(void)
     SoType::createType(CvrTextureObject::getClassTypeId(), "CvrRGBATexture");
 }
 
-CvrRGBATexture::CvrRGBATexture(const SbVec3s & size)
-  : inherited(size)
+CvrRGBATexture::CvrRGBATexture(void)
 {
   assert(CvrRGBATexture::classTypeId != SoType::badType());
   this->rgbabuffer = NULL;

@@ -43,14 +43,13 @@ public:
   virtual uint8_t * getIndex8Buffer(void) const;
   virtual void blankUnused(const SbVec3s & texsize) const;
 
-private:
-
-  Cvr3DPaletteTexture(const SbVec3s & size);
+protected:
+  Cvr3DPaletteTexture(void);
   virtual ~Cvr3DPaletteTexture();
 
+private:
   static SoType classTypeId;
-
-  friend class CvrTextureObject;
+  static void * createInstance(void);
 };
 
 #endif // !SIMVOLEON_CVR3DPALETTETEXTURE_H
