@@ -14,23 +14,30 @@ public:
 
     this->dimensions = SbVec3s(0, 0, 0);
     this->dataType = SoVolumeData::UNSIGNED_BYTE;
+    // FIXME: what about volumeSize init? 20021110 mortene.
   }
 
   SbVec3s dimensions;
   SoVolumeData::DataType dataType;
   SbBox3f volumeSize;
 
-  void buildSubSliceX(void * output, int sliceIdx, const SbBox2s &subSlice);
-  void buildSubSliceY(void * output, int sliceIdx, const SbBox2s &subSlice);
-  void buildSubSliceZ(void * output, int sliceIdx, const SbBox2s &subSlice);
-
 private:
   SoVRMemReader * master;
 };
 
-
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
+
+void buildSubSliceX(const void * input, void * output,
+                    int sliceIdx, const SbBox2s & subSlice,
+                    const SoVolumeData::DataType type, const SbVec3s & dim);
+void buildSubSliceY(const void * input, void * output,
+                    int sliceIdx, const SbBox2s & subSlice,
+                    const SoVolumeData::DataType type, const SbVec3s & dim);
+void buildSubSliceZ(const void * input, void * output,
+                    int sliceIdx, const SbBox2s & subSlice,
+                    const SoVolumeData::DataType type, const SbVec3s & dim);
+
 
 // *************************************************************************
 
@@ -66,15 +73,21 @@ void SoVRMemReader::getSubSlice(SbBox2s &subSlice,
 {
   switch (axis) {
     case X:
-      PRIVATE(this)->buildSubSliceX(data, sliceNumber, subSlice);
+      buildSubSliceX(this->m_data, data, sliceNumber, subSlice,
+                     PRIVATE(this)->dataType,
+                     PRIVATE(this)->dimensions);
       break;
 
     case Y:
-      PRIVATE(this)->buildSubSliceY(data, sliceNumber, subSlice);
+      buildSubSliceY(this->m_data, data, sliceNumber, subSlice,
+                     PRIVATE(this)->dataType,
+                     PRIVATE(this)->dimensions);
       break;
 
     case Z:
-      PRIVATE(this)->buildSubSliceZ(data, sliceNumber, subSlice);
+      buildSubSliceZ(this->m_data, data, sliceNumber, subSlice,
+                     PRIVATE(this)->dataType,
+                     PRIVATE(this)->dimensions);
       break;
   }
 }
@@ -88,6 +101,7 @@ SoVRMemReader::setData(const SbVec3s &dimensions,
 {
   PRIVATE(this)->dimensions = dimensions;
   this->m_data = data;
+  PRIVATE(this)->volumeSize = volumeSize;
   PRIVATE(this)->dataType = type;
 }
 
@@ -103,15 +117,19 @@ SoVRMemReader::setData(const SbVec3s &dimensions,
   get even more speed. But that would mess up the code.
 */
 void
-SoVRMemReaderP::buildSubSliceX(void * output,
-                               int sliceIdx,
-                               const SbBox2s &subSlice)
+buildSubSliceX(const void * input,
+               void * output,
+               int sliceIdx,
+               const SbBox2s & subSlice,
+               const SoVolumeData::DataType type,
+               const SbVec3s & dim)
 {
-  unsigned int * intData = (unsigned int *)PUBLIC(this)->m_data;
+  // FIXME: use fixed-width int-types. 20021109 mortene.
+  unsigned int * intData = (unsigned int *)input;
   unsigned int * intTexture = (unsigned int *)output;
-  unsigned char * byteData = (unsigned char *)PUBLIC(this)->m_data;
+  unsigned char * byteData = (unsigned char *)input;
   unsigned char * byteTexture = (unsigned char *)output;
-  unsigned short * shortData = (unsigned short *)PUBLIC(this)->m_data;
+  unsigned short * shortData = (unsigned short *)input;
   unsigned short * shortTexture = (unsigned short *)output;
 
   SbVec2s min, max;
@@ -119,17 +137,17 @@ SoVRMemReaderP::buildSubSliceX(void * output,
 
   int out = 0;
   int xOffset = sliceIdx;
-  int yOffset = min[1]*this->dimensions[0];
-  int yLimit = max[1]*dimensions[0];
-  int zAdd = dimensions[0]*dimensions[1];
-  int zStart = min[0]*dimensions[0]*dimensions[1];
+  int yOffset = min[1]*dim[0];
+  int yLimit = max[1]*dim[0];
+  int zAdd = dim[0]*dim[1];
+  int zStart = min[0]*dim[0]*dim[1];
 
   while (yOffset < yLimit) {
     int zOffset = zStart + xOffset + yOffset;
-    int zLimit  = max[0]*dimensions[0]*dimensions[1]
+    int zLimit  = max[0]*dim[0]*dim[1]
                 + xOffset + yOffset;
 
-    switch (this->dataType) {
+    switch (type) {
 
       case SoVolumeData::UNSIGNED_BYTE:
         while (zOffset < zLimit) {
@@ -156,7 +174,7 @@ SoVRMemReaderP::buildSubSliceX(void * output,
         break;
     }
 
-    yOffset += dimensions[0];
+    yOffset += dim[0];
   }
 }
 
@@ -169,30 +187,33 @@ SoVRMemReaderP::buildSubSliceX(void * output,
   course.
 */
 void
-SoVRMemReaderP::buildSubSliceY(void * output,
-                               int sliceIdx,
-                               const SbBox2s &subSlice)
+buildSubSliceY(const void * input,
+               void * output,
+               int sliceIdx,
+               const SbBox2s & subSlice,
+               const SoVolumeData::DataType type,
+               const SbVec3s & dim)
 {
-  unsigned int * intData = (unsigned int *)PUBLIC(this)->m_data;
+  unsigned int * intData = (unsigned int *)input;
   unsigned int * intTexture = (unsigned int *)output;
-  unsigned char * byteData = (unsigned char *)PUBLIC(this)->m_data;
+  unsigned char * byteData = (unsigned char *)input;
   unsigned char * byteTexture = (unsigned char *)output;
-  unsigned short * shortData = (unsigned short *)PUBLIC(this)->m_data;
+  unsigned short * shortData = (unsigned short *)input;
   unsigned short * shortTexture = (unsigned short *)output;
 
   SbVec2s min, max;
   subSlice.getBounds(min, max);
 
   int out = 0;
-  int yOffset = sliceIdx*dimensions[0];
-  int zOffset = min[1]*dimensions[0]*dimensions[1] + yOffset;
-  int zLimit = dimensions[0]*dimensions[1]*max[1] + yOffset;
+  int yOffset = sliceIdx*dim[0];
+  int zOffset = min[1]*dim[0]*dim[1] + yOffset;
+  int zLimit = dim[0]*dim[1]*max[1] + yOffset;
 
   while (zOffset < zLimit) {
     int xOffset = min[0] + zOffset;
     int xLimit = max[0] + zOffset;
 
-    switch (this->dataType) {
+    switch (type) {
 
       case SoVolumeData::UNSIGNED_BYTE:
           while (xOffset < xLimit) {
@@ -219,7 +240,7 @@ SoVRMemReaderP::buildSubSliceY(void * output,
           break;
 
     }
-    zOffset += dimensions[0]*dimensions[1];
+    zOffset += dim[0]*dim[1];
   }
 }
 
@@ -230,30 +251,33 @@ SoVRMemReaderP::buildSubSliceY(void * output,
   course.
 */
 void
-SoVRMemReaderP::buildSubSliceZ(void * output,
-                               int sliceIdx,
-                               const SbBox2s &subSlice)
+buildSubSliceZ(const void * input,
+               void * output,
+               int sliceIdx,
+               const SbBox2s & subSlice,
+               const SoVolumeData::DataType type,
+               const SbVec3s & dim)
 {
-  unsigned int * intData = (unsigned int *)PUBLIC(this)->m_data;
+  unsigned int * intData = (unsigned int *)input;
   unsigned int * intTexture = (unsigned int *)output;
-  unsigned char * byteData = (unsigned char *)PUBLIC(this)->m_data;
+  unsigned char * byteData = (unsigned char *)input;
   unsigned char * byteTexture = (unsigned char *)output;
-  unsigned short * shortData = (unsigned short *)PUBLIC(this)->m_data;
+  unsigned short * shortData = (unsigned short *)input;
   unsigned short * shortTexture = (unsigned short *)output;
 
   SbVec2s min, max;
   subSlice.getBounds(min, max);
 
   int out = 0;
-  int zOffset = sliceIdx*dimensions[0]*dimensions[1];
-  int yOffset = min[1]*dimensions[0] + zOffset;
-  int yLimit = max[1]*dimensions[0] + zOffset;
+  int zOffset = sliceIdx*dim[0]*dim[1];
+  int yOffset = min[1]*dim[0] + zOffset;
+  int yLimit = max[1]*dim[0] + zOffset;
   int xStart = min[0];
   while (yOffset < yLimit) {
     int xOffset = xStart + yOffset;
     int xLimit = max[0] + yOffset;
 
-    switch (this->dataType) {
+    switch (type) {
       case SoVolumeData::UNSIGNED_BYTE:
         while (xOffset < xLimit) {
           byteTexture[out] = byteData[xOffset];
@@ -280,7 +304,7 @@ SoVRMemReaderP::buildSubSliceZ(void * output,
 
     }
     // Next line of pixels
-    yOffset += dimensions[0];
+    yOffset += dim[0];
   }
 }
 
