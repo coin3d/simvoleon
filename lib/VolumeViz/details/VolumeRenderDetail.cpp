@@ -30,6 +30,9 @@
 
   The detail contains a "profile" of voxel values through the volume,
   where the profile is defined by a start point and an end point.
+
+  See the superclass documentation for information on how to extract
+  the information about the ray profile.
 */
 
 #include <VolumeViz/details/SoVolumeRenderDetail.h>

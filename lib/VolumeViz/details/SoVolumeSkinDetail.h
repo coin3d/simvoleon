@@ -42,7 +42,6 @@ public:
   static void initClass(void);
   SoVolumeSkinDetail(void);
   virtual ~SoVolumeSkinDetail();
- 
 };
 
 #endif // !COIN_SOVOLUMESKINDETAIL_H

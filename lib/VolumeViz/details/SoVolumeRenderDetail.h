@@ -42,7 +42,6 @@ public:
   static void initClass(void);
   SoVolumeRenderDetail(void);
   virtual ~SoVolumeRenderDetail();
- 
 };
 
 #endif // !COIN_SOVOLUMERENDERDETAIL_H

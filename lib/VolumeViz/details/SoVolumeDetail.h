@@ -55,17 +55,18 @@ public:
                                      SbVec3s * pos = 0, SbVec3f * objpos = 0,
                                      SbBool flag = FALSE) const;
 
-  // NOTE: The TGS version of the 'setDetails()' takes different
-  // arguments. We consider their solution to be unoptimal, and have
-  // therefore changed the input arguments.
+
+  // NOTE: The TGS VolumeViz signature of this function differs from
+  // the following. We consider their solution to be unoptimal, and
+  // have therefore changed the input arguments. This function is
+  // anyway unlikely to be of any interest to the application
+  // programmer.
   void setDetails(const SbVec3f raystart, const SbVec3f rayend, 
                   SoState * state, SoNode * caller);
 
 private:
-
   class SoVolumeDetailP * pimpl;
   friend class SoVolumeDetailP;
-
 };
 
 #endif // !COIN_SOVOLUMEDETAIL_H

@@ -52,6 +52,7 @@ private:
   SbVec3s ijkcoords;
   unsigned int voxelvalue;
 
+  // FIXME: should rather use a setDetails() function. 20041008 mortene.
   friend class SoOrthoSlice;
 };
 

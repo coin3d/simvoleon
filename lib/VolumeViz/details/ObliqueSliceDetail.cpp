@@ -25,7 +25,7 @@
   \class SoObliqueSliceDetail SoObliqueSliceDetail.h VolumeViz/details/SoObliqueSliceDetail.h
   \brief The SoObliqueSliceDetail contains details of a pick operation on SoObliqueSlice geometry.
 
-  \since SIM Voleon 1.1
+  \since SIM Voleon 2.0
 */
 
 // *************************************************************************
@@ -63,7 +63,11 @@ SoDetail *
 SoObliqueSliceDetail::copy(void) const
 {
   SoObliqueSliceDetail * copy = new SoObliqueSliceDetail();
-  // internal data automatically copied
+
+  copy->objectcoords = this->objectcoords;
+  copy->ijkcoords = this->ijkcoords;
+  copy->voxelvalue = this->voxelvalue;
+
   return copy;
 }
 

@@ -62,6 +62,14 @@ public:
   {
   }
 
+  // Override default assignment operator, as we don't want to
+  // overwrite the "master" member.
+  SoVolumeDetailP & operator=(const SoVolumeDetailP & c)
+  {
+    this->voxelinfolist = c.voxelinfolist;
+    return *this;
+  }
+
   void addVoxelIntersection(const SbVec3f & voxelcoord,
                             const SbVec3s & voxelindex,
                             unsigned int voxelvalue,
@@ -81,6 +89,8 @@ public:
   SbList<VoxelInfo> voxelinfolist;
   SoVolumeDetail * master;
 
+  // Note: if adding more members, remember to update the copy
+  // operator above.
 };
 
 
@@ -116,9 +126,11 @@ SoDetail *
 SoVolumeDetail::copy(void) const
 {
   SoVolumeDetail * copy = new SoVolumeDetail();
-  // internal data is automatically copied
+  *(PRIVATE(copy)) = *(PRIVATE(this));
   return copy;
 }
+
+// *************************************************************************
 
 /*!
   Sets start and end points of ray intersecting the volume in the

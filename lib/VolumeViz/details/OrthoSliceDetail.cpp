@@ -61,7 +61,11 @@ SoDetail *
 SoOrthoSliceDetail::copy(void) const
 {
   SoOrthoSliceDetail * copy = new SoOrthoSliceDetail();
-  // internal data is automatically copied
+
+  copy->objectcoords = this->objectcoords;
+  copy->ijkcoords = this->ijkcoords;
+  copy->voxelvalue = this->voxelvalue;
+
   return copy;
 }
 
