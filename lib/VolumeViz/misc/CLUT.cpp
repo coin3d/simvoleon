@@ -141,8 +141,8 @@ CvrCLUT::CvrCLUT(const CvrCLUT & clut)
   this->nrentries = clut.nrentries;
   this->nrcomponents = clut.nrcomponents;
   this->datatype = clut.datatype;
-  this->palettehaschanged = clut.palettehaschanged;
-  this->palettelookuptexture = 0; // don't share texture id
+  this->palettehaschanged = TRUE; // regenerate, as we don't share GL-texture
+  this->palettelookuptexture = 0; // don't share texture id either
 
   const int blocksize = this->nrentries * this->nrcomponents;
 
