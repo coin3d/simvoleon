@@ -28,7 +28,8 @@
   Insert a node of this type after an SoVolumeData node in the scene
   graph to render the full volume data set.
 
-  \sa SoOrthoSlice
+  \sa SoOrthoSlice, SoObliqueSlice, SoVolumeFaceSet, SoVolumeIndexedFaceSet
+  \sa SoVolumeTriangleStripSet, SoVolumeIndexedTriangleStripSet
 */
 
 // *************************************************************************
@@ -999,9 +1000,11 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
   // runs) at 1.8. 20040712 mortene.
 
   unsigned int i;
-  const float xp = (rand() * 5.0f) / RAND_MAX;
-  const float yp = (rand() * 5.0f) / RAND_MAX;
-  const float zp = (rand() * 5.0f) / RAND_MAX;
+  // All the rendered triangles should have the same size to prevent
+  // un-even measurements.
+  const float xp = -1.0f;
+  const float yp = 1.0f;
+  const float zp = 0.0f;
 
   // 3D texture
   SbTime t = SbTime::getTimeOfDay();
@@ -1009,7 +1012,7 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
   glDisable(GL_TEXTURE_2D);
   glEnable(GL_TEXTURE_3D);
   for (i = 0; i < VOLUMERENDER_PERFORMANCETEST_TRIANGLES; ++i) {
-    glBindTexture (GL_TEXTURE_3D, texture3did[0]);
+    glBindTexture(GL_TEXTURE_3D, texture3did[0]);
     glBegin(GL_TRIANGLES);
     glTexCoord3f(0.0f, 0.0f, 0.0f);
     glVertex3f(0.0f, 0.0f, 0.0f);
@@ -1151,7 +1154,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  glTranslatef(0.0f, 0.0f, -15.0f);
+  glTranslatef(0.5f, 0.0f, -1.0f); // The tris should take up most of the screen area.
 
   if (SoVolumeRenderP::debug3DTextureTiming()) {
     glClearColor(0, 0, 1, 0);
@@ -1166,7 +1169,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
                                                 texture3did, texture2dids);
 
     // Don't run the test for more than half a second.
-    if (((SbTime::getTimeOfDay() - starttime).getValue()) > 0.5) { break; }
+    if (((SbTime::getTimeOfDay() - starttime).getValue()) > 0.5f) { break; }
   }
 
   const double average3dtime = SoVolumeRenderP::getAveragePerformanceTime(timelist3d);
