@@ -14,20 +14,26 @@ public:
   static void initClass(void);
   virtual void init(SoState * state);
 
-  static void setTransferFunction(SoState * const state, SoNode * const node,
-                                  SoTransferFunction * transferFunction);
 
+  static void setTransferFunction(SoState * const state,
+                                  SoTransferFunction * node);
   SoTransferFunction * getTransferFunction(void) const;
+
+
+  static void setTransparencyThresholds(SoState * const state,
+                                        uint32_t low, uint32_t high);
+  void getTransparencyThresholds(uint32_t & low, uint32_t & high) const;
+
+
   static const SoTransferFunctionElement * getInstance(SoState * const state);
 
-  virtual void print(FILE * file) const;
 
 protected:
   virtual ~SoTransferFunctionElement();
-  SoTransferFunction * transferFunction;
 
 private:
-  static void clean(void);
+  SoTransferFunction * transferfunction;
+  uint32_t transpthreshold[2];
 };
 
 #endif // !COIN_SOTRANSFERFUNCTIONELEMENT_H
