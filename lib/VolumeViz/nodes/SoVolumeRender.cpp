@@ -94,10 +94,6 @@ SoVolumeRender::~SoVolumeRender()
 void
 SoVolumeRender::initClass(void)
 {
-  static int first = 0;
-  if (first == 1) return;
-  first = 1;
-
   SO_NODE_INIT_CLASS(SoVolumeRender, SoShape, "Shape");
 }
 

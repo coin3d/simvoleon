@@ -90,9 +90,7 @@ SoTransferFunction::~SoTransferFunction()
 void
 SoTransferFunction::initClass(void)
 {
-  SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering,
-                     "TransferFunction");
-  SoTransferFunctionElement::initClass();
+  SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering, "TransferFunction");
 }
 
 void

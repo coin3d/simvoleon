@@ -413,8 +413,6 @@ SoVolumeData::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoVolumeData, SoVolumeRendering, "VolumeRendering");
 
-  SoVolumeDataElement::initClass();
-
   SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }
 
