@@ -11,17 +11,29 @@
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoROI.h>
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
 
-#ifdef HAVE_WINDOWS_H
-#include <windows.h>
-#endif // HAVE_WINDOWS_H*/
-#include <GL/gl.h>
+
+
+PFNGLCOMPRESSEDTEXIMAGE3DARBPROC glCompressedTexImage3DARB;
+PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB;
+PFNGLCOMPRESSEDTEXIMAGE1DARBPROC glCompressedTexImage1DARB;
+PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC glCompressedTexSubImage3DARB;
+PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC	glCompressedTexSubImage2DARB;
+PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC	glCompressedTexSubImage1DARB;
+PFNGLGETCOMPRESSEDTEXIMAGEARBPROC	glGetCompressedTexImageARB;
+
+
+PFNGLCOLORTABLEEXTPROC glColorTableEXT;
+PFNGLCOLORSUBTABLEEXTPROC glColorSubTableEXT;
+PFNGLGETCOLORTABLEEXTPROC glGetColorTableEXT;
+PFNGLGETCOLORTABLEPARAMETERIVEXTPROC glGetColorTableParameterivEXT;
+PFNGLGETCOLORTABLEPARAMETERFVEXTPROC glGetColorTableParameterfvEXT;
+
+
 
 // *************************************************************************
 
@@ -34,6 +46,7 @@ public:
   SoVolumeRenderingP(SoVolumeRendering * master) {
     this->master = master;
   }
+
 
 private:
   SoVolumeRendering * master;
@@ -87,6 +100,8 @@ SoVolumeRendering::initClass(void)
   SoVolumeRender::initClass();
   SoVolumeDataElement::initClass();
   SoROI::initClass();
+  SoTransferFunction::initClass();
+  SoTransferFunctionElement::initClass();
 }// initClass
 
 

@@ -14,6 +14,7 @@
 #include <Inventor/fields/SoSFEnum.h>
 #include <Inventor/fields/SoSFInt32.h>
 #include <Inventor/fields/SoMFFloat.h>
+#include <Inventor/SbVec2s.h>
 
 class SoTransferFunction : public SoVolumeRendering {
   typedef SoVolumeRendering inherited;
@@ -52,10 +53,26 @@ public:
   SoTransferFunction();
   ~SoTransferFunction();
   void reMap(int min, int max);
+  void GLRender(SoGLRenderAction * action);
+
 
 private:
   friend class SoTransferFunctionP;
+  friend class SoVolumeDataSlice;
   class SoTransferFunctionP * pimpl;
+
+
+  void transfer(const void * input, 
+                SoVolumeRendering::DataType inputDataType,
+                SbVec2s &size,
+                void *& output,
+                int &outputFormat,
+                float *& palette,
+                int &paletteFormat,
+                int &paletteSize);
+
+  int unpack(const void * data, int numBits, int index);
+  void pack(void * data, int numBits, int index, int val);
 
 };//SoTransferFunction
 
