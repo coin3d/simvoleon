@@ -37,13 +37,28 @@ public:
   virtual ~SoVolumeReader();
 
   virtual void setUserData(void * data);
+  virtual int getNumSignificantBits(void);
+
   virtual void getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
                            SbVec3s & dim) = 0;
 
-  virtual void getSubSlice(SbBox2s & subslice, int slicenumber, void * data) = 0;
+  enum CopyPolicy { COPY, NO_COPY, NO_COPY_AND_DELETE };
+  
+  virtual void getSubSlice(SbBox2s & slice, int slicenumber, void * voxels) = 0;
+  virtual SbBool getSubVolume(SbBox3s & volume, void * voxels);
+  virtual SbBool getSubVolume(const SbBox3s & volume,
+                              const SbVec3s subsamplelevel, void *& voxels);
+  virtual SbBool getSubVolumeInfo(SbBox3s & volume,
+                                  SbVec3s reqsubsamplelevel,
+                                  SbVec3s & subsamplelevel,
+                                  SoVolumeReader::CopyPolicy & policy);
+
+  SbVec3s getNumVoxels(SbVec3s realsize, SbVec3s subsamplinglevel) const;
+  SbVec3s getSizeToAllocate(SbVec3s realsize, SbVec3s subsamplinglevel) const;
+
+  int setFilename(const char * filename);
 
 protected:
-  int setFilename(const char * filename);
   void * getBuffer(int64_t offset, unsigned int size);
   int bytesToInt(unsigned char * ptr, int sizeBytes);
   void swapBytes(int * intPtr, int sizeBytes);
@@ -55,7 +70,9 @@ private:
   friend class SoVolumeReaderP;
   class SoVolumeReaderP * pimpl;
 
-  // FIXME: ugly design. 20021120 mortene.
+  // FIXME: SoVolumeData shouldn't really access m_data, as voxel data
+  // should be stored within SoVolumeData, and not on this pointer.
+  // 20041008 mortene.
   friend class SoVolumeData; // For m_data access.
 };
 

@@ -376,8 +376,16 @@ SoVolumeData::getVolumeSize(void) const
 void
 SoVolumeData::setVolumeData(const SbVec3s & dimensions,
                             void * data,
-                            SoVolumeData::DataType type)
+                            SoVolumeData::DataType type,
+                            int significantbits)
 {
+  // FIXME: implement support for this setting. 20041008 mortene.
+  if (significantbits != 0) {
+    SoDebugError::postWarning("SoVolumeData::setVolumeData",
+                              "support for non-default number of significant "
+                              "bits is not yet implemented -- ignoring");
+  }
+
   delete[] PRIVATE(this)->histogram;
   PRIVATE(this)->histogram = NULL;
 
@@ -414,13 +422,27 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
  */
 SbBool
 SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
-                            SoVolumeData::DataType & type) const
+                            SoVolumeData::DataType & type,
+                            int * significantbits) const
 {
   if (PRIVATE(this)->reader == NULL) { return FALSE; }
 
   dimensions = SbVec3s(PRIVATE(this)->dimensions);
+  // FIXME: this is completely bogus use of SoVolumeReader::m_data --
+  // this is *not* where the voxel data is supposed to be stored. That
+  // is inside SoVolumeData. 20041008 mortene.
   data = PRIVATE(this)->reader->m_data;
   type = PRIVATE(this)->datatype;
+
+  // FIXME: implement proper support for this setting. 20041008 mortene.
+  if (significantbits) {
+    SoDebugError::postWarning("SoVolumeData::getVolumeData",
+                              "support for non-default number of significant "
+                              "bits is not yet implemented -- returning "
+                              "default value");
+    *significantbits = 0;
+  }
+
   return TRUE;
 }
 
@@ -525,6 +547,7 @@ SoVolumeData::getPageSize(void) const
   return PRIVATE(this)->subpagesize;
 }
 
+// *************************************************************************
 
 void
 SoVolumeData::doAction(SoAction * action)
@@ -619,6 +642,18 @@ SoVolumeData::setTexMemorySize(int megatexels)
   // Trigger a notification and a node-ID update, so texture pages etc
   // are regenerated.
   this->touch();
+}
+
+/*!
+  Returns limitation forced on texture memory usage.
+
+  \sa SoVolumeData::setTexMemorySize()
+  \since SIM Voleon 2.0
+*/
+int
+SoVolumeData::getTexMemorySize(void) const
+{
+  return PRIVATE(this)->maxnrtexels / (1024 * 1024);
 }
 
 // FIXME: document. 20041008 mortene.
@@ -728,6 +763,27 @@ SoVolumeData::updateRegions(const SbBox3s *region, int num)
                      "not yet implemented -- just a stub");
 }
 
+/*!
+  Force loading of given subregion. This function should usually not
+  be of interest to the application programmer.
+
+  \since SIM Voleon 2.0
+*/
+void
+SoVolumeData::loadRegions(const SbBox3s * region, int num, SoState * state,
+                          SoTransferFunction * node)
+{
+  // FIXME: implement. 20041008 mortene.
+#if 0
+  SoDebugError::post("SoVolumeData::loadRegions",
+                     "not yet implemented -- just a stub");
+#else
+  // I believe this can safely be a no-op.
+#endif
+}
+
+// *************************************************************************
+
 SoVolumeData *
 SoVolumeData::reSampling(const SbVec3s &dimensions,
                          SoVolumeData::SubMethod subMethod,
@@ -772,6 +828,8 @@ SoVolumeData::reSampling(const SbVec3s &dimensions,
   return newdataset; 
 }
 
+// *************************************************************************
+
 void
 SoVolumeData::enableSubSampling(SbBool enable)
 {
@@ -779,6 +837,16 @@ SoVolumeData::enableSubSampling(SbBool enable)
   SoDebugError::post("SoVolumeData::enableSubSampling",
                      "not yet implemented -- just a stub");
 }
+
+// \since SIM Voleon 2.0
+SbBool
+SoVolumeData::isSubSamplingEnabled(void) const
+{
+  // FIXME: implement. 20041007 mortene.
+  return FALSE;
+}
+
+// *************************************************************************
 
 void
 SoVolumeData::enableAutoSubSampling(SbBool enable)
@@ -788,6 +856,16 @@ SoVolumeData::enableAutoSubSampling(SbBool enable)
                      "not yet implemented -- just a stub");
 }
 
+// \since SIM Voleon 2.0
+SbBool
+SoVolumeData::isAutoSubSamplingEnabled(void) const
+{
+  // FIXME: implement. 20041007 mortene.
+  return FALSE;
+}
+
+// *************************************************************************
+
 void
 SoVolumeData::enableAutoUnSampling(SbBool enable)
 {
@@ -795,6 +873,16 @@ SoVolumeData::enableAutoUnSampling(SbBool enable)
   SoDebugError::post("SoVolumeData::enableAutoUnSampling",
                      "not yet implemented -- just a stub");
 }
+
+// \since SIM Voleon 2.0
+SbBool
+SoVolumeData::isAutoUnSamplingEnabled(void) const
+{
+  // FIXME: implement. 20041007 mortene.
+  return FALSE;
+}
+
+// *************************************************************************
 
 void
 SoVolumeData::unSample(void)
@@ -804,6 +892,8 @@ SoVolumeData::unSample(void)
                      "not yet implemented -- just a stub");
 }
 
+// *************************************************************************
+
 void
 SoVolumeData::setSubSamplingMethod(SubMethod method)
 {
@@ -811,6 +901,16 @@ SoVolumeData::setSubSamplingMethod(SubMethod method)
   SoDebugError::post("SoVolumeData::setSubSamplingMethod",
                      "not yet implemented -- just a stub");
 }
+
+// \since SIM Voleon 2.0
+SoVolumeData::SubMethod
+SoVolumeData::getSubSamplingMethod(void) const
+{
+  // FIXME: implement. 20041007 mortene.
+  return SoVolumeData::NEAREST;
+}
+
+// *************************************************************************
 
 void
 SoVolumeData::setSubSamplingLevel(const SbVec3s &ROISampling,
@@ -820,6 +920,17 @@ SoVolumeData::setSubSamplingLevel(const SbVec3s &ROISampling,
   SoDebugError::post("SoVolumeData::setSubSamplingLevel",
                      "not yet implemented -- just a stub");
 }
+
+// \since SIM Voleon 2.0
+void
+SoVolumeData::getSubSamplingLevel(SbVec3s & roi, SbVec3s & secondary) const
+{
+  // FIXME: implement. 20041007 mortene.
+  SoDebugError::post("SoVolumeData::getSubSamplingLevel",
+                     "not yet implemented -- just a stub");
+}
+
+// *************************************************************************
 
 void 
 SoVolumeDataP::overSample(SbVec3s dimensions, SoVolumeData::OverMethod subMethod, void * data)

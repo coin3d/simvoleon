@@ -28,6 +28,8 @@
 
 // *************************************************************************
 
+#include <VolumeViz/readers/SoVolumeReader.h>
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif // HAVE_CONFIG_H
@@ -44,56 +46,7 @@
 #include <errno.h>
 #include <string.h>
 
-#include <VolumeViz/readers/SoVolumeReader.h>
 #include <Inventor/errors/SoDebugError.h>
-
-// FIXME: the following doc might be outdated. Audit and
-// edit. 20030324 mortene.
-
-/*
-VOLUMEREADERS
-
-  Currently, only a reader of memory provided data is implemented
-  (SoVRMemReader). SoVolumeData uses the interface specified with
-  SoVolumeReader, and extensions with other readers should be straight
-  forward. When running setReader or setVolumeData, only a pointer to
-  the reader is stored. In other words, things could go bananas if the
-  client application start mocking around with the reader's settings
-  after a call to setReader. If the reader is changed, setReader must
-  be run over again.  This requirement differs from TGS as their
-  implementation loads all data once specified a reader (I guess).
-
-  The TGS interface for SoVolumeReader contains a function getSubSlice
-  with the following definition:
-
-  void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data)
-
-  It returns a subpage within a specified page along the z-axis. This
-  means that the responsibility for building pages along X and Y-axis
-  lies within the reader-client.When generating textures along either
-  x- or y-axis, this requires a significant number of iterations, one
-  for each page along the z-axis. This will in turn trigger plenty
-  filereads at different disklocations, and your disk's heads will have
-  a disco showdown the Travolta way. I've extended the interface as
-  following:
-
-  void getSubSlice(SbBox2s &subSlice,
-                   int sliceNumber,
-                   void * data,
-                   SoOrthoSlice::Axis axis = SoOrthoSlice::Z)
-
-  This moves the responsibility for building pages to the reader.
-  It makes it possible to exploit fileformats with possible clever
-  data layout, and if the fileformat/input doesn't provide intelligent
-  organization, it still wouldn't be any slower. The only drawback is
-  that some functionality would be duplicated among several readers
-  and making them more complicated.
-
-  The consequences is that readers developed for TGS's implementation
-  would not work with ours, but the opposite should work just fine.
-
-  torbjorv 08292002
-*/
 
 // *************************************************************************
 
@@ -126,7 +79,7 @@ VOLUMEREADERS
 
 // *************************************************************************
 
-class SoVolumeReaderP{
+class SoVolumeReaderP {
 public:
   SoVolumeReaderP(SoVolumeReader * master) {
     this->master = master;
@@ -201,5 +154,75 @@ SoVolumeReader::getBuffer(int64_t offset, unsigned int size)
 
 int SoVolumeReader::bytesToInt(unsigned char * ptr, int sizebytes) { return 0x0000; }
 void SoVolumeReader::swapBytes(int * intptr, int sizebytes) { return; }
+
+// *************************************************************************
+
+// \since SIM Voleon 2.0
+int
+SoVolumeReader::getNumSignificantBits(void)
+{
+  // FIXME: implement. 20041008 mortene.
+  return 0;
+}
+
+// *************************************************************************
+
+// \since SIM Voleon 2.0
+SbBool
+SoVolumeReader::getSubVolume(SbBox3s & volume, void * data)
+{
+  // FIXME: implement in SoVRVolFileReader, plus use it from within
+  // the library when loading blocks. 20041008 mortene.
+
+  // FALSE means fall back on getSubSlice().
+  return FALSE;
+}
+
+// \since SIM Voleon 2.0
+SbBool
+SoVolumeReader::getSubVolume(const SbBox3s & volume,
+                             const SbVec3s subsamplelevel, void *& voxels)
+{
+  // FIXME: implement in SoVRVolFileReader, plus use it from within
+  // the library when loading blocks. 20041008 mortene.
+
+  // FALSE means fall back on getSubSlice().
+  return FALSE;
+}
+
+// \since SIM Voleon 2.0
+SbBool
+SoVolumeReader::getSubVolumeInfo(SbBox3s & volume,
+                                 SbVec3s reqsubsamplelevel,
+                                 SbVec3s & subsamplelevel,
+                                 SoVolumeReader::CopyPolicy & policy)
+{
+  // FIXME: implement. 20041008 mortene.
+  return FALSE;
+}
+
+// *************************************************************************
+
+// \since SIM Voleon 2.0
+SbVec3s
+SoVolumeReader::getNumVoxels(SbVec3s realsize, SbVec3s subsamplinglevel) const
+{
+  // FIXME: implement. 20041008 mortene.
+
+  SoDebugError::postWarning("SoVolumeReader::getNumVoxels",
+                            "not yet implemented, just a stub");
+  return SbVec3s(0, 0, 0);
+}
+
+// \since SIM Voleon 2.0
+SbVec3s
+SoVolumeReader::getSizeToAllocate(SbVec3s realsize, SbVec3s subsamplinglevel) const
+{
+  // FIXME: implement. 20041008 mortene.
+
+  SoDebugError::postWarning("SoVolumeReader::getSizeToAllocate",
+                            "not yet implemented, just a stub");
+  return SbVec3s(0, 0, 0);
+}
 
 // *************************************************************************

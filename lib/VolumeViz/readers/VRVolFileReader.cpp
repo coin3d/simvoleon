@@ -249,6 +249,9 @@ SoVRVolFileReader::setUserData(void * data)
   if (filesize == -1) { return; }
 
   assert(filesize > 0);
+  // FIXME: this is completely bogus use of SoVolumeReader::m_data --
+  // this is *not* where the voxel data is supposed to be stored. That
+  // is inside SoVolumeData. 20041008 mortene.
   this->m_data = malloc(filesize);
   assert(this->m_data);
 

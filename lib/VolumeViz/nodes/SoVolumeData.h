@@ -64,9 +64,6 @@ public:
   enum SubMethod { NEAREST, MAX, AVERAGE };
   enum OverMethod { NONE, CONSTANT, LINEAR, CUBIC };
 
-  // FIXME: these really indicate the number of bytes pr voxel in
-  // internal storage. Should at least set up synonymous enum values
-  // that reflects this fact better. 20021111 mortene.
   enum DataType { UNSIGNED_BYTE, UNSIGNED_SHORT };
 
   SoSFString fileName;
@@ -76,9 +73,11 @@ public:
   SoSFBool useCompressedTexture;
 
   void setVolumeData(const SbVec3s & dimension, void * data,
-                     SoVolumeData::DataType type = SoVolumeData::UNSIGNED_BYTE);
+                     SoVolumeData::DataType type = SoVolumeData::UNSIGNED_BYTE,
+                     int significantbits = 0);
   SbBool getVolumeData(SbVec3s & dimension, void *& data,
-                       SoVolumeData::DataType & type) const;
+                       SoVolumeData::DataType & type,
+                       int * significantbits = NULL) const;
 
   uint32_t getVoxelValue(const SbVec3s & voxelpos) const;
 
@@ -93,22 +92,35 @@ public:
   SoVolumeReader * getReader(void) const;
 
   void setTexMemorySize(int megatexels);
+  int getTexMemorySize(void) const;
 
   SbBool getMinMax(int & minval, int & maxval);
   SbBool getHistogram(int & length, int *& histogram);
 
   SoVolumeData * subSetting(const SbBox3s & region);
   void updateRegions(const SbBox3s * region, int num);
+  void loadRegions(const SbBox3s * region, int num, SoState * state, SoTransferFunction * node);
+
   SoVolumeData * reSampling(const SbVec3s & dimension,
                             SoVolumeData::SubMethod subMethod,
                             SoVolumeData::OverMethod = NONE);
+
   void enableSubSampling(SbBool enable);
+  SbBool isSubSamplingEnabled(void) const;
+
   void enableAutoSubSampling(SbBool enable);
+  SbBool isAutoSubSamplingEnabled(void) const;
+
   void enableAutoUnSampling(SbBool enable);
+  SbBool isAutoUnSamplingEnabled(void) const;
+
   void unSample(void);
+
   void setSubSamplingMethod(SubMethod method);
-  void setSubSamplingLevel(const SbVec3s & ROISampling,
-                           const SbVec3s & secondarySampling);
+  SubMethod getSubSamplingMethod(void) const;
+
+  void setSubSamplingLevel(const SbVec3s & roi, const SbVec3s & secondary);
+  void getSubSamplingLevel(SbVec3s & roi, SbVec3s & secondary) const;
 
 
 protected:

@@ -23,6 +23,9 @@
 
 // FIXME: get rid of this class, as I don't think it adds anything of
 // real value..? 20021126 mortene.
+//
+// UPDATE: voxel data should be stored in SoVolumeData, not in a(ny)
+// reader. 20041008 mortene.
 
 /*!
   \class SoVRMemReader VolumeViz/readers/SoVRMemReader.h
@@ -71,7 +74,8 @@ SoVRMemReader::~SoVRMemReader()
   delete PRIVATE(this);
 }
 
-void SoVRMemReader::setUserData(void * data)
+void
+SoVRMemReader::setUserData(void * data)
 {
 }
 
@@ -114,6 +118,9 @@ SoVRMemReader::setData(const SbVec3s &dimensions,
                        SoVolumeData::DataType type)
 {
   PRIVATE(this)->dimensions = dimensions;
+  // FIXME: this is completely bogus use of SoVolumeReader::m_data --
+  // this is *not* where the voxel data is supposed to be stored. That
+  // is inside SoVolumeData. 20041008 mortene.
   this->m_data = data;
   PRIVATE(this)->dataType = type;
 }
