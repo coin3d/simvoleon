@@ -108,7 +108,7 @@ Cvr2DTexSubPage::isPaletted(void) const
 void
 Cvr2DTexSubPage::setPalette(const CvrCLUT * newclut)
 {
-  this->clut->unref();
+  if (this->clut) { this->clut->unref(); }
   this->clut = newclut;
   newclut->ref();
 }
