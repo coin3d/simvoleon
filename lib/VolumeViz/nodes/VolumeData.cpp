@@ -231,6 +231,19 @@ SoVolumeData::getVolumeSize(void) const
   return volbox;
 }
 
+/*!
+  This method lets the user set up a volume data set from data in
+  memory, instead of loading it from file (through the
+  SoVolumeData::fileName field).
+
+  \a data should point to the block of voxels, of the data size given
+  by \a type. \a dimensions specifies the size layout of the voxel
+  array along the 3 axes.
+
+  The data block passed in to this function will not be freed when the
+  node is destructed, or new data set -- that is considered the
+  responsibility of the caller.
+*/
 void
 SoVolumeData::setVolumeData(const SbVec3s & dimensions,
                             void * data,
