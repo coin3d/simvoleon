@@ -171,8 +171,18 @@ SoVolumeData::SoVolumeData(void)
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, TEX2D_MULTI);
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, TEX2D);
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, TEX3D);
+  // FIXME: MEMORY storage and rendering not properly supported with
+  // us. Should detect attempts at using this, and warn the user -- or
+  // simply implement it. 20040712 mortene.
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, MEMORY);
+  // FIXME: VOLUMEPRO not properly supported with us. Should detect
+  // attempts at using this, and warn the user. 20040712 mortene.
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, VOLUMEPRO);
+  // FIXME: TEX2D_SINGLE is not implemented. It just tells the
+  // rendering driver to render the volume one 2D texture at a time,
+  // not caching up the data on the card memory (nor in memory? check
+  // TGS release notes doc (doesn't seem to be explained in online API
+  // doc)). 20040712 mortene.
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, TEX2D_SINGLE);
   SO_NODE_SET_SF_ENUM_TYPE(storageHint, StorageHint);
 
