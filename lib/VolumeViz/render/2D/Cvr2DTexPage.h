@@ -26,17 +26,18 @@ public:
   void releaseSubPage(Cvr2DTexSubPage * page);
 
 private:
-  class Cvr2DTexSubPageItem * getSubPage(SoGLRenderAction * action,
+  class Cvr2DTexSubPageItem * getSubPage(uint32_t transferfuncid,
                                          int col, int row);
 
   class Cvr2DTexSubPageItem * buildSubPage(SoGLRenderAction * action,
                                            int col, int row);
 
   void releaseAllSubPages(void);
+  void releaseSubPage(const int col, const int row);
 
   int calcSubPageIdx(int row, int col) const;
 
-  SoTransferFunction * getTransferFunc(SoGLRenderAction * action);
+  static SoTransferFunction * getTransferFunc(SoGLRenderAction * action);
 
   class Cvr2DTexSubPageItem ** subpages;
   SoVolumeReader * reader;

@@ -164,20 +164,6 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
   this->comparePageSize(volumedata->getPageSize());
 
-  // We don't want to cache pages that were made with "old versions"
-  // of an SoTransferFunction. FIXME: this is just a quick
-  // hack. 20021212 mortene.
-  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  assert(tfelement != NULL);
-  SoTransferFunction * transferfunc = tfelement->getTransferFunction();
-  assert(transferfunc != NULL);
-
-  if (transferfunc->getNodeId() != this->transferfuncid) {
-    this->releaseAllSlices();
-    this->transferfuncid = transferfunc->getNodeId();
-  }
-
-
   SbVec3f spacemin, spacemax;
   SbBox3f spacesize = volumedata->getVolumeSize();
   spacesize.getBounds(spacemin, spacemax);

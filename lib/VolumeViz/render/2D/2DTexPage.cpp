@@ -41,12 +41,9 @@ public:
   Cvr2DTexSubPageItem(Cvr2DTexSubPage * p)
   {
     this->page = p;
-    this->next = NULL;
-    this->prev = NULL;
   }
 
   Cvr2DTexSubPage * page;
-  Cvr2DTexSubPageItem * next, * prev;
   uint32_t transferfuncid;
   SbBool invisible;
 };
@@ -135,6 +132,18 @@ void Cvr2DTexPage::init(SoVolumeReader * reader,
 }
 
 
+/*!
+  Release resources used by a page in the slice.
+*/
+void
+Cvr2DTexPage::releaseSubPage(const int col, const int row)
+{
+  const int idx = this->calcSubPageIdx(row, col);
+  Cvr2DTexSubPageItem * p = this->subpages[idx];
+  this->subpages[idx] = NULL;
+  delete p->page;
+  delete p;
+}
 
 /*!
   Release resources used by a page in the slice.
@@ -145,21 +154,15 @@ Cvr2DTexPage::releaseSubPage(Cvr2DTexSubPage * page)
   assert(page != NULL);
   assert(this->subpages != NULL);
 
-  const int NRPAGES = this->nrcolumns * this->nrrows;
-  for (int i = 0; i < NRPAGES; i++) {
-    Cvr2DTexSubPageItem * p = this->subpages[i];
-    if (p == NULL) continue; // skip this, continue with for-loop
-
-    while ((p != NULL) && (p->page != page)) { p = p->next; }
-    if (p == NULL) continue; // not the right list, continue with for-loop
-
-    if (p->next) { p->next->prev = p->prev; }
-    if (p->prev) { p->prev->next = p->next; }
-    else { this->subpages[i] = p->next; }
-
-    delete p->page;
-    delete p;
-    return;
+  for (int i = 0; i < this->nrrows; i++) {
+    for (int j = 0; j < this->nrcolumns; j++) {
+      const int idx = this->calcSubPageIdx(i, j);
+      Cvr2DTexSubPageItem * p = this->subpages[idx];
+      if (p->page == page) {
+        this->releaseSubPage(i, j);
+        return;
+      }
+    }
   }
   assert(FALSE && "couldn't find page");
 }
@@ -169,18 +172,10 @@ Cvr2DTexPage::releaseAllSubPages(void)
 {
   if (this->subpages == NULL) return;
 
-  for (int i = 0; i < this->nrcolumns * this->nrrows; i++) {
-    Cvr2DTexSubPageItem * pitem = this->subpages[i];
-    if (pitem == NULL) continue;
-
-    do {
-      Cvr2DTexSubPageItem * prev = pitem;
-      pitem = pitem->next;
-      delete prev->page;
-      delete prev;
-    } while (pitem != NULL);
-
-    this->subpages[i] = NULL;
+  for (int i = 0; i < this->nrrows; i++) {
+    for (int j = 0; j < this->nrcolumns; j++) {
+      this->releaseSubPage(i, j);
+    }
   }
 
   delete[] this->subpages;
@@ -223,13 +218,16 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
   subpageheight.normalize();
   subpageheight *= this->subpagesize[1] * spacescale[1];
 
+  SoTransferFunction * tf = Cvr2DTexPage::getTransferFunc(action);
+  const uint32_t transferfuncid = tf->getNodeId();
+
   // Render all subpages making up the full page.
 
   for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
     for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
 
       Cvr2DTexSubPage * page = NULL;
-      Cvr2DTexSubPageItem * pageitem = this->getSubPage(action, colidx, rowidx);
+      Cvr2DTexSubPageItem * pageitem = this->getSubPage(transferfuncid, colidx, rowidx);
       if (pageitem == NULL) { pageitem = this->buildSubPage(action, colidx, rowidx); }
       assert(pageitem != NULL);
       if (pageitem->invisible) continue;
@@ -273,13 +271,20 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // pages, and make pages able to map to several "slice indices". Not
   // sure if this can be much of a gain -- but look into it. 20021124 mortene.
 
-  assert(this->getSubPage(action, col, row) == NULL);
+  SoTransferFunction * transferfunc = this->getTransferFunc(action);
+  const uint32_t transferfuncid = transferfunc->getNodeId();
+
+  assert(this->getSubPage(transferfuncid, col, row) == NULL);
 
   // First Cvr2DTexSubPage ever in this slice?
   if (this->subpages == NULL) {
-    int nrpages = this->nrcolumns * this->nrrows;
-    this->subpages = new Cvr2DTexSubPageItem*[nrpages];
-    for (int i=0; i < nrpages; i++) { this->subpages[i] = NULL; }
+    this->subpages = new Cvr2DTexSubPageItem*[this->nrrows * this->nrcolumns];
+    for (int i=0; i < this->nrrows; i++) {
+      for (int j=0; j < this->nrcolumns; j++) {
+        const int idx = this->calcSubPageIdx(i, j);
+        this->subpages[idx] = NULL;
+      }
+    }
   }
 
   SbVec2s subpagemin(col * this->subpagesize[0], row * this->subpagesize[1]);
@@ -372,19 +377,11 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   delete texobj;
 
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
-  SoTransferFunction * transferfunc = this->getTransferFunc(action);
-  pitem->transferfuncid = transferfunc->getNodeId();
+  pitem->transferfuncid = transferfuncid;
   pitem->invisible = invisible;
 
-  Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
-  if (p == NULL) {
-    this->subpages[this->calcSubPageIdx(row, col)] = pitem;
-  }
-  else {
-    while (p->next != NULL) { p = p->next; }
-    p->next = pitem;
-    pitem->prev = p;
-  }
+  const int idx = this->calcSubPageIdx(row, col);
+  this->subpages[idx] = pitem;
 
   return pitem;
 }
@@ -578,20 +575,20 @@ SoTransferFunctionP::pack(void * data, int numbits, int index, int val)
 #endif // TMP DISABLED code
 
 Cvr2DTexSubPageItem *
-Cvr2DTexPage::getSubPage(SoGLRenderAction * action, int col, int row)
+Cvr2DTexPage::getSubPage(uint32_t transferfuncid, int col, int row)
 {
   if (this->subpages == NULL) return NULL;
 
   assert((col >= 0) && (col < this->nrcolumns));
   assert((row >= 0) && (row < this->nrrows));
+  
+  const int idx = this->calcSubPageIdx(row, col);
+  Cvr2DTexSubPageItem * subp = this->subpages[idx];
 
-  Cvr2DTexSubPageItem * p = this->subpages[this->calcSubPageIdx(row, col)];
-
-  uint32_t transfuncid = this->getTransferFunc(action)->getNodeId();
-  while (p != NULL) {
-    if (p->transferfuncid == transfuncid) break;
-    p = p->next;
+  if (subp && (subp->transferfuncid != transferfuncid)) {
+    this->releaseSubPage(col, row);
+    return NULL;
   }
 
-  return p;
+  return subp;
 }
