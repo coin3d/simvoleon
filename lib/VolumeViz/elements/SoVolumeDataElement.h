@@ -4,6 +4,7 @@
 #include <Inventor/elements/SoReplacedElement.h>
 
 class SoVolumeData;
+class SbVec3f;
 
 
 class SoVolumeDataElement : public SoReplacedElement {
@@ -20,11 +21,14 @@ public:
   SoVolumeData * getVolumeData(void) const;
   static const SoVolumeDataElement * getInstance(SoState * const state);
 
-  virtual void print(FILE * file) const;
+  void getPageGeometry(const int axis, const int slicenr,
+                       SbVec3f & origo,
+                       SbVec3f & horizspan,
+                       SbVec3f & verticalspan) const;
 
 protected:
   virtual ~SoVolumeDataElement();
-  SoVolumeData * volumeData;
+  SoVolumeData * nodeptr;
 
 private:
   static void clean(void);
