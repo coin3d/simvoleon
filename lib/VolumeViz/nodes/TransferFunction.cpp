@@ -198,9 +198,12 @@ private:
 
   This field specifies how the SoTransferFunction::colorMap field
   should be interpreted when SoTransferFunction::predefColorMap is set
-  to \c NONE. (Note that it will have any effect when
+  to SoTransferFunction::NONE.
+
+  (Note that it will \e not have any effect when
   SoTransferFunction::predefColorMap is set to any of the actual
-  pre-defined transfer function color maps.)
+  pre-defined transfer function color maps, i.e. not equal to \c
+  NONE.)
 
   See SoTransferFunction::ColorMapType for what possible values this
   field can have, and their semantics.
