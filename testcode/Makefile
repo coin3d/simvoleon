@@ -1,4 +1,4 @@
-all: examine readvol raypick
+all: examine readvol raypick rgbload
 
 ## 
 
@@ -13,8 +13,12 @@ EXAMINE_OBJECTS = \
 RAYPICK_OBJECTS = \
         raypick.o utility.o
 
+RGBLOAD_OBJECTS = \
+        rgbload.o
+
 clean:
-	rm -f raypick $(RAYPICK_OBJECTS) raypick.cpp \
+	rm -f rgbload $(RGBLOAD_OBJECTS) rgbload.cpp \
+              raypick $(RAYPICK_OBJECTS) raypick.cpp \
               examine $(EXAMINE_OBJECTS) examine.cpp \
               readvol $(READVOL_OBJECTS) readvol.cpp \
               moc_TransferFunctionHandler.cpp \
@@ -81,5 +85,16 @@ raypick.o: raypick.cpp
 
 raypick: $(RAYPICK_OBJECTS)
 	soqt-config --link $@ $(RAYPICK_OBJECTS) -lSimVoleon
+
+## ``rgbload'' example
+
+rgbload.cpp: rgbload.cpp.in
+	@soqt-config --ac-subst $<
+
+rgbload.o: rgbload.cpp
+	soqt-config --compile $<
+
+rgbload: $(RGBLOAD_OBJECTS)
+	soqt-config --link $@ $(RGBLOAD_OBJECTS) -lSimVoleon -lSmallChange
 
 ## end
