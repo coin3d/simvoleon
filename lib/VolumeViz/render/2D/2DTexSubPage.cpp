@@ -13,44 +13,47 @@
 // PALETTED TEXTURES
 //
 //   Paletted textures rocks. Depending on the size of the pages, it
-//   could save significant amounts of memory. The current implementation
-//   uses individual palettes for each page. This can be both a good idea
-//   and a terrible one.
+//   could save significant amounts of memory. The current
+//   implementation uses individual palettes for each page. This can
+//   be both a good idea and a terrible one.
 //
-//   Good: If the video card supports palettes with different sizes. If,
-//   for example, a page contains only one color, a 1-bit palette could
-//   be used and each pixel will occupy 1 bit of hardware memory.
+//   Good: If the video card supports palettes with different
+//   sizes. If, for example, a page contains only one color, a
+//   2-element palette could be used and each pixel will occupy 1 bit
+//   of hardware memory.
 //
 //   Bad: If the video card does NOT support palettes with different
 //   sizes. This means that each palette i.e. has to have 256 entries,
-//   and with RGBA colors the palette will occupy 256x4=1024 bytes. With
-//   page sizes smaller than 64x64, this would make the palette occupy
-//   just as many bytes as the actual pixel data. If the video card
-//   actually DOES support variable-size palettes, it could still be a
-//   bad idea. If all the pages require a 256-entry palette (or more) due
-//   to heavy color variations, the palettes would require a lot of
-//   hardware memory.
+//   and with RGBA colors the palette will occupy 256x4=1024
+//   bytes. With page sizes smaller than 64x64, this would make the
+//   palette occupy just as many bytes as the actual pixel data. If
+//   the video card actually DOES support variable-size palettes, it
+//   could still be a bad idea. If all the pages require a 256-entry
+//   palette (or more) due to heavy color variations, the palettes
+//   would require a lot of hardware memory.
 //
-//   These problems may be solved by the use of several techniques. First
-//   of all, there is an extension called GL_SHARED_PALETTE_EXT, that
-//   allows several textures to share the same palette. A global palette
-//   for the entire volume could be generated, resulting in some heavy
-//   pre-calculation and possibly loss of color accuracy, but saving a
-//   lot of memory. The best solution would probably be a combination of
-//   local and global palettes. Local, if the page consist entirely of
-//   one color. Global and shared whenever heavy color variations occur.
+//   These problems may be solved by the use of several
+//   techniques. First of all, there is an extension called
+//   GL_SHARED_PALETTE_EXT, that allows several textures to share the
+//   same palette. A global palette for the entire volume could be
+//   generated, resulting in some heavy pre-calculation and possibly
+//   loss of color accuracy, but saving a lot of memory. The best
+//   solution would probably be a combination of local and global
+//   palettes. Local, if the page consist entirely of one
+//   color. Global and shared whenever heavy color variations occur.
 //
 // glColorTableEXT
 //
 //   Study Cvr2DTexSubPage::setData. The code supports palettes of
-//   variable sizes, exploiting the obvious advantages explained in the
-//   previous section.  In between the uploading of palette and texture,
-//   there is a check of what palette size actually achieved. It seems
-//   like there's no guarantee that a video card supports the different
-//   palette sizes/formats. If the following glTexImage2D tries to set a
-//   internal format that doesn't fit the palette size, the entire
-//   uploading could fail. At least it does on this card (3DLabs Oxygen
-//   GVX1). The check for palette size fixes this problem.
+//   variable sizes, exploiting the obvious advantages explained in
+//   the previous section.  In between the uploading of palette and
+//   texture, there is a check of what palette size actually
+//   resulted. It seems like there's no guarantee that a video card
+//   supports the different palette sizes/formats. If the following
+//   glTexImage2D tries to set a internal format that doesn't fit the
+//   palette size, the entire uploading could fail. At least it does
+//   on this card (3DLabs Oxygen GVX1). The check for palette size
+//   fixes this problem.
 
 
 unsigned int Cvr2DTexSubPage::nroftexels = 0;
