@@ -12,10 +12,12 @@ public:
   CvrTextureObject(const SbVec2s & size);
   virtual ~CvrTextureObject();
 
-  const SbVec2s & getDimensions(void) const;
-
   virtual SoType getTypeId(void) const = 0;
   static SoType getClassTypeId(void);
+
+  const SbVec2s & getDimensions(void) const;
+
+  virtual void dumpToPPM(const char * filename) const = 0;
 
 private:
   SbVec2s dimensions;
