@@ -209,3 +209,18 @@
     20040723 mortene.
 
 ========================================================================
+
+014 SoDrawStyle::style==LINES should only render wireframe cube around
+    full volume.
+
+    I believe that would be the semantically correct thing to do, with
+    regard to what the user would expect. Would speed up rendering
+    aswell (the wireframes are now rendered with texturing on).
+
+    Should probably be implemented as a "shortcut" in
+    SoVolumeRender::GLRender(). Must also be implemented for
+    SoObliqueSlice, SoOrthoSlice, SoVolumeFaceSet, etc etc.
+
+    20040804 mortene.
+
+========================================================================
