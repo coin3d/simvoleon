@@ -132,10 +132,3 @@ SoVolumeIndexedFaceSet::GLRender(SoGLRenderAction * action)
   PRIVATE(this)->renderp->GLRender(action, this->offset.getValue(), this->clipGeometry.getValue());
   
 }
-
-void
-SoVolumeIndexedFaceSet::rayPick(SoRayPickAction * action)
-{
-  // FIXME: Implement me? (20040628 handegar)
-}
-

@@ -121,9 +121,3 @@ SoVolumeTriangleStripSet::GLRender(SoGLRenderAction * action)
                                    this->numVertices);
 }
 
-void
-SoVolumeTriangleStripSet::rayPick(SoRayPickAction * action)
-{
-  // FIXME: Implement me? (20040628 handegar)
-}
-
