@@ -185,11 +185,13 @@ SoVRVolFileReader::setUserData(void * data)
   // SoVolumeReader::getBuffer(). 20021125 mortene.
   size_t gotnrbytes = fread(this->m_data, 1, filesize, f);
   assert(gotnrbytes == filesize);
-#if 1 // debug
-  SoDebugError::postInfo("SoVRVolFileReader::setUserData",
-                         "read %d bytes (%.2f MB)",
-                         gotnrbytes, ((float)gotnrbytes) / 1024.0f / 1024.0f);
-#endif // debug
+
+  if (CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("SoVRVolFileReader::setUserData",
+                           "read %d bytes (%.2f MB)",
+                           gotnrbytes, ((float)gotnrbytes) / 1024.0f / 1024.0f);
+  }
+
   int r = fclose(f);
   assert(r == 0);
 
@@ -256,7 +258,7 @@ SoVRVolFileReader::setUserData(void * data)
                          PRIVATE(this)->description.getString());
 #endif // debug
 
-  SoVRVolFileReaderP::debugDumpHeader(volh);
+  if (CvrUtil::doDebugging()) { SoVRVolFileReaderP::debugDumpHeader(volh); }
 
   // FIXME: this actually fails with LOBSTER.vol. 20021110 mortene.
 //   assert(volh->magic_number == 0x0b7e7759);
