@@ -154,18 +154,22 @@ CvrTextureObject::CvrTextureObject(void)
   this->refcounter = 0;
 }
 
-#if 0 // FIXME: this must be done in a callback for the resource
-      // handler. 20040720 mortene.
-  GLuint tmp[1];
-  tmp[0] = texobject->getOpenGLTextureId();
-  glDeleteTextures(1, tmp);
-#endif
-
 CvrTextureObject::~CvrTextureObject()
 {
-  // FIXME: this doesn't help when we have no callback for when it is
-  // actually killed. 20040722 mortene.
-  cvr_rc_tag_resources_dead(this);
+  // Kill all existing CvrGLTextureCache instances (which will
+  // indirectly deallocate GL textures):
+
+  SbPList keys, values;
+  this->glctxdict.makePList(keys, values);
+  for (unsigned int i = 0; i < (unsigned int)values.getLength(); i++) {
+    SbList<CvrGLTextureCache *> * l = (SbList<CvrGLTextureCache *> *)values[i];
+    for (unsigned int j = 0; j < (unsigned int)l->getLength(); j++) { (*l)[j]->unref(); }
+    delete l;
+  }
+  this->glctxdict.clear();
+
+
+  // Take us out of the static list of all CvrTextureObject instances:
 
   const unsigned long key = this->hashKey();
   void * ptr;
@@ -201,14 +205,9 @@ SbList<CvrGLTextureCache *> *
 CvrTextureObject::cacheListForGLContext(const uint32_t glctxid) const
 {
   void * ptr;
-  const SbBool found = cvr_rc_find_resource(glctxid, (void *)this, &ptr);
-
-  if (found) { return (SbList<CvrGLTextureCache *> *)ptr; }
-
-  SbList<CvrGLTextureCache *> * newlist = new SbList<CvrGLTextureCache *>;
-  cvr_rc_bind_resource(glctxid, (void *)this, newlist);
-
-  return newlist;
+  const SbBool found = this->glctxdict.find((unsigned long)glctxid, ptr);
+  if (!found) { return NULL; }
+  return (SbList<CvrGLTextureCache *> *)ptr;
 }
 
 SbBool
@@ -216,9 +215,18 @@ CvrTextureObject::findGLTexture(const SoGLRenderAction * action, GLuint & texid)
 {
   SbList<CvrGLTextureCache *> * cachelist =
     this->cacheListForGLContext(action->getCacheContext());
+  if (cachelist == NULL) { return FALSE; }
 
   for (int i=0; i < cachelist->getLength(); i++) {
     CvrGLTextureCache * cache = (*cachelist)[i];
+
+    if (cache->isDead()) {
+      cache->unref();
+      cachelist->remove(i);
+      i--;
+      continue;
+    }
+
     if (cache->isValid(action->getState())) {
       texid = cache->getGLTextureId();
       return TRUE;
@@ -373,9 +381,13 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
 
   assert(glGetError() == GL_NO_ERROR);
 
-  cache->setGLTextureId(texid);
+  cache->setGLTextureId(action, texid);
 
   SbList<CvrGLTextureCache *> * l = this->cacheListForGLContext(glctxid);
+  if (l == NULL) {
+    l = new SbList<CvrGLTextureCache *>;
+    ((CvrTextureObject *)this)->glctxdict.enter((unsigned long)glctxid, l);
+  }
   l->append(cache);
 
   state->pop();

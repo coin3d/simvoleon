@@ -88,6 +88,7 @@ private:
   SbVec3s dimensions;
   uint32_t refcounter;
   static SbDict * instancedict;
+  SbDict glctxdict;
 
   SbList<CvrGLTextureCache *> * cacheListForGLContext(const uint32_t glctxid) const;
 

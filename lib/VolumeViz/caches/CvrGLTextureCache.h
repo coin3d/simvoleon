@@ -28,6 +28,7 @@
 #include <Inventor/system/gl.h>
 
 class SoState;
+class SoGLRenderAction;
 
 // *************************************************************************
 
@@ -38,11 +39,17 @@ public:
   CvrGLTextureCache(SoState * state);
   ~CvrGLTextureCache();
 
-  void setGLTextureId(GLuint id);
+  void setGLTextureId(const SoGLRenderAction * action, GLuint id);
   GLuint getGLTextureId(void) const;
 
+  SbBool isDead(void) const;
+
 private:
-  GLuint texid;
+  static void texDestructionCB(uint32_t ctxid, void * resource, void * closure);
+
+  GLuint * texid;
+  SbBool dead;
+  uint32_t glctxid;
 };
 
 // *************************************************************************

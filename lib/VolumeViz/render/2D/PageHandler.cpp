@@ -176,6 +176,10 @@ CvrPageHandler::comparePageSize(const SbVec3s & currsubpagesize)
     // regeneration, as we do now.
     //
     // mortene.
+    //
+    // UPDATE: voxels in memory are now stored in duplicate copies in
+    // CvrTextureObject instances, so the above comment is no longer
+    // entirely correct.
   }
 }
 
