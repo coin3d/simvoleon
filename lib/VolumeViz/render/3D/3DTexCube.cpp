@@ -90,18 +90,18 @@ Cvr3DTexCube::releaseSubCube(const int row, const int col, const int depths)
   Cvr3DTexSubCubeItem * p = this->subcubes[idx];
   this->subcubes[idx] = NULL;
   delete p->cube;
-  delete p; 
+  delete p;
 }
 
 void
 Cvr3DTexCube::releaseAllSubCubes(void)
 {
-  
+
   if (this->subcubes == NULL) return;
 
   for (int row = 0; row < this->nrrows; row++) {
     for (int col = 0; col < this->nrcolumns; col++) {
-      for (int depth = 0; depth < this->nrdepths; depth++) {  
+      for (int depth = 0; depth < this->nrdepths; depth++) {
         this->releaseSubCube(row, col, depth);
       }
     }
@@ -109,7 +109,7 @@ Cvr3DTexCube::releaseAllSubCubes(void)
 
   delete[] this->subcubes;
   this->subcubes = NULL;
-  
+
 }
 
 static int
@@ -118,7 +118,7 @@ subcube_qsort_compare(const void * element1, const void * element2)
   Cvr3DTexSubCubeItem ** sc1 = (Cvr3DTexSubCubeItem **) element1;
   Cvr3DTexSubCubeItem ** sc2 = (Cvr3DTexSubCubeItem **) element2;
 
-  if ((*sc1)->cube->getDistanceFromCamera() > 
+  if ((*sc1)->cube->getDistanceFromCamera() >
       (*sc2)->cube->getDistanceFromCamera()) return -1;
   else return 1;
 
@@ -130,19 +130,19 @@ Cvr3DTexCube::calculateOptimalSubCubeSize()
 
   GLint maxsize;
   glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxsize);
-  
+
   short forcedsubcubesize = 0;
   const char * envstr = coin_getenv("CVR_FORCE_SUBCUBE_SIZE");
   if (envstr) { forcedsubcubesize = atoi(envstr); }
-  
+
   if (coin_is_power_of_two(forcedsubcubesize)) {
     if (forcedsubcubesize <= maxsize)
       maxsize = forcedsubcubesize;
-  } 
+  }
   else {
     if (forcedsubcubesize != 0)
-      SoDebugError::postWarning("calculateOptimalSubCubeSize", 
-                                "Forced subcube size (%d) is not power of two.", 
+      SoDebugError::postWarning("calculateOptimalSubCubeSize",
+                                "Forced subcube size (%d) is not power of two.",
                                 forcedsubcubesize);
   }
 
@@ -159,23 +159,23 @@ Cvr3DTexCube::calculateOptimalSubCubeSize()
 void
 Cvr3DTexCube::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
-                     const SbVec3f & cubespan,                    
+                     const SbVec3f & cubespan,
                      Cvr3DTexSubCube::Interpolation interpolation,
                      unsigned int numslices)
 {
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
-  
+
   SoState * state = action->getState();
-  const SbMatrix & projmat = (SoModelMatrixElement::get(state) * 
+  const SbMatrix & projmat = (SoModelMatrixElement::get(state) *
                               SoViewingMatrixElement::get(state) *
                               SoProjectionMatrixElement::get(state));
-   
+
   SbVec3f subcubewidth = SbVec3f(cubespan[0] * this->subcubesize[0], 0, 0);
   SbVec3f subcubeheight = SbVec3f(0, cubespan[1] * this->subcubesize[1], 0);
   SbVec3f subcubedepth = SbVec3f(0, 0, cubespan[2] * this->subcubesize[2]);
 
-  const SbViewVolume & viewvolume = SoViewVolumeElement::get(action->getState()); 
-  const SbBox3f bbox(origo, origo + 
+  const SbViewVolume & viewvolume = SoViewVolumeElement::get(action->getState());
+  const SbBox3f bbox(origo, origo +
                      SbVec3f(this->dimensions[0], this->dimensions[1], this->dimensions[2]));
 
   float dx,dy,dz;
@@ -188,56 +188,56 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
   const float distancedelta = (fardistance - neardistance) / numslices;
 
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
- 
+
   for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
     for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
       for (int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
 
         Cvr3DTexSubCube * cube = NULL;
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
-        if (cubeitem == NULL) { 
-          cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx, cubespan);           
+        if (cubeitem == NULL) {
+          cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx, cubespan);
         }
         assert(cubeitem != NULL);
         if (cubeitem->invisible) continue;
         assert(cubeitem->cube != NULL);
-        
-        
+
+
         SbVec3f subcubeorigo = origo + // horizontal shift to correct column
           subcubewidth * colidx + // vertical shift to correct row
           subcubeheight * rowidx + // depth shift
-          subcubedepth * depthidx;      
-      
-        const SbVec3f subcubecenter = subcubeorigo + 
+          subcubedepth * depthidx;
+
+        const SbVec3f subcubecenter = subcubeorigo +
           (subcubewidth/2 + subcubeheight/2 + subcubedepth/2);
 
         const float cubedist = (viewvolume.getProjectionPoint() - subcubecenter).length();
         const float cubeplanedist = SbAbs(camplane.getDistance(subcubecenter));
-        const float cuberadius = (subcubewidth + subcubeheight + subcubedepth).length()/2; 
+        const float cuberadius = (subcubewidth + subcubeheight + subcubedepth).length()/2;
         cubeitem->cube->setDistanceFromCamera(cubedist);
-  
-        for (unsigned int i=0;i<numslices;++i) {         
+
+        for (unsigned int i=0;i<numslices;++i) {
           // Check if the cutplane intersect the bounding sphere of the cube at all.
-          const float dist = fardistance - i*distancedelta;                          
+          const float dist = fardistance - i*distancedelta;
           if (dist > (cubeplanedist+cuberadius)) break; // We have passed the cube.
           if (dist < (cubeplanedist-cuberadius)) continue; // We havent reached the cube yet.
           cubeitem->cube->checkIntersectionSlice(subcubeorigo, viewvolume, dist);
         }
-       
+
         subcubelist.append(cubeitem);
-         
+
       }
     }
   }
 
-  qsort((void *) subcubelist.getArrayPtr(), 
-        subcubelist.getLength(), 
-        sizeof(Cvr3DTexSubCubeItem *), 
+  qsort((void *) subcubelist.getArrayPtr(),
+        subcubelist.getLength(),
+        sizeof(Cvr3DTexSubCubeItem *),
         subcube_qsort_compare);
-  
-  for (int i=0;i<subcubelist.getLength();++i) 
+
+  for (int i=0;i<subcubelist.getLength();++i)
     subcubelist[i]->cube->render(action, interpolation);
-  
+
   // Draw lines around each subcube.
   if (this->rendersubcubeoutline) {
     for (int i=0;i<subcubelist.getLength();++i)
@@ -251,7 +251,7 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
 
 int
 Cvr3DTexCube::calcSubCubeIdx(int row, int col, int depth) const
-{  
+{
   assert((row >= 0) && (row < this->nrrows));
   assert((col >= 0) && (col < this->nrcolumns));
   assert((depth >= 0) && (depth < this->nrdepths));
@@ -292,8 +292,8 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
   // NOTE: Building subcubes 'upwards' so that the Y orientation will
   // be equal as the 2D slice rendering (the voxelchunks are also
   // flipped).
-  
-  SbVec3s subcubemin(col * this->subcubesize[0], 
+
+  SbVec3s subcubemin(col * this->subcubesize[0],
                      this->dimensions[1] - (row + 1) * this->subcubesize[1],
                      depth * this->subcubesize[2]);
   SbVec3s subcubemax((col + 1) * this->subcubesize[0],
@@ -335,19 +335,19 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
   case SoVolumeData::RGBA: vctype = CvrVoxelChunk::UINT_32; break;
   default: assert(FALSE); break;
   }
-   
+
   // FIXME: improve buildSubCube() interface to fix this roundabout
   // way of calling it. 20021206 mortene.
   CvrVoxelChunk * input = new CvrVoxelChunk(vddims, vctype, dataptr);
   CvrVoxelChunk * cubechunk = input->buildSubCube(subcubecut);
   delete input;
-  
+
   // FIXME: optimalization measure; should be able to save on texture
   // memory by not using full cubes where only parts of them are
   // actually covered by texture (volume data does more often than not
   // fail to match dimensions perfectly with 2^n values). 20021125 mortene.
 
-  SbBool invisible; 
+  SbBool invisible;
   CvrTextureObject * texobj = cubechunk->transfer3D(action, invisible);
   delete cubechunk;
 
@@ -368,15 +368,13 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
   } else if (texobj->getTypeId() == Cvr3DPaletteTexture::getClassTypeId()) {
     ((Cvr3DPaletteTexture *) texobj)->blankUnused(texsize);
   }
-    
+
   Cvr3DTexSubCube * cube = NULL;
   if (!invisible) {
     short dx, dy, dz;
     subcubecut.getSize(dx, dy, dz);
-    SbVec3s cubesize = SbVec3s((short) (cubescale[0] * dx), 
-                               (short) (cubescale[1] * dy), 
-                               (short) (cubescale[2] * dz));
-    cube = new Cvr3DTexSubCube(action, texobj, cubesize, texsize, 
+    const SbVec3f cubesize(cubescale[0] * dx, cubescale[1] * dy, cubescale[2] * dz);
+    cube = new Cvr3DTexSubCube(action, texobj, cubesize, texsize,
                                voldatanode->useCompressedTexture.getValue());
     cube->setPalette(this->clut);
   }
@@ -443,7 +441,7 @@ Cvr3DTexCube::getSubCube(SoState * state, int col, int row, int depth)
   assert((col >= 0) && (col < this->nrcolumns));
   assert((row >= 0) && (row < this->nrrows));
   assert((depth >= 0) && (depth < this->nrdepths));
-  
+
   const int idx = this->calcSubCubeIdx(row, col, depth);
   Cvr3DTexSubCubeItem * subp = this->subcubes[idx];
 
