@@ -37,150 +37,6 @@
 #include <VolumeViz/misc/CvrUtil.h>
 #include <limits.h>
 
-/*
-DICTIONARY
-
-  "Page"      : One complete cut through the volume, normal to an axis.
-  "SubPage"   : A segment of a page.
-
-
-USER INTERACTION
-
-  As for now, the implementation loads only the subpages that are needed
-  for the current position of a SoROI/SoVolumeRender-node. Due to
-  significant overhead when loading data and squeezing them through a
-  transfer function, the user experiences major delays in the visual
-  response on her interactions.
-
-
-
-MEMORY MANAGEMENT
-
-  The TGS-API contains a function setTexMemorySize(). It makes the
-  client application able to specify the amount of memory the volume
-  data node should occupy.  In TEXELS?!? As far as my neurons can
-  figure out, this doesn't make sense at all. This implementation
-  supports this function, but also provides a setHWMemorySize which
-  specifies the maximum number of BYTES the volume data should occupy
-  of hardware memory.
-
-
-
-RENDERING
-
-  An SoVolumeRender is nothing but an SoROI which renders the entire
-  volume. And this is how it should be implemented. But this is not
-  how it is implemented now. :) The GLRender-function for both SoROI
-  and SoVolumeRender is more or less identical, and they should share
-  some common render function capable of rendering an entire
-  volume. This should in turn use a page rendering-function similar
-  to Cvr2DTexPage::render.
-
-
-
-VOLUMEREADERS
-
-  Currently, only a reader of memory provided data is implemented
-  (SoVRMemReader). SoVolumeData uses the interface specified with
-  SoVolumeReader, and extensions with other readers should be straight
-  forward. When running setReader or setVolumeData, only a pointer to
-  the reader is stored. In other words, things could go bananas if the
-  client application start mocking around with the reader's settings
-  after a call to setReader. If the reader is changed, setReader must
-  be run over again.  This requirement differs from TGS as their
-  implementation loads all data once specified a reader (I guess).
-
-  The TGS interface for SoVolumeReader contains a function getSubSlice
-  with the following definition:
-
-  void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data)
-
-  It returns a subpage within a specified page along the z-axis. This
-  means that the responsibility for building pages along X and Y-axis
-  lies within the reader-client.When generating textures along either
-  x- or y-axis, this requires a significant number of iterations, one
-  for each page along the z-axis. This will in turn trigger plenty
-  filereads at different disklocations, and your disk's heads will have
-  a disco showdown the Travolta way. I've extended the interface as
-  following:
-
-  void getSubSlice(SbBox2s &subSlice,
-                   int sliceNumber,
-                   void * data,
-                   SoOrthoSlice::Axis axis = SoOrthoSlice::Z)
-
-  This moves the responsibility for building pages to the reader.
-  It makes it possible to exploit fileformats with possible clever
-  data layout, and if the fileformat/input doesn't provide intelligent
-  organization, it still wouldn't be any slower. The only drawback is
-  that some functionality would be duplicated among several readers
-  and making them more complicated.
-
-  The consequences is that readers developed for TGS's implementation
-  would not work with ours, but the opposite should work just fine.
-
-
-
-TODO
-
-  No picking functionality whatsoever is implemented. Other missing
-  functions are tagged with FIXMEs.
-
-  Missing classes: SoObliqueSlice, SoOrthoSlice, all readers, all
-  details.
-
-
-
-REFACTORING
-
-  Rumours has it that parts of this library will be refactored and
-  extracted into a more or less external c-library. This is a
-  very good idea, and it is already partially implemented through
-  Cvr2DTexSubPage and Cvr2DTexPage. This library should be as
-  decoupled from Coin as possible, but it would be a lot of work to
-  build a completely standalone one. An intermediate layer between
-  the lib and Coin would be required, responsible for translating all
-  necessary datastructures (i.e. readers and transferfunctions),
-  functioncalls and opengl/coin-states.
-
-  The interface of the library should be quite simple and would
-  probably require the following:
-  * A way to support the library with data and data characteristics.
-    Should be done by providing the lib with pointers to
-    SoVolumeReader-objects.
-  * Renderingfunctionality. Volumerendering and pagerendering,
-    specifying location in space, texturecoordinates in the volume and
-    transferfunction.
-  * Functionality to specify maximum resource usage by the lib.
-  * Preferred storage- and rendering-technique.
-
-  etc etc...
-
-  Conclusion: This interface came out quite obvious. :) And it will
-  end up a lot like the existing one, except that most of the code in
-  SoVolumeData will be pushed into this lib. As mentioned, the lib
-  will rely heavily on different Coin-classes, especially SoState,
-  SoVolumeReader and SoTransferFunction and must be designed to fit
-  with these.
-
-  The renderingcode is totally independent of the dataformats of
-  textures. (RGBA, paletted etc), and may be reused with great ease
-  whereever needed in the new lib. This code is located in
-  Cvr2DTexPage::Render and i.e. SoVolumeRender::GLRender.
-  I actually spent quite some time implementing the pagerendering,
-  getting all the interpolation correct when switching from one subpage
-  to another within the same arbitrary shaped quad.
-  SoVolumeRender::GLRender is more straightforward, but it should be
-  possible to reuse the same loop for all three axis rendering the code
-  more elegant. And it's all about the looks, isn't it?
-
-  All class declarations are copied from TGS reference manual, and
-  should be consistent with the TGS VolumeViz-interface (see
-  "VOLUMEREADERS").
-
-  torbjorv 08292002
-*/
-
 // *************************************************************************
 
 /*!
@@ -219,11 +75,8 @@ public:
     this->dimensions = SbVec3s(0, 0, 0);
     this->subpagesize = SbVec3s(64, 64, 64);
 
-    // Default size enforced by TGS API.
-    this->maxnrtexels = 64*1024*1024;
-    // FIXME: should be based on info about the actual run-time
-    // system. 20021118 mortene.
-    this->maxtexmem = 16*1024*1024;
+    // Our default size (0 == unlimited).
+    this->maxnrtexels = 0;
 
     this->VRMemReader = NULL;
     this->reader = NULL;
@@ -249,7 +102,6 @@ public:
   // there can be more than one voxelcube in the scene at once. These
   // should probably be static variables in that manager. 20021118 mortene.
   unsigned int maxnrtexels;
-  unsigned int maxtexmem;
 
 private:
   SoVolumeData * master;
@@ -510,19 +362,27 @@ SoVolumeData::pick(SoPickAction * action)
 
 /*!
   Set the maximum number of texels we can bind up for 2D and 3D
-  textures for volume rendering. The default value is 64 megatexels
-  (i.e. 64 * 1024 * 1024).
+  textures for volume rendering. The value is given in number of
+  megatexels, e.g. an argument value "16" will be interpreted to set
+  the limit at 16*1024*1024=16777216 texels.
 
   Note that you can in general not know in advance how much actual
   texture memory a texel is going to use, as textures can be paletted
   with a variable number of bits-pr-texel, and even compressed before
   transfered to the graphics card's on-chip memory.
 
-  For better control of the actual texture memory used, invoke the
-  SoVolumeData::setTextureMemorySize() method instead.
+  Due to the above mentioned reasons, the usefulness of this method is
+  rather dubious, but it is still included for compatibility with
+  TGS VolumeViz API extension to Open Inventor.
 
-  This is an extension not part of TGS's API for VolumeViz.
- */
+  The default value is to allow unlimited texture memory usage. This
+  means that it's up to the underlying OpenGL driver to take care of
+  the policy of how to handle scarcity of resources. This is the
+  recommended strategy from OpenGL documentation.
+
+  Note that SimVoleon's default differs from TGS's VolumeViz default,
+  which is set at 64 megatexels.
+*/
 void
 SoVolumeData::setTexMemorySize(int megatexels)
 {
@@ -531,6 +391,13 @@ SoVolumeData::setTexMemorySize(int megatexels)
   // 20021118 mortene.
 
   PRIVATE(this)->maxnrtexels = megatexels * 1024 * 1024;
+
+#if CVR_DEBUG
+  SoDebugError::postWarning("SoVolumeData::setTexMemorySize",
+                            "Limitation of texture memory usage not "
+                            "implemented yet.");
+#endif // CVR_DEBUG
+
 
   // FIXME: should kick out texmem pages if we're currently over
   // limit. 20021121 mortene.
@@ -544,28 +411,6 @@ SoVolumeData::setReader(SoVolumeReader * reader)
   reader->getDataChar(PRIVATE(this)->volumesize,
                       PRIVATE(this)->datatype,
                       PRIVATE(this)->dimensions);
-}
-
-/*!
-  Set the maximum actual texture memory we can bind up for
-  2D and 3D textures for volume rendering.
-
-  FIXME: mention what the default value is. (Haven't decided yet.)
-  20021120 mortene.
-
-  This is an extension not part of TGS's API for VolumeViz.
- */
-void
-SoVolumeData::setTextureMemorySize(int texturememory)
-{
-  assert(texturememory > 0);
-  // FIXME: should use a sanity check here for an upper limit?
-  // 20021118 mortene.
-
-  PRIVATE(this)->maxtexmem = texturememory;
-
-  // FIXME: should kick out texmem pages if we're currently over
-  // limit. 20021121 mortene.
 }
 
 SoVolumeReader *

@@ -68,7 +68,6 @@ public:
   void setReader(SoVolumeReader * reader);
 
   void setTexMemorySize(int megatexels);
-  void setTextureMemorySize(int texturememory); // FIXME: kill this one
 
   SoVolumeReader * getReader(void) const;
 
