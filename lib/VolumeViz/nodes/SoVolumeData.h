@@ -77,10 +77,10 @@ public:
   void setPageSize(int size);
   void setPageSize(const SbVec3s & size);
   SbVec3s & getPageSize(void);
-  void setTexMemorySize(int size);
-  void setHWMemorySize(int size);
   void setReader(SoVolumeReader * reader);
 
+  void setTexMemorySize(int megatexels);
+  void setTextureMemorySize(int texturememory);
 
   // FIXME: The following functions are still to be implemented.
   // torbjorv 07122002

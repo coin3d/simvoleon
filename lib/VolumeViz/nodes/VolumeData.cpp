@@ -21,7 +21,6 @@
 
 
 /*
-
 DICTIONARY
 
   "Page"      : One complete cut through the volume, normal to an axis.
@@ -99,13 +98,13 @@ PALETTED TEXTURES
 
 MEMORY MANAGEMENT
 
-  The TGS-API contains a function setTexMemSize. It makes the client
-  application able to specify the amount of memory the volume data
-  node should occupy.  In TEXELS?!? As far as my neurons can figure
-  out, this doesn't make sense at all. This implementation supports
-  this function, but also provides a setHWMemorySize which specifies
-  the maximum number of BYTES the volume data should occupy of
-  hardware memory.
+  The TGS-API contains a function setTexMemorySize(). It makes the
+  client application able to specify the amount of memory the volume
+  data node should occupy.  In TEXELS?!? As far as my neurons can
+  figure out, this doesn't make sense at all. This implementation
+  supports this function, but also provides a setHWMemorySize which
+  specifies the maximum number of BYTES the volume data should occupy
+  of hardware memory.
 
 
 
@@ -250,10 +249,10 @@ public:
     this->pageSize = SbVec3s(64, 64, 64);
 
     // Default size enforced by TGS API.
-    this->maxTexels = 64*1024*1024;
+    this->maxnrtexels = 64*1024*1024;
     // FIXME: should be based on info about the actual run-time
     // system. 20021118 mortene.
-    this->maxBytesHW = 16*1024*1024;
+    this->maxtexmem = 16*1024*1024;
 
     this->tick = 0;
 
@@ -280,8 +279,8 @@ public:
   // FIXME: this is fubar -- we need a global manager, of course, as
   // there can be more than one voxelcube in the scene at
   // once. 20021118 mortene.
-  unsigned int maxTexels;
-  unsigned int maxBytesHW;
+  unsigned int maxnrtexels;
+  unsigned int maxtexmem;
 
   Cvr2DTexPage ** slices[3];
 
@@ -494,11 +493,30 @@ SoVolumeData::getPageSize(void)
   return PRIVATE(this)->pageSize;
 }
 
+/*!
+
+  Set the maximum number of texels we can bind up for 2D and 3D
+  textures for volume rendering. The default value is 64 megatexels
+  (i.e. 64 * 1024 * 1024).
+
+  Note that you can in general not know in advance how much actual
+  texture memory a texel is going to use, as textures can be paletted
+  with a variable number of bits-pr-texel, and even compressed before
+  transfered to the graphics card's on-chip memory.
+
+  For better control of the actual texture memory used, invoke the
+  SoVolumeData::setTextureMemorySize() method instead.
+
+  This is an extension not part of TGS's API for VolumeViz.
+ */
 void
-SoVolumeData::setTexMemorySize(int size)
+SoVolumeData::setTexMemorySize(int megatexels)
 {
-  PRIVATE(this)->maxTexels = size * 1024 * 1024;
-  // FIXME: should use a sanity check here? 20021118 mortene.
+  assert(megatexels > 0);
+  // FIXME: should use a sanity check here for an upper limit?
+  // 20021118 mortene.
+
+  PRIVATE(this)->maxnrtexels = megatexels * 1024 * 1024;
 }
 
 void
@@ -511,10 +529,23 @@ SoVolumeData::setReader(SoVolumeReader * reader)
                       PRIVATE(this)->dimensions);
 }
 
+/*!
+  Set the maximum actual texture memory we can bind up for
+  2D and 3D textures for volume rendering.
+
+  FIXME: mention what the default value is. (Haven't decided yet.)
+  20021120 mortene.
+
+  This is an extension not part of TGS's API for VolumeViz.
+ */
 void
-SoVolumeData::setHWMemorySize(int size)
+SoVolumeData::setTextureMemorySize(int texturememory)
 {
-  PRIVATE(this)->maxBytesHW = size;
+  assert(texturememory > 0);
+  // FIXME: should use a sanity check here for an upper limit?
+  // 20021118 mortene.
+
+  PRIVATE(this)->maxtexmem = texturememory;
 }
 
 /*************************** PIMPL-FUNCTIONS ********************************/
@@ -643,11 +674,11 @@ SoVolumeDataP::managePages(void)
 
   // Keep both measures within maxlimits
 
-  while (Cvr2DTexSubPage::totalTextureMemoryUsed() > this->maxBytesHW) {
+  while (Cvr2DTexSubPage::totalTextureMemoryUsed() > this->maxtexmem) {
     this->releaseLRUPage();
   }
 
-  while (Cvr2DTexSubPage::totalNrOfTexels() > this->maxTexels) {
+  while (Cvr2DTexSubPage::totalNrOfTexels() > this->maxnrtexels) {
     this->releaseLRUPage();
   }
 }
