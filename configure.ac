@@ -112,20 +112,6 @@ else
 #  Initialize libtool
 AC_PROG_LIBTOOL
 
-# case "$host_os" in
-#   irix*)
-#     if test x"${AR+set}" != x"set"; then
-#       if test x"$CXX" = xCC; then
-#         echo "modifying libtool"
-#         mv libtool libtool.orig
-#         sed -e 's/\\\$AR cru/CC -ar -o/' <libtool.orig >libtool
-#         chmod 755 libtool
-#         rm -f libtool.org
-#       fi
-#     fi
-#     ;;
-# esac
-
 fi
 
 SIM_AC_DEBUGSYMBOLS

@@ -1570,31 +1570,43 @@ if test "${with_msvcrt+set}" = set; then
     sim_ac_msvcrt=singlethread-static
     sim_ac_msvcrt_CFLAGS="/ML"
     sim_ac_msvcrt_CXXFLAGS="/ML"
+    sim_ac_msvcrt_LIBLDFLAGS=""
+    sim_ac_msvcrt_LIBLIBS=""
     ;;
   default-debug | singlethread-static-debug | mld | /mld | libcd | libcd\.lib )
     sim_ac_msvcrt=singlethread-static-debug
     sim_ac_msvcrt_CFLAGS="/MLd"
     sim_ac_msvcrt_CXXFLAGS="/MLd"
+    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
+    sim_ac_msvcrt_LIBLIBS="-llibcd"
     ;;
   multithread-static | mt | /mt | libcmt | libcmt\.lib )
     sim_ac_msvcrt=multithread-static
     sim_ac_msvcrt_CFLAGS="/MT"
     sim_ac_msvcrt_CXXFLAGS="/MT"
+    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
+    sim_ac_msvcrt_LIBLIBS="-llibcmt"
     ;;
   multithread-static-debug | mtd | /mtd | libcmtd | libcmtd\.lib )
     sim_ac_msvcrt=multithread-static-debug
     sim_ac_msvcrt_CFLAGS="/MTd"
     sim_ac_msvcrt_CXXFLAGS="/MTd"
+    sim_ac_msvcrt_LIBLDFLAGS="/NODEFAULTLIB:libc"
+    sim_ac_msvcrt_LIBLIBS="-llibcmtd"
     ;;
   multithread-dynamic | md | /md | msvcrt | msvcrt\.lib )
     sim_ac_msvcrt=multithread-dynamic
-    sim_ac_msvcrt_CFLAGS="/MD"
-    sim_ac_msvcrt_CXXFLAGS="/MD"
+    sim_ac_msvcrt_CFLAGS=""
+    sim_ac_msvcrt_CXXFLAGS=""
+    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
+    sim_ac_msvcrt_LIBLIBS="-lmsvcrt"
     ;;
   multithread-dynamic-debug | mdd | /mdd | msvcrtd | msvcrtd\.lib )
     sim_ac_msvcrt=multithread-dynamic-debug
     sim_ac_msvcrt_CFLAGS="/MDd"
     sim_ac_msvcrt_CXXFLAGS="/MDd"
+    sim_ac_msvcrt_LIBLDFLAGS="/LINK /NODEFAULTLIB:libc"
+    sim_ac_msvcrt_LIBLIBS="-lmsvcrtd"
     ;;
   *)
 
@@ -5215,7 +5227,7 @@ test "x$enable_libtool_lock" != xno && enable_libtool_lock=yes
 case $host in
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5218 "configure"' > conftest.$ac_ext
+  echo '#line 5230 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5751,7 +5763,7 @@ chmod -w .
 save_CFLAGS="$CFLAGS"
 CFLAGS="$CFLAGS -o out/conftest2.$ac_objext"
 compiler_c_o=no
-if { (eval echo configure:5754: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
+if { (eval echo configure:5766: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>out/conftest.err; } && test -s out/conftest2.$ac_objext; then
   # The compiler can only warn and ignore the option if not recognized
   # So say no if there are warnings
   if test -s out/conftest.err; then
@@ -7544,7 +7556,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7547 "configure"
+#line 7559 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -7642,7 +7654,7 @@ else
     lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 7645 "configure"
+#line 7657 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -8366,20 +8378,6 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 # Prevent multiple expansion
 
 
-
-# case "$host_os" in
-#   irix*)
-#     if test x"${AR+set}" != x"set"; then
-#       if test x"$CXX" = xCC; then
-#         echo "modifying libtool"
-#         mv libtool libtool.orig
-#         sed -e 's/\\\$AR cru/CC -ar -o/' <libtool.orig >libtool
-#         chmod 755 libtool
-#         rm -f libtool.org
-#       fi
-#     fi
-#     ;;
-# esac
 
 fi
 
@@ -9673,9 +9671,7 @@ echo "${ECHO_T}probably SGI or older TGS Open Inventor" >&6
 echo $ECHO_N "checking for Open Inventor library... $ECHO_C" >&6
 
   for sim_ac_iv_cppflags_loop in "" "-DWIN32"; do
-    # Trying with no libraries first, as TGS Inventor uses pragmas in
-    # a header file to notify MSVC of what to link with.
-    for sim_ac_iv_libcheck in "" $sim_ac_inventor_chk_libs; do
+    for sim_ac_iv_libcheck in $sim_ac_inventor_chk_libs; do
       if test "x$sim_ac_inventor_libs" = "xUNRESOLVED"; then
         CPPFLAGS="$sim_ac_iv_cppflags_loop $sim_ac_inventor_cppflags $sim_ac_save_CPPFLAGS"
         LDFLAGS="$sim_ac_inventor_ldflags $sim_ac_save_LDFLAGS"

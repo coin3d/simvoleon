@@ -112,7 +112,7 @@ DIST_COMMON = README ./stamp-h.in AUTHORS COPYING ChangeLog INSTALL \
 	Makefile.am Makefile.in NEWS aclocal.m4 cfg/config.guess \
 	cfg/config.sub cfg/depcomp cfg/install-sh cfg/ltmain.sh \
 	cfg/missing cfg/mkinstalldirs config.h.in configure \
-	configure.in
+	configure.ac
 DIST_SUBDIRS = $(SUBDIRS)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive
@@ -127,7 +127,7 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
 	  $(AUTOMAKE) --gnu  Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
@@ -137,10 +137,10 @@ Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.s
 
 $(top_builddir)/config.status: $(srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
-$(srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(srcdir)/configure.in $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
+$(srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(srcdir)/configure.ac $(ACLOCAL_M4) $(CONFIGURE_DEPENDENCIES)
 	cd $(srcdir) && $(AUTOCONF)
 
-$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ configure.in 
+$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ configure.ac 
 	cd $(srcdir) && $(ACLOCAL) $(ACLOCAL_AMFLAGS)
 config.h: stamp-h
 	@if test ! -f $@; then \
@@ -159,7 +159,7 @@ $(srcdir)/config.h.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/./stamp-h.in
 		rm -f $(srcdir)/./stamp-h.in; \
 		$(MAKE) $(srcdir)/./stamp-h.in; \
 	else :; fi
-$(srcdir)/./stamp-h.in: $(top_srcdir)/configure.in $(ACLOCAL_M4) 
+$(srcdir)/./stamp-h.in: $(top_srcdir)/configure.ac $(ACLOCAL_M4) 
 	@rm -f $(srcdir)/./stamp-h.in $(srcdir)/./stamp-h.inT
 	@echo timestamp > $(srcdir)/./stamp-h.inT 2> /dev/null
 	cd $(top_srcdir) && $(AUTOHEADER)
