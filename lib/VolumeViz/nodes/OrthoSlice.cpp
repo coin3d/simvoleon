@@ -24,7 +24,8 @@ public:
 
   static void renderBox(SoGLRenderAction * action, SbBox3f box);
 
-  void getPageGeometry(SoVolumeData * volumedata, SbVec3f & origo, SbVec3f & horizspan, SbVec3f & verticalspan) const;
+  static void getPageGeometry(SoVolumeData * volumedata, const int axis, const int slicenr,
+                              SbVec3f & origo, SbVec3f & horizspan, SbVec3f & verticalspan);
   
 private:
   SoOrthoSlice * master;
@@ -94,15 +95,15 @@ SoOrthoSlice::affectsState(void) const
 
 void
 SoOrthoSliceP::getPageGeometry(SoVolumeData * volumedata,
+                               const int axis,
+                               const int slicenr,
                                SbVec3f & origo,
                                SbVec3f & horizspan,
-                               SbVec3f & verticalspan) const
+                               SbVec3f & verticalspan)
 {
   SbBox3f spacesize = volumedata->getVolumeSize();
   SbVec3f spacemin, spacemax;
   spacesize.getBounds(spacemin, spacemax);
-
-  const int axis = PUBLIC(this)->axis.getValue();
 
   const SbBox2f QUAD = (axis == SoOrthoSlice::Z) ?
     SbBox2f(spacemin[0], spacemin[1], spacemax[0], spacemax[1]) :
@@ -121,7 +122,7 @@ SoOrthoSliceP::getPageGeometry(SoVolumeData * volumedata,
   assert(ok);
 
   const float depthprslice = (spacemax[axis] - spacemin[axis]) / dimensions[axis];
-  const float depth = spacemin[axis] + PUBLIC(this)->sliceNumber.getValue() * depthprslice;
+  const float depth = spacemin[axis] + slicenr * depthprslice;
 
   switch (axis) {
   case SoOrthoSlice::X: origo = SbVec3f(depth, qmax[1], qmin[0]); break;
@@ -193,7 +194,10 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
              this->axis.getValue(), SbVec2s(64, 64) /* subpagetexsize */);
 
   SbVec3f origo, horizspan, verticalspan;
-  PRIVATE(this)->getPageGeometry(volumedata, origo, horizspan, verticalspan);
+  SoOrthoSliceP::getPageGeometry(volumedata,
+                                 this->axis.getValue(),
+                                 this->sliceNumber.getValue(),
+                                 origo, horizspan, verticalspan);
   page->render(action, origo, horizspan, verticalspan,
                // FIXME: ugly cast
                (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue());
