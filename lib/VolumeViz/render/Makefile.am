@@ -1,1 +1,1 @@
-SUBDIRS = 2D Pointset
+SUBDIRS = 2D 3D common Pointset

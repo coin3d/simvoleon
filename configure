@@ -20520,7 +20520,7 @@ fi
 
 # *******************************************************************
 
-                                                                                                                                                      ac_config_files="$ac_config_files Makefile bin/Makefile bin/simvoleon-config lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile lib/VolumeViz/render/Pointset/Makefile"
+                                                                                                                                                                          ac_config_files="$ac_config_files Makefile bin/Makefile bin/simvoleon-config lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile lib/VolumeViz/render/3D/Makefile lib/VolumeViz/render/common/Makefile lib/VolumeViz/render/Pointset/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -21104,6 +21104,8 @@ do
   "lib/VolumeViz/readers/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/readers/Makefile" ;;
   "lib/VolumeViz/render/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/Makefile" ;;
   "lib/VolumeViz/render/2D/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/2D/Makefile" ;;
+  "lib/VolumeViz/render/3D/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/3D/Makefile" ;;
+  "lib/VolumeViz/render/common/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/common/Makefile" ;;
   "lib/VolumeViz/render/Pointset/Makefile" ) CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/Pointset/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "lib/config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS lib/config.h" ;;

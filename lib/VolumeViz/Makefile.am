@@ -21,7 +21,9 @@ libSimVoleon@SUFFIX@_la_LIBADD = \
 	nodes/libnodes.la \
 	readers/libreaders.la \
 	render/2D/lib2Drender.la \
-	render/Pointset/libpointsetrender.la
+        render/3D/lib3Drender.la \
+        render/Pointset/libpointsetrender.la \
+        render/common/libcommonrender.la
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
 	details/details.lst \
@@ -30,7 +32,9 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
 	nodes/nodes.lst \
 	readers/readers.lst \
 	render/2D/2Drender.lst \
-	render/Pointset/pointsetrender.lst
+        render/3D/3Drender.lst \
+        render/Pointset/pointsetrender.lst \
+        render/common/commonrender.lst
 
 libSimVoleon@SUFFIX@_la_LDFLAGS = \
 	-no-undefined \
