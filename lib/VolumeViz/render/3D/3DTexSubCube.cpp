@@ -66,6 +66,7 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
     assert(FALSE && "Cannot initialize a 3D texture cube with a 2D texture object");
   }
 
+
   this->compresstextures = compresstextures;
   const char * envstr = coin_getenv("CVR_COMPRESS_TEXTURES");
   if (envstr) { this->compresstextures = (compresstextures || atoi(envstr) > 0 ? TRUE : FALSE); }
@@ -291,15 +292,16 @@ Cvr3DTexSubCube::transferTex3GL(SoGLRenderAction * action,
       else colorformat = GL_COMPRESSED_INTENSITY_ARB;
     }
 
-    GLCMD(glTexImage3D(GL_TEXTURE_3D,
-                       0,
-                       colorformat,
-                       this->texdims[0], this->texdims[1], this->texdims[2],
-                       0,
-                       this->ispaletted ? palettetype : GL_RGBA,
-                       GL_UNSIGNED_BYTE,
-                       imgptr));
-     
+    cc_glglue_glTexImage3D(glw,
+                           GL_TEXTURE_3D,
+                           0,
+                           colorformat,
+                           this->texdims[0], this->texdims[1], this->texdims[2],
+                           0,
+                           this->ispaletted ? palettetype : GL_RGBA,
+                           GL_UNSIGNED_BYTE,
+                           imgptr);
+
     assert(glGetError() == GL_NO_ERROR);
     
   }
@@ -339,7 +341,7 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
   const float tmp1 = obj->dimensions[0] + (obj->texdims[0] - obj->originaltexsize[0]);
   const float tmp2 = obj->dimensions[1] + (obj->texdims[1] - obj->originaltexsize[1]);
   const float tmp3 = obj->dimensions[2] + (obj->texdims[2] - obj->originaltexsize[2]);
-  SbVec3f * texcoord = new SbVec3f(dist[0] / tmp1, (dist[1] / tmp2), dist[2] / tmp3);
+  SbVec3f * texcoord = new SbVec3f(dist[0]/tmp1, dist[1]/tmp2, dist[2]/tmp3);
   
   obj->texcoordlist.append(texcoord);
   return (void *) texcoord;
@@ -392,11 +394,12 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
   cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(0.0f, 0.0f, this->dimensions[2]),
                            cubeorigo, 
                            cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f)));
-  
+
+  int i=0;
   const int result = cubeclipper.getNumVertices();
   if (result > 0) {
     subcube_slice slice;
-    for (int i=0;i<result;i++) {
+    for (i=0;i<result;i++) {
       SbVec3f vert;
       cubeclipper.getVertex(i, vert);
       
@@ -409,7 +412,7 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
       slice.texcoord.append(texcoord);
     }
     
-    for (int i=0;i<this->texcoordlist.getLength();++i)
+    for (i=0;i<this->texcoordlist.getLength();++i)
       delete this->texcoordlist[i];
     
     this->texcoordlist.truncate(0);
@@ -437,7 +440,7 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
     this->activateCLUT(action);
 
   // FIXME: Maybe we should build a vertex array instead of making
-  // intermediate glVertex calls. Would probably give a performance
+  // glVertex3f calls. Would probably give a performance
   // gain. (20040312 handegar)
   
   glColor4f(1.0f, 1.0f, 1.0f, 1.0f);    
