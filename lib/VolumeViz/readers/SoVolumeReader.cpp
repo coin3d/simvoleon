@@ -59,13 +59,3 @@ void
 SoVolumeReader::setUserData(void * data)
 {}
 
-void 
-SoVolumeReader::getDataChar(SbBox3f &size, SoVolumeRendering::DataType &type, SbVec3s &dim)
-{}
-
-void 
-SoVolumeReader::getSubSlice(SbBox2s &subSlice, 
-                            int sliceNumber, 
-                            void * data,
-                            SoVolumeRendering::Axis axis)
-{}

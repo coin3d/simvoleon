@@ -31,7 +31,8 @@ public:
   virtual void getSubSlice( SbBox2s &subSlice, 
                             int sliceNumber, 
                             void * data,
-                            SoVolumeRendering::Axis axis = SoVolumeRendering::Z) 
+                            SoVolumeRendering::Axis axis = 
+                              SoVolumeRendering::Z) 
                             = 0;
 
 protected: 

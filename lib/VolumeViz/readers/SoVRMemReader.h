@@ -19,12 +19,14 @@ public:
   SoVRMemReader();
   ~SoVRMemReader();
   void setUserData(void * data);
-  void getDataChar(SbBox3f &size, SoVolumeRendering::DataType &type, SbVec3s &dim);
-  void getSubSlice( SbBox2s &subSlice, 
-                    int sliceNumber, 
-                    void * data, 
-                    SoVolumeRendering::Axis axis 
-                    = SoVolumeRendering::Z);
+  void getDataChar(SbBox3f &size, 
+                   SoVolumeRendering::DataType &type, 
+                   SbVec3s &dim);
+  void getSubSlice(SbBox2s &subSlice, 
+                   int sliceNumber, 
+                   void * data, 
+                   SoVolumeRendering::Axis axis 
+                   = SoVolumeRendering::Z);
 
   void setData(const SbVec3s &dimensions, 
                const void *data, 

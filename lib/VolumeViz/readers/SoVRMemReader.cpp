@@ -110,16 +110,19 @@ SoVRMemReader::setData(const SbVec3s &dimensions,
 
 
 
+/*
+Returns a raw image with Z as horisontal and Y as vertical axis
+Assumes that the provided data is in RGBA-form
+Caller deletes of course. 
 
-// Returns a raw image with Z as horisontal and Y as vertical axis
-// Assumes that the provided data is in RGBA-form
-// Caller deletes of course. 
-
-// This function and the similar functions for Y- and Z-axis should
-// be fairly optimized. The innerloops could be unrolled a few times 
-// to get even more speed. But that would mess up the code. 
+This function and the similar functions for Y- and Z-axis should
+be fairly optimized. The innerloops could be unrolled a few times 
+to get even more speed. But that would mess up the code. 
+*/
 void 
-SoVRMemReaderP::buildSubSliceX(void * output, int sliceIdx, const SbBox2s &subSlice)
+SoVRMemReaderP::buildSubSliceX(void * output, 
+                               int sliceIdx, 
+                               const SbBox2s &subSlice)
 {
   unsigned int * intData = (unsigned int *)data;
   unsigned int * intTexture = (unsigned int *)output;
@@ -177,12 +180,15 @@ SoVRMemReaderP::buildSubSliceX(void * output, int sliceIdx, const SbBox2s &subSl
 
 
 
-
-// Returns a texture with X as horisontal and Z as vertical axis
-// Assumes that the provided data is in RGBA-form
-// Caller deletes of course.
+/*
+Returns a texture with X as horisontal and Z as vertical axis
+Assumes that the provided data is in RGBA-form
+Caller deletes of course.
+*/
 void 
-SoVRMemReaderP::buildSubSliceY(void * output, int sliceIdx, const SbBox2s &subSlice)
+SoVRMemReaderP::buildSubSliceY(void * output, 
+                               int sliceIdx, 
+                               const SbBox2s &subSlice)
 {
   unsigned int * intData = (unsigned int *)data;
   unsigned int * intTexture = (unsigned int *)output;
@@ -235,12 +241,15 @@ SoVRMemReaderP::buildSubSliceY(void * output, int sliceIdx, const SbBox2s &subSl
 }// getRGBAPageY
 
 
-
-// Returns a texture with X as horisontal and Y as vertical axis
-// Assumes that the provided data is in RGBA-form
-// Caller deletes of course.
+/*
+Returns a texture with X as horisontal and Y as vertical axis
+Assumes that the provided data is in RGBA-form
+Caller deletes of course.
+*/
 void 
-SoVRMemReaderP::buildSubSliceZ(void * output, int sliceIdx, const SbBox2s &subSlice)
+SoVRMemReaderP::buildSubSliceZ(void * output, 
+                               int sliceIdx, 
+                               const SbBox2s &subSlice)
 {
   unsigned int * intData = (unsigned int *)data;
   unsigned int * intTexture = (unsigned int *)output;
