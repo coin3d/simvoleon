@@ -252,14 +252,15 @@ SoVRVolFileReader::setUserData(void * data)
   // FIXME: this is completely bogus use of SoVolumeReader::m_data --
   // this is *not* where the voxel data is supposed to be stored. That
   // is inside SoVolumeData. 20041008 mortene.
-  this->m_data = malloc(filesize);
+  this->m_data = malloc((size_t)filesize); // FIXME: bogus cast. 2004121 mortene.
   assert(this->m_data);
 
   FILE * f = fopen(filename, "rb");
   assert(f && "couldn't open file");
   // FIXME: move relevant code to
   // SoVolumeReader::getBuffer(). 20021125 mortene.
-  size_t gotnrbytes = fread(this->m_data, 1, filesize, f);
+  size_t gotnrbytes =
+    fread(this->m_data, 1, (size_t)filesize, f); // FIXME: bogus cast. 2004121 mortene.
   assert(gotnrbytes == filesize);
 
   if (CvrUtil::doDebugging()) {
@@ -372,14 +373,15 @@ SoVRVolFileReader::setUserData(void * data)
 
   // Shift actual voxel data to start at the m_data pointer.
   (void)memmove(this->m_data, (uint8_t *)this->m_data + volh->header_length,
-                filesize - volh->header_length);
+                ((size_t)filesize) - volh->header_length); // FIXME: bogus cast. 2004121 mortene.
 
   const char * env = coin_getenv("CVR_DEBUG_DUMP_RAW");
   if (env) {
     FILE * f = fopen(env, "w");
     assert(f); // FIXME: handle in robust manner. 20030702 mortene.
     // FIXME: error check next two. 20030702 mortene.
-    fwrite(this->m_data, 1, filesize - volh->header_length, f);
+    fwrite(this->m_data, 1,
+           ((size_t)filesize) - volh->header_length, f); // FIXME: bogus cast. 2004121 mortene.
     fclose(f);
   }
 

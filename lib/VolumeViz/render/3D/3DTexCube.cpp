@@ -322,8 +322,11 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
       for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
 
-        const SbVec3f subcubeorigo = this->origo +
-          subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
+        const SbVec3f subcubeorigo =
+          this->origo +
+          subcubewidth * (float)colidx +
+          subcubeheight * (float)rowidx +
+          subcubedepth * (float)depthidx;
         if (cubeitem == NULL) { 
           cubeitem = this->buildSubCube(action, subcubeorigo, colidx, rowidx, depthidx); 
         }
@@ -459,7 +462,7 @@ Cvr3DTexCube::renderObliqueSlice(const SoGLRenderAction * action,
   // important goal is that the object is completely inside the ortho
   // area. (20040628 handegar)
   const float viewvolumesize = (subcubewidth + subcubeheight + subcubedepth).length();
-  viewvolume.ortho(-viewvolumesize, viewvolumesize, -viewvolumesize, viewvolumesize, 0.01, 100);
+  viewvolume.ortho(-viewvolumesize, viewvolumesize, -viewvolumesize, viewvolumesize, 0.01f, 100.0f);
   viewvolume.transform(m);
   const SbMatrix mat = SoModelMatrixElement::get(state).inverse();
 
@@ -472,8 +475,11 @@ Cvr3DTexCube::renderObliqueSlice(const SoGLRenderAction * action,
         Cvr3DTexSubCube * cube = NULL;
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
 
-        const SbVec3f subcubeorigo = this->origo +
-          subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
+        const SbVec3f subcubeorigo =
+          this->origo +
+          subcubewidth * (float)colidx +
+          subcubeheight * (float)rowidx +
+          subcubedepth * (float)depthidx;
 
         if (cubeitem == NULL) { 
           cubeitem = this->buildSubCube(action, subcubeorigo, colidx, rowidx, depthidx); 
@@ -523,8 +529,11 @@ Cvr3DTexCube::renderIndexedSet(const SoGLRenderAction * action,
         Cvr3DTexSubCube * cube = NULL;
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
 
-        const SbVec3f subcubeorigo = this->origo +
-          subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
+        const SbVec3f subcubeorigo =
+          this->origo +
+          subcubewidth * (float)colidx +
+          subcubeheight * (float)rowidx +
+          subcubedepth * (float)depthidx;
         
         if (cubeitem == NULL) { 
           cubeitem = this->buildSubCube(action, subcubeorigo, colidx, rowidx, depthidx); 
@@ -587,8 +596,11 @@ Cvr3DTexCube::renderNonindexedSet(const SoGLRenderAction * action,
         Cvr3DTexSubCube * cube = NULL;
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
 
-        const SbVec3f subcubeorigo = this->origo +
-          subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
+        const SbVec3f subcubeorigo =
+          this->origo +
+          subcubewidth * (float)colidx +
+          subcubeheight * (float)rowidx +
+          subcubedepth * (float)depthidx;
 
         if (cubeitem == NULL) { 
           cubeitem = this->buildSubCube(action, subcubeorigo, colidx, rowidx, depthidx); 

@@ -211,9 +211,9 @@ Cvr2DTexPage::render(const SoGLRenderAction * action,
 
       SbVec3f upleft = origo +
         // horizontal shift to correct column
-        subpagewidth * colidx +
+        subpagewidth * (float)colidx +
         // vertical shift to correct row
-        subpageheight * rowidx;
+        subpageheight * (float)rowidx;
 
       // FIXME: should do view frustum culling on each page as an
       // optimization measure (both for rendering speed and texture
