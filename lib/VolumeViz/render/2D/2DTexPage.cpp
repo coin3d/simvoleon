@@ -414,9 +414,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   Cvr2DTexSubPage * page = NULL;
   if (!invisible) {
-    page = new Cvr2DTexSubPage(action, (const uint8_t *)texture,
-                               this->subpagesize, texsize,
-                               palette, paletteSize);
+    page = new Cvr2DTexSubPage(action, texobj, this->subpagesize, texsize);
   }
 
   delete texobj;

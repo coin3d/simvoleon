@@ -8,14 +8,14 @@
 #include <Inventor/system/gl.h>
 
 class SoGLRenderAction;
+class CvrTextureObject;
 
 
 class Cvr2DTexSubPage {
 public:
   Cvr2DTexSubPage(SoGLRenderAction * action,
-                  const uint8_t * textureimg,
-                  const SbVec2s & pagesize, const SbVec2s & texsize,
-                  const float * palette = NULL, int palettesize = 0);
+                  const CvrTextureObject * texobj,
+                  const SbVec2s & pagesize, const SbVec2s & texsize);
   ~Cvr2DTexSubPage();
 
   enum Interpolation { NEAREST, LINEAR };
@@ -27,8 +27,8 @@ public:
   static unsigned int totalTextureMemoryUsed(void);
 
 private:
-  void transferTex2GL(SoGLRenderAction * action, const uint8_t * textureimg,
-                      int palettesize, const float * palette);
+  void transferTex2GL(SoGLRenderAction * action,
+                      const CvrTextureObject * texobj);
 
   void activateTexture(Interpolation interpolation) const;
 

@@ -1,4 +1,5 @@
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
+#include <VolumeViz/render/2D/CvrTextureObject.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
@@ -62,10 +63,9 @@ GLuint Cvr2DTexSubPage::emptyimgname[1] = { 0 };
 SbBool Cvr2DTexSubPage::detectedtextureswapping = FALSE;
 
 Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
-                                 const uint8_t * textureimg,
+                                 const CvrTextureObject * texobj,
                                  const SbVec2s & pagesize,
-                                 const SbVec2s & texsize,
-                                 const float * palette, int palettesize)
+                                 const SbVec2s & texsize)
 {
   this->bitspertexel = 0;
 
@@ -93,7 +93,7 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                          this->texmaxcoords[0], this->texmaxcoords[1]);
 #endif // debug
 
-  this->transferTex2GL(action, textureimg, palettesize, palette);
+  this->transferTex2GL(action, texobj);
 
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("Cvr2DTexSubPage::Cvr2DTexSubPage",
@@ -205,9 +205,14 @@ Cvr2DTexSubPage::activateTexture(Interpolation interpolation) const
 // the indices are byte or short.
 void
 Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
-                                const uint8_t * textureimg,
-                                int palettesize, const float * palette)
+                                const CvrTextureObject * texobj)
 {
+  // FIXME: paletted textures are currently disabled. (The following
+  // data should eventually be available from CvrTextureObject.)
+  // 20021206 mortene.
+  const float * palette = NULL;
+  const int palettesize = 0;
+
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
 
   if (Cvr2DTexSubPage::emptyimgname[0] == 0) {
@@ -351,7 +356,9 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
                  0,
                  palette == NULL ? GL_RGBA : GL_COLOR_INDEX,
                  bytes_pr_unit,
-                 textureimg);
+                 // FIXME: must be changed when we support paletted
+                 // textures. 20021206 mortene.
+                 texobj->getRGBABuffer());
     assert(glGetError() == GL_NO_ERROR);
 
     GLint wrapenum = GL_CLAMP;
