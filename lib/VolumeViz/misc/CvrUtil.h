@@ -33,6 +33,7 @@ public:
   static SbBool debugRayPicks(void);
 
   static SbBool useFlippedYAxis(void);
+  static SbBool dontModulateTextures(void);
 
   static uint32_t crc32(uint8_t * buf, unsigned int len);
 };

@@ -42,7 +42,7 @@
 
 // *************************************************************************
 
-// Fragment programs for using an index value to look up a color from
+// Fragment program for using an index value to look up a colour from
 // a 1D texture.
 //
 // This is a supplement and an eventual replacement for the palette
@@ -50,34 +50,20 @@
 // threatened to remove it from their drivers (and actually did so for
 // a few versions before re-introducing it).
 
-// FIXME: programs for handling 2D and 3D are almost identical --
-// avoid duplication. 20040504 mortene.
-
-// FIXME: the "MUL" instruction lines can be replaced by
-//
-//    "MOV result.color, R0;\n"
-//
-// if the user is not interested in modulating the textures with the
-// current diffuse color -- which is usually the case? This will
-// provide a decent speed-up, so it should be controllable from
-// application code, for instance from an envvar to disable
-// modulation. 20040611 mortene.
-
-static const char * cvrclut_palettelookupprogram3d = 
+static const char * cvrclut_palettelookupprogram = 
 "!!ARBfp1.0\n"
 "TEMP R0;\n"
-"TEX R0.x, fragment.texcoord[0], texture[0], 3D;\n"
+"TEX R0.x, fragment.texcoord[0], texture[0], \%s;\n"
 "TEX R0, R0.x, texture[1], 1D;\n"
-"MUL result.color, state.material.diffuse, R0;\n"
+"\%s;\n"
 "END\n";
+static const char * cvrclut_palettelookupprogram_modulate =
+"MUL result.color, state.material.diffuse, R0";
+static const char * cvrclut_palettelookupprogram_replace = 
+"MOV result.color, R0";
+static const char * cvrclut_palettelookupprogram_2d = "2D";
+static const char * cvrclut_palettelookupprogram_3d = "3D";
 
-static const char * cvrclut_palettelookupprogram2d = 
-"!!ARBfp1.0\n"
-"TEMP R0;\n"
-"TEX R0.x, fragment.texcoord[0], texture[0], 2D;\n"
-"TEX R0, R0.x, texture[1], 1D;\n"
-"MUL result.color, state.material.diffuse, R0;\n"
-"END\n";
 
 // *************************************************************************
 
@@ -290,14 +276,26 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue)
   cc_glglue_glGenPrograms(glue, 1, &this->palettelookupprogramid); 
   cc_glglue_glBindProgram(glue, GL_FRAGMENT_PROGRAM_ARB, this->palettelookupprogramid);
 
-  if (this->texturetype == CvrCLUT::TEXTURE3D)
-    cc_glglue_glProgramString(glue, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
-                              strlen(cvrclut_palettelookupprogram3d), cvrclut_palettelookupprogram3d);
-  else if(this->texturetype == CvrCLUT::TEXTURE2D)
-    cc_glglue_glProgramString(glue, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
-                              strlen(cvrclut_palettelookupprogram2d), cvrclut_palettelookupprogram2d);
+  // Setup fragment program according to texture type.
+  SbString fragmentprogram;
+  char * modulatestringptr = (char *) cvrclut_palettelookupprogram_modulate;
+  if (CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
+    modulatestringptr = (char *) cvrclut_palettelookupprogram_replace;  
+  if (this->texturetype == CvrCLUT::TEXTURE3D) {
+    fragmentprogram.sprintf(cvrclut_palettelookupprogram, 
+                            cvrclut_palettelookupprogram_3d,
+                            modulatestringptr);
+  }
+  else if(this->texturetype == CvrCLUT::TEXTURE2D) {
+    fragmentprogram.sprintf(cvrclut_palettelookupprogram, 
+                            cvrclut_palettelookupprogram_2d,
+                            modulatestringptr);
+  }
   else assert(FALSE && "Unknown texture type.");
-
+  
+  cc_glglue_glProgramString(glue, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
+                            fragmentprogram.getLength(), fragmentprogram.getString());
+    
   // FIXME: Maybe a wrapper for catching fragment program errors
   // should be a part of GLUE... (20031204 handegar)
   GLint errorPos;
@@ -332,7 +330,6 @@ CvrCLUT::initPaletteTexture(const cc_glglue * glue)
 
   glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA8, this->nrentries, 0, GL_RGBA, 
                GL_UNSIGNED_BYTE, (GLvoid *) this->glcolors);
-
 #endif
 }
 

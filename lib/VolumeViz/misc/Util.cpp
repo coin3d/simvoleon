@@ -67,6 +67,19 @@ CvrUtil::useFlippedYAxis(void)
   return (val == 0) ? FALSE : TRUE;
 }
 
+// A performance gain can be achieved if texture modulation is to be
+// ignored. The largest gain is achieved when rendering using
+// fragment programs.
+SbBool
+CvrUtil::dontModulateTextures(void)
+{
+  static int flag = -1;
+  if (flag == -1) {
+    const char * envstr = coin_getenv("CVR_DISABLE_TEXTURE_MODULATION");
+    flag = envstr && (atoi(envstr) > 0);
+  }
+  return (flag == 0) ? FALSE : TRUE;
+}
 
 static uint32_t crc32_precalc_table[] = {
   0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,

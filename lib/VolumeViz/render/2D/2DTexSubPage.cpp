@@ -31,6 +31,7 @@
 #include <VolumeViz/render/common/Cvr2DRGBATexture.h>
 #include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
 #include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
@@ -413,9 +414,10 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
       if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
       else colorformat = GL_COMPRESSED_INTENSITY_ARB;
     }
-    
-    GLCMD(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE));
 
+    if (!CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
+      GLCMD(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE));
+    
     GLCMD(glTexImage2D(GL_TEXTURE_2D,
                  0,
                  colorformat,
@@ -486,6 +488,9 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
   SbVec3f lowleft = upleft + heightvec;
   SbVec3f lowright = lowleft + widthvec;
   SbVec3f upright = upleft + widthvec;
+
+  if (CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
   // Texturecoords are set up so the texture is flipped in the
   // Y-direction, as the volume data and texture map data are oriented

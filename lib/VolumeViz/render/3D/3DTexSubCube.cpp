@@ -31,6 +31,7 @@
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
 #include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
@@ -322,7 +323,8 @@ Cvr3DTexSubCube::transferTex3GL(SoGLRenderAction * action,
       else colorformat = GL_COMPRESSED_INTENSITY_ARB;
     }
       
-    GLCMD(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE));
+    if (!CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
+      GLCMD(glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE));
 
     cc_glglue_glTexImage3D(glw,
                            GL_TEXTURE_3D,
@@ -484,6 +486,9 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
   if (this->ispaletted) // Switch ON palette rendering
     this->activateCLUT(action);
   
+  if (CvrUtil::dontModulateTextures()) // Is texture mod. disabled by an envvar?
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+ 
   // FIXME: Maybe we should build a vertex array instead of making
   // glVertex3f calls. Would probably give a performance
   // gain. (20040312 handegar)
