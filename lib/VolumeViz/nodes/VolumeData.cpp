@@ -471,6 +471,7 @@ SoVolumeData::renderOrthoSlice(SoState * state,
   SoVolumeDataSlice * slice =
     PRIVATE(this)->getSlice((SoVolumeDataP::Axis)axis, sliceIdx);
 
+  // FIXME: huh? What's up with this? 20021111 mortene.
   PRIVATE(this)->numTexels -= slice->numTexels;
   PRIVATE(this)->numPages -= slice->numPages;
   PRIVATE(this)->numBytesSW -= slice->numBytesSW;
@@ -500,6 +501,7 @@ SoVolumeData::renderOrthoSlice(SoState * state,
   slice->render(state, v0, v1, v2, v3, textureCoords, transferFunction,
                 PRIVATE(this)->tick);
 
+  // FIXME: huh? What's up with this? 20021111 mortene.
   PRIVATE(this)->numTexels += slice->numTexels;
   PRIVATE(this)->numPages += slice->numPages;
   PRIVATE(this)->numBytesSW += slice->numBytesSW;
