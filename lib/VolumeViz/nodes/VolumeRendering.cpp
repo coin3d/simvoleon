@@ -60,9 +60,9 @@
   automatically done on graphics card which supports hardware assisted
   3D texture mapping. </li>
 
-  <li> Colour transfer functions can be manipulated in realtime using the
-  EXT_paletted_texture or the ARB_fragment_program OpenGL
-  extension. </li>
+  <li> Colour transfer functions can be manipulated in realtime using
+  the either the \c EXT_paletted_texture or the \c
+  ARB_fragment_program OpenGL extensions. </li>
 
   <li> Maximum Intensity Projection and Sum Intensity Projection is
   supported through hardware if available. </li>
@@ -159,32 +159,39 @@
   <ul>
 
   <li>
-  SIMVoleon can render volumes using both 2D and 3D textures. The
+  SIM Voleon can render volumes using both 2D and 3D textures. The
   former will demand three times more texture memory than the latter,
   due to the static axis alignment for the volume slices. 3D textures
-  provide the best rendering quality. SIMVoleon will do a performance
-  test of the hosts graphics card at startup to determine whether the
-  3D texture support, if present, is hardware accelerated or not. If
-  the support is not hardware accelerated (which is the case with many
-  older cards), SIMVoleon will fall back to regular 2D texture
-  rendering.
+  provide the best rendering quality.
 
-  Beware that certain nodes requires true 3D texture support to
-  function properly (e.g. SoObliqueSlice).  
+  SIM Voleon will do a performance test of the host system's graphics
+  card at startup to determine whether the 3D texture support, if
+  present, is hardware accelerated or not. If the support is not
+  hardware accelerated (which is the case with many older cards), SIM
+  Voleon will fall back to regular 2D texture rendering.
+
+  Beware that certain nodes requires 3D texture support in the OpenGL
+  driver to function properly (e.g. SoObliqueSlice), but does not
+  demand hardware-acceleration of 3D-texturing to be present. Required
+  3D-texture support was included in the OpenGL specification starting
+  with version 1.2, and it had additionally been present in the form
+  of vendor and ARB extensions for some time before that. At the
+  present day, the chances of running on a system without 3D texture
+  support should therefore be small.
   </li>
 
   <li>
   Due to the fact that volume data sets are usually quite large,
   memory is an important factor for volume rendering. It is also
   important to remember that 2D texture rendering requires three times
-  more memory than 3D texture rendering. It is recommended that
-  at least 32 MB of memory is available, depending on the size of the
-  data sets used.
+  more memory than 3D texture rendering. For large datasets, available
+  graphics card memory is currently the main bottleneck for SIM
+  Voleon.
   </li>
 
   <li>
-  SIMVoleon will take advantage of the EXT_paletted_texture or the
-  ARB_fragment_program OpenGL extension if available for palette
+  SIM Voleon will take advantage of the \c EXT_paletted_texture or the
+  \c ARB_fragment_program OpenGL extension if available for paletted
   rendering. If neither of these extensions are present, all data sets
   will be converted into RGBA textures before uploaded by OpenGL,
   multiplying the memory usage by four.
@@ -195,7 +202,7 @@
   <p>
   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-engine.png" align=right>
 
-  SIMVoleon does currently support loading of VOL files, which is a
+  SIM Voleon does currently support loading of VOL files, which is a
   format introduces by the book <i>"Introduction To Volume
   Rendering"</i>, by Lichtenbelt, Crane and Naqvi (Hewlett-Packard /
   Prentice Hall), <i>ISBN 0-13-861683-3</i>. (See the
@@ -203,16 +210,16 @@
   can be added by extending the SoVolumeReader class.
 
   Beware that large voxel sets are divided into sub cubes. The largest
-  default sub cube size is set to 128x128x128 to comply with the TGS
-  VolumeViz API. Todays graphics cards can do much larger textures
-  than this, achieving a higher framerate due to the reduced overhead
-  of sub cube switching and slicing. A graphics card with 128+ MB and
-  true hardware 3D texture support can easily handle voxel sets of
-  size 256x256x256. Increasing the maximum sub cube size can really
-  boost the performance if your graphics card can handle it. Call
-  SoVolumeData::setPageSize(const SbVec3s & size) to adjust the
-  maximum sub cube size. Keep in mind that allowing really large 3D
-  textures might cause other textures to be swapped out of graphics
+  default sub cube size is by default set to 128x128x128, to match the
+  TGS VolumeViz API. Current graphics cards can do much larger
+  textures than this, achieving a higher framerate due to the reduced
+  overhead of sub cube switching and slicing. A graphics card with
+  128+ MB and true hardware 3D texture support can easily handle voxel
+  sets of size 256x256x256. Increasing the maximum sub cube size can
+  really boost the performance if your graphics card can handle
+  it. Call SoVolumeData::setPageSize(const SbVec3s & size) to adjust
+  the maximum sub cube size. Keep in mind that allowing really large
+  3D textures might cause other textures to be swapped out of graphics
   memory, leading to reduced performance.
   </p>
 

@@ -26,10 +26,12 @@
   \brief Contains the transfer function definition.
 
   This node sets up the mapping from voxel data values to actual
-  on-screen color values and transparency / opaqueness. It has a set
-  of pre-defined color maps, commonly used in e.g. seismic
-  visualization, and the option to set up one's own free-form color
-  map lookup table.
+  on-screen color values and transparency / opaqueness.
+
+  It has a set of pre-defined color maps, commonly used in
+  e.g. seismic visualization, and the option to set up one's own
+  free-form color map lookup table (by setting
+  SoTransferFunction::predefColorMap to NONE).
 */
 
 // *************************************************************************
@@ -76,82 +78,171 @@ private:
 
 /*!
   \enum SoTransferFunction::PredefColorMap
-  Predefined color transfer funcions of size 256.
+  Predefined color transfer functions, each containing exactly 256 colors.
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::NONE
   If this is set, the SoTransferFunction::colorMap field must be used.
 */
+
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GREY
-  Default
+
+  Default transfer function color map. The checker board indicates
+  that this gradient is partly transparent.
+
+  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/grey.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GRAY
-  Same as GREY
+  Same as GREY.
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::TEMPERATURE
-  &nbsp;
+
+  This gradient is fully opaque.
+
+  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/temperature.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::PHYSICS
-  &nbsp;
+
+  This gradient is fully opaque.
+
+  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/physics.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::STANDARD
-  &nbsp;
+
+  This gradient is fully opaque.
+
+  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/standard.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GLOW
-  &nbsp;
+
+  This gradient is fully opaque.
+
+  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/glow.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::BLUE_RED
-  &nbsp;
+
+  This gradient is fully opaque.
+
+  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/blue_red.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::SEISMIC
-  &nbsp;
+
+  This gradient is partly transparent.
+
+  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/seismic.png"></center>
 */
 
 /*!
   \enum SoTransferFunction::ColorMapType
-  Type of colormap array.
+
+  Type of colormap array. Defines the possible values for the
+  SoTransferFunction::colorMapType field.
 */
 /*!
   \var SoTransferFunction::ColormapType SoTransferFunction::ALPHA
-  Each color entry in the transfer function has only one component.
+
+  Each color entry in the transfer function has only one component, so
+  the SoTransferFunction::colorMap field should consist of exactly 256
+  float values, each value representing a transparency value. The RGB
+  colors will all be set to [1,1,1], i.e. all white.
 */
 /*!
   \var SoTransferFunction::ColormapType SoTransferFunction::LUM_ALPHA
-  Each entry has to components, ie. two floats.
+ 
+ Each transfer function color map entry in
+ SoTransferFunction::colorMap has two components, ie. two floats, so
+ the field should contain exactly 256*2 = 512 values. The first float
+ value of each pair is taken to be an intensity / grey color value,
+ and the second float of each pair is a transparency value (as for the
+ ALPHA enum).
 */
 /*!
   \var SoTransferFunction::ColormapType SoTransferFunction::RGBA
-  Four floats are used to specify each color of the transfer function.
+
+  Four floats are used to specify each color of the transfer
+  function. SoTransferFunction::colorMap should consist of exactly
+  256*4 = 1024 float values. Each quadruple consist of intensity
+  values for red, green, and blue, and then the fourth value is an
+  alpha value, as for LUM_ALPHA and ALPHA.
 */
 
 /*!
   \var SoSFInt32 SoTransferFunction::offset
+
   See the SoTransferFunction::shift field.
 */
 
 /*!
   \var SoSFInt32 SoTransferFunction::shift
-  Used to shift the transfer function before assigning voxel value.
+
+  Used to shift the voxel attribute value before assigning a color
+  value from the transfer function color map. In pseudo-code:
+
   \code
-  voxelvalue = (datavalue << shift) + offset
+  colorvalue = transferfunction[(voxelvalue << shift) + offset]
   \endcode
+
+  (\c offset is the value of the SoTransferFunction::offset field.)
+*/
+
+/*!
+  \var SoSFEnum SoTransferFunction::colorMapType
+
+  This field specifies how the SoTransferFunction::colorMap field
+  should be interpreted when SoTransferFunction::predefColorMap is set
+  to \c NONE. (Note that it will have any effect when
+  SoTransferFunction::predefColorMap is set to any of the actual
+  pre-defined transfer function color maps.)
+
+  See SoTransferFunction::ColorMapType for what possible values this
+  field can have, and their semantics.
+*/
+
+/*!
+  \var SoSFEnum SoTransferFunction::predefColorMap
+
+  Sets up the transfer function to use. See
+  SoTransferFunction::PredefColorMap for a list of the pre-defined
+  color maps.
+
+  Note that most of the pre-defined color maps are all opaque, even
+  for data value 0. This will often cause the unwanted behavior that
+  the full data set will be completely opaque for visualization, so
+  only the outer "walls" of the volume are shown. To avoid this, use
+  the SoTransferFunction::reMap() method to "narrow" the data values
+  that are to be rendered according to the transfer function (all
+  values outside of the given range will then be fully transparent).
+
+  The value SoTransferFunction::NONE has special meaning: it signifies
+  that none of the pre-defined values should be used, but that the
+  transfer function color map should be fetched from the
+  SoTransferFunction::colorMap field instead.
 */
 
 /*!
   \var SoMFFloat SoTransferFunction::colorMap
+
   An array of floats describing the transfer function. Each value must
-  be normalized to [0..1]. The array must contain 256 colors. The
-  number of floats for each color depends on the
+  be normalized to be within [0.0, 1.0] for the intensity value of a
+  color, or the alpha value for transparency.
+
+  The array must contain 256 colors. The number of floats needed in
+  the array for each color depends on the
   SoTransferFunction::ColorMapType setting.
 */
+
+// FIXME: the colorMap field shouldn't have to contain exactly 256
+// colors. This is mentioned several times in the API docs above, so
+// when this restriction is lifted, make sure all of them are
+// updated. 20040923 mortene.
 
 // *************************************************************************
 
