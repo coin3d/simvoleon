@@ -62,9 +62,10 @@ SoVolumeReader::setFilename(const char * filename)
 {
   PRIVATE(this)->filename = filename;
 
-  printf("filesize: %d\n", (int)this->fileSize());
-
-//   assert(FALSE && "impl stops here");
+#if CVR_DEBUG && 1 // debug
+  SoDebugError::postInfo("SoVolumeReader::setFilename",
+                         "filesize: %d", (int)this->fileSize());
+#endif // debug
 
   // TGS doc doesn't say what this is supposed to return.
   return 0;
