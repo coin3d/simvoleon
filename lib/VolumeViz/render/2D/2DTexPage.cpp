@@ -332,9 +332,9 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   FILE * f = fopen(s.getString(), "w");
   assert(f);
   (void)fprintf(f, "P2\n%d %d 255\n",  // width height maxcolval
-                this->subpagesize[0], this->subpagesize[1]);
+                slice->getDimensions()[0], slice->getDimensions()[1]);
 
-  for (int i=0; i < this->subpagesize[0] * this->subpagesize[1]; i++) {
+  for (int i=0; i < slice->getDimensions()[0] * slice->getDimensions()[1]; i++) {
     fprintf(f, "%d\n", slicebuf[i]);
   }
   fclose(f);
@@ -348,7 +348,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // fail to match dimensions perfectly with 2^n values). 20021125 mortene.
 
   SbBool invisible;
-  CvrTextureObject * texobj = transferfunc->transfer(slice, invisible);
+  CvrTextureObject * texobj = slice->transfer(action, invisible);
 
   // FIXME: could cache slices -- would speed up regeneration when
   // textures have to be invalidated. But this would take lots of
@@ -375,20 +375,22 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // Blank out unused texture parts, to make sure we don't get any
   // artifacts due to fp-inaccuracies when rendering.
   {
-    for (short y=texsize[1]; y < this->subpagesize[1]; y++) {
-      for (short x=0; x < this->subpagesize[0]; x++) {
+    SbVec2s texobjdims = texobj->getDimensions();
+    for (short y=texsize[1]; y < texobjdims[1]; y++) {
+      for (short x=0; x < texobjdims[0]; x++) {
         // FIXME: this assumes "texture" points at 4-byte array. Must
         // fix when we start using paletted textures again. 20021128 mortene.
-        texture[y * this->subpagesize[0] + x] = 0x00000000;
+        texture[y * texobjdims[0] + x] = 0x00000000;
       }
     }
   }
   {
-    for (short x=texsize[0]; x < this->subpagesize[0]; x++) {
-      for (short y=0; y < this->subpagesize[1]; y++) {
+    SbVec2s texobjdims = texobj->getDimensions();
+    for (short x=texsize[0]; x < texobjdims[0]; x++) {
+      for (short y=0; y < texobjdims[1]; y++) {
         // FIXME: this assumes "texture" points at 4-byte array. Must
         // fix when we start using paletted textures again. 20021128 mortene.
-        texture[y * this->subpagesize[0] + x] = 0x00000000;
+        texture[y * texobjdims[0] + x] = 0x00000000;
       }
     }
   }
