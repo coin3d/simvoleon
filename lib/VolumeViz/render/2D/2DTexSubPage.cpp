@@ -316,13 +316,6 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
     assert(glGetError() == GL_NO_ERROR);
 
-  SoState * state = action->getState();
-  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  assert(tfelement != NULL);
-  SoTransferFunction * transferfunc = tfelement->getTransferFunction();
-  assert(transferfunc != NULL);
-    
-
     // FIXME: investigate if this is really what we want. 20021120 mortene.
     //
     // FIXME: should at least provide an envvar to set GL_LINEAR
