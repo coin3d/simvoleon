@@ -79,6 +79,7 @@ SoVRVolFileReaderP::dataType(void)
   case 16: return SoVolumeData::UNSIGNED_SHORT;
   default: assert(FALSE && "unhandled voxel-size"); break;
   }
+  return (SoVolumeData::DataType)0; // kills a compiler warning
 }
 
 void
@@ -172,6 +173,8 @@ SoVRVolFileReader::setUserData(void * data)
   inherited::setFilename(filename);
 
   int64_t filesize = this->fileSize();
+  if (filesize == -1) { return; }
+
   assert(filesize > 0);
   this->m_data = malloc(filesize);
   assert(this->m_data);
