@@ -86,6 +86,10 @@ SoVolumeDataElement::getPageGeometry(const int axis, const int slicenr,
   const float depthprslice = (spacemax[axis] - spacemin[axis]) / dimensions[axis];
   const float depth = spacemin[axis] + slicenr * depthprslice;
 
+  // "origo" should point at the upper left corner of the page to
+  // render. horizspan should point rightwards, and verticalspan
+  // downwards.
+
   switch (axis) {
   case 0: origo = SbVec3f(depth, qmax[1], qmin[0]); break;
   case 1: origo = SbVec3f(qmin[0], depth, qmin[1]); break;
