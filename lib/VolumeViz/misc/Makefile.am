@@ -8,8 +8,8 @@ noinst_LTLIBRARIES = libmisc.la
 endif
 
 SOURCES = \
-	SoVolumeDataPage.cpp \
-	SoVolumeDataSlice.cpp
+	VolumeDataPage.cpp \
+	VolumeDataSlice.cpp
 
 libmisc_la_SOURCES = $(SOURCES)
 

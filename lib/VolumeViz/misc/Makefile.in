@@ -102,8 +102,8 @@ INCLUDES = -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libmisc.la
 
 SOURCES = \
-	SoVolumeDataPage.cpp \
-	SoVolumeDataSlice.cpp
+	VolumeDataPage.cpp \
+	VolumeDataSlice.cpp
 
 
 libmisc_la_SOURCES = $(SOURCES)
@@ -124,14 +124,13 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 misc_lst_AR = $(AR) cru
 misc_lst_LIBADD =
-am_misc_lst_OBJECTS = SoVolumeDataPage.$(OBJEXT) \
-	SoVolumeDataSlice.$(OBJEXT)
+am_misc_lst_OBJECTS = VolumeDataPage.$(OBJEXT) VolumeDataSlice.$(OBJEXT)
 misc_lst_OBJECTS = $(am_misc_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libmisc_la_LDFLAGS =
 libmisc_la_LIBADD =
-am_libmisc_la_OBJECTS = SoVolumeDataPage.lo SoVolumeDataSlice.lo
+am_libmisc_la_OBJECTS = VolumeDataPage.lo VolumeDataSlice.lo
 libmisc_la_OBJECTS = $(am_libmisc_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -140,10 +139,10 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/SoVolumeDataPage.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeDataPage.Po \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeDataSlice.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeDataSlice.Po
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/VolumeDataPage.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeDataPage.Po \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeDataSlice.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeDataSlice.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -158,8 +157,8 @@ HEADERS = $(libmiscinc_HEADERS)
 
 DIST_COMMON = $(libmiscinc_HEADERS) Makefile.am Makefile.in
 SOURCES = \
-	SoVolumeDataPage.cpp \
-	SoVolumeDataSlice.cpp
+	VolumeDataPage.cpp \
+	VolumeDataSlice.cpp
 
 
 all: all-am
@@ -199,10 +198,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataPage.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataPage.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataSlice.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataSlice.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeDataPage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeDataPage.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeDataSlice.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeDataSlice.Po@am__quote@
 
 distclean-depend:
 	-rm -rf $(DEPDIR)

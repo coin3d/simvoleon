@@ -102,11 +102,11 @@ INCLUDES = -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libnodes.la
 
 SOURCES = \
-	SoTransferFunction.cpp \
-	SoVolumeData.cpp \
-	SoVolumeRender.cpp \
-	SoVolumeRendering.cpp \
-	SoROI.cpp
+	TransferFunction.cpp \
+	VolumeData.cpp \
+	VolumeRender.cpp \
+	VolumeRendering.cpp \
+	ROI.cpp
 
 
 libnodes_la_SOURCES = $(SOURCES)
@@ -132,16 +132,15 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 nodes_lst_AR = $(AR) cru
 nodes_lst_LIBADD =
-am_nodes_lst_OBJECTS = SoTransferFunction.$(OBJEXT) \
-	SoVolumeData.$(OBJEXT) SoVolumeRender.$(OBJEXT) \
-	SoVolumeRendering.$(OBJEXT) SoROI.$(OBJEXT)
+am_nodes_lst_OBJECTS = TransferFunction.$(OBJEXT) VolumeData.$(OBJEXT) \
+	VolumeRender.$(OBJEXT) VolumeRendering.$(OBJEXT) ROI.$(OBJEXT)
 nodes_lst_OBJECTS = $(am_nodes_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
-am_libnodes_la_OBJECTS = SoTransferFunction.lo SoVolumeData.lo \
-	SoVolumeRender.lo SoVolumeRendering.lo SoROI.lo
+am_libnodes_la_OBJECTS = TransferFunction.lo VolumeData.lo \
+	VolumeRender.lo VolumeRendering.lo ROI.lo
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -150,15 +149,14 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/SoROI.Plo $(DEPDIR)/SoROI.Po \
-@AMDEP_TRUE@	$(DEPDIR)/SoTransferFunction.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoTransferFunction.Po \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeData.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeData.Po \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeRender.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeRender.Po \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeRendering.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeRendering.Po
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/ROI.Plo $(DEPDIR)/ROI.Po \
+@AMDEP_TRUE@	$(DEPDIR)/TransferFunction.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/TransferFunction.Po \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeData.Plo $(DEPDIR)/VolumeData.Po \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeRender.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeRender.Po \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeRendering.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeRendering.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -173,11 +171,11 @@ HEADERS = $(libnodesinc_HEADERS)
 
 DIST_COMMON = $(libnodesinc_HEADERS) Makefile.am Makefile.in
 SOURCES = \
-	SoTransferFunction.cpp \
-	SoVolumeData.cpp \
-	SoVolumeRender.cpp \
-	SoVolumeRendering.cpp \
-	SoROI.cpp
+	TransferFunction.cpp \
+	VolumeData.cpp \
+	VolumeRender.cpp \
+	VolumeRendering.cpp \
+	ROI.cpp
 
 
 all: all-am
@@ -217,16 +215,16 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoROI.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoROI.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoTransferFunction.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoTransferFunction.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeData.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeData.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeRender.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeRender.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeRendering.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeRendering.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ROI.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ROI.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TransferFunction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TransferFunction.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeData.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeData.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeRender.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeRender.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeRendering.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeRendering.Po@am__quote@
 
 distclean-depend:
 	-rm -rf $(DEPDIR)

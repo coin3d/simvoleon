@@ -7,9 +7,9 @@ noinst_LTLIBRARIES = libreaders.la
 endif
 
 SOURCES = \
-	SoVolumeReader.cpp \
-	SoVRVolFileReader.cpp \
-	SoVRMemReader.cpp
+	VolumeReader.cpp \
+	VRVolFileReader.cpp \
+	VRMemReader.cpp
 
 libreaders_la_SOURCES = $(SOURCES)
 

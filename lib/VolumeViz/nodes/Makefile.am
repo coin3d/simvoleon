@@ -8,11 +8,11 @@ noinst_LTLIBRARIES = libnodes.la
 endif
 
 SOURCES = \
-	SoTransferFunction.cpp \
-	SoVolumeData.cpp \
-	SoVolumeRender.cpp \
-	SoVolumeRendering.cpp \
-	SoROI.cpp
+	TransferFunction.cpp \
+	VolumeData.cpp \
+	VolumeRender.cpp \
+	VolumeRendering.cpp \
+	ROI.cpp
 
 libnodes_la_SOURCES = $(SOURCES)
 
@@ -28,7 +28,7 @@ libnodesinc_HEADERS = \
 	SoVolumeData.h \
 	SoVolumeRender.h \
 	SoVolumeRendering.h
-	
+
 
 nodes.lst: $(nodes_lst_OBJECTS)
 	@echo "Linking $@..."; \

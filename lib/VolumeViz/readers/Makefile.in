@@ -102,9 +102,9 @@ INCLUDES = -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libreaders.la
 
 SOURCES = \
-	SoVolumeReader.cpp \
-	SoVRVolFileReader.cpp \
-	SoVRMemReader.cpp
+	VolumeReader.cpp \
+	VRVolFileReader.cpp \
+	VRMemReader.cpp
 
 
 libreaders_la_SOURCES = $(SOURCES)
@@ -126,15 +126,15 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 readers_lst_AR = $(AR) cru
 readers_lst_LIBADD =
-am_readers_lst_OBJECTS = SoVolumeReader.$(OBJEXT) \
-	SoVRVolFileReader.$(OBJEXT) SoVRMemReader.$(OBJEXT)
+am_readers_lst_OBJECTS = VolumeReader.$(OBJEXT) \
+	VRVolFileReader.$(OBJEXT) VRMemReader.$(OBJEXT)
 readers_lst_OBJECTS = $(am_readers_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libreaders_la_LDFLAGS =
 libreaders_la_LIBADD =
-am_libreaders_la_OBJECTS = SoVolumeReader.lo SoVRVolFileReader.lo \
-	SoVRMemReader.lo
+am_libreaders_la_OBJECTS = VolumeReader.lo VRVolFileReader.lo \
+	VRMemReader.lo
 libreaders_la_OBJECTS = $(am_libreaders_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -143,12 +143,12 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/SoVRMemReader.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoVRMemReader.Po \
-@AMDEP_TRUE@	$(DEPDIR)/SoVRVolFileReader.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoVRVolFileReader.Po \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeReader.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeReader.Po
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/VRMemReader.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/VRMemReader.Po \
+@AMDEP_TRUE@	$(DEPDIR)/VRVolFileReader.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/VRVolFileReader.Po \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeReader.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeReader.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -163,9 +163,9 @@ HEADERS = $(libreadersinc_HEADERS)
 
 DIST_COMMON = $(libreadersinc_HEADERS) Makefile.am Makefile.in
 SOURCES = \
-	SoVolumeReader.cpp \
-	SoVRVolFileReader.cpp \
-	SoVRMemReader.cpp
+	VolumeReader.cpp \
+	VRVolFileReader.cpp \
+	VRMemReader.cpp
 
 
 all: all-am
@@ -205,12 +205,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVRMemReader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVRMemReader.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVRVolFileReader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVRVolFileReader.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeReader.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeReader.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VRMemReader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VRMemReader.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VRVolFileReader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VRVolFileReader.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeReader.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeReader.Po@am__quote@
 
 distclean-depend:
 	-rm -rf $(DEPDIR)

@@ -8,8 +8,8 @@ noinst_LTLIBRARIES = libelements.la
 endif
 
 SOURCES = \
-	SoVolumeDataElement.cpp \
-	SoTransferFunctionElement.cpp
+	VolumeDataElement.cpp \
+	TransferFunctionElement.cpp
 
 libelements_la_SOURCES = $(SOURCES)
 

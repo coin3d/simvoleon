@@ -11,7 +11,7 @@ m4_define([SC_ABI_REVISION], [0])
 
 AC_INIT([VolumeViz], [1.0.0], [coin-bugs@coin3d.org])
 
-AC_CONFIG_SRCDIR(lib/VolumeViz/nodes/SoVolumeData.cpp)
+AC_CONFIG_SRCDIR(lib/VolumeViz/nodes/VolumeRendering.cpp)
 AC_CONFIG_AUX_DIR(cfg)
 
 # If the Microsoft Visual C++ cl.exe compiler is available, set us up for

@@ -102,8 +102,8 @@ INCLUDES = -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libelements.la
 
 SOURCES = \
-	SoVolumeDataElement.cpp \
-	SoTransferFunctionElement.cpp
+	VolumeDataElement.cpp \
+	TransferFunctionElement.cpp
 
 
 libelements_la_SOURCES = $(SOURCES)
@@ -124,15 +124,15 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 elements_lst_AR = $(AR) cru
 elements_lst_LIBADD =
-am_elements_lst_OBJECTS = SoVolumeDataElement.$(OBJEXT) \
-	SoTransferFunctionElement.$(OBJEXT)
+am_elements_lst_OBJECTS = VolumeDataElement.$(OBJEXT) \
+	TransferFunctionElement.$(OBJEXT)
 elements_lst_OBJECTS = $(am_elements_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libelements_la_LDFLAGS =
 libelements_la_LIBADD =
-am_libelements_la_OBJECTS = SoVolumeDataElement.lo \
-	SoTransferFunctionElement.lo
+am_libelements_la_OBJECTS = VolumeDataElement.lo \
+	TransferFunctionElement.lo
 libelements_la_OBJECTS = $(am_libelements_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -141,10 +141,10 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/SoTransferFunctionElement.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoTransferFunctionElement.Po \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeDataElement.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/SoVolumeDataElement.Po
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/TransferFunctionElement.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/TransferFunctionElement.Po \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeDataElement.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeDataElement.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -159,8 +159,8 @@ HEADERS = $(libelementsinc_HEADERS)
 
 DIST_COMMON = $(libelementsinc_HEADERS) Makefile.am Makefile.in
 SOURCES = \
-	SoVolumeDataElement.cpp \
-	SoTransferFunctionElement.cpp
+	VolumeDataElement.cpp \
+	TransferFunctionElement.cpp
 
 
 all: all-am
@@ -200,10 +200,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoTransferFunctionElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoTransferFunctionElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/SoVolumeDataElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TransferFunctionElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/TransferFunctionElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeDataElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeDataElement.Po@am__quote@
 
 distclean-depend:
 	-rm -rf $(DEPDIR)
