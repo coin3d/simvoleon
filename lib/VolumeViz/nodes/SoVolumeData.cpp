@@ -966,7 +966,7 @@ SoVolumeDataP::releaseSlicesZ()
   if (slicesZ) {
     for (int i = 0; i < dimensions[2]; i++) {
       delete slicesZ[i];
-      slicesX[i] = NULL;
+      slicesZ[i] = NULL;
     }// for
 
     delete [] slicesZ;
