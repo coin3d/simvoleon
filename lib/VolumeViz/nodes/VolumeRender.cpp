@@ -39,17 +39,22 @@ public:
     delete this->pagehandler;
   }
 
-  void rayPickDebug(SoGLRenderAction * action);
-
   unsigned int calculateNrOfSlices(SoGLRenderAction * action,
                                    const SbVec3s & dimensions);
+
+  SbVec3s objectToIJKCoordinates(const SbVec3f & objectpos,
+                                 const SbVec3f & mincorner,
+                                 const SbVec3f & maxcorner,
+                                 const SbVec3s & voxeldimensions) const;
 
   CvrPageHandler * pagehandler;
 
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
   void * abortfuncdata;
 
-  SbList<SbVec3f> raypicklines; // debug
+  // debug
+  void rayPickDebug(SoGLRenderAction * action);
+  SbList<SbVec3f> raypicklines;
 
 private:
   SoVolumeRender * master;
@@ -360,14 +365,19 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
 {
   if (!this->shouldRayPick(action)) return;
 
+  SoState * state = action->getState();
+  const SoVolumeDataElement * volumedataelement =
+    SoVolumeDataElement::getInstance(state);
+  if (volumedataelement == NULL) return;
+  const SoVolumeData * volumedata = volumedataelement->getVolumeData();
+  assert(volumedata != NULL);
+
   this->computeObjectSpaceRay(action);
 
   const SbLine & ray = action->getLine();
   ray.print(stdout); fprintf(stdout, "\n"); fflush(stdout);
 
-  SbBox3f objbbox;
-  SbVec3f center;
-  this->computeBBox(action, objbbox, center);
+  SbBox3f objbbox = volumedata->getVolumeSize();
 
   SbVec3f mincorner, maxcorner;
   objbbox.getBounds(mincorner, maxcorner);
@@ -424,6 +434,21 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
     this->touch(); // smash caches and re-render with line(s)
   }
 
+  SbVec3s voxeldimensions;
+  void * voxelptr;
+  SoVolumeData::DataType voxeltype;
+  SbBool ok = volumedata->getVolumeData(voxeldimensions, voxelptr, voxeltype);
+  assert(ok);
+
+  SbVec3s ijk = PRIVATE(this)->objectToIJKCoordinates(intersects[0],
+                                                      mincorner, maxcorner,
+                                                      voxeldimensions);
+#if CVR_DEBUG && 1 // debug
+  SoDebugError::postInfo("SoVolumeRender::rayPick",
+                         "ijk=<%d, %d, %d>", ijk[0], ijk[1], ijk[2]);
+#endif // debug
+  
+
 //       if (action->isBetweenPlanes(intersectpt)) {
 //       SoPickedPoint * pp = action->addIntersection(intersectpt);
 //       if (pp) {
@@ -433,6 +458,22 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
 //             if (flags & SOPICK_MATERIAL_PER_PART) 
 //               pp->setMaterialIndex(translation[cnt]);
 //             pp->setObjectNormal(norm);
+}
+
+SbVec3s
+SoVolumeRenderP::objectToIJKCoordinates(const SbVec3f & objectpos,
+                                        const SbVec3f & mincorner,
+                                        const SbVec3f & maxcorner,
+                                        const SbVec3s & voxeldimensions) const
+{
+  SbVec3f size = maxcorner - mincorner;
+
+  SbVec3s ijk;
+  for (int i=0; i < 3; i++) {
+    const float normcoord = (objectpos[i] - mincorner[i]) / size[i];
+    ijk[i] = short(normcoord * (voxeldimensions[i] - 1.0f));
+  }
+  return ijk;
 }
 
 // doc in super
