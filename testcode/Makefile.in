@@ -54,6 +54,8 @@ clean:
               readvol@EXEEXT@ $(READVOL_OBJECTS) $(srcdir)/readvol.cpp \
               SoTransferFunction_ctrl.h SoTransferFunction_ctrl.cpp moc_SoTransferFunction_ctrl.cpp \
               moc_TransferFunctionHandler.cpp \
+              SoVolumeRender_ctrl.h SoVolumeRender_ctrl.cpp moc_SoVolumeRender_ctrl.cpp \
+              moc_VolumeRenderHandler.cpp \
               SoOrthoSlice_ctrl.h SoOrthoSlice_ctrl.cpp moc_SoOrthoSlice_ctrl.cpp \
               moc_OrthoSliceHandler.cpp
 
@@ -65,22 +67,22 @@ $(srcdir)/utility.@OBJEXT@: $(srcdir)/utility.cpp
 # (SoTransferFunction UI)
 
 SoTransferFunction_ctrl.h: $(srcdir)/SoTransferFunction_ctrl.ui
-	uic `$CYGPATH_W $<` -o $@
+	uic `$(CYGPATH_W) $<` -o $@
 
 SoTransferFunction_ctrl.cpp: $(srcdir)/SoTransferFunction_ctrl.ui SoTransferFunction_ctrl.h
-	uic -impl $*.h `$CYGPATH_W $<` -o $@
+	uic -impl $*.h `$(CYGPATH_W) $<` -o $@
 
 SoTransferFunction_ctrl.@OBJEXT@: SoTransferFunction_ctrl.cpp
 	soqt-config --compile $<
 
 moc_SoTransferFunction_ctrl.cpp: SoTransferFunction_ctrl.h
-	moc -o $@ `$CYGPATH_W $<`
+	moc -o $@ `$(CYGPATH_W) $<`
 
 moc_SoTransferFunction_ctrl.@OBJEXT@: moc_SoTransferFunction_ctrl.cpp
 	soqt-config --compile $<
 
 moc_TransferFunctionHandler.cpp: $(srcdir)/TransferFunctionHandler.h
-	moc -o $@ `$CYGPATH_W $<`
+	moc -o $@ `$(CYGPATH_W) $<`
 
 moc_TransferFunctionHandler.@OBJEXT@: moc_TransferFunctionHandler.cpp
 	soqt-config --compile $<
@@ -91,10 +93,10 @@ $(srcdir)/TransferFunctionHandler.@OBJEXT@: $(srcdir)/TransferFunctionHandler.cp
 # (SoVolumeRender UI)
 
 SoVolumeRender_ctrl.h: $(srcdir)/SoVolumeRender_ctrl.ui
-	uic `$CYGPATH_W $<` -o $@
+	uic `$(CYGPATH_W) $<` -o $@
 
 SoVolumeRender_ctrl.cpp: $(srcdir)/SoVolumeRender_ctrl.ui SoVolumeRender_ctrl.h
-	uic -impl $*.h `$CYGPATH_W $<` -o $@
+	uic -impl $*.h `$(CYGPATH_W) $<` -o $@
 
 SoVolumeRender_ctrl.@OBJEXT@: SoVolumeRender_ctrl.cpp
 	soqt-config --compile $<
@@ -106,7 +108,7 @@ moc_SoVolumeRender_ctrl.@OBJEXT@: moc_SoVolumeRender_ctrl.cpp
 	soqt-config --compile $<
 
 moc_VolumeRenderHandler.cpp: $(srcdir)/VolumeRenderHandler.h
-	moc -o $@ `$CYGPATH_W $<`
+	moc -o $@ `$(CYGPATH_W) $<`
 
 moc_VolumeRenderHandler.@OBJEXT@: moc_VolumeRenderHandler.cpp
 	soqt-config --compile $<
@@ -117,10 +119,10 @@ $(srcdir)/VolumeRenderHandler.@OBJEXT@: $(srcdir)/VolumeRenderHandler.cpp SoVolu
 # (SoOrthoSlice UI)
 
 SoOrthoSlice_ctrl.h: $(srcdir)/SoOrthoSlice_ctrl.ui
-	uic `$CYGPATH_W $<` -o $@
+	uic `$(CYGPATH_W) $<` -o $@
 
 SoOrthoSlice_ctrl.cpp: $(srcdir)/SoOrthoSlice_ctrl.ui SoOrthoSlice_ctrl.h
-	uic -impl $*.h `$CYGPATH_W $<` -o $@
+	uic -impl $*.h `$(CYGPATH_W) $<` -o $@
 
 SoOrthoSlice_ctrl.@OBJEXT@: SoOrthoSlice_ctrl.cpp
 	soqt-config --compile $<
@@ -132,7 +134,7 @@ moc_SoOrthoSlice_ctrl.@OBJEXT@: moc_SoOrthoSlice_ctrl.cpp
 	soqt-config --compile $<
 
 moc_OrthoSliceHandler.cpp: $(srcdir)/OrthoSliceHandler.h
-	moc -o $@ `$CYGPATH_W $<`
+	moc -o $@ `$(CYGPATH_W) $<`
 
 moc_OrthoSliceHandler.@OBJEXT@: moc_OrthoSliceHandler.cpp
 	soqt-config --compile $<
