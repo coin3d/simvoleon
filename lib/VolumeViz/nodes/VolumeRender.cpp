@@ -73,6 +73,38 @@ SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
 
 // *************************************************************************
 
+/*!
+  \enum SoVolumeRender::Interpolation
+  Enumeration of available types of voxel colors interpolation.
+*/
+/*!
+  \var SoVolumeRender::Interpolation SoVolumeRender::NEAREST
+
+  For "in between" pixels of the screen rasterization, pick the color
+  of the nearest voxel.  Will give sharp edges and a distinct blocky
+  look.
+*/
+/*!
+  \var SoVolumeRender::Interpolation SoVolumeRender::LINEAR
+
+  For "in between" pixels of the screen rasterization, interpolate by
+  averaging the colors of several of the nearest voxels.  Will give a
+  smoother appearance, but sacrifies some "correctness" for
+  appearance.
+*/
+
+/*!
+  \var SoSFEnum SoVolumeRender::interpolation
+
+  How to interpolate color values when rendering "in between" voxels.
+  See SoVolumeRender::Interpolation.
+
+  Default value is SoVolumeRender::LINEAR.
+*/
+
+
+// *************************************************************************
+
 SoVolumeRender::SoVolumeRender(void)
 {
   SO_NODE_CONSTRUCTOR(SoVolumeRender);
