@@ -73,7 +73,8 @@ CvrPageHandler::~CvrPageHandler()
 
 // Calculates direction from camera to center of object.
 void
-CvrPageHandler::getViewVector(SoGLRenderAction * action, SbVec3f & direction) const
+CvrPageHandler::getViewVector(const SoGLRenderAction * action,
+                              SbVec3f & direction) const
 {
   SoState * state = action->getState();
 
@@ -141,7 +142,7 @@ CvrPageHandler::getCurrentAxis(const SbVec3f & viewvec) const
 }
 
 unsigned int
-CvrPageHandler::getCurrentAxis(SoGLRenderAction * action) const
+CvrPageHandler::getCurrentAxis(const SoGLRenderAction * action) const
 {
   SbVec3f camvec;
   this->getViewVector(action, camvec);
@@ -196,7 +197,7 @@ CvrPageHandler::setPalette(const CvrCLUT * c)
 }
 
 void
-CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
+CvrPageHandler::render(const SoGLRenderAction * action, unsigned int numslices,
                        CvrPageHandler::Composition composition,
                        SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
                        void * abortcbdata)

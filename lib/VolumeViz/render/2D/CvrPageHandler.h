@@ -35,6 +35,7 @@ class SoVolumeData;
 class SoState;
 class SoGLRenderAction;
 
+// *************************************************************************
 
 class CvrPageHandler {
 public:
@@ -43,28 +44,37 @@ public:
 
   enum Composition { MAX_INTENSITY, SUM_INTENSITY, ALPHA_BLENDING };
 
-  void render(SoGLRenderAction * action, unsigned int numslices,
+  void render(const SoGLRenderAction * action, unsigned int numslices,
+              // FIXME: composition should be passed on state
+              // stack. 20040722 mortene.
               CvrPageHandler::Composition composition,
+              // FIXME: abort-callback, and the numslices argument
+              // above, should both be passed on the state
+              // stack. 20040722 mortene.
               SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
               void * abortcbdata);
 
-  unsigned int getCurrentAxis(SoGLRenderAction * action) const;
+  unsigned int getCurrentAxis(const SoGLRenderAction * action) const;
 
   void releaseAllSlices(void);
   void releaseSlices(const unsigned int AXISIDX);
 
 private:
   unsigned int getCurrentAxis(const SbVec3f & viewvec) const;
-  void getViewVector(SoGLRenderAction * action, SbVec3f & direction) const;
+  void getViewVector(const SoGLRenderAction * action, SbVec3f & direction) const;
   Cvr2DTexPage * getSlice(const SoGLRenderAction * action,
                           const unsigned int AXISIDX, unsigned int sliceidx);
 
+  // FIXME: should rather use an extension Coin cache, than using
+  // comparison functions and storing the subpagesize
+  // locally. 20040722 mortene.
   void comparePageSize(const SbVec3s & currsubpagesize);
+  SbVec3s subpagesize;
+
   void setPalette(const CvrCLUT * c);
 
   Cvr2DTexPage ** slices[3];
   unsigned int voldatadims[3];
-  SbVec3s subpagesize;
 
   uint32_t transferfuncid;
   const CvrCLUT * clut;

@@ -177,7 +177,7 @@ Cvr2DTexPage::releaseAllSubPages(void)
 // Renders arbitrary positioned quad, textured for the page (slice)
 // represented by this object. Automatically loads all pages needed.
 void
-Cvr2DTexPage::render(SoGLRenderAction * action,
+Cvr2DTexPage::render(const SoGLRenderAction * action,
                      const SbVec3f & origo,
                      const SbVec3f & horizspan, const SbVec3f & verticalspan)
 {
@@ -229,7 +229,7 @@ Cvr2DTexPage::calcSubPageIdx(int row, int col) const
 
 // Builds a page if it doesn't exist. Rebuilds it if it does exist.
 Cvr2DTexSubPageItem *
-Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
+Cvr2DTexPage::buildSubPage(const SoGLRenderAction * action, int col, int row)
 {
   // FIXME: optimalization idea; *crop* textures for 100%
   // transparency. 20021124 mortene.

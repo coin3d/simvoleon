@@ -38,7 +38,7 @@ public:
                const SbVec2s & subpagetexsize);
   ~Cvr2DTexPage();
 
-  void render(SoGLRenderAction * action, const SbVec3f & origo,
+  void render(const SoGLRenderAction * action, const SbVec3f & origo,
               const SbVec3f & horizspan, const SbVec3f & verticalspan);
 
   void setPalette(const CvrCLUT * c);
@@ -47,7 +47,7 @@ public:
 private:
   class Cvr2DTexSubPageItem * getSubPage(SoState * state, int col, int row);
 
-  class Cvr2DTexSubPageItem * buildSubPage(SoGLRenderAction * action,
+  class Cvr2DTexSubPageItem * buildSubPage(const SoGLRenderAction * action,
                                            int col, int row);
 
   void releaseSubPage(Cvr2DTexSubPage * page);
