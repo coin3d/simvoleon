@@ -22,20 +22,20 @@ public:
   static void initClass(void);
 
   enum PredefColorMap {
-    NONE, 
-    GREY, 
-    GRAY = GREY, 
-    TEMPERATURE, 
-    PHYSICS, 
-    STANDARD, 
-    GLOW, 
-    BLUE_RED, 
+    NONE = 0,
+    GREY,
+    GRAY = GREY,
+    TEMPERATURE,
+    PHYSICS,
+    STANDARD,
+    GLOW,
+    BLUE_RED,
     SEISMIC
   };
 
   enum ColorMapType {
-    ALPHA, 
-    LUM_ALPHA, 
+    ALPHA,
+    LUM_ALPHA,
     RGBA
   };
 
@@ -62,7 +62,7 @@ private:
 
   // FIXME: clean up interface. 20021106 mortene.
   friend class SoVolumeDataSlice;
-  void transfer(const void * input, 
+  void transfer(const void * input,
                 SoVolumeData::DataType inputDataType,
                 const SbVec2s & size,
                 void *& output,

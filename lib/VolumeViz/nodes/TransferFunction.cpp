@@ -29,6 +29,29 @@ SO_NODE_SOURCE(SoTransferFunction);
 
 // *************************************************************************
 
+static const char gradientbuffer_GREY[] =
+"GIMP Gradient\n"
+"1\n"
+"0.000000 0.689482 1.000000 "
+"1.000000 1.000000 1.000000 0.000000 "
+"1.000000 1.000000 1.000000 1.000000 "
+"0 0\n";
+
+struct GIMPGradientSegment {
+  float left, middle, right;
+  float left_RGBA[4];
+  float right_RGBA[4];
+  int type;
+  int color;
+
+  struct GIMPGradientSegment * next;  
+};
+
+struct GIMPGradient {
+  int nrsegments;
+  struct GIMPGradientSegment * segments;
+};
+
 class SoTransferFunctionP {
 public:
   SoTransferFunctionP(SoTransferFunction * master) {
@@ -38,9 +61,17 @@ public:
   int unpack(const void * data, int numBits, int index);
   void pack(void * data, int numBits, int index, int val);
 
+  static uint8_t PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];
+
+  static struct GIMPGradient * readGIMPGradient(const char * buffer);
+  static void convertGIMPGradient2IntArray(const struct GIMPGradient * gg,
+                                           uint8_t intgradient[256][4]);
+
 private:
   SoTransferFunction * master;
 };
+
+uint8_t SoTransferFunctionP::PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
@@ -89,6 +120,10 @@ SoTransferFunction::initClass(void)
   SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering, "SoVolumeRendering");
 
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  struct GIMPGradient * gg =
+    SoTransferFunctionP::readGIMPGradient(gradientbuffer_GREY);
+
+  SoTransferFunctionP::convertGIMPGradient2IntArray(gg, SoTransferFunctionP::PREDEFGRADIENTS[GREY]);
 }
 
 void
@@ -167,11 +202,13 @@ SoTransferFunction::transfer(const void * input,
 
     if (endianness == COIN_HOST_IS_LITTLEENDIAN) {
       for (int j=0; j < size[0]*size[1]; j++) {
+        uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[GREY][inp[j]];
+
         outp[j] =
-          (0 << 0) | // red
-          (uint32_t(inp[j]) << 8) | // green
-          (0 << 16) |  // blue
-          ((inp[j] ? 0xff : 0) << 24); // alpha
+          (uint32_t(rgba[0]) << 0) | // red
+          (uint32_t(rgba[1]) << 8) | // green
+          (uint32_t(rgba[2]) << 16) |  // blue
+          (uint32_t(rgba[3]) << 24); // alpha
       }
     }
     else {
@@ -424,4 +461,82 @@ void
 SoTransferFunction::reMap(int min, int max)
 {
   // FIXME: Implement this function torbjorv 08282002
+}
+
+struct GIMPGradient *
+SoTransferFunctionP::readGIMPGradient(const char * buf)
+{
+  // The format of a gradient in GIMP v1.2 is:
+  //
+  // <header = "GIMP Gradient\n">
+  // <nrsegments>\n
+  // <segment 0: left middle right leftR leftG leftB leftA rightR rightG rightB rightA type color>
+  // <segment 1: ...>
+  // ...
+  //
+  // Note that the format has changed after GIMP 1.2.
+
+  const int BUFLEN = strlen(buf);
+  const char * HEADER = "GIMP Gradient\n";
+  const int HEADERLEN = strlen(HEADER);
+
+  const char * ptr = buf + HEADERLEN;
+  assert(ptr < (buf + BUFLEN));
+
+  struct GIMPGradient * gg = new struct GIMPGradient;
+
+  int r = sscanf(ptr, "%d\n", &gg->nrsegments);
+  assert(r == 1); // Note: this will fail if input is from Gimp v > 1.2.
+
+  gg->segments = new struct GIMPGradientSegment[gg->nrsegments];
+
+  while (*ptr++ != '\n');
+  for (int i=0; i < gg->nrsegments; i++) {
+    struct GIMPGradientSegment * s = &gg->segments[i];
+
+    r = sscanf(ptr,
+               "%f %f %f "
+               "%f %f %f %f "
+               "%f %f %f %f "
+               "%d %d",
+               &s->left, &s->middle, &s->right,
+               &s->left_RGBA[0], &s->left_RGBA[1], &s->left_RGBA[2], &s->left_RGBA[3],
+               &s->right_RGBA[0], &s->right_RGBA[1], &s->right_RGBA[2], &s->right_RGBA[3],
+               &s->type, &s->color);
+    assert(r == 13);
+
+    // Consistency check to help us catch bugs early.
+    assert(s->type == 0 && "unhandled gradient data");
+    assert(s->color == 0 && "unhandled gradient data");
+    assert(s->left < s->middle);
+    assert(s->middle < s->right);
+    assert(s->left >= 0.0f && s->left <= 1.0f);
+    assert(s->middle >= 0.0f && s->middle <= 1.0f);
+    assert(s->right >= 0.0f && s->right <= 1.0f);
+    assert(s->left_RGBA[0] >= 0.0f && s->left_RGBA[0] <= 1.0f);
+    assert(s->left_RGBA[1] >= 0.0f && s->left_RGBA[1] <= 1.0f);
+    assert(s->left_RGBA[2] >= 0.0f && s->left_RGBA[2] <= 1.0f);
+    assert(s->left_RGBA[3] >= 0.0f && s->left_RGBA[3] <= 1.0f);
+    assert(s->right_RGBA[0] >= 0.0f && s->right_RGBA[0] <= 1.0f);
+    assert(s->right_RGBA[1] >= 0.0f && s->right_RGBA[1] <= 1.0f);
+    assert(s->right_RGBA[2] >= 0.0f && s->right_RGBA[2] <= 1.0f);
+    assert(s->right_RGBA[3] >= 0.0f && s->right_RGBA[3] <= 1.0f);
+
+    while (*ptr++ != '\n');
+  }
+
+  return gg;
+}
+
+void
+SoTransferFunctionP::convertGIMPGradient2IntArray(const struct GIMPGradient * gg,
+                                                  uint8_t intgradient[256][4])
+{
+  // FIXME: quick hack for testing! 20021112 mortene.
+  for (int i=0; i < 256; i++) {
+    intgradient[i][0] = (unsigned char)i;
+    intgradient[i][1] = (unsigned char)i;
+    intgradient[i][2] = (unsigned char)i;
+    intgradient[i][3] = (unsigned char)i;
+  }
 }
