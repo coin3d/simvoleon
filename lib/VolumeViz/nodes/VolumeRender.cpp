@@ -1066,10 +1066,12 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
                                                 texture3did, texture2dids);
             
     const SbTime now = SbTime::getTimeOfDay();
+#if 0 // debug
     if (CvrUtil::doDebugging()) {
       SoDebugError::postInfo("SoVolumeRenderP::performanceTest",
                              "run %u done at %f", i, now.getValue());
     }
+#endif
 
     // Don't run the test for more than half a second.
     if (((now - starttime).getValue()) > .5f) { break; }
