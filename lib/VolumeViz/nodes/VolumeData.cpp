@@ -713,7 +713,7 @@ SoVolumeData::getHistogram(int & length, int *& histogram)
   PRIVATE(this)->histogramlength = length;
 
   for (unsigned int blankidx = 0; blankidx < (unsigned int)length; blankidx++) {
-    PRIVATE(this)->histogram[blankidx] = 42;
+    PRIVATE(this)->histogram[blankidx] = 0;
   }
 
   const unsigned long NRVOXELS = dim[0] * dim[1] * dim[2];
@@ -731,6 +731,8 @@ SoVolumeData::getHistogram(int & length, int *& histogram)
     }
   }
   // unknown types caught by assert() further up
+
+  histogram = PRIVATE(this)->histogram;
 
   return TRUE;
 }
