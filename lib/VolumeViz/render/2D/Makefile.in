@@ -194,8 +194,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 SOURCES = \
 	PageHandler.cpp CvrPageHandler.h \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
-	2DTexPage.cpp Cvr2DTexPage.h \
-	TexManager.cpp CvrTexManager.h
+	2DTexPage.cpp Cvr2DTexPage.h
 
 
 EXTRA_DIST = \
@@ -215,15 +214,14 @@ LIBRARIES = $(noinst_LIBRARIES)
 2Drender_lst_AR = $(AR) cru
 2Drender_lst_LIBADD =
 am__objects_1 = PageHandler.$(OBJEXT) 2DTexSubPage.$(OBJEXT) \
-	2DTexPage.$(OBJEXT) TexManager.$(OBJEXT)
+	2DTexPage.$(OBJEXT)
 am_2Drender_lst_OBJECTS = $(am__objects_1)
 2Drender_lst_OBJECTS = $(am_2Drender_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 lib2Drender_la_LDFLAGS =
 lib2Drender_la_LIBADD =
-am__objects_2 = PageHandler.lo 2DTexSubPage.lo 2DTexPage.lo \
-	TexManager.lo
+am__objects_2 = PageHandler.lo 2DTexSubPage.lo 2DTexPage.lo
 am_lib2Drender_la_OBJECTS = $(am__objects_2)
 lib2Drender_la_OBJECTS = $(am_lib2Drender_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
@@ -233,9 +231,7 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/2DTexSubPage.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/2DTexSubPage.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/PageHandler.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/PageHandler.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/TexManager.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/TexManager.Po
+@AMDEP_TRUE@	./$(DEPDIR)/PageHandler.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -256,8 +252,7 @@ DIST_COMMON = Makefile.am Makefile.in
 SOURCES = \
 	PageHandler.cpp CvrPageHandler.h \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
-	2DTexPage.cpp Cvr2DTexPage.h \
-	TexManager.cpp CvrTexManager.h
+	2DTexPage.cpp Cvr2DTexPage.h
 
 
 all: all-am
@@ -300,8 +295,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/2DTexSubPage.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PageHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PageHandler.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TexManager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TexManager.Po@am__quote@
 
 distclean-depend:
 	-rm -rf ./$(DEPDIR)

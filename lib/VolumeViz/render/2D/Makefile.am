@@ -9,8 +9,7 @@ endif
 SOURCES = \
 	PageHandler.cpp CvrPageHandler.h \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
-	2DTexPage.cpp Cvr2DTexPage.h \
-	TexManager.cpp CvrTexManager.h
+	2DTexPage.cpp Cvr2DTexPage.h
 
 EXTRA_DIST = \
 	texmemfullimg.h
