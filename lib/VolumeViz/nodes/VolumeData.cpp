@@ -22,6 +22,7 @@
 */
 
 #include <limits.h>
+#include <float.h> // FLT_MAX
 
 #include <VolumeViz/nodes/SoVolumeData.h>
 
@@ -96,7 +97,6 @@ public:
   }
 
   SbVec3s dimensions;
-  SbBox3f volumesize;
   SbVec3s subpagesize;
   SoVolumeData::DataType datatype;
 
@@ -144,6 +144,9 @@ SoVolumeData::SoVolumeData(void)
   SO_NODE_ADD_FIELD(usePalettedTexture, (TRUE));
   SO_NODE_ADD_FIELD(useCompressedTexture, (TRUE));
 
+  SO_NODE_ADD_FIELD(volumeboxmin, (SbVec3f(FLT_MAX, FLT_MAX, FLT_MAX)));
+  SO_NODE_ADD_FIELD(volumeboxmax, (SbVec3f(-FLT_MAX, -FLT_MAX, -FLT_MAX)));
+
   PRIVATE(this)->filenamesensor = new SoFieldSensor(SoVolumeDataP::filenameFieldModified, this);
   PRIVATE(this)->filenamesensor->setPriority(0); // immediate sensor
   PRIVATE(this)->filenamesensor->attach(&this->fileName);
@@ -178,28 +181,32 @@ SoVolumeData::initClass(void)
 void
 SoVolumeData::setVolumeSize(const SbBox3f & size)
 {
-  PRIVATE(this)->volumesize = size;
+  SbVec3f volmin, volmax;
+  size.getBounds(volmin, volmax);
+  this->volumeboxmin = volmin;
+  this->volumeboxmax = volmax;
 }
 
 /*!
   Returns geometric size of volume.
  */
-SbBox3f &
+SbBox3f
 SoVolumeData::getVolumeSize(void) const
 {
-  // If not empty, it was explicitly set by the application
-  // programmer.
-  if (!PRIVATE(this)->volumesize.isEmpty())
-    return PRIVATE(this)->volumesize;
+  // If not marked with FLT_MAX, it was explicitly set by the
+  // application programmer.
+  if (!this->volumeboxmin.getValue()[0] == FLT_MAX) {
+    return SbBox3f(this->volumeboxmin.getValue(), this->volumeboxmax.getValue());
+  }
 
   // If no reader, return the empty box.
-  if (!PRIVATE(this)->reader) 
-    return PRIVATE(this)->volumesize;
+  if (!PRIVATE(this)->reader) { return SbBox3f();}
 
   SoVolumeData::DataType type; SbVec3s dim; // dummy parameters
-  PRIVATE(this)->reader->getDataChar(PRIVATE(this)->volumesize, type, dim);
+  SbBox3f volbox;
+  PRIVATE(this)->reader->getDataChar(volbox, type, dim);
 
-  return PRIVATE(this)->volumesize;
+  return volbox;
 }
 
 void
@@ -426,7 +433,8 @@ SoVolumeData::setReader(SoVolumeReader * reader)
 {
   PRIVATE(this)->reader = reader;
 
-  reader->getDataChar(PRIVATE(this)->volumesize,
+  SbBox3f dummyvolbox;
+  reader->getDataChar(dummyvolbox,
                       PRIVATE(this)->datatype,
                       PRIVATE(this)->dimensions);
 }

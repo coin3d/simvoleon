@@ -4,6 +4,7 @@
 #include <Inventor/fields/SoSFString.h>
 #include <Inventor/fields/SoSFEnum.h>
 #include <Inventor/fields/SoSFBool.h>
+#include <Inventor/fields/SoSFVec3f.h>
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbBox3f.h>
@@ -16,6 +17,7 @@
 class SoVolumeReader;
 class SoState;
 class SoTransferFunction;
+
 
 class SIMVOLEON_DLL_API SoVolumeData : public SoVolumeRendering {
   typedef SoVolumeRendering inherited;
@@ -60,7 +62,7 @@ public:
   uint32_t getVoxelValue(const SbVec3s & voxelpos) const;
 
   void setVolumeSize(const SbBox3f & size);
-  SbBox3f & getVolumeSize(void) const;
+  SbBox3f getVolumeSize(void) const;
 
   void setPageSize(int size);
   void setPageSize(const SbVec3s & size);
@@ -100,6 +102,12 @@ protected:
 private:
   friend class SoVolumeDataP;
   class SoVolumeDataP * pimpl;
+
+  // These were added to make it possible to control the world-space
+  // volume size from an iv-file. They basically provide the same
+  // functionality as the setVolumeSize()/getVolumeSize() functions.
+  SoSFVec3f volumeboxmin;
+  SoSFVec3f volumeboxmax;
 };
 
 #endif // !COIN_SOVOLUMEDATA_H
