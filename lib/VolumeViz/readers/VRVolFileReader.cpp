@@ -188,16 +188,11 @@ SoVRVolFileReader::setUserData(void * data)
   assert(gotnrbytes == filesize);
 #if 1 // debug
   SoDebugError::postInfo("SoVRVolFileReader::setUserData",
-                         "read %d bytes", gotnrbytes);
+                         "read %d bytes (%.2f MB)",
+                         gotnrbytes, ((float)gotnrbytes) / 1024.0f / 1024.0f);
 #endif // debug
   int r = fclose(f);
   assert(r == 0);
-
-#if 1 // debug
-  SoDebugError::postInfo("SoVRVolFileReader::setUserData",
-                         "sizeof(struct vol_header)==%d",
-                         sizeof(struct vol_header));
-#endif // debug
 
   assert(filesize > sizeof(struct vol_header));
   struct vol_header * volh = &PRIVATE(this)->volh;
