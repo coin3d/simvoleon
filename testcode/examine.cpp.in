@@ -14,67 +14,7 @@
 #include <Inventor/nodes/SoPickStyle.h>
 #include <Inventor/nodes/SoLightModel.h>
 
-
-void setDot(int *pData,
-            int xDim, int yDim, int zDim,
-            float X, float Y, float Z,
-            unsigned char R,
-            unsigned char G,
-            unsigned char B,
-            unsigned char A)
-{
-  int nX = int(xDim*X);
-  int nY = int(yDim*Y);
-  int nZ = int(zDim*Z);
-
-  //  if (A < 128) A = 0;
-  // if (A >= 128) A = 255;
-  A >>= 2;
-
-  if (R < 128) R = 0;
-  if (R >= 128) R = 255;
-
-  int pixel = (A<<24) + (B<<16) + (G<<8) + R;
-  pData[nZ*xDim*yDim + nY*xDim + nX] = pixel;
-
-  pixel = (A<<24) + (B<<16) + (G<<8) + R ;
-  pData[(nZ+1)*xDim*yDim + nY*xDim + nX] = pixel;
-  pData[(nZ-1)*xDim*yDim + nY*xDim + nX] = pixel;
-  pData[nZ*xDim*yDim + (nY+1)*xDim + nX] = pixel;
-  pData[nZ*xDim*yDim + (nY-1)*xDim + nX] = pixel;
-  pData[nZ*xDim*yDim + nY*xDim + (nX+1)] = pixel;
-  pData[nZ*xDim*yDim + nY*xDim + (nX-1)] = pixel;
-}
-
-void * generateFancy3DTexture(int xDim, int yDim, int zDim)
-{
-  int * texture = new int[xDim*yDim*zDim];
-  memset(texture, 0, xDim*yDim*zDim*4);
-
-
-  float t = 0;
-
-  while (t < 50) {
-    float x = sin((t + 1.4234)*1.9);
-    float y = cos((t*2.5) - 10);
-    float z = cos((t - 0.23123)*3)*sin(t + 0.5);
-
-    setDot( texture,
-            xDim, yDim, zDim,
-            x*sin(t)*0.45 + 0.5,
-            y*0.45 + 0.5,
-            z*cos(t)*0.45 + 0.5,
-            (unsigned char)(255.0*cos(t)),
-            (unsigned char)(255.0*sin(t)),
-            255,
-            255);
-
-    t += 0.001;
-  }//while*/
-
-  return texture;
-}
-
+#include "utility.h"
 
 int
 main(int argc, char ** argv)
@@ -111,10 +51,8 @@ main(int argc, char ** argv)
 
   cubeframe->addChild(new SoCube);
 
-  // Read the data (application supplied function)
   SbVec3s dim = SbVec3s(64, 64, 64);
-
-  int *pData = (int *) generateFancy3DTexture(dim[0], dim[1], dim[2]);
+  int *pData = (int *) generateRGBAVoxelSet(dim);
 
   // Add VolumeData to scene graph
   SoVolumeData * pVolData = new SoVolumeData();

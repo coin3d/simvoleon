@@ -8,10 +8,10 @@ READVOL_OBJECTS = \
         SoTransferFunction_ctrl.o moc_SoTransferFunction_ctrl.o
 
 EXAMINE_OBJECTS = \
-        examine.o
+        examine.o  utility.o
 
 RAYPICK_OBJECTS = \
-        raypick.o
+        raypick.o utility.o
 
 clean:
 	rm -f raypick $(RAYPICK_OBJECTS) raypick.cpp \
@@ -19,6 +19,11 @@ clean:
               readvol $(READVOL_OBJECTS) readvol.cpp \
               moc_TransferFunctionHandler.cpp \
               SoTransferFunction_ctrl.h SoTransferFunction_ctrl.cpp moc_SoTransferFunction_ctrl.cpp
+
+## common code
+
+utility.o: utility.cpp
+	soqt-config --compile $<
 
 ## ``readvol'' example
 
