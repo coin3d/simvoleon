@@ -48,3 +48,12 @@
     20040616 mortene.
 
 ========================================================================
+
+004 Invisible pages made visible by palette changes are not rendered.
+
+    Happens at least when rendering SoVolumeRender with paletted 2D
+    textures.
+
+    20040622 mortene.
+
+========================================================================
