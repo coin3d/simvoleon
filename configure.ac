@@ -336,7 +336,7 @@ if $sim_ac_build_library; then
      [AC_MSG_RESULT(no)]
   )
 
-  if $SIMVOLEON_STATIC; then
+  if $SIMVOLEON_STATIC && $BUILD_WITH_MSVC; then
     # don't link with coin and friends when building SIMVoleon as a static lib
     LDFLAGS=$sim_ac_configure_save_ldflags
     LIBS=$sim_ac_configure_save_libs
