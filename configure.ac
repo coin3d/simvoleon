@@ -125,11 +125,27 @@ yes | true)  SIMVOLEON_STATIC=false;;
 *)           SIMVOLEON_STATIC=true;;
 esac
 
+# *******************************************************************
+# Check that we can compile and link against a Coin version >= 2.0.0.
+
 SIM_AC_HAVE_COIN_IFELSE([
   CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
   LDFLAGS="$LDFLAGS $sim_ac_coin_ldflags"
   LIBS="$sim_ac_coin_libs $LIBS"
-], [AC_MSG_ERROR(couldn't compile and link against Coin)])
+], [AC_MSG_ERROR(could not compile and link against Coin)])
+
+AC_MSG_CHECKING([if Coin version is >= 2.0.0])
+AC_TRY_COMPILE(
+   [#include <Inventor/SbBasic.h>],
+   [#if (COIN_MAJOR_VERSION < 2)
+    #error hepp
+    #endif],
+   [AC_MSG_RESULT(yes)],
+   [AC_MSG_RESULT(no)
+    AC_MSG_ERROR(SimVoleon needs Coin v2.0.0 or older.)]
+)
+
+# *******************************************************************
 
 AC_SUBST([LIBFLAGS], [])
 

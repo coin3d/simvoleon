@@ -9509,6 +9509,9 @@ yes | true)  SIMVOLEON_STATIC=false;;
 *)           SIMVOLEON_STATIC=true;;
 esac
 
+# *******************************************************************
+# Check that we can compile and link against a Coin version >= 2.0.0.
+
 
 
 
@@ -9686,11 +9689,61 @@ if $sim_ac_coin_avail; then
   LIBS="$sim_ac_coin_libs $LIBS"
 
 else
-  { { echo "$as_me:$LINENO: error: couldn't compile and link against Coin" >&5
-echo "$as_me: error: couldn't compile and link against Coin" >&2;}
+  { { echo "$as_me:$LINENO: error: could not compile and link against Coin" >&5
+echo "$as_me: error: could not compile and link against Coin" >&2;}
    { (exit 1); exit 1; }; }
 fi
 
+
+echo "$as_me:$LINENO: checking if Coin version is >= 2.0.0" >&5
+echo $ECHO_N "checking if Coin version is >= 2.0.0... $ECHO_C" >&6
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+#include "confdefs.h"
+#include <Inventor/SbBasic.h>
+#ifdef F77_DUMMY_MAIN
+#  ifdef __cplusplus
+     extern "C"
+#  endif
+   int F77_DUMMY_MAIN() { return 1; }
+#endif
+int
+main ()
+{
+#if (COIN_MAJOR_VERSION < 2)
+    #error hepp
+    #endif
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6
+else
+  echo "$as_me: failed program was:" >&5
+cat conftest.$ac_ext >&5
+echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+    { { echo "$as_me:$LINENO: error: SimVoleon needs Coin v2.0.0 or older." >&5
+echo "$as_me: error: SimVoleon needs Coin v2.0.0 or older." >&2;}
+   { (exit 1); exit 1; }; }
+
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+
+# *******************************************************************
 
 
 
