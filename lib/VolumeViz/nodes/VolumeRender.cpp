@@ -385,6 +385,17 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
                          voxcubedims[0], voxcubedims[1], voxcubedims[2]);
 #endif // debug
 
+  static int renderwithglpoints = -1;
+  if (renderwithglpoints == -1) {
+    const char * env = coin_getenv("CVR_FORCE_GLPOINTRENDERING");
+    renderwithglpoints = env && (atoi(env) > 0);
+  }
+
+  if (renderwithglpoints) {
+    PointRendering::render(action);
+    return;
+  }
+
   // FIXME: rendering method should be controllable through the
   // API. 20021124 mortene.
   if (1) {
@@ -416,9 +427,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     PRIVATE(this)->pagehandler->render(action, numslices, interp, composit,
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
-  }
-  else {
-    PointRendering::render(action);
   }
 }
 
