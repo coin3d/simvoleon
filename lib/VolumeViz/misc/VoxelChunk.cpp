@@ -21,7 +21,11 @@
  *
 \**************************************************************************/
 
-#include <VolumeViz/misc/CvrVoxelChunk.h>
+#include <Inventor/C/tidbits.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/misc/SoState.h>
+#include <Inventor/errors/SoDebugError.h>
+
 #include <VolumeViz/render/common/CvrRGBATexture.h>
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr2DRGBATexture.h>
@@ -32,10 +36,6 @@
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/misc/CvrGIMPGradient.h>
-#include <VolumeViz/misc/CvrCLUT.h>
-#include <VolumeViz/misc/CvrUtil.h>
-
 #include <VolumeViz/nodes/gradients/GREY.h>
 #include <VolumeViz/nodes/gradients/TEMPERATURE.h>
 #include <VolumeViz/nodes/gradients/PHYSICS.h>
@@ -43,11 +43,10 @@
 #include <VolumeViz/nodes/gradients/GLOW.h>
 #include <VolumeViz/nodes/gradients/BLUE_RED.h>
 #include <VolumeViz/nodes/gradients/SEISMIC.h>
-
-#include <Inventor/C/tidbits.h>
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/misc/SoState.h>
-#include <Inventor/errors/SoDebugError.h>
+#include <VolumeViz/misc/CvrGIMPGradient.h>
+#include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
 
 #include <assert.h>
 #include <string.h> // memcpy()
@@ -279,6 +278,10 @@ CvrVoxelChunk::usePaletteTextures(SoGLRenderAction * action)
 CvrTextureObject *
 CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
 {
+
+  // FIXME: Only the CvrTextureManager should be allowed to create
+  // texture objects. A small rearrangement should be done
+  // here... (20040628 handegar)
 
   // FIXME: about the "invisible" flag: this should really be an
   // SbBox2s that indicates which part of the output buffer is
