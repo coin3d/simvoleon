@@ -33,4 +33,4 @@ CVS access
   the "CVS acces info page":http://www.coin3d.org/download/cvs-access/
   on the Coin3D developer pages.
 
-  The SIM Voleon source code repository is named 'SimVoleon'.
+  The SIM Voleon source code repository is named 'SIMVoleon'.
