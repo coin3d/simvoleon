@@ -247,6 +247,7 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
   const float neardistance = SbAbs(camplane.getDistance(bboxcenter)) + bboxradius;
   const float fardistance = SbAbs(camplane.getDistance(bboxcenter)) - bboxradius;
   const float distancedelta = (fardistance - neardistance) / numslices;
+  const SbMatrix mat = SoModelMatrixElement::get(state).inverse();
 
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
 
@@ -292,7 +293,7 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
           if (dist > (cubecenterdist+cuberadius)) break; // We have passed the cube.
           else if (dist < (cubecenterdist-cuberadius)) continue; // We haven't reached the cube yet.
 
-          cubeitem->cube->intersectSlice(viewvolume, dist, SoModelMatrixElement::get(state).inverse());
+          cubeitem->cube->intersectSlice(viewvolume, dist, mat);
         }
 
         subcubelist.append(cubeitem);
@@ -350,6 +351,7 @@ Cvr3DTexCube::renderObliqueSlice(const SoGLRenderAction * action,
   const float viewvolumesize = (subcubewidth + subcubeheight + subcubedepth).length();
   viewvolume.ortho(-viewvolumesize, viewvolumesize, -viewvolumesize, viewvolumesize, 0.01, 100);
   viewvolume.transform(m);
+  const SbMatrix mat = SoModelMatrixElement::get(state).inverse();
 
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
 
@@ -371,7 +373,7 @@ Cvr3DTexCube::renderObliqueSlice(const SoGLRenderAction * action,
         if (cubeitem->invisible) continue;
         assert(cubeitem->cube != NULL);
       
-        cubeitem->cube->intersectSlice(viewvolume, 0, SoModelMatrixElement::get(state).inverse());
+        cubeitem->cube->intersectSlice(viewvolume, 0, mat);
         subcubelist.append(cubeitem);
 
       }
@@ -402,6 +404,7 @@ Cvr3DTexCube::renderIndexedSet(const SoGLRenderAction * action,
   SbVec3f subcubedepth = SbVec3f(0, 0, this->subcubesize[2]);
 
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
+  const SbMatrix invmodelmatrix = SoModelMatrixElement::get(state).inverse();
 
   for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
     for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
@@ -420,9 +423,6 @@ Cvr3DTexCube::renderIndexedSet(const SoGLRenderAction * action,
 
         if (cubeitem->invisible) continue;
         assert(cubeitem->cube != NULL);
-
-      
-        SbMatrix invmodelmatrix = SoModelMatrixElement::get(state).inverse();
 
         if (type == Cvr3DTexCube::INDEXEDFACE_SET) {
           cubeitem->cube->intersectIndexedFaceSet(vertexarray,
@@ -468,6 +468,7 @@ Cvr3DTexCube::renderNonindexedSet(const SoGLRenderAction * action,
   SbVec3f subcubedepth = SbVec3f(0, 0, this->subcubesize[2]);
 
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
+  const SbMatrix invmodelmatrix = SoModelMatrixElement::get(state).inverse();
 
   for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
     for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
@@ -486,9 +487,6 @@ Cvr3DTexCube::renderNonindexedSet(const SoGLRenderAction * action,
 
         if (cubeitem->invisible) continue;
         assert(cubeitem->cube != NULL);
-
-       
-        SbMatrix invmodelmatrix = SoModelMatrixElement::get(state).inverse();
 
         if (type == Cvr3DTexCube::FACE_SET) {
           cubeitem->cube->intersectFaceSet(vertexarray,
@@ -673,6 +671,7 @@ Cvr3DTexCube::getPalette(void) const
 Cvr3DTexSubCubeItem *
 Cvr3DTexCube::getSubCube(SoState * state, int col, int row, int depth)
 {
+  
   if (this->subcubes == NULL) return NULL;
 
   assert((col >= 0) && (col < this->nrcolumns));
@@ -695,6 +694,6 @@ Cvr3DTexCube::getSubCube(SoState * state, int col, int row, int depth)
       return NULL;
     }
   }
-
+  
   return subp;
 }
