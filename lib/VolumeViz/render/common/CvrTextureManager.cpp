@@ -73,7 +73,13 @@ findTextureObject3D(const SoVolumeData * voldata, const SbBox3s cutcube)
     textureobj * obj = (textureobj *) ptr;
     if ((obj->voldata == voldata) &&
         (obj->voldataid == voldata->getNodeId()) &&
-        (obj->cutcube == cutcube) &&
+        // Note: we compare SbBox3s corner points for the cutcube
+        // instead of using the operator==() for SbBox3s, because the
+        // operator was forgotten for export to the DLL interface up
+        // until and including Coin version 2.3 (and SIM Voleon should
+        // be compatible with anything from Coin 2.0 and upwards).
+        (obj->cutcube.getMin() == cutcube.getMin()) &&
+        (obj->cutcube.getMax() == cutcube.getMax()) &&
         (obj->texturetype == TEXTURE3D))
       return obj;
   }
