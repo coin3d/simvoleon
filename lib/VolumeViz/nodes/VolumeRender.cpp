@@ -20,6 +20,7 @@
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrUtil.h>
 
 // *************************************************************************
 
@@ -61,19 +62,6 @@ private:
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
-
-static SbBool
-cvr_debug_raypicks(void)
-{
-  // If this environment flag is set, render the ray pick lines (for
-  // debugging purposes).
-  static int CVR_DEBUG_RAYPICKS = -1;
-  if (CVR_DEBUG_RAYPICKS == -1) {
-    const char * env = coin_getenv("CVR_DEBUG_RAYPICKS");
-    CVR_DEBUG_RAYPICKS = env && (atoi(env) > 0);
-  }
-  return (CVR_DEBUG_RAYPICKS == 0) ? FALSE : TRUE;
-}
 
 unsigned int
 SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
@@ -262,7 +250,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 
   if (!this->shouldGLRender(action)) return;
 
-  if (cvr_debug_raypicks()) { PRIVATE(this)->rayPickDebug(action); }
+  if (CvrUtil::debugRayPicks()) { PRIVATE(this)->rayPickDebug(action); }
 
   SoState * state = action->getState();
 
@@ -303,16 +291,12 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     return;
   }
 
-  SbVec3s dimensions;
-  void * data;
-  SoVolumeData::DataType type;
-  SbBool ok = volumedata->getVolumeData(dimensions, data, type);
-  assert(ok);
+  const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
 
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("SoVolumeRender::GLRender",
-                         "dimensions==[%d, %d, %d]",
-                         dimensions[0], dimensions[1], dimensions[2]);
+                         "voxcubedims==[%d, %d, %d]",
+                         voxcubedims[0], voxcubedims[1], voxcubedims[2]);
 #endif // debug
 
   // FIXME: check that rendering should be done through 2D texture
@@ -320,12 +304,12 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   if (1) {
     if (!PRIVATE(this)->pagehandler) {
       PRIVATE(this)->pagehandler =
-        new CvrPageHandler(dimensions, volumedata->getReader());
+        new CvrPageHandler(voxcubedims, volumedata->getReader());
       // FIXME: needs to be invalidated / deallocated when
-      // SoVolumeData get replaced by one with different dimensions
+      // SoVolumeData get replaced by one with different voxcubedims
     }
 
-    int numslices = PRIVATE(this)->calculateNrOfSlices(action, dimensions);
+    int numslices = PRIVATE(this)->calculateNrOfSlices(action, voxcubedims);
     if (numslices == 0) return;
 
     Cvr2DTexSubPage::Interpolation interp;
@@ -438,7 +422,7 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
     SbSwap(intersects[0], intersects[1]);
   }
 
-  if (cvr_debug_raypicks()) {
+  if (CvrUtil::debugRayPicks()) {
     PRIVATE(this)->raypicklines.append(intersects[0]);
     PRIVATE(this)->raypicklines.append(intersects[1]);
     this->touch(); // smash caches and re-render with line(s)
@@ -451,17 +435,13 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
     transferfunctionelement->getTransferFunction();
   assert(transferfunction != NULL);
 
-  SbVec3s voxeldimensions;
-  void * voxelptr;
-  SoVolumeData::DataType voxeltype;
-  SbBool ok = volumedata->getVolumeData(voxeldimensions, voxelptr, voxeltype);
-  assert(ok);
+  const SbVec3s voxcubedims = volumedataelement->getVoxelCubeDimensions();
 
   // Find objectspace-dimensions of a voxel.
   const SbVec3f size = maxcorner - mincorner;
-  const SbVec3f voxelsize(voxeldimensions[0] / size[0],
-                          voxeldimensions[1] / size[1],
-                          voxeldimensions[2] / size[2]);
+  const SbVec3f voxelsize(voxcubedims[0] / size[0],
+                          voxcubedims[1] / size[1],
+                          voxcubedims[2] / size[2]);
 
   // Calculate maximum number of voxels that could possibly be touched
   // by the ray.
@@ -472,13 +452,14 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
   const SbVec3f stepvec = rayvec / maxvoxinray;
   SbVec3s ijk, lastijk(-1, -1, -1);
 
-  const SbBox3s voxelbounds(SbVec3s(0, 0, 0),
-                            voxeldimensions - SbVec3s(1, 1, 1));
+  const SbBox3s voxelbounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
+  const SoVolumeData::DataType voxeltype = volumedataelement->getVoxelDataType();
 
   SoPickedPoint * pp = NULL;
   SoVolumeRenderDetail * detail = NULL;
   CvrCLUT * clut = NULL;
   SbVec3f objectcoord = intersects[0];
+
   while (TRUE) {
     // FIXME: we're not hitting the voxels in an exact manner with the
     // intersection testing (it seems we're slightly off in the
@@ -487,10 +468,10 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
     // the actual 2D texture-slice rendering that is wrong). 20030220 mortene.
     //
     // UPDATE: this might have been fixed now, at least I found and
-    // fixed an offset bug in the objectToIJKCoordinates() method
+    // fixed an offset bug in the objectCoordsToIJK() method
     // today. 20030320 mortene.
 
-    ijk = volumedataelement->objectToIJKCoordinates(objectcoord);
+    ijk = volumedataelement->objectCoordsToIJK(objectcoord);
     if (!voxelbounds.intersect(ijk)) break;
 
     if (!action->isBetweenPlanes(objectcoord)) {
@@ -500,7 +481,7 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
 
     if (ijk != lastijk) { // touched new voxel
       lastijk = ijk;
-      if (cvr_debug_raypicks()) {
+      if (CvrUtil::debugRayPicks()) {
         SoDebugError::postInfo("SoVolumeRender::rayPick",
                                "ijk=<%d, %d, %d>", ijk[0], ijk[1], ijk[2]);
       }
@@ -524,7 +505,7 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
 
       detail->addVoxelIntersection(objectcoord, ijk, voxelvalue, rgba);
     }
-    else if (cvr_debug_raypicks()) {
+    else if (CvrUtil::debugRayPicks()) {
       SoDebugError::postInfo("SoVolumeRender::rayPick", "duplicate");
     }
 
