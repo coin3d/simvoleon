@@ -136,7 +136,7 @@ public:
     // FIXME: I think I can kill these since the pagehandler was
     // introduced. 20021122 mortene.
     this->dimensions = SbVec3s(0, 0, 0);
-    this->subpagesize = SbVec3s(64, 64, 64);
+    this->subpagesize = SbVec3s(128, 128, 128);
 
     // Our default size (0 == unlimited).
     this->maxnrtexels = 0;
@@ -420,9 +420,10 @@ SoVolumeData::getVoxelValue(const SbVec3s & voxelpos) const
 }
 
 /*!
-  Sets the internal size of texture pages and texture cubes.  This
-  sets all dimensions to the same value at once.  Default value is
-  64^3.
+
+  Sets the largest internal size of texture pages and texture cubes.
+  This sets all dimensions to the same value at once.  Default value
+  is 128^3.
 
   The \a size value must be a power of two.
 
@@ -439,8 +440,9 @@ SoVolumeData::setPageSize(int size)
 }
 
 /*!
-  Sets the internal size of texture pages and texture cubes.  Default
-  value is [64, 64, 64].
+
+  Sets the largest internal size of texture pages and texture cubes.
+  Default value is [128, 128, 128].
 
   All elements of \a texsize must be a power of two.
 
