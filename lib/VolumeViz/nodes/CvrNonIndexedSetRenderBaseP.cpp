@@ -86,16 +86,16 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
 
   // Determiner rendering method.
   int rendermethod, storagehint; 
-  rendermethod = SoVolumeFaceSet::TEXTURE2D; // this is the default
+  rendermethod = CvrNonIndexedSetRenderBaseP::TEXTURE2D; // this is the default
   storagehint = volumedata->storageHint.getValue();
   if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
     const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
     if (cc_glglue_has_3d_textures(glue) && !CvrUtil::force2DTextureRendering()) {
-      rendermethod = SoVolumeFaceSet::TEXTURE3D;
+      rendermethod = CvrNonIndexedSetRenderBaseP::TEXTURE3D;
     }
   }
   
-  if (rendermethod == SoVolumeFaceSet::TEXTURE2D) {    
+  if (rendermethod == CvrNonIndexedSetRenderBaseP::TEXTURE2D) {    
     // 2D textures will not be supported for this node.
     static SbBool flag = FALSE;
     if (!flag) {
@@ -104,7 +104,7 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
       flag = TRUE;
     }
   }
-  else if (rendermethod == SoVolumeFaceSet::TEXTURE3D) {       
+  else if (rendermethod == CvrNonIndexedSetRenderBaseP::TEXTURE3D) {       
     
     // This must be done, as we want to control stuff in the GL state
     // machine. Without it, state changes could trigger outside our

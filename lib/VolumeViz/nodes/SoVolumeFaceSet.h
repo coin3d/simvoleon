@@ -52,8 +52,6 @@ private:
   friend class SoVolumeFaceSetP;
   class SoVolumeFaceSetP * pimpl;
 
-  enum RenderingMethod { TEXTURE3D, TEXTURE2D, UNKNOWN };
-
   friend class CvrNonIndexedSetRenderBaseP;
   friend class CvrFaceSetRenderP;
 

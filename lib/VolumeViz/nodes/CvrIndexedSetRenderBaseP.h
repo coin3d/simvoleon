@@ -52,6 +52,7 @@ public:
                 const SbBool clipGeometry);
   
   enum SetType { FACESET, TRIANGLESTRIPSET };
+  enum RenderingMethod { TEXTURE3D, TEXTURE2D, UNKNOWN };
 
   Cvr3DTexCube * cube;
   const CvrCLUT * clut;

@@ -52,8 +52,6 @@ private:
   friend class SoVolumeTriangleStripSetP;
   class SoVolumeTriangleStripSetP * pimpl;
 
-  enum RenderingMethod { TEXTURE3D, TEXTURE2D, UNKNOWN };
-
   friend class CvrNonIndexedSetRenderBaseP;
   friend class CvrTriangleStripSetRenderP;
 
