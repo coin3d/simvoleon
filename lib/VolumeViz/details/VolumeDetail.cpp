@@ -251,9 +251,9 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
   objbbox.getBounds(mincorner, maxcorner);
 
   const SbVec3f size = maxcorner - mincorner;
-  const SbVec3f voxelsize(voxcubedims[0] / size[0],
-                          voxcubedims[1] / size[1],
-                          voxcubedims[2] / size[2]);
+  const SbVec3f voxelsize(size[0] / voxcubedims[0],
+                          size[1] / voxcubedims[1],
+                          size[2] / voxcubedims[2]);
 
   // Calculate maximum number of voxels that could possibly be touched
   // by the ray.
