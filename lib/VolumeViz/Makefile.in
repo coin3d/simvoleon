@@ -103,7 +103,9 @@ SUBDIRS = elements misc nodes readers render .
 @BUILD_WITH_MSVC_TRUE@lib_LIBRARIES = VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib
 @BUILD_WITH_MSVC_FALSE@lib_LTLIBRARIES = libVolumeViz.la
 
-libVolumeViz_la_SOURCES = 
+# Adding in a dummy C++ source code file to "trick" Automake to set
+# us up with C++ $CXXLD for linking (and not the default C $CCLD).
+libVolumeViz_la_SOURCES = dummy.cpp
 
 libVolumeViz_la_LIBADD = \
         elements/libelements.la \
@@ -118,7 +120,7 @@ libVolumeViz_la_LDFLAGS = \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
 
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES = 
+VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES = dummy.cpp
 
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD = \
         elements/elements.lst \
@@ -137,7 +139,7 @@ VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_AR = $(AR) cru
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_DEPENDENCIES = \
 	elements/elements.lst misc/misc.lst nodes/nodes.lst \
 	readers/readers.lst render/2D/2Drender.lst
-am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS =
+am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS = dummy.$(OBJEXT)
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS = \
 	$(am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS)
 LTLIBRARIES = $(lib_LTLIBRARIES)
@@ -145,7 +147,7 @@ LTLIBRARIES = $(lib_LTLIBRARIES)
 libVolumeViz_la_DEPENDENCIES = elements/libelements.la misc/libmisc.la \
 	nodes/libnodes.la readers/libreaders.la \
 	render/2D/lib2Drender.la
-am_libVolumeViz_la_OBJECTS =
+am_libVolumeViz_la_OBJECTS = dummy.lo
 libVolumeViz_la_OBJECTS = $(am_libVolumeViz_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -153,14 +155,17 @@ DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-CFLAGS = @CFLAGS@
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
-	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/dummy.Plo $(DEPDIR)/dummy.Po
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+CXXFLAGS = @CXXFLAGS@
 DIST_SOURCES = $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES) \
 	$(libVolumeViz_la_SOURCES)
 
@@ -175,6 +180,7 @@ SOURCES = $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES) $(libVolumeViz_la_SO
 all: all-recursive
 
 .SUFFIXES:
+.SUFFIXES: .cpp .lo .o .obj
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -239,13 +245,38 @@ uninstall-libLTLIBRARIES:
 clean-libLTLIBRARIES:
 	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
 libVolumeViz.la: $(libVolumeViz_la_OBJECTS) $(libVolumeViz_la_DEPENDENCIES) 
-	$(LINK) -rpath $(libdir) $(libVolumeViz_la_LDFLAGS) $(libVolumeViz_la_OBJECTS) $(libVolumeViz_la_LIBADD) $(LIBS)
+	$(CXXLINK) -rpath $(libdir) $(libVolumeViz_la_LDFLAGS) $(libVolumeViz_la_OBJECTS) $(libVolumeViz_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
 
 distclean-compile:
 	-rm -f *.tab.c
+
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/dummy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/dummy.Po@am__quote@
+
+distclean-depend:
+	-rm -rf $(DEPDIR)
+
+.cpp.o:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CXXCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
+
+.cpp.obj:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CXXCOMPILE) -c -o $@ `( test -f $< || echo -n '$(srcdir)/'; echo -n $< ) | xargs cygpath -w`
+
+.cpp.lo:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(LTCXXCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
+CXXDEPMODE = @CXXDEPMODE@
 uninstall-info-am:
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -411,8 +442,8 @@ clean-am: clean-generic clean-libLIBRARIES clean-libLTLIBRARIES \
 
 distclean: distclean-recursive
 
-distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-libtool distclean-tags
+distclean-am: clean-am distclean-compile distclean-depend \
+	distclean-generic distclean-libtool distclean-tags
 
 dvi: dvi-recursive
 
@@ -450,21 +481,22 @@ uninstall-info: uninstall-info-recursive
 .PHONY: $(RECURSIVE_TARGETS) GTAGS all all-am check check-am clean \
 	clean-generic clean-libLIBRARIES clean-libLTLIBRARIES \
 	clean-libtool clean-recursive distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-recursive \
-	distclean-tags distdir dvi dvi-am dvi-recursive info info-am \
-	info-recursive install install-am install-data install-data-am \
-	install-data-local install-data-recursive install-exec \
-	install-exec-am install-exec-local install-exec-recursive \
-	install-info install-info-am install-info-recursive \
-	install-libLIBRARIES install-libLTLIBRARIES install-man \
-	install-recursive install-strip installcheck installcheck-am \
-	installdirs installdirs-am installdirs-recursive \
-	maintainer-clean maintainer-clean-generic \
-	maintainer-clean-recursive mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool mostlyclean-recursive \
-	tags tags-recursive uninstall uninstall-am uninstall-info-am \
-	uninstall-info-recursive uninstall-libLIBRARIES \
-	uninstall-libLTLIBRARIES uninstall-local uninstall-recursive
+	distclean-depend distclean-generic distclean-libtool \
+	distclean-recursive distclean-tags distdir dvi dvi-am \
+	dvi-recursive info info-am info-recursive install install-am \
+	install-data install-data-am install-data-local \
+	install-data-recursive install-exec install-exec-am \
+	install-exec-local install-exec-recursive install-info \
+	install-info-am install-info-recursive install-libLIBRARIES \
+	install-libLTLIBRARIES install-man install-recursive \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am installdirs-recursive maintainer-clean \
+	maintainer-clean-generic maintainer-clean-recursive mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	mostlyclean-recursive tags tags-recursive uninstall \
+	uninstall-am uninstall-info-am uninstall-info-recursive \
+	uninstall-libLIBRARIES uninstall-libLTLIBRARIES uninstall-local \
+	uninstall-recursive
 
 
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib: Makefile \

@@ -102,6 +102,7 @@ INCLUDES = -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libmisc.la
 
 SOURCES = \
+	Util.cpp CvrUtil.h \
 	GIMPGradient.cpp CvrGIMPGradient.h
 
 
@@ -116,13 +117,13 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 misc_lst_AR = $(AR) cru
 misc_lst_LIBADD =
-am_misc_lst_OBJECTS = GIMPGradient.$(OBJEXT)
+am_misc_lst_OBJECTS = Util.$(OBJEXT) GIMPGradient.$(OBJEXT)
 misc_lst_OBJECTS = $(am_misc_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libmisc_la_LDFLAGS =
 libmisc_la_LIBADD =
-am_libmisc_la_OBJECTS = GIMPGradient.lo
+am_libmisc_la_OBJECTS = Util.lo GIMPGradient.lo
 libmisc_la_OBJECTS = $(am_libmisc_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -132,7 +133,8 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 @AMDEP_TRUE@DEP_FILES = $(DEPDIR)/GIMPGradient.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/GIMPGradient.Po
+@AMDEP_TRUE@	$(DEPDIR)/GIMPGradient.Po $(DEPDIR)/Util.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/Util.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -153,6 +155,7 @@ LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 DIST_SOURCES = $(misc_lst_SOURCES) $(libmisc_la_SOURCES)
 DIST_COMMON = Makefile.am Makefile.in
 SOURCES = \
+	Util.cpp CvrUtil.h \
 	GIMPGradient.cpp CvrGIMPGradient.h
 
 
@@ -195,6 +198,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/GIMPGradient.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/GIMPGradient.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/Util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/Util.Po@am__quote@
 
 distclean-depend:
 	-rm -rf $(DEPDIR)
