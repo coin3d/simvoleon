@@ -365,11 +365,12 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
   if (!this->shouldRayPick(action)) return;
 
   SoState * state = action->getState();
-  const SoVolumeDataElement * volumedataelement =
-    SoVolumeDataElement::getInstance(state);
-  if (volumedataelement == NULL) return;
+
+  const SoVolumeDataElement * volumedataelement = SoVolumeDataElement::getInstance(state);
+  assert(volumedataelement != NULL);
   const SoVolumeData * volumedata = volumedataelement->getVolumeData();
-  assert(volumedata != NULL);
+  if (volumedata == NULL) { return; }
+
 
   this->computeObjectSpaceRay(action);
   const SbLine & ray = action->getLine();
@@ -491,6 +492,10 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
         // volume, the app programmer only want the nearest, and we
         // don't need to continue our intersection tests
         if (pp == NULL) return;
+        // FIXME: should fill in the normal vector of the pickedpoint:
+//         pp->setObjectNormal(<voxcube-side-normal>);
+        // 20030320 mortene.
+
         detail = new SoVolumeRenderDetail;
         pp->setDetail(detail, this);
 
