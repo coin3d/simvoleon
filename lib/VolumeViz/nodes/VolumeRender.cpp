@@ -130,7 +130,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   SbBox3f volumeSize = volumedata->getVolumeSize();
   volumeSize.getBounds(volmin, volmax);
 
-#if CVR_DEBUG && 1 // debug
+#if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("SoVolumeRender::GLRender",
                          "volumeSize==[%f, %f, %f]",
                          volmax[0] - volmin[0],
@@ -145,7 +145,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   SbBool ok = volumedata->getVolumeData(dimensions, data, type);
   assert(ok);
 
-#if CVR_DEBUG && 1 // debug
+#if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("SoVolumeRender::GLRender",
                          "dimensions==[%d, %d, %d]",
                          dimensions[0], dimensions[1], dimensions[2]);
@@ -188,7 +188,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     assert(FALSE && "invalid numSlicesControl value");
   }
 
-#if CVR_DEBUG && 1 // debug
+#if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("SoVolumeRender::GLRender",
                          "numslices == %d", numslices);
 #endif // debug
@@ -214,8 +214,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   const SbBox2f QUAD = renderalongZ ?
     SbBox2f(volmin[0], volmin[1], volmax[0], volmax[1]) :
     SbBox2f(volmin[1], volmin[2], volmax[1], volmax[2]);
-
-  const SbBox2f TEXTURECOORDS = SbBox2f(0.0, 0.0, 1.0, 1.0);
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
@@ -256,7 +254,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     // If rendering in reverse order.
     if (depthAdder < 0) { pageidx = lastpageidx - pageidx; }
 
-    volumedata->renderOrthoSlice(state, QUAD, depth, pageidx, TEXTURECOORDS,
+    volumedata->renderOrthoSlice(state, QUAD, depth, pageidx,
                                  transferfunction, AXISIDX);
     depth += depthAdder;
   }
