@@ -91,3 +91,23 @@
     20040702 mortene.
 
 ========================================================================
+
+007 Doxygen documentation should "connect" to Coin ditto.
+
+    As it is now, the Doxygen doc generation for SIM Voleon doesn't
+    know about the Coin classes, which means e.g. the class hierarchy
+    view is pretty worthless, and no links to doc of Coin classes are
+    made.
+
+    Need to check whether or not Doxygen supports ways to include data
+    from separately generated doc. If not, I don't know what to do
+    about this. :-/
+
+    Perhaps it would work to separate out the file list from
+    docs/simvoleon.doxygen.in, then integrate this into a larger "Coin
+    family" doxygen config file for doc generation http://for
+    doc.coin3d.org.
+
+    20040708 mortene.
+
+========================================================================
