@@ -175,29 +175,20 @@ Cvr2DTexPage::getTransferFunc(SoGLRenderAction * action)
   return transferfunc;
 }
 
-// Renders arbitrary shaped quad. Automatically loads all pages
-// needed.
-//
-// \a quadcoords specifies the "real" local space coordinates for the
-// full page.
+// Renders arbitrary positioned quad, textured for the page (slice)
+// represented by this object. Automatically loads all pages needed.
 void
 Cvr2DTexPage::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
                      const SbVec3f & horizspan, const SbVec3f & verticalspan,
-                     const SbVec2f & spacescale,
                      Cvr2DTexSubPage::Interpolation interpolation)
 {
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
 
   // Find the "local 3D-space" size of each subpage.
 
-  SbVec3f subpagewidth = horizspan;
-  subpagewidth.normalize();
-  subpagewidth *= this->subpagesize[0] * spacescale[0];
-
-  SbVec3f subpageheight = verticalspan;
-  subpageheight.normalize();
-  subpageheight *= this->subpagesize[1] * spacescale[1];
+  SbVec3f subpagewidth = horizspan * this->subpagesize[0];
+  SbVec3f subpageheight = verticalspan * this->subpagesize[1];
 
   SoState * state = action->getState();
 

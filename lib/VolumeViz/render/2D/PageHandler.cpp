@@ -164,6 +164,9 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
   this->comparePageSize(volumedata->getPageSize());
 
+  // FIXME: should have an assert-check that the volume dimensions
+  // hasn't changed versus our this->voldatadims
+
   SbVec3f spacemin, spacemax;
   SbBox3f spacesize = volumedata->getVolumeSize();
   spacesize.getBounds(spacemin, spacemax);
@@ -175,29 +178,6 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   SbVec3f camvec;
   this->getViewVector(action, camvec);
   const int AXISIDX = this->getCurrentAxis(camvec);
-
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("CvrPageHandler::render",
-                         "spacesize==[%f, %f, %f] [%f, %f, %f], "
-                         "this->voldatadims==[%d, %d, %d], "
-                         "SCALE=[%f, %f, %f], "
-                         "axis==%c, numslices==%d",
-                         spacemin[0], spacemin[1], spacemin[2],
-                         spacemax[0], spacemax[1], spacemax[2],
-                         this->voldatadims[0], this->voldatadims[1], this->voldatadims[2],
-                         SCALE[0], SCALE[1], SCALE[2],
-                         AXISIDX == 0 ? 'X' : (AXISIDX == 1 ? 'Y' : 'Z'),
-                         numslices);
-#endif // debug
-
-  float depth = spacemin[AXISIDX];
-  float depthprslice = (spacemax[AXISIDX] - spacemin[AXISIDX]) / numslices;
-
-  // Render in reverse order?
-  if (camvec[AXISIDX] < 0)  {
-    depth = spacemax[AXISIDX];
-    depthprslice = -depthprslice;
-  }
 
   const SbBox2f QUAD = (AXISIDX == 2) ? // along Z?
     SbBox2f(spacemin[0], spacemin[1], spacemax[0], spacemax[1]) :
@@ -227,6 +207,15 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   const float width = qmax[0] - qmin[0];
   const float height = qmax[1] - qmin[1];
 
+
+  float depth = spacemin[AXISIDX];
+  float depthprslice = (spacemax[AXISIDX] - spacemin[AXISIDX]) / numslices;
+
+  // Render in reverse order?
+  if (camvec[AXISIDX] < 0)  {
+    depth = spacemax[AXISIDX];
+    depthprslice = -depthprslice;
+  }
 
   // "origo" should point at the upper left corner of the page to
   // render. horizspan should point rightwards, and verticalspan
@@ -261,6 +250,11 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
                          horizspan[0], horizspan[1], horizspan[2],
                          verticalspan[0], verticalspan[1], verticalspan[2]);
 #endif // debug
+
+  horizspan.normalize();
+  horizspan *= QUADSCALE[0];
+  verticalspan.normalize();
+  verticalspan *= QUADSCALE[1];
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
@@ -366,8 +360,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
       // that can give better rendering quality of the volume.
       Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
       origo[AXISIDX] = depth + i * depthprslice;
-      page->render(action, origo, horizspan, verticalspan, QUADSCALE,
-                   interpolation);
+      page->render(action, origo, horizspan, verticalspan, interpolation);
     }
     else {
       assert((abortcode == SoVolumeRender::SKIP) &&

@@ -117,7 +117,6 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
                SbVec3f(0, 0, 0), // const SbVec3f & origo,
                SbVec3f(64, 0, 0), // const SbVec3f & horizspan,
                SbVec3f(0, 64, 0), // const SbVec3f & verticalspan,
-               SbVec2f(1.0, 1.0), // const SbVec2f & spacescale,
                // FIXME: ugly cast
                (Cvr2DTexSubPage::Interpolation)this->interpolation.getValue());
 }

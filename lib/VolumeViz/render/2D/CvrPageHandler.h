@@ -9,6 +9,7 @@
 
 class Cvr2DTexPage;
 class SoVolumeReader;
+class SoVolumeData;
 class SoState;
 class SoGLRenderAction;
 
