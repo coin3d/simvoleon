@@ -17,7 +17,9 @@ class Cvr2DTexSubPage {
 public:
   Cvr2DTexSubPage(SoGLRenderAction * action,
                   const CvrTextureObject * texobj,
-                  const SbVec2s & pagesize, const SbVec2s & texsize);
+                  const SbVec2s & pagesize, 
+                  const SbVec2s & texsize,
+                  const SbBool compresstextures);
   ~Cvr2DTexSubPage();
 
   enum Interpolation { NEAREST, LINEAR };
@@ -38,6 +40,7 @@ private:
 
   void activateTexture(Interpolation interpolation) const;
   void activateCLUT(const SoGLRenderAction * action);
+  void deactivateCLUT(const SoGLRenderAction * action);
 
   static void bindTexMemFullImage(const cc_glglue * glw);
 
@@ -52,6 +55,7 @@ private:
   unsigned int bitspertexel;
   const CvrCLUT * clut;
   SbBool ispaletted;
+  SbBool compresstextures;
 };
 
 

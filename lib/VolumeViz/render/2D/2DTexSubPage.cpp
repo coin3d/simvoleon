@@ -1,6 +1,8 @@
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
-#include <VolumeViz/render/2D/CvrRGBATexture.h>
-#include <VolumeViz/render/2D/CvrPaletteTexture.h>
+#include <VolumeViz/render/common/CvrRGBATexture.h>
+#include <VolumeViz/render/common/CvrPaletteTexture.h>
+#include <VolumeViz/render/common/Cvr2DRGBATexture.h>
+#include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
@@ -13,6 +15,10 @@
 #include "texmemfullimg.h"
 
 // *************************************************************************
+
+// FIXME: This one should be defined by the configuration
+// script.  (20040315 handegar)
+#define HAVE_ARB_FRAGMENT_PROGRAM
 
 // debugging: keep this around until the peculiar NVidia bug with
 // 1- or 2-pixel width textures has been analyzed. 20031031 mortene.
@@ -37,8 +43,10 @@ SbBool Cvr2DTexSubPage::detectedtextureswapping = FALSE;
 Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
                                  const SbVec2s & pagesize,
-                                 const SbVec2s & texsize)
+                                 const SbVec2s & texsize,
+                                 const SbBool compresstextures)
 {
+
   this->bitspertexel = 0;
   this->clut = NULL;
   this->ispaletted = FALSE;
@@ -51,8 +59,15 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
   assert(texsize[0] <= pagesize[0]);
   assert(texsize[1] <= pagesize[1]);
 
-  // Actual dimensions of texture bitmap memory block.
-  this->texdims = texobj->getDimensions();
+  if (texobj->getTypeId() == Cvr2DPaletteTexture::getClassTypeId()) {
+    this->texdims = ((Cvr2DPaletteTexture *) texobj)->dimensions;
+  }
+  else if (texobj->getTypeId() == Cvr2DRGBATexture::getClassTypeId()) {
+    this->texdims = ((Cvr2DRGBATexture *) texobj)->dimensions;
+  }
+  else {
+    assert(FALSE && "Cannot initialize a 2D texture cube with a 3D texture object");
+  }
 
   // Calculates part of texture to show.
   this->texmaxcoords = SbVec2f(1.0f, 1.0f);
@@ -78,6 +93,10 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                          this->texmaxcoords[0], this->texmaxcoords[1]);
 #endif // debug
 
+  this->compresstextures = compresstextures;
+  const char * envstr = coin_getenv("CVR_COMPRESS_TEXTURES");
+  if (envstr) { this->compresstextures = (compresstextures || atoi(envstr) > 0 ? TRUE : FALSE); }
+
   this->transferTex2GL(action, texobj);
 
 #if CVR_DEBUG && 0 // debug
@@ -86,6 +105,7 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                          Cvr2DTexSubPage::nroftexels,
                          Cvr2DTexSubPage::texmembytes);
 #endif // debug
+
 }
 
 
@@ -254,9 +274,9 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
 
   int colorformat;
 
-  this->ispaletted = texobj->getTypeId() == CvrPaletteTexture::getClassTypeId();
+  this->ispaletted = texobj->getTypeId() == Cvr2DPaletteTexture::getClassTypeId();
   // only knows two types
-  assert(this->ispaletted || texobj->getTypeId() == CvrRGBATexture::getClassTypeId());
+  assert(this->ispaletted || texobj->getTypeId() == Cvr2DRGBATexture::getClassTypeId());
 
   // For uploading standard RGBA-texture
   if (!this->ispaletted) {
@@ -322,8 +342,8 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     assert(glGetError() == GL_NO_ERROR);
 
     void * imgptr = NULL;
-    if (this->ispaletted) imgptr = ((CvrPaletteTexture *)texobj)->getIndex8Buffer();
-    else imgptr = ((CvrRGBATexture *)texobj)->getRGBABuffer();
+    if (this->ispaletted) imgptr = ((Cvr2DPaletteTexture *)texobj)->getIndex8Buffer();
+    else imgptr = ((Cvr2DRGBATexture *)texobj)->getRGBABuffer();
 
     // debugging: keep this around until the peculiar NVidia bug with
     // 1- or 2-pixel width textures has been analyzed.
@@ -351,13 +371,30 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     }
 #endif // debugging
 
+    int palettetype = GL_COLOR_INDEX;
+
+    // FIXME: Is this way of compressing textures OK? (20040303 handegar)
+    if (cc_glue_has_texture_compression(glw) && this->compresstextures) {
+      if (colorformat == 4)
+        colorformat = GL_COMPRESSED_RGBA;
+      else
+        colorformat = GL_COMPRESSED_INTENSITY_ARB;
+
+      // FIXME: Should add a better way to handle these two
+      // methods. (20040310 handegar)
+#ifdef HAVE_ARB_FRAGMENT_PROGRAM
+      if (cc_glglue_has_arb_fragment_program(glw))
+        palettetype = GL_LUMINANCE;    
+#endif
+    }
+
     GLCMD(glTexImage2D(GL_TEXTURE_2D,
                  0,
                  colorformat,
                  this->texdims[0],
                  this->texdims[1],
                  0,
-                 this->ispaletted ? GL_COLOR_INDEX: GL_RGBA,
+                 this->ispaletted ? palettetype : GL_RGBA,
                  GL_UNSIGNED_BYTE,
                  imgptr));
                  
@@ -371,6 +408,7 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     GLCMD(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum));
     assert(glGetError() == GL_NO_ERROR);
   }
+
 }
 
 void
@@ -383,12 +421,25 @@ Cvr2DTexSubPage::activateCLUT(const SoGLRenderAction * action)
   this->clut->activate(glw);
 }
 
+
+void
+Cvr2DTexSubPage::deactivateCLUT(const SoGLRenderAction * action)
+{
+  assert(this->clut != NULL);
+
+  // FIXME: should check if the same clut is already current 
+  const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
+  this->clut->deactivate(glw);
+}
+
+
 void
 Cvr2DTexSubPage::render(const SoGLRenderAction * action,
                         const SbVec3f & upleft,
                         SbVec3f widthvec, SbVec3f heightvec,
                         Interpolation interpolation)
 {
+
   // Texture binding/activation must happen before setting the
   // palette, or the previous palette will be used.
   this->activateTexture(interpolation);
@@ -431,6 +482,9 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
   GLCMD(glEnd());
 
 
+  if (this->ispaletted) // Switch OFF palette rendering
+    this->deactivateCLUT(action);
+
   // This is a debugging backdoor: if the environment variable
   // CVR_SUBPAGE_FRAMES is set to a positive integer, a lineset will
   // be drawn around the border of each page.
@@ -456,6 +510,7 @@ Cvr2DTexSubPage::render(const SoGLRenderAction * action,
 
     GLCMD(glEnable(GL_TEXTURE_2D));
   }
+
 }
 
 unsigned int

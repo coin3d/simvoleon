@@ -15,8 +15,10 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/render/2D/CvrRGBATexture.h>
-#include <VolumeViz/render/2D/CvrPaletteTexture.h>
+#include <VolumeViz/render/common/CvrRGBATexture.h>
+#include <VolumeViz/render/common/CvrPaletteTexture.h>
+#include <VolumeViz/render/common/Cvr2DRGBATexture.h>
+#include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
 
 // *************************************************************************
 
@@ -289,7 +291,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // fail to match dimensions perfectly with 2^n values). 20021125 mortene.
 
   SbBool invisible;
-  CvrTextureObject * texobj = slice->transfer(action, invisible);
+  CvrTextureObject * texobj = slice->transfer2D(action, invisible);
 
   // FIXME: could cache slices -- would speed up regeneration when
   // textures have to be invalidated. But this would take lots of
@@ -309,12 +311,14 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   // Must clear the unused texture area to prevent artifacts due to
   // inaccuracies when calculating texture coords.
-  if (texobj->getTypeId() == CvrRGBATexture::getClassTypeId()) {
-    ((CvrRGBATexture *) texobj)->blankUnused(texsize);
-  } else if (texobj->getTypeId() == CvrPaletteTexture::getClassTypeId()) {
-    ((CvrPaletteTexture *) texobj)->blankUnused(texsize);
+ 
+  if (texobj->getTypeId() == Cvr2DRGBATexture::getClassTypeId()) {
+    ((Cvr2DRGBATexture *) texobj)->blankUnused(texsize);
+  } else if (texobj->getTypeId() == Cvr2DPaletteTexture::getClassTypeId()) {
+    ((Cvr2DPaletteTexture *) texobj)->blankUnused(texsize);
   }
   
+
 #if 0 // DEBUG: dump all transfered textures to bitmap files.
   SbString s;
   s.sprintf("/tmp/posttransftex-%04d-%03d-%03d.ppm", this->sliceidx, row, col);
@@ -323,7 +327,8 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   Cvr2DTexSubPage * page = NULL;
   if (!invisible) {
-    page = new Cvr2DTexSubPage(action, texobj, this->subpagesize, texsize);
+    page = new Cvr2DTexSubPage(action, texobj, this->subpagesize, texsize, 
+                               voldatanode->useCompressedTexture.getValue());
     page->setPalette(this->clut);
   }
 

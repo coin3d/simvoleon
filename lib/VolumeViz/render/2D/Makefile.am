@@ -10,9 +10,6 @@ SOURCES = \
 	PageHandler.cpp CvrPageHandler.h \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
 	2DTexPage.cpp Cvr2DTexPage.h \
-	TextureObject.cpp CvrTextureObject.h \
-	RGBATexture.cpp CvrRGBATexture.h \
-	PaletteTexture.cpp CvrPaletteTexture.h \
 	TexManager.cpp CvrTexManager.h
 
 EXTRA_DIST = \
