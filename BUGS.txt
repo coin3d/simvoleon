@@ -1,4 +1,4 @@
-========================================================================
+‚========================================================================
 
 001 The set of 2D texture slices doesn't seem to cover the full
     extents of the bounding box.
@@ -195,16 +195,5 @@
     texture when initialized.
     
     20040907 handegar.
-
-========================================================================
-
-017 The first frame after the 3D texture performance check has wrong
-    background color.
-
-    Looks like either the glReadPixels()/glDrawPixels() wrapper
-    doesn't work right, or the glClearColor() is not restored, or
-    both.
-
-    20040914 mortene.
 
 ========================================================================
