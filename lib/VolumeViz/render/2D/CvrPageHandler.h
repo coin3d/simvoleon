@@ -68,8 +68,6 @@ private:
   SbVec3s subpagesize;
   SoVolumeReader * reader;
 
-  SbBool flipvolumerendering; // Shall we flip the Y-axis? Controlled by an envvar.
-
   uint32_t transferfuncid;
   const CvrCLUT * clut;
 };

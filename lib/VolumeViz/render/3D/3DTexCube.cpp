@@ -80,7 +80,7 @@ Cvr3DTexCube::Cvr3DTexCube(SoVolumeReader * reader)
   assert(dim[0] > 0);
   assert(dim[1] > 0);
   assert(dim[2] > 0);
- 
+
   this->dimensions = dim;
 
   this->nrcolumns = (this->dimensions[0] + this->subcubesize[0] - 1) / this->subcubesize[0];
@@ -93,13 +93,6 @@ Cvr3DTexCube::Cvr3DTexCube(SoVolumeReader * reader)
 
   this->abortfunc = NULL;
   this->abortfuncdata = NULL;
-
-  // FIXME: Remove this option when we bump the major version
-  // number. (20040615 handegar)
-  this->flipvolumerendering = FALSE; // Render the 'old' way?, ie. the wrong way.
-  const char * flipvolumeenvstr = coin_getenv("CVR_FLIP_Y_AXIS");
-  if (flipvolumeenvstr) { this->flipvolumerendering = atoi(flipvolumeenvstr) > 0 ? TRUE : FALSE; }
- 
 }
 
 Cvr3DTexCube::~Cvr3DTexCube()
@@ -109,7 +102,7 @@ Cvr3DTexCube::~Cvr3DTexCube()
 }
 
 
-void 
+void
 Cvr3DTexCube::setAbortCallback(SoVolumeRenderAbortCB * func, void * userdata)
 {
   this->abortfunc = func;
@@ -201,7 +194,7 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
 
   SoState * state = action->getState();
- 
+
   SbVec3f subcubewidth = SbVec3f(this->subcubesize[0], 0, 0);
   SbVec3f subcubeheight = SbVec3f(0, this->subcubesize[1], 0);
   SbVec3f subcubedepth = SbVec3f(0, 0, this->subcubesize[2]);
@@ -210,21 +203,21 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
   SbViewVolume viewvolumeinv = viewvolume;
   viewvolumeinv.transform(SoModelMatrixElement::get(state).inverse());
 
-  SbBox3f bbox(origo, origo +                
-               SbVec3f(this->dimensions[0], 
-                       this->dimensions[1], 
+  SbBox3f bbox(origo, origo +
+               SbVec3f(this->dimensions[0],
+                       this->dimensions[1],
                        this->dimensions[2]));
   bbox.transform(SoModelMatrixElement::get(state));
   float dx, dy, dz;
-  bbox.getSize(dx, dy, dz);   
+  bbox.getSize(dx, dy, dz);
   const float bboxradius = SbVec3f(dx, dy, dz).length() * 0.5f;
-  
+
   const SbPlane camplane = viewvolume.getPlane(0.0f);
   const SbVec3f bboxcenter = bbox.getCenter();
   const float neardistance = SbAbs(camplane.getDistance(bboxcenter)) + bboxradius;
   const float fardistance = SbAbs(camplane.getDistance(bboxcenter)) - bboxradius;
   const float distancedelta = (fardistance - neardistance) / numslices;
-   
+
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
 
   for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
@@ -235,35 +228,35 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
 
         if (cubeitem == NULL) {
-          cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx);        
+          cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx);
         }
         assert(cubeitem != NULL);
 
-        if (cubeitem->invisible) 
+        if (cubeitem->invisible)
           continue;
         assert(cubeitem->cube != NULL);
-           
-        SbVec3f subcubeorigo = origo + 
+
+        SbVec3f subcubeorigo = origo +
           subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
 
-        SbBox3f subbbox(subcubeorigo, subcubeorigo + subcubeheight + subcubewidth + subcubedepth);   
+        SbBox3f subbbox(subcubeorigo, subcubeorigo + subcubeheight + subcubewidth + subcubedepth);
 
-        const float cubecameradist = (viewvolumeinv.getProjectionPoint() - 
+        const float cubecameradist = (viewvolumeinv.getProjectionPoint() -
                                       subbbox.getCenter()).length();
         cubeitem->cube->setDistanceFromCamera(cubecameradist);
 
         subbbox.transform(SoModelMatrixElement::get(state));
         float sdx, sdy, sdz;
-        subbbox.getSize(sdx, sdy, sdz);        
+        subbbox.getSize(sdx, sdy, sdz);
         const float cuberadius = SbVec3f(sdx, sdy, sdz).length() * 0.5f;
         const float cubecenterdist = SbAbs(camplane.getDistance(subbbox.getCenter()));
-       
+
         for (unsigned int i=0; i<numslices; ++i) {
 
           if (this->abortfunc != NULL) { // Check user-callback status.
             SoVolumeRender::AbortCode abortcode = this->abortfunc(numslices, (numslices - i), this->abortfuncdata);
-            if (abortcode == SoVolumeRender::ABORT) break;            
-            else if (abortcode == SoVolumeRender::SKIP) continue; 
+            if (abortcode == SoVolumeRender::ABORT) break;
+            else if (abortcode == SoVolumeRender::SKIP) continue;
           }
 
           const float dist = fardistance - i*distancedelta;
@@ -273,7 +266,7 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
           cubeitem->cube->checkIntersectionSlice(subcubeorigo, viewvolume, dist,
                                                  SoModelMatrixElement::get(state).inverse());
         }
-        
+
         subcubelist.append(cubeitem);
 
       }
@@ -343,19 +336,17 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
   }
 
   SbVec3s subcubemin, subcubemax;
-  if (this->flipvolumerendering) {    
-    // NOTE: Building subcubes 'upwards' so that the Y orientation will
-    // be equal to the 2D slice rendering (the voxelchunks are also
-    // flipped).
-    // FIXME: Remove this option when we bump the major
-    // version number. (20040615 handegar)
+  if (CvrUtil::useFlippedYAxis()) {
+    // NOTE: Building subcubes 'upwards' so that the Y orientation
+    // will be equal to the 2D slice rendering (the voxelchunks are
+    // also flipped).
     subcubemin = SbVec3s(col * this->subcubesize[0],
                          this->dimensions[1] - (row + 1) * this->subcubesize[1],
                          depth * this->subcubesize[2]);
     subcubemax = SbVec3s((col + 1) * this->subcubesize[0],
                          this->dimensions[1] - row * this->subcubesize[1],
-                         (depth + 1) * this->subcubesize[2]);    
-  } 
+                         (depth + 1) * this->subcubesize[2]);
+  }
   else {
     subcubemin = SbVec3s(col * this->subcubesize[0],
                          row * this->subcubesize[1],

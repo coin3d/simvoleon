@@ -86,13 +86,6 @@ CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, UnitSize type,
     this->voxelbuffer = buffer;
     this->destructbuffer = FALSE;
   }
-
-  // FIXME: Remove this option when we bump the major version
-  // number. (20040615 handegar)
-  this->flipvolumerendering = FALSE; // Render the 'old' way?, ie. the wrong way.
-  const char * flipvolumeenvstr = coin_getenv("CVR_FLIP_Y_AXIS");
-  if (flipvolumeenvstr) { this->flipvolumerendering = atoi(flipvolumeenvstr) > 0 ? TRUE : FALSE; }
-
 }
 
 CvrVoxelChunk::~CvrVoxelChunk()
@@ -250,11 +243,11 @@ CvrVoxelChunk::usePaletteTextures(SoGLRenderAction * action)
   static int force_paletted = -1; // "-1" means "undecided"
   static int force_rgba = -1;
 
-  if (force_paletted == -1) { 
-    force_paletted = (env = coin_getenv("CVR_FORCE_PALETTED_TEXTURES")) && (atoi(env) > 0); 
+  if (force_paletted == -1) {
+    force_paletted = (env = coin_getenv("CVR_FORCE_PALETTED_TEXTURES")) && (atoi(env) > 0);
   }
-  if (force_rgba == -1) { 
-    force_rgba = (env = coin_getenv("CVR_FORCE_RGBA_TEXTURES")) && (atoi(env) > 0); 
+  if (force_rgba == -1) {
+    force_rgba = (env = coin_getenv("CVR_FORCE_RGBA_TEXTURES")) && (atoi(env) > 0);
   }
   assert(!(force_paletted && force_rgba)); // both at the same time can't be done, silly
 
@@ -327,12 +320,12 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
   if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
     CvrRGBATexture * rgbatex = NULL;
     CvrPaletteTexture * palettetex = NULL;
-    
+
     const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
     clut->ref();
-    
+
     SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
-    
+
     if (usepalettetex) {
       palettetex = new Cvr3DPaletteTexture(texsize);
       palettetex->setCLUT(clut);
@@ -350,16 +343,15 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
 
     if (palettetex) { // paletted texture
       uint8_t * output = palettetex->getIndex8Buffer();
-            
+
       for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
         for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
           for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
 
             int voxelidx;
-            if (this->flipvolumerendering) {            
-              // Render 'the old way' where the y-axis was flipped.
-              // FIXME: Remove this option when we bump the major
-              // version number. (20040615 handegar)
+            if (CvrUtil::useFlippedYAxis()) {
+              // Render 'the old buggy way' where the y-axis was
+              // flipped.
               voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
             }
             else {
@@ -370,12 +362,12 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
 
             assert(voxelidx <= (size[0] * size[1] * size[2]));
             assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
-            const uint8_t voldataidx = inputbytebuffer[voxelidx];            
+            const uint8_t voldataidx = inputbytebuffer[voxelidx];
             output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
           }
         }
       }
-      
+
       // FIXME: should set the ''invisible'' flag correctly to
       // optimize the amount of the available fill-rate of the gfx
       // card we're using.
@@ -401,10 +393,9 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
           for (unsigned int x=0; x < (unsigned int) size[0]; x++) {
 
             int voxelidx;
-            if (this->flipvolumerendering) {            
-              // Render 'the old way' where the y-axis was flipped.
-              // FIXME: Remove this option when we bump the major
-              // version number. (20040615 handegar)
+            if (CvrUtil::useFlippedYAxis()) {
+              // Render 'the old buggy way' where the y-axis was
+              // flipped.
               voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
             }
             else {
@@ -414,7 +405,7 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
             const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;
             const uint8_t voldataidx = inputbytebuffer[voxelidx];
             const uint8_t colidx = (voldataidx << shiftval) + offsetval;
-   
+
             clut->lookupRGBA(colidx, &output[texelidx * 4]);
             invisible = invisible && (output[texelidx * 4 + 3] == 0x00);
           }
@@ -423,20 +414,20 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
     }
     clut->unref();
   }
-  
+
   else if (this->getUnitSize() == CvrVoxelChunk::UINT_16) {
     // --
     // FIXME: This is not a proper solution! Fix later. (20040311 handegar)
     // --
     SoDebugError::postWarning("transfer3D", "UINT_16 unit size is not properly implemented "
-                              "yet. Voxels will therefore be scaled down to 8 bits.");    
-    
-    CvrPaletteTexture * palettetex = NULL;    
+                              "yet. Voxels will therefore be scaled down to 8 bits.");
+
+    CvrPaletteTexture * palettetex = NULL;
     const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
     clut->ref();
-    
+
     SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
-    
+
     if (usepalettetex) {
       palettetex = new Cvr3DPaletteTexture(texsize);
       palettetex->setCLUT(clut);
@@ -445,31 +436,29 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
     else {
       assert(FALSE && "16 bits RGBA textures are not supported.");
     }
-    
+
     const int32_t shiftval = transferfunc->shift.getValue();
     const int32_t offsetval = transferfunc->offset.getValue();
-    
+
     const uint16_t * inputbytebuffer = this->getBuffer16();
-    
+
     if (palettetex) { // paletted texture
       uint8_t * output = palettetex->getIndex8Buffer();
-      
+
       for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
         for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
           for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
 
             int voxelidx;
-            if (this->flipvolumerendering) {            
-              // Render 'the old way' where the y-axis was flipped.
-              // FIXME: Remove this option when we bump the major
-              // version number. (20040615 handegar)
+            if (CvrUtil::useFlippedYAxis()) {
+              // Render 'the old buggy way' where the y-axis was flipped.
               voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
             }
             else {
               voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x;
             }
 
-            const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;     
+            const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;
 
             assert(voxelidx <= (size[0] * size[1] * size[2]));
             assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
@@ -479,9 +468,9 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
           }
         }
       }
-      
+
       invisible = FALSE;
-      
+
     }
 
   }
@@ -859,15 +848,14 @@ CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by usi
 CvrVoxelChunk *
 CvrVoxelChunk::buildSubCube(const SbBox3s & cutcube)
 {
-
   SbVec3s ccmin, ccmax;
   cutcube.getBounds(ccmin, ccmax);
   const SbVec3s dim = this->getDimensions();
- 
+
   const int nrhorizvoxels = ccmax[0] - ccmin[0];
   const int nrvertvoxels = ccmax[1] - ccmin[1];
   const int nrdepthvoxels = ccmax[2] - ccmin[2];
-  
+
   assert(nrhorizvoxels > 0);
   assert(nrvertvoxels > 0);
   assert(nrdepthvoxels > 0);
@@ -884,8 +872,8 @@ CvrVoxelChunk::buildSubCube(const SbBox3s & cutcube)
   for (int depthidx = 0; depthidx < nrdepthvoxels; depthidx++) {
     for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
       const unsigned int inoffset = staticoffset + (rowidx * dim[0]) + (depthidx * dim[0]*dim[1]);
-      const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);      
-      uint8_t * dstptr = &(outputbytebuffer[((depthidx * nrhorizvoxels * nrvertvoxels) + (nrhorizvoxels * rowidx)) * voxelsize]);      
+      const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
+      uint8_t * dstptr = &(outputbytebuffer[((depthidx * nrhorizvoxels * nrvertvoxels) + (nrhorizvoxels * rowidx)) * voxelsize]);
       (void) memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
     }
   }

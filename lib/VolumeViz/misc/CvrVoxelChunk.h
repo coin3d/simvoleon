@@ -75,7 +75,6 @@ private:
   void * voxelbuffer;
   SbVec3s dimensions;
   UnitSize unitsize;
-  SbBool flipvolumerendering;  // Shall we flip the Y-axis? Controlled by an envvar.
 
   static CvrCLUT * makeCLUT(const SoTransferFunctionElement * e);
   static SbDict * CLUTdict;

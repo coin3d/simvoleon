@@ -62,13 +62,6 @@ CvrPageHandler::CvrPageHandler(const SbVec3s & voldatadims,
   this->clut = NULL;
 
   this->reader = reader;
-
-  // FIXME: Remove this option when we bump the major version
-  // number. (20040615 handegar)
-  this->flipvolumerendering = FALSE; // Render the 'old' way?, ie. the wrong way.
-  const char * flipvolumeenvstr = coin_getenv("CVR_FLIP_Y_AXIS");
-  if (flipvolumeenvstr) { this->flipvolumerendering = atoi(flipvolumeenvstr) > 0 ? TRUE : FALSE; }
- 
 }
 
 CvrPageHandler::~CvrPageHandler()
@@ -88,7 +81,7 @@ CvrPageHandler::getViewVector(SoGLRenderAction * action, SbVec3f & direction) co
 
   const SbViewVolume & vv = SoViewVolumeElement::get(state);
 
-  if (/* FIXME: ??? 20021111 mortene: */ 0 &&
+  if (FALSE && /* <--- FIXME: ???. 20021111 mortene. */
       vv.getProjectionType() == SbViewVolume::PERSPECTIVE) {
     SbVec3f worldpos(0.0f, 0.0f, 0.0f);
     mm.multVecMatrix(worldpos, worldpos);
@@ -125,7 +118,7 @@ CvrPageHandler::getCurrentAxis(const SbVec3f & viewvec) const
   abstoviewer[2] = fabs(viewvec[2]);
 
   // Figures out which axis we are closest to be looking along:
-  
+
   const SbBool renderalongX =
     (abstoviewer[0] >= abstoviewer[1]) &&
     (abstoviewer[0] >= abstoviewer[2]);
@@ -283,7 +276,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
         // without depending on the *optional* OGL1.2+ API-function
         // glBlendEquation(), the Doxygen documentation of
         // SoVolumeRender::SUM_INTENSITY should be updated.
-        
+
         // FIXME: did find another way of doing this, but it still
         // involves the imaging subset of OGL1.2 (promoted from
         // EXT_blend_color). This should do the same as the blendfunc
@@ -306,7 +299,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
   assert(glGetError() == GL_NO_ERROR);
 
-  // FIXME: what's this good for? 20021128 mortene.
+  // Render faces from both sides.
   glDisable(GL_CULL_FACE);
 
   SbTime renderstart = SbTime::getTimeOfDay(); // for debugging
@@ -317,7 +310,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   const unsigned int DEPTH = this->voldatadims[AXISIDX];
 
   SbVec3f origo, horizspan, verticalspan;
-  
+
   for (unsigned int i = 0; i < numslices; i++) {
     // Find nearest integer page idx (as number of pages to render
     // need not match the number of actual volume data pages).
@@ -327,7 +320,7 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
     // last slice will be rendered. But this is probably due to a
     // 'float' rounding feature. Can we assure that the result will be
     // the same on all platforms and for all compilers? (20040315
-    // handegar) 
+    // handegar)
     //unsigned int pageidx = (unsigned int) (fraction * float(DEPTH - 1) + 0.5f);
     unsigned int pageidx = (unsigned int) (fraction * float(DEPTH) + 0.5f);
 
@@ -347,20 +340,18 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
     if (abortcode == SoVolumeRender::CONTINUE) {
       volumedataelement->getPageGeometry(AXISIDX, pageidx,
                                          origo, horizspan, verticalspan);
-      
-      if (!this->flipvolumerendering) {
+
+      if (!CvrUtil::useFlippedYAxis()) {
         // FIXME: The flip should have been done inside
-        // 'getPageGeometry', but it is 'const'. Should this change
-        // when we bump the version number. (20040615 handegar)        
-        if (AXISIDX != 1) {
-          verticalspan = -verticalspan;          
-          origo[1] = -origo[1];
-        }        
-      } else {        
-        // Pages along Y-axis is in opposite order of those along X- and
-        // Z-axis.     
-        // FIXME: Remove this option when we change the major
+        // 'getPageGeometry'. Should this change when we bump the
         // version number. (20040615 handegar)
+        if (AXISIDX != 1) {
+          verticalspan = -verticalspan;
+          origo[1] = -origo[1];
+        }
+      } else {
+        // Pages along Y-axis is in opposite order of those along X-
+        // and Z-axis.
         if (AXISIDX == 1) { pageidx = DEPTH - pageidx - 1; }
       }
 
@@ -413,14 +404,14 @@ CvrPageHandler::getSlice(const unsigned int AXISIDX, unsigned int sliceidx)
     // Pagesize according to axis: X => [Z, Y], Y => [X, Z], Z => [X, Y].
     SbVec2s pagesize = SbVec2s(this->subpagesize[(AXISIDX == 0) ? 2 : 0],
                                this->subpagesize[(AXISIDX == 1) ? 2 : 1]);
-    
+
     Cvr2DTexPage * newslice =
       new Cvr2DTexPage(this->reader, AXISIDX, sliceidx, pagesize);
     newslice->setPalette(this->clut);
-    
+
     this->slices[AXISIDX][sliceidx] = newslice;
   }
-  
+
   return this->slices[AXISIDX][sliceidx];
 }
 

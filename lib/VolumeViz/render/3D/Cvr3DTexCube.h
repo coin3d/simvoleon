@@ -66,7 +66,6 @@ private:
   int nrcolumns;
   int nrrows;
   int nrdepths;
-  SbBool flipvolumerendering; // Shall we flip the Y-axis? Controlled by an envvar.
 
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
   void * abortfuncdata;
