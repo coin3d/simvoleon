@@ -148,10 +148,12 @@ main(int argc, char ** argv)
   load_files(argc-1, &argv[1]);
 
   // hardcoded resize
+#if 0
   resize_data(SbVec3s(128, 128, 64));
+#endif
 
   // change filter here
-#if 1
+#if 0
   APPLY_FILTER(ptr[2] > 128);
 #endif
 
