@@ -1038,9 +1038,9 @@ SoVolumeRenderP::renderPerformanceTestScene(SbList<double> & timelist3d,
     glTexCoord2f(0.0f, 0.0f);
     glVertex3f(0.0f, 0.0f, 0.0f);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(xp, 0.0f, yp);
+    glVertex3f(xp, 0.0f, zp);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(-xp, yp, zp);
+    glVertex3f(xp, -yp, zp);  
     glEnd();
   }
 
@@ -1154,7 +1154,7 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  glTranslatef(0.5f, 0.0f, -1.0f); // The tris should take up most of the screen area.
+  glTranslatef(0.7f, 0.5f, -0.5f); // The tris should take up most of the screen area.
 
   if (SoVolumeRenderP::debug3DTextureTiming()) {
     glClearColor(0, 0, 1, 0);
