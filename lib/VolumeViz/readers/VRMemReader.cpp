@@ -64,14 +64,12 @@ private:
 SoVRMemReader::SoVRMemReader(void)
 {
   PRIVATE(this) = new SoVRMemReaderP(this);
-
 }
 
 SoVRMemReader::~SoVRMemReader()
 {
   delete PRIVATE(this);
 }
-
 
 void SoVRMemReader::setUserData(void * data)
 {
@@ -84,8 +82,11 @@ void SoVRMemReader::getDataChar(SbBox3f & size,
   type = PRIVATE(this)->dataType;
   dim = PRIVATE(this)->dimensions;
 
-  size.setBounds(-dim[0]/2.0f, -dim[1]/2.0f, -dim[2]/2.0f,
-                 dim[0]/2.0f, dim[1]/2.0f, dim[2]/2.0f);
+  const short largestdimension = SbMax(dim[0], SbMax(dim[1], dim[2]));
+  SbVec3f normdims(dim[0], dim[1], dim[2]);
+  normdims /= float(largestdimension);
+  normdims *= 2.0f;
+  size.setBounds(-normdims / 2.0f, normdims / 2.0f);
 }
 
 void
