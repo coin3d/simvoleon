@@ -272,7 +272,7 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
   const SbVec3f rayvec = (rayend - raystart);
   const float minvoxdim = SbMin(voxelsize[0], SbMin(voxelsize[1], voxelsize[2]));
   const unsigned int maxvoxinray = (unsigned int)(rayvec.length() / minvoxdim + 1);  
-  const SbVec3f stepvec = (rayvec / maxvoxinray) / 2; 
+  const SbVec3f stepvec = (rayvec / (float)maxvoxinray) / 2.0f;
   const SbBox3s voxelbounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
 
   SbVec3s ijk, lastijk(-1, -1, -1);
