@@ -66,29 +66,6 @@ SO_NODE_SOURCE(SoOrthoSlice);
 
 // *************************************************************************
 
-class CachedPage {
-public:
-  CachedPage(Cvr2DTexPage * page, SoOrthoSlice * node)
-  {
-    this->page = page;
-  }
-
-  ~CachedPage()
-  {
-    delete this->page;
-  }
-
-  Cvr2DTexPage * getPage(void) const
-  {
-    return this->page;
-  }
-
-  uint32_t volumedataid;
-  Cvr2DTexPage * page;
-};
-
-// *************************************************************************
-
 class SoOrthoSliceP {
 public:
   SoOrthoSliceP(SoOrthoSlice * master)
@@ -126,6 +103,27 @@ public:
   static int debug;
 
 private:
+  class CachedPage {
+  public:
+    CachedPage(Cvr2DTexPage * page, SoOrthoSlice * node)
+    {
+      this->page = page;
+    }
+
+    ~CachedPage()
+    {
+      delete this->page;
+    }
+
+    Cvr2DTexPage * getPage(void) const
+    {
+      return this->page;
+    }
+
+    uint32_t volumedataid;
+    Cvr2DTexPage * page;
+  };
+
   SbList<CachedPage*> cachedpages[3];
   SoOrthoSlice * master;
 };
@@ -489,9 +487,12 @@ SoOrthoSliceP::getPage(const SoGLRenderAction * action,
   SoState * state = action->getState();
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
 
-  CachedPage * cp = this->cachedpages[axis][slice];
+  SoOrthoSliceP::CachedPage * cp = this->cachedpages[axis][slice];
 
   // Check validity.
+  //
+  // FIXME: this would probably be better replaced by a "BrickCache"
+  // dependency tracker. 20041112 mortene.
   if (cp && (cp->volumedataid != vbelem->getNodeId())) { delete cp; cp = NULL; }
 
   if (!cp) {
@@ -502,7 +503,8 @@ SoOrthoSliceP::getPage(const SoGLRenderAction * action,
 
     Cvr2DTexPage * page = new Cvr2DTexPage(action, axis, slice, subpagesize);
 
-    this->cachedpages[axis][slice] = cp = new CachedPage(page, PUBLIC(this));
+    this->cachedpages[axis][slice] = cp =
+      new SoOrthoSliceP::CachedPage(page, PUBLIC(this));
     cp->volumedataid = vbelem->getNodeId();
   }
 
