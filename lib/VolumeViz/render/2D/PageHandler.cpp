@@ -288,11 +288,19 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
   SbVec3f origo, horizspan, verticalspan;
   
-  for (unsigned int i = 0; i <= numslices; i++) {
+  for (unsigned int i = 0; i < numslices; i++) {
     // Find nearest integer page idx (as number of pages to render
     // need not match the number of actual volume data pages).
     const float fraction = float(i) / float(numslices); // fraction of rendering
-    unsigned int pageidx = (unsigned int) (fraction * float(DEPTH - 1) + 0.5f);
+
+    // FIXME: By removing the '-1' in the commented line below, the
+    // last slice will be rendered. But this is probably due to a
+    // 'float' rounding feature. Can we assure that the result will be
+    // the same on all platforms and for all compilers? (20040315
+    // handegar) 
+    //unsigned int pageidx = (unsigned int) (fraction * float(DEPTH - 1) + 0.5f);
+    unsigned int pageidx = (unsigned int) (fraction * float(DEPTH) + 0.5f);
+
     assert(pageidx < DEPTH);
 
     // If rendering in reverse order.
@@ -319,7 +327,6 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
       // that can give better rendering quality of the volume.
 
       Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
-
       page->render(action, origo, horizspan, verticalspan, interpolation);
     }
     else {
