@@ -519,7 +519,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   CvrUtil::getTransformFromVolumeBoxDimensions(volumedataelement, volumetransform);
   SoModelMatrixElement::mult(state, this, volumetransform);
 
-  int rendermethod, storagehint;
+  int rendermethod;
 
   static int renderwithglpoints = -1;
   if (renderwithglpoints == -1) {
@@ -532,21 +532,29 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     goto done;
   }
 
-  rendermethod = SoVolumeRenderP::TEXTURE2D; // this is the default
-  storagehint = volumedata->storageHint.getValue();
-  if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
-    const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
-    if (cc_glglue_has_3d_textures(glue) && !CvrUtil::force2DTextureRendering()) {
-      if (PRIVATE(this)->use3DTexturing(glue)) {
+  rendermethod = SoVolumeRenderP::TEXTURE2D; // we consider this the default
+
+  if (!CvrUtil::force2DTextureRendering()) {
+    const int storagehint = volumedata->storageHint.getValue();
+    if (storagehint == SoVolumeData::TEX3D ||
+        storagehint == SoVolumeData::AUTO ||
+        // FIXME: should also warn on attempts to use the VOLUMEPRO
+        // setting. 20040712 mortene.
+        storagehint == SoVolumeData::VOLUMEPRO) {
+      const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
+      if (!cc_glglue_has_3d_textures(glue)) {
+        static SbBool first = TRUE;
+        if (first && CvrUtil::doDebugging()) {
+          first = FALSE;
+          SoDebugError::postInfo("SoVolumeRender::GLRender",
+                                 "The OpenGL driver does not support "
+                                 "3D texturing, will fall back on 2D textures.");
+        }
+      }
+      else if (PRIVATE(this)->use3DTexturing(glue)) {
         rendermethod = SoVolumeRenderP::TEXTURE3D;
       }
     }
-  }
-  else if (storagehint == SoVolumeData::TEX2D || storagehint == SoVolumeData::AUTO) {
-    // Do nothing. 2D texturing is the default.
-  }
-  else {
-    rendermethod = SoVolumeRenderP::NOTIMPLEMENTED;
   }
 
 
