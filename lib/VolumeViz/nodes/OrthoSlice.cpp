@@ -269,6 +269,11 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   // necessary. 20040212 mortene.
   if (!action->isRenderingDelayedPaths()) {
     action->addDelayedPath(action->getCurPath()->copy());
+
+    // The clip plane should still affect subsequent geometry in
+    // non-delayed traversal:
+    SoOrthoSlice::doAction(action);
+
     return;
   }
 
@@ -349,6 +354,8 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   volumedataelement->getPageGeometry(axisidx, slicenr,
                                      origo, horizspan, verticalspan);
 
+  // FIXME: we do state->push() now, so this isn't really necessary,
+  // is it? 20040223 mortene.
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
   glDisable(GL_LIGHTING);
@@ -363,14 +370,16 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
 
   texpage->render(action, origo, horizspan, verticalspan, ip);
 
+  // FIXME: we do state->pop() now, so this isn't really necessary,
+  // is it? 20040223 mortene.
   glPopAttrib();
 
+  state->pop();
 
   // Common clipping plane handling. Do this after rendering, so the
-  // slice itself isn't clipped.
+  // slice itself isn't clipped, and outside the state push/pop, so
+  // the clip plane will affect subsequent traversal.
   SoOrthoSlice::doAction(action);
-
-  state->pop();
 }
 
 Cvr2DTexPage *
