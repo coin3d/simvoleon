@@ -11,7 +11,14 @@ DISTCLEANFILES = \
 
 CLEANFILES = \
 	simvoleon1.dsp \
-	simvoleon1.dsw
+	simvoleon1.dsw \
+	simvoleon1.ncb \
+	simvoleon1.opt \
+	simvoleon1.plg \
+	simvoleon1.dll \
+	simvoleon1.ilk \
+	simvoleon1d.dll \
+	simvoleon1d.ilk
 
 EXTRA_DIST = \
 	simvoleon.cfg.in
