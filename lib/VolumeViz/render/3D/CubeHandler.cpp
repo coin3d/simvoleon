@@ -198,32 +198,20 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
   assert(glGetError() == GL_NO_ERROR);
 
-  if (abortfunc != NULL) {
-    this->volumecube->setAbortCallback(abortfunc, abortcbdata);
-  }
-  
-  // --------
-  // FIXME: This is a quick hack. The 'cubescale' vector will allways be
-  // <1,1,1> and can therefore be removed. (20040609 handegar)
-  // --------
-  
-  SbVec3f origo, cubescale;
-  SbBox3f spacesize = volumedata->getVolumeSize();
-
+    
   SbVec3s tmp = volumedataelement->getVoxelCubeDimensions();
   SbVec3f dimensions;
   dimensions[0] = (float) tmp[0];
   dimensions[1] = (float) tmp[1];
   dimensions[2] = (float) tmp[2];
 
+  SbVec3f origo;
   origo = SbVec3f(-dimensions[0] / 2.0f, -dimensions[1] / 2.0f, -dimensions[2] / 2.0f);
-  
-  float dx, dy, dz;
-  spacesize.getSize(dx, dy, dz);
-  
-  cubescale = SbVec3f(1,1,1);
-  
-  this->volumecube->render(action, origo, cubescale, interpolation, numslices);
+
+  if (abortfunc != NULL) {
+    this->volumecube->setAbortCallback(abortfunc, abortcbdata);
+  }
+  this->volumecube->render(action, origo, interpolation, numslices);
 
   glPopAttrib();
 }

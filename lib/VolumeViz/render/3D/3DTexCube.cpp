@@ -189,7 +189,6 @@ Cvr3DTexCube::calculateOptimalSubCubeSize()
 void
 Cvr3DTexCube::render(SoGLRenderAction * action,
                      const SbVec3f & origo,
-                     const SbVec3f & cubescale,
                      Cvr3DTexSubCube::Interpolation interpolation,
                      const unsigned int numslices)
 {
@@ -197,18 +196,18 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
 
   SoState * state = action->getState();
  
-  SbVec3f subcubewidth = SbVec3f(cubescale[0] * this->subcubesize[0], 0, 0);
-  SbVec3f subcubeheight = SbVec3f(0, cubescale[1] * this->subcubesize[1], 0);
-  SbVec3f subcubedepth = SbVec3f(0, 0, cubescale[2] * this->subcubesize[2]);
+  SbVec3f subcubewidth = SbVec3f(this->subcubesize[0], 0, 0);
+  SbVec3f subcubeheight = SbVec3f(0, this->subcubesize[1], 0);
+  SbVec3f subcubedepth = SbVec3f(0, 0, this->subcubesize[2]);
 
   SbViewVolume viewvolume = SoViewVolumeElement::get(action->getState());
   SbViewVolume viewvolumeinv = viewvolume;
   viewvolumeinv.transform(SoModelMatrixElement::get(state).inverse());
 
   SbBox3f bbox(origo, origo +                
-               SbVec3f(cubescale[0]*this->dimensions[0], 
-                       cubescale[1]*this->dimensions[1], 
-                       cubescale[2]*this->dimensions[2]));
+               SbVec3f(this->dimensions[0], 
+                       this->dimensions[1], 
+                       this->dimensions[2]));
   bbox.transform(SoModelMatrixElement::get(state));
   float dx, dy, dz;
   bbox.getSize(dx, dy, dz);   
@@ -230,7 +229,7 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
 
         if (cubeitem == NULL) {
-          cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx, cubescale);        
+          cubeitem = this->buildSubCube(action, colidx, rowidx, depthidx);        
         }
         assert(cubeitem != NULL);
 
@@ -313,7 +312,7 @@ Cvr3DTexCube::calcSubCubeIdx(int row, int col, int depth) const
 
 // Builds a cube if it doesn't exist. Rebuilds it if it does exist.
 Cvr3DTexSubCubeItem *
-Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int depth, SbVec3f cubescale)
+Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int depth)
 {
   // FIXME: optimalization idea; *crop* textures for 100%
   // transparency. 20021124 mortene.
@@ -420,7 +419,7 @@ Cvr3DTexCube::buildSubCube(SoGLRenderAction * action, int col, int row, int dept
   if (!invisible) {
     short dx, dy, dz;
     subcubecut.getSize(dx, dy, dz);
-    const SbVec3f cubesize(cubescale[0] * dx, cubescale[1] * dy, cubescale[2] * dz);
+    const SbVec3f cubesize(dx, dy, dz);
     cube = new Cvr3DTexSubCube(action, texobj, cubesize, texsize,
                                voldatanode->useCompressedTexture.getValue());
     cube->setPalette(this->clut);

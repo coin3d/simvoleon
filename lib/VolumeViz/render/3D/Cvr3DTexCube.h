@@ -37,7 +37,6 @@ public:
   ~Cvr3DTexCube();
   
   void render(SoGLRenderAction * action, const SbVec3f & origo,
-              const SbVec3f & cubespan,
               Cvr3DTexSubCube::Interpolation interpolation,
               const unsigned int numslices);
   
@@ -52,8 +51,7 @@ private:
   class Cvr3DTexSubCubeItem * getSubCube(SoState * state, int col, int row, int depth);
 
   class Cvr3DTexSubCubeItem * buildSubCube(SoGLRenderAction * action,
-                                           int col, int row, int depth,
-                                           SbVec3f cubescale);
+                                           int col, int row, int depth);
    
   void releaseAllSubCubes(void);
   void releaseSubCube(const int row, const int col, const int depth);
