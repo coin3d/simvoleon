@@ -173,14 +173,113 @@ yes | true)  SIMVOLEON_STATIC=false;;
 *)           SIMVOLEON_STATIC=true;;
 esac
 
+
+# *******************************************************************
+# Option to disable potential error condition in configure script
+# (e.g. for when only building documentation on a Coin-install-less
+# system).
+
+sim_ac_build_library=true
+AC_ARG_ENABLE(
+  [build],
+  [AC_HELP_STRING([--disable-build], [disable configuration for library build])],
+  [case $enableval in
+  no | false)
+   sim_ac_build_library=false
+   SIM_AC_CONFIGURATION_SETTING([SIM Voleon build type], [build disabled])
+   ;;
+  esac])
+
+AM_CONDITIONAL(BUILD_LIBRARY, $sim_ac_build_library)
+
+# Documentation generation settings.
+
+AC_ARG_VAR([htmldir],
+           [destination for HTML docs (default ${datadir}/SIMVoleon/html)])
+
+AC_ARG_ENABLE(html,
+  AC_HELP_STRING([--enable-html], [build and install SIM Voleon HTML documentation]),
+  [case $enableval in
+    yes | true) want_html=yes ;;
+    *)          want_html=no ;;
+  esac],
+  [want_html=no])
+
+case $htmldir in
+"")
+  htmldir="$datadir/SIMVoleon/html"
+  ;;
+/*)
+  # do nothing - absolute path
+  ;;
+*)
+  htmldir="\${prefix}/$htmldir"
+  ;;
+esac
+
+AC_SUBST(htmldir)
+
+AC_ARG_ENABLE(man,
+  AC_HELP_STRING([--enable-man], [build and install SIM Voleon man pages]),
+  [case $enableval in
+    yes | true) want_man=yes ;;
+    *)          want_man=no ;;
+  esac],
+  [want_man=no])
+
+# Used in the Doxygen parameter file.
+AC_SUBST([VOLEON_DOC_HTML], [`echo $want_html | tr '[a-z]' '[A-Z]'`])
+AC_SUBST([voleon_html_dir], [`pwd`/html])
+AC_SUBST([VOLEON_DOC_MAN], [`echo $want_man | tr '[a-z]' '[A-Z]'`])
+AC_SUBST([voleon_man_dir], [`pwd`/man])
+
+AM_CONDITIONAL(BUILD_MANPAGES, test x"$want_man" = x"yes")
+AM_CONDITIONAL(BUILD_HTMLPAGES, test x"$want_html" = x"yes")
+
+if test x"$want_man" = x"yes"; then
+  SIM_AC_CONFIGURATION_SETTING([manpage installation], [$mandir])
+fi
+
+if test x"$want_html" = x"yes"; then
+  SIM_AC_CONFIGURATION_SETTING([HTML installation], [$htmldir])
+fi
+
+if test x"$want_html" != xno -o x"$want_man" != xno; then
+  SIM_AC_DOXYGEN_TOOL([], [SIM_AC_ERROR([no-doxygen])])
+  AC_PATH_PROG(sim_ac_perl_exe, perl, false, $PATH)
+  if test x"$sim_ac_perl_exe" = xfalse; then
+    AC_MSG_WARN(Could not find the Perl executable)
+  fi
+fi
+
+# path_tag is used to identify paths in docs/simvoleon.doxygen that needs to be
+# transformed using cygpath under cygwin.
+
+case $host in
+*-cygwin) path_tag="<PATH>" ;;
+*)        path_tag= ;;
+esac
+
+AC_SUBST(path_tag)
+
+voleon_build_dir=`pwd`
+voleon_src_dir=`cd "$srcdir"; pwd`
+AC_SUBST([voleon_build_dir])
+AC_SUBST([voleon_src_dir])
+
 # *******************************************************************
 # Check that we can compile and link against a Coin version >= 2.0.0.
 
-SIM_AC_HAVE_COIN_IFELSE([
-  CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
-  LDFLAGS="$LDFLAGS $sim_ac_coin_ldflags"
-  LIBS="$sim_ac_coin_libs $LIBS"
-], [AC_MSG_ERROR(could not compile and link against Coin)])
+SIM_AC_HAVE_COIN_IFELSE(
+  [CPPFLAGS="$CPPFLAGS $sim_ac_coin_cppflags"
+   LDFLAGS="$LDFLAGS $sim_ac_coin_ldflags"
+   LIBS="$sim_ac_coin_libs $LIBS"
+  ],
+  [if $sim_ac_build_library; then
+     AC_MSG_ERROR(could not compile and link against Coin)
+   fi
+  ]
+)
 
 AC_MSG_CHECKING([if Coin version is >= 2.0.0])
 AC_TRY_COMPILE(
@@ -190,7 +289,10 @@ AC_TRY_COMPILE(
     #endif],
    [AC_MSG_RESULT(yes)],
    [AC_MSG_RESULT(no)
-    AC_MSG_ERROR(SimVoleon needs Coin v2.0.0 or newer.)]
+    if $sim_ac_build_library; then
+      AC_MSG_ERROR(SimVoleon needs Coin v2.0.0 or newer.)
+    fi
+   ]
 )
 
 # *******************************************************************
