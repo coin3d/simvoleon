@@ -28,7 +28,7 @@
 
   This node class provides the interface for setting up the voxel data
   to be rendered. For a complete, stand-alone usage example, see the
-  SimVoleon main page documentation.
+  SIM Voleon main page documentation.
 
   If the volume data is set from a memory location with the
   SoVolumeData::setVolumeData() method, the voxel data can be changed
@@ -41,7 +41,7 @@
   \endcode
 
   Regeneration of textures etc for visualization will then be done
-  automatically by the SimVoleon rendering system.
+  automatically by the SIM Voleon rendering system.
 */
 
 #include <limits.h>
@@ -242,7 +242,7 @@ SoVolumeData::getVolumeSize(void) const
         // to work with something you know is of unit size.
         //
         // FIXME: we should migrate to using this approach everywhere
-        // in our SimVoleon-dependent software (like RIMS and the
+        // in our Voleon-dependent software (like RIMS and the
         // SoGuiExamples). 20040217 mortene.
         volbox.setBounds(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
       }
@@ -471,7 +471,7 @@ SoVolumeData::pick(SoPickAction * action)
   the policy of how to handle scarcity of resources. This is the
   recommended strategy from OpenGL documentation.
 
-  Note that SimVoleon's default differs from TGS's VolumeViz default,
+  Note that SIM Voleon's default differs from TGS's VolumeViz default,
   which is set at 64 megatexels.
 */
 void

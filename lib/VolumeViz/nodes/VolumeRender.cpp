@@ -666,8 +666,9 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
     // FIXME: we're not hitting the voxels in an exact manner with the
     // intersection testing (it seems we're slightly off in the
     // x-direction, at least), as can be seen from the
-    // SimVoleon/testcode/raypick example (either that or it could be
-    // the actual 2D texture-slice rendering that is wrong). 20030220 mortene.
+    // SoGuiExamples/volumerendering/raypick example (either that or
+    // it could be the actual 2D texture-slice rendering that is
+    // wrong). 20030220 mortene.
     //
     // UPDATE: this might have been fixed now, at least I found and
     // fixed an offset bug in the objectCoordsToIJK() method

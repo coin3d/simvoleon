@@ -310,7 +310,7 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   // disabled. (Because depthbuffer-testing is disabled..?)
   //
   // To get everything to be internally correct, all faces from
-  // SimVoleon should be clipped against each other before rendered.
+  // SIMVoleon should be clipped against each other before rendered.
   //
   // 20031030 mortene.
 #if 0
