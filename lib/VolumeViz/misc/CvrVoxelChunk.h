@@ -36,7 +36,10 @@ private:
   SbVec3s dimensions;
   UnitSize unitsize;
 
-  CvrCLUT * makeCLUT(SoGLRenderAction * action) const;
+  static CvrCLUT * makeCLUT(SoGLRenderAction * action);
+  static CvrCLUT * getCLUT(SoGLRenderAction * action);
+  static SbDict * CLUTdict;
+
   static SbBool usePaletteTextures(SoGLRenderAction * action);
 
   static uint8_t PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];

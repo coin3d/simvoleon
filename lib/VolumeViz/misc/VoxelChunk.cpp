@@ -27,8 +27,9 @@
 #include <string.h> // memcpy()
 
 const unsigned int COLOR_TABLE_PREDEF_SIZE = 256;
-
 uint8_t CvrVoxelChunk::PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][COLOR_TABLE_PREDEF_SIZE][4];
+
+SbDict * CvrVoxelChunk::CLUTdict = NULL;
 
 
 // Allocates an uninitialized buffer for storing enough voxel data to
@@ -131,7 +132,7 @@ CvrVoxelChunk::getUnitSize(void) const
 
 // Converts the transferfunction's colormap into a CvrCLUT object.
 CvrCLUT *
-CvrVoxelChunk::makeCLUT(SoGLRenderAction * action) const
+CvrVoxelChunk::makeCLUT(SoGLRenderAction * action)
 {
   SoState * state = action->getState();
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
@@ -174,6 +175,40 @@ CvrVoxelChunk::makeCLUT(SoGLRenderAction * action) const
                                        transparencythresholds[1]);
   clut->setTransparencyThresholds(transparencythresholds[0],
                                   SbMin(nrcols - 1, transparencythresholds[1]));
+  return clut;
+}
+
+// Fetch a CLUT that represents the current
+// SoTransferFunction. Facilitates sharing of palettes.
+CvrCLUT *
+CvrVoxelChunk::getCLUT(SoGLRenderAction * action)
+{
+  if (!CvrVoxelChunk::CLUTdict) {
+    // FIXME: dealloc at exit
+    CvrVoxelChunk::CLUTdict = new SbDict;
+  }
+
+  SoState * state = action->getState();
+  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+  assert(tfelement != NULL);
+  SoTransferFunction * transferfunc = tfelement->getTransferFunction();
+  assert(transferfunc != NULL);
+
+  void * clutvoidptr;
+  CvrCLUT * clut;
+  if (CvrVoxelChunk::CLUTdict->find(transferfunc->getNodeId(), clutvoidptr)) {
+    clut = (CvrCLUT *)clutvoidptr;
+  }
+  else {
+    clut = CvrVoxelChunk::makeCLUT(action);
+    // FIXME: ref(), or else we'd get dangling pointers to destructed
+    // CvrCLUT entries in the dict. Should provide a "destructing now"
+    // callback on the CvrCLUT class to clean up the design.
+    clut->ref();
+    SbBool r = CvrVoxelChunk::CLUTdict->enter(transferfunc->getNodeId(), clut);
+    assert(r == TRUE && "clut should not exist on nodeid");
+  }
+
   return clut;
 }
 
@@ -277,7 +312,7 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
     CvrRGBATexture * rgbatex = NULL;
     CvrPaletteTexture * palettetex = NULL;
 
-    const CvrCLUT * clut = this->makeCLUT(action);
+    const CvrCLUT * clut = CvrVoxelChunk::getCLUT(action);
     clut->ref();
 
     SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
