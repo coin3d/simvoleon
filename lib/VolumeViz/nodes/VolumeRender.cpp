@@ -476,11 +476,12 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   }
 
 
-  // Shall we draw the volume as lines/wireframe?
+  // Shall we draw the volume as lines/wireframe/points?
   SoDrawStyleElement::Style drawstyle = SoDrawStyleElement::get(state);
-  if (drawstyle == SoDrawStyleElement::LINES) { 
+  if (drawstyle == SoDrawStyleElement::LINES ||
+      drawstyle == SoDrawStyleElement::POINTS) { 
 
-    // Is the line style volume cube created yet?
+    // Is the line/point style volume cube created yet?
     if (!PRIVATE(this)->linestylevolumecube) {
       PRIVATE(this)->linestylevolumecube = new SoCube;
       PRIVATE(this)->linestylevolumecube->ref();     
