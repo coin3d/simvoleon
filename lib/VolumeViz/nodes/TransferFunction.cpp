@@ -37,14 +37,21 @@ static const char gradientbuffer_GREY[] =
 "1.000000 1.000000 1.000000 1.000000 "
 "0 0\n";
 
+static const char gradientbuffer_TEMPERATURE[] =
+"GIMP Gradient\n"
+"4\n"
+"0.000000 0.111018 0.242070 1.000000 1.000000 1.000000 1.000000 0.000000 0.000000 1.000000 1.000000 0 0\n"
+"0.242070 0.367696 0.456594 0.000000 0.000000 1.000000 1.000000 1.000000 0.000000 1.000000 1.000000 0 0\n"
+"0.456594 0.560518 0.664441 1.000000 0.000000 1.000000 1.000000 1.000000 0.000000 0.000000 1.000000 0 0\n"
+"0.664441 0.811352 1.000000 1.000000 0.000000 0.000000 1.000000 1.000000 1.000000 0.000000 1.000000 0 0\n";
+
+
 struct GIMPGradientSegment {
   float left, middle, right;
   float left_RGBA[4];
   float right_RGBA[4];
   int type;
   int color;
-
-  struct GIMPGradientSegment * next;  
 };
 
 struct GIMPGradient {
@@ -120,10 +127,27 @@ SoTransferFunction::initClass(void)
   SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering, "SoVolumeRendering");
 
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
-  struct GIMPGradient * gg =
-    SoTransferFunctionP::readGIMPGradient(gradientbuffer_GREY);
+  struct GIMPGradient * gg;
 
+  gg = SoTransferFunctionP::readGIMPGradient(gradientbuffer_GREY);
   SoTransferFunctionP::convertGIMPGradient2IntArray(gg, SoTransferFunctionP::PREDEFGRADIENTS[GREY]);
+
+  gg = SoTransferFunctionP::readGIMPGradient(gradientbuffer_TEMPERATURE);
+  SoTransferFunctionP::convertGIMPGradient2IntArray(gg, SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE]);
+
+#if 0 // DEBUG: spits out a 256x1 image of the colormap.
+  FILE * f = fopen("/tmp/gradient.ppm", "w");
+  assert(f);
+  (void)fprintf(f, "P3\n256 1 255\n"); // width height maxcolval
+
+  for (int i=0; i < 256; i++) {
+    fprintf(f, "%d %d %d\n",
+            SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][i][0],
+            SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][i][1],
+            SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][i][2]);
+  }
+  fclose(f);
+#endif // DEBUG
 }
 
 void
@@ -202,22 +226,31 @@ SoTransferFunction::transfer(const void * input,
 
     if (endianness == COIN_HOST_IS_LITTLEENDIAN) {
       for (int j=0; j < size[0]*size[1]; j++) {
-        uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[GREY][inp[j]];
+        if (inp[j] == 0x00) {
+          outp[j] = 0x00000000;
+        }
+        else {
+          uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[GREY][inp[j]];
+//           uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][inp[j]];
 
-        outp[j] =
-          (uint32_t(rgba[0]) << 0) | // red
-          (uint32_t(rgba[1]) << 8) | // green
-          (uint32_t(rgba[2]) << 16) |  // blue
-          (uint32_t(rgba[3]) << 24); // alpha
+          outp[j] =
+            (uint32_t(rgba[0]) << 0) | // red
+            (uint32_t(rgba[1]) << 8) | // green
+            (uint32_t(rgba[2]) << 16) |  // blue
+            (uint32_t(rgba[3]) << 24); // alpha
+        }
       }
     }
     else {
       for (int j=0; j < size[0]*size[1]; j++) {
+//         uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[GREY][inp[j]];
+        uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][inp[j]];
+
         outp[j] =
-          (0 << 24) | // red
-          (uint32_t(inp[j]) << 16) | // green
-          (0 << 8) |  // blue
-          ((inp[j] ? 0xff : 0) << 0); // alpha
+          (uint32_t(rgba[0]) << 24) | // red
+          (uint32_t(rgba[1]) << 16) | // green
+          (uint32_t(rgba[2]) << 8) |  // blue
+          (uint32_t(rgba[3]) << 0); // alpha
       }
     }
 
@@ -537,7 +570,7 @@ SoTransferFunctionP::convertGIMPGradient2IntArray(const struct GIMPGradient * gg
   float middle_RGBA[4];
 
   for (int i=0; i < 256; i++) {
-    float gradpos = 1.0f / float(256 - i);
+    float gradpos = 1.0f / float(256) * i;
 
     // Advance to correct segment, if necessary.
     while ((segment == NULL) || (gradpos > segment->right)) {
@@ -569,10 +602,10 @@ SoTransferFunctionP::convertGIMPGradient2IntArray(const struct GIMPGradient * gg
       right_RGBA = segment->right_RGBA;
     }
 
-    float changeperunit[4];
     for (int k=0; k < 4; k++) {
-      changeperunit[k] = float(right_RGBA[k] - left_RGBA[k]) / (right - left);
-      intgradient[i][k] = left_RGBA[k] + int(changeperunit[k] * (gradpos - left));
+      float changeperunit = float(right_RGBA[k] - left_RGBA[k]) / (right - left);
+      float add = changeperunit * (gradpos - left);
+      intgradient[i][k] = int((left_RGBA[k] + add) * 255.0f);
     }
   }
 }
