@@ -8,7 +8,9 @@ else
 lib_LTLIBRARIES = libVolumeViz.la
 endif
 
-libVolumeViz_la_SOURCES =
+# Adding in a dummy C++ source code file to "trick" Automake to set
+# us up with C++ $CXXLD for linking (and not the default C $CCLD).
+libVolumeViz_la_SOURCES = dummy.cpp
 
 libVolumeViz_la_LIBADD = \
         elements/libelements.la \
@@ -21,7 +23,7 @@ libVolumeViz_la_LDFLAGS = \
 	-no-undefined \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES =
+VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES = dummy.cpp
 
 VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD = \
         elements/elements.lst \
