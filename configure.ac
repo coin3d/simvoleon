@@ -80,6 +80,10 @@ AC_CHECK_HEADERS([windows.h unistd.h ctype.h sys/types.h dirent.h])
 
 AM_INIT_AUTOMAKE(VolumeViz, $VERSION)
 
+#  Default to not building a static library. Can be overridden by the
+#  user with --enable-static.
+AM_DISABLE_STATIC
+
 #  Files to cram results from the configure tests into.
 AM_CONFIG_HEADER(config.h)
 
@@ -96,10 +100,6 @@ SIM_AC_CHECK_PTHREAD([
   SIM_AC_CONFIGURATION_SETTING([pthread support], [No])
 ]
 )
-
-#  Default to not building a shared library.
-#  Can be overridden by the user with --enable-shared.
-AM_DISABLE_SHARED
 
 #  Turn off default maintainer make-rules -- use ./bootstrap instead.
 AM_MAINTAINER_MODE
