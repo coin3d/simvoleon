@@ -7,6 +7,8 @@
 class CvrUtil {
 public:
   static SbBool doDebugging(void);
+
+  static uint32_t crc32(uint8_t * buf, unsigned int len);
 };
 
 #endif // !COIN_CVRUTIL_H
