@@ -19,13 +19,7 @@ AC_CONFIG_AUX_DIR(cfg)
 
 AC_CANONICAL_SYSTEM
 
-SIM_AC_SETUP_MSVC_IFELSE([], [
-  case $host in
-  *-cygwin)
-    AC_MSG_ERROR([You need Microsoft Visual C++ to build SimVoleon on Cygwin])
-    ;;
-  esac
-])
+SIM_AC_SETUP_MSVCPP_IFELSE
 
 if $BUILD_WITH_MSVC; then
   SIM_AC_SETUP_MSVCRT([
