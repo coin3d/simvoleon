@@ -995,7 +995,6 @@ SoVolumeRenderP::getAveragePerformanceTime(SbList <float> & l) const
 float
 SoVolumeRenderP::performanceTest(const cc_glglue * glue) const
 {
-
   GLuint texture3did[1];
   GLuint texture2dids[2];
   SbList <float> timelist2d;
@@ -1127,12 +1126,12 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
     const char * loc = strstr((const char *)rendererstring,
                               texture3d_in_software[i++]);
     if (CvrUtil::doDebugging() && loc) {
-      SoDebugError::postWarning("SoVolumeRenderP::use3DTexturing",
-                                "Your GFX card ('%s') has 3D texture abilities, "
-                                "but these are not hardware accelerated. Using 2D textures instead. "
-                                "(If you wish to force 3D texturing, set the envvar "
-                                "CVR_FORCE_3D_TEXTURES=1)",
-                                rendererstring);
+      SoDebugError::postInfo("SoVolumeRenderP::use3DTexturing",
+                             "Your GFX card ('%s') has 3D texture abilities, "
+                             "but these are not hardware accelerated. Using 2D textures instead. "
+                             "(If you wish to force 3D texturing, set the envvar "
+                             "CVR_FORCE_3D_TEXTURES=1)",
+                             rendererstring);
       do3dtextures = 0;
       return FALSE;
     }
@@ -1143,22 +1142,22 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
   // different GFX cards to see if the rating threshold is high enough
   // (20040503 handegar)
   const float rating = this->performanceTest(glglue); // => (3D rendertime) / (2D rendertime)
-  if (rating > 0.5) { // 2D should atleast be twice as fast before 3D texturing is dropped.  
+  if (rating < 3.0f) { // 2D should at least be this many times as
+                       // fast before 3D texturing is dropped.
     do3dtextures = 1;
     return TRUE;
   }
 
   if (CvrUtil::doDebugging()) {    
-    SoDebugError::postWarning("SoVolumeRenderP::use3DTexturing",
-                              "Your GFX card did not score high enough in the performance test "
-                              "for 3D textures compared to 2D textures. 2D texturing will be "
-                              "forced. (If you wish to force 3D texturing, set the envvar "
-                              "CVR_FORCE_3D_TEXTURES=1)");
+    SoDebugError::postInfo("SoVolumeRenderP::use3DTexturing",
+                           "Your GFX card did not score high enough in the performance test "
+                           "for 3D textures compared to 2D textures. 2D texturing will be "
+                           "forced. (If you wish to force 3D texturing, set the envvar "
+                           "CVR_FORCE_3D_TEXTURES=1)");
   }
   
   do3dtextures = 0;
   return FALSE;
-
 }
 
 unsigned int
