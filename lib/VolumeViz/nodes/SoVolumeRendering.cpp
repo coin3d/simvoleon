@@ -69,9 +69,6 @@ void
 SoVolumeRendering::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoVolumeRendering, SoNode, "SoNode");
-
-  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
-  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }
 
 SoVolumeRendering::HW_SupportStatus

@@ -91,6 +91,8 @@ void
 SoTransferFunction::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoTransferFunction, SoVolumeRendering, "TransferFunction");
+
+  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
 }
 
 void

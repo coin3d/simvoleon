@@ -95,6 +95,9 @@ void
 SoVolumeRender::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoVolumeRender, SoShape, "Shape");
+
+  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }
 
 

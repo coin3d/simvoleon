@@ -111,9 +111,6 @@ SoROI::SoROI(void)
   SO_NODE_ADD_FIELD(relative, (FALSE)); 
 
   // FIXME: shouldn't "flags" get a default value? 20021106 mortene.
-
-  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
-  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }
 
 
@@ -129,6 +126,9 @@ void
 SoROI::initClass(void)
 {
   SO_NODE_INIT_CLASS(SoROI, SoNode, "ROI");
+
+  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoGLRenderAction, SoVolumeDataElement);
 }
 
 
