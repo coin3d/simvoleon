@@ -414,10 +414,10 @@ CvrCLUT::activate(const cc_glglue * glw) const
                                 err, err);
 
       // This matches the driver on ASK.trh.sim.no.
-      const char * VERSION = "1.1.28 PT";
+      const char * VERSION_GL = "1.1.28 PT";
       const char * VENDOR = "3Dlabs";
       const char * RENDERER = "GLINT R3 PT + GLINT Gamma";
-      if (strcmp((const char *)glGetString(GL_VERSION), VERSION) == 0 &&
+      if (strcmp((const char *)glGetString(GL_VERSION), VERSION_GL) == 0 &&
           strcmp((const char *)glGetString(GL_VENDOR), VENDOR) == 0 &&
           strcmp((const char *)glGetString(GL_RENDERER), RENDERER) == 0) {
         SoDebugError::postWarning("CvrCLUT::activate",
@@ -426,7 +426,7 @@ CvrCLUT::activate(const cc_glglue * glw) const
                                   "and seems to be harmless. Turn off this "
                                   "warning by setting the environment "
                                   "variable CVR_NO_GLINT_WARN=1.",
-                                  VENDOR, RENDERER, VERSION);
+                                  VENDOR, RENDERER, VERSION_GL);
       }
     }
   }
