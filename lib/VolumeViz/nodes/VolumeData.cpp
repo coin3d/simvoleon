@@ -265,7 +265,7 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
     }
 
     SoDebugError::postInfo("SoVolumeData::setVolumeData",
-                           "setting %dx%dx%d %s volume data \"by hand\"",
+                           "setting %dx%dx%d %s volume data from memory",
                            dimensions[0], dimensions[1], dimensions[2],
                            typestr.getString());
   }
