@@ -116,9 +116,9 @@ CvrPageHandler::getCurrentAxis(const SbVec3f & viewvec) const
 
 
   SbVec3f abstoviewer;
-  abstoviewer[0] = fabs(viewvec[0]);
-  abstoviewer[1] = fabs(viewvec[1]);
-  abstoviewer[2] = fabs(viewvec[2]);
+  abstoviewer[0] = (float)fabs(viewvec[0]);
+  abstoviewer[1] = (float)fabs(viewvec[1]);
+  abstoviewer[2] = (float)fabs(viewvec[2]);
 
   // Figures out which axis we are closest to be looking along:
 
