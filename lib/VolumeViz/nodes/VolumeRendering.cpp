@@ -1,6 +1,13 @@
 /*!
   \mainpage
 
+  FIXME, should insert doc on at least these issues:
+
+    - what is volume rendering
+    - why volume rendering
+    - list features of SimVoleon
+    - list limitations of SimVoleon
+
   The simplest possible usage example, which sets up a complete
   environment for voxel visualization with the SimVoleon library:
 
