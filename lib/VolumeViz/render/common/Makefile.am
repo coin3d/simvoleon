@@ -7,6 +7,7 @@ noinst_LTLIBRARIES = libcommonrender.la
 endif
 
 SOURCES = \
+	resourcehandler.c resourcehandler.h \
 	CvrTextureManager.cpp CvrTextureManager.h \
 	CvrTextureObject.cpp CvrTextureObject.h \
 	CvrRGBATexture.cpp CvrRGBATexture.h \
