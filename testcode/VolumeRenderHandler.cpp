@@ -8,6 +8,7 @@
 #include <qcombobox.h>
 #include <qcheckbox.h>
 #include <qslider.h>
+#include <qlabel.h>
 
 
 VolumeRenderHandler::VolumeRenderHandler(SoVolumeRender * rendernode,
@@ -67,6 +68,11 @@ VolumeRenderHandler::initGUI(void)
   QObject::connect(this->ctrl->numSlicesControlCombo, SIGNAL(activated(int)),
                    this, SLOT(numSlicesControlUpdate(int)));
 
+  if (this->node->numSlicesControl.getValue() == SoVolumeRender::ALL) {
+    this->ctrl->numSlicesEdit->setEnabled(FALSE);
+    this->ctrl->numSlicesSlider->setEnabled(FALSE);
+  }
+
   // interpolation combobox
 
   this->ctrl->interpolationCombo->setCurrentItem(this->node->interpolation.getValue());
@@ -87,6 +93,9 @@ VolumeRenderHandler::initGUI(void)
 
   QObject::connect(this->ctrl->viewAlignedSlicesCheckBox, SIGNAL(stateChanged(int)),
                    this, SLOT(viewAlignedSlicesCheckBoxUpdate(int)));
+
+  // Not in use yet -- 3D textures are not supported.
+  this->ctrl->viewAlignedSlicesCheckBox->setEnabled(FALSE);
 }
 
 
@@ -112,6 +121,11 @@ void
 VolumeRenderHandler::numSlicesControlUpdate(int idx)
 {
   this->node->numSlicesControl = idx;
+
+  const SbBool is_all = this->node->numSlicesControl.getValue() == SoVolumeRender::ALL;
+  this->ctrl->numSlicesEdit->setEnabled(!is_all);
+  this->ctrl->numSlicesSlider->setEnabled(!is_all);
+  this->ctrl->numSlicesLabel->setEnabled(!is_all);
 }
 
 void
