@@ -706,8 +706,7 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
 
       const uint32_t voxelvalue = volumedata->getVoxelValue(ijk);
       uint8_t rgba[4];
-      if (voxeltype == SoVolumeData::RGBA) { *((uint32_t *)rgba) = voxelvalue; }
-      else { clut->lookupRGBA(voxelvalue, rgba); }
+      clut->lookupRGBA(voxelvalue, rgba);
 
       detail->addVoxelIntersection(objectcoord, ijk, voxelvalue, rgba);
     }

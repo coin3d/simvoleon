@@ -283,7 +283,6 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
     switch (type) {
     case UNSIGNED_BYTE: typestr = "8-bit"; break;
     case UNSIGNED_SHORT: typestr = "16-bit"; break;
-    case RGBA: typestr = "RGBA"; break;
     default: assert(FALSE); break;
     }
 
@@ -347,7 +346,6 @@ SoVolumeData::getVoxelValue(const SbVec3s & voxelpos) const
   switch (PRIVATE(this)->datatype) {
   case UNSIGNED_BYTE: break;
   case UNSIGNED_SHORT: advance *= 2; break;
-  case RGBA: advance *= 4; break;
   default: assert(FALSE); break;
   }
 
@@ -357,7 +355,6 @@ SoVolumeData::getVoxelValue(const SbVec3s & voxelpos) const
   switch (PRIVATE(this)->datatype) {
   case UNSIGNED_BYTE: val = *voxptr; break;
   case UNSIGNED_SHORT: val = *((uint16_t *)voxptr); break;
-  case RGBA: val = *((uint32_t *)voxptr); break;
   default: assert(FALSE); break;
   }
   return val;
@@ -551,7 +548,6 @@ SoVolumeData::getHistogram(int & length, int *& histogram)
   switch (PRIVATE(this)->datatype) {
   case UNSIGNED_BYTE: length = (1 << 8); break;
   case UNSIGNED_SHORT: length = (1 << 16); break;
-  case RGBA: assert(FALSE && "FIXME: RGBA-type will be obsoleted! 20031019 mortene"); break;
   default: assert(FALSE); break;
   }
 
@@ -616,9 +612,6 @@ SoVolumeData::reSampling(const SbVec3s &dimensions,
     break;
   case UNSIGNED_SHORT: 
     data = new uint16_t[datasize];
-    break;
-  case RGBA:
-    data = new uint32_t[datasize];
     break;
   default:
     assert(0 && "Unknown datatype");
@@ -713,10 +706,6 @@ SoVolumeDataP::downSample(SbVec3s dimensions, SoVolumeData::SubMethod subMethod,
                   averagevoxel[0] += (double) val;                                    
                   if (this->datatype != SoVolumeData::UNSIGNED_BYTE) {
                     averagevoxel[1] += (double) ((val>>8) & 0x000000ff);
-                    if (this->datatype != SoVolumeData::RGBA) {
-                      averagevoxel[2] += (double) ((val>>16) & 0x000000ff);
-                      averagevoxel[3] += (double) ((val>>24) & 0x000000ff);
-                    }
                   }
                 }
                 else { // MAX sampling
@@ -732,7 +721,6 @@ SoVolumeDataP::downSample(SbVec3s dimensions, SoVolumeData::SubMethod subMethod,
             float nr = scalefactorx * scalefactory * scalefactorz;
             switch (this->datatype) {
             case SoVolumeData::UNSIGNED_SHORT: nr = nr * 2; break;
-            case SoVolumeData::RGBA: nr = nr * 4; break;
             default: break;
             }
 
@@ -765,12 +753,6 @@ SoVolumeDataP::downSample(SbVec3s dimensions, SoVolumeData::SubMethod subMethod,
             tmp[index] = (uint16_t) resultvoxel;
             break;
           }
-        case SoVolumeData::RGBA:
-          {
-            uint32_t * tmp = (uint32_t *) data;
-            tmp[index] = (uint32_t) resultvoxel;
-            break;
-          }            
         default: assert(FALSE);
         }
         

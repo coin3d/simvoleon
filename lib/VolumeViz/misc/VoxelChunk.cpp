@@ -73,7 +73,7 @@ CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, UnitSize type,
   assert(dimensions[0] > 0);
   assert(dimensions[1] > 0);
   assert(dimensions[2] > 0);
-  assert(type == UINT_8 || type == UINT_16 || type == UINT_32);
+  assert(type == UINT_8 || type == UINT_16);
 
   this->dimensions = dimensions;
   this->unitsize = type;
@@ -127,16 +127,6 @@ CvrVoxelChunk::getBuffer16(void) const
 {
   assert(this->unitsize == UINT_16);
   return (uint16_t *)this->voxelbuffer;
-}
-
-// Returns the buffer start pointer. Convenience method to return the
-// pointer casted to the correct size. Don't use this method unless
-// the unitsize type is UINT_32.
-uint32_t *
-CvrVoxelChunk::getBuffer32(void) const
-{
-  assert(this->unitsize == UINT_32);
-  return (uint32_t *)this->voxelbuffer;
 }
 
 const SbVec3s &
@@ -329,27 +319,7 @@ CvrVoxelChunk::transfer3D(SoGLRenderAction * action, SbBool & invisible) const
   invisible = TRUE;
   CvrTextureObject * texobj = NULL;
 
-  // Handling RGBA inputdata. Just forwarding to output.
-  if (this->getUnitSize() == CvrVoxelChunk::UINT_32) {
-    Cvr3DRGBATexture * rgbatex = new Cvr3DRGBATexture(texsize);
-    texobj = rgbatex;
-    uint32_t * output = rgbatex->getRGBABuffer();
-
-    // FIXME: we should really have support routines for converting
-    // "raw" RGBA inputdata into paletted data
-    for (unsigned int z = 0; z < (unsigned int) size[2]; z++) {
-      for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
-        (void)memcpy(&output[(texsize[0] * y) + (texsize[0]*texsize[1]*z)], 
-                     &(this->getBuffer32()[(size[0] * y) + (size[0] * size[1] * z)]), 
-                     size[0] * sizeof(uint32_t));
-      }
-    }
-      
-    // FIXME: set the "invisible" flag correctly according to actual
-    // input. 20021129 mortene.
-    invisible = FALSE;
-  }
-  else if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
+  if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
     CvrRGBATexture * rgbatex = NULL;
     CvrPaletteTexture * palettetex = NULL;
     
@@ -533,27 +503,7 @@ CvrVoxelChunk::transfer2D(SoGLRenderAction * action, SbBool & invisible) const
 
   CvrTextureObject * texobj = NULL;
 
-  // Handling RGBA inputdata. Just forwarding to output.
-  if (this->getUnitSize() == CvrVoxelChunk::UINT_32) {
-    Cvr2DRGBATexture * rgbatex = new Cvr2DRGBATexture(texsize);
-    texobj = rgbatex;
-    uint32_t * output = rgbatex->getRGBABuffer();
-
-    // FIXME: we should really have support routines for converting
-    // "raw" RGBA inputdata into paletted data
-
-    for (unsigned int y = 0; y < (unsigned int)size[1]; y++) {
-      (void)memcpy(&output[texsize[0] * y],
-                   &(this->getBuffer32()[size[0] * y]),
-                   size[0] * sizeof(uint32_t));
-    }
-
-    // FIXME: set the "invisible" flag correctly according to actual
-    // input. 20021129 mortene.
-    invisible = FALSE;
-  }
-
-  else if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
+  if (this->getUnitSize() == CvrVoxelChunk::UINT_8) {
     CvrRGBATexture * rgbatex = NULL;
     CvrPaletteTexture * palettetex = NULL;
 

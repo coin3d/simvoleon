@@ -291,7 +291,6 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   switch (type) {
   case SoVolumeData::UNSIGNED_BYTE: vctype = CvrVoxelChunk::UINT_8; break;
   case SoVolumeData::UNSIGNED_SHORT: vctype = CvrVoxelChunk::UINT_16; break;
-  case SoVolumeData::RGBA: vctype = CvrVoxelChunk::UINT_32; break;
   default: assert(FALSE); break;
   }
   
