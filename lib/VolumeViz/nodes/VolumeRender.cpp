@@ -476,7 +476,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   }
 
 
-  // Shall we draw the volume as a lines/wireframe?
+  // Shall we draw the volume as lines/wireframe?
   SoDrawStyleElement::Style drawstyle = SoDrawStyleElement::get(state);
   if (drawstyle == SoDrawStyleElement::LINES) { 
 
