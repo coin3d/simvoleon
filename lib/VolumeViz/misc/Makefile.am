@@ -7,6 +7,7 @@ noinst_LTLIBRARIES = libmisc.la
 endif
 
 SOURCES = \
+	VoxelChunk.cpp CvrVoxelChunk.h \
 	Util.cpp CvrUtil.h \
 	GIMPGradient.cpp CvrGIMPGradient.h
 
