@@ -3,6 +3,7 @@
 #include <Inventor/elements/SoGLClipPlaneElement.h>
 #include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/elements/SoCacheElement.h>
+#include <Inventor/elements/SoGLLazyElement.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/SoPickedPoint.h>
 #include <Inventor/system/gl.h>
@@ -353,6 +354,11 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   SbVec3f origo, horizspan, verticalspan;
   volumedataelement->getPageGeometry(axisidx, slicenr,
                                      origo, horizspan, verticalspan);
+
+  // This must be done, as we want to control stuff in the GL state
+  // machine. Without it, state changes could trigger outside our
+  // control.
+  SoGLLazyElement::getInstance(state)->send(state, SoLazyElement::ALL_MASK);
 
   // FIXME: we do state->push() now, so this isn't really necessary,
   // is it? 20040223 mortene.

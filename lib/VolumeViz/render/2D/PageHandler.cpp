@@ -8,6 +8,7 @@
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
+#include <Inventor/elements/SoGLLazyElement.h>
 
 #include <VolumeViz/render/2D/CvrPageHandler.h>
 
@@ -193,6 +194,11 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
   if (this->clut != c) { this->setPalette(c); }
+
+  // This must be done, as we want to control stuff in the GL state
+  // machine. Without it, state changes could trigger outside our
+  // control.
+  SoGLLazyElement::getInstance(state)->send(state, SoLazyElement::ALL_MASK);
 
   // FIXME: do this by the proper Coin mechanisms (i.e. simply
   // state->push()? check with pederb). 20040220 mortene.
