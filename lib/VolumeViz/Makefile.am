@@ -1,7 +1,7 @@
 INCLUDES = -I$(top_srcdir)/lib
 
 # Note misc/ must be built after nodes/gradients/.
-SUBDIRS = elements nodes misc readers render .
+SUBDIRS = details elements nodes misc readers render .
 
 if BUILD_WITH_MSVC
 lib_LIBRARIES = VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib

@@ -252,6 +252,7 @@ AC_OUTPUT([
         Makefile
         lib/Makefile
         lib/VolumeViz/Makefile
+	lib/VolumeViz/details/Makefile
 	lib/VolumeViz/elements/Makefile
 	lib/VolumeViz/misc/Makefile
 	lib/VolumeViz/nodes/Makefile

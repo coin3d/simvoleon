@@ -101,7 +101,11 @@ INCLUDES = -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = details.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libdetails.la
 
-SOURCES = 
+SOURCES = \
+        VolumeRenderDetail.cpp \
+        OrthoSliceDetail.cpp \
+        ObliqueSliceDetail.cpp
+
 
 libdetails_la_SOURCES = $(SOURCES)
 
@@ -109,7 +113,11 @@ details_lst_SOURCES = $(SOURCES)
 
 libdetailsincdir = $(includedir)/VolumeViz/details
 
-libdetailsinc_HEADERS = 
+libdetailsinc_HEADERS = \
+        SoVolumeRenderDetail.h \
+        SoOrthoSliceDetail.h \
+        SoObliqueSliceDetail.h
+
 subdir = lib/VolumeViz/details
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
@@ -118,13 +126,15 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 details_lst_AR = $(AR) cru
 details_lst_LIBADD =
-am_details_lst_OBJECTS =
+am_details_lst_OBJECTS = VolumeRenderDetail.$(OBJEXT) \
+	OrthoSliceDetail.$(OBJEXT) ObliqueSliceDetail.$(OBJEXT)
 details_lst_OBJECTS = $(am_details_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libdetails_la_LDFLAGS =
 libdetails_la_LIBADD =
-am_libdetails_la_OBJECTS =
+am_libdetails_la_OBJECTS = VolumeRenderDetail.lo OrthoSliceDetail.lo \
+	ObliqueSliceDetail.lo
 libdetails_la_OBJECTS = $(am_libdetails_la_OBJECTS)
 
 DEFS = @DEFS@
@@ -132,21 +142,36 @@ DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-CFLAGS = @CFLAGS@
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
-	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/ObliqueSliceDetail.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/ObliqueSliceDetail.Po \
+@AMDEP_TRUE@	$(DEPDIR)/OrthoSliceDetail.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/OrthoSliceDetail.Po \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeRenderDetail.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/VolumeRenderDetail.Po
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
+	$(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) \
+	$(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+CXXFLAGS = @CXXFLAGS@
 DIST_SOURCES = $(details_lst_SOURCES) $(libdetails_la_SOURCES)
 HEADERS = $(libdetailsinc_HEADERS)
 
 DIST_COMMON = $(libdetailsinc_HEADERS) Makefile.am Makefile.in
+SOURCES = \
+        VolumeRenderDetail.cpp \
+        OrthoSliceDetail.cpp \
+        ObliqueSliceDetail.cpp
+
+
 all: all-am
 
 .SUFFIXES:
+.SUFFIXES: .cpp .lo .o .obj
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -156,7 +181,7 @@ clean-libtool:
 
 distclean-libtool:
 	-rm -f libtool
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
 	  $(AUTOMAKE) --gnu  lib/VolumeViz/details/Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
@@ -172,13 +197,42 @@ clean-noinstLIBRARIES:
 clean-noinstLTLIBRARIES:
 	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
 libdetails.la: $(libdetails_la_OBJECTS) $(libdetails_la_DEPENDENCIES) 
-	$(LINK)  $(libdetails_la_LDFLAGS) $(libdetails_la_OBJECTS) $(libdetails_la_LIBADD) $(LIBS)
+	$(CXXLINK)  $(libdetails_la_LDFLAGS) $(libdetails_la_OBJECTS) $(libdetails_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
 
 distclean-compile:
 	-rm -f *.tab.c
+
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ObliqueSliceDetail.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ObliqueSliceDetail.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/OrthoSliceDetail.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/OrthoSliceDetail.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeRenderDetail.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeRenderDetail.Po@am__quote@
+
+distclean-depend:
+	-rm -rf $(DEPDIR)
+
+.cpp.o:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CXXCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
+
+.cpp.obj:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CXXCOMPILE) -c -o $@ `( test -f $< || echo -n '$(srcdir)/'; echo -n $< ) | xargs cygpath -w`
+
+.cpp.lo:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(LTCXXCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
+CXXDEPMODE = @CXXDEPMODE@
 uninstall-info-am:
 install-libdetailsincHEADERS: $(libdetailsinc_HEADERS)
 	@$(NORMAL_INSTALL)
@@ -197,9 +251,38 @@ uninstall-libdetailsincHEADERS:
 	  echo " rm -f $(DESTDIR)$(libdetailsincdir)/$$f"; \
 	  rm -f $(DESTDIR)$(libdetailsincdir)/$$f; \
 	done
-tags: TAGS
-TAGS:
 
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
+	list='$(SOURCES) $(HEADERS) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	mkid -fID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
+		$(TAGS_FILES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || etags $(ETAGS_ARGS) $$tags  $$unique $(LISP)
+
+GTAGS:
+	here=`CDPATH=: && cd $(top_builddir) && pwd` \
+	  && cd $(top_srcdir) \
+	  && gtags -i $(GTAGS_ARGS) $$here
+
+distclean-tags:
+	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH
 
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
@@ -259,8 +342,8 @@ clean-am: clean-generic clean-libtool clean-noinstLIBRARIES \
 
 distclean: distclean-am
 
-distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-libtool
+distclean-am: clean-am distclean-compile distclean-depend \
+	distclean-generic distclean-libtool distclean-tags
 
 dvi: dvi-am
 
@@ -291,17 +374,17 @@ mostlyclean-am: mostlyclean-compile mostlyclean-generic \
 
 uninstall-am: uninstall-info-am uninstall-libdetailsincHEADERS
 
-.PHONY: all all-am check check-am clean clean-generic clean-libtool \
-	clean-noinstLIBRARIES clean-noinstLTLIBRARIES distclean \
-	distclean-compile distclean-generic distclean-libtool distdir \
-	dvi dvi-am info info-am install install-am install-data \
-	install-data-am install-exec install-exec-am install-info \
-	install-info-am install-libdetailsincHEADERS install-man \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	uninstall uninstall-am uninstall-info-am \
-	uninstall-libdetailsincHEADERS
+.PHONY: GTAGS all all-am check check-am clean clean-generic \
+	clean-libtool clean-noinstLIBRARIES clean-noinstLTLIBRARIES \
+	distclean distclean-compile distclean-depend distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am info \
+	info-am install install-am install-data install-data-am \
+	install-exec install-exec-am install-info install-info-am \
+	install-libdetailsincHEADERS install-man install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool tags uninstall \
+	uninstall-am uninstall-info-am uninstall-libdetailsincHEADERS
 
 
 details.lst: $(details_lst_OBJECTS)
