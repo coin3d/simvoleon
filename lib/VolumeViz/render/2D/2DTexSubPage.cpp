@@ -25,7 +25,6 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
   this->bitspertexel = 0;
   this->clut = NULL;
   this->ispaletted = FALSE;
-  this->refetchpalette = FALSE;
 
   assert(pagesize[0] >= 0);
   assert(pagesize[1] >= 0);
@@ -107,9 +106,11 @@ Cvr2DTexSubPage::isPaletted(void) const
 }
 
 void
-Cvr2DTexSubPage::invalidatePalette(void)
+Cvr2DTexSubPage::setPalette(const CvrCLUT * newclut)
 {
-  this->refetchpalette = TRUE;
+  this->clut->unref();
+  this->clut = newclut;
+  newclut->ref();
 }
 
 // FIXME: Some magic has to be done to make this one work with OpenGL 1.0.
@@ -325,18 +326,6 @@ void
 Cvr2DTexSubPage::activateCLUT(const SoGLRenderAction * action)
 {
   assert(this->clut != NULL);
-
-  if (this->refetchpalette) {
-    this->clut->unref();
-
-    SoState * state = action->getState();
-    const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-    assert(tfelement != NULL);
-    this->clut = CvrVoxelChunk::getCLUT(tfelement);
-
-    this->clut->ref();
-    this->refetchpalette = FALSE;
-  }
 
   // FIXME: should check if the same clut is already current 
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());

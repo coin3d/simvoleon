@@ -6,8 +6,6 @@
 #include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 #include <VolumeViz/readers/SoVolumeReader.h>
 
-class SoTransferFunction;
-
 
 class Cvr2DTexPage {
 
@@ -20,6 +18,8 @@ public:
   void render(SoGLRenderAction * action, const SbVec3f & origo,
               const SbVec3f & horizspan, const SbVec3f & verticalspan,
               Cvr2DTexSubPage::Interpolation interpolation);
+
+  void setPalette(const CvrCLUT * c);
 
 private:
   class Cvr2DTexSubPageItem * getSubPage(SoState * state, int col, int row);
@@ -34,8 +34,6 @@ private:
 
   int calcSubPageIdx(int row, int col) const;
 
-  static SoTransferFunction * getTransferFunc(SoGLRenderAction * action);
-
   class Cvr2DTexSubPageItem ** subpages;
   SoVolumeReader * reader;
 
@@ -46,6 +44,8 @@ private:
 
   int nrcolumns;
   int nrrows;
+
+  const CvrCLUT * clut;
 };
 
 #endif // !COIN_CVR2DTEXPAGE_H

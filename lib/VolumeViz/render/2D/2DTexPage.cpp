@@ -1,19 +1,22 @@
+#include <limits.h>
+#include <string.h>
+
+#include <Inventor/C/tidbits.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/errors/SoDebugError.h>
+#include <Inventor/system/gl.h>
+
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/render/2D/CvrRGBATexture.h>
 #include <VolumeViz/render/2D/CvrPaletteTexture.h>
-#include <Inventor/C/tidbits.h>
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/errors/SoDebugError.h>
-#include <Inventor/system/gl.h>
-#include <limits.h>
-#include <string.h>
 
 // *************************************************************************
 
@@ -25,7 +28,6 @@ public:
   }
 
   Cvr2DTexSubPage * page;
-  uint32_t transferfuncid;
   uint32_t volumedataid;
   SbBool invisible;
 };
@@ -38,6 +40,7 @@ Cvr2DTexPage::Cvr2DTexPage(SoVolumeReader * reader,
                            const SbVec2s & subpagetexsize)
 {
   this->subpages = NULL;
+  this->clut = NULL;
 
   assert(subpagetexsize[0] > 0);
   assert(subpagetexsize[1] > 0);
@@ -99,6 +102,7 @@ Cvr2DTexPage::Cvr2DTexPage(SoVolumeReader * reader,
 Cvr2DTexPage::~Cvr2DTexPage()
 {
   this->releaseAllSubPages();
+  if (this->clut) { this->clut->unref(); }
 }
 
 /*!
@@ -149,18 +153,6 @@ Cvr2DTexPage::releaseAllSubPages(void)
 
   delete[] this->subpages;
   this->subpages = NULL;
-}
-
-// Fetching the current transfer function from the state stack.
-SoTransferFunction *
-Cvr2DTexPage::getTransferFunc(SoGLRenderAction * action)
-{
-  SoState * state = action->getState();
-  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  assert(tfelement != NULL);
-  SoTransferFunction * transferfunc = tfelement->getTransferFunction();
-  assert(transferfunc != NULL);
-  return transferfunc;
 }
 
 // Renders arbitrary positioned quad, textured for the page (slice)
@@ -305,6 +297,11 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // dataset). 20021203 mortene.
   delete slice;
 
+  if (texobj->getTypeId() == CvrPaletteTexture::getClassTypeId()) {
+    const CvrCLUT * c = ((CvrPaletteTexture *)texobj)->getCLUT();
+    assert(c == this->clut && "palette mismatch");
+  }
+
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("Cvr2DTexPage::buildSubPage",
                          "detected invisible page at [%d, %d]", row, col);
@@ -332,11 +329,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   delete texobj;
 
-  SoTransferFunction * transferfunc = this->getTransferFunc(action);
-  const uint32_t transferfuncid = transferfunc->getNodeId();
-
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
-  pitem->transferfuncid = transferfuncid;
   pitem->volumedataid = voldatanode->getNodeId();
   pitem->invisible = invisible;
 
@@ -346,6 +339,29 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   return pitem;
 }
 
+// *******************************************************************
+
+void
+Cvr2DTexPage::setPalette(const CvrCLUT * c)
+{
+  if (this->clut) { this->clut->unref(); }
+  this->clut = c;
+  this->clut->ref();
+
+  if (this->subpages == NULL) return;
+
+  // Change palette for all subpages.
+  for (int col=0; col < this->nrcolumns; col++) {
+    for (int row=0; row < this->nrrows; row++) {
+      const int idx = this->calcSubPageIdx(row, col);
+      Cvr2DTexSubPageItem * subp = this->subpages[idx];
+      if (subp) {
+        if (subp->page->isPaletted()) { subp->page->setPalette(this->clut); }
+        else { this->releaseSubPage(row, col); }
+      }
+    }
+  }
+}
 
 // *******************************************************************
 
@@ -361,19 +377,6 @@ Cvr2DTexPage::getSubPage(SoState * state, int col, int row)
   Cvr2DTexSubPageItem * subp = this->subpages[idx];
 
   if (subp) {
-    const SoTransferFunction * transferfunc = SoTransferFunctionElement::getInstance(state)->getTransferFunction();
-    uint32_t transferfuncid = transferfunc->getNodeId();
-
-    if (subp->transferfuncid != transferfuncid) {
-      if (subp->page->isPaletted()) {
-        subp->page->invalidatePalette();
-      }
-      else {
-        this->releaseSubPage(row, col);
-        return NULL;
-      }
-    }
-
     const SoVolumeData * volumedata = SoVolumeDataElement::getInstance(state)->getVolumeData();
     uint32_t volumedataid = volumedata->getNodeId();
 

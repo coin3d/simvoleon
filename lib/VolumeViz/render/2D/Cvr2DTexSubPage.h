@@ -27,7 +27,7 @@ public:
               Interpolation interpolation);
 
   SbBool isPaletted(void) const;
-  void invalidatePalette(void);
+  void setPalette(const CvrCLUT * newclut);
 
   static unsigned int totalNrOfTexels(void);
   static unsigned int totalTextureMemoryUsed(void);
@@ -52,7 +52,6 @@ private:
   unsigned int bitspertexel;
   const CvrCLUT * clut;
   SbBool ispaletted;
-  SbBool refetchpalette;
 };
 
 

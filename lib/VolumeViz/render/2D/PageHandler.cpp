@@ -1,12 +1,5 @@
-#include <VolumeViz/render/2D/CvrPageHandler.h>
-
-#include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/readers/SoVolumeReader.h>
-#include <VolumeViz/render/2D/Cvr2DTexPage.h>
-#include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/elements/SoTransferFunctionElement.h>
-#include <VolumeViz/misc/CvrUtil.h>
+#include <stdlib.h>
+#include <assert.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
@@ -16,8 +9,18 @@
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
 
-#include <stdlib.h>
-#include <assert.h>
+#include <VolumeViz/render/2D/CvrPageHandler.h>
+
+#include <VolumeViz/elements/SoVolumeDataElement.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/readers/SoVolumeReader.h>
+#include <VolumeViz/render/2D/Cvr2DTexPage.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
+
 
 CvrPageHandler::CvrPageHandler(const SbVec3s & voldatadims,
                                SoVolumeReader * reader)
@@ -32,14 +35,15 @@ CvrPageHandler::CvrPageHandler(const SbVec3s & voldatadims,
   this->slices[1] = NULL;
   this->slices[2] = NULL;
 
-  this->reader = reader;
+  this->clut = NULL;
 
-  this->transferfuncid = SoNode::getNextNodeId();
+  this->reader = reader;
 }
 
 CvrPageHandler::~CvrPageHandler()
 {
   this->releaseAllSlices();
+  if (this->clut) { this->clut->unref(); }
 }
 
 // Calculates direction from camera to center of object.
@@ -149,6 +153,23 @@ CvrPageHandler::comparePageSize(const SbVec3s & currsubpagesize)
 }
 
 void
+CvrPageHandler::setPalette(const CvrCLUT * c)
+{
+  // Change palette for all our pages.
+  for (unsigned int axis = 0; axis < 3; axis++) {
+    if (this->slices[axis] != NULL) {
+      for (unsigned int i = 0; i < this->voldatadims[axis]; i++) {
+        this->slices[axis][i]->setPalette(c);
+      }
+    }
+  }
+
+  if (this->clut) { this->clut->unref(); }
+  this->clut = c;
+  this->clut->ref();
+}
+
+void
 CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
                        Cvr2DTexSubPage::Interpolation interpolation,
                        CvrPageHandler::Composition composition,
@@ -167,6 +188,10 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   // FIXME: should have an assert-check that the volume dimensions
   // hasn't changed versus our this->voldatadims
 
+
+  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+  CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
+  if (this->clut != c) { this->setPalette(c); }
 
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
@@ -331,6 +356,7 @@ CvrPageHandler::getSlice(const unsigned int AXISIDX, unsigned int sliceidx)
 
     Cvr2DTexPage * newslice =
       new Cvr2DTexPage(this->reader, AXISIDX, sliceidx, pagesize);
+    newslice->setPalette(this->clut);
 
     this->slices[AXISIDX][sliceidx] = newslice;
   }

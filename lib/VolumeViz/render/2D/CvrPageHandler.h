@@ -36,7 +36,9 @@ private:
   unsigned int getCurrentAxis(const SbVec3f & viewvec) const;
   void getViewVector(SoGLRenderAction * action, SbVec3f & direction) const;
   Cvr2DTexPage * getSlice(const unsigned int AXISIDX, unsigned int sliceidx);
+
   void comparePageSize(const SbVec3s & currsubpagesize);
+  void setPalette(const CvrCLUT * c);
 
   Cvr2DTexPage ** slices[3];
   unsigned int voldatadims[3];
@@ -44,6 +46,7 @@ private:
   SoVolumeReader * reader;
 
   uint32_t transferfuncid;
+  const CvrCLUT * clut;
 };
 
 #endif // !COIN_CVRPAGEHANDLER_H
