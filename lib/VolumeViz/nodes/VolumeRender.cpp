@@ -363,7 +363,16 @@ SoVolumeRender::generatePrimitives(SoAction * action)
   // FIXME: implement me? 20021120 mortene.
 }
 
-// doc in super
+/*!
+  Picking of a volume doesn't work in quite the same manner as picking
+  polygon geometry: the SoPickedPoint set up in the SoRayPickAction
+  class will only contain the entry point of the ray into the
+  volume.
+
+  For further picking information, grab the detail object and cast it
+  to an SoVolumeRenderDetail (after first checking that it is of this
+  type, of course).
+ */
 void
 SoVolumeRender::rayPick(SoRayPickAction * action)
 {
