@@ -8,6 +8,8 @@ class CvrVoxelChunk;
 
 class CvrUtil {
 public:
+  static SbBool doDebugging(void);
+
   static CvrVoxelChunk * buildSubPage(const CvrVoxelChunk & input,
                                       const unsigned int axisidx, const int pageidx,
                                       const SbBox2s & cutslice);
