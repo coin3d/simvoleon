@@ -194,6 +194,8 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
   if (this->clut != c) { this->setPalette(c); }
 
+  // FIXME: do this by the proper Coin mechanisms (i.e. simply
+  // state->push()? check with pederb). 20040220 mortene.
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
   glDisable(GL_LIGHTING);
