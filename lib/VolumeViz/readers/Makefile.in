@@ -312,15 +312,6 @@ distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
 libreadersincHEADERS_INSTALL = $(INSTALL_HEADER)
-install-libreadersincHEADERS: $(libreadersinc_HEADERS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libreadersincdir)
-	@list='$(libreadersinc_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(libreadersincHEADERS_INSTALL) $$d$$p $(DESTDIR)$(libreadersincdir)/$$f"; \
-	  $(libreadersincHEADERS_INSTALL) $$d$$p $(DESTDIR)$(libreadersincdir)/$$f; \
-	done
 
 uninstall-libreadersincHEADERS:
 	@$(NORMAL_UNINSTALL)
@@ -510,6 +501,30 @@ readers.lst: $(readers_lst_OBJECTS)
 	@echo "Linking $@..."; \
 	rm -f $@; \
 	for i in $(readers_lst_OBJECTS); do echo $$i >>$@; done
+
+install-libreadersincHEADERS: $(libreadersinc_HEADERS)
+	@$(NORMAL_INSTALL)
+	@if test x"$(libreadersinc_HEADERS)" = x""; then :; else \
+	  echo " $(mkinstalldirs) $(DESTDIR)$(libreadersincdir)"; \
+	  $(mkinstalldirs) $(DESTDIR)$(libreadersincdir); \
+	fi
+	@list='$(libreadersinc_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  src="$$d$$p"; dst="$(DESTDIR)$(libreadersincdir)/$$f"; \
+	  if cmp -s "$$src" "$$dst"; then :; else \
+	    echo " $(INSTALL_HEADER) $$src $$dst"; \
+	    $(INSTALL_HEADER) "$$src" "$$dst" || exit 1; \
+	  fi \
+	done
+	@list='$(ObsoletedHeaders)'; for f in $$list; do \
+	  file="$(DESTDIR)$(libreadersincdir)/$$f"; \
+	  if test -x "$$file"; then \
+	    echo " rm -f $$file"; \
+	    rm -f "$$file"; \
+	  fi \
+	done; \
+	:
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -349,15 +349,6 @@ distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
 libnodesincHEADERS_INSTALL = $(INSTALL_HEADER)
-install-libnodesincHEADERS: $(libnodesinc_HEADERS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libnodesincdir)
-	@list='$(libnodesinc_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(libnodesincHEADERS_INSTALL) $$d$$p $(DESTDIR)$(libnodesincdir)/$$f"; \
-	  $(libnodesincHEADERS_INSTALL) $$d$$p $(DESTDIR)$(libnodesincdir)/$$f; \
-	done
 
 uninstall-libnodesincHEADERS:
 	@$(NORMAL_UNINSTALL)
@@ -639,6 +630,30 @@ nodes.lst: $(nodes_lst_OBJECTS)
 	@echo "Linking $@..."; \
 	rm -f $@; \
 	for i in $(nodes_lst_OBJECTS); do echo $$i >>$@; done
+
+install-libnodesincHEADERS: $(libnodesinc_HEADERS)
+	@$(NORMAL_INSTALL)
+	@if test x"$(libnodesinc_HEADERS)" = x""; then :; else \
+	  echo " $(mkinstalldirs) $(DESTDIR)$(libnodesincdir)"; \
+	  $(mkinstalldirs) $(DESTDIR)$(libnodesincdir); \
+	fi
+	@list='$(libnodesinc_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  src="$$d$$p"; dst="$(DESTDIR)$(libnodesincdir)/$$f"; \
+	  if cmp -s "$$src" "$$dst"; then :; else \
+	    echo " $(INSTALL_HEADER) $$src $$dst"; \
+	    $(INSTALL_HEADER) "$$src" "$$dst" || exit 1; \
+	  fi \
+	done
+	@list='$(ObsoletedHeaders)'; for f in $$list; do \
+	  file="$(DESTDIR)$(libnodesincdir)/$$f"; \
+	  if test -x "$$file"; then \
+	    echo " rm -f $$file"; \
+	    rm -f "$$file"; \
+	  fi \
+	done; \
+	:
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

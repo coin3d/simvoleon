@@ -176,20 +176,20 @@ libSimVoleon@SUFFIX@_la_SOURCES = dummy.cpp
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = dummy.cpp
 
 libSimVoleon@SUFFIX@_la_LIBADD = \
-        details/libdetails.la \
-        elements/libelements.la \
+	details/libdetails.la \
+	elements/libelements.la \
 	misc/libmisc.la \
 	nodes/libnodes.la \
-        readers/libreaders.la \
+	readers/libreaders.la \
 	render/2D/lib2Drender.la
 
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
-        details/details.lst \
-        elements/elements.lst \
-        misc/misc.lst \
-        nodes/nodes.lst \
-        readers/readers.lst \
+	details/details.lst \
+	elements/elements.lst \
+	misc/misc.lst \
+	nodes/nodes.lst \
+	readers/readers.lst \
 	render/2D/2Drender.lst
 
 
@@ -661,7 +661,7 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.lib: Makefile \
 @BUILD_WITH_MSVC_TRUE@	  if test -s "$$file"; then \
 @BUILD_WITH_MSVC_TRUE@	    $(mkinstalldirs) "$(DESTDIR)$(bindir)"; \
 @BUILD_WITH_MSVC_TRUE@	    echo $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file"; \
-@BUILD_WITH_MSVC_TRUE@	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file"; \
+@BUILD_WITH_MSVC_TRUE@	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file" || exit 1; \
 @BUILD_WITH_MSVC_TRUE@	  fi \
 @BUILD_WITH_MSVC_TRUE@	done
 @BUILD_WITH_MSVC_FALSE@install-exec-local:
@@ -673,7 +673,7 @@ install-data-local:
 	  if test -s "$$file"; then \
 	    $(mkinstalldirs) "$(DESTDIR)$(libdir)"; \
 	    echo $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(libdir)/$$file"; \
-	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(libdir)/$$file"; \
+	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(libdir)/$$file" || exit 1; \
 	  fi \
 	done
 
@@ -700,7 +700,8 @@ uninstall-local:
 	    echo " rmdir" "$$dir"; \
 	    rmdir "$$dir"; \
 	  fi \
-	done
+	done; \
+	:
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

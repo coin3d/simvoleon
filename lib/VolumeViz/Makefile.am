@@ -15,19 +15,19 @@ libSimVoleon@SUFFIX@_la_SOURCES = dummy.cpp
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = dummy.cpp
 
 libSimVoleon@SUFFIX@_la_LIBADD = \
-        details/libdetails.la \
-        elements/libelements.la \
+	details/libdetails.la \
+	elements/libelements.la \
 	misc/libmisc.la \
 	nodes/libnodes.la \
-        readers/libreaders.la \
+	readers/libreaders.la \
 	render/2D/lib2Drender.la
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
-        details/details.lst \
-        elements/elements.lst \
-        misc/misc.lst \
-        nodes/nodes.lst \
-        readers/readers.lst \
+	details/details.lst \
+	elements/elements.lst \
+	misc/misc.lst \
+	nodes/nodes.lst \
+	readers/readers.lst \
 	render/2D/2Drender.lst
 
 libSimVoleon@SUFFIX@_la_LDFLAGS = \
@@ -57,7 +57,7 @@ install-exec-local: simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.lib
 	  if test -s "$$file"; then \
 	    $(mkinstalldirs) "$(DESTDIR)$(bindir)"; \
 	    echo $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file"; \
-	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file"; \
+	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file" || exit 1; \
 	  fi \
 	done
 else
@@ -71,7 +71,7 @@ install-data-local:
 	  if test -s "$$file"; then \
 	    $(mkinstalldirs) "$(DESTDIR)$(libdir)"; \
 	    echo $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(libdir)/$$file"; \
-	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(libdir)/$$file"; \
+	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(libdir)/$$file" || exit 1; \
 	  fi \
 	done
 
@@ -98,4 +98,6 @@ uninstall-local:
 	    echo " rmdir" "$$dir"; \
 	    rmdir "$$dir"; \
 	  fi \
-	done
+	done; \
+	:
+

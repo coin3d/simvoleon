@@ -167,9 +167,9 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libdetails.la
 
 SOURCES = \
-        VolumeRenderDetail.cpp \
-        OrthoSliceDetail.cpp \
-        ObliqueSliceDetail.cpp
+	VolumeRenderDetail.cpp \
+	OrthoSliceDetail.cpp \
+	ObliqueSliceDetail.cpp
 
 
 libdetails_la_SOURCES = $(SOURCES)
@@ -179,9 +179,9 @@ details_lst_SOURCES = $(SOURCES)
 libdetailsincdir = $(includedir)/VolumeViz/details
 
 libdetailsinc_HEADERS = \
-        SoVolumeRenderDetail.h \
-        SoOrthoSliceDetail.h \
-        SoObliqueSliceDetail.h
+	SoVolumeRenderDetail.h \
+	SoOrthoSliceDetail.h \
+	SoObliqueSliceDetail.h
 
 subdir = lib/VolumeViz/details
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
@@ -225,9 +225,9 @@ HEADERS = $(libdetailsinc_HEADERS)
 
 DIST_COMMON = $(libdetailsinc_HEADERS) Makefile.am Makefile.in
 SOURCES = \
-        VolumeRenderDetail.cpp \
-        OrthoSliceDetail.cpp \
-        ObliqueSliceDetail.cpp
+	VolumeRenderDetail.cpp \
+	OrthoSliceDetail.cpp \
+	ObliqueSliceDetail.cpp
 
 
 all: all-am
@@ -313,15 +313,6 @@ distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
 libdetailsincHEADERS_INSTALL = $(INSTALL_HEADER)
-install-libdetailsincHEADERS: $(libdetailsinc_HEADERS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libdetailsincdir)
-	@list='$(libdetailsinc_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(libdetailsincHEADERS_INSTALL) $$d$$p $(DESTDIR)$(libdetailsincdir)/$$f"; \
-	  $(libdetailsincHEADERS_INSTALL) $$d$$p $(DESTDIR)$(libdetailsincdir)/$$f; \
-	done
 
 uninstall-libdetailsincHEADERS:
 	@$(NORMAL_UNINSTALL)
@@ -511,6 +502,30 @@ details.lst: $(details_lst_OBJECTS)
 	@echo "Linking $@..."; \
 	rm -f $@; \
 	for i in $(details_lst_OBJECTS); do echo $$i >>$@; done
+
+install-libdetailsincHEADERS: $(libdetailsinc_HEADERS)
+	@$(NORMAL_INSTALL)
+	@if test x"$(libdetailsinc_HEADERS)" = x""; then :; else \
+	  echo " $(mkinstalldirs) $(DESTDIR)$(libdetailsincdir)"; \
+	  $(mkinstalldirs) $(DESTDIR)$(libdetailsincdir); \
+	fi
+	@list='$(libdetailsinc_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  src="$$d$$p"; dst="$(DESTDIR)$(libdetailsincdir)/$$f"; \
+	  if cmp -s "$$src" "$$dst"; then :; else \
+	    echo " $(INSTALL_HEADER) $$src $$dst"; \
+	    $(INSTALL_HEADER) "$$src" "$$dst" || exit 1; \
+	  fi \
+	done
+	@list='$(ObsoletedHeaders)'; for f in $$list; do \
+	  file="$(DESTDIR)$(libdetailsincdir)/$$f"; \
+	  if test -x "$$file"; then \
+	    echo " rm -f $$file"; \
+	    rm -f "$$file"; \
+	  fi \
+	done; \
+	:
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -305,15 +305,6 @@ distclean-libtool:
 	-rm -f libtool
 uninstall-info-am:
 libelementsincHEADERS_INSTALL = $(INSTALL_HEADER)
-install-libelementsincHEADERS: $(libelementsinc_HEADERS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libelementsincdir)
-	@list='$(libelementsinc_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(libelementsincHEADERS_INSTALL) $$d$$p $(DESTDIR)$(libelementsincdir)/$$f"; \
-	  $(libelementsincHEADERS_INSTALL) $$d$$p $(DESTDIR)$(libelementsincdir)/$$f; \
-	done
 
 uninstall-libelementsincHEADERS:
 	@$(NORMAL_UNINSTALL)
@@ -503,6 +494,30 @@ elements.lst: $(elements_lst_OBJECTS)
 	@echo "Linking $@..."; \
 	rm -f $@; \
 	for i in $(elements_lst_OBJECTS); do echo $$i >>$@; done
+
+install-libelementsincHEADERS: $(libelementsinc_HEADERS)
+	@$(NORMAL_INSTALL)
+	@if test x"$(libelementsinc_HEADERS)" = x""; then :; else \
+	  echo " $(mkinstalldirs) $(DESTDIR)$(libelementsincdir)"; \
+	  $(mkinstalldirs) $(DESTDIR)$(libelementsincdir); \
+	fi
+	@list='$(libelementsinc_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  src="$$d$$p"; dst="$(DESTDIR)$(libelementsincdir)/$$f"; \
+	  if cmp -s "$$src" "$$dst"; then :; else \
+	    echo " $(INSTALL_HEADER) $$src $$dst"; \
+	    $(INSTALL_HEADER) "$$src" "$$dst" || exit 1; \
+	  fi \
+	done
+	@list='$(ObsoletedHeaders)'; for f in $$list; do \
+	  file="$(DESTDIR)$(libelementsincdir)/$$f"; \
+	  if test -x "$$file"; then \
+	    echo " rm -f $$file"; \
+	    rm -f "$$file"; \
+	  fi \
+	done; \
+	:
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

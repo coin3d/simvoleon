@@ -27,3 +27,27 @@ readers.lst: $(readers_lst_OBJECTS)
 	rm -f $@; \
 	for i in $(readers_lst_OBJECTS); do echo $$i >>$@; done
 
+install-libreadersincHEADERS: $(libreadersinc_HEADERS)
+	@$(NORMAL_INSTALL)
+	@if test x"$(libreadersinc_HEADERS)" = x""; then :; else \
+	  echo " $(mkinstalldirs) $(DESTDIR)$(libreadersincdir)"; \
+	  $(mkinstalldirs) $(DESTDIR)$(libreadersincdir); \
+	fi
+	@list='$(libreadersinc_HEADERS)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  src="$$d$$p"; dst="$(DESTDIR)$(libreadersincdir)/$$f"; \
+	  if cmp -s "$$src" "$$dst"; then :; else \
+	    echo " $(INSTALL_HEADER) $$src $$dst"; \
+	    $(INSTALL_HEADER) "$$src" "$$dst" || exit 1; \
+	  fi \
+	done
+	@list='$(ObsoletedHeaders)'; for f in $$list; do \
+	  file="$(DESTDIR)$(libreadersincdir)/$$f"; \
+	  if test -x "$$file"; then \
+	    echo " rm -f $$file"; \
+	    rm -f "$$file"; \
+	  fi \
+	done; \
+	:
+
