@@ -41,7 +41,9 @@
   available, and this node is still attempted used, a warning message
   will be output through Coin's SoDebugError::postWarning().
 
-  \sa SoVolumeFaceSet, SoVolumeRender, SoOrthoSlice
+  \sa SoVolumeRender, SoOrthoSlice
+  \sa SoVolumeTriangleStripSet, SoVolumeIndexedTriangleStripSet, 
+  \sa SoVolumeIndexedFaceSet, SoVolumeFaceSet 
 
   \since SIM Voleon 1.1
 */
