@@ -1,0 +1,28 @@
+RELEASE NOTES
+=============
+
+This file describes notable changes in the SIM Voleon library in a
+more elaborate way than can be fit into to the compact NEWS summary
+file.
+
+The changes described here are issues that might have an effect on the
+compatibility of your source code when upgrading the library.
+
+
+SIM Voleon 1.1.0
+================
+
+* A major semantic change was made from version 1.0.0: data was
+  flipped (i.e. upside-down) on the Y axis. This bug was fixed for
+  version 1.1.0, but older client code may depend on this bug being
+  present, by having work-arounds for the bug which expect Y-flipped
+  data.
+
+  We suggest upgrading older client code by either removing the
+  work-arounds, or by setting the environment variable
+
+        CVR_USE_FLIPPED_Y_AXIS=1
+
+  ..which will preserve the old, buggy behavior. Note however that we
+  expect to remove support for the old behavior with the next major
+  release (i.e. SIM Voleon release 2.0.0).
