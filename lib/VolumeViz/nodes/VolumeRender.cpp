@@ -1071,10 +1071,11 @@ SoVolumeRenderP::performanceTest() const
   timelist3d.truncate(0);
   SbTime starttime = SbTime::getTimeOfDay(); 
   for (int i=0;i<volumerender_performancetest_times;++i) {
-    if (((SbTime::getTimeOfDay() - starttime).getValue()) > 0.0005)
-      break; // Max testing time is 0.5 seconds
     this->renderPerformanceTestScene(timelist3d, timelist2d,
                                      texture3did, texture2dids);
+
+    // Don't run the test for more than half a second.
+    if (((SbTime::getTimeOfDay() - starttime).getValue()) > 0.5) { break; }
   }
   
   const float average3dtime = this->getAveragePerformanceTime(timelist3d);
