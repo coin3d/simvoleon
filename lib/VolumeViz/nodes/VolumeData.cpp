@@ -48,8 +48,8 @@
   volumedatanode->touch();
   \endcode
 
-  Regeneration of textures etc for visualization will then be done
-  automatically by the SIM Voleon rendering system.
+  Internal regeneration of textures etc for visualization will then be
+  done automatically by the SIM Voleon rendering system.
 */
 
 // *************************************************************************
@@ -281,7 +281,7 @@ SoVolumeData::initClass(void)
 
   This will override the value found in a volumedata file by a reader
   (if any).
- */
+*/
 void
 SoVolumeData::setVolumeSize(const SbBox3f & size)
 {
@@ -296,7 +296,7 @@ SoVolumeData::setVolumeSize(const SbBox3f & size)
 
 /*!
   Returns geometric size of volume.
- */
+*/
 SbBox3f
 SoVolumeData::getVolumeSize(void) const
 {
@@ -311,12 +311,9 @@ SoVolumeData::getVolumeSize(void) const
     if (PRIVATE(this)->reader) {
       static const char * use_unit_box = coin_getenv("SIMVOLEON_UNIT_DIMENSIONS");
       if (use_unit_box) {
-        // This is really the wiser thing to do, as it is much easier
-        // to work with something you know is of unit size.
-        //
-        // FIXME: we should migrate to using this approach everywhere
-        // in our Voleon-dependent software (like RIMS and the
-        // SoGuiExamples). 20040217 mortene.
+        // FIXME: kept around for compatibility with the EMGS View'EM
+        // application. When the above envvar is no longer used there,
+        // remove this. 20041006 mortene.
         volbox.setBounds(-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f);
       }
       else {
