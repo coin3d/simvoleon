@@ -12,6 +12,205 @@
 # PARTICULAR PURPOSE.
 
 # **************************************************************************
+# gendsp.m4
+#
+# macros:
+#   SIM_AC_MSVC_DSP_ENABLE_OPTION
+#   SIM_AC_MSVC_DSP_SETUP(PROJECT, Project, project, extra-args)
+#
+# authors:
+#   Lars J. Aas <larsa@coin3d.org>
+
+# **************************************************************************
+AC_DEFUN([SIM_AC_MSVC_DSP_ENABLE_OPTION], [
+AC_ARG_ENABLE([msvcdsp],
+  [AC_HELP_STRING([--enable-msvcdsp], [build .dsp, not library])],
+  [case $enableval in
+  no | false) sim_ac_make_dsp=false ;;
+  *)          sim_ac_make_dsp=true ;;
+  esac],
+  [sim_ac_make_dsp=false])
+
+if $sim_ac_make_dsp; then
+  enable_dependency_tracking=no
+  enable_libtool_lock=no
+fi
+]) # SIM_AC_MSVC_DSP_ENABLE_OPTION
+
+# **************************************************************************
+AC_DEFUN([SIM_AC_MSVC_DSP_SETUP], [
+AC_REQUIRE([SIM_AC_MSVC_DSP_ENABLE_OPTION])
+$1_DSP_LIBDIRS=
+$1_DSP_LIBS=
+$1_DSP_INCS=
+$1_DSP_DEFS=
+
+if $sim_ac_make_dsp; then
+  SIM_AC_CONFIGURATION_SETTING([$2 build type], [msvc .dsp])
+
+  # -DHAVE_CONFIG_H is set up in $DEFS too late for use to use, and some
+  # include directives are usually set up in the Makefile.am files
+  for arg in -DHAVE_CONFIG_H $4 $CPPFLAGS $LDFLAGS $LIBS; do
+    case $arg in
+    -L* )
+      libdir=`echo $arg | cut -c3-`
+      $1_DSP_LIBDIRS="[$]$1_DSP_LIBDIRS $libdir"
+      ;;
+    -l* )
+      libname=`echo $arg | cut -c3-`
+      for libdir in [$]$1_DSP_LIBDIRS; do
+        if test -f $libdir/$libname.lib; then
+          # lib is not in any standard location - use full path
+          libname=`cygpath -w "$libdir/$libname" 2>/dev/null || echo "$libdir/$libname"`
+          break
+        fi
+      done
+      if test x"[$]$1_DSP_LIBS" = x""; then
+        $1_DSP_LIBS="$libname.lib"
+      else
+        $1_DSP_LIBS="[$]$1_DSP_LIBS $libname.lib"
+      fi
+      ;;
+    -I* )
+      incdir=`echo $arg | cut -c3-`
+      incdir=`cygpath -w "$incdir" 2>/dev/null || echo "$incdir"`
+      if test x"[$]$1_DSP_INCS" = x""; then
+        $1_DSP_INCS="/I \"$incdir\""
+      else
+        $1_DSP_INCS="[$]$1_DSP_INCS /I \"$incdir\""
+      fi
+      ;;
+    -D$1_DEBUG* | -DNDEBUG )
+      # Defines that vary between release/debug configurations can't be
+      # set up dynamically in <lib>_DSP_DEFS - they must be static in the
+      # gendsp.sh script.  We therefore catche them here so we can ignore
+      # checking for them below.
+      ;;
+    -D*=* | -D* )
+      define=`echo $arg | cut -c3-`
+      if test x"[$]$1_DSP_DEFS" = x""; then
+        $1_DSP_DEFS="/D \"$define\""
+      else
+        $1_DSP_DEFS="[$]$1_DSP_DEFS /D \"$define\""
+      fi
+      ;;
+    esac
+  done
+
+  CC=[$]$3_src_dir/cfg/m4/gendsp.sh
+  CXX=[$]$3_src_dir/cfg/m4/gendsp.sh
+  CXXLD=[$]$3_src_dir/cfg/m4/gendsp.sh
+  # Yes, this is totally bogus stuff, but don't worry about it.  As long
+  # as gendsp.sh recognizes it...  20030219 larsa
+  CPPFLAGS="$CPPFLAGS -Ddspfile=[$]$3_build_dir/$3[$]$1_MAJOR_VERSION.dsp"
+  LDFLAGS="$LDFLAGS -Wl,-Ddspfile=[$]$3_build_dir/$3[$]$1_MAJOR_VERSION.dsp"
+  LIBFLAGS="$LIBFLAGS -o $3[$]$1_MAJOR_VERSION.so.0"
+
+  # this can't be set up at the point the libtool script is generated
+  mv libtool libtool.bak
+  sed -e "s%^CC=\"gcc\"%CC=\"[$]$3_src_dir/cfg/m4/gendsp.sh\"%" \
+      -e "s%^CC=\".*/wrapmsvc.exe\"%CC=\"[$]$3_src_dir/cfg/m4/gendsp.sh\"%" \
+      <libtool.bak >libtool
+  rm -f libtool.bak
+  chmod 755 libtool
+fi
+
+AC_SUBST([$1_DSP_LIBS])
+AC_SUBST([$1_DSP_INCS])
+AC_SUBST([$1_DSP_DEFS])
+])
+
+
+# **************************************************************************
+# configuration_summary.m4
+#
+# This file contains some utility macros for making it easy to have a short
+# summary of the important configuration settings printed at the end of the
+# configure run.
+#
+# Authors:
+#   Lars J. Aas <larsa@sim.no>
+#
+
+# **************************************************************************
+# SIM_AC_CONFIGURATION_SETTING( DESCRIPTION, SETTING )
+#
+# This macro registers a configuration setting to be dumped by the
+# SIM_AC_CONFIGURATION_SUMMARY macro.
+
+AC_DEFUN([SIM_AC_CONFIGURATION_SETTING],
+[if test x${sim_ac_configuration_settings+set} != xset; then
+  sim_ac_configuration_settings="$1:$2"
+else
+  sim_ac_configuration_settings="$sim_ac_configuration_settings|$1:$2"
+fi
+]) # SIM_AC_CONFIGURATION_SETTING
+
+# **************************************************************************
+# SIM_AC_CONFIGURATION_WARNING( WARNING )
+#
+# This macro registers a configuration warning to be dumped by the
+# SIM_AC_CONFIGURATION_SUMMARY macro.
+
+AC_DEFUN([SIM_AC_CONFIGURATION_WARNING],
+[if test x${sim_ac_configuration_warnings+set} != xset; then
+  sim_ac_configuration_warnings="$1"
+else
+  sim_ac_configuration_warnings="$sim_ac_configuration_warnings|$1"
+fi
+]) # SIM_AC_CONFIGURATION_WARNING
+
+# **************************************************************************
+# SIM_AC_CONFIGURATION_SUMMARY
+#
+# This macro dumps the settings and warnings summary.
+
+AC_DEFUN([SIM_AC_CONFIGURATION_SUMMARY],
+[sim_ac_settings=$sim_ac_configuration_settings
+sim_ac_num_settings=`echo "$sim_ac_settings" | tr -d -c "|" | wc -c`
+sim_ac_maxlength=0
+while test $sim_ac_num_settings -ge 0; do
+  sim_ac_description=`echo "$sim_ac_settings" | cut -d: -f1`
+  sim_ac_length=`echo "$sim_ac_description" | wc -c`
+  if test $sim_ac_length -gt $sim_ac_maxlength; then
+    sim_ac_maxlength=`expr $sim_ac_length + 0`
+  fi
+  sim_ac_settings=`echo $sim_ac_settings | cut -d"|" -f2-`
+  sim_ac_num_settings=`expr $sim_ac_num_settings - 1`
+done
+
+sim_ac_maxlength=`expr $sim_ac_maxlength + 3`
+sim_ac_padding=`echo "                                             " |
+  cut -c1-$sim_ac_maxlength`
+
+sim_ac_num_settings=`echo "$sim_ac_configuration_settings" | tr -d -c "|" | wc -c`
+echo ""
+echo "$PACKAGE configuration settings:"
+while test $sim_ac_num_settings -ge 0; do
+  sim_ac_setting=`echo $sim_ac_configuration_settings | cut -d"|" -f1`
+  sim_ac_description=`echo "$sim_ac_setting" | cut -d: -f1`
+  sim_ac_status=`echo "$sim_ac_setting" | cut -d: -f2-`
+  # hopefully not too many terminals are too dumb for this
+  echo -e "$sim_ac_padding $sim_ac_status\r  $sim_ac_description:"
+  sim_ac_configuration_settings=`echo $sim_ac_configuration_settings | cut -d"|" -f2-`
+  sim_ac_num_settings=`expr $sim_ac_num_settings - 1`
+done
+
+if test x${sim_ac_configuration_warnings+set} = xset; then
+sim_ac_num_warnings=`echo "$sim_ac_configuration_warnings" | tr -d -c "|" | wc -c`
+echo ""
+echo "$PACKAGE configuration warnings:"
+while test $sim_ac_num_warnings -ge 0; do
+  sim_ac_warning=`echo "$sim_ac_configuration_warnings" | cut -d"|" -f1`
+  echo "  * $sim_ac_warning"
+  sim_ac_configuration_warnings=`echo $sim_ac_configuration_warnings | cut -d"|" -f2-`
+  sim_ac_num_warnings=`expr $sim_ac_num_warnings - 1`
+done
+fi
+]) # SIM_AC_CONFIGURATION_SUMMARY
+
+
+# **************************************************************************
 # SIM_AC_SETUP_MSVC_IFELSE( IF-FOUND, IF-NOT-FOUND )
 #
 # This macro invokes IF-FOUND if the wrapmsvc wrapper can be run, and
@@ -23,34 +222,51 @@
 
 # **************************************************************************
 
-AC_DEFUN([SIM_AC_SETUP_MSVC_IFELSE],
-[# **************************************************************************
+AC_DEFUN([SIM_AC_MSVC_DISABLE_OPTION], [
+AC_ARG_ENABLE([msvc],
+  [AC_HELP_STRING([--disable-msvc], [don't require MS Visual C++ on Cygwin])],
+  [case $enableval in
+  no | false) sim_ac_try_msvc=false ;;
+  *)          sim_ac_try_msvc=true ;;
+  esac],
+  [sim_ac_try_msvc=true])
+])
+
+# **************************************************************************
+# Note: the SIM_AC_SETUP_MSVC_IFELSE macro has been OBSOLETED and
+# replaced by the one below.
+#
 # If the Microsoft Visual C++ cl.exe compiler is available, set us up for
 # compiling with it and to generate an MSWindows .dll file.
 
-: ${BUILD_WITH_MSVC=false}
-sim_ac_wrapmsvc=`cd $srcdir; pwd`/cfg/m4/wrapmsvc.exe
-if test -z "$CC" -a -z "$CXX" && $sim_ac_wrapmsvc >/dev/null 2>&1; then
-  m4_ifdef([$0_VISITED],
-    [AC_FATAL([Macro $0 invoked multiple times])])
-  m4_define([$0_VISITED], 1)
-  CC=$sim_ac_wrapmsvc
-  CXX=$sim_ac_wrapmsvc
-  export CC CXX
-  BUILD_WITH_MSVC=true
+AC_DEFUN([SIM_AC_SETUP_MSVCPP_IFELSE],
+[
+AC_REQUIRE([SIM_AC_MSVC_DISABLE_OPTION])
+
+BUILD_WITH_MSVC=false
+if $sim_ac_try_msvc; then
+  sim_ac_wrapmsvc=`cd $srcdir; pwd`/cfg/wrapmsvc.exe
+  if test -z "$CC" -a -z "$CXX" && $sim_ac_wrapmsvc >/dev/null 2>&1; then
+    m4_ifdef([$0_VISITED],
+      [AC_FATAL([Macro $0 invoked multiple times])])
+    m4_define([$0_VISITED], 1)
+    CC=$sim_ac_wrapmsvc
+    CXX=$sim_ac_wrapmsvc
+    export CC CXX
+    BUILD_WITH_MSVC=true
+  else
+    case $host in
+    *-cygwin) SIM_AC_ERROR([no-msvc++]) ;;
+    esac
+  fi
 fi
 AC_SUBST(BUILD_WITH_MSVC)
 
-case $CXX in
-*wrapmsvc.exe)
-  BUILD_WITH_MSVC=true
-  $1
-  ;;
-*)
-  BUILD_WITH_MSVC=false
-  $2
-  ;;
-esac
+if $BUILD_WITH_MSVC; then
+  ifelse([$1], , :, [$1])
+else
+  ifelse([$2], , :, [$2])
+fi
 ]) # SIM_AC_SETUP_MSVC_IFELSE
 
 # **************************************************************************
@@ -4443,174 +4659,6 @@ else
 fi
 ])
 
-# Usage:
-#  SIM_AC_CHECK_PTHREAD([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
-#
-#  Try to find the PTHREAD development system. If it is found, these
-#  shell variables are set:
-#
-#    $sim_ac_pthread_cppflags (extra flags the compiler needs for pthread)
-#    $sim_ac_pthread_ldflags  (extra flags the linker needs for pthread)
-#    $sim_ac_pthread_libs     (link libraries the linker needs for pthread)
-#
-#  The CPPFLAGS, LDFLAGS and LIBS flags will also be modified accordingly.
-#  In addition, the variable $sim_ac_pthread_avail is set to "yes" if the
-#  pthread development system is found.
-#
-#
-# Author: Morten Eriksen, <mortene@sim.no>.
-
-AC_DEFUN([SIM_AC_CHECK_PTHREAD], [
-
-AC_ARG_WITH(
-  [pthread],
-  AC_HELP_STRING([--with-pthread=DIR],
-                 [pthread installation directory]),
-  [],
-  [with_pthread=yes])
-
-sim_ac_pthread_avail=no
-
-if test x"$with_pthread" != xno; then
-  if test x"$with_pthread" != xyes; then
-    sim_ac_pthread_cppflags="-I${with_pthread}/include"
-    sim_ac_pthread_ldflags="-L${with_pthread}/lib"
-  fi
-  sim_ac_pthread_cppflags="-D_REENTRANT ${sim_ac_pthread_cppflags}"
-  sim_ac_pthread_libs="-lpthread"
-
-  sim_ac_save_cppflags=$CPPFLAGS
-  sim_ac_save_ldflags=$LDFLAGS
-  sim_ac_save_libs=$LIBS
-
-  CPPFLAGS="$CPPFLAGS $sim_ac_pthread_cppflags"
-  LDFLAGS="$LDFLAGS $sim_ac_pthread_ldflags"
-  LIBS="$sim_ac_pthread_libs $LIBS"
-
-  AC_CACHE_CHECK(
-    [for POSIX threads],
-    sim_cv_lib_pthread_avail,
-    [AC_TRY_LINK([#include <pthread.h>],
-                 [(void)pthread_create(0L, 0L, 0L, 0L);],
-                 [sim_cv_lib_pthread_avail=true],
-                 [sim_cv_lib_pthread_avail=false])])
-
-  if $sim_cv_lib_pthread_avail; then
-    AC_CACHE_CHECK(
-      [the struct timespec resolution],
-      sim_cv_lib_pthread_timespec_resolution,
-      [AC_TRY_COMPILE([#include <pthread.h>],
-                      [struct timespec timeout;
-                       timeout.tv_nsec = 0;],
-                      [sim_cv_lib_pthread_timespec_resolution=nsecs],
-                      [sim_cv_lib_pthread_timespec_resolution=usecs])])
-    if test x"$sim_cv_lib_pthread_timespec_resolution" = x"nsecs"; then
-      AC_DEFINE([HAVE_PTHREAD_TIMESPEC_NSEC], 1, [define if pthread's struct timespec uses nsecs and not usecs])
-    fi
-  fi
-
-  if $sim_cv_lib_pthread_avail; then
-    sim_ac_pthread_avail=yes
-    $1
-  else
-    CPPFLAGS=$sim_ac_save_cppflags
-    LDFLAGS=$sim_ac_save_ldflags
-    LIBS=$sim_ac_save_libs
-    $2
-  fi
-fi
-]) # SIM_AC_CHECK_PTHREAD
-
-
-# **************************************************************************
-# configuration_summary.m4
-#
-# This file contains some utility macros for making it easy to have a short
-# summary of the important configuration settings printed at the end of the
-# configure run.
-#
-# Authors:
-#   Lars J. Aas <larsa@sim.no>
-#
-
-# **************************************************************************
-# SIM_AC_CONFIGURATION_SETTING( DESCRIPTION, SETTING )
-#
-# This macro registers a configuration setting to be dumped by the
-# SIM_AC_CONFIGURATION_SUMMARY macro.
-
-AC_DEFUN([SIM_AC_CONFIGURATION_SETTING],
-[if test x${sim_ac_configuration_settings+set} != xset; then
-  sim_ac_configuration_settings="$1:$2"
-else
-  sim_ac_configuration_settings="$sim_ac_configuration_settings|$1:$2"
-fi
-]) # SIM_AC_CONFIGURATION_SETTING
-
-# **************************************************************************
-# SIM_AC_CONFIGURATION_WARNING( WARNING )
-#
-# This macro registers a configuration warning to be dumped by the
-# SIM_AC_CONFIGURATION_SUMMARY macro.
-
-AC_DEFUN([SIM_AC_CONFIGURATION_WARNING],
-[if test x${sim_ac_configuration_warnings+set} != xset; then
-  sim_ac_configuration_warnings="$1"
-else
-  sim_ac_configuration_warnings="$sim_ac_configuration_warnings|$1"
-fi
-]) # SIM_AC_CONFIGURATION_WARNING
-
-# **************************************************************************
-# SIM_AC_CONFIGURATION_SUMMARY
-#
-# This macro dumps the settings and warnings summary.
-
-AC_DEFUN([SIM_AC_CONFIGURATION_SUMMARY],
-[sim_ac_settings=$sim_ac_configuration_settings
-sim_ac_num_settings=`echo "$sim_ac_settings" | tr -d -c "|" | wc -c`
-sim_ac_maxlength=0
-while test $sim_ac_num_settings -ge 0; do
-  sim_ac_description=`echo "$sim_ac_settings" | cut -d: -f1`
-  sim_ac_length=`echo "$sim_ac_description" | wc -c`
-  if test $sim_ac_length -gt $sim_ac_maxlength; then
-    sim_ac_maxlength=`expr $sim_ac_length + 0`
-  fi
-  sim_ac_settings=`echo $sim_ac_settings | cut -d"|" -f2-`
-  sim_ac_num_settings=`expr $sim_ac_num_settings - 1`
-done
-
-sim_ac_maxlength=`expr $sim_ac_maxlength + 3`
-sim_ac_padding=`echo "                                             " |
-  cut -c1-$sim_ac_maxlength`
-
-sim_ac_num_settings=`echo "$sim_ac_configuration_settings" | tr -d -c "|" | wc -c`
-echo ""
-echo "$PACKAGE configuration settings:"
-while test $sim_ac_num_settings -ge 0; do
-  sim_ac_setting=`echo $sim_ac_configuration_settings | cut -d"|" -f1`
-  sim_ac_description=`echo "$sim_ac_setting" | cut -d: -f1`
-  sim_ac_status=`echo "$sim_ac_setting" | cut -d: -f2-`
-  # hopefully not too many terminals are too dumb for this
-  echo -e "$sim_ac_padding $sim_ac_status\r  $sim_ac_description:"
-  sim_ac_configuration_settings=`echo $sim_ac_configuration_settings | cut -d"|" -f2-`
-  sim_ac_num_settings=`expr $sim_ac_num_settings - 1`
-done
-
-if test x${sim_ac_configuration_warnings+set} = xset; then
-sim_ac_num_warnings=`echo "$sim_ac_configuration_warnings" | tr -d -c "|" | wc -c`
-echo ""
-echo "$PACKAGE configuration warnings:"
-while test $sim_ac_num_warnings -ge 0; do
-  sim_ac_warning=`echo "$sim_ac_configuration_warnings" | cut -d"|" -f1`
-  echo "  * $sim_ac_warning"
-  sim_ac_configuration_warnings=`echo $sim_ac_configuration_warnings | cut -d"|" -f2-`
-  sim_ac_num_warnings=`expr $sim_ac_num_warnings - 1`
-done
-fi
-]) # SIM_AC_CONFIGURATION_SUMMARY
-
-
 # Add --enable-maintainer-mode option to configure.
 # From Jim Meyering
 
@@ -4940,428 +4988,6 @@ if test x"$enable_warnings" = x"yes"; then
   esac
 fi
 ])
-
-# Usage:
-#  SIM_CHECK_OIV_XT([ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
-#
-#  Try to compile and link against the Xt GUI glue library for
-#  the Open Inventor development system. Sets this shell
-#  variable:
-#
-#    $sim_ac_oivxt_libs     (link libraries the linker needs for InventorXt)
-#
-#  The LIBS variable will also be modified accordingly. In addition,
-#  the variable $sim_ac_oivxt_avail is set to "yes" if the Xt glue
-#  library for the Open Inventor development system is found.
-#
-# Authors:
-#   Morten Eriksen, <mortene@sim.no>.
-#   Lars J. Aas, <larsa@sim.no>.
-#
-
-AC_DEFUN([SIM_CHECK_OIV_XT], [
-sim_ac_oivxt_avail=no
-
-sim_ac_oivxt_libs="-lInventorXt"
-sim_ac_save_libs=$LIBS
-LIBS="$sim_ac_oivxt_libs $LIBS"
-
-AC_CACHE_CHECK([for Xt glue library in the Open Inventor developer kit],
-  sim_cv_lib_oivxt_avail,
-  [AC_TRY_LINK([#include <Inventor/Xt/SoXt.h>],
-               [(void)SoXt::init(0L, 0L);],
-               [sim_cv_lib_oivxt_avail=yes],
-               [sim_cv_lib_oivxt_avail=no])])
-
-if test x"$sim_cv_lib_oivxt_avail" = xyes; then
-  sim_ac_oivxt_avail=yes
-  $1
-else
-  LIBS=$sim_ac_save_libs
-  $2
-fi
-])
-
-# **************************************************************************
-# SIM_AC_WITH_INVENTOR
-# This macro just ensures the --with-inventor option is used.
-
-AC_DEFUN([SIM_AC_WITH_INVENTOR], [
-: ${sim_ac_want_inventor=false}
-AC_ARG_WITH([inventor],
-  AC_HELP_STRING([--with-inventor], [use another Open Inventor than Coin [[default=no]], with InventorXt])
-AC_HELP_STRING([--with-inventor=PATH], [specify where Open Inventor and InventorXt resides]),
-  [case "$withval" in
-  no)  sim_ac_want_inventor=false ;;
-  yes) sim_ac_want_inventor=true
-       test -n "$OIVHOME" &&
-         SIM_AC_DEBACKSLASH(sim_ac_inventor_path, "$OIVHOME") ;;
-  *)   sim_ac_want_inventor=true; sim_ac_inventor_path="$withval" ;;
-  esac])
-]) # SIM_AC_WITH_INVENTOR
-
-# **************************************************************************
-# SIM_AC_HAVE_INVENTOR_IMAGE_IFELSE
-
-AC_DEFUN([SIM_AC_HAVE_INVENTOR_IMAGE_IFELSE], [
-AC_REQUIRE([SIM_AC_WITH_INVENTOR])
-
-if $sim_ac_want_inventor; then
-  sim_ac_inventor_image_save_CPPFLAGS="$CPPFLAGS"
-  sim_ac_inventor_image_save_LDFLAGS="$LDFLAGS"
-  sim_ac_inventor_image_save_LIBS="$LIBS"
-
-  if test s${sim_ac_inventor_path+et} = set; then
-    sim_ac_inventor_image_cppflags="-I${sim_ac_inventor_path}/include"
-    sim_ac_inventor_image_ldflags="-L${sim_ac_inventor_path}/lib"
-  fi
-  sim_ac_inventor_image_libs="-limage"
-
-  AC_CACHE_CHECK(
-    [if linking with libimage is possible],
-    sim_cv_have_inventor_image,
-    [
-    CPPFLAGS="$sim_ac_inventor_image_cppflags $CPPFLAGS"
-    LDFLAGS="$sim_ac_inventor_image_ldflags $LDFLAGS"
-    LIBS="$sim_ac_inventor_image_libs $LIBS"
-    AC_TRY_LINK(
-      [],
-      [],
-      [sim_cv_have_inventor_image=true],
-      [sim_cv_have_inventor_image=false])
-    CPPFLAGS="$sim_ac_inventor_image_save_CPPFLAGS"
-    LDFLAGS="$sim_ac_inventor_image_save_LDFLAGS"
-    LIBS="$sim_ac_inventor_image_save_LIBS"
-    ])
-
-  if $sim_cv_have_inventor_image; then
-    ifelse([$1], , :, [$1])
-  else
-    ifelse([$2], , :, [$2])
-  fi
-else
-  ifelse([$2], , :, [$2])
-fi
-]) # SIM_AC_HAVE_INVENTOR_IMAGE_IFELSE
-
-# **************************************************************************
-# SIM_AC_HAVE_INVENTOR_IFELSE( [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND] ] )
-#
-# Defines $sim_ac_inventor_cppflags, $sim_ac_inventor_ldflags and
-# $sim_ac_inventor_libs.
-
-AC_DEFUN([SIM_AC_HAVE_INVENTOR_IFELSE], [
-AC_REQUIRE([SIM_AC_WITH_INVENTOR])
-
-if $sim_ac_want_inventor; then
-  sim_ac_save_CPPFLAGS="$CPPFLAGS"
-  sim_ac_save_LDFLAGS="$LDFLAGS"
-  sim_ac_save_LIBS="$LIBS"
-
-  SIM_AC_HAVE_INVENTOR_IMAGE_IFELSE([
-    sim_ac_inventor_cppflags="$sim_ac_inventor_image_cppflags"
-    sim_ac_inventor_ldflags="$sim_ac_inventor_image_ldflags"
-  ], [
-    if test s${sim_ac_inventor_path+et} = set; then
-      sim_ac_inventor_cppflags="-I${sim_ac_inventor_path}/include"
-      sim_ac_inventor_ldflags="-L${sim_ac_inventor_path}/lib"
-    fi
-    sim_ac_inventor_image_libs=
-  ])
-
-  # Let's at least test for "libInventor".
-  sim_ac_inventor_chk_libs="-lInventor"
-  sim_ac_inventor_libs=UNRESOLVED
-
-  CPPFLAGS="$sim_ac_inventor_cppflags $CPPFLAGS"
-
-  AC_CHECK_HEADER([Inventor/SbBasic.h],
-                  [sim_ac_sbbasic=true],
-                  [AC_MSG_WARN([header file Inventor/SbBasic.h not found])
-                   sim_ac_sbbasic=false])
-
-  if $sim_ac_sbbasic; then
-  AC_MSG_CHECKING([the Open Inventor version])
-  # See if we can get the TGS_VERSION number for including a
-  # check for inv{ver}.lib.
-  # TGS did not include TGS_VERSION before 2.6, so this may have to be
-  # back-ported to SO_VERSION+SO_REVISION usage.  larsa 2001-07-25
-    cat <<EOF > conftest.c
-#include <Inventor/SbBasic.h>
-#ifdef __COIN__
-#error Testing for original Open Inventor, but found Coin...
-#endif
-PeekInventorVersion: TGS_VERSION
-EOF
-  if test x"$CPP" = x; then
-    AC_MSG_ERROR([cpp not detected - aborting.  notify maintainer at coin-support@coin3d.org.])
-  fi
-  echo "$CPP $CPPFLAGS conftest.c" >&AS_MESSAGE_LOG_FD
-  tgs_version_line=`$CPP $CPPFLAGS conftest.c 2>&AS_MESSAGE_LOG_FD | grep "^PeekInventorVersion"`
-  if test x"$tgs_version_line" = x; then
-    echo "second try..." >&AS_MESSAGE_LOG_FD
-    echo "$CPP -DWIN32 $CPPFLAGS conftest.c" >&AS_MESSAGE_LOG_FD
-    tgs_version_line=`$CPP -DWIN32 $CPPFLAGS conftest.c 2>&AS_MESSAGE_LOG_FD | grep "^PeekInventorVersion"`
-  fi
-  rm -f conftest.c
-  tgs_version=`echo $tgs_version_line | cut -c22-24`
-  tgs_suffix=
-  if test x"${enable_inventor_debug+set}" = xset &&
-     test x"${enable_inventor_debug}" = xyes; then
-    tgs_suffix=d
-  fi
-  if test x"$tgs_version" != xTGS; then
-    sim_ac_inventor_chk_libs="$sim_ac_inventor_chk_libs -linv$tgs_version$tgs_suffix"
-    tgs_version_string=`echo $tgs_version | sed 's/\(.\)\(.\)\(.\)/\1.\2.\3/g'`
-    AC_MSG_RESULT([TGS Open Inventor v$tgs_version_string])
-  else
-    AC_MSG_RESULT([probably SGI or older TGS Open Inventor])
-  fi
-
-  AC_MSG_CHECKING([for Open Inventor library])
-
-  for sim_ac_iv_cppflags_loop in "" "-DWIN32"; do
-    # Trying with no libraries first, as TGS Inventor uses pragmas in
-    # a header file to notify MSVC of what to link with.
-    for sim_ac_iv_libcheck in "" $sim_ac_inventor_chk_libs; do
-      if test "x$sim_ac_inventor_libs" = "xUNRESOLVED"; then
-        CPPFLAGS="$sim_ac_iv_cppflags_loop $sim_ac_inventor_cppflags $sim_ac_save_CPPFLAGS"
-        LDFLAGS="$sim_ac_inventor_ldflags $sim_ac_save_LDFLAGS"
-        LIBS="$sim_ac_iv_libcheck $sim_ac_inventor_image_libs $sim_ac_save_LIBS"
-        AC_TRY_LINK([#include <Inventor/SoDB.h>],
-                    [SoDB::init();],
-                    [sim_ac_inventor_libs="$sim_ac_iv_libcheck $sim_ac_inventor_image_libs"
-                     sim_ac_inventor_cppflags="$sim_ac_iv_cppflags_loop $sim_ac_inventor_cppflags"])
-      fi
-    done
-  done
-
-  if test "x$sim_ac_inventor_libs" != "xUNRESOLVED"; then
-    AC_MSG_RESULT($sim_ac_inventor_cppflags $sim_ac_inventor_ldflags $sim_ac_inventor_libs)
-  else
-    AC_MSG_RESULT([unavailable])
-  fi
-
-  fi # sim_ac_sbbasic = TRUE
-
-  CPPFLAGS="$sim_ac_save_CPPFLAGS"
-  LDFLAGS="$sim_ac_save_LDFLAGS"
-  LIBS="$sim_ac_save_LIBS"
-
-  if test "x$sim_ac_inventor_libs" != "xUNRESOLVED"; then
-    :
-    $1
-  else
-    :
-    $2
-  fi
-else
-  ifelse([$2], , :, [$2])
-fi
-]) # SIM_AC_HAVE_INVENTOR_IFELSE
-
-# **************************************************************************
-
-# utility macros:
-AC_DEFUN([AC_TOUPPER], [translit([$1], [[a-z]], [[A-Z]])])
-AC_DEFUN([AC_TOLOWER], [translit([$1], [[A-Z]], [[a-z]])])
-
-# **************************************************************************
-# SIM_AC_HAVE_INVENTOR_NODE( NODE, [ACTION-IF-FOUND] [, ACTION-IF-NOT-FOUND])
-#
-# Check whether or not the given NODE is available in the Open Inventor
-# development system.  If so, the HAVE_<NODE> define is set.
-#
-# Authors:
-#   Lars J. Aas  <larsa@sim.no>
-#   Morten Eriksen  <mortene@sim.no>
-
-AC_DEFUN([SIM_AC_HAVE_INVENTOR_NODE], 
-[m4_do([pushdef([cache_variable], sim_cv_have_oiv_[]AC_TOLOWER([$1])_node)],
-       [pushdef([DEFINE_VARIABLE], HAVE_[]AC_TOUPPER([$1]))])
-AC_CACHE_CHECK(
-  [if the Open Inventor $1 node is available],
-  cache_variable,
-  [AC_TRY_LINK(
-    [#include <Inventor/nodes/$1.h>],
-    [$1 * p = new $1;],
-    cache_variable=true,
-    cache_variable=false)])
-
-if $cache_variable; then
-  AC_DEFINE(DEFINE_VARIABLE, 1, [Define to enable use of the Open Inventor $1 node])
-  $2
-else
-  ifelse([$3], , :, [$3])
-fi
-m4_do([popdef([cache_variable])],
-      [popdef([DEFINE_VARIABLE])])
-]) # SIM_AC_HAVE_INVENTOR_NODE
-
-# **************************************************************************
-# SIM_AC_HAVE_INVENTOR_VRMLNODE( VRLMNODE, [ACTION-IF-FOUND] [, ACTION-IF-NOT-FOUND])
-#
-# Check whether or not the given VRMLNODE is available in the Open Inventor
-# development system.  If so, the HAVE_<VRMLNODE> define is set.
-#
-# Authors:
-#   Lars J. Aas  <larsa@sim.no>
-#   Morten Eriksen  <mortene@sim.no>
-
-AC_DEFUN([SIM_AC_HAVE_INVENTOR_VRMLNODE], 
-[m4_do([pushdef([cache_variable], sim_cv_have_oiv_[]AC_TOLOWER([$1])_vrmlnode)],
-       [pushdef([DEFINE_VARIABLE], HAVE_[]AC_TOUPPER([$1]))])
-AC_CACHE_CHECK(
-  [if the Open Inventor $1 VRML node is available],
-  cache_variable,
-  [AC_TRY_LINK(
-    [#include <Inventor/VRMLnodes/$1.h>],
-    [$1 * p = new $1;],
-    cache_variable=true,
-    cache_variable=false)])
-
-if $cache_variable; then
-  AC_DEFINE(DEFINE_VARIABLE, 1, [Define to enable use of the Open Inventor $1 VRML node])
-  $2
-else
-  ifelse([$3], , :, [$3])
-fi
-m4_do([popdef([cache_variable])],
-      [popdef([DEFINE_VARIABLE])])
-]) # SIM_AC_HAVE_INVENTOR_VRMLNODE
-
-# **************************************************************************
-# SIM_AC_HAVE_INVENTOR_FEATURE(MESSAGE, HEADERS, BODY, DEFINE
-#                              [, ACTION-IF-FOUND[, ACTION-IF-NOT-FOUND]])
-#
-# Authors:
-#   Morten Eriksen <mortene@sim.no>
-
-AC_DEFUN([SIM_AC_HAVE_INVENTOR_FEATURE],
-[m4_do([pushdef([cache_variable], sim_cv_have_oiv_[]AC_TOLOWER([$4]))],
-       [pushdef([DEFINE_VARIABLE], AC_TOUPPER([$4]))])
-AC_CACHE_CHECK(
-  [$1],
-  cache_variable,
-  [AC_TRY_LINK(
-    [$2],
-    [$3],
-    cache_variable=true,
-    cache_variable=false)])
-
-if $cache_variable; then
-  AC_DEFINE(DEFINE_VARIABLE, 1, [Define to enable use of Inventor feature])
-  $5
-else
-  ifelse([$6], , :, [$6])
-fi
-m4_do([popdef([cache_variable])],
-      [popdef([DEFINE_VARIABLE])])
-]) # SIM_AC_HAVE_INVENTOR_FEATURE
-
-# **************************************************************************
-# SIM_AC_INVENTOR_EXTENSIONS( ACTION )
-#
-# This macro adds an "--with-iv-extensions=..." option to configure, that
-# enabes the configurer to enable extensions in third-party libraries to
-# be initialized by the library by default.  The configure-option argument
-# must be a comma-separated list of link library path options, link library
-# options and class-names.
-#
-# Sample usage is
-#   ./configure --with-iv-extension=-L/tmp/mynodes,-lmynodes,MyNode1,MyNode2
-#
-# TODO:
-#   * check if __declspec(dllimport) is needed on Cygwin
-
-AC_DEFUN([SIM_AC_INVENTOR_EXTENSIONS],
-[
-AC_ARG_WITH(
-  [iv-extensions],
-  [AC_HELP_STRING([--with-iv-extensions=extensions], [enable extra open inventor extensions])],
-  [sim_ac_iv_try_extensions=$withval])
-
-sim_ac_iv_extension_save_LIBS=$LIBS
-
-sim_ac_iv_extension_LIBS=
-sim_ac_iv_extension_LDFLAGS=
-sim_ac_iv_extension_decarations=
-sim_ac_iv_extension_initializations=
-
-sim_ac_iv_extensions=
-while test x"${sim_ac_iv_try_extensions}" != x""; do
-  sim_ac_iv_extension=`echo ,$sim_ac_iv_try_extensions | cut -d, -f2`
-  sim_ac_iv_try_extensions=`echo ,$sim_ac_iv_try_extensions | cut -d, -f3-`
-  case $sim_ac_iv_extension in
-  sim_ac_dummy ) # ignore
-    ;;
-  -L* ) # extension library path hint
-    sim_ac_iv_extension_LDFLAGS="$sim_ac_iv_extension_LDFLAGS $sim_ac_iv_extension"
-    ;;
-  -l* ) # extension library hint
-    LIBS="$sim_ac_iv_extension_save_LIBS $sim_ac_iv_extension_LIBS $sim_ac_iv_extension"
-    AC_MSG_CHECKING([for Open Inventor extension library $sim_ac_iv_extension])
-    AC_TRY_LINK([#include <Inventor/SoDB.h>], [SoDB::init();],
-      [sim_ac_iv_extension_LIBS="$sim_ac_iv_extension_LIBS $sim_ac_iv_extension"
-       AC_MSG_RESULT([linkable])],
-      [AC_MSG_RESULT([unlinkable - discarded])])
-    ;;
-  * )
-    AC_MSG_CHECKING([for Open Inventor extension $sim_ac_iv_extension])
-    AC_TRY_LINK(
-[#include <Inventor/SoDB.h>
-// hack up a declaration and see if the mangled name is found by the linker
-class $sim_ac_iv_extension {
-public:
-static void initClass(void);
-};], [
-  SoDB::init();
-  $sim_ac_iv_extension::initClass();
-], [
-  AC_MSG_RESULT([found])
-  sim_ac_iv_extensions="$sim_ac_iv_extensions COIN_IV_EXTENSION($sim_ac_iv_extension)"
-], [
-  AC_MSG_RESULT([not found])
-])
-    ;;
-  esac
-done
-
-AC_DEFINE_UNQUOTED([COIN_IV_EXTENSIONS], [$sim_ac_iv_extensions], [Open Inventor extensions])
-
-LIBS=$sim_ac_iv_extension_save_LIBS
-
-ifelse([$1], , :, [$1])
-
-]) # SIM_AC_INVENTOR_EXTENSIONS
-
-
-# Convenience macros SIM_AC_DEBACKSLASH and SIM_AC_DOBACKSLASH for
-# converting to and from MSWin/MS-DOS style paths.
-#
-# Example use:
-#
-#     SIM_AC_DEBACKSLASH(my_ac_reversed, "C:\\mydir\\bin")
-#
-# will give a shell variable $my_ac_reversed with the value "C:/mydir/bin").
-# Vice versa for SIM_AC_DOBACKSLASH.
-#
-# Author: Marius Bugge Monsen <mariusbu@sim.no>
-#         Lars Jørgen Aas <larsa@sim.no>
-#         Morten Eriksen <mortene@sim.no>
-
-AC_DEFUN([SIM_AC_DEBACKSLASH], [
-eval "$1=\"`echo $2 | sed -e 's%\\\\%\\/%g'`\""
-])
-
-AC_DEFUN([SIM_AC_DOBACKSLASH], [
-eval "$1=\"`echo $2 | sed -e 's%\\/%\\\\%g'`\""
-])
-
-AC_DEFUN([SIM_AC_DODOUBLEBACKSLASH], [
-eval "$1=\"`echo $2 | sed -e 's%\\/%\\\\\\\\\\\\\\\\%g'`\""
-])
-
 
 # Usage:
 #   SIM_AC_HAVE_COIN_IFELSE( IF-FOUND, IF-NOT-FOUND )

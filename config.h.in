@@ -1,11 +1,5 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Define to 1 if you have the <ctype.h> header file. */
-#undef HAVE_CTYPE_H
-
-/* Define to 1 if you have the <dirent.h> header file. */
-#undef HAVE_DIRENT_H
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -15,23 +9,11 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* pthread extensions available */
-#undef HAVE_PTHREAD
-
-/* define if pthread's struct timespec uses nsecs and not usecs */
-#undef HAVE_PTHREAD_TIMESPEC_NSEC
-
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
-
-/* Define to use BSD4.3 strncasecmp() */
-#undef HAVE_STRCASECMP
-
-/* Define to use strcmpi() */
-#undef HAVE_STRCMPI
 
 /* Define to 1 if you have the <strings.h> header file. */
 #undef HAVE_STRINGS_H
@@ -47,9 +29,6 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
-
-/* Define to 1 if you have the <windows.h> header file. */
-#undef HAVE_WINDOWS_H
 
 /* Name of package */
 #undef PACKAGE
