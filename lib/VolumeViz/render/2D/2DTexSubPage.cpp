@@ -324,34 +324,9 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     // FIXME: investigate if this is really what we want. 20021120 mortene.
     if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
 
-    // Resets GL error flag, which is important for the check below,
-    // which has been seen to hit.
-    assert(glGetError() == GL_NO_ERROR);
-    
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
-
-    // This is a work-around for a OpenGL driver strangeness detected
-    // at a test machine of one of our partners (E&PTech).
-    GLenum err = glGetError();
-    static SbBool first = TRUE;
-    if ((err != GL_NO_ERROR) && first) {
-      // FIXME: should move this error detection and reporting to
-      // Coin/src/glue/gl.c? 20031027 mortene.
-      const char * COIN_IGNORE_TEXTURE_CLAMP_ERROR = "COIN_IGNORE_TEXTURE_CLAMP_ERROR";
-      const char * env = coin_getenv(COIN_IGNORE_TEXTURE_CLAMP_ERROR);
-      if (first && env && (atoi(env) > 0)) {
-	SoDebugError::postWarning("Cvr2DTexSubPage::transferTex2GL",
-				  "Detected error in OpenGL driver: "
-				  "texture edge clamp reported to be "
-				  "supported, but using GL_CLAMP_TO_EDGE "
-				  "caused a GL error. Set environment "
-				  "variable %s=1 to permanently silence this "
-				  "warning.",
-				  COIN_IGNORE_TEXTURE_CLAMP_ERROR);
-      }
-    }
-    first = FALSE;
+    assert(glGetError() == GL_NO_ERROR);
   }
 }
 
