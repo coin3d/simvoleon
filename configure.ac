@@ -27,6 +27,8 @@ simvoleon_src_dir=`cd $srcdir; pwd`
 AC_SUBST([simvoleon_src_dir])
 AC_SUBST([simvoleon_build_dir])
 
+SIM_AC_RELATIVE_SRC_DIR
+
 SIM_AC_MSVC_DSP_ENABLE_OPTION
 
 # If the Microsoft Visual C++ cl.exe compiler is available, set us up for
@@ -433,7 +435,12 @@ AC_OUTPUT([
         lib/VolumeViz/render/3D/Makefile
         lib/VolumeViz/render/common/Makefile
         lib/VolumeViz/render/Pointset/Makefile
+        cfg/gendsp.sh
 ])
+
+if test -f cfg/gendsp.sh; then
+  chmod +x cfg/gendsp.sh
+fi
 
 # *******************************************************************
 
