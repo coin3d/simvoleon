@@ -1,4 +1,5 @@
 #include <VolumeViz/misc/CvrUtil.h>
+#include <string.h>
 
 void
 CvrUtil::buildSubPage(const unsigned int axisidx,

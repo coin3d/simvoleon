@@ -1,6 +1,7 @@
 #include <VolumeViz/misc/CvrGIMPGradient.h>
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 
 
 CvrGIMPGradient *
@@ -100,14 +101,14 @@ CvrGIMPGradient::convertToIntArray(uint8_t intgradient[256][4]) const
     if (gradpos < segment->middle) {
       left = segment->left;
       right = segment->middle;
-      left_RGBA = segment->left_RGBA;
-      right_RGBA = middle_RGBA;
+      memcpy(left_RGBA, segment->left_RGBA, 4*sizeof(float));
+      memcpy(right_RGBA, middle_RGBA, 4*sizeof(float));
     }
     else {
       left = segment->middle;
       right = segment->right;
-      left_RGBA = middle_RGBA;
-      right_RGBA = segment->right_RGBA;
+      memcpy(left_RGBA, middle_RGBA, 4*sizeof(float));
+      memcpy(right_RGBA, segment->right_RGBA, 4*sizeof(float));
     }
 
     for (int k=0; k < 4; k++) {
