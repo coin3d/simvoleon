@@ -21,6 +21,7 @@
 #include <VolumeViz/readers/SoVRVolFileReader.h>
 
 #include "TransferFunctionHandler.h"
+#include "VolumeRenderHandler.h"
 
 
 static void
@@ -143,14 +144,21 @@ main(int argc, char ** argv)
 
     SoTranslation * trans = new SoTranslation;
     trans->translation.setValue(- dx / 2.0f, 0, 0);
-
-    SoClipPlaneManip * clipplane = new SoClipPlaneManip;
-    sep->addChild(clipplane);
+    
+    // XXX
+//     SoClipPlaneManip * clipplane = new SoClipPlaneManip;
+//     sep->addChild(clipplane);
   }
 
   // Add VolumeRender to scene graph
   SoVolumeRender * volrendnode = new SoVolumeRender();
   volrendnode->interpolation = SoVolumeRender::NEAREST;
+
+  volrendnode->numSlicesControl = SoVolumeRender::MANUAL;
+  volrendnode->numSlices = 40;
+
+  VolumeRenderHandler * vrdialog = new VolumeRenderHandler(volrendnode, voldata);
+
   root->addChild(volrendnode);
 
   So@Gui@ExaminerViewer * ex = new So@Gui@ExaminerViewer(window);
@@ -163,6 +171,7 @@ main(int argc, char ** argv)
 
   delete ex;
   delete filereader;
+
   root->unref();
 
   return 0;

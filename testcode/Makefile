@@ -2,6 +2,10 @@ all: examine simple8bit readvol raypick rgbload changingdataset orthoslicer
 
 ## 
 
+VOLUMERENDER_UI_OBJECTS = \
+        VolumeRenderHandler.o moc_VolumeRenderHandler.o \
+        SoVolumeRender_ctrl.o moc_SoVolumeRender_ctrl.o
+
 TRANSFERFUNCTION_UI_OBJECTS = \
         TransferFunctionHandler.o moc_TransferFunctionHandler.o \
         SoTransferFunction_ctrl.o moc_SoTransferFunction_ctrl.o
@@ -13,7 +17,7 @@ ORTHOSLICE_UI_OBJECTS = \
 ## 
 
 READVOL_OBJECTS = \
-        readvol.o $(TRANSFERFUNCTION_UI_OBJECTS)
+        readvol.o $(TRANSFERFUNCTION_UI_OBJECTS) $(VOLUMERENDER_UI_OBJECTS)
 
 EXAMINE_OBJECTS = \
         examine.o utility.o
@@ -78,6 +82,32 @@ moc_TransferFunctionHandler.o: moc_TransferFunctionHandler.cpp
 TransferFunctionHandler.o: TransferFunctionHandler.cpp SoTransferFunction_ctrl.h moc_SoTransferFunction_ctrl.cpp
 	soqt-config --compile $<
 
+# (SoVolumeRender UI)
+
+SoVolumeRender_ctrl.h: SoVolumeRender_ctrl.ui
+	uic $< -o $@
+
+SoVolumeRender_ctrl.cpp: SoVolumeRender_ctrl.ui SoVolumeRender_ctrl.h
+	uic -impl $*.h $< -o $@
+
+SoVolumeRender_ctrl.o: SoVolumeRender_ctrl.cpp
+	soqt-config --compile $<
+
+moc_SoVolumeRender_ctrl.cpp: SoVolumeRender_ctrl.h
+	moc -o $@ $<
+
+moc_SoVolumeRender_ctrl.o: moc_SoVolumeRender_ctrl.cpp
+	soqt-config --compile $<
+
+moc_VolumeRenderHandler.cpp: VolumeRenderHandler.h
+	moc -o $@ $<
+
+moc_VolumeRenderHandler.o: moc_VolumeRenderHandler.cpp
+	soqt-config --compile $<
+
+VolumeRenderHandler.o: VolumeRenderHandler.cpp SoVolumeRender_ctrl.h moc_SoVolumeRender_ctrl.cpp
+	soqt-config --compile $<
+
 # (SoOrthoSlice UI)
 
 SoOrthoSlice_ctrl.h: SoOrthoSlice_ctrl.ui
@@ -110,7 +140,7 @@ OrthoSliceHandler.o: OrthoSliceHandler.cpp SoOrthoSlice_ctrl.h moc_SoOrthoSlice_
 readvol.cpp: readvol.cpp.in
 	@soqt-config --ac-subst $<
 
-readvol.o: readvol.cpp TransferFunctionHandler.h
+readvol.o: readvol.cpp TransferFunctionHandler.h VolumeRenderHandler.h
 	soqt-config --compile $<
 
 readvol: $(READVOL_OBJECTS)

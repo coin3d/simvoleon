@@ -20,3 +20,7 @@ SoOrthoSlice_ctrl.cpp
 SoOrthoSlice_ctrl.h
 moc_OrthoSliceHandler.cpp
 moc_SoOrthoSlice_ctrl.cpp
+SoVolumeRender_ctrl.cpp
+SoVolumeRender_ctrl.h
+moc_VolumeRenderHandler.cpp
+moc_SoVolumeRender_ctrl.cpp
