@@ -26,3 +26,12 @@
     <mortene@sim.no> 20030627.
 
 ========================================================================
+
+002 When setting numSlices > actual depth, it seems more slices than
+    the depth are rendered.
+
+    This seems pointless. Investigate.
+
+    <mortene@sim.no> 20030702.
+
+========================================================================
