@@ -45,6 +45,7 @@ public:
 
   Cvr2DTexSubPage * page;
   uint32_t transferfuncid;
+  uint32_t volumedataid;
   SbBool invisible;
 };
 
@@ -218,8 +219,7 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
   subpageheight.normalize();
   subpageheight *= this->subpagesize[1] * spacescale[1];
 
-  SoTransferFunction * tf = Cvr2DTexPage::getTransferFunc(action);
-  const uint32_t transferfuncid = tf->getNodeId();
+  SoState * state = action->getState();
 
   // Render all subpages making up the full page.
 
@@ -227,7 +227,7 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
     for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
 
       Cvr2DTexSubPage * page = NULL;
-      Cvr2DTexSubPageItem * pageitem = this->getSubPage(transferfuncid, colidx, rowidx);
+      Cvr2DTexSubPageItem * pageitem = this->getSubPage(state, colidx, rowidx);
       if (pageitem == NULL) { pageitem = this->buildSubPage(action, colidx, rowidx); }
       assert(pageitem != NULL);
       if (pageitem->invisible) continue;
@@ -271,10 +271,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   // pages, and make pages able to map to several "slice indices". Not
   // sure if this can be much of a gain -- but look into it. 20021124 mortene.
 
-  SoTransferFunction * transferfunc = this->getTransferFunc(action);
-  const uint32_t transferfuncid = transferfunc->getNodeId();
-
-  assert(this->getSubPage(transferfuncid, col, row) == NULL);
+  assert(this->getSubPage(action->getState(), col, row) == NULL);
 
   // First Cvr2DTexSubPage ever in this slice?
   if (this->subpages == NULL) {
@@ -376,8 +373,12 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   delete texobj;
 
+  SoTransferFunction * transferfunc = this->getTransferFunc(action);
+  const uint32_t transferfuncid = transferfunc->getNodeId();
+
   Cvr2DTexSubPageItem * pitem = new Cvr2DTexSubPageItem(page);
   pitem->transferfuncid = transferfuncid;
+  pitem->volumedataid = voldatanode->getNodeId();
   pitem->invisible = invisible;
 
   const int idx = this->calcSubPageIdx(row, col);
@@ -575,7 +576,7 @@ SoTransferFunctionP::pack(void * data, int numbits, int index, int val)
 #endif // TMP DISABLED code
 
 Cvr2DTexSubPageItem *
-Cvr2DTexPage::getSubPage(uint32_t transferfuncid, int col, int row)
+Cvr2DTexPage::getSubPage(SoState * state, int col, int row)
 {
   if (this->subpages == NULL) return NULL;
 
@@ -585,11 +586,27 @@ Cvr2DTexPage::getSubPage(uint32_t transferfuncid, int col, int row)
   const int idx = this->calcSubPageIdx(row, col);
   Cvr2DTexSubPageItem * subp = this->subpages[idx];
 
-  if (subp && (subp->transferfuncid != transferfuncid)) {
-    if (subp->page->isPaletted()) {
-      subp->page->invalidatePalette();
+  if (subp) {
+    const SoTransferFunction * transferfunc = SoTransferFunctionElement::getInstance(state)->getTransferFunction();
+    uint32_t transferfuncid = transferfunc->getNodeId();
+
+    if (subp->transferfuncid != transferfuncid) {
+      if (subp->page->isPaletted()) {
+        subp->page->invalidatePalette();
+      }
+      else {
+        this->releaseSubPage(row, col);
+        return NULL;
+      }
     }
-    else {
+
+    const SoVolumeData * volumedata = SoVolumeDataElement::getInstance(state)->getVolumeData();
+    uint32_t volumedataid = volumedata->getNodeId();
+
+    if (subp->volumedataid != volumedataid) {
+      // FIXME: it could perhaps be a decent optimalization to store a
+      // checksum value along with the subpage, to use for comparison
+      // to see if this subpage really changed. 20030220 mortene.
       this->releaseSubPage(row, col);
       return NULL;
     }

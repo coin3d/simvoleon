@@ -26,8 +26,7 @@ public:
   void releaseSubPage(Cvr2DTexSubPage * page);
 
 private:
-  class Cvr2DTexSubPageItem * getSubPage(uint32_t transferfuncid,
-                                         int col, int row);
+  class Cvr2DTexSubPageItem * getSubPage(SoState * state, int col, int row);
 
   class Cvr2DTexSubPageItem * buildSubPage(SoGLRenderAction * action,
                                            int col, int row);
