@@ -8,40 +8,40 @@ all: \
 ## 
 
 VOLUMERENDER_UI_OBJECTS = \
-        VolumeRenderHandler.@OBJEXT@ moc_VolumeRenderHandler.@OBJEXT@ \
+        $(srcdir)/VolumeRenderHandler.@OBJEXT@ moc_VolumeRenderHandler.@OBJEXT@ \
         SoVolumeRender_ctrl.@OBJEXT@ moc_SoVolumeRender_ctrl.@OBJEXT@
 
 TRANSFERFUNCTION_UI_OBJECTS = \
-        TransferFunctionHandler.@OBJEXT@ moc_TransferFunctionHandler.@OBJEXT@ \
+        $(srcdir)/TransferFunctionHandler.@OBJEXT@ moc_TransferFunctionHandler.@OBJEXT@ \
         SoTransferFunction_ctrl.@OBJEXT@ moc_SoTransferFunction_ctrl.@OBJEXT@
 
 ORTHOSLICE_UI_OBJECTS = \
-        OrthoSliceHandler.@OBJEXT@ moc_OrthoSliceHandler.@OBJEXT@ \
+        $(srcdir)/OrthoSliceHandler.@OBJEXT@ moc_OrthoSliceHandler.@OBJEXT@ \
         SoOrthoSlice_ctrl.@OBJEXT@ moc_SoOrthoSlice_ctrl.@OBJEXT@
 
 ## 
 
 READVOL_OBJECTS = \
-        readvol.@OBJEXT@ $(TRANSFERFUNCTION_UI_OBJECTS) $(VOLUMERENDER_UI_OBJECTS)
+        $(srcdir)/readvol.@OBJEXT@ $(TRANSFERFUNCTION_UI_OBJECTS) $(VOLUMERENDER_UI_OBJECTS)
 
 EXAMINE_OBJECTS = \
-        examine.@OBJEXT@ utility.@OBJEXT@
+        $(srcdir)/examine.@OBJEXT@ $(srcdir)/utility.@OBJEXT@
 
 ORTHOSLICER_OBJECTS = \
-        orthoslicer.@OBJEXT@ utility.@OBJEXT@ \
+        $(srcdir)/orthoslicer.@OBJEXT@ $(srcdir)/utility.@OBJEXT@ \
 	$(ORTHOSLICE_UI_OBJECTS) $(TRANSFERFUNCTION_UI_OBJECTS)
 
 SIMPLE8BIT_OBJECTS = \
-        simple8bit.@OBJEXT@ utility.@OBJEXT@
+        $(srcdir)/simple8bit.@OBJEXT@ $(srcdir)/utility.@OBJEXT@
 
 CHANGINGDATASET_OBJECTS = \
-        changingdataset.@OBJEXT@
+        $(srcdir)/changingdataset.@OBJEXT@
 
 RAYPICK_OBJECTS = \
-        raypick.@OBJEXT@ utility.@OBJEXT@
+        $(srcdir)/raypick.@OBJEXT@ $(srcdir)/utility.@OBJEXT@
 
 RGBLOAD_OBJECTS = \
-        rgbload.@OBJEXT@
+        $(srcdir)/rgbload.@OBJEXT@
 
 clean:
 	@rm -f rgbload@EXEEXT@ $(RGBLOAD_OBJECTS) $(srcdir)/rgbload.cpp \
@@ -58,7 +58,7 @@ clean:
 
 ## common code
 
-utility.@OBJEXT@: $(srcdir)/utility.cpp
+$(srcdir)/utility.@OBJEXT@: $(srcdir)/utility.cpp
 	soqt-config --compile $<
 
 # (SoTransferFunction UI)
@@ -84,8 +84,8 @@ moc_TransferFunctionHandler.cpp: $(srcdir)/TransferFunctionHandler.h
 moc_TransferFunctionHandler.@OBJEXT@: moc_TransferFunctionHandler.cpp
 	soqt-config --compile $<
 
-TransferFunctionHandler.@OBJEXT@: $(srcdir)/TransferFunctionHandler.cpp SoTransferFunction_ctrl.h moc_SoTransferFunction_ctrl.cpp
-	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
+$(srcdir)/TransferFunctionHandler.@OBJEXT@: $(srcdir)/TransferFunctionHandler.cpp SoTransferFunction_ctrl.h moc_SoTransferFunction_ctrl.cpp
+	CPPFLAGS="`simvoleon-config --cppflags` -I." soqt-config --compile $<
 
 # (SoVolumeRender UI)
 
@@ -110,7 +110,7 @@ moc_VolumeRenderHandler.cpp: $(srcdir)/VolumeRenderHandler.h
 moc_VolumeRenderHandler.@OBJEXT@: moc_VolumeRenderHandler.cpp
 	soqt-config --compile $<
 
-VolumeRenderHandler.@OBJEXT@: $(srcdir)/VolumeRenderHandler.cpp SoVolumeRender_ctrl.h moc_SoVolumeRender_ctrl.cpp
+$(srcdir)/VolumeRenderHandler.@OBJEXT@: $(srcdir)/VolumeRenderHandler.cpp SoVolumeRender_ctrl.h moc_SoVolumeRender_ctrl.cpp
 	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 # (SoOrthoSlice UI)
@@ -136,8 +136,8 @@ moc_OrthoSliceHandler.cpp: $(srcdir)/OrthoSliceHandler.h
 moc_OrthoSliceHandler.@OBJEXT@: moc_OrthoSliceHandler.cpp
 	soqt-config --compile $<
 
-OrthoSliceHandler.@OBJEXT@: $(srcdir)/OrthoSliceHandler.cpp SoOrthoSlice_ctrl.h moc_SoOrthoSlice_ctrl.cpp
-	soqt-config --compile $<
+$(srcdir)/OrthoSliceHandler.@OBJEXT@: $(srcdir)/OrthoSliceHandler.cpp SoOrthoSlice_ctrl.h moc_SoOrthoSlice_ctrl.cpp
+	CPPFLAGS=-I. soqt-config --compile $<
 
 
 ## ``readvol'' example
@@ -145,7 +145,7 @@ OrthoSliceHandler.@OBJEXT@: $(srcdir)/OrthoSliceHandler.cpp SoOrthoSlice_ctrl.h 
 $(srcdir)/readvol.cpp: $(srcdir)/readvol.cpp.in
 	@soqt-config --ac-subst $<
 
-readvol.@OBJEXT@: $(srcdir)/readvol.cpp $(srcdir)/TransferFunctionHandler.h $(srcdir)/VolumeRenderHandler.h
+$(srcdir)/readvol.@OBJEXT@: $(srcdir)/readvol.cpp $(srcdir)/TransferFunctionHandler.h $(srcdir)/VolumeRenderHandler.h
 	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
 
 readvol@EXEEXT@: $(READVOL_OBJECTS)
@@ -156,7 +156,7 @@ readvol@EXEEXT@: $(READVOL_OBJECTS)
 $(srcdir)/examine.cpp: $(srcdir)/examine.cpp.in
 	@soqt-config --ac-subst $<
 
-examine.@OBJEXT@: $(srcdir)/examine.cpp
+$(srcdir)/examine.@OBJEXT@: $(srcdir)/examine.cpp
 	soqt-config --compile $<
 
 examine@EXEEXT@: $(EXAMINE_OBJECTS)
@@ -167,7 +167,7 @@ examine@EXEEXT@: $(EXAMINE_OBJECTS)
 $(srcdir)/orthoslicer.cpp: $(srcdir)/orthoslicer.cpp.in
 	@soqt-config --ac-subst $<
 
-orthoslicer.@OBJEXT@: $(srcdir)/orthoslicer.cpp $(srcdir)/TransferFunctionHandler.h
+$(srcdir)/orthoslicer.@OBJEXT@: $(srcdir)/orthoslicer.cpp $(srcdir)/TransferFunctionHandler.h
 	soqt-config --compile $<
 
 orthoslicer@EXEEXT@: $(ORTHOSLICER_OBJECTS)
@@ -178,7 +178,7 @@ orthoslicer@EXEEXT@: $(ORTHOSLICER_OBJECTS)
 $(srcdir)/simple8bit.cpp: $(srcdir)/simple8bit.cpp.in
 	@soqt-config --ac-subst $<
 
-simple8bit.@OBJEXT@: $(srcdir)/simple8bit.cpp
+$(srcdir)/simple8bit.@OBJEXT@: $(srcdir)/simple8bit.cpp
 	soqt-config --compile $<
 
 simple8bit@EXEEXT@: $(SIMPLE8BIT_OBJECTS)
@@ -189,7 +189,7 @@ simple8bit@EXEEXT@: $(SIMPLE8BIT_OBJECTS)
 $(srcdir)/changingdataset.cpp: $(srcdir)/changingdataset.cpp.in
 	@soqt-config --ac-subst $<
 
-changingdataset.@OBJEXT@: $(srcdir)/changingdataset.cpp
+$(srcdir)/changingdataset.@OBJEXT@: $(srcdir)/changingdataset.cpp
 	soqt-config --compile $<
 
 changingdataset@EXEEXT@: $(CHANGINGDATASET_OBJECTS)
@@ -200,7 +200,7 @@ changingdataset@EXEEXT@: $(CHANGINGDATASET_OBJECTS)
 $(srcdir)/raypick.cpp: $(srcdir)/raypick.cpp.in
 	@soqt-config --ac-subst $<
 
-raypick.@OBJEXT@: $(srcdir)/raypick.cpp
+$(srcdir)/raypick.@OBJEXT@: $(srcdir)/raypick.cpp
 	soqt-config --compile $<
 
 raypick@EXEEXT@: $(RAYPICK_OBJECTS)
@@ -211,7 +211,7 @@ raypick@EXEEXT@: $(RAYPICK_OBJECTS)
 $(srcdir)/rgbload.cpp: $(srcdir)/rgbload.cpp.in
 	@soqt-config --ac-subst $<
 
-rgbload.@OBJEXT@: $(srcdir)/rgbload.cpp
+$(srcdir)/rgbload.@OBJEXT@: $(srcdir)/rgbload.cpp
 	soqt-config --compile $<
 
 rgbload@EXEEXT@: $(RGBLOAD_OBJECTS)

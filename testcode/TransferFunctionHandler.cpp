@@ -1,5 +1,5 @@
 #include "TransferFunctionHandler.h"
-#include "SoTransferFunction_ctrl.h"
+#include <SoTransferFunction_ctrl.h>
 
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <qvalidator.h>

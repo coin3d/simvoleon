@@ -1,5 +1,5 @@
 #include "OrthoSliceHandler.h"
-#include "SoOrthoSlice_ctrl.h"
+#include <SoOrthoSlice_ctrl.h>
 
 #include <VolumeViz/nodes/SoOrthoSlice.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
