@@ -196,7 +196,7 @@ void SoVolumeDataPage::setData( Storage storage,
 
     // FIXME: Okay. I tried. This GLWrapper-thingy must be spawned right 
     // out of hell. I'm really not able to compile it. But these lines 
-    // need to be fixed for OpenGL 1.0 support. torbjorv 03082002
+    // need to be fixed for OpenGL 1.0 support. torbjorv 08032002
 
     // GLenum clamping;
     // const GLWrapper_t * glw = GLWRAPPER_FROM_STATE(state);
