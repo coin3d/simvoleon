@@ -114,9 +114,15 @@ load_file(const char * filename, int slicenum)
 void
 load_files(int numfiles, char ** files)
 {
+  assert(numfiles > 0);
+
   int  w, h, nc;
   unsigned char * data = simage_read_image(files[0], &w, &h, &nc);
-  assert(data);
+  if (!data) {
+    fprintf(stderr, "Couldn't fetch data from '%s', ...\n", files[0]);
+    exit(1);
+  }
+
   volume_size[0] = w;
   volume_size[1] = h;
   volume_size[2] = numfiles;
@@ -132,6 +138,13 @@ load_files(int numfiles, char ** files)
 int
 main(int argc, char ** argv)
 {
+  if (argc < 2) {
+    fprintf(stderr,
+            "\nUsage: %s slicefile0 [slicefile1 [slicefile2 [ ...] ] ]\n\n",
+            argv[0]);
+    exit(1);
+  }
+
   load_files(argc-1, &argv[1]);
 
   // hardcoded resize
