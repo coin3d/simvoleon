@@ -27,6 +27,7 @@
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3f.h>
+#include <Inventor/SbMatrix.h>
 #include <Inventor/lists/SbList.h>
 #include <Inventor/misc/SoState.h>
 #include <Inventor/system/gl.h>
@@ -74,7 +75,7 @@ public:
 
   SbBool checkIntersectionSlice(SbVec3f const & cubeorigo, 
                                 const SbViewVolume & viewvolume, 
-                                float viewdistance);
+                                float viewdistance, SbMatrix);
 
   static void * subcube_clipperCB(const SbVec3f & v0, void * vdata0, 
                                   const SbVec3f & v1, void * vdata1,

@@ -34,6 +34,7 @@
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
+#include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
@@ -70,11 +71,11 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
   this->bitspertexel = 0;
   this->clut = NULL;
   this->ispaletted = FALSE;
-
+  
   assert(cubesize[0] >= 0);
   assert(cubesize[1] >= 0);
   assert(cubesize[2] >= 0);
-
+  
   this->dimensions = cubesize;
   this->subcubestruct = NULL;
   this->origo = SbVec3f(0, 0, 0); // Default value
@@ -91,7 +92,6 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
   else {
     assert(FALSE && "Cannot initialize a 3D texture cube with a 2D texture object");
   }
-
 
   this->compresstextures = compresstextures;
   const char * envstr = coin_getenv("CVR_COMPRESS_TEXTURES");
@@ -364,9 +364,11 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
   Cvr3DTexSubCube * obj = (Cvr3DTexSubCube *) userdata;
   SbVec3f dist = SbVec3f(newvertex - obj->origo);
   
+  
   const float tmp1 = obj->dimensions[0] + (obj->texdims[0] - obj->originaltexsize[0]);
   const float tmp2 = obj->dimensions[1] + (obj->texdims[1] - obj->originaltexsize[1]);
   const float tmp3 = obj->dimensions[2] + (obj->texdims[2] - obj->originaltexsize[2]);
+ 
   SbVec3f * texcoord = new SbVec3f(dist[0]/tmp1, dist[1]/tmp2, dist[2]/tmp3);
   
   obj->texcoordlist.append(texcoord);
@@ -379,9 +381,9 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
 SbBool 
 Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo, 
                                         const SbViewVolume & viewvolume, 
-                                        float viewdistance)
+                                        float viewdistance, SbMatrix m)
 {
-    
+  
   SbClip cubeclipper(this->subcube_clipperCB, this);
   this->origo = cubeorigo;
   cubeclipper.reset();
@@ -389,12 +391,25 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
   // FIXME: Can we rewrite this to support viewport shells for proper
   // perspective? (20040227 handegar)
   // FIXME: One should take aspect ratio into account here! (20040312 handegar)
-  cubeclipper.addVertex(viewvolume.getPlanePoint(viewdistance, SbVec2f(-4.0f, 4.0f)));
-  cubeclipper.addVertex(viewvolume.getPlanePoint(viewdistance, SbVec2f(4.0f, 4.0f)));
-  cubeclipper.addVertex(viewvolume.getPlanePoint(viewdistance, SbVec2f(4.0f, -4.0f)));
-  cubeclipper.addVertex(viewvolume.getPlanePoint(viewdistance, SbVec2f(-4.0f, -4.0f)));
+
+  SbVec3f a, b, c, d;
+  a = viewvolume.getPlanePoint(viewdistance, SbVec2f(-1.0f,  1.0f));
+  b = viewvolume.getPlanePoint(viewdistance, SbVec2f( 1.0f,  1.0f));
+  c = viewvolume.getPlanePoint(viewdistance, SbVec2f( 1.0f, -1.0f));
+  d = viewvolume.getPlanePoint(viewdistance, SbVec2f(-1.0f, -1.0f));
+  m.multVecMatrix(a, a);
+  m.multVecMatrix(b, b);
+  m.multVecMatrix(c, c);
+  m.multVecMatrix(d, d);
+  cubeclipper.addVertex(a);
+  cubeclipper.addVertex(b);
+  cubeclipper.addVertex(c);
+  cubeclipper.addVertex(d);
+  
+
 
   // ClockWise direction for all planes
+  
 
   // Back plane
   cubeclipper.clip(SbPlane(cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f), 
@@ -421,8 +436,12 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
                            cubeorigo, 
                            cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f)));
 
+
+ 
+
   int i=0;
   const int result = cubeclipper.getNumVertices();
+
   if (result > 0) {
     subcube_slice slice;
     for (i=0;i<result;i++) {
@@ -488,7 +507,6 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action,
 
   }
   this->volumeslices.truncate(0);
-
 
   if (this->ispaletted) // Switch OFF palette rendering
     this->deactivateCLUT(action);
