@@ -257,12 +257,6 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   //
   // FIXME: check if that is a general GL limitation. (I seem to
   // remember it is.) 20040716 mortene.
-  //
-  // FIXME: compression setting is a property of the GL texture which
-  // should be part of the comparison check when we figure out whether
-  // to make a new texture, or to reuse an exisiting one. Should
-  // probably best take care of this by using the Coin caching
-  // mechanism. 20040716 mortene.
   if (cc_glue_has_texture_compression(glw) &&
       (palettetype != GL_COLOR_INDEX) &&
       // Important to check this last, as we want to avoid getting an
@@ -563,7 +557,7 @@ CvrTextureObject::hashKey(const struct CvrTextureObject::EqualityComparison & ob
   }
 
   SbBox2s empty2;
-  if (obj.cutslice != empty2) {
+  if (obj.cutslice.getMin() != empty2.getMin()) {
     short v[4];
     obj.cutslice.getBounds(v[0], v[1], v[2], v[3]);
     for (unsigned int i = 0; i < 4; i++) { key += v[i]; }
