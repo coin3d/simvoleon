@@ -32,6 +32,7 @@
 
 struct cvr_rc_resource {
   void * resource;
+  uint32_t ctxid;
   cvr_rc_deletion_cb * delcb;
   void * delcbclosure;
 };
@@ -105,6 +106,7 @@ cvr_rc_register_resource(uint32_t ctxid, void * resource,
   /* map resource ptr to block of resource data: */
   resblock = (struct cvr_rc_resource *)malloc(sizeof(struct cvr_rc_resource));
   resblock->resource = resource;
+  resblock->ctxid = ctxid;
   resblock->delcb = delcb;
   resblock->delcbclosure = cbclosure;
 
@@ -162,6 +164,56 @@ cvr_rc_tag_resource_dead(uint32_t ctxid, void * resource)
   }
  
   insert_resource_in_hash(ctxdeadhash, ctxid, resource, resblock);
+}
+
+/* ********************************************************************** */
+
+static void
+kill_resource(unsigned long key /* unused */, void * val,
+              void * closure /* unused */)
+{
+  struct cvr_rc_resource * res = (struct cvr_rc_resource *)val;
+  (*(res->delcb))(res->ctxid, res->resource, res->delcbclosure);
+  free(res);
+}
+
+static void
+kill_resources_in_context(cc_hash * ctxhash, uint32_t ctxid)
+{
+  SbBool ok;
+  void * tmp;
+  cc_hash * rshash;
+
+  ok = cc_hash_get(ctxhash, (unsigned long)ctxid, &tmp);
+  if (!ok) { return; }
+  rshash = (cc_hash *)tmp;
+
+  cc_hash_apply(rshash, kill_resource, NULL);
+  cc_hash_destruct(rshash);
+
+  ok = cc_hash_remove(ctxhash, (unsigned long)ctxid);
+  assert(ok);
+}
+
+/*! Should be called from external code when a context has been made
+    current, so any dead resources in this context can be cleaned up.
+*/
+void
+cvr_rc_context_made_current(uint32_t ctxid)
+{
+  if (ctxdeadhash == NULL) { return; }
+  kill_resources_in_context(ctxdeadhash, ctxid);
+}
+
+/*! Should be called from external code when a context is about to be
+    destructed.
+*/
+void
+cvr_rc_context_about_to_die(uint32_t ctxid)
+{
+  cvr_rc_context_made_current(ctxid); /* takes care of dead resources */
+
+  if (ctxlivehash) { kill_resources_in_context(ctxlivehash, ctxid); }
 }
 
 /* ********************************************************************** */

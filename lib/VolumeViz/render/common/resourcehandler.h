@@ -55,16 +55,17 @@ typedef void cvr_rc_deletion_cb(uint32_t ctxid, void * resource, void * closure)
 
 void cvr_rc_register_resource(uint32_t ctxid, void * resource,
                               cvr_rc_deletion_cb * delcb, void * cbclosure);
-
 void cvr_rc_unregister_resource(uint32_t ctxid, void * resource);
 
 void cvr_rc_tag_resource_dead(uint32_t ctxid, void * resource);
+
+void cvr_rc_context_made_current(uint32_t ctxid);
+void cvr_rc_context_about_to_die(uint32_t ctxid);
 
 /* FIXME: should perhaps also implement an "aging" feature, something
    like this?:
 
    void cvr_rc_tick_to_be_used(uint32_t ctxid, const void * resource);
-   void cvr_rc_context_made_current(uint32_t ctxid);
 
    With aging, this might also factor out some of the functionality of
    SoGLImage/SoGLBigImage in Coin, which would be good (those classes
