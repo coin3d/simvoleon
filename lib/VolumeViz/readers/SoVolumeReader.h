@@ -1,10 +1,10 @@
 /**************************************************************************\
- * 
+ *
  *   Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- * 
+ *
  *   Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
  *   http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- * 
+ *
 \**************************************************************************/
 
 
@@ -22,20 +22,20 @@
 class SoVolumeReader {
 public:
   SoVolumeReader();
-  ~SoVolumeReader();
+  virtual ~SoVolumeReader();
 
   virtual void setUserData(void * data);
-  virtual void getDataChar( SbBox3f &size, 
-                            SoVolumeRendering::DataType &type, 
+  virtual void getDataChar( SbBox3f &size,
+                            SoVolumeRendering::DataType &type,
                             SbVec3s &dim) = 0;
-  virtual void getSubSlice( SbBox2s &subSlice, 
-                            int sliceNumber, 
+  virtual void getSubSlice( SbBox2s &subSlice,
+                            int sliceNumber,
                             void * data,
-                            SoVolumeRendering::Axis axis = 
-                              SoVolumeRendering::Z) 
+                            SoVolumeRendering::Axis axis =
+                              SoVolumeRendering::Z)
                             = 0;
 
-protected: 
+protected:
 
   int setFilename(const char * filename);
   void *  getBuffer(int64_t offset, unsigned int size);

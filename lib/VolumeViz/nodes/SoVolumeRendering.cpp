@@ -15,26 +15,6 @@
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoROI.h>
 
-// FIXME: All extensionstuff should be moved to a proper home in Coin.
-// torbjorv 08282002
-
-
-PFNGLCOMPRESSEDTEXIMAGE3DARBPROC glCompressedTexImage3DARB;
-PFNGLCOMPRESSEDTEXIMAGE2DARBPROC glCompressedTexImage2DARB;
-PFNGLCOMPRESSEDTEXIMAGE1DARBPROC glCompressedTexImage1DARB;
-PFNGLCOMPRESSEDTEXSUBIMAGE3DARBPROC glCompressedTexSubImage3DARB;
-PFNGLCOMPRESSEDTEXSUBIMAGE2DARBPROC	glCompressedTexSubImage2DARB;
-PFNGLCOMPRESSEDTEXSUBIMAGE1DARBPROC	glCompressedTexSubImage1DARB;
-PFNGLGETCOMPRESSEDTEXIMAGEARBPROC	glGetCompressedTexImageARB;
-
-
-PFNGLCOLORTABLEEXTPROC glColorTableEXT;
-PFNGLCOLORSUBTABLEEXTPROC glColorSubTableEXT;
-PFNGLGETCOLORTABLEEXTPROC glGetColorTableEXT;
-PFNGLGETCOLORTABLEPARAMETERIVEXTPROC glGetColorTableParameterivEXT;
-PFNGLGETCOLORTABLEPARAMETERFVEXTPROC glGetColorTableParameterfvEXT;
-
-
 
 // *************************************************************************
 
@@ -67,7 +47,7 @@ SoVolumeRendering::SoVolumeRendering(void)
   SO_NODE_CONSTRUCTOR(SoVolumeRendering);
 
   PRIVATE(this) = new SoVolumeRenderingP(this);
-  
+
   SO_NODE_DEFINE_ENUM_VALUE(HW_Feature, HW_VOLUMEPRO);
   SO_NODE_DEFINE_ENUM_VALUE(HW_Feature, HW_3DTEXMAP);
   SO_NODE_DEFINE_ENUM_VALUE(HW_Feature, HW_TEXCOLORMAP);
@@ -96,7 +76,7 @@ SoVolumeRendering::initClass(void)
   first = 1;
 
   SO_NODE_INIT_CLASS(SoVolumeRendering, SoNode, "VolumeRendering");
-  
+
   SoVolumeData::initClass();
   SoVolumeDataElement::initClass();
   SoVolumeRender::initClass();
@@ -107,14 +87,13 @@ SoVolumeRendering::initClass(void)
 
 
 
-// FIXME: These functions are still to be implemented. 
+// FIXME: These functions are still to be implemented.
 // torbjorv 08282002
 
-void 
+void
 SoVolumeRendering::init()
 {}
 
-SoVolumeRendering::HW_SupportStatus 
+SoVolumeRendering::HW_SupportStatus
 SoVolumeRendering::isSupported(HW_Feature feature)
 { return UNKNOWN;}
-

@@ -46,7 +46,7 @@ SoVolumeDataSlice::~SoVolumeDataSlice()
 void SoVolumeDataSlice::init(SoVolumeReader * reader,
                              int sliceIdx,
                              SoVolumeRendering::Axis axis,
-                             SbVec2s &pageSize)
+                             const SbVec2s & pageSize)
 {
   releaseAllPages();
 
@@ -199,11 +199,11 @@ void SoVolumeDataSlice::releaseAllPages()
 
 */
 void SoVolumeDataSlice::render(SoState * state,
-                               SbVec3f &v0, 
-                               SbVec3f &v1, 
-                               SbVec3f &v2, 
-                               SbVec3f &v3, 
-                               SbBox2f &textureCoords, 
+                               const SbVec3f & v0, 
+                               const SbVec3f & v1, 
+                               const SbVec3f & v2, 
+                               const SbVec3f & v3, 
+                               const SbBox2f & textureCoords, 
                                SoTransferFunction * transferFunction,
                                long tick)
 {

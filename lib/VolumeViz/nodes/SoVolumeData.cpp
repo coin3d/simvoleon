@@ -14,6 +14,7 @@
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
+#include <Inventor/SbVec3s.h>
 
 #if HAVE_CONFIG_H
 #include <config.h>
@@ -129,8 +130,6 @@ PALETTED TEXTURES
   lot of memory. The best solution would probably be a combination of
   local and global palettes. Local, if the page consist entirely of
   one color. Global and shared whenever heavy color variations occur.
-
-
 
 glColorTableEXT
 
@@ -305,7 +304,6 @@ public:
 
     VRMemReader = NULL;
     reader = NULL;
-    extensionsInitialized = false;
   }// constructor
 
   ~SoVolumeDataP()
@@ -323,7 +321,6 @@ public:
   SoVolumeReader * reader;
 
   long tick;
-  bool extensionsInitialized;
   int maxTexels;
   int numTexels;
   int numPages;
@@ -440,7 +437,7 @@ SoVolumeData::initClass(void)
 
 
 void 
-SoVolumeData::setVolumeSize(const SbBox3f &size)
+SoVolumeData::setVolumeSize(const SbBox3f & size)
 {
   PRIVATE(this)->volumeSize = size;
   if (PRIVATE(this)->VRMemReader)
@@ -502,8 +499,9 @@ SoVolumeData::setPageSize(int size)
 
 
 void 
-SoVolumeData::setPageSize(SbVec3s &size) 
+SoVolumeData::setPageSize(const SbVec3s & insize) 
 {
+  SbVec3s size = insize;
 
   // Checking if the sizes are 2^n.
   // FIXME: Should there have been an assertion here? This baby doesn't
@@ -558,53 +556,16 @@ SoVolumeData::GLRender(SoGLRenderAction * action)
 {
   SoVolumeDataElement::setVolumeData(action->getState(), this, this);
   PRIVATE(this)->tick++;
-
-  // FIXME: Move this initialization to a proper home in Coin. 
-  // torbjorv 08282002
-  if (!PRIVATE(this)->extensionsInitialized) {
-
-    // Compressed texture extensions
-    glCompressedTexImage3DARB = 
-      (PFNGLCOMPRESSEDTEXIMAGE3DARBPROC)
-      wglGetProcAddress("glCompressedTexImage3DARB");
-    glCompressedTexImage2DARB = 
-      (PFNGLCOMPRESSEDTEXIMAGE2DARBPROC)
-      wglGetProcAddress("glCompressedTexImage2DARB");
-
-
-    // Paletted texture extensions
-    glColorTableEXT =
-      (PFNGLCOLORTABLEEXTPROC)
-      wglGetProcAddress("glColorTableEXT");
-
-    glColorSubTableEXT =
-      (PFNGLCOLORSUBTABLEEXTPROC)
-      wglGetProcAddress("glColorSubTableEXT");
-
-    glGetColorTableEXT =     
-      (PFNGLGETCOLORTABLEEXTPROC)
-      wglGetProcAddress("glGetColorTableEXT");
-
-    glGetColorTableParameterivEXT = 
-      (PFNGLGETCOLORTABLEPARAMETERIVEXTPROC)
-      wglGetProcAddress("glGetColorTableParameterivEXT");
-  
-    glGetColorTableParameterfvEXT = 
-      (PFNGLGETCOLORTABLEPARAMETERFVEXTPROC)
-      wglGetProcAddress("glGetColorTableParameterfvEXT"); 
-
-    PRIVATE(this)->extensionsInitialized = true;
-  }// if
 }// GLRender
 
 
 
 void 
 SoVolumeData::renderOrthoSliceX(SoState * state, 
-                                SbBox2f &quad, 
+                                const SbBox2f & quad, 
                                 float x,
                                 int sliceIdx, 
-                                SbBox2f &textureCoords,
+                                const SbBox2f & textureCoords,
                                 SoTransferFunction * transferFunction)
 {
   SbVec2f max, min;
@@ -637,10 +598,10 @@ SoVolumeData::renderOrthoSliceX(SoState * state,
 
 void 
 SoVolumeData::renderOrthoSliceY(SoState * state, 
-                                SbBox2f &quad, 
+                                const SbBox2f & quad, 
                                 float y,
                                 int sliceIdx, 
-                                SbBox2f &textureCoords,
+                                const SbBox2f & textureCoords,
                                 SoTransferFunction * transferFunction)
 {
 
@@ -676,10 +637,10 @@ SoVolumeData::renderOrthoSliceY(SoState * state,
 
 void 
 SoVolumeData::renderOrthoSliceZ(SoState * state, 
-                                SbBox2f &quad, 
+                                const SbBox2f & quad, 
                                 float z,
                                 int sliceIdx, 
-                                SbBox2f &textureCoords,
+                                const SbBox2f & textureCoords,
                                 SoTransferFunction * transferFunction)
 {
 
@@ -846,7 +807,7 @@ SoVolumeDataP::getSliceZ(int sliceIdx)
 bool 
 SoVolumeDataP::check2n(int n)
 {
-  for (int i = 0; i < sizeof(int)*8; i++) {
+  for (int i = 0; i < (int) (sizeof(int)*8); i++) {
 
     if (n & 1) {
       if (n != 1) 

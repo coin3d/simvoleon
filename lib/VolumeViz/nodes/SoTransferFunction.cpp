@@ -158,12 +158,16 @@ SoTransferFunction::transfer(const void * input,
     int numBits;
     switch(inputDataType) {
       case SoVolumeRendering::UNSIGNED_BYTE: 
-          numBits = 8; 
-          break;
-
-       case SoVolumeRendering::UNSIGNED_SHORT:
-          numBits = 16;
-          break;
+        numBits = 8; 
+        break;
+        
+    case SoVolumeRendering::UNSIGNED_SHORT:
+      numBits = 16;
+      break;
+    default:
+      assert(0 && "unsupported");
+      numBits = 16;
+      break;
     }// switch
     int numEntries = 1 << numBits;
 
@@ -174,8 +178,8 @@ SoTransferFunction::transfer(const void * input,
 
       // FIXME: Test if the index is out of bounds. 08282002 torbjorv.
       int idx = 
-        unsigned short((PRIVATE(this)->unpack(input, numBits, i) << shift.getValue()) + 
-        offset.getValue());
+        (unsigned short) ((PRIVATE(this)->unpack(input, numBits, i) << shift.getValue()) + 
+                          offset.getValue());
 
       palCount[idx]++;
     }// for
@@ -225,8 +229,8 @@ SoTransferFunction::transfer(const void * input,
     memset(newTexture, 0, size[0] * size[1] * newNumBits / 8);
     for (i = 0; i < size[0]*size[1]; i++) {
       int idx = 
-        unsigned short((PRIVATE(this)->unpack(input, numBits, i) << shift.getValue()) + 
-        offset.getValue());
+        (unsigned short)((PRIVATE(this)->unpack(input, numBits, i) << shift.getValue()) + 
+                         offset.getValue());
 
       idx = remap[idx];
       PRIVATE(this)->pack(newTexture, newNumBits, i, idx);

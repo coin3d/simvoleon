@@ -15,7 +15,7 @@
 #endif // HAVE_WINDOWS_H
 #include <GL/gl.h>
 
-
+#include <Inventor/C/glue/gl.h>
 #include <VolumeViz/misc/SoVolumeDataPage.h>
 #include <Inventor/misc/SoState.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -107,19 +107,16 @@ void SoVolumeDataPage::setData( Storage storage,
     this->palette = NULL;
   }// else
 
-
-
-
-
   // Creating OpenGL-texture
   if (storage & OPENGL) {
+    cc_glglue * glue = cc_glglue_instance((int) action->getCacheContext());
+    
     // FIXME: these functions is only supported in opengl 1.1... 
     // torbjorv 08052002
     glGenTextures(1, &this->textureName);
     glBindTexture(GL_TEXTURE_2D, this->textureName);
 
-
-    // Uploading standard RGBA-texture
+     // Uploading standard RGBA-texture
     if (palette == NULL) {
       glTexImage2D( GL_TEXTURE_2D, 
                     0,
@@ -135,28 +132,28 @@ void SoVolumeDataPage::setData( Storage storage,
     }// if
 
     // Uploading paletted texture
-    else {
+    else if (cc_glglue_has_paletted_textures{glue)) {
+      // FIXME: what if the OpenGL extension is not available, pederb, 2002-10-29
 
       // Check size of indices
       int format = GL_UNSIGNED_BYTE;
       if (paletteSize > 256)
         format = GL_UNSIGNED_SHORT;
 
-
       // Setting palette
-      glColorTableEXT(GL_TEXTURE_2D, 
-                      GL_RGBA, 
-                      paletteSize,
-                      GL_RGBA,
-                      GL_FLOAT,
-                      palette);
+      cc_glglue_glColorTableEXT(glue, GL_TEXTURE_2D, 
+                                GL_RGBA, 
+                                paletteSize,
+                                GL_RGBA,
+                                GL_FLOAT,
+                                palette);
 
       // Checking what palettesize we actually got
       int actualPaletteSize;
-      glGetColorTableParameterivEXT(GL_TEXTURE_2D, 
-                                    GL_COLOR_TABLE_WIDTH_EXT, 
-                                    &actualPaletteSize);
-
+      cc_glglue_glGetColorTableParameterivEXT(glue,GL_TEXTURE_2D, 
+                                              GL_COLOR_TABLE_WIDTH_EXT, 
+                                              &actualPaletteSize);
+      
       numBytesHW += actualPaletteSize*4*4;
 
 

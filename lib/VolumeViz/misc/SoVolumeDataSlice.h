@@ -21,25 +21,25 @@ public:
   SoVolumeDataSlice();
   ~SoVolumeDataSlice();
 
-  SoVolumeDataPage * getPage(int col, 
-                             int row, 
+  SoVolumeDataPage * getPage(int col,
+                             int row,
                              SoTransferFunction * transferFunction);
 
-  SoVolumeDataPage * buildPage(int col, 
+  SoVolumeDataPage * buildPage(int col,
                                int row,
                                SoTransferFunction * transferFunction);
 
   void init(SoVolumeReader * reader,
             int sliceIdx,
             SoVolumeRendering::Axis axis,
-            SbVec2s &pageSize);
+            const SbVec2s & pageSize);
 
   void render(SoState * state,
-              SbVec3f &v0, 
-              SbVec3f &v1, 
-              SbVec3f &v2, 
-              SbVec3f &v3, 
-              SbBox2f &textureCoords, 
+              const SbVec3f & v0,
+              const SbVec3f & v1,
+              const SbVec3f & v2,
+              const SbVec3f & v3,
+              const SbBox2f & textureCoords,
               SoTransferFunction * transferFunction,
               long tick);
 
@@ -57,7 +57,7 @@ public:
   int sliceIdx;
   SbVec2s pageSize;
   SbVec2s dimensions;
-  
+
 
   int numTexels;
   int numPages;

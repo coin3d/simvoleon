@@ -39,31 +39,31 @@ public:
   static void initClass(void);
 
   enum StorageHint {
-    AUTO = 0x00000001,       
-    TEX2D_MULTI = 0x00000002, 
-    TEX2D = TEX2D_MULTI, 
-    TEX3D = 0x00000004, 
+    AUTO = 0x00000001,
+    TEX2D_MULTI = 0x00000002,
+    TEX2D = TEX2D_MULTI,
+    TEX3D = 0x00000004,
     MEMORY = 0x00000008,
-    VOLUMEPRO = 0x00000010, 
+    VOLUMEPRO = 0x00000010,
     TEX2D_SINGLE = 0x00000020,
-    LOAD_MAX = 0x00000040,          // Builds as many pages as possible at 
+    LOAD_MAX = 0x00000040,          // Builds as many pages as possible at
     DYNAMIC_LOADING = 0x00000080,   // Only loads the pages used
   };
 
   enum SubMethod {
-    NEAREST, 
-    MAX, 
+    NEAREST,
+    MAX,
     AVERAGE
   };
 
   enum OverMethod {
-    NONE, 
-    CONSTANT, 
-    LINEAR, 
+    NONE,
+    CONSTANT,
+    LINEAR,
     CUBIC
   };
 
- 
+
   // Fields
   SoSFString fileName;
   SoSFEnum storageHint;
@@ -73,9 +73,9 @@ public:
 
 
   // Functions
-  void setVolumeData( const SbVec3s &dimension, 
-                      const void *data, 
-                      SoVolumeRendering::DataType type 
+  void setVolumeData( const SbVec3s &dimension,
+                      const void *data,
+                      SoVolumeRendering::DataType type
                       = SoVolumeRendering::UNSIGNED_BYTE);
 
   void setVolumeSize(const SbBox3f &size);
@@ -85,35 +85,35 @@ public:
   SoVolumeData(void);
   ~SoVolumeData();
   void renderOrthoSliceX( SoState * state,
-                          SbBox2f &quad, 
+                          const SbBox2f & quad,
                           float x,
                           int sliceIdx,
-                          SbBox2f &textureCoords,
+                          const SbBox2f & textureCoords,
                           SoTransferFunction * transferFunction);
   void renderOrthoSliceY( SoState * state,
-                          SbBox2f &quad, 
+                          const SbBox2f & quad,
                           float y,
                           int sliceIdx,
-                          SbBox2f &textureCoords,
+                          const SbBox2f & textureCoords,
                           SoTransferFunction * transferFunction);
   void renderOrthoSliceZ( SoState * state,
-                          SbBox2f &quad, 
+                          const SbBox2f & quad,
                           float z,
                           int sliceIdx,
-                          SbBox2f &textureCoords,
+                          const SbBox2f & textureCoords,
                           SoTransferFunction * transferFunction);
   void setPageSize(int size);
-  void setPageSize(SbVec3s &size);
+  void setPageSize(const SbVec3s & size);
   SbVec3s & getPageSize();
   void setTexMemorySize(int size);
   void setHWMemorySize(int size);
   void setReader(SoVolumeReader * reader);
 
 
-  // FIXME: The following functions are still to be implemented. 
+  // FIXME: The following functions are still to be implemented.
   // torbjorv 07122002
-  SbBool getVolumeData( SbVec3s &dimension, 
-                        void *&data, 
+  SbBool getVolumeData( SbVec3s &dimension,
+                        void *&data,
                         SoVolumeRendering::DataType &type);
 
 
@@ -122,15 +122,15 @@ public:
   SbBool getHistogram(int &length, int *&histogram);
   SoVolumeData * subSetting(const SbBox3s &region);
   void updateRegions(const SbBox3s *region, int num);
-  SoVolumeData * reSampling(const SbVec3s &dimension, 
-                            SoVolumeData::SubMethod subMethod, 
+  SoVolumeData * reSampling(const SbVec3s &dimension,
+                            SoVolumeData::SubMethod subMethod,
                             SoVolumeData::OverMethod = NONE);
   void enableSubSampling(SbBool enable);
   void enableAutoSubSampling(SbBool enable);
   void enableAutoUnSampling(SbBool enable);
   void unSample();
   void setSubSamplingMethod(SubMethod method);
-  void setSubSamplingLevel(const SbVec3s &ROISampling, 
+  void setSubSamplingLevel(const SbVec3s &ROISampling,
                            const SbVec3s &secondarySampling);
 
 
