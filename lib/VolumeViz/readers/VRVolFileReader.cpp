@@ -155,6 +155,16 @@ SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data,
   SbVec3s dims(volh->width, volh->height, volh->images);
   SoVolumeData::DataType type = PRIVATE(this)->dataType();
 
+#if CVR_DEBUG && 0 // debug
+  SbVec2s ssmin, ssmax;
+  subslice.getBounds(ssmin, ssmax);
+  SoDebugError::postInfo("SoVRVolFileReader::getSubSlice",
+                         "axis==%d, slicenumber==%d"
+                         "subslice==[%d, %d] [%d, %d]",
+                         axis, slicenumber,
+                         ssmin[0], ssmin[1], ssmax[0], ssmax[1]);
+#endif // debug
+
   switch (axis) {
     case X:
       buildSubSliceX(this->m_data, data, slicenumber, subslice, type, dims);
