@@ -69,9 +69,6 @@ void SoVRMemReader::getSubSlice(SbBox2s & subslice,
                                 void * data,
                                 Axis axis)
 {
-  short width, height;
-  subslice.getSize(width, height);
-
   unsigned int axisidx = (axis == X) ? 0 : ((axis == Y) ? 1 : 2);
 
   CvrVoxelChunk::UnitSize vctype;
@@ -84,7 +81,7 @@ void SoVRMemReader::getSubSlice(SbBox2s & subslice,
 
   CvrVoxelChunk * output = 
     CvrUtil::buildSubPage(CvrVoxelChunk(PRIVATE(this)->dimensions, vctype, this->m_data),
-                          axisidx, sliceNumber, subslice, width);
+                          axisidx, sliceNumber, subslice);
   // FIXME: interface of buildSubPage() should be improved to avoid this.
   // 20021203 mortene.
   (void)memcpy(data, output->getBuffer(), output->bufferSize());

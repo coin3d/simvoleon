@@ -321,7 +321,7 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   CvrVoxelChunk * slice =
     CvrUtil::buildSubPage(*input,
                           this->axis, this->sliceIdx,
-                          subpagecut, this->subpagesize[0]);
+                          subpagecut);
   delete input;
 
   uint8_t * slicebuf = (uint8_t *)slice->getBuffer();

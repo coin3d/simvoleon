@@ -5,21 +5,20 @@
 CvrVoxelChunk *
 CvrUtil::buildSubPage(const CvrVoxelChunk & input,
                       const unsigned int axisidx, const int pageidx,
-                      const SbBox2s & cutslice,
-                      unsigned short destwidth) // FIXME: get rid of last argument. 20021203 mortene.
+                      const SbBox2s & cutslice)
 {
   CvrVoxelChunk * output = NULL;
   switch (axisidx) {
   case 0:
-    output = CvrUtil::buildSubPageX(input, pageidx, cutslice, destwidth);
+    output = CvrUtil::buildSubPageX(input, pageidx, cutslice);
     break;
 
   case 1:
-    output = CvrUtil::buildSubPageY(input, pageidx, cutslice, destwidth);
+    output = CvrUtil::buildSubPageY(input, pageidx, cutslice);
     break;
 
   case 2:
-    output = CvrUtil::buildSubPageZ(input, pageidx, cutslice, destwidth);
+    output = CvrUtil::buildSubPageZ(input, pageidx, cutslice);
     break;
 
   default:
@@ -34,17 +33,13 @@ CvrUtil::buildSubPage(const CvrVoxelChunk & input,
 CvrVoxelChunk *
 CvrUtil::buildSubPageX(const CvrVoxelChunk & input,
                        const int pageidx, // FIXME: get rid of this by using an SbBox3s for cutslice. 20021203 mortene.
-                       const SbBox2s & cutslice,
-                       unsigned short destwidth)
+                       const SbBox2s & cutslice)
 {
   assert(pageidx >= 0);
   assert(pageidx < input.getDimensions()[0]);
 
   SbVec2s ssmin, ssmax;
   cutslice.getBounds(ssmin, ssmax);
-
-  const SbVec3s outputdims(destwidth, ssmax[1] - ssmin[1], 1);
-  CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, input.getUnitSize());
 
   const SbVec3s dim = input.getDimensions();
 
@@ -54,6 +49,9 @@ CvrUtil::buildSubPageX(const CvrVoxelChunk & input,
   assert(nrhorizvoxels > 0);
   const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
   assert(nrvertvoxels > 0);
+
+  const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
+  CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, input.getUnitSize());
 
   const unsigned int staticoffset =
     pageidx + ssmin[1] * dim[0] + ssmin[0] * zAdd;
@@ -65,12 +63,7 @@ CvrUtil::buildSubPageX(const CvrVoxelChunk & input,
   for (unsigned int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
     const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
     const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
-
-    // We're using destwidth instead of nrhorizvoxels here in case the
-    // actual width of subpages is different from the cutslice
-    // size. This happens out towards the borders of the
-    // volumedata-set if volumedatadimension % subpagesize != 0.
-    uint8_t * dstptr = &(outputbytebuffer[destwidth * rowidx * voxelsize]);
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
 
     // FIXME: should optimize this loop. 20021125 mortene.
     for (unsigned int horizidx = 0; horizidx < nrhorizvoxels; horizidx++) {
@@ -115,8 +108,7 @@ CvrUtil::buildSubPageX(const CvrVoxelChunk & input,
 CvrVoxelChunk *
 CvrUtil::buildSubPageY(const CvrVoxelChunk & input,
                        const int pageidx, // FIXME: get rid of this by using an SbBox3s for cutslice. 20021203 mortene.
-                       const SbBox2s & cutslice,
-                       unsigned short destwidth)
+                       const SbBox2s & cutslice)
 {
   assert(pageidx >= 0);
   assert(pageidx < input.getDimensions()[1]);
@@ -124,15 +116,15 @@ CvrUtil::buildSubPageY(const CvrVoxelChunk & input,
   SbVec2s ssmin, ssmax;
   cutslice.getBounds(ssmin, ssmax);
 
-  const SbVec3s outputdims(destwidth, ssmax[1] - ssmin[1], 1);
-  CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, input.getUnitSize());
-
   const SbVec3s dim = input.getDimensions();
 
   const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
   assert(nrhorizvoxels > 0);
   const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
   assert(nrvertvoxels > 0);
+
+  const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
+  CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, input.getUnitSize());
 
   const unsigned int staticoffset =
     (ssmin[1] * dim[0] * dim[1]) + (pageidx * dim[0]) + ssmin[0];
@@ -145,9 +137,7 @@ CvrUtil::buildSubPageY(const CvrVoxelChunk & input,
     const unsigned int inoffset = staticoffset + (rowidx * dim[0] * dim[1]);
     const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
 
-    // We're using destwidth instead of nrhorizvoxels here, see code
-    // comment in buildSubPageX().
-    uint8_t * dstptr = &(outputbytebuffer[destwidth * rowidx * voxelsize]);
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
 
     (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
   }
@@ -159,8 +149,7 @@ CvrUtil::buildSubPageY(const CvrVoxelChunk & input,
 CvrVoxelChunk *
 CvrUtil::buildSubPageZ(const CvrVoxelChunk & input,
                        const int pageidx, // FIXME: get rid of this by using an SbBox3s for cutslice. 20021203 mortene.
-                       const SbBox2s & cutslice,
-                       unsigned short destwidth)
+                       const SbBox2s & cutslice)
 {
   assert(pageidx >= 0);
   assert(pageidx < input.getDimensions()[2]);
@@ -168,15 +157,15 @@ CvrUtil::buildSubPageZ(const CvrVoxelChunk & input,
   SbVec2s ssmin, ssmax;
   cutslice.getBounds(ssmin, ssmax);
 
-  const SbVec3s outputdims(destwidth, ssmax[1] - ssmin[1], 1);
-  CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, input.getUnitSize());
-
   const SbVec3s dim = input.getDimensions();
 
   const unsigned int nrhorizvoxels = ssmax[0] - ssmin[0];
   assert(nrhorizvoxels > 0);
   const unsigned int nrvertvoxels = ssmax[1] - ssmin[1];
   assert(nrvertvoxels > 0);
+
+  const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
+  CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, input.getUnitSize());
 
   const unsigned int staticoffset =
     (pageidx * dim[0] * dim[1]) + (ssmin[1] * dim[0]) + ssmin[0];
@@ -189,9 +178,7 @@ CvrUtil::buildSubPageZ(const CvrVoxelChunk & input,
     const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
     const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
 
-    // We're using destwidth instead of nrhorizvoxels here, see code
-    // comment in buildSubPageX().
-    uint8_t * dstptr = &(outputbytebuffer[destwidth * rowidx * voxelsize]);
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
 
     (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
   }
