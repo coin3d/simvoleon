@@ -281,7 +281,7 @@ SoVolumeData::getVolumeSize(void) const
   The input data will be mapped to the world coordinate system as
   follows: increasing memory addresses will first be mapped to \e
   increasing voxel positions along the \e X axis, row by row. The rows
-  will be mapped to \e decreasing positions along the \e Y axis,
+  will be mapped to \e increasing positions along the \e Y axis,
   making up slices. Slices will be mapped to \e increasing Z axis
   positions.
 */
