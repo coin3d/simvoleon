@@ -537,6 +537,17 @@ SoOrthoSlice::rayPick(SoRayPickAction * action)
       detail->objectcoords = intersection;
       detail->ijkcoords = ijk;
       detail->voxelvalue = vbelem->getVoxelValue(ijk);
+
+      if (CvrUtil::useFlippedYAxis()) {
+        static SbBool flag = FALSE;
+        if (!flag) {
+          SoDebugError::postWarning("SoOrthoSlice::rayPick", 
+                                    "RayPick'ing will not be correct for SoOrthoSlice when the "
+                                    "obsolete CVR_USE_FLIPPED_Y_AXIS flag is active.");
+          flag = TRUE;
+        }
+      }
+
     }
   }
 
