@@ -306,154 +306,86 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
 
   assert((rgbatex && !palettetex) || (!rgbatex && palettetex));
 
-  if (this->getUnitSize() == 1) {
-
-    const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
-    clut->ref();
-
-    if (palettetex) { palettetex->setCLUT(clut); }
-
-    const int32_t shiftval = transferfunc->shift.getValue();
-    const int32_t offsetval = transferfunc->offset.getValue();
-
-    const uint8_t * inputbytebuffer = this->getBuffer8();
-
-    if (palettetex) { // paletted texture
-      uint8_t * output = palettetex->getIndex8Buffer();
-
-      for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
-        for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
-          for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
-
-            int voxelidx;
-            if (CvrUtil::useFlippedYAxis()) {
-              // Render 'the old buggy way' where the y-axis was
-              // flipped.
-              voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
-            }
-            else {
-              voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x;
-            }
-
-            const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;
-
-            assert(voxelidx <= (size[0] * size[1] * size[2]));
-            assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
-            const uint8_t voldataidx = inputbytebuffer[voxelidx];
-            output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
-          }
-        }
-      }
-
-      // FIXME: should set the ''invisible'' flag correctly to
-      // optimize the amount of the available fill-rate of the gfx
-      // card we're using.
-      //
-      // Note that it's not straightforward to use this optimalization
-      // for paletted textures, because we want to be able to change
-      // the palette on the fly without having to regenerate texture
-      // blocks / slices (i.e.: something that _was_ invisible could
-      // become visible upon changing the palette, and vice versa).
-      //
-      // Should still fix it, though, as it can have a _major_
-      // impact. Try for instance the 3DHEAD.VOL set in RGBA texture
-      // mode versus palette texture mode -- the former has ~ 2X-3X
-      // better framerate.
-      invisible = FALSE;
+  const int unitsize = this->getUnitSize();
+  const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
+  clut->ref();
+  
+  if (palettetex) { palettetex->setCLUT(clut); }
+  
+  const int32_t shiftval = transferfunc->shift.getValue();
+  const int32_t offsetval = transferfunc->offset.getValue();
+  
+  const void * inputbytebuffer;
+  if (unitsize == 1) { inputbytebuffer = this->getBuffer8(); }
+  else if (unitsize == 2) {
+    assert(palettetex && "16 bits textures must be palette textures!");
+    static SbBool flag = FALSE;
+    if (!flag) { // Print only once.
+      SoDebugError::postWarning("transfer3D", "16 bits pr voxel unit size is not properly implemented "
+                                "yet. Voxels will therefore be scaled down to 8 bits.");
+      flag = TRUE;
     }
-    else { // RGBA texture
-      uint32_t * rgbaquadruplets = rgbatex->getRGBABuffer();
-      uint8_t * output = (uint8_t *)rgbaquadruplets;
-
-      for (unsigned int z = 0; z < (unsigned int) size[2]; z++) {
-        for (unsigned int y=0; y < (unsigned int) size[1]; y++) {
-          for (unsigned int x=0; x < (unsigned int) size[0]; x++) {
-
-            int voxelidx;
-            if (CvrUtil::useFlippedYAxis()) {
-              // Render 'the old buggy way' where the y-axis was
-              // flipped.
-              voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
-            }
-            else {
-              voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x;
-            }
-
-            const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;
-            const uint8_t voldataidx = inputbytebuffer[voxelidx];
-            const uint8_t colidx = (voldataidx << shiftval) + offsetval;
-
-            clut->lookupRGBA(colidx, &output[texelidx * 4]);
-            invisible = invisible && (output[texelidx * 4 + 3] == 0x00);
-          }
-        }
-      }
-    }
-    clut->unref();
+    inputbytebuffer = this->getBuffer16();      
   }
-
-  // 16 bits pr voxel:
-  else if (this->getUnitSize() == 2) {
-    // --
-    // FIXME: This is not a proper solution! Fix later. (20040311 handegar)
-    // --
-    SoDebugError::postWarning("transfer3D", "16 bits pr voxel unit size is not properly implemented "
-                              "yet. Voxels will therefore be scaled down to 8 bits.");
-
-    CvrPaletteTexture * palettetex = 
-      (texobj->getTypeId().isDerivedFrom(CvrPaletteTexture::getClassTypeId())) ? 
-      (CvrPaletteTexture *)texobj : NULL;
-
-    const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
-    clut->ref();
+  else { assert(FALSE && "Unknown unit size!"); }
+  
+  uint8_t * output;
+  if (palettetex) output = palettetex->getIndex8Buffer();
+  else output = (uint8_t *) rgbatex->getRGBABuffer();
+  
+  for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
+    for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
+      for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
+        
+        int voxelidx;
+        if (CvrUtil::useFlippedYAxis()) {
+          // Render 'the old buggy way' where the y-axis was
+          // flipped.
+          voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
+        }
+        else { voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x; }
+        
+        const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;        
+        assert(voxelidx <= (size[0] * size[1] * size[2]));
+        assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
+        
+        if (palettetex) {
+          uint8_t voldataidx;
+          if (unitsize == 1) voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];            
+          else voldataidx = (((uint16_t *) inputbytebuffer)[voxelidx] >> 8); // Shift value to 8bit 
+          output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
+        } 
+        else {
+          const uint32_t voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];
+          const uint32_t colidx = (voldataidx << shiftval) + offsetval;            
+          clut->lookupRGBA(colidx, &output[texelidx * 4]);
+          invisible = invisible && (output[texelidx * 4 + 3] == 0x00);
+        }
+        
+      }
+    }
+  }
     
-    if (palettetex) {
-      palettetex->setCLUT(clut);
-    }
-    else {
-      assert(FALSE && "16 bits RGBA textures are not supported.");
-    }
-    
-    const int32_t shiftval = transferfunc->shift.getValue();
-    const int32_t offsetval = transferfunc->offset.getValue();
+  // FIXME: should set the ''invisible'' flag correctly to
+  // optimize the amount of the available fill-rate of the gfx
+  // card we're using.
+  //
+  // Note that it's not straightforward to use this optimalization
+  // for paletted textures, because we want to be able to change
+  // the palette on the fly without having to regenerate texture
+  // blocks / slices (i.e.: something that _was_ invisible could
+  // become visible upon changing the palette, and vice versa).
+  //
+  // Should still fix it, though, as it can have a _major_
+  // impact. Try for instance the 3DHEAD.VOL set in RGBA texture
+  // mode versus palette texture mode -- the former has ~ 2X-3X
+  // better framerate.
 
-    const uint16_t * inputbytebuffer = this->getBuffer16();
+  if (palettetex)
+    invisible = FALSE;
 
-    if (palettetex) { // paletted texture
-      uint8_t * output = palettetex->getIndex8Buffer();
+  clut->unref();
 
-      for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
-        for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
-          for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
-
-            int voxelidx;
-            if (CvrUtil::useFlippedYAxis()) {
-              // Render 'the old buggy way' where the y-axis was flipped.
-              voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
-            }
-            else {
-              voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x;
-            }
-
-            const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;
-
-            assert(voxelidx <= (size[0] * size[1] * size[2]));
-            assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
-            // FIXME: Quick hack! Shifting down a 16 bit word to a byte. (20040311 handegar)
-            const uint8_t voldataidx = (inputbytebuffer[voxelidx] >> 8);
-            output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
-          }
-        }
-      }
-
-      invisible = FALSE;
-    }
-    clut->unref();
-
-  }
-  else {
-    assert(FALSE && "Unknown voxel unit size.");
-  }
 }
 
 /*!
@@ -515,74 +447,74 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action,
 
   assert((rgbatex && !palettetex) || (!rgbatex && palettetex));
 
-  if (this->getUnitSize() == 1) {
-
-    const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
-    clut->ref();
-
-    if (palettetex) { palettetex->setCLUT(clut); }
-
-    const int32_t shiftval = transferfunc->shift.getValue();
-    const int32_t offsetval = transferfunc->offset.getValue();
-
-    const uint8_t * inputbytebuffer = this->getBuffer8();
-
-    if (palettetex) { // paletted texture
-      uint8_t * output = palettetex->getIndex8Buffer();
-
-      for (unsigned int y=0; y < (unsigned int)size[1]; y++) {
-        for (unsigned int x=0; x < (unsigned int)size[0]; x++) {
-          const int voxelidx = y * size[0] + x;
-          const int texelidx = y * texsize[0] + x;
-          const uint8_t voldataidx = inputbytebuffer[voxelidx];
-          const uint8_t colidx = (voldataidx << shiftval) + offsetval;
-
-          output[texelidx] = colidx;
-        }
-      }
-
-      // FIXME: should set the ''invisible'' flag correctly to
-      // optimize the amount of the available fill-rate of the gfx
-      // card we're using.
-      //
-      // Note that it's not straightforward to use this optimalization
-      // for paletted textures, because we want to be able to change
-      // the palette on the fly without having to regenerate texture
-      // blocks / slices (i.e.: something that _was_ invisible could
-      // become visible upon changing the palette, and vice versa).
-      //
-      // Should still fix it, though, as it can have a _major_
-      // impact. Try for instance the 3DHEAD.VOL set in RGBA texture
-      // mode versus palette texture mode -- the former has ~ 2X-3X
-      // better framerate.
-      invisible = FALSE;
-    }
-    else { // RGBA texture
-      uint32_t * rgbaquadruplets = rgbatex->getRGBABuffer();
-      uint8_t * output = (uint8_t *)rgbaquadruplets;
-
-      for (unsigned int y=0; y < (unsigned int)size[1]; y++) {
-        for (unsigned int x=0; x < (unsigned int)size[0]; x++) {
-          const int texelidx = y * texsize[0] + x;
-          const int voxelidx = y * size[0] + x;
-          const uint8_t voldataidx = inputbytebuffer[voxelidx];
-          const uint8_t colidx = (voldataidx << shiftval) + offsetval;
-
-          clut->lookupRGBA(colidx, &output[texelidx * 4]);
-          invisible = invisible && (output[texelidx * 4 + 3] == 0x00);
-        }
-      }
-    }
-    clut->unref();
+  const int unitsize = this->getUnitSize();
+  const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
+  clut->ref();
+  
+  if (palettetex) { palettetex->setCLUT(clut); }
+  
+  const int32_t shiftval = transferfunc->shift.getValue();
+  const int32_t offsetval = transferfunc->offset.getValue();
+  
+  const void * inputbytebuffer;
+  if (unitsize == 1) { inputbytebuffer = this->getBuffer8(); }
+  else if (unitsize == 2) {
+    assert(palettetex && "16 bits textures must be palette textures!");    
+    static SbBool flag = FALSE;
+    if (!flag) { // Print only once
+      SoDebugError::postWarning("transfer2D", "16 bits pr voxel unit size is not properly implemented "
+                                "yet. Voxels will therefore be scaled down to 8 bits.");
+      flag = TRUE;
+    }   
+    inputbytebuffer = this->getBuffer16();      
   }
+  else { assert(FALSE && "Unknown unit size!"); }
+  
+  uint8_t * output;
+  if (palettetex) output = palettetex->getIndex8Buffer();
+  else output = (uint8_t *) rgbatex->getRGBABuffer();
+  
+  for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
+    for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
+            
+      const int voxelidx = y * size[0] + x;
+      const int texelidx = y * texsize[0] + x;
 
-  else if (this->getUnitSize() == 2) {
-    assert(FALSE && "16 bits pr voxel unit size not yet implemented");
+      if (palettetex) {
+        uint8_t voldataidx;
+        if (unitsize == 1) voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];            
+        else voldataidx = (((uint16_t *) inputbytebuffer)[voxelidx] >> 8); // Shift value to 8bit 
+        output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
+      } 
+      else {
+        const uint32_t voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];
+        const uint32_t colidx = (voldataidx << shiftval) + offsetval;            
+        clut->lookupRGBA(colidx, &output[texelidx * 4]);
+        invisible = invisible && (output[texelidx * 4 + 3] == 0x00);
+      }      
+    }    
   }
+    
+  // FIXME: should set the ''invisible'' flag correctly to
+  // optimize the amount of the available fill-rate of the gfx
+  // card we're using.
+  //
+  // Note that it's not straightforward to use this optimalization
+  // for paletted textures, because we want to be able to change
+  // the palette on the fly without having to regenerate texture
+  // blocks / slices (i.e.: something that _was_ invisible could
+  // become visible upon changing the palette, and vice versa).
+  //
+  // Should still fix it, though, as it can have a _major_
+  // impact. Try for instance the 3DHEAD.VOL set in RGBA texture
+  // mode versus palette texture mode -- the former has ~ 2X-3X
+  // better framerate.
 
-  else {
-    assert(FALSE && "unknown unit size");
-  }
+  if (palettetex)
+    invisible = FALSE;
+
+  clut->unref();
+
 }
 
 // Initialize all predefined colormaps.
