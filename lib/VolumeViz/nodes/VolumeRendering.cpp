@@ -36,10 +36,6 @@
   graphics library with a C++ Application Programming Interface. Its
   target audience is developers of 3D graphics applications worldwide.
 
-  <center>
-   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-spine.png">
-  </center>
-
   The library has the following major features:
 
   <ul>
@@ -63,6 +59,10 @@
   <li> Higher quality and better performance visualization is
   automatically done on graphics card which supports hardware assisted
   3D texture mapping. </li>
+
+  <center>
+   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-spine.png">
+  </center>
   
   </ul>
 
