@@ -28,6 +28,16 @@ internal funding.
 
     20040729 mortene.
 
+
+    NOTE: The new generation of hardware from NViDIA (Geforce 6800)
+    has support for the GLSLang language which enables (in theory) the
+    user to create a raycast program which is executed on the
+    card. This is mentioned in a presentation by NViDIA;
+
+    http://download.nvidia.com/developer/presentations/2004/6800_Leagues/6800_Leagues_OpenGL_exts.pdf
+    
+    20040730 handegar
+
 ============================================================================
 
 002 Better rendering performance by using the "big image" scaling from
