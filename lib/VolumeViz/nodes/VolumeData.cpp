@@ -810,7 +810,8 @@ SoVolumeData::reSampling(const SbVec3s &dimensions,
   SbVec3s volumeslices;
   void * discardptr;
   SoVolumeData::DataType type;
-  assert(this->getVolumeData(volumeslices, discardptr, type));
+  const SbBool ok = this->getVolumeData(volumeslices, discardptr, type);
+  assert(ok);
 
   // FIXME: Over sampling is not implemented yet (Not by TGS
   // either). We therefore crop the dimensions if oversampling is
@@ -949,7 +950,8 @@ SoVolumeDataP::downSample(SbVec3s dimensions, SoVolumeData::SubMethod subMethod,
   SbVec3s volumeslices;
   void * discardptr;
   SoVolumeData::DataType type;
-  assert(master->getVolumeData(volumeslices, discardptr, type));
+  const SbBool ok = master->getVolumeData(volumeslices, discardptr, type);
+  assert(ok);
 
   const float scalefactorx = ((float) volumeslices[0]) / (dimensions[0]);
   const float scalefactory = ((float) volumeslices[1]) / (dimensions[1]);
