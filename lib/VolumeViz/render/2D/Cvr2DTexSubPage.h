@@ -36,7 +36,7 @@ private:
   static unsigned int nroftexels;
   static unsigned int texmembytes;
   static SbBool detectedtextureswapping;
-  unsigned int texmultfactor;
+  unsigned int bitspertexel;
 };
 
 

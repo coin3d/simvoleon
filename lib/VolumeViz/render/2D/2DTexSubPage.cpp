@@ -64,8 +64,7 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                                  const SbVec2s & texsize,
                                  const float * palette, int palettesize)
 {
-  // Will contain number of bits pr texel.
-  this->texmultfactor = 0;
+  this->bitspertexel = 0;
 
   assert(pagesize[0] >= 0);
   assert(pagesize[1] >= 0);
@@ -112,7 +111,7 @@ Cvr2DTexSubPage::~Cvr2DTexSubPage()
     Cvr2DTexSubPage::nroftexels -= nrtexels;
 
     unsigned int freetexmem = (unsigned int)
-      (float(nrtexels) * float(this->texmultfactor) / 8.0f);
+      (float(nrtexels) * float(this->bitspertexel) / 8.0f);
     assert(freetexmem <= Cvr2DTexSubPage::texmembytes);
     Cvr2DTexSubPage::texmembytes -= freetexmem;
 
@@ -201,7 +200,7 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
   // Uploading standard RGBA-texture
   if (palette == NULL) {
     colorformat = 4;
-    this->texmultfactor = 32; // 8 bits each R, G, B & A
+    this->bitspertexel = 32; // 8 bits each R, G, B & A
   }
   // Uploading paletted texture
   else {
@@ -233,40 +232,41 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     switch (actualPaletteSize) {
     case 2:
       colorformat = GL_COLOR_INDEX1_EXT;
-      this->texmultfactor = 1;
+      this->bitspertexel = 1;
       break;
 
     case 4:
       colorformat = GL_COLOR_INDEX2_EXT;
-      this->texmultfactor = 2;
+      this->bitspertexel = 2;
       break;
 
     case 16:
       colorformat = GL_COLOR_INDEX4_EXT;
-      this->texmultfactor = 4;
+      this->bitspertexel = 4;
       break;
 
     case 256:
       colorformat = GL_COLOR_INDEX8_EXT;
-      this->texmultfactor = 8;
+      this->bitspertexel = 8;
       break;
 
     case 65536:
       colorformat = GL_COLOR_INDEX16_EXT;
-      this->texmultfactor = 16;
+      this->bitspertexel = 16;
       break;
 
     default:
-      // FIXME: this can indeed hit. If some palette sizes are indeed
-      // unsupported by OpenGL, we should probably resize our palette
-      // to the nearest upward. 20021106 mortene.
+      // FIXME: this can indeed hit, I've seen actualPaletteSize
+      // become 8. If some palette sizes are indeed unsupported by
+      // OpenGL, we should probably resize our palette to the nearest
+      // upward. 20021106 mortene.
       assert(FALSE && "unknown palette size");
       break;
     }
   }
 
   const int nrtexels = this->texdims[0] * this->texdims[1];
-  const int texmem = int(float(nrtexels) * float(this->texmultfactor) / 8.0f);
+  const int texmem = int(float(nrtexels) * float(this->bitspertexel) / 8.0f);
 
   // FIXME: limits should be stored in a global texture manager class
   // or some such. 20021121 mortene.
@@ -315,6 +315,13 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
     assert(glGetError() == GL_NO_ERROR);
+
+  SoState * state = action->getState();
+  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+  assert(tfelement != NULL);
+  SoTransferFunction * transferfunc = tfelement->getTransferFunction();
+  assert(transferfunc != NULL);
+    
 
     // FIXME: investigate if this is really what we want. 20021120 mortene.
     //
