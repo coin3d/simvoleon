@@ -4,6 +4,8 @@
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/readers/SoVolumeReader.h>
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
@@ -30,6 +32,8 @@ CvrPageHandler::CvrPageHandler(const SbVec3s & voldatadims,
   this->slices[2] = NULL;
 
   this->reader = reader;
+
+  this->transferfuncid = SoNode::getNextNodeId();
 }
 
 CvrPageHandler::~CvrPageHandler()
@@ -158,6 +162,20 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
   assert(volumedata != NULL);
 
   this->comparePageSize(volumedata->getPageSize());
+
+  // We don't want to cache pages that were made with "old versions"
+  // of an SoTransferFunction. FIXME: this is just a quick
+  // hack. 20021212 mortene.
+  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+  assert(tfelement != NULL);
+  SoTransferFunction * transferfunc = tfelement->getTransferFunction();
+  assert(transferfunc != NULL);
+
+  if (transferfunc->getNodeId() != this->transferfuncid) {
+    this->releaseAllSlices();
+    this->transferfuncid = transferfunc->getNodeId();
+  }
+
 
   SbVec3f spacemin, spacemax;
   SbBox3f spacesize = volumedata->getVolumeSize();
@@ -415,4 +433,5 @@ CvrPageHandler::releaseSlices(const unsigned int AXISIDX)
   }
 
   delete[] this->slices[AXISIDX];
+  this->slices[AXISIDX] = NULL;
 }

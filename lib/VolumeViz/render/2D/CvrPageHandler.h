@@ -41,6 +41,8 @@ private:
   unsigned int voldatadims[3];
   SbVec3s subpagesize;
   SoVolumeReader * reader;
+
+  uint32_t transferfuncid;
 };
 
 #endif // !COIN_CVRPAGEHANDLER_H
