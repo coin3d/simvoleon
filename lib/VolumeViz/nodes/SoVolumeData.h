@@ -88,11 +88,11 @@ public:
   void setPageSize(int size);
   void setPageSize(const SbVec3s & size);
   const SbVec3s & getPageSize(void) const;
-  void setReader(SoVolumeReader * reader);
+
+  void setReader(SoVolumeReader & reader);
+  SoVolumeReader * getReader(void) const;
 
   void setTexMemorySize(int megatexels);
-
-  SoVolumeReader * getReader(void) const;
 
   SbBool getMinMax(int & minval, int & maxval);
   SbBool getHistogram(int & length, int *& histogram);

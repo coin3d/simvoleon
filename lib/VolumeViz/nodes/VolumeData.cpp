@@ -396,7 +396,7 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
   }
 
   PRIVATE(this)->VRMemReader->setData(dimensions, data, type);
-  this->setReader(PRIVATE(this)->VRMemReader);
+  this->setReader(*(PRIVATE(this)->VRMemReader));
 
   PRIVATE(this)->datatype = type;
 
@@ -621,15 +621,15 @@ SoVolumeData::setTexMemorySize(int megatexels)
   this->touch();
 }
 
+// FIXME: document. 20041008 mortene.
 void
-SoVolumeData::setReader(SoVolumeReader * reader)
+SoVolumeData::setReader(SoVolumeReader & reader)
 {
-  PRIVATE(this)->reader = reader;
+  PRIVATE(this)->reader = &reader;
 
   SbBox3f dummyvolbox;
-  reader->getDataChar(dummyvolbox,
-                      PRIVATE(this)->datatype,
-                      PRIVATE(this)->dimensions);
+  reader.getDataChar(dummyvolbox,
+                     PRIVATE(this)->datatype, PRIVATE(this)->dimensions);
 
   // Trigger a notification and a node-ID update, so texture pages etc
   // are regenerated.
@@ -958,7 +958,7 @@ SoVolumeDataP::readNamedFile(void)
   // that, though (so that's the real problem to fix.) 20031009 mortene.
 
   if (this->reader) { /* FIXME: delete old! 20031009 mortene. */ }
-  PUBLIC(this)->setReader(filereader);
+  PUBLIC(this)->setReader(*filereader);
 
 //   SoReadError::post(in, "Unable to read volume data file: ``%s''",
 //                     fullfilename.getString());
