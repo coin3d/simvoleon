@@ -18,8 +18,7 @@ public:
                   const float * palette = NULL, int palettesize = 0);
   ~Cvr2DTexSubPage();
 
-  void render(const SbVec3f & lowerLeft, const SbVec3f & lowerRight,
-              const SbVec3f & upperLeft, const SbVec3f & upperRight) const;
+  void render(const SbVec3f & upleft, SbVec3f widthvec, SbVec3f heightvec) const;
 
   static unsigned int totalNrOfTexels(void);
   static unsigned int totalTextureMemoryUsed(void);

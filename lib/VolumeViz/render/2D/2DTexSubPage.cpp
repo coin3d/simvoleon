@@ -64,6 +64,7 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
                                  const SbVec2s & texsize,
                                  const float * palette, int palettesize)
 {
+  // Number of bytes pr texel. FIXME: should be counted in bits. 20021128 mortene.
   this->texmultfactor = 0.0f;
 
   assert(pagesize[0] >= 0);
@@ -71,13 +72,24 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
   assert(coin_is_power_of_two(pagesize[0]));
   assert(coin_is_power_of_two(pagesize[1]));
 
-  this->texdims = pagesize;
-  this->texmaxcoords = SbVec2f(1.0f, 1.0f);
+  assert(texsize[0] <= pagesize[0]);
+  assert(texsize[1] <= pagesize[1]);
 
+  // Actual size of texture bitmap.
+  this->texdims = pagesize;
+
+  // Calculates part of GL quad and texture to show.
+  this->texmaxcoords = SbVec2f(1.0f, 1.0f);
   if (pagesize != texsize) {
     this->texmaxcoords[0] = float(texsize[0]) / float(pagesize[0]);
     this->texmaxcoords[1] = float(texsize[1]) / float(pagesize[1]);
   }
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("Cvr2DTexSubPage::Cvr2DTexSubPage",
+                         "this->texmaxcoords==[%f, %f]",
+                         this->texmaxcoords[0], this->texmaxcoords[1]);
+#endif // debug
 
   this->transferTex2GL(action, textureimg, palettesize, palette);
 
@@ -318,23 +330,33 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
 }
 
 void
-Cvr2DTexSubPage::render(const SbVec3f & lowleft, const SbVec3f & lowright,
-                        const SbVec3f & upleft, const SbVec3f & upright) const
+Cvr2DTexSubPage::render(const SbVec3f & upleft,
+                        SbVec3f widthvec, SbVec3f heightvec) const
 {
   this->activateTexture();
 
   glBegin(GL_QUADS);
   glColor4f(1, 1, 1, 1);
 
+  // Scale span of GL quad to match the visible part of the
+  // texture. (Border subpages shouldn't show all of the texture, if
+  // the dimensions of the dataset are not a power of two, or if the
+  // dimensions are less than the subpage size).
+
+  widthvec *= this->texmaxcoords[0];
+  heightvec *= this->texmaxcoords[1];
+
+  // Find all corner points of the quad.
+
+  SbVec3f lowleft = upleft + heightvec;
+  SbVec3f lowright = lowleft + widthvec;
+  SbVec3f upright = upleft + widthvec;
+
   // Texturecoords are set up so the texture is flipped in the
   // Y-direction, as the volume data and texture map data are oriented
   // in the opposite direction (top-to-bottom) from what the Y axis in
   // the OpenGL coordinate system uses (bottom-to-top).
 
- // Disabled, we now draw the full quad polygon, with the
- // out-of-bounds texture parts fully transparent. Keeping the code,
- // as we should change this back again later.
-#if 0
   glTexCoord2f(0.0f, this->texmaxcoords[1]);
   glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
 
@@ -346,19 +368,6 @@ Cvr2DTexSubPage::render(const SbVec3f & lowleft, const SbVec3f & lowright,
 
   glTexCoord2f(0.0f, 0.0f);
   glVertex3f(upleft[0], upleft[1], upleft[2]);
-#else
-  glTexCoord2f(0.0f, 1.0f);
-  glVertex3f(lowleft[0], lowleft[1], lowleft[2]);
-
-  glTexCoord2f(1.0f, 1.0f);
-  glVertex3f(lowright[0], lowright[1], lowright[2]);
-
-  glTexCoord2f(1.0f, 0.0f);
-  glVertex3f(upright[0], upright[1], upright[2]);
-
-  glTexCoord2f(0.0f, 0.0f);
-  glVertex3f(upleft[0], upleft[1], upleft[2]);
-#endif
 
   glEnd();
 

@@ -262,15 +262,11 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
         // vertical shift to correct row
         subpageheight * rowidx;
 
-      SbVec3f lowleft = upleft + subpageheight;
-      SbVec3f lowright = lowleft + subpagewidth;
-      SbVec3f upright = upleft + subpagewidth;
-
       // FIXME: should do view frustum culling on each page as an
       // optimization measure (both for rendering speed and texture
       // memory usage). 20021121 mortene.
 
-      pageitem->page->render(lowleft, lowright, upleft, upright);
+      pageitem->page->render(upleft, subpagewidth, subpageheight);
       pageitem->lasttick = tick;
 
     }
@@ -330,9 +326,8 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   const unsigned int slicebufsize = this->subpagesize[0] * this->subpagesize[1] * 4;
   uint8_t * slicebuf = new uint8_t[slicebufsize];
   // FIXME: this should not really be necessary, but we have to do it
-  // now, as we don't handle subsets neither in transferfunction nor
-  // by the border-textures. 20021127 mortene.
-  (void)memset(slicebuf, 0x00, slicebufsize);
+  // now, as we don't handle subsets in transferfunction. 20021127 mortene.
+  (void)memset(slicebuf, 0x77, slicebufsize);
 
   SoState * state = action->getState();
   const SoVolumeDataElement * vdelement = SoVolumeDataElement::getInstance(state);
@@ -376,6 +371,36 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
 
   delete[] slicebuf;
 
+  // FIXME: paletted textures not supported yet. 20021119 mortene.
+  float * palette = NULL;
+  int paletteSize = 0;
+
+  // Size of the texture that we're actually using. Will be less than
+  // this->subpagesize on datasets where dimensions are not all power
+  // of two, or where dimensions are smaller than this->subpagesize.
+  const SbVec2s texsize(subpagemax - subpagemin);
+
+  // Blank out unused texture parts, to make sure we don't get any
+  // artifacts due to fp-inaccuracies when rendering.
+  {
+    for (short y=texsize[1]; y < this->subpagesize[1]; y++) {
+      for (short x=0; x < this->subpagesize[0]; x++) {
+        // FIXME: this assumes "texture" points at 4-byte array. Must
+        // fix when we start using paletted textures again. 20021128 mortene.
+        texture[y * this->subpagesize[0] + x] = 0x00000000;
+      }
+    }
+  }
+  {
+    for (short x=texsize[0]; x < this->subpagesize[0]; x++) {
+      for (short y=0; y < this->subpagesize[1]; y++) {
+        // FIXME: this assumes "texture" points at 4-byte array. Must
+        // fix when we start using paletted textures again. 20021128 mortene.
+        texture[y * this->subpagesize[0] + x] = 0x00000000;
+      }
+    }
+  }
+
 #if 0 // DEBUG: dump all transfered textures to bitmap files.
   SbString s;
   s.sprintf("/tmp/posttransftex-%04d-%03d-%03d.ppm", this->sliceIdx, row, col);
@@ -392,13 +417,10 @@ Cvr2DTexPage::buildSubPage(SoGLRenderAction * action, int col, int row)
   fclose(f);
 #endif // DEBUG
 
-  // FIXME: paletted textures not supported yet. 20021119 mortene.
-  float * palette = NULL;
-  int paletteSize = 0;
 
   Cvr2DTexSubPage * page =
     new Cvr2DTexSubPage(action, (const uint8_t *)texture, this->subpagesize,
-                        subpagemax - subpagemin, palette, paletteSize);
+                        texsize, palette, paletteSize);
 
   delete[] texture;
   delete[] palette;
