@@ -2,9 +2,9 @@ srcdir = @srcdir@
 CYGPATH_W = @CYGPATH_W@
 
 all: \
-	examine@EXEEXT@ simple8bit@EXEEXT@ readvol@EXEEXT@ \
-	raypick@EXEEXT@ rgbload@EXEEXT@ changingdataset@EXEEXT@ \
-	orthoslicer@EXEEXT@
+	examinerviewer@EXEEXT@ examine@EXEEXT@ simple8bit@EXEEXT@ \
+	readvol@EXEEXT@ raypick@EXEEXT@ rgbload@EXEEXT@ \
+	changingdataset@EXEEXT@ orthoslicer@EXEEXT@
 
 ## 
 
@@ -28,6 +28,9 @@ READVOL_OBJECTS = \
 EXAMINE_OBJECTS = \
         $(srcdir)/examine.@OBJEXT@ $(srcdir)/utility.@OBJEXT@
 
+EXAMINERVIEWER_OBJECTS = \
+        $(srcdir)/examinerviewer.@OBJEXT@
+
 ORTHOSLICER_OBJECTS = \
         $(srcdir)/orthoslicer.@OBJEXT@ $(srcdir)/utility.@OBJEXT@ \
 	$(ORTHOSLICE_UI_OBJECTS) $(TRANSFERFUNCTION_UI_OBJECTS)
@@ -48,6 +51,7 @@ clean:
 	@rm -f rgbload@EXEEXT@ $(RGBLOAD_OBJECTS) $(srcdir)/rgbload.cpp \
               raypick@EXEEXT@ $(RAYPICK_OBJECTS) $(srcdir)/raypick.cpp \
               examine@EXEEXT@ $(EXAMINE_OBJECTS) $(srcdir)/examine.cpp \
+              examinerviewer@EXEEXT@ $(EXAMINERVIEWER_OBJECTS) $(srcdir)/examinerviewer.cpp \
               orthoslicer@EXEEXT@ $(ORTHOSLICER_OBJECTS) $(srcdir)/orthoslicer.cpp \
               simple8bit@EXEEXT@ $(SIMPLE8BIT_OBJECTS) $(srcdir)/simple8bit.cpp \
               changingdataset@EXEEXT@ $(CHANGINGDATASET_OBJECTS) $(srcdir)/changingdataset.cpp \
@@ -164,6 +168,17 @@ $(srcdir)/examine.@OBJEXT@: $(srcdir)/examine.cpp
 
 examine@EXEEXT@: $(EXAMINE_OBJECTS)
 	soqt-config --link $@ $(EXAMINE_OBJECTS) `simvoleon-config --libs`
+
+## ``examinerviewer'' example
+
+$(srcdir)/examinerviewer.cpp: $(srcdir)/examinerviewer.cpp.in
+	@soqt-config --ac-subst $<
+
+$(srcdir)/examinerviewer.@OBJEXT@: $(srcdir)/examinerviewer.cpp
+	CPPFLAGS=`simvoleon-config --cppflags` soqt-config --compile $<
+
+examinerviewer@EXEEXT@: $(EXAMINERVIEWER_OBJECTS)
+	soqt-config --link $@ $(EXAMINERVIEWER_OBJECTS) `simvoleon-config --libs`
 
 ## ``orthoslicer'' example
 

@@ -1,0 +1,39 @@
+// Just a dead simple examinerviewer linked with SimVoleon to test
+// loading of volume rendering stuff in iv-files.
+
+#include <Inventor/@Gui@/So@Gui@.h>
+#include <Inventor/@Gui@/viewers/So@Gui@ExaminerViewer.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <VolumeViz/nodes/SoVolumeRendering.h>
+
+int
+main(int argc, char ** argv)
+{
+  if (argc != 2) {
+    (void)fprintf(stderr, "\n\tUsage: %s file.iv\n\n", argv[0]);
+    exit(1);
+  }
+
+  @WIDGET@ window = So@Gui@::init(argv[0]);
+  SoVolumeRendering::init();
+
+  SoInput in;
+  SbBool ok = in.openFile(argv[1]);
+  assert(ok);
+  SoSeparator * root = SoDB::readAll(&in);
+  assert(root);
+  root->ref();
+
+  So@Gui@ExaminerViewer * viewer = new So@Gui@ExaminerViewer(window);
+  viewer->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
+  viewer->setSceneGraph(root);
+
+  viewer->show();
+  So@Gui@::show(window);
+  So@Gui@::mainLoop();
+  delete viewer;
+
+  root->unref();
+
+  return 0;
+}
