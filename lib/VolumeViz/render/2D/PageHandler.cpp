@@ -6,6 +6,7 @@
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/misc/CvrUtil.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
@@ -309,12 +310,37 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
     else {
       if (composition == CvrPageHandler::MAX_INTENSITY) {
         cc_glglue_glBlendEquation(glglue, GL_MAX);
+        // Note: if we ever find a way of doing this composition mode
+        // without depending on the *optional* OGL1.2+ API-function
+        // glBlendEquation(), the Doxygen documentation of
+        // SoVolumeRender::MAX_INTENSITY should be updated.
       }
       else {
         assert(composition == CvrPageHandler::SUM_INTENSITY &&
                "invalid composition");
         glBlendFunc(GL_ONE, GL_ONE);
         cc_glglue_glBlendEquation(glglue, GL_FUNC_ADD);
+        // Note: if we ever find a way of doing this composition mode
+        // without depending on the *optional* OGL1.2+ API-function
+        // glBlendEquation(), the Doxygen documentation of
+        // SoVolumeRender::SUM_INTENSITY should be updated.
+        
+        // FIXME: did find another way of doing this, but it still
+        // involves the imaging subset of OGL1.2 (promoted from
+        // EXT_blend_color). This should do the same as the blendfunc
+        // above:
+        //
+        //    glBlendFunc(GL_CONSTANT_ALPHA, GL_ONE)
+        //    glBlendColor(1.f, 1.f, 1.f, 1.f/number_of_slices)
+        //
+        // (Also available as extension: GL_CONSTANT_ALPHA_EXT and
+        // glBlendColorEXT()).
+        //
+        // Should check if there are any advantages over this method
+        // rather than using glBlendEquation() (like performance, more
+        // wide-spread extension support, ...).
+        //
+        // 20030121 mortene.
       }
     }
   }
@@ -425,7 +451,15 @@ CvrPageHandler::releaseAllSlices(void)
 void
 CvrPageHandler::releaseSlices(const unsigned int AXISIDX)
 {
+  assert(AXISIDX <= 2);
   if (this->slices[AXISIDX] == NULL) return;
+
+  // debug
+  if (CVR_DEBUG && CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("CvrPageHandler::releaseSlices", "%c at %f",
+                           AXISIDX == 0 ? 'X' : (AXISIDX == 1 ? 'Y' : 'Z'),
+                           SbTime::getTimeOfDay().getValue());
+  }
 
   for (unsigned int i = 0; i < this->voldatadims[AXISIDX]; i++) {
     delete this->slices[AXISIDX][i];
