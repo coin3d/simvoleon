@@ -243,7 +243,7 @@ Cvr2DTexPage::render(SoGLRenderAction * action,
       // optimization measure (both for rendering speed and texture
       // memory usage). 20021121 mortene.
 
-      pageitem->page->render(glglue, upleft, subpagewidth, subpageheight,
+      pageitem->page->render(action, upleft, subpagewidth, subpageheight,
                              interpolation);
 
     }
@@ -586,8 +586,13 @@ Cvr2DTexPage::getSubPage(uint32_t transferfuncid, int col, int row)
   Cvr2DTexSubPageItem * subp = this->subpages[idx];
 
   if (subp && (subp->transferfuncid != transferfuncid)) {
-    this->releaseSubPage(row, col);
-    return NULL;
+    if (subp->page->isPaletted()) {
+      subp->page->invalidatePalette();
+    }
+    else {
+      this->releaseSubPage(row, col);
+      return NULL;
+    }
   }
 
   return subp;

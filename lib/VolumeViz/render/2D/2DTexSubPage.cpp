@@ -2,6 +2,7 @@
 #include <VolumeViz/render/2D/CvrRGBATexture.h>
 #include <VolumeViz/render/2D/CvrPaletteTexture.h>
 #include <VolumeViz/misc/CvrCLUT.h>
+#include <VolumeViz/misc/CvrVoxelChunk.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
@@ -71,6 +72,8 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
 {
   this->bitspertexel = 0;
   this->clut = NULL;
+  this->ispaletted = FALSE;
+  this->refetchpalette = FALSE;
 
   assert(pagesize[0] >= 0);
   assert(pagesize[1] >= 0);
@@ -143,6 +146,17 @@ Cvr2DTexSubPage::~Cvr2DTexSubPage()
   if (this->clut) this->clut->unref();
 }
 
+SbBool
+Cvr2DTexSubPage::isPaletted(void) const
+{
+  return this->ispaletted;
+}
+
+void
+Cvr2DTexSubPage::invalidatePalette(void)
+{
+  this->refetchpalette = TRUE;
+}
 
 // FIXME: Some magic has to be done to make this one work with OpenGL 1.0.
 // torbjorv 08052002
@@ -266,12 +280,12 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
 
   int colorformat;
 
-  SbBool paletted = texobj->getTypeId() == CvrPaletteTexture::getClassTypeId();
+  this->ispaletted = texobj->getTypeId() == CvrPaletteTexture::getClassTypeId();
   // only knows two types
-  assert(paletted || texobj->getTypeId() == CvrRGBATexture::getClassTypeId());
+  assert(this->ispaletted || texobj->getTypeId() == CvrRGBATexture::getClassTypeId());
 
   // For uploading standard RGBA-texture
-  if (!paletted) {
+  if (!this->ispaletted) {
     colorformat = 4;
     this->bitspertexel = 32; // 8 bits each R, G, B & A
   }
@@ -328,7 +342,7 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     assert(glGetError() == GL_NO_ERROR);
 
     void * imgptr = NULL;
-    if (paletted) imgptr = ((CvrPaletteTexture *)texobj)->getIndex8Buffer();
+    if (this->ispaletted) imgptr = ((CvrPaletteTexture *)texobj)->getIndex8Buffer();
     else imgptr = ((CvrRGBATexture *)texobj)->getRGBABuffer();
 
     glTexImage2D(GL_TEXTURE_2D,
@@ -337,7 +351,7 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
                  this->texdims[0],
                  this->texdims[1],
                  0,
-                 paletted ? GL_COLOR_INDEX: GL_RGBA,
+                 this->ispaletted ? GL_COLOR_INDEX: GL_RGBA,
                  GL_UNSIGNED_BYTE,
                  imgptr);
                  
@@ -354,22 +368,32 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
 }
 
 void
-Cvr2DTexSubPage::activateCLUT(const cc_glglue * glw) const
+Cvr2DTexSubPage::activateCLUT(const SoGLRenderAction * action)
 {
-  // FIXME: should check if the same clut is already current
-  if (this->clut) {
-    this->clut->activate(glw);
+  assert(this->clut != NULL);
+
+  if (this->refetchpalette) {
+    this->clut->unref();
+    this->clut = CvrVoxelChunk::getCLUT(action);
+    this->clut->ref();
+    this->refetchpalette = FALSE;
   }
+
+  // FIXME: should check if the same clut is already current 
+  const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
+  this->clut->activate(glw);
 }
 
 void
-Cvr2DTexSubPage::render(const cc_glglue * glw,
+Cvr2DTexSubPage::render(const SoGLRenderAction * action,
                         const SbVec3f & upleft,
                         SbVec3f widthvec, SbVec3f heightvec,
-                        Interpolation interpolation) const
+                        Interpolation interpolation)
 {
-  this->activateCLUT(glw);
+  // Texture binding/activation must happen before setting the
+  // palette, or the previous palette will be used.
   this->activateTexture(interpolation);
+  if (this->ispaletted) { this->activateCLUT(action); }
 
   glBegin(GL_QUADS);
   glColor4f(1, 1, 1, 1);

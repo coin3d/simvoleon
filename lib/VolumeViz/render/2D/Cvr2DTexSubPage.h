@@ -22,9 +22,12 @@ public:
 
   enum Interpolation { NEAREST, LINEAR };
 
-  void render(const cc_glglue * glw,
+  void render(const SoGLRenderAction * action,
               const SbVec3f & upleft, SbVec3f widthvec, SbVec3f heightvec,
-              Interpolation interpolation) const;
+              Interpolation interpolation);
+
+  SbBool isPaletted(void) const;
+  void invalidatePalette(void);
 
   static unsigned int totalNrOfTexels(void);
   static unsigned int totalTextureMemoryUsed(void);
@@ -34,7 +37,7 @@ private:
                       const CvrTextureObject * texobj);
 
   void activateTexture(Interpolation interpolation) const;
-  void activateCLUT(const cc_glglue * glw) const;
+  void activateCLUT(const SoGLRenderAction * action);
 
   static void bindTexMemFullImage(const cc_glglue * glw);
 
@@ -48,6 +51,8 @@ private:
   static SbBool detectedtextureswapping;
   unsigned int bitspertexel;
   const CvrCLUT * clut;
+  SbBool ispaletted;
+  SbBool refetchpalette;
 };
 
 
