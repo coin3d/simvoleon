@@ -36,6 +36,7 @@ private:
   static GLuint emptyimgname[1];
   SbVec2s texdims;
   SbVec2f texmaxcoords;
+  SbVec2f quadpartfactors;
   static unsigned int nroftexels;
   static unsigned int texmembytes;
   static SbBool detectedtextureswapping;

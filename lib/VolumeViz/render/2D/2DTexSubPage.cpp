@@ -77,19 +77,30 @@ Cvr2DTexSubPage::Cvr2DTexSubPage(SoGLRenderAction * action,
   assert(texsize[0] <= pagesize[0]);
   assert(texsize[1] <= pagesize[1]);
 
-  // Actual size of texture bitmap.
-  this->texdims = pagesize;
+  // Actual dimensions of texture bitmap memory block.
+  this->texdims = texobj->getDimensions();
 
-  // Calculates part of GL quad and texture to show.
+  // Calculates part of texture to show.
   this->texmaxcoords = SbVec2f(1.0f, 1.0f);
+  if (this->texdims != texsize) {
+    this->texmaxcoords[0] = float(texsize[0]) / float(this->texdims[0]);
+    this->texmaxcoords[1] = float(texsize[1]) / float(this->texdims[1]);
+  }
+
+  // Calculates part of GL quad to show.
+  this->quadpartfactors = SbVec2f(1.0f, 1.0f);
   if (pagesize != texsize) {
-    this->texmaxcoords[0] = float(texsize[0]) / float(pagesize[0]);
-    this->texmaxcoords[1] = float(texsize[1]) / float(pagesize[1]);
+    this->quadpartfactors[0] = float(texsize[0]) / float(pagesize[0]);
+    this->quadpartfactors[1] = float(texsize[1]) / float(pagesize[1]);
   }
 
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("Cvr2DTexSubPage::Cvr2DTexSubPage",
+                         "texsize==[%d, %d], "
+                         "texobj->getDimensions()==[%d, %d], "
                          "this->texmaxcoords==[%f, %f]",
+                         texsize[0], texsize[1],
+                         texobj->getDimensions()[0], texobj->getDimensions()[1],
                          this->texmaxcoords[0], this->texmaxcoords[1]);
 #endif // debug
 
@@ -267,7 +278,8 @@ Cvr2DTexSubPage::transferTex2GL(SoGLRenderAction * action,
     // Setting palette
     // FIXME: does this need to be called _after_ glBindTextures()?
     // 20021121 mortene.
-    cc_glglue_glColorTableEXT(glw, GL_TEXTURE_2D,
+    cc_glglue_glColorTableEXT(glw,
+                              GL_TEXTURE_2D,
                               GL_RGBA,
                               palettesize,
                               GL_RGBA,
@@ -386,8 +398,8 @@ Cvr2DTexSubPage::render(const SbVec3f & upleft,
   // the dimensions of the dataset are not a power of two, or if the
   // dimensions are less than the subpage size).
 
-  widthvec *= this->texmaxcoords[0];
-  heightvec *= this->texmaxcoords[1];
+  widthvec *= this->quadpartfactors[0];
+  heightvec *= this->quadpartfactors[1];
 
   // Find all corner points of the quad.
 
