@@ -71,7 +71,8 @@ SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
   const int control = PUBLIC(this)->numSlicesControl.getValue();
   const unsigned int AXISIDX = this->pagehandler->getCurrentAxis(action);
 
-  if (control == SoVolumeRender::ALL) {
+  if ((control == SoVolumeRender::ALL) || 
+      (PUBLIC(this)->numSlices.getValue() <= 0)) {
     numslices = dimensions[AXISIDX];
   }
   else if (control == SoVolumeRender::MANUAL) {
@@ -133,12 +134,17 @@ SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
 
   Enumeration of strategies for how to render the slices of the
   volume.
+
 */
 /*!
   \var SoVolumeRender::NumSlicesControl SoVolumeRender::ALL
 
   Always render as many slices as there are voxels in the depth
   dimension. This is the default value.
+
+  Please note that SoVolumeRender::NumSlicesControl will always be
+  considered as SoVolumeRender::ALL if the SoVolumeRender::numSlices
+  field is less or equal to 0.
 */
 /*!
   \var SoVolumeRender::NumSlicesControl SoVolumeRender::MANUAL
