@@ -283,7 +283,13 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
   //
   // UPDATE: freya is now running an ATI card, so I can't easily track
   // this down any further. 20040716 mortene.
-#if 0
+  // 
+  // UPDATE: Using 4 as minimum size causes an ugly mem-corruption as
+  // the allocated buffer gets too small when the real size is 2. The
+  // original fix does not seem to have any effect on 3D textures. I
+  // have therefore disabled the fix. (20050223 handegar)
+  //
+#if 1
   const SbVec3s texsize(coin_next_power_of_two(size[0] - 1),
                         coin_next_power_of_two(size[1] - 1),
                         coin_next_power_of_two(size[2] - 1));
