@@ -128,3 +128,13 @@
     20040710 mortene.
 
 ========================================================================
+
+009 Implement support for SoVolumeData::storageHint MEMORY.
+
+    Should now be straightforward with 2D-texture based rendering, at
+    least: just delete texture immediately after rendering the quad in
+    Cvr2DTexSubPage.
+
+    20040716 mortene.
+
+========================================================================
