@@ -17,7 +17,7 @@ public:
   void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data,
                    Axis axis = Z);
 
-  void setData(const SbVec3s &dimensions, const void *data,
+  void setData(const SbVec3s &dimensions, void * data,
                const SbBox3f &volumeSize,
                SoVolumeData::DataType type = SoVolumeData::UNSIGNED_BYTE);
 

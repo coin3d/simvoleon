@@ -6,25 +6,17 @@
 
 #include <VolumeViz/readers/SoVRMemReader.h>
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif // HAVE_CONFIG_H
 
-
-class SoVRMemReaderP{
+class SoVRMemReaderP {
 public:
   SoVRMemReaderP(SoVRMemReader * master) {
     this->master = master;
 
-    data = NULL;
-    dimensions = SbVec3s(0, 0, 0);
-    dataType = SoVolumeData::UNSIGNED_BYTE;
+    this->dimensions = SbVec3s(0, 0, 0);
+    this->dataType = SoVolumeData::UNSIGNED_BYTE;
   }
 
   SbVec3s dimensions;
-  // FIXME: shouldn't we rather use the SoVolumeReader data-pointer?
-  // 20021108 mortene.
-  const void * data;
   SoVolumeData::DataType dataType;
   SbBox3f volumeSize;
 
@@ -58,18 +50,18 @@ void SoVRMemReader::setUserData(void * data)
 {
 }
 
-void SoVRMemReader::getDataChar(SbBox3f &size, 
-                                SoVolumeData::DataType &type, 
-                                SbVec3s &dim)
+void SoVRMemReader::getDataChar(SbBox3f & size,
+                                SoVolumeData::DataType & type,
+                                SbVec3s & dim)
 {
   size = PRIVATE(this)->volumeSize;
   type = PRIVATE(this)->dataType;
   dim = PRIVATE(this)->dimensions;
 }
 
-void SoVRMemReader::getSubSlice(SbBox2s &subSlice, 
-                                int sliceNumber, 
-                                void * data, 
+void SoVRMemReader::getSubSlice(SbBox2s &subSlice,
+                                int sliceNumber,
+                                void * data,
                                 Axis axis)
 {
   switch (axis) {
@@ -88,38 +80,38 @@ void SoVRMemReader::getSubSlice(SbBox2s &subSlice,
 }
 
 
-void 
-SoVRMemReader::setData(const SbVec3s &dimensions, 
-                       const void *data, 
-                       const SbBox3f &volumeSize,
+void
+SoVRMemReader::setData(const SbVec3s &dimensions,
+                       void * data,
+                       const SbBox3f & volumeSize,
                        SoVolumeData::DataType type)
 {
   PRIVATE(this)->dimensions = dimensions;
-  PRIVATE(this)->data = data;
+  this->m_data = data;
   PRIVATE(this)->dataType = type;
 }
 
 
 
 /*!
-  Returns a raw image with Z as horisontal and Y as vertical axis
-  Assumes that the provided data is in RGBA-form Caller deletes of
+  Returns a raw image with Z as horisontal and Y as vertical axis.
+  Assumes that the provided data is in RGBA-form. Caller deletes of
   course.
 
   This function and the similar functions for Y- and Z-axis should be
   fairly optimized. The innerloops could be unrolled a few times to
   get even more speed. But that would mess up the code.
 */
-void 
-SoVRMemReaderP::buildSubSliceX(void * output, 
-                               int sliceIdx, 
+void
+SoVRMemReaderP::buildSubSliceX(void * output,
+                               int sliceIdx,
                                const SbBox2s &subSlice)
 {
-  unsigned int * intData = (unsigned int *)data;
+  unsigned int * intData = (unsigned int *)PUBLIC(this)->m_data;
   unsigned int * intTexture = (unsigned int *)output;
-  unsigned char * byteData = (unsigned char *)data;
+  unsigned char * byteData = (unsigned char *)PUBLIC(this)->m_data;
   unsigned char * byteTexture = (unsigned char *)output;
-  unsigned short * shortData = (unsigned short *)data;
+  unsigned short * shortData = (unsigned short *)PUBLIC(this)->m_data;
   unsigned short * shortTexture = (unsigned short *)output;
 
   SbVec2s min, max;
@@ -134,7 +126,7 @@ SoVRMemReaderP::buildSubSliceX(void * output,
 
   while (yOffset < yLimit) {
     int zOffset = zStart + xOffset + yOffset;
-    int zLimit  = max[0]*dimensions[0]*dimensions[1] 
+    int zLimit  = max[0]*dimensions[0]*dimensions[1]
                 + xOffset + yOffset;
 
     switch (this->dataType) {
@@ -176,16 +168,16 @@ SoVRMemReaderP::buildSubSliceX(void * output,
   Assumes that the provided data is in RGBA-form Caller deletes of
   course.
 */
-void 
-SoVRMemReaderP::buildSubSliceY(void * output, 
-                               int sliceIdx, 
+void
+SoVRMemReaderP::buildSubSliceY(void * output,
+                               int sliceIdx,
                                const SbBox2s &subSlice)
 {
-  unsigned int * intData = (unsigned int *)data;
+  unsigned int * intData = (unsigned int *)PUBLIC(this)->m_data;
   unsigned int * intTexture = (unsigned int *)output;
-  unsigned char * byteData = (unsigned char *)data;
+  unsigned char * byteData = (unsigned char *)PUBLIC(this)->m_data;
   unsigned char * byteTexture = (unsigned char *)output;
-  unsigned short * shortData = (unsigned short *)data;
+  unsigned short * shortData = (unsigned short *)PUBLIC(this)->m_data;
   unsigned short * shortTexture = (unsigned short *)output;
 
   SbVec2s min, max;
@@ -237,16 +229,16 @@ SoVRMemReaderP::buildSubSliceY(void * output,
   Assumes that the provided data is in RGBA-form Caller deletes of
   course.
 */
-void 
-SoVRMemReaderP::buildSubSliceZ(void * output, 
-                               int sliceIdx, 
+void
+SoVRMemReaderP::buildSubSliceZ(void * output,
+                               int sliceIdx,
                                const SbBox2s &subSlice)
 {
-  unsigned int * intData = (unsigned int *)data;
+  unsigned int * intData = (unsigned int *)PUBLIC(this)->m_data;
   unsigned int * intTexture = (unsigned int *)output;
-  unsigned char * byteData = (unsigned char *)data;
+  unsigned char * byteData = (unsigned char *)PUBLIC(this)->m_data;
   unsigned char * byteTexture = (unsigned char *)output;
-  unsigned short * shortData = (unsigned short *)data;
+  unsigned short * shortData = (unsigned short *)PUBLIC(this)->m_data;
   unsigned short * shortTexture = (unsigned short *)output;
 
   SbVec2s min, max;
@@ -258,8 +250,8 @@ SoVRMemReaderP::buildSubSliceZ(void * output,
   int yLimit = max[1]*dimensions[0] + zOffset;
   int xStart = min[0];
   while (yOffset < yLimit) {
-    int xOffset = xStart + yOffset; 
-    int xLimit = max[0] + yOffset; 
+    int xOffset = xStart + yOffset;
+    int xLimit = max[0] + yOffset;
 
     switch (this->dataType) {
       case SoVolumeData::UNSIGNED_BYTE:
