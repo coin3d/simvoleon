@@ -80,7 +80,7 @@ int
 main(int argc, char ** argv)
 {
   @WIDGET@ window = So@Gui@::init( argv[0] );
-  SoVolumeRendering::initClass();
+  SoVolumeRendering::init();
   SoDB::setRealTimeInterval(SbTime(1.0/50.0));
 
   So@Gui@ExaminerViewer * ex1 = new So@Gui@ExaminerViewer( window );

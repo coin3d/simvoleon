@@ -155,10 +155,8 @@ int
 main(int argc, char ** argv)
 {
   @WIDGET@ myWindow = So@Gui@::init(argv[0]);
-  if (myWindow == NULL) exit(1);
 
-  // Initialize @Gui@ and So@Gui@.
-  SoVolumeRendering::initClass();
+  SoVolumeRendering::init();
 
   SoSeparator *root = new SoSeparator;
   root->ref();
