@@ -219,25 +219,6 @@ for suggestions for major improvements and new features.
 
 ========================================================================
 
-018 Suspected bug with ray-picking.
-
-    When picking through fully transparent parts of a volume, the
-    SoRayPickAction will still report a hit, and not traverse the
-    scene graph any further.
-
-    This seems bogus, as it does for instance interfere with having
-    the geometry for a clip-plane manipulator "mixed into" the voxels,
-    like e.g. for the SoGuiExamples/volumerendering/voleonexplore
-    example.
-
-    Not sure whether or not this should be consider a bug yet, as
-    there are reports and indications from their API docs that TGS'
-    VolumeViz works in the same manner.
-
-    20040920 mortene.
-
-========================================================================
-
 019 Missing SoTransferFunction should be handled with more grace.
 
     According to the VolumeViz API-doc, a *missing* SoTransferFunction
