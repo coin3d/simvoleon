@@ -532,11 +532,47 @@ void
 SoTransferFunctionP::convertGIMPGradient2IntArray(const struct GIMPGradient * gg,
                                                   uint8_t intgradient[256][4])
 {
-  // FIXME: quick hack for testing! 20021112 mortene.
+  int segmentidx = 0;
+  struct GIMPGradientSegment * segment = NULL;
+  float middle_RGBA[4];
+
   for (int i=0; i < 256; i++) {
-    intgradient[i][0] = (unsigned char)i;
-    intgradient[i][1] = (unsigned char)i;
-    intgradient[i][2] = (unsigned char)i;
-    intgradient[i][3] = (unsigned char)i;
+    float gradpos = 1.0f / float(256 - i);
+
+    // Advance to correct segment, if necessary.
+    while ((segment == NULL) || (gradpos > segment->right)) {
+      assert(segmentidx < gg->nrsegments);
+      segment = &gg->segments[segmentidx];
+      segmentidx++;
+
+      // While we're at it, calculate the RGBA value of the middle
+      // gradient point of the new segment.
+      for (int j=0; j < 4; j++) {
+        middle_RGBA[j] =
+          (segment->right_RGBA[j] - segment->left_RGBA[j]) / 2.0f +
+          segment->left_RGBA[j];
+      }
+    }
+
+    float left, right;
+    float left_RGBA[4], right_RGBA[4];
+    if (gradpos < segment->middle) {
+      left = segment->left;
+      right = segment->middle;
+      left_RGBA = segment->left_RGBA;
+      right_RGBA = middle_RGBA;
+    }
+    else {
+      left = segment->middle;
+      right = segment->right;
+      left_RGBA = middle_RGBA;
+      right_RGBA = segment->right_RGBA;
+    }
+
+    float changeperunit[4];
+    for (int k=0; k < 4; k++) {
+      changeperunit[k] = float(right_RGBA[k] - left_RGBA[k]) / (right - left);
+      intgradient[i][k] = left_RGBA[k] + int(changeperunit[k] * (gradpos - left));
+    }
   }
 }
