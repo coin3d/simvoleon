@@ -1,12 +1,8 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
+/*!
+  \class SoVolumeReader VolumeViz/readers/SoVolumeReader.h
+  \brief Abstract superclass for all volume data reader classes.
+  \ingroup volviz
+*/
 
 #include <VolumeViz/readers/SoVolumeReader.h>
 
@@ -38,8 +34,7 @@ SoVolumeReader::SoVolumeReader(void)
 {
   PRIVATE(this) = new SoVolumeReaderP(this);
 
-}//Constructor
-
+}
 
 
 
@@ -57,5 +52,5 @@ SoVolumeReader::~SoVolumeReader()
 
 void 
 SoVolumeReader::setUserData(void * data)
-{}
-
+{
+}

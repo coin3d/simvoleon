@@ -1,12 +1,8 @@
-/**************************************************************************\
- *
- *  Copyright (C) 1998-2000 by Systems in Motion.  All rights reserved.
- *
- *  Systems in Motion AS, Prof. Brochs gate 6, N-7030 Trondheim, NORWAY
- *  http://www.sim.no/ sales@sim.no Voice: +47 22114160 Fax: +47 67172912
- *
-\**************************************************************************/
-
+/*!
+  \class SoVRMemReader VolumeViz/readers/SoVRMemReader.h
+  \brief FIXME: doc
+  \ingroup volviz
+*/
 
 #include <VolumeViz/readers/SoVRMemReader.h>
 
@@ -44,23 +40,16 @@ private:
 
 // *************************************************************************
 
-/*!
-  Constructor.
-*/
 SoVRMemReader::SoVRMemReader(void)
 {
   PRIVATE(this) = new SoVRMemReaderP(this);
 
-}//Constructor
+}
 
-/*!
-  Destructor.
-*/
 SoVRMemReader::~SoVRMemReader()
 {
   delete PRIVATE(this);
-}// Destructor
-
+}
 
 
 void SoVRMemReader::setUserData(void * data)
@@ -74,7 +63,7 @@ void SoVRMemReader::getDataChar(SbBox3f &size,
   size = PRIVATE(this)->volumeSize;
   type = PRIVATE(this)->dataType;
   dim = PRIVATE(this)->dimensions;
-}// getDataChar
+}
 
 void SoVRMemReader::getSubSlice(SbBox2s &subSlice, 
                                 int sliceNumber, 
@@ -93,8 +82,8 @@ void SoVRMemReader::getSubSlice(SbBox2s &subSlice,
     case SoVolumeRendering::Z:
       PRIVATE(this)->buildSubSliceZ(data, sliceNumber, subSlice);
       break;
-  }// switch
-}// getSubSlice
+  }
+}
 
 
 void 
@@ -106,18 +95,18 @@ SoVRMemReader::setData(const SbVec3s &dimensions,
   PRIVATE(this)->dimensions = dimensions;
   PRIVATE(this)->data = data;
   PRIVATE(this)->dataType = type;
-}//setData
+}
 
 
 
-/*
-Returns a raw image with Z as horisontal and Y as vertical axis
-Assumes that the provided data is in RGBA-form
-Caller deletes of course. 
+/*!
+  Returns a raw image with Z as horisontal and Y as vertical axis
+  Assumes that the provided data is in RGBA-form Caller deletes of
+  course.
 
-This function and the similar functions for Y- and Z-axis should
-be fairly optimized. The innerloops could be unrolled a few times 
-to get even more speed. But that would mess up the code. 
+  This function and the similar functions for Y- and Z-axis should be
+  fairly optimized. The innerloops could be unrolled a few times to
+  get even more speed. But that would mess up the code.
 */
 void 
 SoVRMemReaderP::buildSubSliceX(void * output, 
@@ -153,7 +142,7 @@ SoVRMemReaderP::buildSubSliceX(void * output,
           byteTexture[out] = byteData[zOffset];
           out ++;
           zOffset += zAdd;
-        }// while
+        }
         break;
 
       case SoVolumeRendering::UNSIGNED_SHORT:
@@ -161,7 +150,7 @@ SoVRMemReaderP::buildSubSliceX(void * output,
           shortTexture[out] = shortData[zOffset];
           out ++;
           zOffset += zAdd;
-        }// while
+        }
         break;
 
       case SoVolumeRendering::RGBA:
@@ -169,21 +158,21 @@ SoVRMemReaderP::buildSubSliceX(void * output,
           intTexture[out] = intData[zOffset];
           out ++;
           zOffset += zAdd;
-        }// while
+        }
         break;
-    }// switch
+    }
 
     yOffset += dimensions[0];
-  }// while
-}// buildSubSliceX
+  }
+}
 
 
 
 
-/*
-Returns a texture with X as horisontal and Z as vertical axis
-Assumes that the provided data is in RGBA-form
-Caller deletes of course.
+/*!
+  Returns a texture with X as horisontal and Z as vertical axis
+  Assumes that the provided data is in RGBA-form Caller deletes of
+  course.
 */
 void 
 SoVRMemReaderP::buildSubSliceY(void * output, 
@@ -216,7 +205,7 @@ SoVRMemReaderP::buildSubSliceY(void * output,
             byteTexture[out] = byteData[xOffset];
             out++;
             xOffset++;
-          }// while
+          }
           break;
 
       case SoVolumeRendering::UNSIGNED_SHORT:
@@ -224,7 +213,7 @@ SoVRMemReaderP::buildSubSliceY(void * output,
             shortTexture[out] = shortData[xOffset];
             out++;
             xOffset++;
-          }// while
+          }
           break;
 
       case SoVolumeRendering::RGBA:
@@ -232,19 +221,19 @@ SoVRMemReaderP::buildSubSliceY(void * output,
             intTexture[out] = intData[xOffset];
             out++;
             xOffset++;
-          }// while
+          }
           break;
 
-    }// switch
+    }
     zOffset += dimensions[0]*dimensions[1];
-  }// while
-}// getRGBAPageY
+  }
+}
 
 
-/*
-Returns a texture with X as horisontal and Y as vertical axis
-Assumes that the provided data is in RGBA-form
-Caller deletes of course.
+/*!
+  Returns a texture with X as horisontal and Y as vertical axis
+  Assumes that the provided data is in RGBA-form Caller deletes of
+  course.
 */
 void 
 SoVRMemReaderP::buildSubSliceZ(void * output, 
@@ -276,7 +265,7 @@ SoVRMemReaderP::buildSubSliceZ(void * output,
           byteTexture[out] = byteData[xOffset];
           out++;
           xOffset++;
-        }// while
+        }
         break;
 
       case SoVolumeRendering::UNSIGNED_SHORT:
@@ -284,7 +273,7 @@ SoVRMemReaderP::buildSubSliceZ(void * output,
           shortTexture[out] = shortData[xOffset];
           out++;
           xOffset++;
-        }// while
+        }
         break;
 
       case SoVolumeRendering::RGBA:
@@ -292,19 +281,17 @@ SoVRMemReaderP::buildSubSliceZ(void * output,
           intTexture[out] = intData[xOffset];
           out++;
           xOffset++;
-        }// while
+        }
         break;
 
-    }// switch
+    }
     // Next line of pixels
     yOffset += dimensions[0];
-  }// while
-}// getRGBAPageZ*/
-
-
+  }
+}
 
 void
 SoVRMemReader::setVolumeSize(const SbBox3f &volumeSize)
 {
   PRIVATE(this)->volumeSize = volumeSize;
-}// setVolumeSize
+}

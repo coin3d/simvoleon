@@ -1,9 +1,7 @@
 /*!
   \class SoTransferFunctionElement VolumeViz/elements/SoTransferFunctionElement.h
-  \brief 
-  \ingroup elements
-
-  FIXME: write doc.
+  \brief This class stores a reference to the current transfer function.
+  \ingroup volviz
 */
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>

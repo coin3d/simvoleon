@@ -1,9 +1,7 @@
 /*!
   \class SoVolumeDataElement VolumeViz/elements/SoVolumeDataElement.h
-  \brief 
-  \ingroup elements
-
-  FIXME: write doc.
+  \brief This class stores a reference to the current set of volume data.
+  \ingroup volviz
 */
 
 #include <VolumeViz/elements/SoVolumeDataElement.h>

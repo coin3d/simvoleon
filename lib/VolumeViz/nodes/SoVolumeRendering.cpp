@@ -66,6 +66,7 @@ SoVolumeRendering::~SoVolumeRendering()
 void
 SoVolumeRendering::initClass(void)
 {
+  // FIXME: is the last argument really correct? 20021106 mortene.
   SO_NODE_INIT_CLASS(SoVolumeRendering, SoNode, "VolumeRendering");
 
   SoVolumeData::initClass();
