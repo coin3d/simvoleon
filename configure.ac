@@ -18,6 +18,12 @@ AC_CONFIG_AUX_DIR(cfg)
 
 AC_CANONICAL_SYSTEM
 
+simvoleon_build_dir=`pwd`
+simvoleon_src_dir=`cd $srcdir; pwd`
+
+AC_SUBST([simvoleon_src_dir])
+AC_SUBST([simvoleon_build_dir])
+
 SIM_AC_MSVC_DSP_ENABLE_OPTION
 
 # If the Microsoft Visual C++ cl.exe compiler is available, set us up for
