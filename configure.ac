@@ -250,24 +250,30 @@ SIM_AC_UNIQIFY_LIST(CPPFLAGS, $CPPFLAGS)
 SIM_AC_UNIQIFY_LIST(LDFLAGS, $LDFLAGS)
 SIM_AC_UNIQIFY_LIST(LIBS, $LIBS)
 
+# **************************************************************************
+# Microsoft Developer Studio Project files
+
+SIM_AC_MSVC_DSP_SETUP([SIMVOLEON], [SimVoleon], [simvoleon], [-I$simvoleon_build_dir/lib -I$simvoleon_src_dir/lib])
+
+
 # *******************************************************************
 
 AC_OUTPUT([
         Makefile
         bin/Makefile
-	bin/simvoleon-config
+        bin/simvoleon-config
         lib/Makefile
         lib/VolumeViz/Makefile
         lib/VolumeViz/C/Makefile
-	lib/VolumeViz/details/Makefile
-	lib/VolumeViz/elements/Makefile
-	lib/VolumeViz/misc/Makefile
-	lib/VolumeViz/nodes/Makefile
-	lib/VolumeViz/nodes/gradients/Makefile
-	lib/VolumeViz/readers/Makefile
-	lib/VolumeViz/render/Makefile
-	lib/VolumeViz/render/2D/Makefile
-	lib/VolumeViz/render/Pointset/Makefile
+        lib/VolumeViz/details/Makefile
+        lib/VolumeViz/elements/Makefile
+        lib/VolumeViz/misc/Makefile
+        lib/VolumeViz/nodes/Makefile
+        lib/VolumeViz/nodes/gradients/Makefile
+        lib/VolumeViz/readers/Makefile
+        lib/VolumeViz/render/Makefile
+        lib/VolumeViz/render/2D/Makefile
+        lib/VolumeViz/render/Pointset/Makefile
 ])
 
 # *******************************************************************
