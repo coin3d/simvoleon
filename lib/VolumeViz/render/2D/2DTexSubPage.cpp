@@ -1,7 +1,7 @@
 // From torbjorv's dictionary: a "page" is "a segment of a
 // slice". (See VolumeDataSlice.cpp.)
 
-#include <VolumeViz/misc/SoVolumeDataPage.h>
+#include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/actions/SoGLRenderAction.h>
@@ -44,7 +44,7 @@
 //
 // glColorTableEXT
 //
-//   Study SoVolumeDataPage::setData. The code supports palettes of
+//   Study Cvr2DTexSubPage::setData. The code supports palettes of
 //   variable sizes, exploiting the obvious advantages explained in the
 //   previous section.  In between the uploading of palette and texture,
 //   there is a check of what palette size actually achieved. It seems
@@ -57,7 +57,7 @@
 
 
 
-SoVolumeDataPage::SoVolumeDataPage(void)
+Cvr2DTexSubPage::Cvr2DTexSubPage(void)
 {
   this->size = SbVec2s(0, 0);
   this->format = 0;
@@ -72,7 +72,7 @@ SoVolumeDataPage::SoVolumeDataPage(void)
 }
 
 
-SoVolumeDataPage::~SoVolumeDataPage()
+Cvr2DTexSubPage::~Cvr2DTexSubPage()
 {
   this->release();
 }
@@ -80,7 +80,7 @@ SoVolumeDataPage::~SoVolumeDataPage()
 
 // FIXME: Some magic has to be done to make this one work with OpenGL 1.0.
 // torbjorv 08052002
-void SoVolumeDataPage::setActivePage(long tick)
+void Cvr2DTexSubPage::setActivePage(long tick)
 {
   glBindTexture(GL_TEXTURE_2D, this->textureName);
   this->lastuse = tick;
@@ -94,7 +94,7 @@ void SoVolumeDataPage::setActivePage(long tick)
   palette.  The function uses the palette's size to decide whether the
   indices are byte or short.
 */
-void SoVolumeDataPage::setData(Storage storage,
+void Cvr2DTexSubPage::setData(Storage storage,
                                unsigned char * bytes,
                                const SbVec2s & size,
                                const float * palette,
@@ -240,7 +240,7 @@ void SoVolumeDataPage::setData(Storage storage,
 }
 
 void
-SoVolumeDataPage::release(void)
+Cvr2DTexSubPage::release(void)
 {
   if (this->textureName != 0)
     glDeleteTextures(1, &(this->textureName));

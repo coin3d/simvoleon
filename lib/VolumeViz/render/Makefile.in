@@ -36,7 +36,7 @@ oldincludedir = /usr/include
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
-top_builddir = ../..
+top_builddir = ../../..
 
 ACLOCAL = @ACLOCAL@
 AUTOCONF = @AUTOCONF@
@@ -96,70 +96,12 @@ am__quote = @am__quote@
 install_sh = @install_sh@
 sim_ac_coin_configcmd = @sim_ac_coin_configcmd@
 
-INCLUDES = -I$(top_srcdir)/lib
-
-SUBDIRS = elements nodes readers render .
-
-@BUILD_WITH_MSVC_TRUE@lib_LIBRARIES = VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib
-@BUILD_WITH_MSVC_FALSE@lib_LTLIBRARIES = libVolumeViz.la
-
-libVolumeViz_la_SOURCES = 
-
-libVolumeViz_la_LIBADD = \
-        elements/libelements.la \
-	nodes/libnodes.la \
-        readers/libreaders.la \
-	render/2D/lib2Drender.la
-
-
-libVolumeViz_la_LDFLAGS = \
-	-no-undefined \
-	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
-
-
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES = 
-
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD = \
-        elements/elements.lst \
-        nodes/nodes.lst \
-        readers/readers.lst \
-	render/2D/2Drender.lst
-
-subdir = lib/VolumeViz
+SUBDIRS = 2D
+subdir = lib/VolumeViz/render
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-LIBRARIES = $(lib_LIBRARIES)
-
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_AR = $(AR) cru
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_DEPENDENCIES = \
-	elements/elements.lst nodes/nodes.lst readers/readers.lst \
-	render/2D/2Drender.lst
-am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS =
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS = \
-	$(am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS)
-LTLIBRARIES = $(lib_LTLIBRARIES)
-
-libVolumeViz_la_DEPENDENCIES = elements/libelements.la nodes/libnodes.la \
-	readers/libreaders.la render/2D/lib2Drender.la
-am_libVolumeViz_la_OBJECTS =
-libVolumeViz_la_OBJECTS = $(am_libVolumeViz_la_OBJECTS)
-
-DEFS = @DEFS@
-DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
-CPPFLAGS = @CPPFLAGS@
-LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@
-CFLAGS = @CFLAGS@
-COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
-	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
-	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
-CCLD = $(CC)
-LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-DIST_SOURCES = $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES) \
-	$(libVolumeViz_la_SOURCES)
+DIST_SOURCES =
 
 RECURSIVE_TARGETS = info-recursive dvi-recursive install-info-recursive \
 	uninstall-info-recursive all-recursive install-data-recursive \
@@ -167,8 +109,6 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive install-info-recursive \
 	uninstall-recursive check-recursive installcheck-recursive
 DIST_COMMON = Makefile.am Makefile.in
 DIST_SUBDIRS = $(SUBDIRS)
-SOURCES = $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES) $(libVolumeViz_la_SOURCES)
-
 all: all-recursive
 
 .SUFFIXES:
@@ -183,66 +123,11 @@ distclean-libtool:
 	-rm -f libtool
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  lib/VolumeViz/Makefile
+	  $(AUTOMAKE) --gnu  lib/VolumeViz/render/Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && \
 	  CONFIG_HEADERS= CONFIG_LINKS= \
 	  CONFIG_FILES=$(subdir)/$@ $(SHELL) ./config.status
-
-AR = ar
-install-libLIBRARIES: $(lib_LIBRARIES)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libdir)
-	@list='$(lib_LIBRARIES)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo " $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p"; \
-	    $(INSTALL_DATA) $$p $(DESTDIR)$(libdir)/$$p; \
-	  else :; fi; \
-	done
-	@$(POST_INSTALL)
-	@list='$(lib_LIBRARIES)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo " $(RANLIB) $(DESTDIR)$(libdir)/$$p"; \
-	    $(RANLIB) $(DESTDIR)$(libdir)/$$p; \
-	  else :; fi; \
-	done
-
-uninstall-libLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	@list='$(lib_LIBRARIES)'; for p in $$list; do \
-	  echo " rm -f $(DESTDIR)$(libdir)/$$p"; \
-	  rm -f $(DESTDIR)$(libdir)/$$p; \
-	done
-
-clean-libLIBRARIES:
-	-test -z "$(lib_LIBRARIES)" || rm -f $(lib_LIBRARIES)
-install-libLTLIBRARIES: $(lib_LTLIBRARIES)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libdir)
-	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
-	  if test -f $$p; then \
-	    echo " $(LIBTOOL) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(libdir)/$$p"; \
-	    $(LIBTOOL) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(libdir)/$$p; \
-	  else :; fi; \
-	done
-
-uninstall-libLTLIBRARIES:
-	@$(NORMAL_UNINSTALL)
-	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
-	  echo " $(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p"; \
-	  $(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
-	done
-
-clean-libLTLIBRARIES:
-	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
-libVolumeViz.la: $(libVolumeViz_la_OBJECTS) $(libVolumeViz_la_DEPENDENCIES) 
-	$(LINK) -rpath $(libdir) $(libVolumeViz_la_LDFLAGS) $(libVolumeViz_la_OBJECTS) $(libVolumeViz_la_LIBADD) $(LIBS)
-
-mostlyclean-compile:
-	-rm -f *.$(OBJEXT) core *.core
-
-distclean-compile:
-	-rm -f *.tab.c
 uninstall-info-am:
 
 # This directory's subdirectories are mostly independent; you can cd
@@ -339,7 +224,7 @@ distclean-tags:
 
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
-top_distdir = ../..
+top_distdir = ../../..
 distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
 
 distdir: $(DISTFILES)
@@ -373,10 +258,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(LIBRARIES) $(LTLIBRARIES)
+all-am: Makefile
 installdirs: installdirs-recursive
 installdirs-am:
-	$(mkinstalldirs) $(DESTDIR)$(libdir) $(DESTDIR)$(libdir)
 
 install: install-recursive
 install-exec: install-exec-recursive
@@ -403,13 +287,12 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-generic clean-libLIBRARIES clean-libLTLIBRARIES \
-	clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
 
-distclean-am: clean-am distclean-compile distclean-generic \
-	distclean-libtool distclean-tags
+distclean-am: clean-am distclean-generic distclean-libtool \
+	distclean-tags
 
 dvi: dvi-recursive
 
@@ -419,10 +302,9 @@ info: info-recursive
 
 info-am:
 
-install-data-am: install-data-local
+install-data-am:
 
-install-exec-am: install-exec-local install-libLIBRARIES \
-	install-libLTLIBRARIES
+install-exec-am:
 
 install-info: install-info-recursive
 
@@ -436,93 +318,27 @@ maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-compile mostlyclean-generic \
-	mostlyclean-libtool
+mostlyclean-am: mostlyclean-generic mostlyclean-libtool
 
-uninstall-am: uninstall-info-am uninstall-libLIBRARIES \
-	uninstall-libLTLIBRARIES uninstall-local
+uninstall-am: uninstall-info-am
 
 uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) GTAGS all all-am check check-am clean \
-	clean-generic clean-libLIBRARIES clean-libLTLIBRARIES \
-	clean-libtool clean-recursive distclean distclean-compile \
+	clean-generic clean-libtool clean-recursive distclean \
 	distclean-generic distclean-libtool distclean-recursive \
 	distclean-tags distdir dvi dvi-am dvi-recursive info info-am \
 	info-recursive install install-am install-data install-data-am \
-	install-data-local install-data-recursive install-exec \
-	install-exec-am install-exec-local install-exec-recursive \
-	install-info install-info-am install-info-recursive \
-	install-libLIBRARIES install-libLTLIBRARIES install-man \
-	install-recursive install-strip installcheck installcheck-am \
-	installdirs installdirs-am installdirs-recursive \
-	maintainer-clean maintainer-clean-generic \
-	maintainer-clean-recursive mostlyclean mostlyclean-compile \
+	install-data-recursive install-exec install-exec-am \
+	install-exec-recursive install-info install-info-am \
+	install-info-recursive install-man install-recursive \
+	install-strip installcheck installcheck-am installdirs \
+	installdirs-am installdirs-recursive maintainer-clean \
+	maintainer-clean-generic maintainer-clean-recursive mostlyclean \
 	mostlyclean-generic mostlyclean-libtool mostlyclean-recursive \
 	tags tags-recursive uninstall uninstall-am uninstall-info-am \
-	uninstall-info-recursive uninstall-libLIBRARIES \
-	uninstall-libLTLIBRARIES uninstall-local uninstall-recursive
+	uninstall-info-recursive uninstall-recursive
 
-
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib: Makefile \
-  $(libVolumeViz_lib_OBJECTS) \
-  $(libVolumeViz_lib_DEPENDENCIES)
-	@basename="VolumeViz@VOLUMEVIZ_MAJOR_VERSION@"; \
-	rm -f "$$basename.dll" "$$basename.lib"; \
-	echo "Linking $$basename.lib..."; \
-	echo $(CC) $(LDFLAGS) $(LIBFLAGS) \
-	  $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS) \
-	  $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD) $(LIBS); \
-	$(CC) $(LDFLAGS) $(LIBFLAGS) \
-	  $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS) \
-	  $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD) $(LIBS);
-
-# **************************************************************************
-
-install-exec-local:
-	@basename="VolumeViz@VOLUMEVIZ_MAJOR_VERSION@"; \
-	for ext in dll pdb; do \
-	  file="$$basename.$$ext"; \
-	  if test -s "$$file"; then \
-	    $(mkinstalldirs) "$(DESTDIR)$(bindir)"; \
-	    echo $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file"; \
-	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(bindir)/$$file"; \
-	  fi \
-	done
-
-install-data-local:
-	@basename="VolumeViz@VOLUMEVIZ_MAJOR_VERSION@"; \
-	for ext in lib; do \
-	  file="$$basename.$$ext"; \
-	  if test -s "$$file"; then \
-	    $(mkinstalldirs) "$(DESTDIR)$(libdir)"; \
-	    echo $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(libdir)/$$file"; \
-	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(libdir)/$$file"; \
-	  fi \
-	done
-
-uninstall-local:
-	@basename="VolumeViz@VOLUMEVIZ_MAJOR_VERSION@"; \
-	for file in \
-	  "$(DESTDIR)$(bindir)/$$basename.dll" \
-	  "$(DESTDIR)$(bindir)/$$basename.pdb" \
-	  "$(DESTDIR)$(libdir)/$$basename.lib"; do \
-	  if test -f "$$file"; then \
-	    echo " rm -f" "$$file"; \
-	    rm -f "$$file"; \
-	  fi \
-	done; \
-	incbasedir="$(DESTDIR)$(includedir)/VolumeViz"; \
-	for dir in \
-	  "$$incbasedir/elements" \
-	  "$$incbasedir/nodes" \
-	  "$$incbasedir/readers" \
-	  "$$incbasedir"; do \
-	  if test -d "$$dir"; then \
-	    echo " rmdir" "$$dir"; \
-	    rmdir "$$dir"; \
-	  fi \
-	done
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

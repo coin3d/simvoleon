@@ -11,8 +11,8 @@
 #include <Inventor/elements/SoGLCacheContextElement.h>
 #include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
-#include <VolumeViz/misc/SoVolumeDataPage.h>
-#include <VolumeViz/misc/SoVolumeDataSlice.h>
+#include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
+#include <VolumeViz/render/2D/Cvr2DTexPage.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
 
 #include <Inventor/errors/SoDebugError.h>
@@ -23,13 +23,12 @@
 
 DICTIONARY
 
-  "Slice"      : One complete cut through the volume, normal to an axis.
-  "Page"       : A segment of a slice.
-  "In-memory"  : In this context, "in-memory" means volume data (pages) that's
-                 pulled out of the reader and run through a transfer function,
-                 thus ready to be rendered.
-  LRU          : Least Recently Used
-
+  "Page"      : One complete cut through the volume, normal to an axis.
+  "SubPage"   : A segment of a page.
+  "In-memory" : In this context, "in-memory" means volume data (pages) that's
+                pulled out of the reader and run through a transfer function,
+                thus ready to be rendered.
+  LRU         : Least Recently Used
 
 
 
@@ -94,7 +93,7 @@ USER INTERACTION
 
 PALETTED TEXTURES
 
-  See doc in SoVolumeDataPage.
+  See doc in Cvr2DTexSubPage.
 
 
 MEMORY MANAGEMENT
@@ -117,7 +116,7 @@ RENDERING
   and SoVolumeRender is more or less identical, and they should share
   some common render function capable of rendering an entire
   volume. This should in turn use a slice rendering-function similar
-  to SoVolumeDataSlice::render.
+  to Cvr2DTexPage::render.
 
 
 
@@ -179,7 +178,7 @@ REFACTORING
   Rumours has it that parts of this library will be refactored and
   extracted into a more or less external c-library. This is a
   very good idea, and it is already partially implemented through
-  SoVolumeDataPage and SoVolumeDataSlice. This library should be as
+  Cvr2DTexSubPage and Cvr2DTexPage. This library should be as
   decoupled from Coin as possible, but it would be a lot of work to
   build a completely standalone one. An intermediate layer between
   the lib and Coin would be required, responsible for translating all
@@ -209,7 +208,7 @@ REFACTORING
   The renderingcode is totally independent of the dataformats of
   textures. (RGBA, paletted etc), and may be reused with great ease
   whereever needed in the new lib. This code is located in
-  SoVolumeDataSlice::Render and i.e. SoVolumeRender::GLRender.
+  Cvr2DTexPage::Render and i.e. SoVolumeRender::GLRender.
   I actually spent quite some time implementing the slicerendering,
   getting all the interpolation correct when switching from one page
   to another within the same arbitrary shaped quad.
@@ -287,9 +286,9 @@ public:
   int maxBytesHW;
   int numBytesHW;
 
-  SoVolumeDataSlice ** slices[3];
+  Cvr2DTexPage ** slices[3];
 
-  SoVolumeDataSlice * getSlice(const Axis AXISIDX, int sliceidx);
+  Cvr2DTexPage * getSlice(const Axis AXISIDX, int sliceidx);
 
   void releaseAllSlices();
   void releaseSlices(const Axis AXISIDX);
@@ -470,7 +469,7 @@ SoVolumeData::renderOrthoSlice(SoState * state,
   SbVec2f max, min;
   quad.getBounds(min, max);
 
-  SoVolumeDataSlice * slice =
+  Cvr2DTexPage * slice =
     PRIVATE(this)->getSlice((SoVolumeDataP::Axis)axis, sliceIdx);
 
   // FIXME: huh? What's up with this? 20021111 mortene.
@@ -540,7 +539,7 @@ SoVolumeData::setHWMemorySize(int size)
 /*************************** PIMPL-FUNCTIONS ********************************/
 
 
-SoVolumeDataSlice *
+Cvr2DTexPage *
 SoVolumeDataP::getSlice(const SoVolumeDataP::Axis AXISIDX, int sliceidx)
 {
   assert((AXISIDX >= X) && (AXISIDX <= Z));
@@ -552,16 +551,16 @@ SoVolumeDataP::getSlice(const SoVolumeDataP::Axis AXISIDX, int sliceidx)
                          sliceidx);
 #endif // debug
 
-  // First SoVolumeDataPage ever for this axis?
+  // First Cvr2DTexSubPage ever for this axis?
   if (this->slices[AXISIDX] == NULL) {
-    this->slices[AXISIDX] = new SoVolumeDataSlice*[this->dimensions[AXISIDX]];
+    this->slices[AXISIDX] = new Cvr2DTexPage*[this->dimensions[AXISIDX]];
     for (int i=0; i < this->dimensions[AXISIDX]; i++) {
       this->slices[AXISIDX][i] = NULL;
     }
   }
 
   if (this->slices[AXISIDX][sliceidx] == NULL) {
-    SoVolumeDataSlice * newslice = new SoVolumeDataSlice;
+    Cvr2DTexPage * newslice = new Cvr2DTexPage;
 
     SoOrthoSlice::Axis axis =
       AXISIDX == X ? SoOrthoSlice::X :
@@ -622,8 +621,8 @@ SoVolumeDataP::freeTexels(int desired)
 void
 SoVolumeDataP::releaseLRUPage(void)
 {
-  SoVolumeDataPage * LRUPage = NULL;
-  SoVolumeDataSlice * LRUSlice = NULL;
+  Cvr2DTexSubPage * LRUPage = NULL;
+  Cvr2DTexPage * LRUSlice = NULL;
 
   // Searching for least recently used page.
 
@@ -631,7 +630,7 @@ SoVolumeDataP::releaseLRUPage(void)
     if (this->slices[dim]) {
       for (int i = 0; i < this->dimensions[dim]; i++) {
         if (this->slices[dim][i]) {
-          SoVolumeDataPage * tmppage = this->slices[dim][i]->getLRUPage();
+          Cvr2DTexSubPage * tmppage = this->slices[dim][i]->getLRUPage();
           SbBool newlow = (LRUPage == NULL);
           if (!newlow) { newlow = tmppage && (tmppage->lastuse < LRUPage->lastuse); }
           if (newlow) {

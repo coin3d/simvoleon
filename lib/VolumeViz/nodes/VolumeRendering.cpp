@@ -14,8 +14,7 @@
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
-#include <VolumeViz/misc/SoVolumeDataPage.h>
-#include <VolumeViz/misc/SoVolumeDataSlice.h>
+#include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoROI.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 

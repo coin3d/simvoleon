@@ -1,14 +1,14 @@
-#ifndef COIN_SOVOLUMEDATAPAGE_H
-#define COIN_SOVOLUMEDATAPAGE_H
+#ifndef COIN_CVR2DTEXSUBPAGE_H
+#define COIN_CVR2DTEXSUBPAGE_H
 
 #include <Inventor/SbVec2s.h>
 #include <Inventor/misc/SoState.h>
 
 
-class SoVolumeDataPage {
+class Cvr2DTexSubPage {
 public:
-  SoVolumeDataPage(void);
-  ~SoVolumeDataPage();
+  Cvr2DTexSubPage(void);
+  ~Cvr2DTexSubPage();
 
   enum Storage {
     NOT_LOADED = 0x0,
@@ -31,7 +31,7 @@ public:
   unsigned long lastuse;
 
   // FIXME: must be public, since they are used from
-  // SoVolumeDataSlice. 20021106 mortene.
+  // Cvr2DTexPage. 20021106 mortene.
   int numBytesHW;
   uint32_t transferFunctionId;
 
@@ -45,4 +45,4 @@ private:
 };
 
 
-#endif //COIN_SOVOLUMEDATAPAGE_H
+#endif //COIN_CVR2DTEXSUBPAGE_H

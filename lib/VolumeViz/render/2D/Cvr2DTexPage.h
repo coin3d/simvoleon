@@ -1,24 +1,24 @@
-#ifndef COIN_SOVOLUMEDATASLICE_H
-#define COIN_SOVOLUMEDATASLICE_H
+#ifndef COIN_CVR2DTEXPAGE_H
+#define COIN_CVR2DTEXPAGE_H
 
 #include <Inventor/SbVec2s.h>
 #include <Inventor/misc/SoState.h>
-#include <VolumeViz/misc/SoVolumeDataPage.h>
+#include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 #include <VolumeViz/nodes/SoOrthoSlice.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/readers/SoVolumeReader.h>
 
 
-class SoVolumeDataSlice {
+class Cvr2DTexPage {
 
 public:
-  SoVolumeDataSlice(void);
-  ~SoVolumeDataSlice();
+  Cvr2DTexPage(void);
+  ~Cvr2DTexPage();
 
-  SoVolumeDataPage * getPage(int col, int row,
+  Cvr2DTexSubPage * getPage(int col, int row,
                              SoTransferFunction * transferFunction);
 
-  SoVolumeDataPage * buildPage(int col, int row,
+  Cvr2DTexSubPage * buildPage(int col, int row,
                                SoTransferFunction * transferFunction);
 
   void init(SoVolumeReader * reader, int sliceIdx,
@@ -30,8 +30,8 @@ public:
               const SbBox2f & textureCoords,
               SoTransferFunction * transferFunction, long tick);
 
-  SoVolumeDataPage * getLRUPage(void);
-  void releasePage(SoVolumeDataPage *page);
+  Cvr2DTexSubPage * getLRUPage(void);
+  void releasePage(Cvr2DTexSubPage *page);
 
   // FIXME: must be public, since they are used from
   // SoVolumeData. 20021106 mortene.
@@ -45,7 +45,7 @@ private:
 
   int calcPageIdx(int row, int col) const;
 
-  class SoVolumeDataPageItem ** pages;
+  class Cvr2DTexSubPageItem ** pages;
   SoVolumeReader * reader;
 
   SoOrthoSlice::Axis axis;
@@ -59,4 +59,4 @@ private:
   SoVolumeData::DataType dataType;
 };
 
-#endif // !COIN_SOVOLUMEDATASLICE_H
+#endif // !COIN_CVR2DTEXPAGE_H

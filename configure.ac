@@ -236,7 +236,8 @@ AC_OUTPUT([
 	lib/VolumeViz/nodes/gradients/Makefile
 	lib/VolumeViz/elements/Makefile
 	lib/VolumeViz/readers/Makefile
-	lib/VolumeViz/misc/Makefile
+	lib/VolumeViz/render/Makefile
+	lib/VolumeViz/render/2D/Makefile
 ])
 
 SIM_AC_CONFIGURATION_SETTING([Install prefix], [$prefix])

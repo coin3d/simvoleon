@@ -36,7 +36,7 @@ oldincludedir = /usr/include
 pkgdatadir = $(datadir)/@PACKAGE@
 pkglibdir = $(libdir)/@PACKAGE@
 pkgincludedir = $(includedir)/@PACKAGE@
-top_builddir = ../../..
+top_builddir = ../../../..
 
 ACLOCAL = @ACLOCAL@
 AUTOCONF = @AUTOCONF@
@@ -98,40 +98,33 @@ sim_ac_coin_configcmd = @sim_ac_coin_configcmd@
 
 INCLUDES = -I$(top_srcdir)/lib
 
-@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = misc.lst
-@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libmisc.la
+@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = 2Drender.lst
+@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = lib2Drender.la
 
 SOURCES = \
-	VolumeDataPage.cpp \
-	VolumeDataSlice.cpp
+	2DTexSubPage.cpp Cvr2DTexSubPage.h \
+	2DTexPage.cpp Cvr2DTexPage.h
 
 
-libmisc_la_SOURCES = $(SOURCES)
+lib2Drender_la_SOURCES = $(SOURCES)
 
-misc_lst_SOURCES = $(SOURCES)
-
-libmiscincdir = $(includedir)/VolumeViz/misc
-
-libmiscinc_HEADERS = \
-	SoVolumeDataSlice.h \
-	SoVolumeDataPage.h
-
-subdir = lib/VolumeViz/misc
+2Drender_lst_SOURCES = $(SOURCES)
+subdir = lib/VolumeViz/render/2D
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 LIBRARIES = $(noinst_LIBRARIES)
 
-misc_lst_AR = $(AR) cru
-misc_lst_LIBADD =
-am_misc_lst_OBJECTS = VolumeDataPage.$(OBJEXT) VolumeDataSlice.$(OBJEXT)
-misc_lst_OBJECTS = $(am_misc_lst_OBJECTS)
+2Drender_lst_AR = $(AR) cru
+2Drender_lst_LIBADD =
+am_2Drender_lst_OBJECTS = 2DTexSubPage.$(OBJEXT) 2DTexPage.$(OBJEXT)
+2Drender_lst_OBJECTS = $(am_2Drender_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
-libmisc_la_LDFLAGS =
-libmisc_la_LIBADD =
-am_libmisc_la_OBJECTS = VolumeDataPage.lo VolumeDataSlice.lo
-libmisc_la_OBJECTS = $(am_libmisc_la_OBJECTS)
+lib2Drender_la_LDFLAGS =
+lib2Drender_la_LIBADD =
+am_lib2Drender_la_OBJECTS = 2DTexSubPage.lo 2DTexPage.lo
+lib2Drender_la_OBJECTS = $(am_lib2Drender_la_OBJECTS)
 
 DEFS = @DEFS@
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
@@ -139,10 +132,9 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
-@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/VolumeDataPage.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/VolumeDataPage.Po \
-@AMDEP_TRUE@	$(DEPDIR)/VolumeDataSlice.Plo \
-@AMDEP_TRUE@	$(DEPDIR)/VolumeDataSlice.Po
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/2DTexPage.Plo $(DEPDIR)/2DTexPage.Po \
+@AMDEP_TRUE@	$(DEPDIR)/2DTexSubPage.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/2DTexSubPage.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -152,13 +144,19 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 CXXFLAGS = @CXXFLAGS@
-DIST_SOURCES = $(misc_lst_SOURCES) $(libmisc_la_SOURCES)
-HEADERS = $(libmiscinc_HEADERS)
-
-DIST_COMMON = $(libmiscinc_HEADERS) Makefile.am Makefile.in
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
+	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+DIST_SOURCES = $(2Drender_lst_SOURCES) $(lib2Drender_la_SOURCES)
+DIST_COMMON = Makefile.am Makefile.in
 SOURCES = \
-	VolumeDataPage.cpp \
-	VolumeDataSlice.cpp
+	2DTexSubPage.cpp Cvr2DTexSubPage.h \
+	2DTexPage.cpp Cvr2DTexPage.h
 
 
 all: all-am
@@ -176,7 +174,7 @@ distclean-libtool:
 	-rm -f libtool
 $(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu  lib/VolumeViz/misc/Makefile
+	  $(AUTOMAKE) --gnu  lib/VolumeViz/render/2D/Makefile
 Makefile: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && \
 	  CONFIG_HEADERS= CONFIG_LINKS= \
@@ -186,11 +184,15 @@ AR = ar
 
 clean-noinstLIBRARIES:
 	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
+2Drender.lst: $(2Drender_lst_OBJECTS) $(2Drender_lst_DEPENDENCIES) 
+	-rm -f 2Drender.lst
+	$(2Drender_lst_AR) 2Drender.lst $(2Drender_lst_OBJECTS) $(2Drender_lst_LIBADD)
+	$(RANLIB) 2Drender.lst
 
 clean-noinstLTLIBRARIES:
 	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
-libmisc.la: $(libmisc_la_OBJECTS) $(libmisc_la_DEPENDENCIES) 
-	$(CXXLINK)  $(libmisc_la_LDFLAGS) $(libmisc_la_OBJECTS) $(libmisc_la_LIBADD) $(LIBS)
+lib2Drender.la: $(lib2Drender_la_OBJECTS) $(lib2Drender_la_DEPENDENCIES) 
+	$(CXXLINK)  $(lib2Drender_la_LDFLAGS) $(lib2Drender_la_OBJECTS) $(lib2Drender_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -198,10 +200,10 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeDataPage.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeDataPage.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeDataSlice.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/VolumeDataSlice.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/2DTexPage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/2DTexPage.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/2DTexSubPage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/2DTexSubPage.Po@am__quote@
 
 distclean-depend:
 	-rm -rf $(DEPDIR)
@@ -225,23 +227,6 @@ distclean-depend:
 	$(LTCXXCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
 CXXDEPMODE = @CXXDEPMODE@
 uninstall-info-am:
-install-libmiscincHEADERS: $(libmiscinc_HEADERS)
-	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libmiscincdir)
-	@list='$(libmiscinc_HEADERS)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(INSTALL_HEADER) $$d$$p $(DESTDIR)$(libmiscincdir)/$$f"; \
-	  $(INSTALL_HEADER) $$d$$p $(DESTDIR)$(libmiscincdir)/$$f; \
-	done
-
-uninstall-libmiscincHEADERS:
-	@$(NORMAL_UNINSTALL)
-	@list='$(libmiscinc_HEADERS)'; for p in $$list; do \
-	  f="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " rm -f $(DESTDIR)$(libmiscincdir)/$$f"; \
-	  rm -f $(DESTDIR)$(libmiscincdir)/$$f; \
-	done
 
 tags: TAGS
 
@@ -277,7 +262,7 @@ distclean-tags:
 
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 
-top_distdir = ../../..
+top_distdir = ../../../..
 distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
 
 distdir: $(DISTFILES)
@@ -298,10 +283,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES) $(LTLIBRARIES) $(HEADERS)
+all-am: Makefile $(LIBRARIES) $(LTLIBRARIES)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(libmiscincdir)
 
 install: install-am
 install-exec: install-exec-am
@@ -344,7 +328,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-libmiscincHEADERS
+install-data-am:
 
 install-exec-am:
 
@@ -363,7 +347,7 @@ mostlyclean: mostlyclean-am
 mostlyclean-am: mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool
 
-uninstall-am: uninstall-info-am uninstall-libmiscincHEADERS
+uninstall-am: uninstall-info-am
 
 .PHONY: GTAGS all all-am check check-am clean clean-generic \
 	clean-libtool clean-noinstLIBRARIES clean-noinstLTLIBRARIES \
@@ -371,17 +355,17 @@ uninstall-am: uninstall-info-am uninstall-libmiscincHEADERS
 	distclean-libtool distclean-tags distdir dvi dvi-am info \
 	info-am install install-am install-data install-data-am \
 	install-exec install-exec-am install-info install-info-am \
-	install-libmiscincHEADERS install-man install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool tags uninstall \
-	uninstall-am uninstall-info-am uninstall-libmiscincHEADERS
+	install-man install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool tags uninstall uninstall-am \
+	uninstall-info-am
 
 
-misc.lst: $(misc_lst_OBJECTS)
+2Drender.lst: $(2Drender_lst_OBJECTS)
 	@echo "Linking $@..."; \
 	rm -f $@; \
-	for i in $(misc_lst_OBJECTS); do echo $$i >>$@; done
+	for i in $(2Drender_lst_OBJECTS); do echo $$i >>$@; done
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

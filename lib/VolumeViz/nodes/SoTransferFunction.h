@@ -61,7 +61,7 @@ private:
   class SoTransferFunctionP * pimpl;
 
   // FIXME: clean up interface. 20021106 mortene.
-  friend class SoVolumeDataSlice;
+  friend class Cvr2DTexPage;
   void transfer(const void * input,
                 SoVolumeData::DataType inputDataType,
                 const SbVec2s & size,
