@@ -62,10 +62,6 @@ protected:
 private:
   friend class SoTransferFunctionP;
   class SoTransferFunctionP * pimpl;
-
-  // FIXME: clean up interface. 20021106 mortene.
-  friend class Cvr2DTexPage;
-  CvrTextureObject * transfer(const CvrVoxelChunk * input, SbBool & invisible) const;
 };
 
 #endif // !COIN_SOTRANSFERFUNCTION_H
