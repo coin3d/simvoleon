@@ -40,7 +40,6 @@ class CvrGLTextureCache;
 class CvrTextureObject {
 public:
   static const CvrTextureObject * create(const SoGLRenderAction * action,
-                                         const SbVec3s & texsize,
                                          const SbBox3s & cutcube);
 
 

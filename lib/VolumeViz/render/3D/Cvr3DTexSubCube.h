@@ -44,8 +44,7 @@ public:
   Cvr3DTexSubCube(const SoGLRenderAction * action,
                   const CvrTextureObject * texobj,
                   const SbVec3f & cubeorigo,
-                  const SbVec3f & cubesize,
-                  const SbVec3s & texsize);
+                  const SbVec3s & cubesize);
   ~Cvr3DTexSubCube();
 
   void render(const SoGLRenderAction * action);
@@ -54,6 +53,9 @@ public:
   SbBool isPaletted(void) const;
   void setPalette(const CvrCLUT * newclut);
 
+  void intersectSlice(const SbVec3f * sliceplanecorners);
+
+  // FIXME: this should be obsoleted, use the one above? 20040916 mortene.
   void intersectSlice(const SbViewVolume & viewvolume, 
                       const float viewdistance, 
                       const SbMatrix &);
@@ -78,12 +80,12 @@ public:
                                         const unsigned int numindices,
                                         const SbMatrix & m);
 
+private:
   static void * subcube_clipperCB(const SbVec3f & v0, void * vdata0, 
                                   const SbVec3f & v1, void * vdata1,
                                   const SbVec3f & newvertex,
                                   void * userdata);
 
-private:
   void renderSlices(const SoGLRenderAction * action, SbBool wireframe);
   void renderBBox(void) const;
 
@@ -96,8 +98,7 @@ private:
   const CvrCLUT * clut;
 
   SbVec3s texdims;
-  SbVec3s originaltexsize;
-  SbVec3f dimensions;
+  SbVec3s dimensions;
   SbVec3f origo;
 
   struct subcube_slice {

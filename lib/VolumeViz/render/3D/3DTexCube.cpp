@@ -54,10 +54,18 @@ class Cvr3DTexSubCubeItem {
 public:
   Cvr3DTexSubCubeItem(Cvr3DTexSubCube * p) { this->cube = p; }
   Cvr3DTexSubCube * cube;
-  uint32_t volumedataid;
-  SbVec3f center;
+  uint32_t volumedataid; // FIXME: seems bogus to store this here, as
+                         // all sub-cubes will have the same
+                         // value. 20040916 mortene.
   SbBool invisible;
-  float distancefromcamera; // used when qsort'ing by depth vs camera position
+
+  // Distance from camera projection point (in the near plane) to the
+  // sub-cube's center. Used for comparison with other sub-cubes when
+  // qsort'ing by depth vs camera position.
+  float distancefromcamera;
+
+  float boundingsphereradius;
+  float cameraplane2cubecenter;
 };
 
 // *************************************************************************
@@ -116,24 +124,25 @@ Cvr3DTexCube::setAbortCallback(SoVolumeRenderAbortCB * func, void * userdata)
   Release resources used by a page in the slice.
 */
 void
-Cvr3DTexCube::releaseSubCube(const int row, const int col, const int depths)
+Cvr3DTexCube::releaseSubCube(const unsigned int row, const unsigned int col, const unsigned int depths)
 {
   const int idx = this->calcSubCubeIdx(row, col, depths);
   Cvr3DTexSubCubeItem * p = this->subcubes[idx];
-  this->subcubes[idx] = NULL;
-  delete p->cube;
-  delete p;
+  if (p) {
+    this->subcubes[idx] = NULL;
+    delete p->cube;
+    delete p;
+  }
 }
 
 void
 Cvr3DTexCube::releaseAllSubCubes(void)
 {
-
   if (this->subcubes == NULL) return;
 
-  for (int row = 0; row < this->nrrows; row++) {
-    for (int col = 0; col < this->nrcolumns; col++) {
-      for (int depth = 0; depth < this->nrdepths; depth++) {
+  for (unsigned int row = 0; row < this->nrrows; row++) {
+    for (unsigned int col = 0; col < this->nrcolumns; col++) {
+      for (unsigned int depth = 0; depth < this->nrdepths; depth++) {
         this->releaseSubCube(row, col, depth);
       }
     }
@@ -141,7 +150,6 @@ Cvr3DTexCube::releaseAllSubCubes(void)
 
   delete[] this->subcubes;
   this->subcubes = NULL;
-
 }
 
 static int
@@ -194,7 +202,7 @@ Cvr3DTexCube::clampSubCubeSize(const SbVec3s & size)
 // Called by all the 'render*()' methods after the intersection test.
 void
 Cvr3DTexCube::renderResult(const SoGLRenderAction * action,
-                           SbList <Cvr3DTexSubCubeItem *> subcubelist)
+                           SbList <Cvr3DTexSubCubeItem *> & subcubelist)
 {
   // Render all subcubes.
   for (int i=0;i<subcubelist.getLength();++i) {
@@ -227,11 +235,11 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
 
   SoState * state = action->getState();
 
-  SbVec3f subcubewidth = SbVec3f(this->subcubesize[0], 0, 0);
-  SbVec3f subcubeheight = SbVec3f(0, this->subcubesize[1], 0);
-  SbVec3f subcubedepth = SbVec3f(0, 0, this->subcubesize[2]);
+  const SbVec3f subcubewidth(this->subcubesize[0], 0, 0);
+  const SbVec3f subcubeheight(0, this->subcubesize[1], 0);
+  const SbVec3f subcubedepth(0, 0, this->subcubesize[2]);
 
-  SbViewVolume viewvolume = SoViewVolumeElement::get(action->getState());
+  const SbViewVolume & viewvolume = SoViewVolumeElement::get(state);
   SbViewVolume viewvolumeinv = viewvolume;
   viewvolumeinv.transform(SoModelMatrixElement::get(state).inverse());
 
@@ -246,69 +254,143 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
 
   const SbPlane camplane = viewvolume.getPlane(0.0f);
   const SbVec3f bboxcenter = bbox.getCenter();
-  const float neardistance = SbAbs(camplane.getDistance(bboxcenter)) + bboxradius;
-  const float fardistance = SbAbs(camplane.getDistance(bboxcenter)) - bboxradius;
+  const float neardistance = SbAbs(camplane.getDistance(bboxcenter)) - bboxradius;
+  const float fardistance = SbAbs(camplane.getDistance(bboxcenter)) + bboxradius;
   const float distancedelta = (fardistance - neardistance) / numslices;
   const SbMatrix mat = SoModelMatrixElement::get(state).inverse();
 
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
 
-  for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
-    for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
-      for (int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
+  unsigned int startrow = 0, endrow = this->nrrows - 1;
+  unsigned int startcolumn = 0, endcolumn = this->nrcolumns - 1;
+  unsigned int startdepth = 0, enddepth = this->nrdepths - 1;
 
-        Cvr3DTexSubCube * cube = NULL;
+  // debug: this block of code detects and forces rendering of just a
+  // single sub-cube if that is wanted
+  static unsigned int forcerow = UINT_MAX, forcecolumn, forcedepth;
+  if (forcerow == UINT_MAX) {
+    const char * str = coin_getenv("CVR_DEBUG_FORCE_SUBCUBE");
+    if (str) {
+      const int nr =
+        sscanf(str, "%u,%u,%u", &forcerow, &forcecolumn, &forcedepth);
+      assert(nr == 3);
+      SoDebugError::postInfo("Cvr3DTexCube::render",
+                             "debug: forced rendering of sub-cube "
+                             "<%u, %u, %u> only",
+                             forcerow, forcecolumn, forcedepth);
+      assert(forcerow < this->nrrows);
+      assert(forcecolumn < this->nrcolumns);
+      assert(forcedepth < this->nrdepths);
+    }
+    else {
+      forcerow--;
+    }
+  }
+  if (forcerow != UINT_MAX - 1) {
+    startrow = endrow = forcerow;
+    startcolumn = endcolumn = forcecolumn;
+    startdepth = enddepth = forcedepth;
+  }
+  // debug end
+
+  for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
+    for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
+      for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
+
         const SbVec3f subcubeorigo = this->origo +
           subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
-
         if (cubeitem == NULL) { 
           cubeitem = this->buildSubCube(action, subcubeorigo, colidx, rowidx, depthidx); 
         }
         assert(cubeitem != NULL);
+        assert(cubeitem->cube != NULL);
 
         if (cubeitem->invisible) continue;
-        assert(cubeitem->cube != NULL);
-     
+        subcubelist.append(cubeitem);
+
         SbBox3f subbbox(subcubeorigo, subcubeorigo + subcubeheight + subcubewidth + subcubedepth);
 
         cubeitem->distancefromcamera = (viewvolumeinv.getProjectionPoint() -
-                                        subbbox.getCenter()).length();
+                                       subbbox.getCenter()).length();
 
         subbbox.transform(SoModelMatrixElement::get(state));
+
         float sdx, sdy, sdz;
         subbbox.getSize(sdx, sdy, sdz);
-        const float cuberadius = SbVec3f(sdx, sdy, sdz).length() * 0.5f;
-        const float cubecenterdist = SbAbs(camplane.getDistance(subbbox.getCenter()));
+        cubeitem->boundingsphereradius = SbVec3f(sdx, sdy, sdz).length() * 0.5f;
+        cubeitem->cameraplane2cubecenter = SbAbs(camplane.getDistance(subbbox.getCenter()));
 
-        for (unsigned int i=0; i<numslices; ++i) {
-
-          if (this->abortfunc != NULL) { // Check user-callback status.
-            SoVolumeRender::AbortCode abortcode = this->abortfunc(numslices, (numslices - i), 
-                                                                  this->abortfuncdata);
-            if (abortcode == SoVolumeRender::ABORT) break;
-            else if (abortcode == SoVolumeRender::SKIP) continue;
-          }
-
-          const float dist = fardistance - i*distancedelta;
-          if (dist > (cubecenterdist+cuberadius)) break; // We have passed the cube.
-          else if (dist < (cubecenterdist-cuberadius)) continue; // We haven't reached the cube yet.
-
-          cubeitem->cube->intersectSlice(viewvolume, dist, mat);
-        }
-
-        subcubelist.append(cubeitem);
-
+#if 0 // debug
+        printf("cubeitem %u,%u,%u, distancefromcamera==%f, boundingsphereradius==%f, "
+               "cameraplane2cubecenter==%f\n",
+               rowidx, colidx, depthidx,
+               cubeitem->distancefromcamera,
+               cubeitem->boundingsphereradius,
+               cubeitem->cameraplane2cubecenter);
+#endif // debug
       }
     }
   }
 
+  // FIXME: Can we rewrite this to support viewport shells for proper
+  // perspective? (20040227 handegar)
+
+  const SbVec2f slicecorners[4] = {
+    SbVec2f(-2.0f,  2.0f),
+    SbVec2f( 2.0f,  2.0f),
+    SbVec2f( 2.0f, -2.0f),
+    SbVec2f(-2.0f, -2.0f)
+  };
+
+  unsigned int nrofclippinginvocations = 0; // debug
+
+  for (unsigned int i = 0; i < numslices; ++i) {
+
+    if (this->abortfunc != NULL) { // Check user-callback status.
+      SoVolumeRender::AbortCode abortcode =
+        this->abortfunc(numslices, (numslices - i), this->abortfuncdata);
+      if (abortcode == SoVolumeRender::ABORT) break;
+      else if (abortcode == SoVolumeRender::SKIP) continue;
+    }
+
+    // FIXME: this doesn't stretch the slices all the way. 20040728 mortene.
+    const float cam2slicedistance = neardistance + i*distancedelta;
+
+    SbVec3f xformslicecorners[4];
+    for (unsigned int j=0; j < 4; j++) {
+      xformslicecorners[j] =
+        viewvolume.getPlanePoint(cam2slicedistance, slicecorners[j]);
+      mat.multVecMatrix(xformslicecorners[j], xformslicecorners[j]);
+    }
+
+    for (unsigned int cubeidx = 0; cubeidx < (unsigned int)subcubelist.getLength(); cubeidx++) {
+      Cvr3DTexSubCubeItem * cubeitem = subcubelist[cubeidx];
+
+      if (cam2slicedistance > (cubeitem->cameraplane2cubecenter + cubeitem->boundingsphereradius)) {
+        continue; // We have passed the cube.
+      }
+      else if (cam2slicedistance < (cubeitem->cameraplane2cubecenter - cubeitem->boundingsphereradius)) {
+        continue; // We haven't reached the cube yet.
+      }
+
+      cubeitem->cube->intersectSlice(xformslicecorners);
+      nrofclippinginvocations++; // debug
+    }
+  }
+
+#if 0 // debug
+  if (CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("Cvr3DTexCube::render",
+                           "Nr of SbClip invocations == %u",
+                           nrofclippinginvocations);
+  }
+#endif // debug
+
   // Sort rendering order of the subcubes depending on the distance to
   // the camera.
-  qsort((void *) subcubelist.getArrayPtr(),
-        subcubelist.getLength(),
-        sizeof(Cvr3DTexSubCubeItem *),
-        subcube_qsort_compare);
+  qsort((void *) subcubelist.getArrayPtr(), subcubelist.getLength(),
+        sizeof(Cvr3DTexSubCubeItem *), subcube_qsort_compare);
 
   this->renderResult(action, subcubelist);
 }
@@ -356,9 +438,9 @@ Cvr3DTexCube::renderObliqueSlice(const SoGLRenderAction * action,
 
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
 
-  for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
-    for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
-      for (int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
+  for (unsigned int rowidx = 0; rowidx < this->nrrows; rowidx++) {
+    for (unsigned int colidx = 0; colidx < this->nrcolumns; colidx++) {
+      for (unsigned int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
 
         Cvr3DTexSubCube * cube = NULL;
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
@@ -407,9 +489,9 @@ Cvr3DTexCube::renderIndexedSet(const SoGLRenderAction * action,
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
   const SbMatrix invmodelmatrix = SoModelMatrixElement::get(state).inverse();
 
-  for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
-    for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
-      for (int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
+  for (unsigned int rowidx = 0; rowidx < this->nrrows; rowidx++) {
+    for (unsigned int colidx = 0; colidx < this->nrcolumns; colidx++) {
+      for (unsigned int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
 
         Cvr3DTexSubCube * cube = NULL;
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
@@ -471,9 +553,9 @@ Cvr3DTexCube::renderNonindexedSet(const SoGLRenderAction * action,
   SbList <Cvr3DTexSubCubeItem *> subcubelist;
   const SbMatrix invmodelmatrix = SoModelMatrixElement::get(state).inverse();
 
-  for (int rowidx = 0; rowidx < this->nrrows; rowidx++) {
-    for (int colidx = 0; colidx < this->nrcolumns; colidx++) {
-      for (int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
+  for (unsigned int rowidx = 0; rowidx < this->nrrows; rowidx++) {
+    for (unsigned int colidx = 0; colidx < this->nrcolumns; colidx++) {
+      for (unsigned int depthidx = 0; depthidx < this->nrdepths; depthidx++) {
 
         Cvr3DTexSubCube * cube = NULL;
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
@@ -515,14 +597,15 @@ Cvr3DTexCube::renderNonindexedSet(const SoGLRenderAction * action,
 
 
 
-int
-Cvr3DTexCube::calcSubCubeIdx(int row, int col, int depth) const
+unsigned int
+Cvr3DTexCube::calcSubCubeIdx(unsigned int row, unsigned int col, unsigned int depth) const
 {
-  assert((row >= 0) && (row < this->nrrows));
-  assert((col >= 0) && (col < this->nrcolumns));
-  assert((depth >= 0) && (depth < this->nrdepths));
+  assert(row < this->nrrows);
+  assert(col < this->nrcolumns);
+  assert(depth < this->nrdepths);
 
-  int idx = (col + (row * this->nrcolumns)) + (depth * this->nrcolumns * this->nrrows);
+  unsigned int idx =
+    (col + (row * this->nrcolumns)) + (depth * this->nrcolumns * this->nrrows);
 
   assert(idx < (this->nrdepths * this->nrcolumns * this->nrrows));
 
@@ -533,7 +616,7 @@ Cvr3DTexCube::calcSubCubeIdx(int row, int col, int depth) const
 Cvr3DTexSubCubeItem *
 Cvr3DTexCube::buildSubCube(const SoGLRenderAction * action,
                            const SbVec3f & subcubeorigo,
-                           int col, int row, int depth)
+                           unsigned int col, unsigned int row, unsigned int depth)
 {
   // FIXME: optimalization idea; *crop* textures for 100%
   // transparency. 20021124 mortene.
@@ -554,10 +637,10 @@ Cvr3DTexCube::buildSubCube(const SoGLRenderAction * action,
     }
 
     this->subcubes = new Cvr3DTexSubCubeItem*[this->nrrows * this->nrcolumns * this->nrdepths];
-    for (int i=0; i < this->nrrows; i++) {
-      for (int j=0; j < this->nrcolumns; j++) {
-        for (int k=0; k < this->nrdepths; k++) {
-          const int idx = this->calcSubCubeIdx(i, j, k);
+    for (unsigned int i=0; i < this->nrrows; i++) {
+      for (unsigned int j=0; j < this->nrcolumns; j++) {
+        for (unsigned int k=0; k < this->nrdepths; k++) {
+          const unsigned int idx = this->calcSubCubeIdx(i, j, k);
           this->subcubes[idx] = NULL;
         }
       }
@@ -598,25 +681,21 @@ Cvr3DTexCube::buildSubCube(const SoGLRenderAction * action,
                          subcubemin[0], subcubemin[1], subcubemin[2],
                          subcubemax[0], subcubemax[1], subcubemax[2]);
 #endif // debug
-  SbBox3s subcubecut = SbBox3s(subcubemin, subcubemax);
-
-  SoState * state = action->getState();
-  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
-  assert(vbelem != NULL);
-
-  const SbVec3s texsize(subcubemax - subcubemin);
-  const CvrTextureObject * texobj = CvrTextureObject::create(action, texsize, subcubecut);
+  const SbBox3s subcubecut(subcubemin, subcubemax);
+  const CvrTextureObject * texobj = CvrTextureObject::create(action, subcubecut);
   // if NULL is returned, it means all voxels are fully transparent
 
   Cvr3DTexSubCube * cube = NULL;
   if (texobj) {
-    short dx, dy, dz;
-    subcubecut.getSize(dx, dy, dz);
-    const SbVec3f cubesize(dx, dy, dz);
-    cube = new Cvr3DTexSubCube(action, texobj, subcubeorigo, cubesize, texsize);
+    cube = new Cvr3DTexSubCube(action, texobj, subcubeorigo,
+                               subcubecut.getMax() - subcubecut.getMin());
     cube->setPalette(this->clut);
   }
 
+  SoState * state = action->getState();
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
+  assert(vbelem != NULL);
+  
   Cvr3DTexSubCubeItem * pitem = new Cvr3DTexSubCubeItem(cube);
   pitem->volumedataid = vbelem->getNodeId();
   pitem->invisible = (texobj == NULL) ? TRUE : FALSE;
@@ -632,7 +711,6 @@ Cvr3DTexCube::buildSubCube(const SoGLRenderAction * action,
 void
 Cvr3DTexCube::setPalette(const CvrCLUT * c)
 {
-
   if (this->clut) { this->clut->unref(); }
   this->clut = c;
   this->clut->ref();
@@ -640,10 +718,10 @@ Cvr3DTexCube::setPalette(const CvrCLUT * c)
   if (this->subcubes == NULL) return;
 
   // Change palette for all subcubes.
-  for (int col=0; col < this->nrcolumns; col++) {
-    for (int row=0; row < this->nrrows; row++) {
-      for (int depth = 0; depth < this->nrdepths; depth++) {
-        const int idx = this->calcSubCubeIdx(row, col, depth);
+  for (unsigned int col=0; col < this->nrcolumns; col++) {
+    for (unsigned int row=0; row < this->nrrows; row++) {
+      for (unsigned int depth = 0; depth < this->nrdepths; depth++) {
+        const unsigned int idx = this->calcSubCubeIdx(row, col, depth);
         Cvr3DTexSubCubeItem * subc = this->subcubes[idx];
         // FIXME: as far as I can tell from the code, the extra
         // "subp->cube != NULL" check here should be superfluous, but I
@@ -670,16 +748,15 @@ Cvr3DTexCube::getPalette(void) const
 // *******************************************************************
 
 Cvr3DTexSubCubeItem *
-Cvr3DTexCube::getSubCube(SoState * state, int col, int row, int depth)
+Cvr3DTexCube::getSubCube(SoState * state, unsigned int col, unsigned int row, unsigned int depth)
 {
-  
   if (this->subcubes == NULL) return NULL;
 
-  assert((col >= 0) && (col < this->nrcolumns));
-  assert((row >= 0) && (row < this->nrrows));
-  assert((depth >= 0) && (depth < this->nrdepths));
+  assert(col < this->nrcolumns);
+  assert(row < this->nrrows);
+  assert(depth < this->nrdepths);
 
-  const int idx = this->calcSubCubeIdx(row, col, depth);
+  const unsigned int idx = this->calcSubCubeIdx(row, col, depth);
   Cvr3DTexSubCubeItem * subp = this->subcubes[idx];
 
   if (subp) {

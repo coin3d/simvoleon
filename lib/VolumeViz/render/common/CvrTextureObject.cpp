@@ -451,9 +451,9 @@ CvrTextureObject::findInstanceMatch(const SoType t,
 */
 const CvrTextureObject *
 CvrTextureObject::create(const SoGLRenderAction * action,
-                         const SbVec3s & texsize,
                          const SbBox3s & cutcube)
 {
+  const SbVec3s texsize(cutcube.getMax() - cutcube.getMin());
   const SbBox2s dummy; // constructor initializes it to an empty box
   return CvrTextureObject::create(action, texsize, cutcube, dummy, UINT_MAX, INT_MAX);
 }

@@ -66,16 +66,18 @@ public:
   void setAbortCallback(SoVolumeRenderAbortCB * func, void * userdata);
 
 private:
-  class Cvr3DTexSubCubeItem * getSubCube(SoState * state, int col, int row, int depth);
+  class Cvr3DTexSubCubeItem * getSubCube(SoState * state, unsigned int col, unsigned int row, unsigned int depth);
   class Cvr3DTexSubCubeItem * buildSubCube(const SoGLRenderAction * action,
                                            const SbVec3f & origo,
-                                           int col, int row, int depth);   
+                                           unsigned int col,
+                                           unsigned int row,
+                                           unsigned int depth);   
 
   void releaseAllSubCubes(void);
-  void releaseSubCube(const int row, const int col, const int depth);
-  int calcSubCubeIdx(int row, int col, int depth) const;
+  void releaseSubCube(const unsigned int row, const unsigned int col, const unsigned int depth);
+  unsigned int calcSubCubeIdx(unsigned int row, unsigned int col, unsigned int depth) const;
   void renderResult(const SoGLRenderAction * action, 
-                    SbList <Cvr3DTexSubCubeItem *> subcubelist);
+                    SbList <Cvr3DTexSubCubeItem *> & subcubelist);
 
   static SbVec3s clampSubCubeSize(const SbVec3s & size);
 
@@ -85,9 +87,9 @@ private:
   SbVec3s dimensions;
   SbVec3f origo;
 
-  int nrcolumns;
-  int nrrows;
-  int nrdepths;
+  unsigned int nrcolumns;
+  unsigned int nrrows;
+  unsigned int nrdepths;
 
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
   void * abortfuncdata;

@@ -45,11 +45,17 @@
 
 // *************************************************************************
 
+/*! \a cubeorigo is the "lower left" position of this subcube in the
+    local coordinate system of the full volume. E.g. for the
+    LOBSTER.VOL example model of dimensions <320, 320, 34>, the first
+    subcube would have its parameter cubeorigo==<-160, -160, -17>.
+
+    \a cubesize is the voxel dimensions of the sub-cube.
+*/
 Cvr3DTexSubCube::Cvr3DTexSubCube(const SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
                                  const SbVec3f & cubeorigo,
-                                 const SbVec3f & cubesize,
-                                 const SbVec3s & originaltexsize)
+                                 const SbVec3s & cubesize)
 {
   this->clut = NULL;
 
@@ -67,8 +73,6 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(const SoGLRenderAction * action,
   this->textureobject = texobj;
   this->textureobject->ref();
 
-  this->originaltexsize = originaltexsize;
-  
   // Calculate clipplanes
   this->clipplanes[0] = SbPlane(cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f),
                                 cubeorigo,
@@ -90,7 +94,6 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(const SoGLRenderAction * action,
                                 cubeorigo + SbVec3f(0.0f, this->dimensions[1], 0.0f));
   
   this->origo = cubeorigo;
-
 }
 
 Cvr3DTexSubCube::~Cvr3DTexSubCube()
@@ -160,11 +163,8 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
 
   const SbVec3s texdims = obj->textureobject->getDimensions();
   
-  const float tmp1 = obj->dimensions[0] + (texdims[0] - obj->originaltexsize[0]);
-  const float tmp2 = obj->dimensions[1] + (texdims[1] - obj->originaltexsize[1]);
-  const float tmp3 = obj->dimensions[2] + (texdims[2] - obj->originaltexsize[2]);
-
-  SbVec3f * texcoord = new SbVec3f(dist[0]/tmp1, dist[1]/tmp2, dist[2]/tmp3);
+  SbVec3f * texcoord =
+    new SbVec3f(dist[0] / texdims[0], dist[1] / texdims[1], dist[2] / texdims[2]);
 
   obj->texcoordlist.append(texcoord);
   return (void *) texcoord;
@@ -291,6 +291,17 @@ Cvr3DTexSubCube::intersectIndexedFaceSet(const SbVec3f * vertexlist,
 
 }
 
+// Check if this cube is intersected by the viewport aligned clip plane.
+void
+Cvr3DTexSubCube::intersectSlice(const SbVec3f * sliceplanecorners)
+{
+  SbClip cubeclipper(this->subcube_clipperCB, this);
+  cubeclipper.reset(); // FIXME: unnecessary? 20040728 mortene.
+
+  for (unsigned int i=0; i < 4; i++) { cubeclipper.addVertex(sliceplanecorners[i]); }
+
+  this->clipPolygonAgainstCube(cubeclipper);
+}
 
 // Check if this cube is intersected by the viewport aligned clip plane.
 void
@@ -306,16 +317,15 @@ Cvr3DTexSubCube::intersectSlice(const SbViewVolume & viewvolume,
   // NOTE: If viewport shells is to be supported, a separate method
   // must be added for the standard ObliqueSlice rendering.
 
-  SbVec3f a, b, c, d;
   static const SbVec2f p1(-2.0f,  2.0f);
   static const SbVec2f p2( 2.0f,  2.0f);
   static const SbVec2f p3( 2.0f, -2.0f);
   static const SbVec2f p4(-2.0f, -2.0f);
 
-  a = viewvolume.getPlanePoint(viewdistance, p1);
-  b = viewvolume.getPlanePoint(viewdistance, p2);
-  c = viewvolume.getPlanePoint(viewdistance, p3);
-  d = viewvolume.getPlanePoint(viewdistance, p4);
+  SbVec3f a = viewvolume.getPlanePoint(viewdistance, p1);
+  SbVec3f b = viewvolume.getPlanePoint(viewdistance, p2);
+  SbVec3f c = viewvolume.getPlanePoint(viewdistance, p3);
+  SbVec3f d = viewvolume.getPlanePoint(viewdistance, p4);
 
   m.multVecMatrix(a, a);
   m.multVecMatrix(b, b);
@@ -432,8 +442,8 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action)
                            "slices==%d", this->volumeslices.getLength());
   }
 
-  // FIXME: can this actually ever happen (without it being a bug)?
-  // If so, please explain how, in a code comment. 20040804 mortene.
+  // This can e.g. happen when some of the sub-cubes are not within
+  // the view volume:
   if (this->volumeslices.getLength() == 0) { return; }
 
   // 0: as usual, 1: added box wireframes, 2: only slice wireframes
