@@ -1,19 +1,68 @@
 #include <Inventor/@Gui@/So@Gui@.h>
 #include <Inventor/@Gui@/viewers/So@Gui@ExaminerViewer.h>
+#include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSphere.h>
 #include <Inventor/nodes/SoTranslation.h>
+#include <Inventor/nodes/SoEventCallback.h>
+#include <Inventor/events/SoMouseButtonEvent.h>
+#include <Inventor/SoPickedPoint.h>
 
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoVolumeRendering.h>
 #include <VolumeViz/nodes/SoOrthoSlice.h>
+#include <VolumeViz/details/SoOrthoSliceDetail.h>
 #include <VolumeViz/readers/SoVRVolFileReader.h>
 
 #include "OrthoSliceHandler.h"
 #include "TransferFunctionHandler.h"
 #include "utility.h"
+
+static void
+event_cb(void * ud, SoEventCallback * n)
+{
+  const SoMouseButtonEvent * mbe = (SoMouseButtonEvent *)n->getEvent();
+
+  if (mbe->getButton() == SoMouseButtonEvent::BUTTON1 &&
+      mbe->getState() == SoButtonEvent::DOWN) {
+    So@Gui@ExaminerViewer * viewer = (So@Gui@ExaminerViewer *)ud;
+
+    SoRayPickAction rp(viewer->getViewportRegion());
+    rp.setPoint(mbe->getPosition());
+    rp.apply(viewer->getSceneManager()->getSceneGraph());
+
+    SoPickedPoint * point = rp.getPickedPoint();
+    if (point == NULL) {
+      (void)fprintf(stderr, "\n** miss! **\n\n");
+      return;
+    }
+
+    n->setHandled();
+
+    SbVec3f v = point->getPoint();
+    SbVec3f nv = point->getNormal();
+    (void)fprintf(stdout,
+                  "SoPickedPoint::getPoint()=<%f, %f, %f>, "
+                  "SoPickedPoint::getNormal()=<%f, %f, %f>\n",
+                  v[0], v[1], v[2], nv[0], nv[1], nv[2]);
+
+    const SoDetail * d = point->getDetail();
+    if (d->getTypeId() == SoOrthoSliceDetail::getClassTypeId()) {
+      const SoOrthoSliceDetail * detail = (const SoOrthoSliceDetail *)d;
+
+      v = detail->getValueObjectPos();
+      const SbVec3s ijk = detail->getValueDataPos();
+      (void)fprintf(stdout,
+                    "SoOrthoSliceDetail::getValueObjectPos()=<%f, %f, %f>, "
+                    "SoOrthoSliceDetail::getValueDataPos()=<%d, %d, %d>, "
+                    "SoOrthoSliceDetail::getValue==%u\n",
+                    v[0], v[1], v[2], ijk[0], ijk[1], ijk[2],
+                    detail->getValue());
+    }
+  }
+}
 
 int
 main(int argc, char ** argv)
@@ -55,6 +104,7 @@ main(int argc, char ** argv)
 
   // Add SoOrthoSlice to scene graph
   SoOrthoSlice * orthoslice = new SoOrthoSlice();
+  orthoslice->alphaUse = SoOrthoSlice::ALPHA_AS_IS;
   root->addChild(orthoslice);
 
   OrthoSliceHandler * osdia = new OrthoSliceHandler(orthoslice, volumedata);
@@ -88,6 +138,11 @@ main(int argc, char ** argv)
 
   So@Gui@ExaminerViewer * viewer = new So@Gui@ExaminerViewer(window);
   viewer->setBackgroundColor(SbColor(0.1f, 0.3f, 0.5f));
+
+  SoEventCallback * ecb = new SoEventCallback;
+  ecb->addEventCallback(SoMouseButtonEvent::getClassTypeId(), event_cb, viewer);
+  root->addChild(ecb);
+
   viewer->setSceneGraph(root);
 
   viewer->show();
