@@ -41,6 +41,18 @@
 #include "CvrIndexedSetRenderBaseP.h"
 #include "SoVolumeIndexedFaceSet.h"
 
+/*
+
+  TODO:
+
+  * The 'clipGeometry' feature doesn't work properly for clipped
+    geometry when using SoVertexProperty. (20040707 handegar)
+  * Lighting does not work properly as normals are ignored. (20040707 handegar)
+  * The 'offset' field is ignored. (20040707 handegar)
+  * Support for multiple materials is not testet properly yet. (20040707 handegar)
+
+*/
+
 void
 CvrIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action, 
                                    const float offset,
