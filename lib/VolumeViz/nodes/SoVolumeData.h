@@ -27,6 +27,7 @@ public:
   SoVolumeData(void);
 
   enum StorageHint {
+    // FIXME: these are not bit flags in TGS, I think. Check. 20021113 mortene.
     AUTO = 0x00000001,
     TEX2D_MULTI = 0x00000002,
     TEX2D = TEX2D_MULTI,

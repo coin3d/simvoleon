@@ -245,20 +245,22 @@ public:
     this->slices[Y] = NULL;
     this->slices[Z] = NULL;
 
-    volumeSize = SbBox3f(-1, -1, -1, 1, 1, 1);
-    dimensions = SbVec3s(0, 0, 0);
-    pageSize = SbVec3s(64, 64, 64);
+    this->volumeSize = SbBox3f(-1, -1, -1, 1, 1, 1);
+    this->dimensions = SbVec3s(0, 0, 0);
+    this->pageSize = SbVec3s(64, 64, 64);
 
-    maxTexels = 64*1024*1024;
-    maxBytesHW = 1024*1024*16;
-    numTexels = 0;
-    numPages = 0;
-    numBytesSW = 0;
-    numBytesHW = 0;
-    tick = 0;
+    // Default size enforced by TGS API.
+    this->maxTexels = 64*1024*1024;
+    // FIXME: should be based on info about the actual run-time
+    // system. 20021118 mortene.
+    this->maxBytesHW = 16*1024*1024;
 
-    VRMemReader = NULL;
-    reader = NULL;
+    this->numTexels = 0;
+    this->numBytesHW = 0;
+    this->tick = 0;
+
+    this->VRMemReader = NULL;
+    this->reader = NULL;
   }
 
   ~SoVolumeDataP()
@@ -276,10 +278,12 @@ public:
   SoVolumeReader * reader;
 
   long tick;
+
+  // FIXME: this is fubar -- we need a global manager, of course, as
+  // there can be more than one voxelcube in the scene at
+  // once. 20021118 mortene.
   int maxTexels;
   int numTexels;
-  int numPages;
-  int numBytesSW;
   int maxBytesHW;
   int numBytesHW;
 
@@ -292,8 +296,8 @@ public:
 
   void freeTexels(int desired);
   void freeHWBytes(int desired);
-  void managePages();
-  void releaseLRUPage();
+  void managePages(void);
+  void releaseLRUPage(void);
 
   SbBool check2n(int n);
 
@@ -324,8 +328,6 @@ SoVolumeData::SoVolumeData(void)
   SO_NODE_ADD_FIELD(fileName, (""));
   SO_NODE_ADD_FIELD(storageHint, (SoVolumeData::AUTO));
   SO_NODE_ADD_FIELD(usePalettedTexture, (TRUE));
-  // FIXME: is this field an extension specific to us? (Can't find it
-  // in TGS doc.) If so, make sure it is documented as such. 20021106 mortene.
   SO_NODE_ADD_FIELD(useCompressedTexture, (TRUE));
 }
 
@@ -473,8 +475,6 @@ SoVolumeData::renderOrthoSlice(SoState * state,
 
   // FIXME: huh? What's up with this? 20021111 mortene.
   PRIVATE(this)->numTexels -= slice->numTexels;
-  PRIVATE(this)->numPages -= slice->numPages;
-  PRIVATE(this)->numBytesSW -= slice->numBytesSW;
   PRIVATE(this)->numBytesHW -= slice->numBytesHW;
 
   SbVec3f v0, v1, v2, v3;
@@ -503,15 +503,13 @@ SoVolumeData::renderOrthoSlice(SoState * state,
 
   // FIXME: huh? What's up with this? 20021111 mortene.
   PRIVATE(this)->numTexels += slice->numTexels;
-  PRIVATE(this)->numPages += slice->numPages;
-  PRIVATE(this)->numBytesSW += slice->numBytesSW;
   PRIVATE(this)->numBytesHW += slice->numBytesHW;
 
   PRIVATE(this)->managePages();
 }
 
 SbVec3s &
-SoVolumeData::getPageSize()
+SoVolumeData::getPageSize(void)
 {
   return PRIVATE(this)->pageSize;
 }
@@ -519,7 +517,8 @@ SoVolumeData::getPageSize()
 void
 SoVolumeData::setTexMemorySize(int size)
 {
-  PRIVATE(this)->maxTexels = size;
+  PRIVATE(this)->maxTexels = size * 1024 * 1024;
+  // FIXME: should use a sanity check here? 20021118 mortene.
 }
 
 void
@@ -612,6 +611,7 @@ SoVolumeDataP::releaseAllSlices(void)
 void
 SoVolumeDataP::freeTexels(int desired)
 {
+  // FIXME: should be assert, methinks. 20021118 mortene.
   if (desired > maxTexels) return;
 
   while ((maxTexels - numTexels) < desired)
@@ -623,66 +623,27 @@ void
 SoVolumeDataP::releaseLRUPage(void)
 {
   SoVolumeDataPage * LRUPage = NULL;
-  SoVolumeDataPage * tmpPage = NULL;
   SoVolumeDataSlice * LRUSlice = NULL;
 
-  // Searching for LRU page among X-slices
-  if (this->slices[X]) {
-    for (int i = 0; i < this->dimensions[0]; i++) {
-      tmpPage = NULL;
-      if (this->slices[X][i]) {
-        tmpPage = this->slices[X][i]->getLRUPage();
-        if (LRUPage == NULL) {
-          LRUSlice = this->slices[X][i];
-          LRUPage = tmpPage;
-        }
-        else if (tmpPage && (tmpPage->lastuse < LRUPage->lastuse)) {
-          LRUSlice = this->slices[X][i];
-          LRUPage = tmpPage;
-        }
-      }
-    }
-  }
+  // Searching for least recently used page.
 
-  // Searching for LRU page among Y-slices
-  if (this->slices[Y]) {
-    for (int i = 0; i < this->dimensions[1]; i++) {
-      tmpPage = NULL;
-      if (this->slices[Y][i]) {
-        tmpPage = this->slices[Y][i]->getLRUPage();
-        if (LRUPage == NULL) {
-          LRUSlice = this->slices[Y][i];
-          LRUPage = tmpPage;
-        }
-        else if (tmpPage && (tmpPage->lastuse < LRUPage->lastuse)) {
-          LRUSlice = this->slices[Y][i];
-          LRUPage = tmpPage;
-        }
-      }
-    }
-  }
-
-  // Searching for LRU page among X-slices
-  if (this->slices[Z]) {
-    for (int i = 0; i < this->dimensions[2]; i++) {
-      tmpPage = NULL;
-      if (this->slices[Z][i]) {
-        tmpPage = this->slices[Z][i]->getLRUPage();
-        if (LRUPage == NULL) {
-          LRUSlice = this->slices[Z][i];
-          LRUPage = tmpPage;
-        }
-        else if (tmpPage && (tmpPage->lastuse < LRUPage->lastuse)) {
-          LRUSlice = this->slices[Z][i];
-          LRUPage = tmpPage;
+  for (int dim=0; dim < 3; dim++) {
+    if (this->slices[dim]) {
+      for (int i = 0; i < this->dimensions[dim]; i++) {
+        if (this->slices[dim][i]) {
+          SoVolumeDataPage * tmppage = this->slices[dim][i]->getLRUPage();
+          SbBool newlow = (LRUPage == NULL);
+          if (!newlow) { newlow = tmppage && (tmppage->lastuse < LRUPage->lastuse); }
+          if (newlow) {
+            LRUSlice = this->slices[dim][i];
+            LRUPage = tmppage;
+          }
         }
       }
     }
   }
 
   this->numTexels -= LRUSlice->numTexels;
-  this->numPages -= LRUSlice->numPages;
-  this->numBytesSW -= LRUSlice->numBytesSW;
   this->numBytesHW -= LRUSlice->numBytesHW;
 
   LRUSlice->releasePage(LRUPage);
@@ -692,8 +653,6 @@ SoVolumeDataP::releaseLRUPage(void)
 #endif // debug
 
   this->numTexels += LRUSlice->numTexels;
-  this->numPages += LRUSlice->numPages;
-  this->numBytesSW += LRUSlice->numBytesSW;
   this->numBytesHW += LRUSlice->numBytesHW;
 }
 
@@ -713,7 +672,7 @@ SoVolumeDataP::releaseSlices(const SoVolumeDataP::Axis AXISIDX)
 void
 SoVolumeDataP::freeHWBytes(int desired)
 {
-  if (desired > this->maxBytesHW) return;
+  assert(desired <= this->maxBytesHW);
 
   while ((this->maxBytesHW - this->numBytesHW) < desired) {
     this->releaseLRUPage();
