@@ -29,6 +29,38 @@ changeTransferColormap(void * d, SoSensor * sensor)
   tf->predefColorMap = newval;
 }
 
+static void
+setColorMapALPHA(SoMFFloat * cmap)
+{
+  cmap->setNum(256);
+  for (int idx=0; idx < 256; idx++) {
+    // Make a "staircase" pattern.
+    cmap->set1Value(idx, float(idx - (idx % 32)) / 255.0f);
+  }
+}
+
+static void
+setColorMapLUMALPHA(SoMFFloat * cmap)
+{
+  cmap->setNum(2 * 256);
+  for (int idx=0; idx < 256; idx++) {
+    cmap->set1Value(idx * 2, float(idx) / 255.0f);
+    cmap->set1Value(idx * 2 + 1, float(255 - idx) / 255.0f);
+  }
+}
+
+static void
+setColorMapRGBA(SoMFFloat * cmap)
+{
+  cmap->setNum(4 * 256);
+  for (int idx=0; idx < 256; idx++) {
+    cmap->set1Value(idx * 4 + 0, float(255 - idx) / 255.0f);
+    cmap->set1Value(idx * 4 + 1, float(255 - idx) / 255.0f);
+    cmap->set1Value(idx * 4 + 2, 1.0f);
+    cmap->set1Value(idx * 4 + 3, 0.5f);
+  }
+}
+
 int
 main(int argc, char ** argv)
 {
@@ -52,23 +84,35 @@ main(int argc, char ** argv)
   filereader->getDataChar(size, type, dim);
   
   // Add VolumeData to scene graph
-  SoVolumeData * pVolData = new SoVolumeData();
-  pVolData->setReader(filereader);
-  pVolData->setVolumeSize(SbBox3f(-1, -1, -1, 1, 1, 1));
+  SoVolumeData * voldata = new SoVolumeData();
+  voldata->setReader(filereader);
+  // FIXME: if setVolumeSize() is not invoked, no default is set, it
+  // seems. 20021120 mortene.
+//   voldata->setVolumeSize(SbBox3f(-1, -1, -1, 1, 1, 1));
+//   voldata->setVolumeSize(SbBox3f(-2, -2, -1, 2, 2, 1));
+//   voldata->setVolumeSize(SbBox3f(-160, -160, -17, 160, 160, 17));
 
-  root->addChild(pVolData);
+  root->addChild(voldata);
 
 #if 1 // FIXME: handle missing transferfunction. 20021117 mortene.
   // Add TransferFunction (color map) to scene graph
-  SoTransferFunction *pTransFunc = new SoTransferFunction();
-  if (argc == 3) pTransFunc->predefColorMap = atoi(argv[2]); // XXX
-  root->addChild(pTransFunc);
+  SoTransferFunction *transfunc = new SoTransferFunction();
+  if (argc == 3) transfunc->predefColorMap = atoi(argv[2]); // XXX
+  transfunc->reMap(64, 192);
+  root->addChild(transfunc);
+
+  transfunc->predefColorMap = SoTransferFunction::NONE;
+//   transfunc->colorMapType = SoTransferFunction::ALPHA;
+//   setColorMapALPHA(&transfunc->colorMap);
+//   transfunc->colorMapType = SoTransferFunction::LUM_ALPHA;
+//   setColorMapLUMALPHA(&transfunc->colorMap);
+  transfunc->colorMapType = SoTransferFunction::RGBA;
+  setColorMapRGBA(&transfunc->colorMap);
 #endif
 
   // Add VolumeRender to scene graph
   SoVolumeRender * pVolRend = new SoVolumeRender();
   root->addChild(pVolRend);
-  pVolRend->numSlices = 64;
 
   SoLightModel * lm = new SoLightModel;
   lm->model = SoLightModel::BASE_COLOR;
@@ -77,13 +121,23 @@ main(int argc, char ** argv)
   SoDrawStyle *drawStyle = new SoDrawStyle;
   drawStyle->style = SoDrawStyle::LINES;
   root->addChild(drawStyle);
-  root->addChild(new SoCube);
+
+  SoCube * volcage = new SoCube;
+  const SbBox3f volspan = voldata->getVolumeSize();
+  volspan.print(stdout); fprintf(stdout, "\n");
+
+  float dx, dy, dz;
+  volspan.getSize(dx, dy, dz);
+  volcage->width = dx;
+  volcage->height = dy;
+  volcage->depth = dz;
+  root->addChild(volcage);
 
   So@Gui@ExaminerViewer * ex = new So@Gui@ExaminerViewer(window);
   ex->setSceneGraph(root);
 
 #if 0
-  SoTimerSensor sensor(changeTransferColormap, pTransFunc);
+  SoTimerSensor sensor(changeTransferColormap, transfunc);
   sensor.setInterval(10);
   sensor.schedule();
 #endif
