@@ -29,33 +29,25 @@ OrthoSliceHandler::~OrthoSliceHandler()
 void
 OrthoSliceHandler::initGUI(void)
 {
+  // "sliceNumber" lineedit
+
+  QIntValidator * v = new QIntValidator(0, 32767, new QObject);
+
+  this->ctrl->sliceNumberEdit->setValidator(v);
+
+  QString s;
+  s.sprintf("%d", this->node->sliceNumber.getValue());
+  this->ctrl->sliceNumberEdit->setText(s);
+
+  QObject::connect(this->ctrl->sliceNumberEdit, SIGNAL(returnPressed()),
+                   this, SLOT(sliceNumberEditUpdate()));
+
 //   // predefColorMap combobox
 
 //   this->ctrl->predefCombo->setCurrentItem(this->node->predefColorMap.getValue());
 
 //   QObject::connect(this->ctrl->predefCombo, SIGNAL(activated(int)),
 //                    this, SLOT(predefColorMapUpdate(int)));
-
-
-//   // "shift" & "offset" lineedits
-
-//   v = new QIntValidator(-32767, 32767, new QObject);
-
-//   this->ctrl->shiftEdit->setValidator(v);
-//   this->ctrl->offsetEdit->setValidator(v);
-
-//   s;
-//   s.sprintf("%d", this->node->shift.getValue());
-//   this->ctrl->shiftEdit->setText(s);
-//   s.sprintf("%d", this->node->offset.getValue());
-//   this->ctrl->offsetEdit->setText(s);
-
-//   QObject::connect(this->ctrl->shiftEdit, SIGNAL(returnPressed()),
-//                    this, SLOT(shiftEditUpdate()));
-
-//   QObject::connect(this->ctrl->offsetEdit, SIGNAL(returnPressed()),
-//                    this, SLOT(offsetEditUpdate()));
-
 }
 
 // void
@@ -64,14 +56,8 @@ OrthoSliceHandler::initGUI(void)
 //   this->node->predefColorMap = idx;
 // }
 
-// void
-// OrthoSliceHandler::shiftEditUpdate(void)
-// {
-//   this->node->shift = this->ctrl->shiftEdit->text().toInt();
-// }
-
-// void
-// OrthoSliceHandler::offsetEditUpdate(void)
-// {
-//   this->node->offset = this->ctrl->offsetEdit->text().toInt();
-// }
+void
+OrthoSliceHandler::sliceNumberEditUpdate(void)
+{
+  this->node->sliceNumber = this->ctrl->sliceNumberEdit->text().toInt();
+}

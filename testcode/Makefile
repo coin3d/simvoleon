@@ -28,16 +28,17 @@ RGBLOAD_OBJECTS = \
         rgbload.o
 
 clean:
-	rm -f rgbload $(RGBLOAD_OBJECTS) rgbload.cpp \
+	@rm -f rgbload $(RGBLOAD_OBJECTS) rgbload.cpp \
               raypick $(RAYPICK_OBJECTS) raypick.cpp \
               examine $(EXAMINE_OBJECTS) examine.cpp \
               orthoslicer $(ORTHOSLICER_OBJECTS) orthoslicer.cpp \
               simple8bit $(SIMPLE8BIT_OBJECTS) simple8bit.cpp \
               changingdataset $(CHANGINGDATASET_OBJECTS) changingdataset.cpp \
               readvol $(READVOL_OBJECTS) readvol.cpp \
+              SoTransferFunction_ctrl.h SoTransferFunction_ctrl.cpp moc_SoTransferFunction_ctrl.cpp \
               moc_TransferFunctionHandler.cpp \
               SoOrthoSlice_ctrl.h SoOrthoSlice_ctrl.cpp moc_SoOrthoSlice_ctrl.cpp \
-              moc_OrthoSliceHandler.cpp \
+              moc_OrthoSliceHandler.cpp
 
 ## common code
 

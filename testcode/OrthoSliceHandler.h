@@ -16,11 +16,8 @@ public:
   ~OrthoSliceHandler();
 
 private slots:
-//   void lowEditUpdate(void);
-//   void highEditUpdate(void);
+  void sliceNumberEditUpdate(void);
 //   void predefColorMapUpdate(int idx);
-//   void shiftEditUpdate(void);
-//   void offsetEditUpdate(void);
 
 private:
   void initGUI(void);

@@ -77,7 +77,7 @@
     </widget>
     <widget class="QLineEdit">
         <property name="name">
-            <cstring>offsetEdit</cstring>
+            <cstring>sliceNumberEdit</cstring>
         </property>
         <property name="geometry">
             <rect>
@@ -227,11 +227,6 @@
         </property>
     </widget>
 </widget>
-<tabstops>
-    <tabstop>offsetEdit</tabstop>
-    <tabstop>predefCombo</tabstop>
-    <tabstop>colormapCombo</tabstop>
-</tabstops>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
