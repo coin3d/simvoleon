@@ -178,8 +178,7 @@ Cvr3DTexSubCube::intersectFaceSet(const SbVec3f * vertexlist,
                                   const SbMatrix & m)
 {
 
-  SbClip cubeclipper(this->subcube_clipperCB, this);
-  cubeclipper.reset();
+  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
 
   SbVec3f a;
   unsigned int idx = 0;
@@ -202,8 +201,7 @@ Cvr3DTexSubCube::intersectTriangleStripSet(const SbVec3f * vertexlist,
                                            const SbMatrix & m)
 {
 
-  SbClip cubeclipper(this->subcube_clipperCB, this);
-  cubeclipper.reset();
+  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
 
   SbVec3f a;
   unsigned int idx = 0;
@@ -238,8 +236,7 @@ Cvr3DTexSubCube::intersectIndexedTriangleStripSet(const SbVec3f * vertexlist,
                                                   const SbMatrix & m)
 {
 
-  SbClip cubeclipper(this->subcube_clipperCB, this);
-  cubeclipper.reset();
+  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
 
   SbVec3f a;
   int counter = 0;
@@ -273,8 +270,7 @@ Cvr3DTexSubCube::intersectIndexedFaceSet(const SbVec3f * vertexlist,
                                          const SbMatrix & m)
 {
 
-  SbClip cubeclipper(this->subcube_clipperCB, this);
-  cubeclipper.reset();
+  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
 
   SbVec3f a;
   for (unsigned int i=0;i<numindices;++i) {
@@ -295,8 +291,7 @@ Cvr3DTexSubCube::intersectIndexedFaceSet(const SbVec3f * vertexlist,
 void
 Cvr3DTexSubCube::intersectSlice(const SbVec3f * sliceplanecorners)
 {
-  SbClip cubeclipper(this->subcube_clipperCB, this);
-  cubeclipper.reset(); // FIXME: unnecessary? 20040728 mortene.
+  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
 
   for (unsigned int i=0; i < 4; i++) { cubeclipper.addVertex(sliceplanecorners[i]); }
 
@@ -309,8 +304,7 @@ Cvr3DTexSubCube::intersectSlice(const SbViewVolume & viewvolume,
                                 const float viewdistance,
                                 const SbMatrix & m)
 {
-  SbClip cubeclipper(this->subcube_clipperCB, this);
-  cubeclipper.reset();
+  SbClip cubeclipper(Cvr3DTexSubCube::subcube_clipperCB, this);
 
   // FIXME: Can we rewrite this to support viewport shells for proper
   // perspective? (20040227 handegar)
