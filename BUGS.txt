@@ -1,0 +1,28 @@
+========================================================================
+
+000 Suspected ray-pick bug.
+
+    When picking orthoslices, it seems like there is a bug yielding
+    wrong results.
+
+    My best bet so far is that one or more of the axes are "flipped"
+    in the intersection calculations. Investigate further.
+
+    Note that this is probably buggy not only for SoOrthoSlice, but
+    also for SoVolumeRender.
+
+    <mortene@sim.no> 20030427.
+
+========================================================================
+
+001 The set of 2D texture slices doesn't seem to cover the full
+    extents of the bounding box.
+
+    To reproduce, look at a very small volume data set. I noticed it
+    on the 41^3 "marschnerlobb" set. To debug this, it would probably
+    be wise to use an even smaller set to see the problem more
+    clearly.
+
+    <mortene@sim.no> 20030627.
+
+========================================================================
