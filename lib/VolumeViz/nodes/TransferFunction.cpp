@@ -119,10 +119,23 @@ SoTransferFunction::pick(SoPickAction * action)
   this->doAction(action);
 }
 
+/*!
+  Set two thresholds, where all transfer function mappings that ends
+  up below the \a low value or above the \a high value are set to be
+  completely transparent.
+
+  Initial default values are [0, 65535].
+ */
 void
 SoTransferFunction::reMap(int low, int high)
 {
   assert(low <= high);
+
+  if ((low == PRIVATE(this)->opaquethresholds[0]) &&
+      (high == PRIVATE(this)->opaquethresholds[1])) {
+    // No change.
+    return;
+  }
 
   PRIVATE(this)->opaquethresholds[0] = low;
   PRIVATE(this)->opaquethresholds[1] = high;
