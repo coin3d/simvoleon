@@ -204,3 +204,17 @@ for suggestions for major improvements and new features.
 
 ========================================================================
 
+017 An empty SoVolumeData node does not seem to be handled well.
+
+    When running the SoGuiExample volumerendering/voleonexplore with a
+    non-existent input-file, something is done in either Voleon, SoQt
+    or Coin that causes 5 internal Coin warning messages to be printed
+    (invalid actions attempted on empty SbBox3f, SbMatrix and
+    SbVec3f).
+
+    Seems most likely these are due to something Voleon does wrong, so
+    placing the bug report here.
+
+    20040919 mortene.
+
+========================================================================
