@@ -57,6 +57,7 @@
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
+#include <VolumeViz/misc/CvrUtil.h>
 
 // *************************************************************************
 
@@ -403,13 +404,17 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   const int axisidx = this->axis.getValue();
   const int slicenr = this->sliceNumber.getValue();
 
-  // FIXME: investigate why this seems necessary (at least with the
-  // RIMS application). 20031023 mortene.
-  const short ydim = volumedataelement->getVoxelCubeDimensions()[Y];
+  int pageslice = slicenr;
+
+  // This is done to support client code depending on an old bug: data
+  // along the Y axis used to be rendered flipped.
+  if (CvrUtil::useFlippedYAxis() && (axisidx == Y)) {
+    const short ydim = volumedataelement->getVoxelCubeDimensions()[Y];
+    pageslice = (ydim - 1) - pageslice;
+  }
+
   Cvr2DTexPage * texpage =
-    PRIVATE(this)->getPage(axisidx,
-                           (axisidx == Y) ? ((ydim - 1) - slicenr) : slicenr,
-                           volumedata);
+    PRIVATE(this)->getPage(axisidx, pageslice, volumedata);
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   CvrCLUT * c = new CvrCLUT(*CvrVoxelChunk::getCLUT(tfelement));

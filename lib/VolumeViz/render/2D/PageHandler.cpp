@@ -341,15 +341,10 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
       volumedataelement->getPageGeometry(AXISIDX, pageidx,
                                          origo, horizspan, verticalspan);
 
-      if (!CvrUtil::useFlippedYAxis()) {
-        // FIXME: The flip should have been done inside
-        // 'getPageGeometry'. Should this change when we bump the
-        // version number. (20040615 handegar)
-        if (AXISIDX != 1) {
-          verticalspan = -verticalspan;
-          origo[1] = -origo[1];
-        }
-      } else {
+
+      // This is done to support client code depending on an old bug:
+      // data along the Y axis used to be rendered flipped.
+      if (CvrUtil::useFlippedYAxis()) {
         // Pages along Y-axis is in opposite order of those along X-
         // and Z-axis.
         if (AXISIDX == 1) { pageidx = DEPTH - pageidx - 1; }

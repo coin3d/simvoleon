@@ -209,4 +209,13 @@ SoVolumeDataElement::getPageGeometry(const int axis, const int slicenr,
 
   horizspan.normalize();
   verticalspan.normalize();
+
+  // This is here to support client code which depends on an old bug:
+  // data was flipped on the Y axis.
+  if (!CvrUtil::useFlippedYAxis()) {
+    if (axis != 1) {
+      verticalspan = -verticalspan;
+      origo[1] = -origo[1];
+    }
+  }
 }
