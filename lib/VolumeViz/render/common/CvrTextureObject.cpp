@@ -469,12 +469,13 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
   assert(vbelem != NULL);
 
-  struct CvrTextureObject::EqualityComparison incoming = {
-    vbelem->getNodeId(),
-    /* for 3d: */ cutcube,
-    /* for 2d: */ cutslice, axisidx, pageidx
-  };
-
+  struct CvrTextureObject::EqualityComparison incoming;
+  incoming.sovolumedata_id = vbelem->getNodeId();
+  incoming.cutcube = cutcube; // For 3D tex
+  incoming.cutslice = cutslice; // For 2D tex
+  incoming.axisidx = axisidx; // For 2D tex
+  incoming.pageidx = pageidx; // For 2D tex
+  
   CvrTextureObject * obj = CvrTextureObject::findInstanceMatch(incoming);
   if (obj) { return obj; }
 
