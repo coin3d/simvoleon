@@ -52,7 +52,7 @@ public:
   SoSFBool usePalettedTexture;
   SoSFBool useCompressedTexture;
 
-  void setVolumeData(const SbVec3s & dimension, const void * data,
+  void setVolumeData(const SbVec3s & dimension, void * data,
                      SoVolumeData::DataType type = SoVolumeData::UNSIGNED_BYTE);
 
   void setVolumeSize(const SbBox3f & size);

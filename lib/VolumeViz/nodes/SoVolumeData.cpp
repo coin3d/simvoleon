@@ -421,7 +421,7 @@ SoVolumeData::getDimensions(void)
 // accepted size.  torbjorv 07292002
 void 
 SoVolumeData::setVolumeData(const SbVec3s &dimensions, 
-                            const void *data, 
+                            void * data, 
                             SoVolumeData::DataType type) 
 {
 
