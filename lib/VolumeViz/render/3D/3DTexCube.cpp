@@ -47,7 +47,6 @@
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
 #include <VolumeViz/render/common/CvrRGBATexture.h>
-#include <VolumeViz/render/common/CvrTextureManager.h>
 
 // *************************************************************************
 
