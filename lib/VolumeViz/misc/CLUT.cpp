@@ -115,7 +115,7 @@ CvrCLUT::activate(const cc_glglue * glw) const
   // FIXME: should probably set glColorTableParameter() on
   // GL_COLOR_TABLE_SCALE and GL_COLOR_TABLE_BIAS.
 
-  // FIXME: should probably check if all is ok with by using
+  // FIXME: should probably check if all is ok by using
   // PROXY_TEXTURE_2D first.
 
   cc_glglue_glColorTable(glw,
