@@ -192,16 +192,20 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
       SoVertexProperty * vertprop = (SoVertexProperty *) this->master->vertexProperty.getValue();
       if (vertprop != NULL) this->clipgeometryshape->vertexProperty.setValue(vertprop);             
 
+      int32_t * idst;
       int i=0;
-      for (i=0;i<numVertices.getNum();++i) {
-        if (this->type == FACESET) {
-          ((SoFaceSet *) this->clipgeometryshape)->numVertices.setNum(numVertices.getNum());
-          ((SoFaceSet *) this->clipgeometryshape)->numVertices.set1Value(i, numVertices[i]);
-        }
-        else {
-          ((SoTriangleStripSet *) this->clipgeometryshape)->numVertices.setNum(numVertices.getNum());
-          ((SoTriangleStripSet *) this->clipgeometryshape)->numVertices.set1Value(i, numVertices[i]);
-        }
+
+      if (this->type == FACESET) {
+        ((SoFaceSet *) this->clipgeometryshape)->numVertices.setNum(numVertices.getNum());
+        idst = ((SoFaceSet *) this->clipgeometryshape)->numVertices.startEditing();
+        for (i=0;i<numVertices.getNum();++i) { *idst++ = numVertices[i]; }
+        ((SoFaceSet *) this->clipgeometryshape)->numVertices.finishEditing();
+      }
+      else {
+        ((SoTriangleStripSet *) this->clipgeometryshape)->numVertices.setNum(numVertices.getNum());
+        idst = ((SoFaceSet *) this->clipgeometryshape)->numVertices.startEditing();
+        for (i=0;i<numVertices.getNum();++i) { *idst++ = numVertices[i]; }
+        ((SoTriangleStripSet *) this->clipgeometryshape)->numVertices.finishEditing();
       }
 
       // No need to copy texture coords as the face set shall always be untextured.

@@ -197,17 +197,23 @@ CvrIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
     if (this->parentnodeid != this->master->getNodeId()) { // Changed recently?
       SoVertexProperty * vertprop = (SoVertexProperty *) this->master->vertexProperty.getValue();
       if (vertprop != NULL) this->clipgeometryshape->vertexProperty.setValue(vertprop); 
-      
-      int i=0;
+     
       this->clipgeometryshape->coordIndex.setNum(this->master->coordIndex.getNum());
-      for (i=0;i<this->master->coordIndex.getNum();++i)
-        this->clipgeometryshape->coordIndex.set1Value(i, this->master->coordIndex[i]);
       this->clipgeometryshape->materialIndex.setNum(this->master->materialIndex.getNum());
+
+      int32_t * idst = this->clipgeometryshape->coordIndex.startEditing();
+      int32_t * mdst = this->clipgeometryshape->materialIndex.startEditing();
+
+      int i=0;
+      for (i=0;i<this->master->coordIndex.getNum();++i)
+        *idst++ = this->master->coordIndex[i];
       for (i=0;i<this->master->materialIndex.getNum();++i)
-        this->clipgeometryshape->materialIndex.set1Value(i, this->master->materialIndex[i]);       
+        *mdst++ = this->master->materialIndex[i];
       // No need to copy texture coords as the face set shall always be untextured.
       
       this->parentnodeid = this->master->getNodeId();
+      this->clipgeometryshape->coordIndex.finishEditing();
+      this->clipgeometryshape->materialIndex.finishEditing();
     }
   
     SbPlane cubeplanes[6];
