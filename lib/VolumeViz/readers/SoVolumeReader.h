@@ -1,13 +1,13 @@
 #ifndef COIN_SOVOLUMEREADER_H
 #define COIN_SOVOLUMEREADER_H
 
-#include <Inventor/nodes/SoNode.h>
-#include <Inventor/nodes/SoSubNode.h>
-#include <Inventor/SbBox2f.h>
-#include <Inventor/SbBox3f.h>
-#include <Inventor/SbVec3s.h>
-#include <Inventor/SbBox2s.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/SoOrthoSlice.h>
+
+class SbBox2s;
+class SbBox3f;
+class SbVec3s;
+
 
 class SoVolumeReader {
 public:
@@ -18,7 +18,9 @@ public:
   virtual void getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
                            SbVec3s & dim) = 0;
   virtual void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data,
-                           SoVolumeRendering::Axis axis = SoVolumeRendering::Z)
+                           // FIXME: this is an extra parameter vs
+                           // TGS. Investigate why. 20021107 mortene.
+                           SoOrthoSlice::Axis axis = SoOrthoSlice::Z)
     = 0;
 
 protected:

@@ -16,15 +16,10 @@ public:
   SoVolumeRendering();
 
   enum HW_Feature {
-    HW_VOLUMEPRO,
-    HW_3DTEXMAP,
-    HW_TEXCOLORMAP,
-    HW_TEXCOMPRESSION
+    HW_VOLUMEPRO, HW_3DTEXMAP, HW_TEXCOLORMAP, HW_TEXCOMPRESSION
   };
 
   enum HW_SupportStatus { NO, YES, UNKNOWN };
-
-  enum Axis { X, Y, Z };
 
   HW_SupportStatus isSupported(HW_Feature feature);
 

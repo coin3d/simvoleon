@@ -17,7 +17,7 @@ SoVolumeDataSlice::SoVolumeDataSlice(void)
 {
   this->pageSize = SbVec2s(32, 32);
   this->pages = NULL;
-  this->axis = SoVolumeRendering::Z;
+  this->axis = SoOrthoSlice::Z;
   this->numPages = 0;
   this->numTexels = 0;
   this->sliceIdx = 0;
@@ -34,7 +34,7 @@ SoVolumeDataSlice::~SoVolumeDataSlice()
 
 
 void SoVolumeDataSlice::init(SoVolumeReader * reader, int sliceIdx,
-                             SoVolumeRendering::Axis axis,
+                             SoOrthoSlice::Axis axis,
                              const SbVec2s & pageSize)
 {
   this->releaseAllPages();
@@ -49,17 +49,17 @@ void SoVolumeDataSlice::init(SoVolumeReader * reader, int sliceIdx,
   reader->getDataChar(size, this->dataType, dim);
 
   switch (axis) {
-    case SoVolumeRendering::X:
+    case SoOrthoSlice::X:
       this->dimensions[0] = dim[2];
       this->dimensions[1] = dim[1];
       break;
 
-    case SoVolumeRendering::Y:
+    case SoOrthoSlice::Y:
       this->dimensions[0] = dim[0];
       this->dimensions[1] = dim[2];
       break;
 
-    case SoVolumeRendering::Z:
+    case SoOrthoSlice::Z:
       this->dimensions[0] = dim[0];
       this->dimensions[1] = dim[1];
       break;

@@ -68,18 +68,18 @@ void SoVRMemReader::getDataChar(SbBox3f &size,
 void SoVRMemReader::getSubSlice(SbBox2s &subSlice, 
                                 int sliceNumber, 
                                 void * data, 
-                                SoVolumeRendering::Axis axis)
+                                SoOrthoSlice::Axis axis)
 {
   switch (axis) {
-    case SoVolumeRendering::X:
+    case SoOrthoSlice::X:
       PRIVATE(this)->buildSubSliceX(data, sliceNumber, subSlice);
       break;
 
-    case SoVolumeRendering::Y:
+    case SoOrthoSlice::Y:
       PRIVATE(this)->buildSubSliceY(data, sliceNumber, subSlice);
       break;
 
-    case SoVolumeRendering::Z:
+    case SoOrthoSlice::Z:
       PRIVATE(this)->buildSubSliceZ(data, sliceNumber, subSlice);
       break;
   }

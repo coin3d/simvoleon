@@ -20,7 +20,7 @@ public:
                                SoTransferFunction * transferFunction);
 
   void init(SoVolumeReader * reader, int sliceIdx,
-            SoVolumeRendering::Axis axis, const SbVec2s & pageSize);
+            SoOrthoSlice::Axis axis, const SbVec2s & pageSize);
 
   void render(SoState * state,
               const SbVec3f & v0, const SbVec3f & v1,
@@ -45,7 +45,7 @@ private:
   SoVolumeDataPage ** pages;
   SoVolumeReader * reader;
 
-  SoVolumeRendering::Axis axis;
+  SoOrthoSlice::Axis axis;
   int sliceIdx;
   SbVec2s pageSize;
   SbVec2s dimensions;

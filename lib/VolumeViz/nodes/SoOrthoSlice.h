@@ -1,7 +1,8 @@
 #ifndef COIN_SOORTHOSLICE_H
 #define COIN_SOORTHOSLICE_H
 
-#include <Inventor/nodes/SoNode.h>
+#include <Inventor/nodes/SoShape.h>
+#include <Inventor/fields/SoSFUInt32.h>
 
 
 class SoOrthoSlice : public SoShape {

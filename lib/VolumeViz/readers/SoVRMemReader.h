@@ -15,7 +15,7 @@ public:
                    SbVec3s &dim);
 
   void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data,
-                   SoVolumeRendering::Axis axis = SoVolumeRendering::Z);
+                   SoOrthoSlice::Axis axis = SoOrthoSlice::Z);
 
   void setData(const SbVec3s &dimensions, const void *data,
                const SbBox3f &volumeSize,

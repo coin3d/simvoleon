@@ -195,7 +195,7 @@ VOLUMEREADERS
   void getSubSlice(SbBox2s &subSlice, 
                    int sliceNumber, 
                    void * data,
-                   SoVolumeRendering::Axis axis = SoVolumeRendering::Z)
+                   SoOrthoSlice::Axis axis = SoOrthoSlice::Z)
 
   This moves the responsibility for building slices to the reader. 
   It makes it possible to exploit fileformats with possible clever
@@ -659,7 +659,7 @@ SoVolumeDataP::getSliceX(int sliceIdx)
     SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
     newSlice->init(this->reader, 
                    sliceIdx, 
-                   SoVolumeRendering::X, 
+                   SoOrthoSlice::X, 
                    SbVec2s(this->pageSize[2], this->pageSize[1]));
 
     slicesX[sliceIdx] = newSlice;
@@ -687,7 +687,7 @@ SoVolumeDataP::getSliceY(int sliceIdx)
     SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
     newSlice->init(this->reader, 
                    sliceIdx, 
-                   SoVolumeRendering::Y, 
+                   SoOrthoSlice::Y, 
                    SbVec2s(this->pageSize[0], this->pageSize[2]));
 
     slicesY[sliceIdx] = newSlice;
@@ -716,7 +716,7 @@ SoVolumeDataP::getSliceZ(int sliceIdx)
     SoVolumeDataSlice * newSlice = new SoVolumeDataSlice;
     newSlice->init(this->reader, 
                    sliceIdx, 
-                   SoVolumeRendering::Z, 
+                   SoOrthoSlice::Z, 
                    SbVec2s(this->pageSize[0], this->pageSize[1]));
 
     slicesZ[sliceIdx] = newSlice;
