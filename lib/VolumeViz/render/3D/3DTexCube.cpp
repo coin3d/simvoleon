@@ -380,17 +380,14 @@ Cvr3DTexCube::renderObliqueSlice(SoGLRenderAction * action, const SbVec3f & orig
 
 }
 
-// Renders a polygon inside the volume. Loads all the subcubes needed.
+// Renders a faceset inside the volume. Loads all the subcubes needed.
 void 
-Cvr3DTexCube::renderIndexedPolygon(SoGLRenderAction * action, const SbVec3f & origo,
+Cvr3DTexCube::renderIndexedFaceSet(SoGLRenderAction * action, const SbVec3f & origo,
                                    Cvr3DTexSubCube::Interpolation interpolation,
                                    const SbVec3f * vertexarray,
                                    const int * indices,
                                    const unsigned int numindices)
 {
-
-  // FIXME: Does not work yet. (20040628 handegar)
-  assert(FALSE && "Cvr3DTexCube::renderIndexedPolygon() does not work properly yet.");
 
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
   
@@ -418,7 +415,7 @@ Cvr3DTexCube::renderIndexedPolygon(SoGLRenderAction * action, const SbVec3f & or
         SbVec3f subcubeorigo = origo +
           subcubewidth*colidx + subcubeheight*rowidx + subcubedepth*depthidx;
                
-        cubeitem->cube->checkIntersectionIndexedPolygon(subcubeorigo, 
+        cubeitem->cube->checkIntersectionIndexedFaceSet(subcubeorigo, 
                                                         vertexarray,
                                                         indices,
                                                         numindices,

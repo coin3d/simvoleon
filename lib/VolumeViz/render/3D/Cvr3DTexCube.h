@@ -44,7 +44,7 @@ public:
                           Cvr3DTexSubCube::Interpolation interpolation,
                           const SbPlane plane);
  
-  void renderIndexedPolygon(SoGLRenderAction * action, const SbVec3f & origo,
+  void renderIndexedFaceSet(SoGLRenderAction * action, const SbVec3f & origo,
                             Cvr3DTexSubCube::Interpolation interpolation,
                             const SbVec3f * vertexarray,
                             const int * indices,

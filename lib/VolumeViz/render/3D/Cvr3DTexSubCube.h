@@ -35,11 +35,8 @@
 #include <Inventor/SbClip.h>
 #include <Inventor/SbViewVolume.h>
 
+#include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/render/common/CvrTextureObject.h>
-
-class SoGLRenderAction;
-class CvrTextureObject;
-class CvrCLUT;
 
 struct subcube_slice {
   SbList <SbVec3f> texcoord; 
@@ -66,7 +63,7 @@ public:
   SbBool checkIntersectionSlice(SbVec3f const & cubeorigo, 
                                 const SbViewVolume & viewvolume, 
                                 float viewdistance, SbMatrix);
-  SbBool checkIntersectionIndexedPolygon(SbVec3f const & cubeorigo, 
+  SbBool checkIntersectionIndexedFaceSet(SbVec3f const & cubeorigo, 
                                          const SbVec3f * vertexlist,
                                          const int * indices,
                                          const unsigned int numindices,

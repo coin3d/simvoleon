@@ -25,7 +25,14 @@
 #include <config.h>
 #endif // HAVE_CONFIG_H
 
-#include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
+#include <Inventor/elements/SoLazyElement.h>
+#include <Inventor/C/tidbits.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/errors/SoDebugError.h>
+#include <Inventor/projectors/SbPlaneProjector.h>
+#include <Inventor/SbColor.h>
+
 #include <VolumeViz/render/common/CvrRGBATexture.h>
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
@@ -35,14 +42,7 @@
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
-#include <Inventor/elements/SoModelMatrixElement.h>
-#include <Inventor/elements/SoLazyElement.h>
-#include <Inventor/C/tidbits.h>
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/errors/SoDebugError.h>
-#include <Inventor/projectors/SbPlaneProjector.h>
-#include <Inventor/SbColor.h>
-
+#include <VolumeViz/render/3D/Cvr3DTexSubCube.h>
 
 // *************************************************************************
 
@@ -101,6 +101,9 @@ Cvr3DTexSubCube::isPaletted(void) const
 void
 Cvr3DTexSubCube::setPalette(const CvrCLUT * newclut)
 {
+
+  assert(newclut != NULL);
+
   if (this->clut) { this->clut->unref(); }
   this->clut = newclut;
   this->clut->ref();
@@ -218,9 +221,9 @@ Cvr3DTexSubCube::subcube_clipperCB(const SbVec3f & v0, void * vdata0,
 }
 
 
-// Check if this cube is intersected by a polygon.
+// Check if this cube is intersected by a faceset.
 SbBool 
-Cvr3DTexSubCube::checkIntersectionIndexedPolygon(SbVec3f const & cubeorigo, 
+Cvr3DTexSubCube::checkIntersectionIndexedFaceSet(SbVec3f const & cubeorigo, 
                                                  const SbVec3f * vertexlist,
                                                  const int * indices,
                                                  const unsigned int numindices,
@@ -233,13 +236,13 @@ Cvr3DTexSubCube::checkIntersectionIndexedPolygon(SbVec3f const & cubeorigo,
   
   SbVec3f a;
   for (unsigned int i=0;i<numindices;++i) {
-    if (indices[i] != -1) {
+    if (indices[i] != -1) {    
       m.multVecMatrix(vertexlist[indices[i]], a);
       cubeclipper.addVertex(a);
     } else { // Index == -1. Clip polygon.
       this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
       cubeclipper.reset();
-    }    
+    }   
   }
 
   return this->clipPolygonAgainstCube(cubeclipper, cubeorigo);
@@ -273,7 +276,9 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
   m.multVecMatrix(b, b);
   m.multVecMatrix(c, c);
   m.multVecMatrix(d, d);
-  
+
+  // No need to add texture coords as they will always be calculated
+  // at the new intersection points.  
   cubeclipper.addVertex(a);
   cubeclipper.addVertex(b);
   cubeclipper.addVertex(c);
@@ -291,7 +296,6 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cu
     NB!: the 'cubeclipper' object must have been initialized with a
     polygon *before* this function is called to have an effect.
   */
-
 
   // Clockwise direction for all planes  
   // Back plane
@@ -326,14 +330,14 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cu
     subcube_slice slice;
 
     for (i=0;i<result;i++) {       
-      SbVec3f * tmp = (SbVec3f *) cubeclipper.getVertexData(i);
-      if (tmp == NULL) continue; // No texcoord were calculated. Skip.
-
+     
       SbVec3f vert;
-      cubeclipper.getVertex(i, vert);
-  
-      SbVec3f texcoord(tmp->getValue());
+      cubeclipper.getVertex(i, vert);  
       slice.vertex.append(vert);
+
+      SbVec3f * tmp = (SbVec3f *) cubeclipper.getVertexData(i);
+      if (tmp == NULL) { tmp = (SbVec3f *) subcube_clipperCB(vert, NULL, vert, NULL, vert, this); }
+      SbVec3f texcoord(tmp->getValue());
       slice.texcoord.append(texcoord);
     }
     
@@ -342,6 +346,7 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(SbClip & cubeclipper, const SbVec3f & cu
     
     this->texcoordlist.truncate(0);
     this->volumeslices.append(slice);
+    
     return TRUE;
   }
   

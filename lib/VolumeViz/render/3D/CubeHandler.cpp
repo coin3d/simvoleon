@@ -56,6 +56,7 @@ CvrCubeHandler::CvrCubeHandler(const SbVec3s & voldatadims,
 CvrCubeHandler::~CvrCubeHandler()
 {
   if (this->clut) { this->clut->unref(); }
+  delete this->volumecube;
 }
 
 // Calculates direction from camera to center of object.
@@ -87,6 +88,7 @@ void
 CvrCubeHandler::setPalette(const CvrCLUT * c)
 {
   assert(this->volumecube && "'volumecube' object is not initialized.");
+  assert(c != NULL);
 
   if (this->clut) { this->clut->unref(); }
   this->clut = c;
