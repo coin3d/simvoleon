@@ -50,3 +50,15 @@ SIM Voleon 2.0.0
   client code was using this element, but if so, get in touch at
   <coin-support@coin3d.org> to get information about how to handle
   this change.
+
+
+* A minor API change that will cause client code to break upon
+  compilation is that the argument to SoVolumeData::setReader() was
+  changed from a pointer to a reference, i.e. from
+
+        void SoVolumeData::setReader(SoVolumeReader * reader)
+  to
+        void SoVolumeData::setReader(SoVolumeReader & reader)
+
+  This is easily handled in client code by adding a dereference "*" in
+  front of the input variable.
