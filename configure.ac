@@ -1,6 +1,6 @@
 
-m4_define([SIMVOLEON_MAJOR], [1])
-m4_define([SIMVOLEON_MINOR], [1])
+m4_define([SIMVOLEON_MAJOR], [2])
+m4_define([SIMVOLEON_MINOR], [0])
 m4_define([SIMVOLEON_MICRO], [0])
 m4_define([SIMVOLEON_BETA], [a])
 
