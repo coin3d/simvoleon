@@ -261,7 +261,10 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
 
   glDisable(GL_LIGHTING);
   glEnable(GL_TEXTURE_2D);
-  glPolygonMode(GL_FRONT, GL_FILL);
+  // FIXME: if this is set to "GL_FRONT", the testcode/examine example
+  // fails (data disappears from certain
+  // angles). Investigate. 20021202 mortene.
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
   // FIXME: how does the blending cooperate with the other geometry in
   // a Coin scene graph? Do we need to delay rendering? 20021109 mortene.
