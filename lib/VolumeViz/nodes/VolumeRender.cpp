@@ -128,6 +128,70 @@ SoVolumeRenderP::calculateNrOfSlices(SoGLRenderAction * action,
 
 // *************************************************************************
 
+/*!
+  \enum SoVolumeRender::NumSlicesControl
+
+  Enumeration of strategies for how to render the slices of the
+  volume.
+*/
+/*!
+  \var SoVolumeRender::NumSlicesControl SoVolumeRender::ALL
+
+  Always render as many slices as there are voxels in the depth
+  dimension. This is the default value.
+*/
+/*!
+  \var SoVolumeRender::NumSlicesControl SoVolumeRender::MANUAL
+
+  Render as many slices as given by the SoVolumeRender::numSlices
+  field.
+*/
+/*!
+  \var SoVolumeRender::NumSlicesControl SoVolumeRender::AUTOMATIC
+
+  The number of slices to render will be calculated as follows:
+
+  \code
+  unsigned int numslices = complexity * 2 * numSlices;
+  \endcode
+
+  Where \a "complexity" is the current SoComplexity::value setting in
+  the scene graph traversal state. For \a "numSlices", see
+  SoVolumeRender::numSlices.
+*/
+
+/*!
+  \var SoSFEnum SoVolumeRender::numSlicesControl
+
+  Specifies a strategy to use for calculating the number of slices to
+  use for the visualization. The more slicer, the better quality and
+  more correct the visualization will be, but the trade-off is that it
+  will also influence the rendering performance.
+
+  The default value is SoVolumeRender::ALL.
+
+  (The rendering performance can be \e severly improved by changing
+  this field's value to either SoVolumeRender::MANUAL or
+  SoVolumeRender::AUTOMATIC, and then tuning the
+  SoVolumeRender::numSlices field.)
+*/
+
+/*!
+  \var SoSFInt32 SoVolumeRender::numSlices
+
+  Decides how many slices to render if
+  SoVolumeRender::numSlicesControl is set to either
+  SoVolumeRender::MANUAL or SoVolumeRender::AUTOMATIC.
+
+  For \c MANUAL, it sets an absolute number. For \c AUTOMATIC, a
+  calculation will be done based on the value of this field and the
+  current SoComplexity::value setting in the scene graph traversal
+  state.
+
+  Note that the default value of the field is 0, i.e. no visualization
+  is done.
+*/
+
 // *************************************************************************
 
 /*!
