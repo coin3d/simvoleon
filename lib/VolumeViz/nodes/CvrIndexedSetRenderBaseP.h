@@ -1,5 +1,5 @@
-#ifndef CVR_INDEXEDSETRENDERBASEP_H
-#define CVR_INDEXEDSETRENDERBASEP_H
+#ifndef SIMVOLEON_CVRINDEXEDSETRENDERBASEP_H
+#define SIMVOLEON_CVRINDEXEDSETRENDERBASEP_H
 
 /**************************************************************************\
  *
@@ -24,14 +24,18 @@
  *
 \**************************************************************************/
 
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/elements/SoCoordinateElement.h>
-#include <Inventor/nodes/SoIndexedShape.h>
-#include <Inventor/fields/SoMFInt32.h>
+#include <Inventor/SbBasic.h>
 
-#include <VolumeViz/render/3D/Cvr3DTexCube.h>
+class SbVec3f;
+class SoGLRenderAction;
+class SoCoordinateElement;
+class SoIndexedShape;
+class SoState;
 
-// Internal class
+class Cvr3DTexCube;
+class CvrCLUT;
+
+// *************************************************************************
 
 class CvrIndexedSetRenderBaseP {
 
@@ -52,7 +56,6 @@ public:
                 const SbBool clipGeometry);
   
   enum SetType { FACESET, TRIANGLESTRIPSET };
-  enum RenderingMethod { TEXTURE3D, TEXTURE2D, UNKNOWN };
 
   Cvr3DTexCube * cube;
   const CvrCLUT * clut;
@@ -62,7 +65,8 @@ public:
 
 protected:
   SoIndexedShape * master; 
-
 };
 
-#endif // CVR_INDEXEDSETRENDERBASEP_H
+// *************************************************************************
+
+#endif // !SIMVOLEON_CVRINDEXEDSETRENDERBASEP_H

@@ -57,8 +57,6 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
                                       const SbBool clipGeometry,
                                       SoMFInt32 & numVertices)
 {
-
-
   // FIXME: Support for 'offset' must be implemented. (20040628
   // handegar)
   if (offset != 0) {
@@ -69,6 +67,21 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
       flag = TRUE;
     }
   }
+
+  const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
+  if (!cc_glglue_has_3d_textures(glue)) {
+    static SbBool flag = FALSE;
+    if (!flag) {
+      SoDebugError::postWarning("CvrNonIndexedSetRenderBaseP::GLRender",
+                                "Your OpenGL driver does not support 3D "
+                                "textures, which is needed for rendering "
+                                "SoVolumeFaceSet and SoVolumeTriangleStripSet "
+                                "nodes");
+      flag = TRUE;
+    }
+    return;
+  }
+
 
   SoState * state = action->getState();
 
@@ -87,87 +100,64 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
   const SbVec3s & dims = vbelem->getVoxelCubeDimensions();
   SbVec3f origo(-((float) dims[0]) / 2.0f, -((float) dims[1]) / 2.0f, -((float) dims[2]) / 2.0f);
 
-  // Determiner rendering method.
-  int rendermethod = CvrNonIndexedSetRenderBaseP::TEXTURE2D; // this is the default
-  const int storagehint = CvrStorageHintElement::get(state);
-  if (storagehint == SoVolumeData::TEX3D || storagehint == SoVolumeData::AUTO) {
-    const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
-    if (cc_glglue_has_3d_textures(glue) && !CvrUtil::force2DTextureRendering()) {
-      rendermethod = CvrNonIndexedSetRenderBaseP::TEXTURE3D;
-    }
+  // This must be done, as we want to control stuff in the GL state
+  // machine. Without it, state changes could trigger outside our
+  // control.
+  SoGLLazyElement::getInstance(state)->send(state, SoLazyElement::ALL_MASK);
+
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
+  glEnable(GL_TEXTURE_3D);
+  glEnable(GL_DEPTH_TEST);
+
+  // FIXME: Should there be support for other blending methods aswell? (20040630 handegar)
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  if (!this->cube) { this->cube = new Cvr3DTexCube(action); }
+
+  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+  const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
+  if (this->clut != c) {
+    this->cube->setPalette(c);
+    this->clut = c;
   }
 
-  if (rendermethod == CvrNonIndexedSetRenderBaseP::TEXTURE2D) {
-    // 2D textures will not be supported for this node.
-    static SbBool flag = FALSE;
-    if (!flag) {
-      SoDebugError::postWarning("SoVolumeFaceSet::GLRender",
-                                "2D textures not supported for this node.");
-      flag = TRUE;
-    }
+  // Fetch texture quality
+  float texturequality = SoTextureQualityElement::get(state);
+  GLenum interp;
+  if (texturequality >= 0.1f) { interp = GL_LINEAR; }
+  else { interp = GL_NEAREST; }
+  CvrGLInterpolationElement::set(state, interp);
+
+  // Fetch vertices and normals from the stack
+  const SoCoordinateElement * coords;
+  const SbVec3f * normals;
+  SbBool neednormals = FALSE;
+
+
+  const SbVec3f * vertexarray;
+  SoVertexProperty * vertprop = (SoVertexProperty *) this->master->vertexProperty.getValue();
+  if (vertprop != NULL) vertexarray = vertprop->vertex.getValues(this->master->startIndex.getValue());
+  else {
+    this->getVertexData(state, coords, normals, neednormals);
+    vertexarray = coords->getArrayPtr3();
   }
-  else if (rendermethod == CvrNonIndexedSetRenderBaseP::TEXTURE3D) {
 
-    // This must be done, as we want to control stuff in the GL state
-    // machine. Without it, state changes could trigger outside our
-    // control.
-    SoGLLazyElement::getInstance(state)->send(state, SoLazyElement::ALL_MASK);
+  // FIXME: Lighting is not properly handeled yet. (20040630 handegar)
+  glDisable(GL_LIGHTING);
 
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glEnable(GL_TEXTURE_3D);
-    glEnable(GL_DEPTH_TEST);
+  const Cvr3DTexCube::NonindexedSetType type = ((this->type == FACESET) ?
+                                                Cvr3DTexCube::FACE_SET :
+                                                Cvr3DTexCube::TRIANGLESTRIP_SET);
 
-    // FIXME: Should there be support for other blending methods aswell? (20040630 handegar)
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  this->cube->renderNonindexedSet(action, origo,
+                                  vertexarray,
+                                  numVertices.getValues(this->master->startIndex.getValue()),
+                                  numVertices.getNum(),
+                                  type);
 
-    if (!this->cube) { this->cube = new Cvr3DTexCube(action); }
+  glPopAttrib();
 
-    const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-    const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
-    if (this->clut != c) {
-      this->cube->setPalette(c);
-      this->clut = c;
-    }
-
-    // Fetch texture quality
-    float texturequality = SoTextureQualityElement::get(state);
-    GLenum interp;
-    if (texturequality >= 0.1f) { interp = GL_LINEAR; }
-    else { interp = GL_NEAREST; }
-    CvrGLInterpolationElement::set(state, interp);
-
-    // Fetch vertices and normals from the stack
-    const SoCoordinateElement * coords;
-    const SbVec3f * normals;
-    SbBool neednormals = FALSE;
-
-
-    const SbVec3f * vertexarray;
-    SoVertexProperty * vertprop = (SoVertexProperty *) this->master->vertexProperty.getValue();
-    if (vertprop != NULL) vertexarray = vertprop->vertex.getValues(this->master->startIndex.getValue());
-    else {
-      this->getVertexData(state, coords, normals, neednormals);
-      vertexarray = coords->getArrayPtr3();
-    }
-
-    // FIXME: Lighting is not properly handeled yet. (20040630 handegar)
-    glDisable(GL_LIGHTING);
-
-    const Cvr3DTexCube::NonindexedSetType type = ((this->type == FACESET) ?
-                                                  Cvr3DTexCube::FACE_SET :
-                                                  Cvr3DTexCube::TRIANGLESTRIP_SET);
-
-    this->cube->renderNonindexedSet(action, origo,
-                                    vertexarray,
-                                    numVertices.getValues(this->master->startIndex.getValue()),
-                                    numVertices.getNum(),
-                                    type);
-
-    glPopAttrib();
-
-  }
-  else { assert(FALSE && "Unknown rendering method."); }
 
   // 'un-Transform' model matrix before rendering clip geometry.
   state->pop();
@@ -256,6 +246,4 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
       state->pop();
     }
   }
-
-
 }

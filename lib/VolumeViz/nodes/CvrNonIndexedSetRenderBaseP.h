@@ -1,5 +1,5 @@
-#ifndef CVR_NONINDEXEDSETRENDERBASEP_H
-#define CVR_NONINDEXEDSETRENDERBASEP_H
+#ifndef SIMVOLEON_CVRNONINDEXEDSETRENDERBASEP_H
+#define SIMVOLEON_CVRNONINDEXEDSETRENDERBASEP_H
 
 /**************************************************************************\
  *
@@ -24,13 +24,19 @@
  *
 \**************************************************************************/
 
-// Internal class
-#include <Inventor/actions/SoGLRenderAction.h>
-#include <Inventor/elements/SoCoordinateElement.h>
-#include <Inventor/nodes/SoNonIndexedShape.h>
-#include <Inventor/fields/SoMFInt32.h>
+#include <Inventor/SbBasic.h>
 
-#include <VolumeViz/render/3D/Cvr3DTexCube.h>
+class SbVec3f;
+class SoGLRenderAction;
+class SoCoordinateElement;
+class SoNonIndexedShape;
+class SoMFInt32;
+class SoState;
+
+class Cvr3DTexCube;
+class CvrCLUT;
+
+// *************************************************************************
 
 class CvrNonIndexedSetRenderBaseP {
 
@@ -47,8 +53,6 @@ public:
   
   enum SetType { FACESET, TRIANGLESTRIPSET };
 
-  enum RenderingMethod { TEXTURE3D, TEXTURE2D, UNKNOWN };
-
   Cvr3DTexCube * cube;
   const CvrCLUT * clut;
   uint32_t parentnodeid;
@@ -57,7 +61,8 @@ public:
 
 protected:
   SoNonIndexedShape * master; 
-
 };
 
-#endif // CVR_NONINDEXEDSETRENDERBASEP_H
+// *************************************************************************
+
+#endif // !SIMVOLEON_CVRNONINDEXEDSETRENDERBASEP_H
