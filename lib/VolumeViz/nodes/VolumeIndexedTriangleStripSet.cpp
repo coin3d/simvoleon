@@ -21,6 +21,27 @@
  *
 \**************************************************************************/
 
+/*!
+  \class SoVolumeIndexedTriangleStripSet VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h
+  \brief Render a set of trianglestrips within the volume.
+
+  This node works like the SoVolumeTriangleStripSet node, but
+  specifies vertex indices in a slightly different manner. See
+  documentation of SoVolumeTriangleStripSet, SoVolumeFaceSet and
+  Coin's SoIndexedTriangleStripSet for further information.
+
+  Note that this node will not work with OpenGL drivers too old to
+  contain support for 3D-texturing. See the extended comments on
+  SoObliqueSlice for more information.
+
+  \sa SoVolumeIndexedFaceSet, SoVolumeRender, SoOrthoSlice, SoObliqueSlice
+  \sa SoVolumeTriangleStripSet
+
+  \since SIM Voleon 1.1
+*/
+
+// *************************************************************************
+
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>

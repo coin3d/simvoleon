@@ -27,14 +27,16 @@
 
   This node works like the SoVolumeFaceSet node, but specifies vertex
   indices in a slightly different manner. See documentation of
-  SoVolumeFaceSet and Coin's SoIndexedFaceSet for further
-  documentation.
+  SoVolumeFaceSet and Coin's SoIndexedFaceSet for further information.
 
   Note that this node will not work with OpenGL drivers too old to
   contain support for 3D-texturing. See the extended comments on
   SoObliqueSlice for more information.
 
   \sa SoVolumeFaceSet, SoVolumeRender, SoOrthoSlice, SoObliqueSlice
+  \sa SoVolumeIndexedTriangleStripSet
+
+  \since SIM Voleon 1.1
 */
 
 // *************************************************************************

@@ -39,7 +39,10 @@
   contain support for 3D-texturing. See the extended comments on
   SoObliqueSlice for more information.
 
-  \sa SoVolumeIndexedFaceSet, SpVolumeRender, SoOrthoSlice, SoObliqueSlice
+  \sa SoVolumeIndexedFaceSet, SoVolumeRender, SoOrthoSlice, SoObliqueSlice
+  \sa SoVolumeTriangleStripSet
+
+  \since SIM Voleon 1.1
 */
 
 // *************************************************************************

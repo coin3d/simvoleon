@@ -24,6 +24,8 @@
 /*!
   \class SoObliqueSliceDetail SoObliqueSliceDetail.h VolumeViz/details/SoObliqueSliceDetail.h
   \brief The SoObliqueSliceDetail contains details of a pick operation on SoObliqueSlice geometry.
+
+  \since SIM Voleon 1.1
 */
 
 // *************************************************************************

@@ -21,6 +21,27 @@
  *
 \**************************************************************************/
 
+/*!
+  \class SoVolumeIndexedTriangleStripSet VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h
+  \brief Render a set of trianglestrips within the volume.
+
+  This node works like the SoVolumeFaceSet node, but specifies
+  polygons in triangle strips instead of individual polygons. See
+  documentation of SoVolumeFaceSet and Coin's SoTriangleStripSet for
+  further information.
+
+  Note that this node will not work with OpenGL drivers too old to
+  contain support for 3D-texturing. See the extended comments on
+  SoObliqueSlice for more information.
+
+  \sa SoVolumeIndexedFaceSet, SoVolumeRender, SoOrthoSlice, SoObliqueSlice
+  \sa SoVolumeIndexedTriangleStripSet
+
+  \since SIM Voleon 1.1
+*/
+
+// *************************************************************************
+
 #include <Inventor/C/tidbits.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>

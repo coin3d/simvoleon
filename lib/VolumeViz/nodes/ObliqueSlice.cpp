@@ -38,6 +38,8 @@
   will be output through Coin's SoDebugError::postWarning().
 
   \sa SoVolumeFaceSet, SoVolumeRender, SoOrthoSlice
+
+  \since SIM Voleon 1.1
 */
 
 // *************************************************************************
