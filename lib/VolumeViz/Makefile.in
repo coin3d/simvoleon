@@ -85,12 +85,12 @@ OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
+SIMVOLEON_MAJOR_VERSION = @SIMVOLEON_MAJOR_VERSION@
+SIMVOLEON_MICRO_VERSION = @SIMVOLEON_MICRO_VERSION@
+SIMVOLEON_MINOR_VERSION = @SIMVOLEON_MINOR_VERSION@
+SIMVOLEON_VERSION = @SIMVOLEON_VERSION@
 STRIP = @STRIP@
 VERSION = @VERSION@
-VOLUMEVIZ_MAJOR_VERSION = @VOLUMEVIZ_MAJOR_VERSION@
-VOLUMEVIZ_MICRO_VERSION = @VOLUMEVIZ_MICRO_VERSION@
-VOLUMEVIZ_MINOR_VERSION = @VOLUMEVIZ_MINOR_VERSION@
-VOLUMEVIZ_VERSION = @VOLUMEVIZ_VERSION@
 am__include = @am__include@
 am__quote = @am__quote@
 install_sh = @install_sh@
@@ -101,14 +101,15 @@ INCLUDES = -I$(top_srcdir)/lib
 # Note misc/ must be built after nodes/gradients/.
 SUBDIRS = details elements nodes misc readers render .
 
-@BUILD_WITH_MSVC_TRUE@lib_LIBRARIES = VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib
-@BUILD_WITH_MSVC_FALSE@lib_LTLIBRARIES = libVolumeViz.la
+@BUILD_WITH_MSVC_TRUE@lib_LIBRARIES = SimVoleon@SIMVOLEON_MAJOR_VERSION@.lib
+@BUILD_WITH_MSVC_FALSE@lib_LTLIBRARIES = libSimVoleon.la
 
 # Adding in a dummy C++ source code file to "trick" Automake to set
 # us up with C++ $CXXLD for linking (and not the default C $CCLD).
-libVolumeViz_la_SOURCES = dummy.cpp
+libSimVoleon_la_SOURCES = dummy.cpp
 
-libVolumeViz_la_LIBADD = \
+libSimVoleon_la_LIBADD = \
+        details/libdetails.la \
         elements/libelements.la \
 	misc/libmisc.la \
 	nodes/libnodes.la \
@@ -116,14 +117,15 @@ libVolumeViz_la_LIBADD = \
 	render/2D/lib2Drender.la
 
 
-libVolumeViz_la_LDFLAGS = \
+libSimVoleon_la_LDFLAGS = \
 	-no-undefined \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
 
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES = dummy.cpp
+SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES = dummy.cpp
 
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD = \
+SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD = \
+        details/details.lst \
         elements/elements.lst \
         misc/misc.lst \
         nodes/nodes.lst \
@@ -136,20 +138,20 @@ CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 LIBRARIES = $(lib_LIBRARIES)
 
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_AR = $(AR) cru
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_DEPENDENCIES = \
-	elements/elements.lst misc/misc.lst nodes/nodes.lst \
-	readers/readers.lst render/2D/2Drender.lst
-am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS = dummy.$(OBJEXT)
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS = \
-	$(am_VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS)
+SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_AR = $(AR) cru
+SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_DEPENDENCIES = \
+	details/details.lst elements/elements.lst misc/misc.lst \
+	nodes/nodes.lst readers/readers.lst render/2D/2Drender.lst
+am_SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS = dummy.$(OBJEXT)
+SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS = \
+	$(am_SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS)
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
-libVolumeViz_la_DEPENDENCIES = elements/libelements.la misc/libmisc.la \
-	nodes/libnodes.la readers/libreaders.la \
-	render/2D/lib2Drender.la
-am_libVolumeViz_la_OBJECTS = dummy.lo
-libVolumeViz_la_OBJECTS = $(am_libVolumeViz_la_OBJECTS)
+libSimVoleon_la_DEPENDENCIES = details/libdetails.la \
+	elements/libelements.la misc/libmisc.la nodes/libnodes.la \
+	readers/libreaders.la render/2D/lib2Drender.la
+am_libSimVoleon_la_OBJECTS = dummy.lo
+libSimVoleon_la_OBJECTS = $(am_libSimVoleon_la_OBJECTS)
 
 DEFS = @DEFS@
 DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
@@ -167,8 +169,8 @@ CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 CXXFLAGS = @CXXFLAGS@
-DIST_SOURCES = $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES) \
-	$(libVolumeViz_la_SOURCES)
+DIST_SOURCES = $(SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES) \
+	$(libSimVoleon_la_SOURCES)
 
 RECURSIVE_TARGETS = info-recursive dvi-recursive install-info-recursive \
 	uninstall-info-recursive all-recursive install-data-recursive \
@@ -176,7 +178,7 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive install-info-recursive \
 	uninstall-recursive check-recursive installcheck-recursive
 DIST_COMMON = Makefile.am Makefile.in
 DIST_SUBDIRS = $(SUBDIRS)
-SOURCES = $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_SOURCES) $(libVolumeViz_la_SOURCES)
+SOURCES = $(SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_SOURCES) $(libSimVoleon_la_SOURCES)
 
 all: all-recursive
 
@@ -245,8 +247,8 @@ uninstall-libLTLIBRARIES:
 
 clean-libLTLIBRARIES:
 	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
-libVolumeViz.la: $(libVolumeViz_la_OBJECTS) $(libVolumeViz_la_DEPENDENCIES) 
-	$(CXXLINK) -rpath $(libdir) $(libVolumeViz_la_LDFLAGS) $(libVolumeViz_la_OBJECTS) $(libVolumeViz_la_LIBADD) $(LIBS)
+libSimVoleon.la: $(libSimVoleon_la_OBJECTS) $(libSimVoleon_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(libdir) $(libSimVoleon_la_LDFLAGS) $(libSimVoleon_la_OBJECTS) $(libSimVoleon_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -500,23 +502,23 @@ uninstall-info: uninstall-info-recursive
 	uninstall-recursive
 
 
-VolumeViz@VOLUMEVIZ_MAJOR_VERSION@.lib: Makefile \
-  $(libVolumeViz_lib_OBJECTS) \
-  $(libVolumeViz_lib_DEPENDENCIES)
-	@basename="VolumeViz@VOLUMEVIZ_MAJOR_VERSION@"; \
+SimVoleon@SIMVOLEON_MAJOR_VERSION@.lib: Makefile \
+  $(libSimVoleon_lib_OBJECTS) \
+  $(libSimVoleon_lib_DEPENDENCIES)
+	@basename="SimVoleon@SIMVOLEON_MAJOR_VERSION@"; \
 	rm -f "$$basename.dll" "$$basename.lib"; \
 	echo "Linking $$basename.lib..."; \
 	echo $(CC) $(LDFLAGS) $(LIBFLAGS) \
-	  $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS) \
-	  $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD) $(LIBS); \
+	  $(SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS) \
+	  $(SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD) $(LIBS); \
 	$(CC) $(LDFLAGS) $(LIBFLAGS) \
-	  $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_OBJECTS) \
-	  $(VolumeViz@VOLUMEVIZ_MAJOR_VERSION@_lib_LIBADD) $(LIBS);
+	  $(SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_OBJECTS) \
+	  $(SimVoleon@SIMVOLEON_MAJOR_VERSION@_lib_LIBADD) $(LIBS);
 
 # **************************************************************************
 
 install-exec-local:
-	@basename="VolumeViz@VOLUMEVIZ_MAJOR_VERSION@"; \
+	@basename="SimVoleon@SIMVOLEON_MAJOR_VERSION@"; \
 	for ext in dll pdb; do \
 	  file="$$basename.$$ext"; \
 	  if test -s "$$file"; then \
@@ -527,7 +529,7 @@ install-exec-local:
 	done
 
 install-data-local:
-	@basename="VolumeViz@VOLUMEVIZ_MAJOR_VERSION@"; \
+	@basename="SimVoleon@SIMVOLEON_MAJOR_VERSION@"; \
 	for ext in lib; do \
 	  file="$$basename.$$ext"; \
 	  if test -s "$$file"; then \
@@ -538,7 +540,7 @@ install-data-local:
 	done
 
 uninstall-local:
-	@basename="VolumeViz@VOLUMEVIZ_MAJOR_VERSION@"; \
+	@basename="SimVoleon@SIMVOLEON_MAJOR_VERSION@"; \
 	for file in \
 	  "$(DESTDIR)$(bindir)/$$basename.dll" \
 	  "$(DESTDIR)$(bindir)/$$basename.pdb" \
@@ -550,6 +552,7 @@ uninstall-local:
 	done; \
 	incbasedir="$(DESTDIR)$(includedir)/VolumeViz"; \
 	for dir in \
+	  "$$incbasedir/details" \
 	  "$$incbasedir/elements" \
 	  "$$incbasedir/nodes" \
 	  "$$incbasedir/readers" \

@@ -69,20 +69,20 @@
 /* Define to the version of this package. */
 #undef PACKAGE_VERSION
 
+/* define this to the libSimVoleon major version number */
+#undef SIMVOLEON_MAJOR_VERSION
+
+/* define this to the libSimVoleon release version number */
+#undef SIMVOLEON_MICRO_VERSION
+
+/* define this to the libSimVoleon minor version number */
+#undef SIMVOLEON_MINOR_VERSION
+
+/* define this to the full libSimVoleon major.minor.micro version number */
+#undef SIMVOLEON_VERSION
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
 /* Version number of package */
 #undef VERSION
-
-/* define this to the libVolumeViz major version number */
-#undef VOLUMEVIZ_MAJOR_VERSION
-
-/* define this to the libVolumeViz release version number */
-#undef VOLUMEVIZ_MICRO_VERSION
-
-/* define this to the libVolumeViz minor version number */
-#undef VOLUMEVIZ_MINOR_VERSION
-
-/* define this to the full libVolumeViz major.minor.micro version number */
-#undef VOLUMEVIZ_VERSION
