@@ -246,10 +246,8 @@ public:
   {
     this->master = master;
 
-    this->slices[X] = NULL;
-    this->slices[Y] = NULL;
-    this->slices[Z] = NULL;
-
+    // FIXME: I think I can kill these since the pagehandler was
+    // introduced. 20021122 mortene.
     this->dimensions = SbVec3s(0, 0, 0);
     this->subpagesize = SbVec3s(64, 64, 64);
 
@@ -267,8 +265,6 @@ public:
 
   ~SoVolumeDataP()
   {
-    this->releaseAllSlices();
-
     delete this->VRMemReader;
     // FIXME: should really delete "this->reader", but that leads to
     // SEGFAULT now (reader and VRMemReader can be the same pointer.)
@@ -290,13 +286,6 @@ public:
   // should probably be static variables in that manager. 20021118 mortene.
   unsigned int maxnrtexels;
   unsigned int maxtexmem;
-
-  Cvr2DTexPage ** slices[3];
-
-  Cvr2DTexPage * getSlice(const Axis AXISIDX, int sliceidx);
-
-  void releaseAllSlices();
-  void releaseSlices(const Axis AXISIDX);
 
 private:
   SoVolumeData * master;
@@ -474,9 +463,7 @@ SoVolumeData::setPageSize(const SbVec3s & texsize)
 
   PRIVATE(this)->subpagesize = size;
 
-  if (rebuildX) PRIVATE(this)->releaseSlices(SoVolumeDataP::X);
-  if (rebuildY) PRIVATE(this)->releaseSlices(SoVolumeDataP::Y);
-  if (rebuildZ) PRIVATE(this)->releaseSlices(SoVolumeDataP::Z);
+  // FIXME: need to update pagesizes in CvrPageHandler. 20021122 mortene.
 }
 
 /*!
@@ -521,45 +508,6 @@ void
 SoVolumeData::pick(SoPickAction * action)
 {
   this->doAction(action);
-}
-
-
-void
-SoVolumeData::renderOrthoSlice(SoState * state,
-                               const SbBox2f & quad,
-                               float depth,
-                               int sliceIdx,
-                               // axis: 0, 1, 2 for X, Y or Z axis.
-                               int axis)
-{
-  SbVec2f max, min;
-  quad.getBounds(min, max);
-
-  SbVec3f origo, horizspan, verticalspan;
-  const float width = max[0] - min[0];
-  const float height = max[1] - min[1];
-
-  if (axis == SoVolumeDataP::X) {
-    origo = SbVec3f(depth, min[1], min[0]);
-    horizspan = SbVec3f(0, 0, width);
-    verticalspan = SbVec3f(0, height, 0);
-  }
-  else if (axis == SoVolumeDataP::Y) {
-    origo = SbVec3f(min[0], depth, min[1]);
-    horizspan = SbVec3f(width, 0, 0);
-    verticalspan = SbVec3f(0, 0, height);
-  }
-  else if (axis == SoVolumeDataP::Z) {
-    origo = SbVec3f(min[0], min[1], depth);
-    horizspan = SbVec3f(width, 0, 0);
-    verticalspan = SbVec3f(0, height, 0);
-  }
-  else assert(FALSE);
-
-  Cvr2DTexPage * slice =
-    PRIVATE(this)->getSlice((SoVolumeDataP::Axis)axis, sliceIdx);
-
-  slice->render(state, origo, horizspan, verticalspan, PRIVATE(this)->tick);
 }
 
 /*!
@@ -631,76 +579,15 @@ SoVolumeData::setTextureMemorySize(int texturememory)
 
 /*************************** PIMPL-FUNCTIONS ********************************/
 
-
-Cvr2DTexPage *
-SoVolumeDataP::getSlice(const SoVolumeDataP::Axis AXISIDX, int sliceidx)
+SoVolumeReader *
+SoVolumeData::getReader(void) const
 {
-  assert((AXISIDX >= X) && (AXISIDX <= Z));
-  assert((sliceidx >= 0) && (sliceidx < this->dimensions[AXISIDX]));
-
-#if 0 // debug
-  SoDebugError::postInfo("SoVolumeDataP::getSlice", "axis==%c sliceidx==%d",
-                         AXISIDX == X ? 'X' : (AXISIDX == Y ? 'Y' : 'Z'),
-                         sliceidx);
-#endif // debug
-
-  // First Cvr2DTexSubPage ever for this axis?
-  if (this->slices[AXISIDX] == NULL) {
-    this->slices[AXISIDX] = new Cvr2DTexPage*[this->dimensions[AXISIDX]];
-    for (int i=0; i < this->dimensions[AXISIDX]; i++) {
-      this->slices[AXISIDX][i] = NULL;
-    }
-  }
-
-  if (this->slices[AXISIDX][sliceidx] == NULL) {
-    Cvr2DTexPage * newslice = new Cvr2DTexPage;
-
-    SoOrthoSlice::Axis axis =
-      AXISIDX == X ? SoOrthoSlice::X :
-      (AXISIDX == Y ? SoOrthoSlice::Y : SoOrthoSlice::Z );
-
-    SbVec2s pagesize =
-      AXISIDX == X ?
-      SbVec2s(this->subpagesize[2], this->subpagesize[1]) :
-      (AXISIDX == Y ?
-       SbVec2s(this->subpagesize[0], this->subpagesize[2]) :
-       SbVec2s(this->subpagesize[0], this->subpagesize[1]));
-    
-    assert(pagesize[0] > 0 && pagesize[1] > 0);
-    newslice->init(this->reader, sliceidx, axis, pagesize);
-
-    this->slices[AXISIDX][sliceidx] = newslice;
-  }
-
-  return this->slices[AXISIDX][sliceidx];
-}
-
-void
-SoVolumeDataP::releaseAllSlices(void)
-{
-  for (int i = 0; i < 3; i++) { this->releaseSlices((Axis)i); }
-}
-
-void
-SoVolumeDataP::releaseSlices(const SoVolumeDataP::Axis AXISIDX)
-{
-  if (this->slices[AXISIDX] == NULL) return;
-
-  for (int i = 0; i < this->dimensions[AXISIDX]; i++) {
-    delete this->slices[AXISIDX][i];
-    this->slices[AXISIDX][i] = NULL;
-  }
-
-  delete[] this->slices[AXISIDX];
+  return PRIVATE(this)->reader;
 }
 
 /****************** UNIMPLEMENTED FUNCTIONS ******************************/
 // FIXME: Implement these functions. torbjorv 08282002
 
-
-SoVolumeReader *
-SoVolumeData::getReader()
-{ return NULL; }
 
 SbBool
 SoVolumeData::getMinMax(int &min, int &max)

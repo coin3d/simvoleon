@@ -7,6 +7,7 @@ noinst_LTLIBRARIES = lib2Drender.la
 endif
 
 SOURCES = \
+	PageHandler.cpp CvrPageHandler.h \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
 	2DTexPage.cpp Cvr2DTexPage.h
 

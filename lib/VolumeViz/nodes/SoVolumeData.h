@@ -65,15 +65,6 @@ public:
   void setVolumeSize(const SbBox3f & size);
   SbBox3f & getVolumeSize(void) const;
 
-
-  // FIXME: this (and perhaps much of the rest of the class) is not
-  // part of the TGS VolumeViz API. 20021108 mortene.
-  void renderOrthoSlice(SoState * state,
-                        const SbBox2f & quad,
-                        float depth,
-                        int sliceIdx,
-                        int axis);
-
   void setPageSize(int size);
   void setPageSize(const SbVec3s & size);
   const SbVec3s & getPageSize(void) const;
@@ -82,10 +73,11 @@ public:
   void setTexMemorySize(int megatexels);
   void setTextureMemorySize(int texturememory);
 
+  SoVolumeReader * getReader(void) const;
+
   // FIXME: The following functions are still to be implemented.
   // torbjorv 07122002
 
-  SoVolumeReader * getReader(void);
   SbBool getMinMax(int & min, int & max);
   SbBool getHistogram(int & length, int *& histogram);
   SoVolumeData * subSetting(const SbBox3s & region);

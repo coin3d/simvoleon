@@ -8,6 +8,7 @@
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/render/2D/CvrPageHandler.h>
 
 // *************************************************************************
 
@@ -17,9 +18,18 @@ SO_NODE_SOURCE(SoVolumeRender);
 
 class SoVolumeRenderP {
 public:
-  SoVolumeRenderP(SoVolumeRender * master) {
+  SoVolumeRenderP(SoVolumeRender * master)
+  {
     this->master = master;
+    this->pagehandler = NULL;
   }
+
+  ~SoVolumeRenderP()
+  {
+    delete this->pagehandler;
+  }
+
+  CvrPageHandler * pagehandler;
 
 private:
   SoVolumeRender * master;
@@ -84,6 +94,11 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 {
   if (!this->shouldGLRender(action)) return;
 
+  // FIXME: this method should really just pass on control to the
+  // "rendering unit handler" (2D texture slices / 3D textures / ...),
+  // and not like now have lots of specific code for dealing with 2D
+  // texture pages. 20021122 mortene.
+  
   SoState * state = action->getState();
 
   // Fetching the current volumedata
@@ -150,6 +165,11 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
                          "dimensions==[%d, %d, %d]",
                          dimensions[0], dimensions[1], dimensions[2]);
 #endif // debug
+
+  if (!PRIVATE(this)->pagehandler) {
+    PRIVATE(this)->pagehandler =
+      new CvrPageHandler(dimensions, volumedata->getReader());
+  }
 
   // Figures out which axis we are closest to be looking along.
 
@@ -264,7 +284,8 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     // If rendering in reverse order.
     if (depthAdder < 0) { pageidx = lastpageidx - pageidx; }
 
-    volumedata->renderOrthoSlice(state, QUAD, depth, pageidx, AXISIDX);
+    PRIVATE(this)->pagehandler->renderOrthoSlice(state, QUAD, depth,
+                                                 pageidx, AXISIDX);
     depth += depthAdder;
   }
 
