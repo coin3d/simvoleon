@@ -3,6 +3,7 @@
 #include <VolumeViz/render/2D/CvrPaletteTexture.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
 
 #include <Inventor/C/tidbits.h>
 #include <Inventor/C/glue/gl.h>
@@ -374,7 +375,12 @@ Cvr2DTexSubPage::activateCLUT(const SoGLRenderAction * action)
 
   if (this->refetchpalette) {
     this->clut->unref();
-    this->clut = CvrVoxelChunk::getCLUT(action);
+
+    SoState * state = action->getState();
+    const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
+    assert(tfelement != NULL);
+    this->clut = CvrVoxelChunk::getCLUT(tfelement);
+
     this->clut->ref();
     this->refetchpalette = FALSE;
   }

@@ -7,6 +7,7 @@
 class CvrTextureObject;
 class SoGLRenderAction;
 class CvrCLUT;
+class SoTransferFunctionElement;
 
 
 class CvrVoxelChunk {
@@ -33,7 +34,7 @@ public:
   void dumpToPPM(const char * filename) const;
 
   // FIXME: move to CvrCLUT?
-  static CvrCLUT * getCLUT(const SoGLRenderAction * action);
+  static CvrCLUT * getCLUT(const SoTransferFunctionElement * e);
 
 private:
   SbBool destructbuffer;
@@ -41,7 +42,7 @@ private:
   SbVec3s dimensions;
   UnitSize unitsize;
 
-  static CvrCLUT * makeCLUT(const SoGLRenderAction * action);
+  static CvrCLUT * makeCLUT(const SoTransferFunctionElement * e);
   static SbDict * CLUTdict;
 
   static SbBool usePaletteTextures(SoGLRenderAction * action);

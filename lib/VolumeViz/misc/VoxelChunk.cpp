@@ -132,11 +132,8 @@ CvrVoxelChunk::getUnitSize(void) const
 
 // Converts the transferfunction's colormap into a CvrCLUT object.
 CvrCLUT *
-CvrVoxelChunk::makeCLUT(const SoGLRenderAction * action)
+CvrVoxelChunk::makeCLUT(const SoTransferFunctionElement * tfelement)
 {
-  SoState * state = action->getState();
-  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  assert(tfelement != NULL);
   SoTransferFunction * transferfunc = tfelement->getTransferFunction();
   assert(transferfunc != NULL);
 
@@ -181,16 +178,13 @@ CvrVoxelChunk::makeCLUT(const SoGLRenderAction * action)
 // Fetch a CLUT that represents the current
 // SoTransferFunction. Facilitates sharing of palettes.
 CvrCLUT *
-CvrVoxelChunk::getCLUT(const SoGLRenderAction * action)
+CvrVoxelChunk::getCLUT(const SoTransferFunctionElement * tfelement)
 {
   if (!CvrVoxelChunk::CLUTdict) {
     // FIXME: dealloc at exit
     CvrVoxelChunk::CLUTdict = new SbDict;
   }
 
-  SoState * state = action->getState();
-  const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  assert(tfelement != NULL);
   SoTransferFunction * transferfunc = tfelement->getTransferFunction();
   assert(transferfunc != NULL);
 
@@ -200,7 +194,7 @@ CvrVoxelChunk::getCLUT(const SoGLRenderAction * action)
     clut = (CvrCLUT *)clutvoidptr;
   }
   else {
-    clut = CvrVoxelChunk::makeCLUT(action);
+    clut = CvrVoxelChunk::makeCLUT(tfelement);
     // FIXME: ref(), or else we'd get dangling pointers to destructed
     // CvrCLUT entries in the dict. Should provide a "destructing now"
     // callback on the CvrCLUT class to clean up the design, as this
@@ -313,7 +307,7 @@ CvrVoxelChunk::transfer(SoGLRenderAction * action, SbBool & invisible) const
     CvrRGBATexture * rgbatex = NULL;
     CvrPaletteTexture * palettetex = NULL;
 
-    const CvrCLUT * clut = CvrVoxelChunk::getCLUT(action);
+    const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
     clut->ref();
 
     SbBool usepalettetex = CvrVoxelChunk::usePaletteTextures(action);
