@@ -184,7 +184,7 @@ main(int argc, char ** argv)
 
   // Add VolumeData to scene graph
   SoVolumeData * pVolData = new SoVolumeData();
-  pVolData->setVolumeData(dim, (unsigned char *)pData, SoVolumeRendering::RGBA);
+  pVolData->setVolumeData(dim, (unsigned char *)pData, SoVolumeData::RGBA);
   pVolData->setVolumeSize(SbBox3f(-1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f));
 
   root->addChild(pVolData);
