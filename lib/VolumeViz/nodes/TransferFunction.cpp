@@ -80,15 +80,31 @@ private:
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::NONE
+*/
+/*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GREY
   Default
+*/
+/*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GRAY
   Same as GREY
+*/
+/*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::TEMPERATURE
+*/
+/*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::PYSICS
+*/
+/*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::STANDARD
+*/
+/*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GLOW
+*/
+/*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::BLUE_RED
+*/
+/*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::SEISMIC
 */
 
@@ -99,8 +115,12 @@ private:
 /*!
   \var SoTransferFunction::ColormapType SoTransferFunction::ALPHA
   Each color entry in the transfer function has only one component.
+*/
+/*!
   \var SoTransferFunction::ColormapType SoTransferFunction::LUM_ALPHA
   Each entry has to components, ie. two floats.
+*/
+/*!
   \var SoTransferFunction::ColormapType SoTransferFunction::RGBA
   Four floats are used to specify each color of the transfer function.
 */
