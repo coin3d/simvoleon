@@ -17,8 +17,6 @@
 #include <Inventor/system/gl.h>
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
-#include <VolumeViz/render/2D/Cvr2DTexPage.h>
-#include <VolumeViz/render/2D/Cvr2DTexSubPage.h>
 #include <limits.h>
 
 /*
