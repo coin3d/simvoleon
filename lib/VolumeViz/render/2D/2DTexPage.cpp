@@ -132,7 +132,11 @@ void
 Cvr2DTexPage::releaseSubPage(const int row, const int col)
 {
   const int idx = this->calcSubPageIdx(row, col);
+
+  assert(this->subpages);
   Cvr2DTexSubPageItem * p = this->subpages[idx];
+  if (p == NULL) { return; }
+
   this->subpages[idx] = NULL;
   delete p->page;
   delete p;
