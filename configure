@@ -464,7 +464,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os BUILD_WITH_MSVC BUILD_WITH_MSVC_TRUE BUILD_WITH_MSVC_FALSE SIMVOLEON_MSVC_LIBC SIMVOLEON_MAJOR_VERSION SIMVOLEON_MINOR_VERSION SIMVOLEON_MICRO_VERSION SIMVOLEON_VERSION LT_CURRENT LT_REVISION LT_AGE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP CXX CXXFLAGS ac_ct_CXX SIMVOLEON_EXTRA_CPPFLAGS SIMVOLEON_EXTRA_CFLAGS SIMVOLEON_EXTRA_CXXFLAGS SIMVOLEON_EXTRA_LDFLAGS SIMVOLEON_EXTRA_LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CONFIG SUFFIX CXXCPP EGREP MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB F77 FFLAGS ac_ct_F77 LIBTOOL DSUFFIX sim_ac_coin_configcmd LIBFLAGS COMPILER ac_compiler_gnu LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os BUILD_WITH_MSVC BUILD_WITH_MSVC_TRUE BUILD_WITH_MSVC_FALSE SIMVOLEON_MSVC_LIBC SIMVOLEON_MAJOR_VERSION SIMVOLEON_MINOR_VERSION SIMVOLEON_MICRO_VERSION SIMVOLEON_VERSION LT_CURRENT LT_REVISION LT_AGE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT CPP CXX CXXFLAGS ac_ct_CXX SIMVOLEON_EXTRA_CPPFLAGS SIMVOLEON_EXTRA_CFLAGS SIMVOLEON_EXTRA_CXXFLAGS SIMVOLEON_EXTRA_LDFLAGS SIMVOLEON_EXTRA_LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CONFIG SUFFIX CXXCPP EGREP MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB F77 FFLAGS ac_ct_F77 LIBTOOL DSUFFIX sim_ac_coin_configcmd LIBFLAGS COMPILER ac_compiler_gnu SIMVOLEON_DSP_LIBS SIMVOLEON_DSP_INCS SIMVOLEON_DSP_DEFS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -20420,6 +20420,98 @@ exec_prefix=$sim_ac_save_exec_prefix
 # unset sim_ac_eval_uniq
 
 
+# **************************************************************************
+# Microsoft Developer Studio Project files
+
+
+
+SIMVOLEON_DSP_LIBDIRS=
+SIMVOLEON_DSP_LIBS=
+SIMVOLEON_DSP_INCS=
+SIMVOLEON_DSP_DEFS=
+
+if $sim_ac_make_dsp; then
+
+if test x"${sim_ac_configuration_settings+set}" = x"set"; then
+  sim_ac_configuration_settings="$sim_ac_configuration_settings|SimVoleon build type:msvc .dsp"
+else
+  sim_ac_configuration_settings="SimVoleon build type:msvc .dsp"
+fi
+
+
+  # -DHAVE_CONFIG_H is set up in $DEFS too late for us to use, and some
+  # include directives are usually set up in the Makefile.am files
+  for arg in -DHAVE_CONFIG_H -I$simvoleon_build_dir/lib -I$simvoleon_src_dir/lib $CPPFLAGS $LDFLAGS $LIBS; do
+    case $arg in
+    -L* )
+      libdir=`echo $arg | cut -c3-`
+      SIMVOLEON_DSP_LIBDIRS="$SIMVOLEON_DSP_LIBDIRS $libdir"
+      ;;
+    -l* )
+      libname=`echo $arg | cut -c3-`
+      for libdir in $SIMVOLEON_DSP_LIBDIRS; do
+        if test -f $libdir/$libname.lib; then
+          # lib is not in any standard location - use full path
+          libname=`cygpath -w "$libdir/$libname" 2>/dev/null || echo "$libdir/$libname"`
+          break
+        fi
+      done
+      if test x"$SIMVOLEON_DSP_LIBS" = x""; then
+        SIMVOLEON_DSP_LIBS="$libname.lib"
+      else
+        SIMVOLEON_DSP_LIBS="$SIMVOLEON_DSP_LIBS $libname.lib"
+      fi
+      ;;
+    -I* )
+      incdir=`echo $arg | cut -c3-`
+      incdir=`cygpath -w "$incdir" 2>/dev/null || echo "$incdir"`
+      if test x"$SIMVOLEON_DSP_INCS" = x""; then
+        SIMVOLEON_DSP_INCS="/I \"$incdir\""
+      else
+        SIMVOLEON_DSP_INCS="$SIMVOLEON_DSP_INCS /I \"$incdir\""
+      fi
+      ;;
+    -DSIMVOLEON_DEBUG* | -DNDEBUG )
+      # Defines that vary between release/debug configurations can't be
+      # set up dynamically in <lib>_DSP_DEFS - they must be static in the
+      # gendsp.sh script.  We therefore catch them here so we can ignore
+      # checking for them below.
+      ;;
+    -D*=* | -D* )
+      define=`echo $arg | cut -c3-`
+      if test x"$SIMVOLEON_DSP_DEFS" = x""; then
+        SIMVOLEON_DSP_DEFS="/D \"$define\""
+      else
+        SIMVOLEON_DSP_DEFS="$SIMVOLEON_DSP_DEFS /D \"$define\""
+      fi
+      ;;
+    esac
+  done
+
+  CC=$simvoleon_src_dir/cfg/gendsp.sh
+  CXX=$simvoleon_src_dir/cfg/gendsp.sh
+  CXXLD=$simvoleon_src_dir/cfg/gendsp.sh
+  # Yes, this is totally bogus stuff, but don't worry about it.  As long
+  # as gendsp.sh recognizes it...  20030219 larsa
+  CPPFLAGS="$CPPFLAGS -Ddspfile=$simvoleon_build_dir/simvoleon$SIMVOLEON_MAJOR_VERSION.dsp"
+  LDFLAGS="$LDFLAGS -Wl,-Ddspfile=$simvoleon_build_dir/simvoleon$SIMVOLEON_MAJOR_VERSION.dsp"
+  LIBFLAGS="$LIBFLAGS -o simvoleon$SIMVOLEON_MAJOR_VERSION.so.0"
+
+  # this can't be set up at the point the libtool script is generated
+  mv libtool libtool.bak
+  sed -e "s%^CC=\"gcc\"%CC=\"$simvoleon_src_dir/cfg/gendsp.sh\"%" \
+      -e "s%^CC=\".*/wrapmsvc.exe\"%CC=\"$simvoleon_src_dir/cfg/gendsp.sh\"%" \
+      <libtool.bak >libtool
+  rm -f libtool.bak
+  chmod 755 libtool
+fi
+
+
+
+
+
+
+
 # *******************************************************************
 
                                                                                                                                                       ac_config_files="$ac_config_files Makefile bin/Makefile bin/simvoleon-config lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile lib/VolumeViz/render/Pointset/Makefile"
@@ -21186,6 +21278,9 @@ s,@sim_ac_coin_configcmd@,$sim_ac_coin_configcmd,;t t
 s,@LIBFLAGS@,$LIBFLAGS,;t t
 s,@COMPILER@,$COMPILER,;t t
 s,@ac_compiler_gnu@,$ac_compiler_gnu,;t t
+s,@SIMVOLEON_DSP_LIBS@,$SIMVOLEON_DSP_LIBS,;t t
+s,@SIMVOLEON_DSP_INCS@,$SIMVOLEON_DSP_INCS,;t t
+s,@SIMVOLEON_DSP_DEFS@,$SIMVOLEON_DSP_DEFS,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t
 s,@LTLIBOBJS@,$LTLIBOBJS,;t t
 CEOF
