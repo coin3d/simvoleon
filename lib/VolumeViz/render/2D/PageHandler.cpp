@@ -343,9 +343,6 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
       ((float(i)/float(numslices)) * float(this->voldatadims[AXISIDX]) + 0.5f);
     // If rendering in reverse order.
     if (depthprslice < 0) { pageidx = numslices - pageidx - 1; }
-    // Pages along Y-axis is in opposite order of those along X- and
-    // Z-axis.
-    if (AXISIDX == 1)  { pageidx = numslices - pageidx - 1; }
 
     assert(pageidx < numslices);
     assert(pageidx < this->voldatadims[AXISIDX]);
@@ -358,12 +355,20 @@ CvrPageHandler::render(SoGLRenderAction * action, unsigned int numslices,
     if (abortcode == SoVolumeRender::ABORT) break;
 
     if (abortcode == SoVolumeRender::CONTINUE) {
+      origo[AXISIDX] = depth + i * depthprslice;
+
+      volumedataelement->getPageGeometry(AXISIDX, pageidx,
+                                         origo, horizspan, verticalspan);
+
+      // Pages along Y-axis is in opposite order of those along X- and
+      // Z-axis.
+      if (AXISIDX == 1)  { pageidx = numslices - pageidx - 1; }
       // Note: even if this is the same page as the last one
       // (numSlices in SoVolumeRender can be larger than the actual
       // dimensions), we should still render it at the new depth, as
       // that can give better rendering quality of the volume.
       Cvr2DTexPage * page = this->getSlice(AXISIDX, pageidx);
-      origo[AXISIDX] = depth + i * depthprslice;
+
       page->render(action, origo, horizspan, verticalspan, interpolation);
     }
     else {
