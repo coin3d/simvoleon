@@ -2,18 +2,25 @@ all: examine simple8bit readvol raypick rgbload changingdataset orthoslicer
 
 ## 
 
-READVOL_OBJECTS = \
-        readvol.o \
+TRANSFERFUNCTION_UI_OBJECTS = \
         TransferFunctionHandler.o moc_TransferFunctionHandler.o \
         SoTransferFunction_ctrl.o moc_SoTransferFunction_ctrl.o
+
+ORTHOSLICE_UI_OBJECTS = \
+        OrthoSliceHandler.o moc_OrthoSliceHandler.o \
+        SoOrthoSlice_ctrl.o moc_SoOrthoSlice_ctrl.o
+
+## 
+
+READVOL_OBJECTS = \
+        readvol.o $(TRANSFERFUNCTION_UI_OBJECTS)
 
 EXAMINE_OBJECTS = \
         examine.o utility.o
 
 ORTHOSLICER_OBJECTS = \
         orthoslicer.o utility.o \
-        OrthoSliceHandler.o moc_OrthoSliceHandler.o \
-        SoOrthoSlice_ctrl.o moc_SoOrthoSlice_ctrl.o
+	$(ORTHOSLICE_UI_OBJECTS) $(TRANSFERFUNCTION_UI_OBJECTS)
 
 SIMPLE8BIT_OBJECTS = \
         simple8bit.o utility.o

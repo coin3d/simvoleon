@@ -9,6 +9,7 @@
 #include <VolumeViz/readers/SoVRVolFileReader.h>
 
 #include "OrthoSliceHandler.h"
+#include "TransferFunctionHandler.h"
 #include "utility.h"
 
 int
@@ -46,11 +47,13 @@ main(int argc, char ** argv)
   SoTransferFunction * transfunc = new SoTransferFunction();
   root->addChild(transfunc);
 
+  TransferFunctionHandler * tfdia = new TransferFunctionHandler(transfunc);
+
   // Add SoOrthoSlice to scene graph
   SoOrthoSlice * orthoslice = new SoOrthoSlice();
   root->addChild(orthoslice);
 
-  OrthoSliceHandler * tfdia = new OrthoSliceHandler(orthoslice);
+  OrthoSliceHandler * osdia = new OrthoSliceHandler(orthoslice);
 
   // Add SoVolumeRender to scene graph
   SoVolumeRender * volrend = new SoVolumeRender();
