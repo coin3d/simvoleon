@@ -242,9 +242,9 @@ SoOrthoSliceP::getSliceAsPlane(SoAction * action) const
   // Finding the plane normal is straight forward -- it's the same as
   // the SoOrthoSlice axis:
 
-  SbVec3f planenormal(axis == SoOrthoSlice::X ? 1 : 0,
-                      axis == SoOrthoSlice::Y ? 1 : 0,
-                      axis == SoOrthoSlice::Z ? 1 : 0);
+  SbVec3f planenormal(axis == SoOrthoSlice::X ? 1.0f : 0.0f,
+                      axis == SoOrthoSlice::Y ? 1.0f : 0.0f,
+                      axis == SoOrthoSlice::Z ? 1.0f : 0.0f);
 
   if (PUBLIC(this)->clippingSide.getValue() == SoOrthoSlice::FRONT) {
     planenormal.negate();
