@@ -27,6 +27,11 @@ FIXME
 
 #include <gradients/GREY.h>
 #include <gradients/TEMPERATURE.h>
+#include <gradients/PHYSICS.h>
+#include <gradients/STANDARD.h>
+#include <gradients/GLOW.h>
+#include <gradients/BLUE_RED.h>
+#include <gradients/SEISMIC.h>
 
 // *************************************************************************
 
@@ -197,14 +202,17 @@ SoTransferFunction::transfer(const void * input,
     uint32_t * outp = new uint32_t[size[0] * size[1]];
     const uint8_t * inp = (const uint8_t *)input;
 
+    const int cmap = this->predefColorMap.getValue();
+    assert(cmap >= GREY); // FIXME: "NONE" not handled yet. 20021113 mortene.
+    assert(cmap <= SEISMIC);
+
     if (endianness == COIN_HOST_IS_LITTLEENDIAN) {
       for (int j=0; j < size[0]*size[1]; j++) {
         if (inp[j] == 0x00) {
           outp[j] = 0x00000000;
         }
         else {
-//           uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[GREY][inp[j]];
-          uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][inp[j]];
+          uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[cmap][inp[j]];
 
           outp[j] =
             (uint32_t(rgba[0]) << 0) | // red
@@ -215,16 +223,8 @@ SoTransferFunction::transfer(const void * input,
       }
     }
     else {
-      for (int j=0; j < size[0]*size[1]; j++) {
-//         uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[GREY][inp[j]];
-        uint8_t * rgba = SoTransferFunctionP::PREDEFGRADIENTS[TEMPERATURE][inp[j]];
-
-        outp[j] =
-          (uint32_t(rgba[0]) << 24) | // red
-          (uint32_t(rgba[1]) << 16) | // green
-          (uint32_t(rgba[2]) << 8) |  // blue
-          (uint32_t(rgba[3]) << 0); // alpha
-      }
+      // FIXME: augh! 20021113 mortene.
+      assert(FALSE && "only little-endian platforms during development");
     }
 
     output = outp;
@@ -587,7 +587,8 @@ void
 SoTransferFunctionP::initPredefGradients(void)
 {
   const char * gradientbufs[] = {
-    GREY_gradient, TEMPERATURE_gradient
+    GREY_gradient, TEMPERATURE_gradient, PHYSICS_gradient,
+    STANDARD_gradient, GLOW_gradient, BLUE_RED_gradient, SEISMIC_gradient
   };
 
   for (unsigned int j=0; j < sizeof(gradientbufs)/sizeof(gradientbufs[0]); j++) {

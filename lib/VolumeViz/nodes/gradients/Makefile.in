@@ -98,7 +98,12 @@ sim_ac_coin_configcmd = @sim_ac_coin_configcmd@
 
 BUILT_SOURCES = \
 	GREY.h \
-	TEMPERATURE.h
+	TEMPERATURE.h \
+	PHYSICS.h \
+	STANDARD.h \
+	GLOW.h \
+	BLUE_RED.h \
+	SEISMIC.h
 
 
 DISTCLEANFILES = \
@@ -113,7 +118,12 @@ noinst_SCRIPTS = \
 EXTRA_DIST = \
 	grad2h.sh \
 	GREY.gg \
-	TEMPERATURE.gg
+	TEMPERATURE.gg \
+	PHYSICS.gg \
+	STANDARD.gg \
+	GLOW.gg \
+	BLUE_RED.gg \
+	SEISMIC.gg
 
 subdir = lib/VolumeViz/nodes/gradients
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
@@ -256,6 +266,21 @@ GREY.h: $(srcdir)/GREY.gg $(srcdir)/grad2h.sh
 
 TEMPERATURE.h: $(srcdir)/TEMPERATURE.gg $(srcdir)/grad2h.sh
 	$(srcdir)/grad2h.sh $(srcdir)/TEMPERATURE.gg > TEMPERATURE.h
+
+PHYSICS.h: $(srcdir)/PHYSICS.gg $(srcdir)/grad2h.sh
+	$(srcdir)/grad2h.sh $(srcdir)/PHYSICS.gg > PHYSICS.h
+
+STANDARD.h: $(srcdir)/STANDARD.gg $(srcdir)/grad2h.sh
+	$(srcdir)/grad2h.sh $(srcdir)/STANDARD.gg > STANDARD.h
+
+GLOW.h: $(srcdir)/GLOW.gg $(srcdir)/grad2h.sh
+	$(srcdir)/grad2h.sh $(srcdir)/GLOW.gg > GLOW.h
+
+BLUE_RED.h: $(srcdir)/BLUE_RED.gg $(srcdir)/grad2h.sh
+	$(srcdir)/grad2h.sh $(srcdir)/BLUE_RED.gg > BLUE_RED.h
+
+SEISMIC.h: $(srcdir)/SEISMIC.gg $(srcdir)/grad2h.sh
+	$(srcdir)/grad2h.sh $(srcdir)/SEISMIC.gg > SEISMIC.h
 
 # **************************************************************************
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

@@ -3,7 +3,12 @@
 
 BUILT_SOURCES = \
 	GREY.h \
-	TEMPERATURE.h
+	TEMPERATURE.h \
+	PHYSICS.h \
+	STANDARD.h \
+	GLOW.h \
+	BLUE_RED.h \
+	SEISMIC.h
 
 DISTCLEANFILES = \
 	$(BUILT_SOURCES)
@@ -15,7 +20,12 @@ noinst_SCRIPTS = \
 EXTRA_DIST = \
 	grad2h.sh \
 	GREY.gg \
-	TEMPERATURE.gg
+	TEMPERATURE.gg \
+	PHYSICS.gg \
+	STANDARD.gg \
+	GLOW.gg \
+	BLUE_RED.gg \
+	SEISMIC.gg
 
 # This is necessary to include so the headers are actually built.
 all-local: $(BUILT_SOURCES)
@@ -27,5 +37,20 @@ GREY.h: $(srcdir)/GREY.gg $(srcdir)/grad2h.sh
 
 TEMPERATURE.h: $(srcdir)/TEMPERATURE.gg $(srcdir)/grad2h.sh
 	$(srcdir)/grad2h.sh $(srcdir)/TEMPERATURE.gg > TEMPERATURE.h
+
+PHYSICS.h: $(srcdir)/PHYSICS.gg $(srcdir)/grad2h.sh
+	$(srcdir)/grad2h.sh $(srcdir)/PHYSICS.gg > PHYSICS.h
+
+STANDARD.h: $(srcdir)/STANDARD.gg $(srcdir)/grad2h.sh
+	$(srcdir)/grad2h.sh $(srcdir)/STANDARD.gg > STANDARD.h
+
+GLOW.h: $(srcdir)/GLOW.gg $(srcdir)/grad2h.sh
+	$(srcdir)/grad2h.sh $(srcdir)/GLOW.gg > GLOW.h
+
+BLUE_RED.h: $(srcdir)/BLUE_RED.gg $(srcdir)/grad2h.sh
+	$(srcdir)/grad2h.sh $(srcdir)/BLUE_RED.gg > BLUE_RED.h
+
+SEISMIC.h: $(srcdir)/SEISMIC.gg $(srcdir)/grad2h.sh
+	$(srcdir)/grad2h.sh $(srcdir)/SEISMIC.gg > SEISMIC.h
 
 # **************************************************************************
