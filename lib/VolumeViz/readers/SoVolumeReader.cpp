@@ -64,17 +64,8 @@ SoVolumeReader::getDataChar(SbBox3f &size, SoVolumeData::DataType &type, SbVec3s
 {}
 
 void 
-SoVolumeReader::getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data)
-{}
-
-void 
-SoVolumeReader::getNextSlice(int sliceNumber, void * data)
-{}
-
-void 
-SoVolumeReader::skipSlice(int numSlices)
-{}
-
-void 
-SoVolumeReader::end()
+SoVolumeReader::getSubSlice(SbBox2s &subSlice, 
+                            int sliceNumber, 
+                            void * data,
+                            SoVolumeData::Axis axis)
 {}
