@@ -17,16 +17,7 @@ public:
   virtual void getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
                            SbVec3s & dim) = 0;
 
-  // FIXME: extra API vs TGS. See FIXME below. 20021109 mortene.
-  enum Axis { X, Y, Z };
-
-  virtual void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data,
-                           // FIXME: this is an extra argument vs
-                           // TGS. Explained in
-                           // SoVolumeData.cpp. Consider if it's
-                           // really worth extending the API
-                           // for. 20021107 mortene.
-                           Axis axis = Z) = 0;
+  virtual void getSubSlice(SbBox2s & subslice, int slicenumber, void * data) = 0;
 
 protected:
   int setFilename(const char * filename);

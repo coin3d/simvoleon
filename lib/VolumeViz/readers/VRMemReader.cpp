@@ -66,13 +66,9 @@ void SoVRMemReader::getDataChar(SbBox3f & size,
                  dim[0]/2.0f, dim[1]/2.0f, dim[2]/2.0f);
 }
 
-void SoVRMemReader::getSubSlice(SbBox2s & subslice,
-                                int sliceNumber,
-                                void * data,
-                                Axis axis)
+void
+SoVRMemReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data)
 {
-  unsigned int axisidx = (axis == X) ? 0 : ((axis == Y) ? 1 : 2);
-
   CvrVoxelChunk::UnitSize vctype;
   switch (PRIVATE(this)->dataType) {
   case SoVolumeData::UNSIGNED_BYTE: vctype = CvrVoxelChunk::UINT_8; break;
@@ -84,7 +80,7 @@ void SoVRMemReader::getSubSlice(SbBox2s & subslice,
   // FIXME: interface of buildSubPage() should be improved to avoid
   // this roundabout way of clipping out a slice.  20021203 mortene.
   CvrVoxelChunk vc(PRIVATE(this)->dimensions, vctype, this->m_data);
-  CvrVoxelChunk * output = vc.buildSubPage(axisidx, sliceNumber, subslice);
+  CvrVoxelChunk * output = vc.buildSubPage(2 /* Z */, slicenumber, subslice);
   (void)memcpy(data, output->getBuffer(), output->bufferSize());
   delete output;
 }
