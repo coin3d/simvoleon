@@ -34,7 +34,8 @@ public:
     MEMORY = 0x00000008,
     VOLUMEPRO = 0x00000010,
     TEX2D_SINGLE = 0x00000020,
-    // FIXME: why the extensions? 20021107 mortene.
+    // FIXME: do we really need the extensions? See doc about them in
+    // the .cpp ("USER INTERACTION"). 20021107 mortene.
     LOAD_MAX = 0x00000040,          // Builds as many pages as possible at
     DYNAMIC_LOADING = 0x00000080,   // Only loads the pages used
   };
@@ -58,6 +59,8 @@ public:
   SbBox3f & getVolumeSize(void);
   SbVec3s & getDimensions(void);
 
+  // FIXME: these (and probably much of the rest of the class) are not
+  // part of the TGS VolumeViz API. 20021108 mortene.
   void renderOrthoSliceX(SoState * state,
                          const SbBox2f & quad,
                          float x,
@@ -76,6 +79,7 @@ public:
                          int sliceIdx,
                          const SbBox2f & textureCoords,
                          SoTransferFunction * transferFunction);
+
   void setPageSize(int size);
   void setPageSize(const SbVec3s & size);
   SbVec3s & getPageSize(void);

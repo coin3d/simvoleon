@@ -2,7 +2,6 @@
 #define COIN_SOVOLUMEREADER_H
 
 #include <VolumeViz/nodes/SoVolumeData.h>
-#include <VolumeViz/nodes/SoOrthoSlice.h>
 
 class SbBox2s;
 class SbBox3f;
@@ -17,20 +16,25 @@ public:
   virtual void setUserData(void * data);
   virtual void getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
                            SbVec3s & dim) = 0;
+
+  enum Axis { X, Y, Z };
+
   virtual void getSubSlice(SbBox2s &subSlice, int sliceNumber, void * data,
-                           // FIXME: this is an extra parameter vs
-                           // TGS. Investigate why. 20021107 mortene.
-                           SoOrthoSlice::Axis axis = SoOrthoSlice::Z)
-    = 0;
+                           // FIXME: this is an extra argument vs
+                           // TGS. Explained in
+                           // SoVolumeData.cpp. Consider if it's
+                           // really worth extending the API
+                           // for. 20021107 mortene.
+                           Axis axis = Z) = 0;
 
 protected:
   int setFilename(const char * filename);
   void * getBuffer(int64_t offset, unsigned int size);
   int bytesToInt(unsigned char * ptr, int sizeBytes);
   void swapBytes(int * intPtr, int sizeBytes);
-  int64_t fileSize();
+  int64_t fileSize(void);
 
-  void * data;
+  void * m_data;
 
 private:
   friend class SoVolumeReaderP;

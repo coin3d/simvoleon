@@ -22,6 +22,8 @@ public:
   }
 
   SbVec3s dimensions;
+  // FIXME: shouldn't we rather use the SoVolumeReader data-pointer?
+  // 20021108 mortene.
   const void * data;
   SoVolumeData::DataType dataType;
   SbBox3f volumeSize;
@@ -68,18 +70,18 @@ void SoVRMemReader::getDataChar(SbBox3f &size,
 void SoVRMemReader::getSubSlice(SbBox2s &subSlice, 
                                 int sliceNumber, 
                                 void * data, 
-                                SoOrthoSlice::Axis axis)
+                                Axis axis)
 {
   switch (axis) {
-    case SoOrthoSlice::X:
+    case X:
       PRIVATE(this)->buildSubSliceX(data, sliceNumber, subSlice);
       break;
 
-    case SoOrthoSlice::Y:
+    case Y:
       PRIVATE(this)->buildSubSliceY(data, sliceNumber, subSlice);
       break;
 
-    case SoOrthoSlice::Z:
+    case Z:
       PRIVATE(this)->buildSubSliceZ(data, sliceNumber, subSlice);
       break;
   }

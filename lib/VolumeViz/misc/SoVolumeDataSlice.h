@@ -4,8 +4,10 @@
 #include <Inventor/SbVec2s.h>
 #include <Inventor/misc/SoState.h>
 #include <VolumeViz/misc/SoVolumeDataPage.h>
+#include <VolumeViz/nodes/SoOrthoSlice.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/readers/SoVolumeReader.h>
+
 
 class SoVolumeDataSlice {
 

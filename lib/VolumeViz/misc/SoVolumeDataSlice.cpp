@@ -349,7 +349,12 @@ SoVolumeDataSlice::buildPage(int col, int row,
   int outputDataType;
   int paletteSize;
   unsigned char * texture = new unsigned char[pageSize[0] * pageSize[1] * 4];
-  reader->getSubSlice(subSlice, sliceIdx, texture, axis);
+
+  SoVolumeReader::Axis ax =
+    this->axis == SoOrthoSlice::X ?
+    SoVolumeReader::X : (this->axis == SoOrthoSlice::Y ?
+                         SoVolumeReader::Y : SoVolumeReader::Z);
+  reader->getSubSlice(subSlice, sliceIdx, texture, ax);
 
   transferFunction->transfer(texture,
                              this->dataType,

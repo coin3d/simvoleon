@@ -3,6 +3,8 @@
 
 #include <Inventor/nodes/SoShape.h>
 #include <Inventor/fields/SoSFUInt32.h>
+#include <Inventor/fields/SoSFEnum.h>
+#include <Inventor/fields/SoSFBool.h>
 
 
 class SoOrthoSlice : public SoShape {

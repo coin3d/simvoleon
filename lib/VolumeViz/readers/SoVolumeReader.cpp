@@ -27,30 +27,22 @@ private:
 
 // *************************************************************************
 
-/*!
-  Constructor.
-*/
 SoVolumeReader::SoVolumeReader(void)
 {
   PRIVATE(this) = new SoVolumeReaderP(this);
 
 }
 
-
-
-
-
-/*!
-  Destructor.
-*/
 SoVolumeReader::~SoVolumeReader()
 {
   delete PRIVATE(this);
 }
 
+// FIXME: unimplemented methods. 20021108 mortene.
 
-
-void 
-SoVolumeReader::setUserData(void * data)
-{
-}
+void SoVolumeReader::setUserData(void * data) { }
+int SoVolumeReader::setFilename(const char * filename) { return 0; }
+void * SoVolumeReader::getBuffer(int64_t offset, unsigned int size) { return NULL; }
+int SoVolumeReader::bytesToInt(unsigned char * ptr, int sizeBytes) { return 0x0000; }
+void SoVolumeReader::swapBytes(int * intPtr, int sizeBytes) { return; }
+int64_t SoVolumeReader::fileSize(void) { return 0; }
