@@ -9,7 +9,8 @@ endif
 SOURCES = \
 	PageHandler.cpp CvrPageHandler.h \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
-	2DTexPage.cpp Cvr2DTexPage.h
+	2DTexPage.cpp Cvr2DTexPage.h \
+	TexManager.cpp CvrTexManager.h
 
 lib2Drender_la_SOURCES = $(SOURCES)
 
