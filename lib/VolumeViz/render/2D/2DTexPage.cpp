@@ -33,8 +33,6 @@ Cvr2DTexPage::Cvr2DTexPage(void)
   this->pageSize = SbVec2s(32, 32);
   this->subpages = NULL;
   this->axis = SoOrthoSlice::Z;
-  this->numPages = 0;
-  this->numTexels = 0;
   this->sliceIdx = 0;
   this->reader = NULL;
   this->dataType = SoVolumeData::RGBA;
@@ -118,10 +116,6 @@ Cvr2DTexPage::releaseSubPage(Cvr2DTexSubPage * page)
 
     while ((p != NULL) && (p->page != page)) { p = p->next; }
     if (p == NULL) continue; // not the right list, continue with for-loop
-
-    this->numPages--;
-    this->numTexels -= this->pageSize[0] * this->pageSize[1];
-    this->numBytesHW -= p->page->numBytesHW;
 
     if (p->next) { p->next->prev = p->prev; }
     if (p->prev) { p->prev->next = p->next; }
@@ -410,10 +404,6 @@ Cvr2DTexPage::buildSubPage(int col, int row, SoTransferFunction * transferfunc)
     p->next = pitem;
     pitem->prev = p;
   }
-
-  this->numTexels += this->pageSize[0] * this->pageSize[1];
-  this->numPages++;
-  this->numBytesHW += page->numBytesHW;
 
   return pitem;
 }

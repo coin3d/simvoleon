@@ -49,23 +49,50 @@
 //   GVX1). The check for palette size fixes this problem.
 
 
+unsigned int Cvr2DTexSubPage::nroftexels = 0;
+unsigned int Cvr2DTexSubPage::texmembytes = 0;
+
 
 Cvr2DTexSubPage::Cvr2DTexSubPage(const uint8_t * textureimg,
                                  const SbVec2s & size,
                                  const float * palette, int palettesize)
 {
+  this->texmultfactor = 0.0f;
+
+  assert(size[0] >= 0);
+  assert(size[1] >= 0);
   this->texdims = size;
 
-  this->numBytesHW = 0;
-
   this->transferTex2GL(textureimg, palettesize, palette);
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("Cvr2DTexSubPage::Cvr2DTexSubPage",
+                         "nroftexels => %d, texmembytes => %d",
+                         Cvr2DTexSubPage::nroftexels,
+                         Cvr2DTexSubPage::texmembytes);
+#endif // debug
 }
 
 
 Cvr2DTexSubPage::~Cvr2DTexSubPage()
 {
   glDeleteTextures(1, this->texturename);
-  this->numBytesHW = 0;
+
+  const unsigned int nrtexels = this->texdims[0] * this->texdims[1];
+  assert(nrtexels <= Cvr2DTexSubPage::nroftexels);
+  Cvr2DTexSubPage::nroftexels -= nrtexels;
+
+  unsigned int freetexmem = (unsigned int)
+    (float(nrtexels) * this->texmultfactor);
+  assert(freetexmem <= Cvr2DTexSubPage::texmembytes);
+  Cvr2DTexSubPage::texmembytes -= freetexmem;
+
+#if CVR_DEBUG && 0 // debug
+  SoDebugError::postInfo("Cvr2DTexSubPage::~Cvr2DTexSubPage",
+                         "nroftexels => %d, texmembytes => %d",
+                         Cvr2DTexSubPage::nroftexels,
+                         Cvr2DTexSubPage::texmembytes);
+#endif // debug
 }
 
 
@@ -96,12 +123,15 @@ void
 Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
                                 int palettesize, const float * palette)
 {
-  const cc_glglue * glue = cc_glglue_instance(0); // FIXME: need cache context here
+  // FIXME: need cache context here! 20021120 mortene.
+  const cc_glglue * glw = cc_glglue_instance(0);
 
   // FIXME: these functions is only supported in opengl 1.1...
   // torbjorv 08052002
   glGenTextures(1, this->texturename);
   glBindTexture(GL_TEXTURE_2D, this->texturename[0]);
+
+  const int nrtexels = this->texdims[0] * this->texdims[1];
 
   // Uploading standard RGBA-texture
   if (palette == NULL) {
@@ -115,7 +145,7 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
                  GL_UNSIGNED_BYTE,
                  textureimg);
 
-    this->numBytesHW += this->texdims[0] * this->texdims[1] * 4;
+    this->texmultfactor = 4.0f; // 8 bits each R, G, B & A
   }
   // Uploading paletted texture
   else {
@@ -123,7 +153,7 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
     // lifted. It would BTW probably be better to check for this
     // extension somewhere else before trying to make paletted
     // textures. 20021112 mortene.
-    assert(cc_glglue_has_paletted_textures(glue) && "can't handle palette-textures");
+    assert(cc_glglue_has_paletted_textures(glw) && "can't handle palette-textures");
 
     // Check size of indices
     int format = GL_UNSIGNED_BYTE;
@@ -131,7 +161,7 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
       format = GL_UNSIGNED_SHORT;
 
     // Setting palette
-    cc_glglue_glColorTableEXT(glue, GL_TEXTURE_2D,
+    cc_glglue_glColorTableEXT(glw, GL_TEXTURE_2D,
                               GL_RGBA,
                               palettesize,
                               GL_RGBA,
@@ -140,30 +170,38 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
 
     // Checking what palettesize we actually got
     int actualPaletteSize;
-    cc_glglue_glGetColorTableParameterivEXT(glue, GL_TEXTURE_2D,
+    cc_glglue_glGetColorTableParameterivEXT(glw, GL_TEXTURE_2D,
                                             GL_COLOR_TABLE_WIDTH_EXT,
                                             &actualPaletteSize);
 
-    this->numBytesHW += actualPaletteSize * 4 * 4;
+    int colorformat;
 
-
-    int internalFormat;
     switch (actualPaletteSize) {
-    case     2: internalFormat = GL_COLOR_INDEX1_EXT;
-      this->numBytesHW += this->texdims[0] * this->texdims[1] / 8;
+    case 2:
+      colorformat = GL_COLOR_INDEX1_EXT;
+      this->texmultfactor = 1.0f / 8.0f; // 1 bit pr texel
       break;
-    case     4: internalFormat = GL_COLOR_INDEX2_EXT;
-      this->numBytesHW += this->texdims[0] * this->texdims[1] / 4;
+
+    case 4:
+      colorformat = GL_COLOR_INDEX2_EXT;
+      this->texmultfactor = 1.0f / 4.0f; // 2 bits pr texel
       break;
-    case    16: internalFormat = GL_COLOR_INDEX4_EXT;
-      this->numBytesHW += this->texdims[0] * this->texdims[1] / 2;
+
+    case 16:
+      colorformat = GL_COLOR_INDEX4_EXT;
+      this->texmultfactor = 1.0 / 2.0f; // 4 bits pr texel
       break;
-    case   256: internalFormat = GL_COLOR_INDEX8_EXT;
-      this->numBytesHW += this->texdims[0] * this->texdims[1];
+
+    case 256:
+      colorformat = GL_COLOR_INDEX8_EXT;
+      this->texmultfactor = 1.0f; // 8 bits pr texel
       break;
-    case 65536: internalFormat = GL_COLOR_INDEX16_EXT;
-      this->numBytesHW += this->texdims[0] * this->texdims[1] * 2;
+
+    case 65536:
+      colorformat = GL_COLOR_INDEX16_EXT;
+      this->texmultfactor = 2.0f;  // 16 bits pr texel
       break;
+
     default:
       // FIXME: this can indeed hit, try for instance SYN_64.vol. If
       // some palette sizes are indeed unsupported by OpenGL, we
@@ -177,7 +215,7 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
     // Upload texture
     glTexImage2D(GL_TEXTURE_2D,
                  0,
-                 internalFormat,
+                 colorformat,
                  this->texdims[0],
                  this->texdims[1],
                  0,
@@ -187,23 +225,29 @@ Cvr2DTexSubPage::transferTex2GL(const uint8_t * textureimg,
 
   }
 
+  Cvr2DTexSubPage::nroftexels += nrtexels;
+  Cvr2DTexSubPage::texmembytes += int(float(nrtexels) * this->texmultfactor);
 
-  // FIXME: Okay. I tried. This GLWrapper-thingy must be spawned right
-  // out of hell. I'm really not able to compile it. But these lines
-  // need to be fixed for OpenGL 1.0 support. torbjorv 08032002
+  GLint wrapenum = GL_CLAMP;
+  if (cc_glglue_has_texture_edge_clamp(glw)) { wrapenum = GL_CLAMP_TO_EDGE; }
 
-  // GLenum clamping;
-  // const GLWrapper_t * glw = GLWRAPPER_FROM_STATE(state);
-  // if (glw->hasTextureEdgeClamp)
-  //   clamping = GL_CLAMP_TO_EDGE;
-  // else
-  //   (GLenum) GL_CLAMP;
+  // FIXME: investigate if this is really what we want. 20021120 mortene.
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapenum);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapenum);
 
-
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
+  // FIXME: investigate if this is really what we want. 20021120 mortene.
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+}
 
+unsigned int
+Cvr2DTexSubPage::totalNrOfTexels(void)
+{
+  return Cvr2DTexSubPage::nroftexels;
+}
+
+unsigned int
+Cvr2DTexSubPage::totalTextureMemoryUsed(void)
+{
+  return Cvr2DTexSubPage::texmembytes;
 }

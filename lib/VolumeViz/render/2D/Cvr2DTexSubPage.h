@@ -14,17 +14,18 @@ public:
 
   void activate(void) const;
 
-  // FIXME: must be public, since used from Cvr2DTexPage. 20021106 mortene.
-  int numBytesHW;
+  static unsigned int totalNrOfTexels(void);
+  static unsigned int totalTextureMemoryUsed(void);
 
 private:
   void transferTex2GL(const uint8_t * textureimg,
                       int palettesize, const float * palette);
 
-  void release(void);
-
   GLuint texturename[1];
   SbVec2s texdims;
+  static unsigned int nroftexels;
+  static unsigned int texmembytes;
+  float texmultfactor;
 };
 
 

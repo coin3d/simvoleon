@@ -27,12 +27,6 @@ public:
   Cvr2DTexSubPage * getLRUSubPage(long & tick);
   void releaseSubPage(Cvr2DTexSubPage *page);
 
-  // FIXME: must be public, since they are used from
-  // SoVolumeData. 20021106 mortene.
-  int numTexels;
-  int numPages;
-  int numBytesHW;
-
 private:
   class Cvr2DTexSubPageItem * getSubPage(int col, int row,
                                          SoTransferFunction * transferfunc);

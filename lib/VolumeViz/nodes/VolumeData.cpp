@@ -255,8 +255,6 @@ public:
     // system. 20021118 mortene.
     this->maxBytesHW = 16*1024*1024;
 
-    this->numTexels = 0;
-    this->numBytesHW = 0;
     this->tick = 0;
 
     this->VRMemReader = NULL;
@@ -282,10 +280,8 @@ public:
   // FIXME: this is fubar -- we need a global manager, of course, as
   // there can be more than one voxelcube in the scene at
   // once. 20021118 mortene.
-  int maxTexels;
-  int numTexels;
-  int maxBytesHW;
-  int numBytesHW;
+  unsigned int maxTexels;
+  unsigned int maxBytesHW;
 
   Cvr2DTexPage ** slices[3];
 
@@ -465,10 +461,6 @@ SoVolumeData::renderOrthoSlice(SoState * state,
   Cvr2DTexPage * slice =
     PRIVATE(this)->getSlice((SoVolumeDataP::Axis)axis, sliceIdx);
 
-  // FIXME: huh? What's up with this? 20021111 mortene.
-  PRIVATE(this)->numTexels -= slice->numTexels;
-  PRIVATE(this)->numBytesHW -= slice->numBytesHW;
-
   SbVec3f v0, v1, v2, v3;
   if (axis == SoVolumeDataP::X) {
     v0 = SbVec3f(depth, min[1], min[0]);
@@ -492,10 +484,6 @@ SoVolumeData::renderOrthoSlice(SoState * state,
 
   slice->render(state, v0, v1, v2, v3, textureCoords, transferFunction,
                 PRIVATE(this)->tick);
-
-  // FIXME: huh? What's up with this? 20021111 mortene.
-  PRIVATE(this)->numTexels += slice->numTexels;
-  PRIVATE(this)->numBytesHW += slice->numBytesHW;
 
   PRIVATE(this)->managePages();
 }
@@ -603,17 +591,13 @@ SoVolumeDataP::releaseAllSlices(void)
 void
 SoVolumeDataP::releaseLRUPage(void)
 {
-#if 1 // debug
-  SoDebugError::postInfo("SoVolumeDataP::releaseLRUPage",
-                         "releaseLRUPage() start, numTexels==%d, numBytesHW==%d",
-                         this->numTexels, this->numBytesHW);
-#endif // debug
-
   Cvr2DTexSubPage * lru_subpage = NULL;
   Cvr2DTexPage * lru_page = NULL;
   long lowesttick = LONG_MAX;
 
   // Searching for least recently used page.
+
+  // FIXME: should really be stored in a heap data structure. 20021120 mortene.
 
   for (int dim=0; dim < 3; dim++) {
     if (this->slices[dim]) {
@@ -634,19 +618,7 @@ SoVolumeDataP::releaseLRUPage(void)
     }
   }
 
-  this->numTexels -= lru_page->numTexels;
-  this->numBytesHW -= lru_page->numBytesHW;
-
   lru_page->releaseSubPage(lru_subpage);
-
-  this->numTexels += lru_page->numTexels;
-  this->numBytesHW += lru_page->numBytesHW;
-
-#if 1 // debug
-  SoDebugError::postInfo("SoVolumeDataP::releaseLRUPage",
-                         "releaseLRUPage() done, numTexels==%d, numBytesHW==%d",
-                         this->numTexels, this->numBytesHW);
-#endif // debug
 }
 
 void
@@ -665,10 +637,19 @@ SoVolumeDataP::releaseSlices(const SoVolumeDataP::Axis AXISIDX)
 void
 SoVolumeDataP::managePages(void)
 {
+  // FIXME: this functionality should really be part of a global
+  // manager for the 2D texture pages (and for 3D textures later).
+  // 20021120 mortene.
+
   // Keep both measures within maxlimits
 
-  while (this->numBytesHW > this->maxBytesHW) { this->releaseLRUPage(); }
-  while (this->numTexels > this->maxTexels) { this->releaseLRUPage(); }
+  while (Cvr2DTexSubPage::totalTextureMemoryUsed() > this->maxBytesHW) {
+    this->releaseLRUPage();
+  }
+
+  while (Cvr2DTexSubPage::totalNrOfTexels() > this->maxTexels) {
+    this->releaseLRUPage();
+  }
 }
 
 
