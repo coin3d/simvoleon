@@ -233,3 +233,12 @@ for suggestions for major improvements and new features.
     20040920 mortene.
 
 ========================================================================
+
+020 ''make dist'' not tested, probably not working properly.
+
+    Fix it so it works in accordance with the relevant notes in
+    Coin/RELEASE.txt.
+
+    20041010 mortene. 
+
+========================================================================
