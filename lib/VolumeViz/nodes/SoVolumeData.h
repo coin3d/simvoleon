@@ -73,7 +73,7 @@ public:
 
   SoVolumeReader * getReader(void) const;
 
-  SbBool getMinMax(int & min, int & max);
+  SbBool getMinMax(int & minval, int & maxval);
   SbBool getHistogram(int & length, int *& histogram);
 
   SoVolumeData * subSetting(const SbBox3s & region);

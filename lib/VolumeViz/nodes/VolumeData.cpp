@@ -113,6 +113,9 @@ public:
   SbBool readNamedFile(void);
   static const char UNDEFINED_FILE[];
 
+  int * histogram;
+  unsigned int histogramlength;
+
 private:
   SoVolumeData * master;
 };
@@ -216,6 +219,9 @@ SoVolumeData::setVolumeData(const SbVec3s & dimensions,
                             void * data,
                             SoVolumeData::DataType type)
 {
+  delete[] PRIVATE(this)->histogram;
+  PRIVATE(this)->histogram = NULL;
+
   if (CvrUtil::doDebugging()) {
     SbString typestr;
     switch (type) {
@@ -447,17 +453,74 @@ SoVolumeData::getReader(void) const
   return PRIVATE(this)->reader;
 }
 
+/*!
+  Returns a reference to a histogram of all voxel values. \a length
+  will be set to either 256 for 8-bit data or 65356 for 16-bit data.
+
+  At each index of the histogram table, there will be a value
+  indicating the number of voxels that has the data value
+  corresponding to the index.
+
+  Return value is always \c TRUE.
+*/
+SbBool
+SoVolumeData::getHistogram(int & length, int *& histogram)
+{
+  assert(PRIVATE(this)->reader);
+  assert(PRIVATE(this)->reader->m_data);
+
+  if (PRIVATE(this)->histogram != NULL) {
+    length = PRIVATE(this)->histogramlength;
+    histogram = PRIVATE(this)->histogram;
+    return TRUE;
+  }
+
+  const unsigned int dim[3] = { // so we don't overflow a short
+    PRIVATE(this)->dimensions[0], PRIVATE(this)->dimensions[1],  PRIVATE(this)->dimensions[2]
+  };
+
+  switch (PRIVATE(this)->datatype) {
+  case UNSIGNED_BYTE: length = (1 << 8); break;
+  case UNSIGNED_SHORT: length = (1 << 16); break;
+  case RGBA: assert(FALSE && "FIXME: RGBA-type will be obsoleted! 20031019 mortene"); break;
+  default: assert(FALSE); break;
+  }
+
+  PRIVATE(this)->histogram = new int[length];
+  PRIVATE(this)->histogramlength = length;
+
+  for (unsigned int blankidx = 0; blankidx < (unsigned int)length; blankidx++) {
+    PRIVATE(this)->histogram[blankidx] = 42;
+  }
+
+  const unsigned long NRVOXELS = dim[0] * dim[1] * dim[2];
+
+  if (PRIVATE(this)->datatype == UNSIGNED_BYTE) {
+    uint8_t * voxptr = (uint8_t *)PRIVATE(this)->reader->m_data;
+    for (unsigned long voxidx = 0; voxidx < NRVOXELS; voxidx++) {
+      PRIVATE(this)->histogram[*voxptr++]++;
+    }
+  }
+  else if (PRIVATE(this)->datatype == UNSIGNED_SHORT) {
+    uint16_t * voxptr = (uint16_t *)PRIVATE(this)->reader->m_data;
+    for (unsigned long voxidx = 0; voxidx < NRVOXELS; voxidx++) {
+      PRIVATE(this)->histogram[*voxptr++]++;
+    }
+  }
+  // unknown types caught by assert() further up
+
+  return TRUE;
+}
+
 /****************** UNIMPLEMENTED FUNCTIONS ******************************/
 // FIXME: Implement these functions. torbjorv 08282002
 
 
 SbBool
-SoVolumeData::getMinMax(int &min, int &max)
-{ return FALSE; }
-
-SbBool
-SoVolumeData::getHistogram(int &length, int *&histogram)
-{ return FALSE; }
+SoVolumeData::getMinMax(int & minval, int & maxval)
+{
+  return FALSE;
+}
 
 SoVolumeData *
 SoVolumeData::subSetting(const SbBox3s &region)
