@@ -21,6 +21,8 @@
   automatically by the SimVoleon rendering system.
 */
 
+#include <limits.h>
+
 #include <VolumeViz/nodes/SoVolumeData.h>
 
 #include <Inventor/C/tidbits.h>
@@ -31,11 +33,14 @@
 #include <Inventor/actions/SoPickAction.h>
 #include <Inventor/elements/SoGLCacheContextElement.h>
 #include <Inventor/errors/SoDebugError.h>
+#include <Inventor/sensors/SoFieldSensor.h>
+#include <Inventor/lists/SbStringList.h>
 #include <Inventor/system/gl.h>
+
 #include <VolumeViz/elements/SoVolumeDataElement.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
+#include <VolumeViz/readers/SoVRVolFileReader.h>
 #include <VolumeViz/misc/CvrUtil.h>
-#include <limits.h>
 
 // *************************************************************************
 
@@ -103,9 +108,16 @@ public:
   // should probably be static variables in that manager. 20021118 mortene.
   unsigned int maxnrtexels;
 
+  SoFieldSensor * filenamesensor;
+  static void filenameFieldModified(void * userdata, SoSensor * sensor);
+  SbBool readNamedFile(void);
+  static const char UNDEFINED_FILE[];
+
 private:
   SoVolumeData * master;
 };
+
+const char SoVolumeDataP::UNDEFINED_FILE[] = "";
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
@@ -127,15 +139,20 @@ SoVolumeData::SoVolumeData(void)
   SO_NODE_DEFINE_ENUM_VALUE(StorageHint, TEX2D_SINGLE);
   SO_NODE_SET_SF_ENUM_TYPE(storageHint, StorageHint);
 
-  SO_NODE_ADD_FIELD(fileName, (""));
+  SO_NODE_ADD_FIELD(fileName, (SoVolumeDataP::UNDEFINED_FILE));
   SO_NODE_ADD_FIELD(storageHint, (SoVolumeData::AUTO));
   SO_NODE_ADD_FIELD(usePalettedTexture, (TRUE));
   SO_NODE_ADD_FIELD(useCompressedTexture, (TRUE));
+
+  PRIVATE(this)->filenamesensor = new SoFieldSensor(SoVolumeDataP::filenameFieldModified, this);
+  PRIVATE(this)->filenamesensor->setPriority(0); // immediate sensor
+  PRIVATE(this)->filenamesensor->attach(&this->fileName);
 }
 
 
 SoVolumeData::~SoVolumeData()
 {
+  delete PRIVATE(this)->filenamesensor;
   delete PRIVATE(this);
 }
 
@@ -225,6 +242,7 @@ SoVolumeData::getVolumeData(SbVec3s & dimensions, void *& data,
                             SoVolumeData::DataType & type) const
 {
   dimensions = SbVec3s(PRIVATE(this)->dimensions);
+  assert(PRIVATE(this)->reader && "no reader!");
   data = PRIVATE(this)->reader->m_data;
   type = PRIVATE(this)->datatype;
   // FIXME: how could this become FALSE for us?
@@ -469,3 +487,56 @@ void
 SoVolumeData::setSubSamplingLevel(const SbVec3s &ROISampling,
                     const SbVec3s &secondarySampling)
 {}
+
+// *************************************************************************
+
+// FIXME: should perhaps also override readInstance(), see comments in
+// Coin/src/nodes/SoFile.cpp. 20031009 mortene.
+
+SbBool
+SoVolumeDataP::readNamedFile(void)
+{
+  const SbString & filename = PUBLIC(this)->fileName.getValue();
+  if (filename == SoVolumeDataP::UNDEFINED_FILE) {
+    SoDebugError::postWarning("SoVolumeDataP::readNamedFile",
+                              "Undefined filename in SoVolumeData");
+    return FALSE;
+  }
+
+  SbStringList tmpstrlist = SoInput::getDirectories();
+  SbStringList emptysubdirlist;
+  const SbString fullfilename =
+    SoInput::searchForFile(filename, tmpstrlist, emptysubdirlist);
+  if (fullfilename == "") {
+    SoDebugError::postWarning("SoVolumeDataP::readNamedFile",
+                              "Could not find file '%s' anywhere.",
+                              filename.getString());
+    return FALSE;
+  }
+
+  // FIXME: need to detect file format and choose the correct
+  // reader. 20031009 mortene.
+  SoVRVolFileReader * filereader = new SoVRVolFileReader;
+  filereader->setUserData((void *)fullfilename.getString());
+
+  // FIXME: need all sorts of error checking; format, permission to
+  // open, that the file is not corrupt, etc etc. The crappy interface
+  // of the SoVolumeReader class (and its subclasses) does not permit
+  // that, though (so that's the real problem to fix.) 20031009 mortene.
+
+  if (this->reader) { /* FIXME: delete old! 20031009 mortene. */ }
+  PUBLIC(this)->setReader(filereader);
+
+//   SoReadError::post(in, "Unable to read volume data file: ``%s''",
+//                     fullfilename.getString());
+  return TRUE;
+}
+
+void
+SoVolumeDataP::filenameFieldModified(void * userdata, SoSensor * sensor)
+{
+  SoVolumeData * that = (SoVolumeData *)userdata;
+  (void)PRIVATE(that)->readNamedFile();
+}
+
+// *************************************************************************
