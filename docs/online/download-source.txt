@@ -1,8 +1,1 @@
-The library source code can be downloaded from Systems in Motion's FTP
-server:
-
-        ftp://ftp.coin3d.org/pub/coin/src/SIMVoleon-1.0.0.tar.gz
-
-
-Follow the instructions on the "Installation" pages for building the
-library from its source code distribution.
+(Text moved to common "download.txt")

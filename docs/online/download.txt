@@ -1,0 +1,36 @@
+Binaries
+
+  Pre-compiled binary version for the various supported platforms
+  have not been made available yet.
+
+  For now, to employ the SIM Voleon library in your development
+  environment, follow the instructions on the "installation
+  pages":http://dev.sim.no/SIM_Voleon/installation/ for building
+  the library from its source code distribution.
+
+
+Source code
+
+  The library source code can be downloaded from Systems in
+  Motion's FTP or HTTP servers:
+
+  - "FTP":ftp://ftp.coin3d.org/pub/coin/src/SIMVoleon-1.0.0.tar.gz
+
+  - "HTTP":http://ftp.coin3d.org/coin/src/SIMVoleon-1.0.0.tar.gz
+
+  Follow the instructions on the "installation pages":
+  http://dev.sim.no/SIM_Voleon/installation/ for building the
+  library from its source code distribution.
+
+
+CVS access
+
+  The SIM Voleon development source code is kept in a CVS
+  repository, in the same manner as other publicly available
+  projects from Systems in Motion.
+  
+  For instructions on how to access our public CVS repository, see
+  the "CVS acces info page":http://www.coin3d.org/download/cvs-access/
+  on the Coin3D developer pages.
+
+  The SIM Voleon source code repository is named 'SimVoleon'.

@@ -1,9 +1,12 @@
 Installation of the SIM Voleon library from source code is done in the
-same manner as for other SIM libraries, see the following link:
+same manner as for other SIM libraries, for more information see the
+"building instructions":http://www.coin3d.org/building/
+on the Coin3D developer pages.
 
-    http://www.coin3d.org/getting_started/building/
 
-SIM Voleon's only dependency is simply that the Coin library must
-already have been installed. If that has been done on your system,
-simply follow the instructions for doing a "configure; make; make
-install" installation procedure.
+Requirements
+
+	SIM Voleon's only dependency is simply that the Coin library
+	must already have been installed. If that has been done on your
+	system, simply follow the instructions for doing a "configure;
+	make; make install" installation procedure.

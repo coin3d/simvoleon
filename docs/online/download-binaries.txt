@@ -1,6 +1,1 @@
-Pre-compiled binary version for the various supported platforms have
-not been made available yet.
-
-For now, to employ the SIM Voleon library in your development
-environment, follow the instructions on the "Installation" pages for
-building the library from its source code distribution.
+(Text moved to common "download.txt")

@@ -1,42 +1,55 @@
 SIM Voleon is a software development system, in the form of an add-on
-library to the Coin library. SIM Voleon complements Coin's
-capabilities for polygon-based rendering with visualization of
+library to "Coin3D":http://www.coin3d.org/. SIM Voleon complements
+Coin's capabilities for polygon-based rendering with visualization of
 volumetric data sets, by providing so-called "volume rendering"
 technology.
 
-Volumetric data is often the natural format to use for various
-purposes in scientific and engineering visualization process. This is
-often due to how data is collected from such equipment.
+Some words about volumetric data
 
-One example is seismic data from measurements below the sea-floor, as
-done in the oil & gas industry to locate pockets of hydrocarbons.
-Another example is medical scanning equipment, from sources such as
-Nuclear Magnetic Resonance (NMR/MR), Computer Tomography (CT) and
-ultrasound. These data collection methods gathers data in the form of
-point measurements, which does not always lend itself well to
-visualization in the form of polygon primitives.
+  Volumetric data is often the natural format to use for various
+  purposes in scientific and engineering visualization process.
+  This is often due to how data is collected from such equipment.
 
-SIM Voleon provides the technology to render such volumetric data
-sets, to modify their color mappings and transparency settings to
-e.g. visualize internal structures, to interact with the data (for
-querying positions and data values), and to integrate volume data with
-the traditional polygon-based geometric primitives of the core Coin
-library.
+  One example is seismic data from measurements below the sea-
+  floor, as done in the oil & gas industry to locate pockets of
+  hydrocarbons. Another example is medical scanning equipment,
+  from sources such as Nuclear Magnetic Resonance (NMR/MR),
+  Computer Tomography (CT) and ultrasound. These data collection
+  methods gathers data in the form of point measurements, which
+  does not always lend itself well to visualization in the form of
+  polygon primitives.
 
-The framework for employing the SIM Voleon library is the same as for
-ordinary Coin applications: SIM Voleon provides a set of new scene
-graph nodes to supplement Coin with the new capabilities of volume
-rendering.
 
-This makes it a straight-forward task to add basic volume rendering to
-your application, and the data can easily be manipulated through
-existing interaction features, like manipulators, viewers and widgets.
+About SIM Voleon
+
+  SIM Voleon provides the technology to render such volumetric
+  data sets, to modify their color mappings and transparency
+  settings to e.g. visualize internal structures, to interact with
+  the data (for querying positions and data values), and to
+  integrate volume data with the traditional polygon-based
+  geometric primitives of the core Coin library.
+
+  The framework for employing the SIM Voleon library is the same
+  as for ordinary Coin applications: SIM Voleon provides a set of
+  new scene graph nodes to supplement Coin with the new
+  capabilities of volume rendering.
+
+  This makes it a straight-forward task to add basic volume
+  rendering to your application, and the data can easily be
+  manipulated through existing interaction features, like
+  manipulators, viewers and widgets.
 
 Highlighted features:
 
-    * Easy integration with Coin3D applications
-    * 3D texture support using viewport-aligned slicing
-    * 2D texture support using object-aligned slicing
-    * Volume data is separated into optimal subcubes enabling large datasets
-    * Dynamic color lookup tables for voxel colors
-    * Maximum intensity projection through hardware acceleration
+  - Easy integration with Coin3D applications
+
+  - 3D texture support using viewport-aligned slicing
+
+  - 2D texture support using object-aligned slicing
+
+  - Volume data is separated into optimal subcubes enabling large
+    datasets
+
+  - Dynamic color lookup tables for voxel colors
+
+  - Maximum intensity projection through hardware acceleration
