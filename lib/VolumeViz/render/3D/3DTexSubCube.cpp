@@ -37,7 +37,7 @@ SbBool Cvr3DTexSubCube::detectedtextureswapping = FALSE;
 
 Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
                                  const CvrTextureObject * texobj,
-                                 const SbVec3s & cubesize,
+                                 const SbVec3f & cubesize,
                                  const SbVec3s & originaltexsize,
                                  const SbBool compresstextures)
 {
@@ -49,7 +49,7 @@ Cvr3DTexSubCube::Cvr3DTexSubCube(SoGLRenderAction * action,
   assert(cubesize[1] >= 0);
   assert(cubesize[2] >= 0);
 
-  this->dimensions = SbVec3f(cubesize[0], cubesize[1], cubesize[2]);
+  this->dimensions = cubesize;
   this->subcubestruct = NULL;
   this->origo = SbVec3f(0, 0, 0); // Default value
 
@@ -273,7 +273,7 @@ Cvr3DTexSubCube::transferTex3GL(SoGLRenderAction * action,
     if (this->ispaletted) imgptr = ((CvrPaletteTexture *)texobj)->getIndex8Buffer();
     else imgptr = ((CvrRGBATexture *)texobj)->getRGBABuffer();
 
-    // FIXME: Combining texture compression and GL_COLOR_INDEX doesnt
+    // FIXME: Combining texture compression and GL_COLOR_INDEX doesn't
     // seem to work on NVIDIA cards (tested on GeForceFX 5600 &
     // GeForce2 MX) (20040316 handegar)
     int palettetype = GL_COLOR_INDEX;
@@ -401,11 +401,8 @@ Cvr3DTexSubCube::checkIntersectionSlice(SbVec3f const & cubeorigo,
       cubeclipper.getVertex(i, vert);
       
       SbVec3f * tmp = (SbVec3f *) cubeclipper.getVertexData(i);
-
-      // FIXME: This causes distortions when the whole cut-plane is
-      // covering the viewport! (20040304 handegar)
-      // UPDATE: Maybe adding the viewport planes aswell will fix the problem.      
-      if (tmp == NULL) continue; //tmp = new SbVec3f(0, 0, 0);
+      // FIXME: Why does this happen? (20040317 handegar)
+      if (tmp == NULL) continue; 
 
       SbVec3f texcoord(tmp->getValue());
       slice.vertex.append(vert);

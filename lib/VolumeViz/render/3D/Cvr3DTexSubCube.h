@@ -33,7 +33,7 @@ class Cvr3DTexSubCube {
 public:
   Cvr3DTexSubCube(SoGLRenderAction * action,
                   const CvrTextureObject * texobj,
-                  const SbVec3s & cubesize, 
+                  const SbVec3f & cubesize, 
                   const SbVec3s & texsize,
                   const SbBool compresstextures);
   ~Cvr3DTexSubCube();
