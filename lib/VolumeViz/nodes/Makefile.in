@@ -190,10 +190,14 @@ SUBDIRS = gradients
 
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
-@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = nodes.lst
-@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libnodes.la
 
-SOURCES = \
+# **************************************************************************
+#
+# PublicHeaders    - header files that should be installed
+# PrivateHeaders   - source files that should be distributed, but not
+#                    installed - including source-included source files.
+# RegularSources   - source files compiled in this directory
+RegularSources = \
 	TransferFunction.cpp \
 	VolumeData.cpp \
 	VolumeRender.cpp \
@@ -213,16 +217,7 @@ SOURCES = \
 	CvrIndexedTriangleStripSetRenderP.cpp
 
 
-
-# FIXME: not yet implemented. 20040505 mortene.
-#	ROI.cpp
-libnodes_la_SOURCES = $(SOURCES)
-
-nodes_lst_SOURCES = $(SOURCES)
-
-libnodesincdir = $(includedir)/VolumeViz/nodes
-
-libnodesinc_HEADERS = \
+PublicHeaders = \
 	SoOrthoSlice.h \
 	SoVolumeSkin.h \
 	SoObliqueSlice.h \
@@ -233,7 +228,10 @@ libnodesinc_HEADERS = \
 	SoVolumeFaceSet.h \
 	SoVolumeIndexedFaceSet.h \
 	SoVolumeTriangleStripSet.h \
-	SoVolumeIndexedTriangleStripSet.h \
+	SoVolumeIndexedTriangleStripSet.h
+
+
+PrivateHeaders = \
 	CvrIndexedSetRenderBaseP.h \
 	CvrNonIndexedSetRenderBaseP.h \
 	CvrFaceSetRenderP.h \
@@ -241,6 +239,22 @@ libnodesinc_HEADERS = \
 	CvrTriangleStripSetRenderP.h \
 	CvrIndexedTriangleStripSetRenderP.h 
 
+
+
+# **************************************************************************
+@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = nodes.lst
+@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libnodes.la
+
+libnodes_la_SOURCES = $(RegularSources)
+EXTRA_libnodes_la_SOURCES = $(PublicHeaders) $(PrivateHeaders)
+
+nodes_lst_SOURCES = $(RegularSources)
+EXTRA_nodes_lst_SOURCES = $(PublicHeaders) $(PrivateHeaders)
+
+
+# **************************************************************************
+libnodesincdir = $(includedir)/VolumeViz/nodes
+libnodesinc_HEADERS = $(PublicHeaders)
 subdir = lib/VolumeViz/nodes
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
@@ -267,7 +281,7 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
-am__objects_2 = TransferFunction.lo VolumeData.lo VolumeRender.lo \
+am__objects_3 = TransferFunction.lo VolumeData.lo VolumeRender.lo \
 	VolumeRendering.lo ObliqueSlice.lo OrthoSlice.lo VolumeSkin.lo \
 	VolumeFaceSet.lo VolumeIndexedFaceSet.lo \
 	VolumeTriangleStripSet.lo VolumeIndexedTriangleStripSet.lo \
@@ -275,7 +289,7 @@ am__objects_2 = TransferFunction.lo VolumeData.lo VolumeRender.lo \
 	CvrFaceSetRenderP.lo CvrIndexedFaceSetRenderP.lo \
 	CvrTriangleStripSetRenderP.lo \
 	CvrIndexedTriangleStripSetRenderP.lo
-am_libnodes_la_OBJECTS = $(am__objects_2)
+am_libnodes_la_OBJECTS = $(am__objects_3)
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
@@ -321,7 +335,15 @@ LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-DIST_SOURCES = $(nodes_lst_SOURCES) $(libnodes_la_SOURCES)
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
+	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+DIST_SOURCES = $(nodes_lst_SOURCES) $(EXTRA_nodes_lst_SOURCES) \
+	$(libnodes_la_SOURCES) $(EXTRA_libnodes_la_SOURCES)
 HEADERS = $(libnodesinc_HEADERS)
 
 
@@ -332,25 +354,7 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	check-recursive installcheck-recursive
 DIST_COMMON = $(libnodesinc_HEADERS) Makefile.am Makefile.in
 DIST_SUBDIRS = $(SUBDIRS)
-SOURCES = \
-	TransferFunction.cpp \
-	VolumeData.cpp \
-	VolumeRender.cpp \
-	VolumeRendering.cpp \
-	ObliqueSlice.cpp \
-	OrthoSlice.cpp \
-	VolumeSkin.cpp \
-	VolumeFaceSet.cpp \
-	VolumeIndexedFaceSet.cpp \
-	VolumeTriangleStripSet.cpp \
-	VolumeIndexedTriangleStripSet.cpp \
-	CvrIndexedSetRenderBaseP.cpp \
-	CvrNonIndexedSetRenderBaseP.cpp \
-	CvrFaceSetRenderP.cpp \
-	CvrIndexedFaceSetRenderP.cpp \
-	CvrTriangleStripSetRenderP.cpp \
-	CvrIndexedTriangleStripSetRenderP.cpp
-
+SOURCES = $(nodes_lst_SOURCES) $(EXTRA_nodes_lst_SOURCES) $(libnodes_la_SOURCES) $(EXTRA_libnodes_la_SOURCES)
 
 all: all-recursive
 
@@ -740,8 +744,7 @@ uninstall-info: uninstall-info-recursive
 	uninstall-libnodesincHEADERS uninstall-recursive
 
 
-# FIXME: not yet implemented. 20040505 mortene
-#	SoROI.h 
+# **************************************************************************
 
 nodes.lst: $(nodes_lst_OBJECTS)
 	@echo "Linking $@..."; \
@@ -771,6 +774,8 @@ install-libnodesincHEADERS: $(libnodesinc_HEADERS)
 	  fi \
 	done; \
 	:
+
+# **************************************************************************
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

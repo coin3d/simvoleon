@@ -188,24 +188,43 @@ voleon_man_dir = @voleon_man_dir@
 voleon_src_dir = @voleon_src_dir@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
-@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = elements.lst
-@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libelements.la
 
-SOURCES = \
+# **************************************************************************
+#
+# PublicHeaders    - header files that should be installed
+# PrivateHeaders   - source files that should be distributed, but not
+#                    installed - including source-included source files.
+# RegularSources   - source files compiled in this directory
+RegularSources = \
+	CompressedTexturesElement.cpp \
 	VolumeDataElement.cpp \
 	TransferFunctionElement.cpp
 
 
-libelements_la_SOURCES = $(SOURCES)
-
-elements_lst_SOURCES = $(SOURCES)
-
-libelementsincdir = $(includedir)/VolumeViz/elements
-
-libelementsinc_HEADERS = \
+PublicHeaders = \
 	SoVolumeDataElement.h \
 	SoTransferFunctionElement.h
 
+
+PrivateHeaders = \
+	CvrCompressedTexturesElement.h
+
+
+
+# **************************************************************************
+@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = elements.lst
+@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libelements.la
+
+libelements_la_SOURCES = $(RegularSources)
+EXTRA_libelements_la_SOURCES = $(PublicHeaders) $(PrivateHeaders)
+
+elements_lst_SOURCES = $(RegularSources)
+EXTRA_elements_lst_SOURCES = $(PublicHeaders) $(PrivateHeaders)
+
+
+# **************************************************************************
+libelementsincdir = $(includedir)/VolumeViz/elements
+libelementsinc_HEADERS = $(PublicHeaders)
 subdir = lib/VolumeViz/elements
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
@@ -215,20 +234,23 @@ LIBRARIES = $(noinst_LIBRARIES)
 
 elements_lst_AR = $(AR) cru
 elements_lst_LIBADD =
-am__objects_1 = VolumeDataElement.$(OBJEXT) \
-	TransferFunctionElement.$(OBJEXT)
+am__objects_1 = CompressedTexturesElement.$(OBJEXT) \
+	VolumeDataElement.$(OBJEXT) TransferFunctionElement.$(OBJEXT)
 am_elements_lst_OBJECTS = $(am__objects_1)
 elements_lst_OBJECTS = $(am_elements_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libelements_la_LDFLAGS =
 libelements_la_LIBADD =
-am__objects_2 = VolumeDataElement.lo TransferFunctionElement.lo
-am_libelements_la_OBJECTS = $(am__objects_2)
+am__objects_3 = CompressedTexturesElement.lo VolumeDataElement.lo \
+	TransferFunctionElement.lo
+am_libelements_la_OBJECTS = $(am__objects_3)
 libelements_la_OBJECTS = $(am_libelements_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/TransferFunctionElement.Plo \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CompressedTexturesElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CompressedTexturesElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/TransferFunctionElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/TransferFunctionElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeDataElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeDataElement.Po
@@ -240,14 +262,19 @@ LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-DIST_SOURCES = $(elements_lst_SOURCES) $(libelements_la_SOURCES)
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
+	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+DIST_SOURCES = $(elements_lst_SOURCES) $(EXTRA_elements_lst_SOURCES) \
+	$(libelements_la_SOURCES) $(EXTRA_libelements_la_SOURCES)
 HEADERS = $(libelementsinc_HEADERS)
 
 DIST_COMMON = $(libelementsinc_HEADERS) Makefile.am Makefile.in
-SOURCES = \
-	VolumeDataElement.cpp \
-	TransferFunctionElement.cpp
-
+SOURCES = $(elements_lst_SOURCES) $(EXTRA_elements_lst_SOURCES) $(libelements_la_SOURCES) $(EXTRA_libelements_la_SOURCES)
 
 all: all-am
 
@@ -279,6 +306,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CompressedTexturesElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CompressedTexturesElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunctionElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunctionElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeDataElement.Plo@am__quote@
@@ -515,6 +544,8 @@ uninstall-am: uninstall-info-am uninstall-libelementsincHEADERS
 	uninstall-libelementsincHEADERS
 
 
+# **************************************************************************
+
 elements.lst: $(elements_lst_OBJECTS)
 	@echo "Linking $@..."; \
 	rm -f $@; \
@@ -543,6 +574,8 @@ install-libelementsincHEADERS: $(libelementsinc_HEADERS)
 	  fi \
 	done; \
 	:
+
+# **************************************************************************
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

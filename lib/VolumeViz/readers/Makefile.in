@@ -188,25 +188,43 @@ voleon_man_dir = @voleon_man_dir@
 voleon_src_dir = @voleon_src_dir@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
-@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = readers.lst
-@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libreaders.la
 
-SOURCES = \
+# **************************************************************************
+#
+# PublicHeaders    - header files that should be installed
+# PrivateHeaders   - source files that should be distributed, but not
+#                    installed - including source-included source files.
+# RegularSources   - source files compiled in this directory
+RegularSources = \
 	VolumeReader.cpp \
 	VRVolFileReader.cpp \
-	VRMemReader.cpp	SoVRMemReader.h
+	VRMemReader.cpp
 
 
-libreaders_la_SOURCES = $(SOURCES)
-
-readers_lst_SOURCES = $(SOURCES)
-
-libreadersincdir = $(includedir)/VolumeViz/readers
-
-libreadersinc_HEADERS = \
+PublicHeaders = \
 	SoVolumeReader.h \
 	SoVRVolFileReader.h
 
+
+PrivateHeaders = \
+	SoVRMemReader.h
+
+
+
+# **************************************************************************
+@BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = readers.lst
+@BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libreaders.la
+
+libreaders_la_SOURCES = $(RegularSources)
+EXTRA_libreaders_la_SOURCES = $(PublicHeaders) $(PrivateHeaders)
+
+readers_lst_SOURCES = $(RegularSources)
+EXTRA_readers_lst_SOURCES = $(PublicHeaders) $(PrivateHeaders)
+
+
+# **************************************************************************
+libreadersincdir = $(includedir)/VolumeViz/readers
+libreadersinc_HEADERS = $(PublicHeaders)
 subdir = lib/VolumeViz/readers
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
@@ -224,8 +242,8 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libreaders_la_LDFLAGS =
 libreaders_la_LIBADD =
-am__objects_2 = VolumeReader.lo VRVolFileReader.lo VRMemReader.lo
-am_libreaders_la_OBJECTS = $(am__objects_2)
+am__objects_3 = VolumeReader.lo VRVolFileReader.lo VRMemReader.lo
+am_libreaders_la_OBJECTS = $(am__objects_3)
 libreaders_la_OBJECTS = $(am_libreaders_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
@@ -250,15 +268,12 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-DIST_SOURCES = $(readers_lst_SOURCES) $(libreaders_la_SOURCES)
+DIST_SOURCES = $(readers_lst_SOURCES) $(EXTRA_readers_lst_SOURCES) \
+	$(libreaders_la_SOURCES) $(EXTRA_libreaders_la_SOURCES)
 HEADERS = $(libreadersinc_HEADERS)
 
 DIST_COMMON = $(libreadersinc_HEADERS) Makefile.am Makefile.in
-SOURCES = \
-	VolumeReader.cpp \
-	VRVolFileReader.cpp \
-	VRMemReader.cpp	SoVRMemReader.h
-
+SOURCES = $(readers_lst_SOURCES) $(EXTRA_readers_lst_SOURCES) $(libreaders_la_SOURCES) $(EXTRA_libreaders_la_SOURCES)
 
 all: all-am
 
@@ -528,6 +543,8 @@ uninstall-am: uninstall-info-am uninstall-libreadersincHEADERS
 	uninstall-libreadersincHEADERS
 
 
+# **************************************************************************
+
 readers.lst: $(readers_lst_OBJECTS)
 	@echo "Linking $@..."; \
 	rm -f $@; \
@@ -556,6 +573,8 @@ install-libreadersincHEADERS: $(libreadersinc_HEADERS)
 	  fi \
 	done; \
 	:
+
+# **************************************************************************
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
