@@ -583,6 +583,9 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     default: assert(FALSE && "invalid value in composition field"); break;
     }
 
+    // FIXME: wouldn't it be better to push stuff like the
+    // interpolation and composition info onto the state stack
+    // instead? 20040715 mortene.
     PRIVATE(this)->cubehandler->render(action, numslices, interp, composit,
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
@@ -619,6 +622,9 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     default: assert(FALSE && "invalid value in composition field"); break;
     }
 
+    // FIXME: wouldn't it be better to push stuff like the
+    // interpolation and composition info onto the state stack
+    // instead? 20040715 mortene.
     PRIVATE(this)->pagehandler->render(action, numslices, interp, composit,
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
@@ -1061,34 +1067,39 @@ double
 SoVolumeRenderP::getAveragePerformanceTime(SbList<double> & l)
 {
   assert(l.getLength() > 0);
+  if (l.getLength() == 1) { return l[0]; }
 
-  // Remove the highest and lowest value in the array
-  unsigned int idhighest = UINT_MAX, idlowest = UINT_MAX;
-  double highest = -DBL_MAX, lowest = DBL_MAX;
   unsigned int i;
-  for (i = 0; i < (unsigned int)l.getLength(); ++i) {
-    if (l[i] < lowest) {
-      idlowest = i;
-      lowest = l[i];
+
+  // Remove the highest and lowest value in the array, in case
+  // e.g. the initial uploading of textures took especially much time:
+  if (l.getLength() >= 4) {
+    unsigned int idhighest = UINT_MAX, idlowest = UINT_MAX;
+    double highest = -DBL_MAX, lowest = DBL_MAX;
+    for (i = 0; i < (unsigned int)l.getLength(); ++i) {
+      if (l[i] < lowest) {
+        idlowest = i;
+        lowest = l[i];
+      }
     }
-    if (l[i] > highest) {
-      idhighest = i;
-      highest = l[i];
+    assert(idlowest != UINT_MAX);
+    l.removeFast(idlowest);
+
+    for (i = 0; i < (unsigned int)l.getLength(); ++i) {
+      if (l[i] > highest) {
+        idhighest = i;
+        highest = l[i];
+      }
+    }
+    assert(idhighest != UINT_MAX);
+    l.removeFast(idhighest);
+
+    if (CvrUtil::doDebugging()) {
+      SoDebugError::postInfo("SoVolumeRenderP::getAveragePerformanceTime",
+                             "worst, best, ratio: %f, %f, %f",
+                             highest, lowest, highest / lowest);
     }
   }
-
-  assert(idhighest != UINT_MAX);
-  assert(idlowest != UINT_MAX);
-
-  if (CvrUtil::doDebugging()) {
-    SoDebugError::postInfo("SoVolumeRenderP::getAveragePerformanceTime",
-                           "worst, best, ratio: %f, %f, %f",
-                           l[idhighest], l[idlowest],
-                           l[idhighest] / l[idlowest]);
-  }
-
-  l.removeFast(idhighest);
-  l.removeFast(idlowest);
 
   double sum = 0;
   for (i = 0; i < (unsigned int)l.getLength(); ++i) { sum += l[i]; }
@@ -1169,8 +1180,12 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
     glClear(GL_COLOR_BUFFER_BIT);
   }
 
-  SbList<double> timelist2d, timelist3d;
+  // Make sure we don't drag along the full pipeline into the first
+  // test run, by forcing completion of all GL commands currently
+  // being processed.
+  glFinish();
 
+  SbList<double> timelist2d, timelist3d;
   SbTime starttime = SbTime::getTimeOfDay();
   for (unsigned int i = 0; i < VOLUMERENDER_PERFORMANCETEST_TIMES; ++i) {
     SoVolumeRenderP::renderPerformanceTestScene(timelist3d, timelist2d,
@@ -1178,6 +1193,11 @@ SoVolumeRenderP::performanceTest(const cc_glglue * glue)
 
     // Don't run the test for more than half a second.
     if (((SbTime::getTimeOfDay() - starttime).getValue()) > 0.5f) { break; }
+  }
+
+  if (CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("SoVolumeRenderP::getAveragePerformanceTime",
+                           "managed %d runs", timelist2d.getLength());
   }
 
   const double average3dtime = SoVolumeRenderP::getAveragePerformanceTime(timelist3d);
@@ -1219,6 +1239,9 @@ SbBool
 SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
 {
   // This check should only be done once.
+  //
+  // FIXME: not correct -- it should be done once for each new GL
+  // context that we need to render in. 20040716 mortene.
   static int do3dtextures = -1;
 
   if (do3dtextures == 1) return TRUE;
