@@ -189,15 +189,14 @@ Cvr3DTexCube::render(SoGLRenderAction * action,
   const cc_glglue * glglue = cc_glglue_instance(action->getCacheContext());
 
   SoState * state = action->getState();
-  const SbMatrix & projmat = (SoModelMatrixElement::get(state) *
-                              SoViewingMatrixElement::get(state) *
-                              SoProjectionMatrixElement::get(state));
-
+ 
   SbVec3f subcubewidth = SbVec3f(cubespan[0] * this->subcubesize[0], 0, 0);
   SbVec3f subcubeheight = SbVec3f(0, cubespan[1] * this->subcubesize[1], 0);
   SbVec3f subcubedepth = SbVec3f(0, 0, cubespan[2] * this->subcubesize[2]);
 
-  const SbViewVolume & viewvolume = SoViewVolumeElement::get(action->getState());
+  SbViewVolume viewvolume = SoViewVolumeElement::get(action->getState());
+  viewvolume.transform(SoModelMatrixElement::get(state).inverse());
+
   const SbBox3f bbox(origo, origo +
                      SbVec3f(this->dimensions[0], this->dimensions[1], this->dimensions[2]));
 
