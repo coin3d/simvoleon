@@ -129,7 +129,12 @@ SoTransferFunction::initClass(void)
 void
 SoTransferFunction::doAction(SoAction * action)
 {
-  SoTransferFunctionElement::setTransferFunction(action->getState(), this, this);
+  SoState * s = action->getState();
+
+  SoTransferFunctionElement::setTransferFunction(s, this);
+  SoTransferFunctionElement::setTransparencyThresholds(s,
+                                                       PRIVATE(this)->opaquethresholds[0],
+                                                       PRIVATE(this)->opaquethresholds[1]);
 }
 
 void
