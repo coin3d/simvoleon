@@ -29,6 +29,26 @@
   graph to render a single, axis-aligned slice from the full volume
   data set.
 
+  Here is a simple example, in the form of an iv-file:
+
+  \verbatim
+  #Inventor V2.1 ascii
+
+  SoVolumeData { fileName "ENGINE.VOL" }
+  SoTransferFunction { predefColorMap TEMPERATURE }
+
+  SoOrthoSlice { sliceNumber 0 }
+
+  Translation { translation 5 0 0 }
+
+  SoOrthoSlice { sliceNumber 10 }
+  \endverbatim
+
+  Which will produce something like this when loaded into an
+  examinerviewer:
+
+  <center><img src="http://doc.coin3d.org/images/SIMVoleon/nodes/twoorthos.png"></center>
+
   \sa SoVolumeRender
 */
 
