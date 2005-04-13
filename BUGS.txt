@@ -336,3 +336,57 @@ main( int argc, char** argv )
     20041103 mortene.
 
 ========================================================================
+
+023 Integrate examples from SoGuiExamples into SIMVoleon module.
+
+    I believe that would be better, for various reasons
+    (maintainability, packaging of the examples, less "cruft" in
+    SoGuiExamples, ...).
+
+    Solve this by detecting in the configure script which So*-libs are
+    available, then instantiate the template example source code for
+    these, and build the examples.
+
+    20050309 mortene.
+
+========================================================================
+
+024 Lack of robustness.
+
+    The following iv-files will assert when read into a
+    (Voleon-capable) viewer:
+
+----------8<----- [snip] --------------------8<----- [snip] ----------------
+#Inventor V2.1 ascii
+
+SoOrthoSlice { }
+----------8<----- [snip] --------------------8<----- [snip] ----------------
+
+    ...with:
+
+----------8<----- [snip] --------------------8<----- [snip] ----------------
+examinerviewer: /home/sigma/mortene/code/Voleon/lib/VolumeViz/nodes/OrthoSlice.cpp:304: SbBool SoOrthoSliceP::confirmValidInContext(SoState *) const: Assertion `slices > 0' failed.
+Aborted
+----------8<----- [snip] --------------------8<----- [snip] ----------------
+
+    ...and
+
+----------8<----- [snip] --------------------8<----- [snip] ----------------
+#Inventor V2.1 ascii
+
+SoVolumeData { fileName "ENGINE.VOL" }
+SoOrthoSlice { }
+----------8<----- [snip] --------------------8<----- [snip] ----------------
+
+    ...with
+
+----------8<----- [snip] --------------------8<----- [snip] ----------------
+examinerviewer: /home/sigma/mortene/code/Voleon/lib/VolumeViz/misc/VoxelChunk.cpp:213: static class CvrCLUT * CvrVoxelChunk::getCLUT(const SoTransferFunctionElement *): Assertion `transferfunc != __null' failed.
+Aborted
+----------8<----- [snip] --------------------8<----- [snip] ----------------
+
+    We should be more robust than this.
+
+    20050413 mortene.
+
+========================================================================
