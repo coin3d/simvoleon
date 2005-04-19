@@ -289,6 +289,15 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
   // original fix does not seem to have any effect on 3D textures. I
   // have therefore disabled the fix. (20050223 handegar)
   //
+  // UPDATE: a bit of clarification on handegar's last comment; the
+  // memory corruption will happen because there has been allocated
+  // memory for only the next-power-of-two dimensions some *other*
+  // place in the code, leading up to this. So the below work-around
+  // (which has just been copied over from the code path for
+  // 2d-textures) has been disabled, as we also don't know whether the
+  // bug mentioned above manifests itself for 3d-textures (probably
+  // not -- the code-paths in the driver is likely to be different).
+  // 20050419 mortene.
 #if 1
   const SbVec3s texsize(coin_next_power_of_two(size[0] - 1),
                         coin_next_power_of_two(size[1] - 1),
