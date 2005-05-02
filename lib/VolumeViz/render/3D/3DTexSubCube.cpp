@@ -36,6 +36,7 @@
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/misc/SoState.h>
 
+#include <VolumeViz/elements/CvrLightingElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
@@ -130,8 +131,24 @@ Cvr3DTexSubCube::activateCLUT(const SoGLRenderAction * action)
 {
   assert(this->clut != NULL);
 
-  // FIXME: should check if the same clut is already current
-  this->clut->activate(action->getCacheContext(), CvrCLUT::TEXTURE3D);
+  const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
+  assert(lightelem != NULL);
+  const SbBool lighting = lightelem->useLighting(action->getState());
+  if (lighting) {
+    this->clut->activate(action->getCacheContext(), CvrCLUT::TEXTURE3D_GRADIENT);
+
+    SbVec3f lightDir;
+    float lightIntensity;
+    lightelem->get(action->getState(), lightDir, lightIntensity);
+    lightDir.normalize();
+    const cc_glglue * glue = cc_glglue_instance(action->getCacheContext());
+    cc_glglue_glProgramLocalParameter4f(glue, GL_FRAGMENT_PROGRAM_ARB, 1,
+                                      lightDir[0], lightDir[1], lightDir[2], lightIntensity);
+  } else {
+    // FIXME: should check if the same clut is already current
+    this->clut->activate(action->getCacheContext(), CvrCLUT::TEXTURE3D);
+  }
+
 }
 
 void

@@ -49,6 +49,79 @@ class SoState;
 // *************************************************************************
 
 // Fragment program for using an index value to look up a colour from
+// a 1D texture as well as performing diffuse light calculation with
+// a pre-calculated gradent stored in the yzw components of the 3D
+// texture.
+//
+// The program is written in Cg and has been pre-compiled for the arbfp1
+// profile.
+//
+// void
+// main(float3 texCoord : TEXCOORD0,
+//      uniform float4 light,
+//      
+//      out float4 oCol : COLOR,
+// 
+//      uniform sampler3D VOLsampler,
+//      uniform sampler1D TRANSsampler
+// )
+// {
+//     float4 voxel = tex3D(VOLsampler, texCoord);
+//     float4 col = tex1D(TRANSsampler, voxel.x);
+// 
+//     float3 L = light.xyz;
+//     float3 N = voxel.yzw * 2.0f - 1.0f;
+//     float diffuseLight = max(dot(N, L), 0);
+// 
+//     float lightIntensity = light.w;
+//     oCol.xyz = col.xyz * diffuseLight * lightIntensity;
+//     oCol.w = col.w;
+// }
+//
+// Command line for compiling and producing output for pasting into
+// a C code file.
+//
+// cgc -profile arbfp1 $1 | awk {'print "\""$0"\\n\"";'}
+//
+
+// Optimized version of the fragment program which omits clamping
+// the dot product to zero and expects the OpenGL driver to clamp
+// color values to zero instead.
+//
+// Use CVR_NOCLAMP_COLOR to enable. Works on nVidia and gives a
+// nice FPS speedup. 20040502 kristian.
+static const char * gradientprogram_noclamp =
+"!!ARBfp1.0\n"
+"PARAM c[2] = { { 2, 1 },\n"
+"               program.local[1] };\n"
+"TEMP R0;\n"
+"TEMP R1;\n"
+"TEX R0, fragment.texcoord[0], texture[0], 3D;\n"
+"MAD R1.xyz, R0.yzww, c[0].x, -c[0].y;\n"
+"TEX R0, R0, texture[1], 1D;\n"
+"DP3 R1.x, R1, c[1];\n"
+"MUL R0.xyz, R0, R1.x;\n"
+"MUL result.color.xyz, R0, c[1].w;\n"
+"MOV result.color.w, R0;\n"
+"END\n";
+
+static const char * gradientprogram =
+"!!ARBfp1.0\n"
+"PARAM c[2] = { { 2, 1, 0 },\n"
+"               program.local[1] };\n"
+"TEMP R0;\n"
+"TEMP R1;\n"
+"TEX R0, fragment.texcoord[0], texture[0], 3D;\n"
+"MAD R1.xyz, R0.yzww, c[0].x, -c[0].y;\n"
+"DP3 R0.y, R1, c[1];\n"
+"MAX R1.x, R0.y, c[0].z;\n"
+"TEX R0, R0, texture[1], 1D;\n"
+"MUL R0.xyz, R0, R1.x;\n"
+"MUL result.color.xyz, R0, c[1].w;\n"
+"MOV result.color.w, R0;\n"
+"END\n";
+
+// Fragment program for using an index value to look up a colour from
 // a 1D texture.
 //
 // This is a supplement and an eventual replacement for the palette
@@ -68,6 +141,7 @@ static const char * palettelookupprogram =
 "TEX R0, R0.x, texture[1], 1D;\n"
 "%s;\n"
 "END\n";
+
 static const char * palettelookupprogram_modulate =
 "MUL result.color, state.material.diffuse, R0";
 static const char * palettelookupprogram_replace =
@@ -286,7 +360,7 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue,
   // Two programs, one each for 2D textures and 3D textures.
   cc_glglue_glGenPrograms(glue, 2, ctxstorage->fragmentprogramid);
 
-  for (int i=CvrCLUT::TEXTURE2D; i <= CvrCLUT::TEXTURE3D; i++) {
+  for (int i=CvrCLUT::TEXTURE2D; i <= CvrCLUT::TEXTURE3D_GRADIENT; i++) {
     cc_glglue_glBindProgram(glue, GL_FRAGMENT_PROGRAM_ARB,
                             ctxstorage->fragmentprogramid[i]);
 
@@ -297,9 +371,22 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue,
       palettelookupprogram_replace : palettelookupprogram_modulate;
 
     SbString fragmentprogram;
-    fragmentprogram.sprintf(palettelookupprogram,
-                            i == CvrCLUT::TEXTURE2D ? "2D" : "3D",
-                            texenvmode);
+    switch (i) {
+    case CvrCLUT::TEXTURE2D:
+    case CvrCLUT::TEXTURE3D:
+      fragmentprogram.sprintf(palettelookupprogram,
+                              i == CvrCLUT::TEXTURE2D ? "2D" : "3D",
+                              texenvmode);
+      break;
+    case CvrCLUT::TEXTURE3D_GRADIENT:
+      const char * env = coin_getenv("CVR_NOCLAMP_COLOR");
+      if (env && atoi(env) > 0) {
+        fragmentprogram.sprintf(gradientprogram_noclamp);
+      }
+      else {
+        fragmentprogram.sprintf(gradientprogram);
+      }
+    }
 
     cc_glglue_glProgramString(glue, GL_FRAGMENT_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
                               fragmentprogram.getLength(), fragmentprogram.getString());

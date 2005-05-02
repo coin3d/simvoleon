@@ -43,6 +43,7 @@
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/elements/CvrLightingElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
@@ -50,6 +51,7 @@
 #include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
+#include <VolumeViz/render/common/Cvr3DPaletteGradientTexture.h>
 
 // *************************************************************************
 
@@ -155,6 +157,7 @@ CvrTextureObject::initClass(void)
   Cvr2DPaletteTexture::initClass();
   Cvr3DRGBATexture::initClass();
   Cvr3DPaletteTexture::initClass();
+  Cvr3DPaletteGradientTexture::initClass();
 
   // FIXME: leak, never deallocated. 20040721 mortene.
   CvrTextureObject::instancedict = new SbDict;
@@ -258,6 +261,10 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   // FIXME: why is this necessary? Investigate. 20040722 mortene.
   const SbBool storedinvalid = SoCacheElement::setInvalid(FALSE);
 
+  const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
+  assert(lightelem != NULL);
+  const SbBool lighting = lightelem->useLighting(action->getState());
+
   // FIXME: in SoAsciiText, pederb uses this right after making a
   // cache -- what does this do?:
   //
@@ -356,7 +363,12 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
 
   GLenum palettetype = GL_COLOR_INDEX;
   if (this->isPaletted() && CvrCLUT::useFragmentProgramLookup(glw)) {
-    palettetype = GL_LUMINANCE;
+    if (lighting) {
+      // Store the gradient
+      palettetype = GL_RGBA;
+    } else {
+      palettetype = GL_LUMINANCE;
+    }
   }
 
   // NOTE: Combining texture compression and GL_COLOR_INDEX doesn't
@@ -377,6 +389,10 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
     if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
     // FIXME: why the setting below? Check. 20041029 mortene.
     else colorformat = GL_COMPRESSED_INTENSITY_ARB;
+  }
+
+  if (lighting) {
+    colorformat = GL_RGBA;
   }
 
   // By default we modulate textures with the material settings.
@@ -513,9 +529,14 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   const SbBool paletted = CvrCLUT::usePaletteTextures(action);
   const SbBool is2d = (axisidx != UINT_MAX);
 
+  const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
+  assert(lightelem != NULL);
+  const SbBool lighting = lightelem->useLighting(action->getState());
+
   SoType createtype;
   if (is2d && paletted) { createtype = Cvr2DPaletteTexture::getClassTypeId(); }
   else if (is2d) { createtype = Cvr2DRGBATexture::getClassTypeId(); }
+  else if (paletted && lighting) { createtype = Cvr3DPaletteGradientTexture::getClassTypeId(); }
   else if (paletted) { createtype = Cvr3DPaletteTexture::getClassTypeId(); }
   else { createtype = Cvr3DRGBATexture::getClassTypeId(); }
 

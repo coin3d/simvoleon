@@ -49,7 +49,7 @@ public:
 
   void setTransparencyThresholds(uint32_t low, uint32_t high);
 
-  enum TextureType { TEXTURE2D = 0, TEXTURE3D = 1 };
+  enum TextureType { TEXTURE2D = 0, TEXTURE3D = 1, TEXTURE3D_GRADIENT = 2 };
 
   void activate(uint32_t ctxid, TextureType t) const;
   void deactivate(const cc_glglue * glw) const;

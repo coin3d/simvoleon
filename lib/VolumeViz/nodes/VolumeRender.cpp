@@ -73,6 +73,7 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrGlobalRenderLock.h>
+#include <VolumeViz/elements/CvrLightingElement.h>
 
 #include "volumeraypickintersection.h"
 
@@ -462,6 +463,15 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   if (!action->isRenderingDelayedPaths()) {
     action->addDelayedPath(action->getCurPath()->copy());
     return;
+  }
+
+  {
+    const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
+    assert(lightelem != NULL);
+    SbBool lighting = this->lighting.getValue();
+    SbVec3f lightDir = this->lightDirection.getValue();
+    float lightIntensity = this->lightIntensity.getValue();
+    lightelem->set(action->getState(), lighting, lightDir, lightIntensity);
   }
 
   if (CvrUtil::debugRayPicks()) { PRIVATE(this)->rayPickDebug(action); }

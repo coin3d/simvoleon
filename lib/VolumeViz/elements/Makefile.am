@@ -14,7 +14,8 @@ RegularSources = \
 	PageSizeElement.cpp \
 	StorageHintElement.cpp \
 	VoxelBlockElement.cpp \
-	TransferFunctionElement.cpp
+	TransferFunctionElement.cpp \
+	LightingElement.cpp
 
 PublicHeaders = 
 
@@ -25,7 +26,8 @@ PrivateHeaders = \
 	CvrPalettedTexturesElement.h \
 	CvrPageSizeElement.h \
 	CvrStorageHintElement.h \
-	CvrVoxelBlockElement.h
+	CvrVoxelBlockElement.h \
+	CvrLightingElement.h
 
 # **************************************************************************
 

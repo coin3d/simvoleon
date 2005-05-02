@@ -12,6 +12,7 @@ SOURCES = \
 	CvrPaletteTexture.cpp CvrPaletteTexture.h \
 	Cvr2DPaletteTexture.cpp Cvr2DPaletteTexture.h \
 	Cvr3DPaletteTexture.cpp Cvr3DPaletteTexture.h \
+	Cvr3DPaletteGradientTexture.cpp Cvr3DPaletteGradientTexture.h \
 	Cvr2DRGBATexture.cpp Cvr2DRGBATexture.h \
 	Cvr3DRGBATexture.cpp Cvr3DRGBATexture.h
 

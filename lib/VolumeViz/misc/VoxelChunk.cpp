@@ -31,6 +31,7 @@
 #include <Inventor/actions/SoGLRenderAction.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/misc/SoState.h>
+#include <Inventor/SbVec3f.h>
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -38,6 +39,7 @@
 
 #include <VolumeViz/elements/CvrPalettedTexturesElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/elements/CvrLightingElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrGIMPGradient.h>
 #include <VolumeViz/misc/CvrUtil.h>
@@ -55,6 +57,7 @@
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
 #include <VolumeViz/render/common/CvrRGBATexture.h>
+#include <VolumeViz/misc/CvrCentralDifferenceGradient.h>
 
 // *************************************************************************
 
@@ -346,28 +349,41 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
   uint8_t * output;
   if (palettetex) output = palettetex->getIndex8Buffer();
   else output = (uint8_t *) rgbatex->getRGBABuffer();
-  
+
+  const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
+  assert(lightelem != NULL);
+  const SbBool lighting = lightelem->useLighting(action->getState());
+  CvrGradient * grad = new CvrCentralDifferenceGradient((uint8_t *) inputbytebuffer, size, CvrUtil::useFlippedYAxis());
+
   for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
     for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
       for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
         
         int voxelidx;
         if (CvrUtil::useFlippedYAxis()) {
-          // Render 'the old buggy way' where the y-axis was
-          // flipped.
           voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
         }
-        else { voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x; }
-        
-        const int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;        
+        else {
+          voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x;
+        }
+
+        int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;        
         assert(voxelidx <= (size[0] * size[1] * size[2]));
         assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
-        
+
+        if (lighting) texelidx *= 4;
+
         if (palettetex) {
           uint8_t voldataidx;
           if (unitsize == 1) voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];            
           else voldataidx = (((uint16_t *) inputbytebuffer)[voxelidx] >> 8); // Shift value to 8bit 
           output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
+          if (lighting) {
+            SbVec3f voxgrad = grad->getGradient(x, y, z);
+            output[texelidx+1] = (uint8_t) voxgrad[0];
+            output[texelidx+2] = (uint8_t) voxgrad[1];
+            output[texelidx+3] = (uint8_t) voxgrad[2];
+          }
         } 
         else {
           const uint32_t voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];

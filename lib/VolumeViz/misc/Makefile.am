@@ -12,7 +12,9 @@ SOURCES = \
 	Util.cpp CvrUtil.h \
 	ResourceManager.cpp CvrResourceManager.h \
 	CvrGlobalRenderLock.h GlobalRenderLock.cpp \
-	GIMPGradient.cpp CvrGIMPGradient.h
+	GIMPGradient.cpp CvrGIMPGradient.h \
+	Gradient.cpp CvrGradient.h \
+	CentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h
 
 libmisc_la_SOURCES = $(SOURCES)
 
