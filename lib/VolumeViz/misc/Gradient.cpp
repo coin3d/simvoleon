@@ -22,6 +22,7 @@
 \**************************************************************************/
 
 #include <VolumeViz/misc/CvrGradient.h>
+#include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3s.h>
 
 // *************************************************************************
@@ -31,6 +32,16 @@ CvrGradient::CvrGradient(const uint8_t * buf, const SbVec3s & size, SbBool useFl
   this->buf = buf;
   this->size = size;
   this->useFlippedYAxis = useFlippedYAxis;
+}
+
+SbVec3f
+CvrGradient::getGradientRangeCompressed(unsigned int x, unsigned int y, unsigned int z)
+{
+  SbVec3f g = this->getGradient(x, y, z);
+  g *= 255.0f;
+  g += SbVec3f(255.0f, 255.0f, 255.0f);
+  g /= 2.0f;
+  return g;
 }
 
 unsigned int

@@ -470,6 +470,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     SbBool lighting = this->lighting.getValue();
     SbVec3f lightDir = this->lightDirection.getValue();
     float lightIntensity = this->lightIntensity.getValue();
+    lightDir.normalize();
     CvrLightingElement::set(action->getState(), lighting, lightDir, lightIntensity);
   }
 

@@ -42,9 +42,6 @@ CvrCentralDifferenceGradient::getGradient(unsigned int vx, unsigned int vy, unsi
   g[2] = getVoxel(x, y, z-1) - getVoxel(x, y, z+1);
   if (g.length() > 0) {
     g.normalize();
-    g *= 255.0f;
-    g += SbVec3f(255.0f, 255.0f, 255.0f);
-    g /= 2.0f;
   }
   return g;
 }

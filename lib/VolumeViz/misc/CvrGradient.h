@@ -34,7 +34,8 @@ class SbVec3f;
 class CvrGradient {
 public:
   CvrGradient(const uint8_t * buf, const SbVec3s & size, SbBool useFlippedYAxis);
-  
+
+  SbVec3f getGradientRangeCompressed(unsigned int x, unsigned int y, unsigned int z);
   virtual SbVec3f getGradient(unsigned int x, unsigned int y, unsigned int z) = 0;
 
 protected:

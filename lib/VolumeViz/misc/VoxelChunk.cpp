@@ -353,6 +353,9 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
   const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
   assert(lightelem != NULL);
   const SbBool lighting = lightelem->useLighting(action->getState());
+  SbVec3f lightDir;
+  float lightIntensity;
+  lightelem->get(action->getState(), lightDir, lightIntensity);
   CvrGradient * grad = new CvrCentralDifferenceGradient((uint8_t *) inputbytebuffer, size, CvrUtil::useFlippedYAxis());
 
   for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
@@ -378,7 +381,7 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
           else voldataidx = (((uint16_t *) inputbytebuffer)[voxelidx] >> 8); // Shift value to 8bit 
           output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
           if (lighting) {
-            SbVec3f voxgrad = grad->getGradient(x, y, z);
+            SbVec3f voxgrad = grad->getGradientRangeCompressed(x, y, z);
             output[texelidx+1] = (uint8_t) voxgrad[0];
             output[texelidx+2] = (uint8_t) voxgrad[1];
             output[texelidx+3] = (uint8_t) voxgrad[2];
@@ -388,7 +391,16 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
           const uint32_t voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];
           const uint32_t colidx = (voldataidx << shiftval) + offsetval;            
           clut->lookupRGBA(colidx, &output[texelidx * 4]);
-          invisible = invisible && (output[texelidx * 4 + 3] == 0x00);
+          SbBool inv = output[texelidx * 4 + 3] == 0x00;
+          if (lighting && !inv) {
+            SbVec3f voxgrad = grad->getGradient(x, y, z);
+            float diffuseLight = SbMax(voxgrad.dot(lightDir), 0.0f);
+            diffuseLight *= lightIntensity;
+            for (int i=0; i < 3; i++) {
+              output[texelidx * 4 + i] = (uint8_t) (output[texelidx * 4 + i] * diffuseLight);
+            }
+          }
+          invisible = invisible && inv;
         }
         
       }
