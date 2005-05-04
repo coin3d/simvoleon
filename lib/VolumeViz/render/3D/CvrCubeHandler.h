@@ -68,7 +68,10 @@ private:
   Cvr3DTexCube * volumecube;
   const CvrCLUT * clut;
   uint32_t voxelblockelementnodeid;
+  
   SbBool lighting;
+  SbVec3f lightDirection;
+  float lightIntensity;
 
 };
 

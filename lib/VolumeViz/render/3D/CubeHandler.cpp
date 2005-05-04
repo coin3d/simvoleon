@@ -119,21 +119,29 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
   assert(vbelem != NULL);
 
+  // Fetch light settings to detect if light has changed
   const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
-  assert(lightelem != NULL);
+  assert(lightelem != NULL);  
   const SbBool lighting = lightelem->useLighting(action->getState());
+  SbVec3f lightDir;
+  float lightIntensity;
+  lightelem->get(action->getState(), lightDir, lightIntensity);
+  SbBool usePaletteTextures = CvrCLUT::usePaletteTextures(action);
 
   // Has the dataelement changed since last time?
   // FIXME: Is this test too strict? Not all components in the voxel
   // block element will demand a reconstruction of the 3DTexCube
   // object (20040806 handegar)  
   if ((this->voxelblockelementnodeid != vbelem->getNodeId()) ||
-      (this->lighting != lighting) ||
+      (this->lighting != lighting ||
+       (!usePaletteTextures && (this->lightDirection != lightDir || this->lightIntensity != lightIntensity))) ||
       (this->volumecube == NULL)){
     delete this->volumecube;
     this->clut = NULL;
     this->voxelblockelementnodeid = vbelem->getNodeId();
     this->lighting = lighting;
+    this->lightDirection = lightDir;
+    this->lightIntensity = lightIntensity;
     this->volumecube = new Cvr3DTexCube(action);
   }
 
