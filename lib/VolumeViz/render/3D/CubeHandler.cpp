@@ -37,6 +37,7 @@
 
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/elements/CvrLightingElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
@@ -118,15 +119,21 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
   assert(vbelem != NULL);
 
+  const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
+  assert(lightelem != NULL);
+  const SbBool lighting = lightelem->useLighting(action->getState());
+
   // Has the dataelement changed since last time?
   // FIXME: Is this test too strict? Not all components in the voxel
   // block element will demand a reconstruction of the 3DTexCube
   // object (20040806 handegar)  
   if ((this->voxelblockelementnodeid != vbelem->getNodeId()) ||
+      (this->lighting != lighting) ||
       (this->volumecube == NULL)){
     delete this->volumecube;
     this->clut = NULL;
     this->voxelblockelementnodeid = vbelem->getNodeId();
+    this->lighting = lighting;
     this->volumecube = new Cvr3DTexCube(action);
   }
 

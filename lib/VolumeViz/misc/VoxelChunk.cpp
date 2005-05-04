@@ -371,9 +371,8 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
         assert(voxelidx <= (size[0] * size[1] * size[2]));
         assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
 
-        if (lighting) texelidx *= 4;
-
         if (palettetex) {
+          if (lighting) texelidx *= 4;
           uint8_t voldataidx;
           if (unitsize == 1) voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];            
           else voldataidx = (((uint16_t *) inputbytebuffer)[voxelidx] >> 8); // Shift value to 8bit 

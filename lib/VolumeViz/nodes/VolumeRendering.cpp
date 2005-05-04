@@ -262,6 +262,7 @@
 #include <VolumeViz/elements/CvrPalettedTexturesElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
+#include <VolumeViz/elements/CvrLightingElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/nodes/SoObliqueSlice.h>
 #include <VolumeViz/nodes/SoOrthoSlice.h>
@@ -330,6 +331,7 @@ SoVolumeRendering::init(void)
   CvrPalettedTexturesElement::initClass();
   CvrStorageHintElement::initClass();
   CvrVoxelBlockElement::initClass();
+  CvrLightingElement::initClass();
 
   SoVolumeRendering::initClass();
   SoVolumeData::initClass();

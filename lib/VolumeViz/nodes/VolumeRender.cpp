@@ -426,6 +426,7 @@ SoVolumeRender::initClass(void)
   SO_ENABLE(SoRayPickAction, SoModelMatrixElement);
 
   SO_ENABLE(SoGLRenderAction, CvrGLInterpolationElement);
+  SO_ENABLE(SoGLRenderAction, CvrLightingElement);
 }
 
 // doc in super
@@ -466,12 +467,10 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   }
 
   {
-    const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
-    assert(lightelem != NULL);
     SbBool lighting = this->lighting.getValue();
     SbVec3f lightDir = this->lightDirection.getValue();
     float lightIntensity = this->lightIntensity.getValue();
-    lightelem->set(action->getState(), lighting, lightDir, lightIntensity);
+    CvrLightingElement::set(action->getState(), lighting, lightDir, lightIntensity);
   }
 
   if (CvrUtil::debugRayPicks()) { PRIVATE(this)->rayPickDebug(action); }

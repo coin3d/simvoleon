@@ -64,11 +64,7 @@ CvrLightingElement::getInstance(SoState * const state)
 SbBool
 CvrLightingElement::matches(const SoElement * element) const
 {
-  return
-    inherited::matches(element) &&
-    ((CvrLightingElement *)element)->lighting == this->lighting &&
-    ((CvrLightingElement *)element)->lightDirection == this->lightDirection &&
-    ((CvrLightingElement *)element)->lightIntensity == this->lightIntensity;
+  return ((CvrLightingElement *)element)->lighting == this->lighting;
 }
 
 SoElement *
@@ -79,7 +75,7 @@ CvrLightingElement::copyMatchInfo(void) const
   CvrLightingElement * element = (CvrLightingElement *)
     this->getTypeId().createInstance();
 
-  *element = *this;
+  element->lighting = lighting;
 
   return element;
 }
