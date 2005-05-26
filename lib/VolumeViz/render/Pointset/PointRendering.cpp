@@ -56,7 +56,7 @@ PointRendering::render(SoGLRenderAction * action)
   assert(vbelem != NULL);
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
+  CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement, CvrCLUT::ALPHA_AS_IS);
 
   const SbVec3s & dimension = vbelem->getVoxelCubeDimensions();
   const void * data = vbelem->getVoxels();

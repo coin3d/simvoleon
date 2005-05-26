@@ -155,7 +155,7 @@ static const char * CVRCLUT_STATIC_KEYID = "foobar";
 // *************************************************************************
 
 // colormap values are between 0 and 255
-CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap)
+CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap, AlphaUse policy)
 {
 
   this->nrentries = nrcols;
@@ -167,6 +167,7 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap)
   (void)memcpy(this->int_entries, colormap, blocksize);
 
   this->crc32cmap = CvrUtil::crc32(this->int_entries, blocksize);
+  this->setAlphaUse(policy);
 
   this->commonConstructor();
 }
@@ -177,7 +178,7 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap)
 //
 // values in colormap are between 0.0 and 1.0
 CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
-                 const float * colormap)
+                 const float * colormap, AlphaUse policy)
 {
 
   this->nrentries = nrcols;
@@ -190,6 +191,7 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
   (void)memcpy(this->flt_entries, colormap, copysize);
 
   this->crc32cmap = CvrUtil::crc32((uint8_t *)this->flt_entries, copysize);
+  this->setAlphaUse(policy);
 
   this->commonConstructor();
 }
@@ -201,8 +203,6 @@ CvrCLUT::commonConstructor(void)
 
   this->transparencythresholds[0] = 0;
   this->transparencythresholds[1] = this->nrentries - 1;
-
-  this->alphapolicy = CvrCLUT::ALPHA_AS_IS;
 
   this->glcolors = new uint8_t[this->nrentries * 4];
   this->regenerateGLColorData();

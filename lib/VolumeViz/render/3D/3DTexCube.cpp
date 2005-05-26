@@ -728,7 +728,7 @@ Cvr3DTexCube::buildSubCube(const SoGLRenderAction * action,
                          subcubemax[0], subcubemax[1], subcubemax[2]);
 #endif // debug
   const SbBox3s subcubecut(subcubemin, subcubemax);
-  const CvrTextureObject * texobj = CvrTextureObject::create(action, subcubecut);
+  const CvrTextureObject * texobj = CvrTextureObject::create(action, this->clut, subcubecut);
   // if NULL is returned, it means all voxels are fully transparent
 
   Cvr3DTexSubCube * cube = NULL;

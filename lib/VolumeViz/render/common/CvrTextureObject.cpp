@@ -495,15 +495,17 @@ CvrTextureObject::findInstanceMatch(const SoType t,
 */
 const CvrTextureObject *
 CvrTextureObject::create(const SoGLRenderAction * action,
+                         const CvrCLUT * clut,
                          const SbBox3s & cutcube)
 {
   const SbVec3s texsize(cutcube.getMax() - cutcube.getMin());
   const SbBox2s dummy; // constructor initializes it to an empty box
-  return CvrTextureObject::create(action, texsize, cutcube, dummy, UINT_MAX, INT_MAX);
+  return CvrTextureObject::create(action, clut, texsize, cutcube, dummy, UINT_MAX, INT_MAX);
 }
 
 const CvrTextureObject *
 CvrTextureObject::create(const SoGLRenderAction * action,
+                         const CvrCLUT * clut,
                          const SbVec2s & texsize,
                          const SbBox2s & cutslice,
                          const unsigned int axisidx,
@@ -512,13 +514,14 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   const SbVec3s tex(texsize[0], texsize[1], 1);
   const SbBox3s dummy; // constructor initializes it to an empty box
 
-  return CvrTextureObject::create(action, tex, dummy, cutslice, axisidx, pageidx);
+  return CvrTextureObject::create(action, clut, tex, dummy, cutslice, axisidx, pageidx);
 }
 
 // The common create function, used for both 2D and 3D cuts of the
 // volume.
 CvrTextureObject *
 CvrTextureObject::create(const SoGLRenderAction * action,
+                         const CvrCLUT * clut,
                          /* common: */ const SbVec3s & texsize,
                          /* 3D only: */ const SbBox3s & cutcube,
                          /* 2D only: */ const SbBox2s & cutslice, const unsigned int axisidx, const int pageidx)
@@ -573,7 +576,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   }
 
   SbBool invisible = FALSE;
-  cubechunk->transfer(action, newtexobj, invisible);
+  cubechunk->transfer(action, clut, newtexobj, invisible);
   delete cubechunk;
 
   // If completely transparent, and not in palette mode, we need not

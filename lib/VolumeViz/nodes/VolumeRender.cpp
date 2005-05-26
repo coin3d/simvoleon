@@ -632,7 +632,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 
     // FIXME: wouldn't it be better to push composition info onto the
     // state stack instead? 20040715 mortene.
-    PRIVATE(this)->cubehandler->render(action, numslices, composit,
+    PRIVATE(this)->cubehandler->render(action, CvrCLUT::ALPHA_AS_IS, numslices, composit,
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
 
@@ -660,7 +660,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 
     // FIXME: wouldn't it be better to push composition info onto the
     // state stack instead? 20040715 mortene.
-    PRIVATE(this)->pagehandler->render(action, numslices, composit,
+    PRIVATE(this)->pagehandler->render(action, CvrCLUT::ALPHA_AS_IS, numslices, composit,
                                        PRIVATE(this)->abortfunc,
                                        PRIVATE(this)->abortfuncdata);
   }

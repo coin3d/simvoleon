@@ -114,7 +114,7 @@ CvrIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
   if (!this->cube) { this->cube = new Cvr3DTexCube(action); }
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
+  const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement, CvrCLUT::ALPHA_AS_IS);
   if (this->clut != c) {
     this->cube->setPalette(c);
     this->clut = c;

@@ -279,7 +279,7 @@ Cvr2DTexPage::buildSubPage(const SoGLRenderAction * action, int col, int row)
   const SbVec2s texsize(subpagemax - subpagemin);
 
   const CvrTextureObject * texobj =
-    CvrTextureObject::create(action, texsize, subpagecut,
+    CvrTextureObject::create(action, this->clut, texsize, subpagecut,
                              this->axis, this->sliceidx);
   // if NULL is returned, it means all voxels are fully transparent
 

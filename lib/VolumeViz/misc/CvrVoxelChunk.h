@@ -27,10 +27,10 @@
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbBox3s.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 
 class CvrTextureObject;
 class SoGLRenderAction;
-class CvrCLUT;
 class SoTransferFunctionElement;
 class SbBox2s;
 
@@ -42,7 +42,7 @@ public:
                 const void * buffer = NULL);
   ~CvrVoxelChunk();
 
-  void transfer(const SoGLRenderAction * action, CvrTextureObject * texobj, SbBool & invisible) const;
+  void transfer(const SoGLRenderAction * action, const CvrCLUT * clut, CvrTextureObject * texobj, SbBool & invisible) const;
 
   const void * getBuffer(void) const;
   const uint8_t * getBuffer8(void) const;
@@ -56,7 +56,7 @@ public:
   void dumpToPPM(const char * filename) const;
 
   // FIXME: move to CvrCLUT?
-  static CvrCLUT * getCLUT(const SoTransferFunctionElement * e);
+  static CvrCLUT * getCLUT(const SoTransferFunctionElement * e, CvrCLUT::AlphaUse alphause);
 
   CvrVoxelChunk * buildSubPage(const unsigned int axisidx, const int pageidx,
                                const SbBox2s & cutslice);
@@ -64,14 +64,14 @@ public:
   CvrVoxelChunk * buildSubCube(const SbBox3s & cubecut);
 
 private:
-  void transfer2D(const SoGLRenderAction * action, CvrTextureObject * texobj, SbBool & invisible) const;
-  void transfer3D(const SoGLRenderAction * action, CvrTextureObject * texobj, SbBool & invisible) const;
+  void transfer2D(const SoGLRenderAction * action, const CvrCLUT * clut, CvrTextureObject * texobj, SbBool & invisible) const;
+  void transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut, CvrTextureObject * texobj, SbBool & invisible) const;
   
   CvrVoxelChunk * buildSubPageX(const int pageidx, const SbBox2s & cutslice);
   CvrVoxelChunk * buildSubPageY(const int pageidx, const SbBox2s & cutslice);
   CvrVoxelChunk * buildSubPageZ(const int pageidx, const SbBox2s & cutslice);
 
-  static CvrCLUT * makeCLUT(const SoTransferFunctionElement * e);
+  static CvrCLUT * makeCLUT(const SoTransferFunctionElement * e, CvrCLUT::AlphaUse alphause);
   static SbDict * CLUTdict;
 
   static uint8_t PREDEFGRADIENTS[SoTransferFunction::SEISMIC + 1][256][4];

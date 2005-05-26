@@ -105,7 +105,7 @@ CvrCubeHandler::setPalette(const CvrCLUT * c)
 }
 
 void
-CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
+CvrCubeHandler::render(SoGLRenderAction * action, CvrCLUT::AlphaUse alphause, unsigned int numslices,
                        CvrCubeHandler::Composition composition,
                        SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
                        void * abortcbdata)
@@ -146,7 +146,7 @@ CvrCubeHandler::render(SoGLRenderAction * action, unsigned int numslices,
   }
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
+  const CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement, alphause);
   if (this->clut != c) { this->setPalette(c); }
 
   // This must be done, as we want to control stuff in the GL state
@@ -245,13 +245,15 @@ CvrCubeHandler::renderObliqueSlice(SoGLRenderAction * action,
   if (this->volumecube == NULL) { this->volumecube = new Cvr3DTexCube(action); }
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
+  CvrCLUT::AlphaUse clutalphause;
+  switch(alphause) {
+    case SoObliqueSlice::ALPHA_AS_IS: clutalphause = CvrCLUT::ALPHA_AS_IS; break;
+    case SoObliqueSlice::ALPHA_OPAQUE: clutalphause = CvrCLUT::ALPHA_OPAQUE; break;
+    case SoObliqueSlice::ALPHA_BINARY: clutalphause = CvrCLUT::ALPHA_BINARY; break;
+    default: assert(0 && "invalid alphause value"); break;
+  }
+  CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement, clutalphause);
   if (this->clut != c) {  
-    switch(alphause) {
-    case SoObliqueSlice::ALPHA_AS_IS: c->setAlphaUse(CvrCLUT::ALPHA_AS_IS); break;
-    case SoObliqueSlice::ALPHA_OPAQUE: c->setAlphaUse(CvrCLUT::ALPHA_OPAQUE); break;
-    case SoObliqueSlice::ALPHA_BINARY: c->setAlphaUse(CvrCLUT::ALPHA_BINARY); break;    
-    }
     this->setPalette(c);  
   }
 

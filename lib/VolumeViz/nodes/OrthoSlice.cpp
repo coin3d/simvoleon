@@ -465,8 +465,7 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
     PRIVATE(this)->getPage(action, axisidx, pageslice);
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  CvrCLUT * c = new CvrCLUT(*CvrVoxelChunk::getCLUT(tfelement));
-  c->setAlphaUse((CvrCLUT::AlphaUse)this->alphaUse.getValue());
+  CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement, (CvrCLUT::AlphaUse)this->alphaUse.getValue());
 
   c->ref();
   const CvrCLUT * pageclut = texpage->getPalette();

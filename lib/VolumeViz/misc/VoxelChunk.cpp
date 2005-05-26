@@ -153,7 +153,7 @@ CvrVoxelChunk::getUnitSize(void) const
 
 // Converts the transferfunction's colormap into a CvrCLUT object.
 CvrCLUT *
-CvrVoxelChunk::makeCLUT(const SoTransferFunctionElement * tfelement)
+CvrVoxelChunk::makeCLUT(const SoTransferFunctionElement * tfelement, CvrCLUT::AlphaUse alphause)
 {
   static SbBool init_predefs = TRUE;
   if (init_predefs) {
@@ -174,7 +174,7 @@ CvrVoxelChunk::makeCLUT(const SoTransferFunctionElement * tfelement)
   if (predefmapidx != SoTransferFunction::NONE) {
     uint8_t * predefmap = &(CvrVoxelChunk::PREDEFGRADIENTS[predefmapidx][0][0]);
     nrcols = COLOR_TABLE_PREDEF_SIZE;
-    clut = new CvrCLUT(nrcols, predefmap);
+    clut = new CvrCLUT(nrcols, predefmap, alphause);
   }
   else {
     const float * colormap = transferfunc->colorMap.getValues(0);
@@ -191,7 +191,7 @@ CvrVoxelChunk::makeCLUT(const SoTransferFunctionElement * tfelement)
     nrcols = transferfunc->colorMap.getNum() / nrcomponents;
     assert((transferfunc->colorMap.getNum() % nrcomponents) == 0);
 
-    clut = new CvrCLUT(nrcols, nrcomponents, colormap);
+    clut = new CvrCLUT(nrcols, nrcomponents, colormap, alphause);
   }
 
   uint32_t transparencythresholds[2];
@@ -205,7 +205,7 @@ CvrVoxelChunk::makeCLUT(const SoTransferFunctionElement * tfelement)
 // Fetch a CLUT that represents the current
 // SoTransferFunction. Facilitates sharing of palettes.
 CvrCLUT *
-CvrVoxelChunk::getCLUT(const SoTransferFunctionElement * tfelement)
+CvrVoxelChunk::getCLUT(const SoTransferFunctionElement * tfelement, CvrCLUT::AlphaUse alphause)
 {
   if (!CvrVoxelChunk::CLUTdict) {
     // FIXME: dealloc at exit
@@ -215,42 +215,51 @@ CvrVoxelChunk::getCLUT(const SoTransferFunctionElement * tfelement)
   SoTransferFunction * transferfunc = tfelement->getTransferFunction();
   assert(transferfunc != NULL);
 
-  void * clutvoidptr;
+  void * clutptr;
   CvrCLUT * clut;
-  if (CvrVoxelChunk::CLUTdict->find(transferfunc->getNodeId(), clutvoidptr)) {
-    clut = (CvrCLUT *)clutvoidptr;
+  void * alphauseptr;
+  SbDict * alphadict;
+  if (CvrVoxelChunk::CLUTdict->find(transferfunc->getNodeId(), alphauseptr)) {
+    alphadict = (SbDict *) alphauseptr;
+    if (alphadict->find(alphause, clutptr)) {
+      clut = (CvrCLUT *) clutptr;
+    } else {
+      clut = CvrVoxelChunk::makeCLUT(tfelement, alphause);
+      // FIXME: ref(), or else we'd get dangling pointers to destructed
+      // CvrCLUT entries in the dict. Should provide a "destructing now"
+      // callback on the CvrCLUT class to clean up the design, as this
+      // is a resource leak as it now stands.
+      clut->ref();
+      alphadict->enter(alphause, clut);
+    }
   }
   else {
-    clut = CvrVoxelChunk::makeCLUT(tfelement);
-    // FIXME: ref(), or else we'd get dangling pointers to destructed
-    // CvrCLUT entries in the dict. Should provide a "destructing now"
-    // callback on the CvrCLUT class to clean up the design, as this
-    // is a resource leak as it now stands.
-    clut->ref();
-    SbBool r = CvrVoxelChunk::CLUTdict->enter(transferfunc->getNodeId(), clut);
+    alphadict = new SbDict;
+    SbBool r = CvrVoxelChunk::CLUTdict->enter(transferfunc->getNodeId(), alphadict);
     assert(r == TRUE && "clut should not exist on nodeid");
+    return CvrVoxelChunk::getCLUT(tfelement, alphause);
   }
 
   return clut;
 }
 
 void
-CvrVoxelChunk::transfer(const SoGLRenderAction * action,
+CvrVoxelChunk::transfer(const SoGLRenderAction * action, const CvrCLUT * clut,
                         CvrTextureObject * texobj, SbBool & invisible) const
 {
   if ((texobj->getTypeId() == Cvr2DPaletteTexture::getClassTypeId()) ||
       (texobj->getTypeId() == Cvr2DRGBATexture::getClassTypeId())) {
-    this->transfer2D(action, texobj, invisible);
+    this->transfer2D(action, clut, texobj, invisible);
   }
   else {
-    this->transfer3D(action, texobj, invisible);
+    this->transfer3D(action, clut, texobj, invisible);
   }
 }
 
 // FIXME: handegar duplicated this from transfer2D(). Should merge
 // back the common code again. Grmbl. 20040721 mortene.
 void
-CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
+CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
                           CvrTextureObject * texobj, SbBool & invisible) const
 {
 
@@ -324,7 +333,6 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
   assert((rgbatex && !palettetex) || (!rgbatex && palettetex));
 
   const int unitsize = this->getUnitSize();
-  const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
   clut->ref();
   
   if (palettetex) { palettetex->setCLUT(clut); }
@@ -440,7 +448,7 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action,
   at least one texel that's not fully transparent.
 */
 void
-CvrVoxelChunk::transfer2D(const SoGLRenderAction * action,
+CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, const CvrCLUT * clut,
                           CvrTextureObject * texobj, SbBool & invisible) const
 {
   // FIXME: about the "invisible" flag: this should really be an
@@ -493,7 +501,6 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action,
   assert((rgbatex && !palettetex) || (!rgbatex && palettetex));
 
   const int unitsize = this->getUnitSize();
-  const CvrCLUT * clut = CvrVoxelChunk::getCLUT(tfelement);
   clut->ref();
   
   if (palettetex) { palettetex->setCLUT(clut); }

@@ -202,7 +202,7 @@ CvrPageHandler::setPalette(const CvrCLUT * c)
 }
 
 void
-CvrPageHandler::render(const SoGLRenderAction * action, unsigned int numslices,
+CvrPageHandler::render(const SoGLRenderAction * action, CvrCLUT::AlphaUse alphause, unsigned int numslices,
                        CvrPageHandler::Composition composition,
                        SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
                        void * abortcbdata)
@@ -229,7 +229,7 @@ CvrPageHandler::render(const SoGLRenderAction * action, unsigned int numslices,
   }
 
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
-  CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement);
+  CvrCLUT * c = CvrVoxelChunk::getCLUT(tfelement, alphause);
   if (this->clut != c) { this->setPalette(c); }
 
   // This must be done, as we want to control stuff in the GL state

@@ -308,7 +308,7 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
                                "ijk=<%d, %d, %d>", ijk[0], ijk[1], ijk[2]);
       }    
       
-      clut = CvrVoxelChunk::getCLUT(transferfunctionelement);
+      clut = CvrVoxelChunk::getCLUT(transferfunctionelement, CvrCLUT::ALPHA_AS_IS);
       clut->ref();
       uint8_t rgba[4];
       const uint32_t voxelvalue = vbelem->getVoxelValue(ijk);      

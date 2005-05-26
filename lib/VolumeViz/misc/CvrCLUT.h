@@ -35,9 +35,12 @@ class SoGLRenderAction;
 
 class CvrCLUT {
 public:
-  CvrCLUT(const unsigned int nrcols, const uint8_t * colormap);
+  // Note: must match the enum in SoOrthoSlice.
+  enum AlphaUse { ALPHA_AS_IS = 0, ALPHA_OPAQUE = 1, ALPHA_BINARY = 2 };
+
+  CvrCLUT(const unsigned int nrcols, const uint8_t * colormap, AlphaUse policy);
   CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
-          const float * colormap);
+          const float * colormap, AlphaUse policy);
   CvrCLUT(const CvrCLUT & clut);
 
   friend int operator==(const CvrCLUT & c1, const CvrCLUT & c2);
@@ -56,11 +59,6 @@ public:
 
   void lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const;
 
-  // Note: must match the enum in SoOrthoSlice.
-  enum AlphaUse { ALPHA_AS_IS = 0, ALPHA_OPAQUE = 1, ALPHA_BINARY = 2 };
-
-  void setAlphaUse(AlphaUse policy);
-
   static SbBool usePaletteTextures(const SoGLRenderAction * action);
 
   static SbBool usePaletteExtension(const cc_glglue * glw);
@@ -70,6 +68,8 @@ private:
   ~CvrCLUT();
   void commonConstructor(void);
   void regenerateGLColorData(void);
+
+  void setAlphaUse(AlphaUse policy);
 
   struct GLContextStorage {
     GLContextStorage::GLContextStorage(uint32_t id)

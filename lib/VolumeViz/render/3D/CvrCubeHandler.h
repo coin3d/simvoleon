@@ -26,11 +26,11 @@
 
 #include <VolumeViz/nodes/SoVolumeRender.h>
 #include <VolumeViz/nodes/SoObliqueSlice.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 
 // *************************************************************************
 
 class Cvr3DTexCube;
-class CvrCLUT;
 class SoVolumeReader;
 class SoVolumeData;
 class SoState;
@@ -46,7 +46,7 @@ public:
 
   enum Composition { MAX_INTENSITY, SUM_INTENSITY, ALPHA_BLENDING };
 
-  void render(SoGLRenderAction * action, unsigned int numslices,
+  void render(SoGLRenderAction * action, CvrCLUT::AlphaUse alphause, unsigned int numslices,
               CvrCubeHandler::Composition composition,
               SoVolumeRender::SoVolumeRenderAbortCB * abortfunc,
               void * abortcbdata);

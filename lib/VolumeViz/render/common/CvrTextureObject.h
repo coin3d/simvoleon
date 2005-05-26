@@ -30,6 +30,7 @@
 #include <Inventor/SbBox3s.h>
 #include <Inventor/system/gl.h>
 #include <Inventor/lists/SbList.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 
 class SoGLRenderAction;
 class SbVec2s;
@@ -40,10 +41,12 @@ class CvrGLTextureCache;
 class CvrTextureObject {
 public:
   static const CvrTextureObject * create(const SoGLRenderAction * action,
+                                         const CvrCLUT * clut,
                                          const SbBox3s & cutcube);
 
 
   static const CvrTextureObject * create(const SoGLRenderAction * action,
+                                         const CvrCLUT * clut,
                                          const SbVec2s & texsize,
                                          const SbBox2s & cutslice,
                                          const unsigned int axisidx,
@@ -75,6 +78,7 @@ protected:
 private:
   SbBool findGLTexture(const SoGLRenderAction * action, GLuint & texid) const;
   static CvrTextureObject * create(const SoGLRenderAction * action,
+                                   const CvrCLUT * clut,
                                    const SbVec3s & texsize,
                                    const SbBox3s & cutcube,
                                    const SbBox2s & cutslice,

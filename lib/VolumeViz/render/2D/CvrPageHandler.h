@@ -28,12 +28,12 @@
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec3s.h>
 #include <VolumeViz/nodes/SoVolumeRender.h>
+#include <VolumeViz/misc/CvrCLUT.h>
 
 class Cvr2DTexPage;
 class SoVolumeData;
 class SoState;
 class SoGLRenderAction;
-class CvrCLUT;
 
 // *************************************************************************
 
@@ -44,7 +44,7 @@ public:
 
   enum Composition { MAX_INTENSITY, SUM_INTENSITY, ALPHA_BLENDING };
 
-  void render(const SoGLRenderAction * action, unsigned int numslices,
+  void render(const SoGLRenderAction * action, CvrCLUT::AlphaUse alphause, unsigned int numslices,
               // FIXME: composition should be passed on state
               // stack. 20040722 mortene.
               CvrPageHandler::Composition composition,
