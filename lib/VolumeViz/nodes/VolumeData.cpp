@@ -111,8 +111,28 @@
   the library will fall back on non-paletted textures automatically if
   that is the case.
 
-  Default value is \c TRUE. Apart from debugging purposes, there is
-  really no good reason to set this field to \c FALSE.
+  SIM Voleon supports two different OpenGL techniques for doing
+  paletted textures: either through using the \c
+  GL_EXT_paletted_texture extension available on many older OpenGL
+  drivers, or by using fragment shader programs, the latter typically
+  available on most modern OpenGL drivers.
+
+  Default value of this field is \c TRUE. Apart from debugging
+  purposes, there are not many good reasons to set this field to \c
+  FALSE.
+
+  It might however be of interest if one wants to take advantage of
+  the typically larger resource savings which can be made from setting
+  SoVolumeData::useCompressedTexture to \c TRUE, as that hint will be
+  overridden by a \c TRUE value in this field (as long as paletted
+  textures are actually supported by the OpenGL driver).
+
+  This because paletted textures can not be "lossy" compressed, so
+  only one of paletted textures and texture compression can be active
+  at the same time -- not both of them. The policy of SIM Voleon is to
+  prefer paletted textures, as that has certain other beneficial
+  effects apart from resource savings, mainly that one can modify the
+  SoTransferFunction at run-time with no rendering performance hit.
 */
 
 /*!
@@ -154,6 +174,10 @@
 
   Default value is \c TRUE. To secure no loss of visual quality, set
   this field to \c FALSE.
+
+  Note that texture compression will not be done if paletted textures
+  are used. See the discussion at the end of the API documentation for
+  the SoVolumeData::usePalettedTexture field.
 */
 
 // *************************************************************************
