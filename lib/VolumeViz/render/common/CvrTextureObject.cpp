@@ -282,6 +282,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   // If texture is non-paletted, the "internalformat" argument for
   // glTexImage[2|3]D() should be the number of components:
   GLenum colorformat = 4;
+
   unsigned int bitspertexel = colorformat * 8;  // 8 bits each R, G, B & A
   if (this->isPaletted()) {
     colorformat = GL_COLOR_INDEX8_EXT;
@@ -361,13 +362,17 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   else imgptr = ((CvrRGBATexture *)this)->getRGBABuffer();
 
 
-  GLenum palettetype = GL_COLOR_INDEX;
+  GLenum gltextureformat = GL_COLOR_INDEX;
   if (this->isPaletted() && CvrCLUT::useFragmentProgramLookup(glw)) {
     if (lighting) {
-      // Store the gradient
-      palettetype = GL_RGBA;
-    } else {
-      palettetype = GL_LUMINANCE;
+      // Trick: use larger texture, to store the gradient, for access
+      // from the fragment program(s). We're then using a 4-component
+      // texture to store a luminance component plus 3 8-bits
+      // vector-components for the gradient vector.
+      gltextureformat = GL_RGBA;
+    }
+    else {
+      gltextureformat = GL_LUMINANCE;
     }
   }
 
@@ -381,19 +386,24 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   // FIXME: CvrCompressedTexturesElement should be FALSE if we're
   // using paletted textures, I believe, and if so, this should be an
   // assert, not an "if". 20041029 mortene.
-  if (cc_glue_has_texture_compression(glw) &&
-      (palettetype != GL_COLOR_INDEX) &&
+  if (cc_glue_has_texture_compression(glw) && !this->isPaletted() &&
       // Important to check this last, as we want to avoid getting an
       // unnecessary cache dependency:
       CvrCompressedTexturesElement::get(state)) {
-    if (colorformat == 4) colorformat = GL_COMPRESSED_RGBA_ARB;
-    // FIXME: why the setting below? Check. 20041029 mortene.
-    else colorformat = GL_COMPRESSED_INTENSITY_ARB;
+    assert(colorformat == 4);
+    // FIXME: according to kintel, we need to check which formats are
+    // available first, and then set this correctly. 20050602 mortene.
+    colorformat = GL_COMPRESSED_RGBA_ARB;
   }
 
-  if (lighting) {
-    colorformat = GL_RGBA;
-  }
+  // Force this internal GL format if lighting is on, so we know which
+  // order the components are in (which are <luminance, gradient0,
+  // gradient1, gradient2>).
+  //
+  // FIXME: because of the store-gradient-in-texture trick, lighting
+  // only works if we can do paletted textures -- is this checked
+  // anywhere? Should ask kristian (or audit the code). 20050602 mortene.
+  if (lighting) { colorformat = GL_RGBA; }
 
   // By default we modulate textures with the material settings.
   if (!CvrUtil::dontModulateTextures()) {
@@ -406,7 +416,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
                  colorformat,
                  texdims[0], texdims[1],
                  0,
-                 this->isPaletted() ? palettetype : GL_RGBA,
+                 this->isPaletted() ? gltextureformat : GL_RGBA,
                  GL_UNSIGNED_BYTE,
                  imgptr);
   }
@@ -418,7 +428,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
                            colorformat,
                            texdims[0], texdims[1], texdims[2],
                            0,
-                           this->isPaletted() ? palettetype : GL_RGBA,
+                           this->isPaletted() ? gltextureformat : GL_RGBA,
                            GL_UNSIGNED_BYTE,
                            imgptr);
   }
