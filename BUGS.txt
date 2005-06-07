@@ -174,6 +174,22 @@ for suggestions for major improvements and new features.
 
     20040817 mortene.
 
+    UPDATE 20050607 kristian: A first attempt at fixing this can be
+    found in docs/efficient-texture-size.patch. The code has a bug in
+    the way the subcubes are sorted; instead of using the distance
+    from the camera to the center of each subcube, it uses the
+    distance to the closest corner of each subcube. However, since the
+    subcubes share corners the next closest corner must be used if the
+    first is equal (and so on). This last point has not yet been
+    implemented.
+
+    A second shortcoming is that the code which determines the sizes
+    of the subcubes only works correctly if the volume is a power of
+    two in at least two dimensions. This is the normal case, but the
+    code should handle other cases correctly as well (or at least
+    round two of the dimensions up to the closest power of two as a
+    quick fix).
+
 ========================================================================
 
 016 Rendering SoObliqueSlice, SoOrthoSlice and SoVolume*Set nodes

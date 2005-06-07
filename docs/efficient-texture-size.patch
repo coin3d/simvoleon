@@ -1,0 +1,182 @@
+Index: render/3D/3DTexCube.cpp
+===================================================================
+RCS file: /export/cvsroot/SIMVoleon/lib/VolumeViz/render/3D/3DTexCube.cpp,v
+retrieving revision 1.42
+diff -u -r1.42 3DTexCube.cpp
+--- render/3D/3DTexCube.cpp	26 May 2005 16:53:30 -0000	1.42
++++ render/3D/3DTexCube.cpp	7 Jun 2005 16:11:30 -0000
+@@ -25,6 +25,7 @@
+ 
+ #include <limits.h>
+ #include <string.h>
++#include <float.h>
+ 
+ #include <Inventor/C/glue/gl.h>
+ #include <Inventor/C/tidbits.h>
+@@ -67,6 +68,7 @@
+ 
+   float boundingsphereradius;
+   float cameraplane2cubecenter;
++  SbVec3f corners[8];
+ };
+ 
+ // *************************************************************************
+@@ -99,9 +101,29 @@
+   this->dimensions = dim;
+   this->origo = SbVec3f(-((float) dim[0]) / 2.0f, -((float) dim[1]) / 2.0f, -((float) dim[2]) / 2.0f);
+ 
+-  this->nrcolumns = (this->dimensions[0] + this->subcubesize[0] - 1) / this->subcubesize[0];
+-  this->nrrows = (this->dimensions[1] + this->subcubesize[1] - 1) / this->subcubesize[1];
+-  this->nrdepths = (this->dimensions[2] + this->subcubesize[2] - 1) / this->subcubesize[2];
++  // FIXME: this code is only correct if the volume is not a power of
++  // two in only one dimension. 20050607 kristian.
++  int cols = dim[0];
++  int rows = dim[1];
++  int dept = dim[2];
++
++#define FIND_DIMS(list, cumlist, dim) \
++  cumlist.append(0); \
++  while (dim > 0) { \
++    int twopow = coin_next_power_of_two(dim / 2); \
++    list.append(twopow); \
++    dim -= twopow; \
++    cumlist.append(twopow + (cumlist.getLength() == 0 ? 0 : cumlist[cumlist.getLength()-1])); \
++  }
++
++  FIND_DIMS(coldim, colcumdim, cols);
++  FIND_DIMS(rowdim, rowcumdim, rows);
++  FIND_DIMS(depdim, depcumdim, dept);
++#undef FIND_DIMS
++  
++  this->nrcolumns = coldim.getLength();
++  this->nrrows = rowdim.getLength();
++  this->nrdepths = depdim.getLength();
+ 
+   this->abortfunc = NULL;
+   this->abortfuncdata = NULL;
+@@ -266,9 +288,9 @@
+ 
+   SoState * state = action->getState();
+ 
+-  const SbVec3f subcubewidth(this->subcubesize[0], 0, 0);
+-  const SbVec3f subcubeheight(0, this->subcubesize[1], 0);
+-  const SbVec3f subcubedepth(0, 0, this->subcubesize[2]);
++  const SbVec3f subcubewidth(this->coldim[0], 0, 0);
++  const SbVec3f subcubeheight(0, this->rowdim[0], 0);
++  const SbVec3f subcubedepth(0, 0, this->depdim[0]);
+ 
+   const SbViewVolume & viewvolume = SoViewVolumeElement::get(state);
+   SbViewVolume viewvolumeinv = viewvolume;
+@@ -324,18 +346,35 @@
+   }
+   // debug end
+ 
++  SbVec3f ppoint = viewvolumeinv.getProjectionPoint();
++
+   for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
+     for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
+       for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {
+         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
+ 
+-        const SbVec3f subcubeorigo =
+-          this->origo +
+-          subcubewidth * (float)colidx +
+-          subcubeheight * (float)rowidx +
+-          subcubedepth * (float)depthidx;
++        const SbVec3f subcubeorigo = this->origo + SbVec3f(this->colcumdim[colidx],
++                                                           this->rowcumdim[rowidx],
++                                                           this->depcumdim[depthidx]);
++
++        SbBox3f subbbox(subcubeorigo, subcubeorigo + SbVec3f(this->coldim[colidx],
++                                                             this->rowdim[rowidx],
++                                                             this->depdim[depthidx]));
++
+         if (cubeitem == NULL) { 
+-          cubeitem = this->buildSubCube(action, subcubeorigo, colidx, rowidx, depthidx); 
++          cubeitem = this->buildSubCube(action, subcubeorigo, colidx, rowidx, depthidx);
++          
++          // Calc corners
++          const SbVec3f minp = subbbox.getMin();
++          const SbVec3f maxp = subbbox.getMax();
++          const SbVec3f delta[3] = { SbVec3f(maxp[0] - minp[0], 0, 0),
++                                     SbVec3f(0, maxp[1] - minp[1], 0),
++                                     SbVec3f(0, 0, maxp[2] - minp[2]) };
++          
++          for (int i=0; i < 3; i++) cubeitem->corners[i] = subbbox.getMin() + delta[i];
++          for (int i=0; i < 3; i++) cubeitem->corners[i+3] = subbbox.getMax() - delta[i];
++          cubeitem->corners[6] = minp;
++          cubeitem->corners[7] = maxp;
+         }
+         assert(cubeitem != NULL);
+ 
+@@ -343,11 +382,15 @@
+         assert(cubeitem->cube != NULL);
+         subcubelist.append(cubeitem);
+ 
+-        SbBox3f subbbox(subcubeorigo, subcubeorigo + subcubeheight + subcubewidth + subcubedepth);
+-
+-        cubeitem->distancefromcamera = (viewvolumeinv.getProjectionPoint() -
+-                                       subbbox.getCenter()).length();
+-
++        float closedist = FLT_MAX;
++        for (int i=0; i < 8; i++) {
++          float dist = (ppoint - cubeitem->corners[i]).length();
++          if (dist < closedist) {
++            closedist = dist;
++          }
++        }
++        cubeitem->distancefromcamera = closedist;
++        
+         subbbox.transform(SoModelMatrixElement::get(state));
+ 
+         float sdx, sdy, sdz;
+@@ -698,6 +741,8 @@
+     // NOTE: Building subcubes 'upwards' so that the Y orientation
+     // will be equal to the 2D slice rendering (the voxelchunks are
+     // also flipped).
++    
++    // FIXME: the code below (for useFlippedYAxis) has not been updated. 20050607 kristian.
+     subcubemin = SbVec3s(col * this->subcubesize[0],
+                          this->dimensions[1] - (row + 1) * this->subcubesize[1],
+                          depth * this->subcubesize[2]);
+@@ -706,12 +751,12 @@
+                          (depth + 1) * this->subcubesize[2]);
+   }
+   else {
+-    subcubemin = SbVec3s(col * this->subcubesize[0],
+-                         row * this->subcubesize[1],
+-                         depth * this->subcubesize[2]);
+-    subcubemax = SbVec3s((col + 1) * this->subcubesize[0],
+-                         (row + 1) * this->subcubesize[1],
+-                         (depth + 1) * this->subcubesize[2]);
++    subcubemin = SbVec3s(this->colcumdim[col],
++                         this->rowcumdim[row],
++                         this->depcumdim[depth]);
++    subcubemax = SbVec3s(this->colcumdim[col+1],
++                         this->rowcumdim[row+1],
++                         this->depcumdim[depth+1]);
+   }
+ 
+   // Crop subcube size
+Index: render/3D/Cvr3DTexCube.h
+===================================================================
+RCS file: /export/cvsroot/SIMVoleon/lib/VolumeViz/render/3D/Cvr3DTexCube.h,v
+retrieving revision 1.21
+diff -u -r1.21 Cvr3DTexCube.h
+--- render/3D/Cvr3DTexCube.h	20 Dec 2004 14:54:48 -0000	1.21
++++ render/3D/Cvr3DTexCube.h	7 Jun 2005 16:11:30 -0000
+@@ -95,6 +95,14 @@
+   unsigned int nrrows;
+   unsigned int nrdepths;
+ 
++  SbList<int> coldim;
++  SbList<int> rowdim;
++  SbList<int> depdim;
++
++  SbList<int> colcumdim;
++  SbList<int> rowcumdim;
++  SbList<int> depcumdim;
++
+   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
+   void * abortfuncdata;
+ 
