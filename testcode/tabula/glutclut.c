@@ -8,9 +8,14 @@
     colortable fits
  */
 
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
 #include <GL/glut.h>
+#endif
 #include <assert.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 int glutwin;
 GLuint texid = 0;
@@ -47,7 +52,7 @@ max_colortable_size(void)
 
     glGetColorTableParameteriv(GL_PROXY_TEXTURE_2D,
 			       GL_COLOR_TABLE_WIDTH,
-			       &actualsize);
+			       (GLint *)&actualsize);
     if (actualsize != trywidth) {
       printf("got %d when asking for %d\n", actualsize, trywidth);
       break;
