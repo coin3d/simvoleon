@@ -66,7 +66,7 @@ public:
 
 private:
   ~CvrCLUT();
-  void commonConstructor(void);
+  void commonConstructor(AlphaUse policy);
   void regenerateGLColorData(void);
 
   void setAlphaUse(AlphaUse policy);

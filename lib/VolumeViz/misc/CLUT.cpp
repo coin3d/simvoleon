@@ -167,9 +167,8 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap, AlphaUse p
   (void)memcpy(this->int_entries, colormap, blocksize);
 
   this->crc32cmap = CvrUtil::crc32(this->int_entries, blocksize);
-  this->setAlphaUse(policy);
 
-  this->commonConstructor();
+  this->commonConstructor(policy);
 }
 
 // nrcomponents == 1: LUMINANCE
@@ -191,18 +190,18 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
   (void)memcpy(this->flt_entries, colormap, copysize);
 
   this->crc32cmap = CvrUtil::crc32((uint8_t *)this->flt_entries, copysize);
-  this->setAlphaUse(policy);
 
-  this->commonConstructor();
+  this->commonConstructor(policy);
 }
 
 void
-CvrCLUT::commonConstructor(void)
+CvrCLUT::commonConstructor(AlphaUse policy)
 {
   this->refcount = 0;
 
   this->transparencythresholds[0] = 0;
   this->transparencythresholds[1] = this->nrentries - 1;
+  this->alphapolicy = policy;
 
   this->glcolors = new uint8_t[this->nrentries * 4];
   this->regenerateGLColorData();
