@@ -85,10 +85,11 @@ private:
   struct GlobalGLContextStorage {
     GlobalGLContextStorage::GlobalGLContextStorage(void)
     {
-      this->fragmentprogramid[0] = this->fragmentprogramid[1] = 0;
+      this->fragmentprogramid[0] = this->fragmentprogramid[1] =
+        this->fragmentprogramid[2] = 0;
     }
-    
-    GLuint fragmentprogramid[2];
+
+    GLuint fragmentprogramid[3];
   };
   static GlobalGLContextStorage * getGlobalGLContextStorage(uint32_t ctxid);
   GLContextStorage * getGLContextStorage(uint32_t ctxid);
