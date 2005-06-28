@@ -297,3 +297,18 @@ Aborted
     20050413 mortene.
 
 ========================================================================
+
+025 1024x1024x1024 causes too large values in one or more variables /
+    calculations?
+
+    There's been a report on coin-discuss that SIM Voleon doesn't
+    handle 1024^3 size datasets at all, even for systems with lots of
+    RAM. It fails in different ways.
+
+    Should do some testing on heavy machinery, and see if this is a
+    limitation caused by bad code in SIM Voleon, or whether it is
+    simply a resource availability problem.
+
+    20050530 mortene.
+
+========================================================================
