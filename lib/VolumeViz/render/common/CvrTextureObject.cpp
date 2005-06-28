@@ -250,7 +250,75 @@ CvrTextureObject::findGLTexture(const SoGLRenderAction * action, GLuint & texid)
   return FALSE;
 }
 
-GLuint 
+// *************************************************************************
+
+// FIXME: the below should be separated out from this src
+// file. (Ideally, the functions should be imported from a sub-module
+// of the src/glue/gl*-stuff from Coin. But that refactoring job has
+// not been done yet.) 20050628 mortene.
+
+/*
+  Convert an OpenGL enum error code to a textual representation.
+
+  NOTE: from Coin's src/glue/gl.c. Should be removed when that module
+  is separated out from Coin, and made available for inclusion into
+  other CVS modules.
+*/
+static const char *
+coin_glerror_string(GLenum errorcode)
+{
+  static const char INVALID_VALUE[] = "GL_INVALID_VALUE";
+  static const char INVALID_ENUM[] = "GL_INVALID_ENUM";
+  static const char INVALID_OPERATION[] = "GL_INVALID_OPERATION";
+  static const char STACK_OVERFLOW[] = "GL_STACK_OVERFLOW";
+  static const char STACK_UNDERFLOW[] = "GL_STACK_UNDERFLOW";
+  static const char OUT_OF_MEMORY[] = "GL_OUT_OF_MEMORY";
+  static const char unknown[] = "Unknown OpenGL error";
+
+  switch (errorcode) {
+  case GL_INVALID_VALUE:
+    return INVALID_VALUE;
+  case GL_INVALID_ENUM:
+    return INVALID_ENUM;
+  case GL_INVALID_OPERATION:
+    return INVALID_OPERATION;
+  case GL_STACK_OVERFLOW:
+    return STACK_OVERFLOW;
+  case GL_STACK_UNDERFLOW:
+    return STACK_UNDERFLOW;
+  case GL_OUT_OF_MEMORY:
+    return OUT_OF_MEMORY;
+  default:
+    return unknown;
+  }
+  return NULL; /* avoid compiler warning */
+}
+
+/* Simple utility function for dumping the current set of error codes
+   returned from glGetError(). Returns number of errors reported by
+   OpenGL.
+
+   NOTE: from Coin's src/glue/gl.c. Should be removed when that module
+   is separated out from Coin, and made available for inclusion into
+   other CVS modules.
+*/
+static unsigned int
+coin_catch_gl_errors(cc_string * str)
+{
+  unsigned int errs = 0;
+  GLenum glerr = glGetError();
+  while (glerr != GL_NO_ERROR) {
+    if (errs > 0) { cc_string_append_char(str, ' '); }
+    cc_string_append_text(str, coin_glerror_string(glerr));
+    errs++;
+    glerr = glGetError();
+  }
+  return errs;
+}
+
+// *************************************************************************
+
+GLuint
 CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
 {
   GLuint texid;
@@ -410,6 +478,24 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   }
 
+  // Dump and empty the GL errors set before doing the GL calls below.
+  {
+    cc_string str;
+    cc_string_construct(&str);
+    const unsigned int nrerrors = coin_catch_gl_errors(&str);
+    if (nrerrors != 0) {
+      static SbBool first = TRUE;
+      if (first) {
+        SoDebugError::postWarning("CvrTextureObject::getGLTexture",
+                                  "GL errors before glTexImage[2|3]D(): '%s' "
+                                  "(displayed once, there may be repetitions)",
+                                  cc_string_get_text(&str));
+        first = FALSE;
+      }
+    }
+    cc_string_clean(&str);
+  }
+
   if (nrtexdims == 2) {
     glTexImage2D(gltextypeenum,
                  0,
@@ -433,7 +519,41 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
                            imgptr);
   }
 
-  assert(glGetError() == GL_NO_ERROR);
+  { // We've had a report of GL errors here, so dump lots of debug info.
+    cc_string str;
+    cc_string_construct(&str);
+    const unsigned int nrerrors = coin_catch_gl_errors(&str);
+    static SbBool first = TRUE;
+    if ((nrerrors != 0) && first) {
+      first = FALSE;
+      SoDebugError::postWarning("CvrTextureObject::getGLTexture",
+                                "GL errors: '%s' (displayed once, there may "
+                                "be repetitions)",
+                                cc_string_get_text(&str));
+      if (nrtexdims == 2) {
+        SoDebugError::postWarning("CvrTextureObject::getGLTexture",
+                                  "error came from "
+                                  "glTexImage2D(0x%x, 0, 0x%x, %d, %d, 0, 0x%x, GL_UNSIGNED_BYTE, %p)",
+                                  gltextypeenum,
+                                  colorformat,
+                                  texdims[0], texdims[1],
+                                  this->isPaletted() ? gltextureformat : GL_RGBA,
+                                  imgptr);
+      }
+      else {
+        assert(nrtexdims == 3);
+        SoDebugError::postWarning("CvrTextureObject::getGLTexture",
+                                  "error came from "
+                                  "glTexImage3D(0x%x, 0, 0x%x, %d, %d, %d, 0, 0x%x, GL_UNSIGNED_BYTE, %p)",
+                                  gltextypeenum,
+                                  colorformat,
+                                  texdims[0], texdims[1], texdims[2],
+                                  this->isPaletted() ? gltextureformat : GL_RGBA,
+                                  imgptr);
+      }
+    }
+    cc_string_clean(&str);
+  }
 
   cache->setGLTextureId(action, texid);
 
