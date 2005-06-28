@@ -329,6 +329,9 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   // FIXME: why is this necessary? Investigate. 20040722 mortene.
   const SbBool storedinvalid = SoCacheElement::setInvalid(FALSE);
 
+  // FIXME: is the value of the lighting flag picked up outside of the
+  // cache tracking on purpose? Or is this a bug?  Investigate.
+  // 20050628 mortene.
   const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
   assert(lightelem != NULL);
   const SbBool lighting = lightelem->useLighting(action->getState());
@@ -347,23 +350,17 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   state->push();
   SoCacheElement::set(state, cache);
 
-  // If texture is non-paletted, the "internalformat" argument for
-  // glTexImage[2|3]D() should be the number of components:
-  GLenum colorformat = 4;
+  const uint32_t glctxid = action->getCacheContext();
+  const cc_glglue * glw = cc_glglue_instance(glctxid);
 
-  unsigned int bitspertexel = colorformat * 8;  // 8 bits each R, G, B & A
-  if (this->isPaletted()) {
-    colorformat = GL_COLOR_INDEX8_EXT;
-    bitspertexel = 8;
+  // If texture is non-paletted, the "internalFormat" argument for
+  // glTexImage[2|3]D() should usually be the number of components:
+  GLenum internalFormat = 4;
+  if (this->isPaletted() && CvrCLUT::usePaletteExtension(glw)) {
+    internalFormat = GL_COLOR_INDEX8_EXT;
   }
 
   const SbVec3s texdims = this->getDimensions();
-
-  // FIXME: resource usage counting not implemented yet. 20040716 mortene.
-#if 0 // tmp disabled
-  const unsigned int nrtexels = texdims[0] * texdims[1] * texdims[2];
-  const unsigned int texmem = (unsigned int)(nrtexels * bitspertexel / 8);
-#endif
 
   // FIXME: glGenTextures() / glBindTexture() / glDeleteTextures() are
   // only supported in opengl >= 1.1, should have a fallback for 1.0
@@ -388,9 +385,6 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
                            action->getCacheContext());
   }
 #endif // debug
-
-  const uint32_t glctxid = action->getCacheContext();
-  const cc_glglue * glw = cc_glglue_instance(glctxid);
 
   GLint wrapenum = GL_CLAMP;
   // FIXME: avoid using GL_CLAMP_TO_EDGE, since it may not be
@@ -458,10 +452,10 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
       // Important to check this last, as we want to avoid getting an
       // unnecessary cache dependency:
       CvrCompressedTexturesElement::get(state)) {
-    assert(colorformat == 4);
+    assert(internalFormat == 4);
     // FIXME: according to kintel, we need to check which formats are
     // available first, and then set this correctly. 20050602 mortene.
-    colorformat = GL_COMPRESSED_RGBA_ARB;
+    internalFormat = GL_COMPRESSED_RGBA_ARB;
   }
 
   // Force this internal GL format if lighting is on, so we know which
@@ -471,7 +465,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   // FIXME: because of the store-gradient-in-texture trick, lighting
   // only works if we can do paletted textures -- is this checked
   // anywhere? Should ask kristian (or audit the code). 20050602 mortene.
-  if (lighting) { colorformat = GL_RGBA; }
+  if (lighting) { internalFormat = GL_RGBA; }
 
   // By default we modulate textures with the material settings.
   if (!CvrUtil::dontModulateTextures()) {
@@ -496,10 +490,13 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
     cc_string_clean(&str);
   }
 
+  // FIXME: I guess we should really use proxy texture checking first,
+  // before calling glTexImage[2|3]D() below. 20050628 mortene.
+
   if (nrtexdims == 2) {
     glTexImage2D(gltextypeenum,
                  0,
-                 colorformat,
+                 internalFormat,
                  texdims[0], texdims[1],
                  0,
                  this->isPaletted() ? gltextureformat : GL_RGBA,
@@ -511,7 +508,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
     cc_glglue_glTexImage3D(glw,
                            gltextypeenum,
                            0,
-                           colorformat,
+                           internalFormat,
                            texdims[0], texdims[1], texdims[2],
                            0,
                            this->isPaletted() ? gltextureformat : GL_RGBA,
@@ -535,7 +532,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
                                   "error came from "
                                   "glTexImage2D(0x%x, 0, 0x%x, %d, %d, 0, 0x%x, GL_UNSIGNED_BYTE, %p)",
                                   gltextypeenum,
-                                  colorformat,
+                                  internalFormat,
                                   texdims[0], texdims[1],
                                   this->isPaletted() ? gltextureformat : GL_RGBA,
                                   imgptr);
@@ -546,7 +543,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
                                   "error came from "
                                   "glTexImage3D(0x%x, 0, 0x%x, %d, %d, %d, 0, 0x%x, GL_UNSIGNED_BYTE, %p)",
                                   gltextypeenum,
-                                  colorformat,
+                                  internalFormat,
                                   texdims[0], texdims[1], texdims[2],
                                   this->isPaletted() ? gltextureformat : GL_RGBA,
                                   imgptr);
@@ -669,6 +666,8 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   SoType createtype;
   if (is2d && paletted) { createtype = Cvr2DPaletteTexture::getClassTypeId(); }
   else if (is2d) { createtype = Cvr2DRGBATexture::getClassTypeId(); }
+  // FIXME: I believe this next may also depend on the presence of
+  // support for fragment programs..? Investigate. 20050628 mortene.
   else if (paletted && lighting) { createtype = Cvr3DPaletteGradientTexture::getClassTypeId(); }
   else if (paletted) { createtype = Cvr3DPaletteTexture::getClassTypeId(); }
   else { createtype = Cvr3DRGBATexture::getClassTypeId(); }
