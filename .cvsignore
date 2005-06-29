@@ -11,3 +11,5 @@ stamp-h1
 coin-config
 .deps
 autom4te.cache
+vc*.pdb
+simvoleon-default.cfg
