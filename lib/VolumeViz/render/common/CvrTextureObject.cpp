@@ -453,8 +453,6 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
       // unnecessary cache dependency:
       CvrCompressedTexturesElement::get(state)) {
     assert(internalFormat == 4);
-    // FIXME: according to kintel, we need to check which formats are
-    // available first, and then set this correctly. 20050602 mortene.
     internalFormat = GL_COMPRESSED_RGBA_ARB;
   }
 
