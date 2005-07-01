@@ -356,7 +356,13 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   // If texture is non-paletted, the "internalFormat" argument for
   // glTexImage[2|3]D() should usually be the number of components:
   GLenum internalFormat = 4;
-  if (this->isPaletted() && CvrCLUT::usePaletteExtension(glw)) {
+  // FIXME: this is hackish -- how a paletted texture is handled
+  // (through the palette extensions or through a fragment program)
+  // should be stored in the CvrTextureObject's relevant
+  // subclass. 20050701 mortene.
+  if (this->isPaletted() &&
+      CvrCLUT::usePaletteExtension(glw) &&
+      !CvrCLUT::useFragmentProgramLookup(glw)) {
     internalFormat = GL_COLOR_INDEX8_EXT;
   }
 
