@@ -50,6 +50,8 @@ Options:
   --cxxflags
   --ldflags
   --libs
+  --includedir
+  --datadir
   --msvcrt
   --ac-subst <string> | <sourcefile.in>
   --ac-desubst <sourcefile>
@@ -130,6 +132,8 @@ do
   --cxxflags)        echo "$cxxflags"      ;;
   --ldflags)         echo "$ldflags"       ;;
   --libs)            echo "$libs"          ;;
+  --includedir)      echo "$includedir"    ;;
+  --datadir)         echo "$datadir"       ;;
   --msvcrt)          echo "$msvcrt"        ;;
   --ac-subst)
     shift

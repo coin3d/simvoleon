@@ -9,5 +9,7 @@ cxxflags="@SIMVOLEON_EXTRA_CXXFLAGS@"
 ldflags="@SIMVOLEON_EXTRA_LDFLAGS@"
 libs="@SIMVOLEON_EXTRA_LIBS@"
 msvcrt="@SIMVOLEON_MSVC_LIBC@"
+datadir="@datadir@"
+includedir="@includedir@"
 compiler="@COMPILER@"
 compiler_is_gcc=@ac_compiler_gnu@
