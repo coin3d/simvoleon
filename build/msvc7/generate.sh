@@ -37,3 +37,7 @@ sed \
 
 mv new.bat installsimvoleonheaders.bat
 
+echo "Done."
+echo "Now, run 'devenv simvoleon2.dsw' and save all solution files."
+echo "Afterwards, make sure there are no absolute paths in the .vcprovcproj file."
+

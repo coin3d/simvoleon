@@ -21,7 +21,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="1"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories=".\lib,..\..\lib,$(COINDIR)\include"
+				AdditionalIncludeDirectories=".\lib,..\..\lib,$(COINDIR)\include,$(COINDIR)\include\Inventor\annex"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;SIMVOLEON_DEBUG=0;HAVE_CONFIG_H;SIMVOLEON_MAKE_DLL;CVR_DEBUG=1;SIMVOLEON_INTERNAL;COIN_DLL"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -38,7 +38,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(COINDIR)\lib\coin2d.lib opengl32.lib"
+				AdditionalDependencies="$(COINDIR)\lib\coin2.lib opengl32.lib winmm.lib"
 				OutputFile="simvoleon2.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -86,7 +86,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\lib,..\..\lib,$(COINDIR)\include"
+				AdditionalIncludeDirectories=".\lib,..\..\lib,$(COINDIR)\include,$(COINDIR)\include\Inventor\annex"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;SIMVOLEON_DEBUG=1;HAVE_CONFIG_H;SIMVOLEON_MAKE_DLL;CVR_DEBUG=1;SIMVOLEON_INTERNAL;COIN_DLL"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -103,7 +103,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(COINDIR)\lib\coin2d.lib opengl32.lib"
+				AdditionalDependencies="$(COINDIR)\lib\coin2d.lib opengl32.lib winmm.lib"
 				OutputFile="simvoleon2d.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -245,6 +245,30 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\lib\VolumeViz\misc\CentralDifferenceGradient.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;SIMVOLEON_DEBUG=0;HAVE_CONFIG_H;SIMVOLEON_MAKE_DLL;CVR_DEBUG=1;SIMVOLEON_INTERNAL;COIN_DLL;$(NoInherit)"
+						ObjectFile=".\Release\misc/"
+						ProgramDataBaseFileName="Release\misc/"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;SIMVOLEON_DEBUG=1;HAVE_CONFIG_H;SIMVOLEON_MAKE_DLL;CVR_DEBUG=1;SIMVOLEON_INTERNAL;COIN_DLL;$(NoInherit)"
+						BasicRuntimeChecks="3"
+						ObjectFile=".\Debug\misc/"
+						ProgramDataBaseFileName="Debug\misc/"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\..\lib\VolumeViz\misc\CLUT.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
@@ -342,6 +366,30 @@
 			</File>
 			<File
 				RelativePath="..\..\lib\VolumeViz\render\common\Cvr2DRGBATexture.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;SIMVOLEON_DEBUG=0;HAVE_CONFIG_H;SIMVOLEON_MAKE_DLL;CVR_DEBUG=1;SIMVOLEON_INTERNAL;COIN_DLL;$(NoInherit)"
+						ObjectFile=".\Release\common/"
+						ProgramDataBaseFileName="Release\common/"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;SIMVOLEON_DEBUG=1;HAVE_CONFIG_H;SIMVOLEON_MAKE_DLL;CVR_DEBUG=1;SIMVOLEON_INTERNAL;COIN_DLL;$(NoInherit)"
+						BasicRuntimeChecks="3"
+						ObjectFile=".\Debug\common/"
+						ProgramDataBaseFileName="Debug\common/"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\lib\VolumeViz\render\common\Cvr3DPaletteGradientTexture.cpp">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
@@ -746,6 +794,54 @@
 						BasicRuntimeChecks="3"
 						ObjectFile=".\Debug\caches/"
 						ProgramDataBaseFileName="Debug\caches/"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\lib\VolumeViz\misc\Gradient.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;SIMVOLEON_DEBUG=0;HAVE_CONFIG_H;SIMVOLEON_MAKE_DLL;CVR_DEBUG=1;SIMVOLEON_INTERNAL;COIN_DLL;$(NoInherit)"
+						ObjectFile=".\Release\misc/"
+						ProgramDataBaseFileName="Release\misc/"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;SIMVOLEON_DEBUG=1;HAVE_CONFIG_H;SIMVOLEON_MAKE_DLL;CVR_DEBUG=1;SIMVOLEON_INTERNAL;COIN_DLL;$(NoInherit)"
+						BasicRuntimeChecks="3"
+						ObjectFile=".\Debug\misc/"
+						ProgramDataBaseFileName="Debug\misc/"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\lib\VolumeViz\elements\LightingElement.cpp">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="1"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;SIMVOLEON_DEBUG=0;HAVE_CONFIG_H;SIMVOLEON_MAKE_DLL;CVR_DEBUG=1;SIMVOLEON_INTERNAL;COIN_DLL;$(NoInherit)"
+						ObjectFile=".\Release\elements/"
+						ProgramDataBaseFileName="Release\elements/"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;SIMVOLEON_DEBUG=1;HAVE_CONFIG_H;SIMVOLEON_MAKE_DLL;CVR_DEBUG=1;SIMVOLEON_INTERNAL;COIN_DLL;$(NoInherit)"
+						BasicRuntimeChecks="3"
+						ObjectFile=".\Debug\elements/"
+						ProgramDataBaseFileName="Debug\elements/"/>
 				</FileConfiguration>
 			</File>
 			<File
