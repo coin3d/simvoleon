@@ -37,3 +37,6 @@ sed \
 
 mv new.bat installsimvoleonheaders.bat
 
+echo "Done."
+echo "Now, make sure there are no absolute paths in the .dsp file."
+

@@ -42,8 +42,8 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "SIMVOLEON_DEBUG=0" /D "HAVE_CONFIG_H" /D "SIMVOLEON_MAKE_DLL" /D "CVR_DEBUG=1" /D "SIMVOLEON_INTERNAL" /D "COIN_DLL" /I ".\lib" /I "..\..\lib" /I "$(COINDIR)\include" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GX /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "SIMVOLEON_DEBUG=0" /D "HAVE_CONFIG_H" /D "SIMVOLEON_MAKE_DLL" /D "CVR_DEBUG=1" /D "SIMVOLEON_INTERNAL" /D "COIN_DLL" /I ".\lib" /I "..\..\lib" /I "$(COINDIR)\include" /YX /FD /c
+# ADD BASE CPP /nologo /MD /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "SIMVOLEON_DEBUG=0" /D "HAVE_CONFIG_H" /D "SIMVOLEON_MAKE_DLL" /D "CVR_DEBUG=1" /D "SIMVOLEON_INTERNAL" /D "COIN_DLL" /I ".\lib" /I "..\..\lib" /I "$(COINDIR)\include" /I "$(COINDIR)\include\Inventor\annex" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GX /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "SIMVOLEON_DEBUG=0" /D "HAVE_CONFIG_H" /D "SIMVOLEON_MAKE_DLL" /D "CVR_DEBUG=1" /D "SIMVOLEON_INTERNAL" /D "COIN_DLL" /I ".\lib" /I "..\..\lib" /I "$(COINDIR)\include" /I "$(COINDIR)\include\Inventor\annex" /YX /FD /c
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -52,8 +52,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 $(COINDIR)\lib\coin2.lib opengl32.lib /nologo /dll /machine:I386
-# ADD LINK32 $(COINDIR)\lib\coin2.lib opengl32.lib /nologo /dll /machine:I386 /out:"simvoleon2.dll" /opt:nowin98
+# ADD BASE LINK32 $(COINDIR)\lib\coin2.lib opengl32.lib gdi32.lib winmm.lib user32.lib /nologo /dll /machine:I386
+# ADD LINK32 $(COINDIR)\lib\coin2.lib opengl32.lib gdi32.lib winmm.lib user32.lib /nologo /dll /machine:I386 /out:"simvoleon2.dll" /opt:nowin98
 # SUBTRACT LINK32 /pdb:none
 # Begin Special Build Tool
 SOURCE=
@@ -72,8 +72,8 @@ PostBuild_Cmds=installsimvoleon.bat
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
-# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "SIMVOLEON_DEBUG=1" /D "HAVE_CONFIG_H" /D "SIMVOLEON_MAKE_DLL" /D "CVR_DEBUG=1" /D "SIMVOLEON_INTERNAL" /D "COIN_DLL" /I ".\lib" /I "..\..\lib" /I "$(COINDIR)\include" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "SIMVOLEON_DEBUG=1" /D "HAVE_CONFIG_H" /D "SIMVOLEON_MAKE_DLL" /D "CVR_DEBUG=1" /D "SIMVOLEON_INTERNAL" /D "COIN_DLL" /I ".\lib" /I "..\..\lib" /I "$(COINDIR)\include" /YX /FD /GZ /c
+# ADD BASE CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "SIMVOLEON_DEBUG=1" /D "HAVE_CONFIG_H" /D "SIMVOLEON_MAKE_DLL" /D "CVR_DEBUG=1" /D "SIMVOLEON_INTERNAL" /D "COIN_DLL" /I ".\lib" /I "..\..\lib" /I "$(COINDIR)\include" /I "$(COINDIR)\include\Inventor\annex" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "SIMVOLEON_DEBUG=1" /D "HAVE_CONFIG_H" /D "SIMVOLEON_MAKE_DLL" /D "CVR_DEBUG=1" /D "SIMVOLEON_INTERNAL" /D "COIN_DLL" /I ".\lib" /I "..\..\lib" /I "$(COINDIR)\include" /I "$(COINDIR)\include\Inventor\annex" /YX /FD /GZ /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -82,8 +82,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 $(COINDIR)\lib\coin2d.lib opengl32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 $(COINDIR)\lib\coin2d.lib opengl32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept /out:"simvoleon2d.dll"
+# ADD BASE LINK32 $(COINDIR)\lib\coin2d.lib opengl32.lib gdi32.lib winmm.lib user32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 $(COINDIR)\lib\coin2d.lib opengl32.lib gdi32.lib winmm.lib user32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept /out:"simvoleon2d.dll"
 # Begin Special Build Tool
 SOURCE=
 PostBuild_Cmds=installsimvoleon.bat
@@ -209,6 +209,15 @@ SOURCE=..\..\lib\VolumeViz\elements\VoxelBlockElement.cpp
 # Begin Source File
 
 SOURCE=..\..\lib\VolumeViz\elements\TransferFunctionElement.cpp
+!IF  "$(CFG)" == "simvoleon2 - Win32 Release"
+# PROP Intermediate_Dir "Release\elements"
+!ELSEIF  "$(CFG)" == "simvoleon2 - Win32 Debug"
+# PROP Intermediate_Dir "Debug\elements"
+!ENDIF 
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\lib\VolumeViz\elements\LightingElement.cpp
 !IF  "$(CFG)" == "simvoleon2 - Win32 Release"
 # PROP Intermediate_Dir "Release\elements"
 !ELSEIF  "$(CFG)" == "simvoleon2 - Win32 Debug"
@@ -433,6 +442,24 @@ SOURCE=..\..\lib\VolumeViz\misc\GIMPGradient.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\lib\VolumeViz\misc\Gradient.cpp
+!IF  "$(CFG)" == "simvoleon2 - Win32 Release"
+# PROP Intermediate_Dir "Release\misc"
+!ELSEIF  "$(CFG)" == "simvoleon2 - Win32 Debug"
+# PROP Intermediate_Dir "Debug\misc"
+!ENDIF 
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\lib\VolumeViz\misc\CentralDifferenceGradient.cpp
+!IF  "$(CFG)" == "simvoleon2 - Win32 Release"
+# PROP Intermediate_Dir "Release\misc"
+!ELSEIF  "$(CFG)" == "simvoleon2 - Win32 Debug"
+# PROP Intermediate_Dir "Debug\misc"
+!ENDIF 
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\lib\VolumeViz\readers\VolumeReader.cpp
 !IF  "$(CFG)" == "simvoleon2 - Win32 Release"
 # PROP Intermediate_Dir "Release\readers"
@@ -551,6 +578,15 @@ SOURCE=..\..\lib\VolumeViz\render\common\Cvr2DPaletteTexture.cpp
 # Begin Source File
 
 SOURCE=..\..\lib\VolumeViz\render\common\Cvr3DPaletteTexture.cpp
+!IF  "$(CFG)" == "simvoleon2 - Win32 Release"
+# PROP Intermediate_Dir "Release\common"
+!ELSEIF  "$(CFG)" == "simvoleon2 - Win32 Debug"
+# PROP Intermediate_Dir "Debug\common"
+!ENDIF 
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\lib\VolumeViz\render\common\Cvr3DPaletteGradientTexture.cpp
 !IF  "$(CFG)" == "simvoleon2 - Win32 Release"
 # PROP Intermediate_Dir "Release\common"
 !ELSEIF  "$(CFG)" == "simvoleon2 - Win32 Debug"
