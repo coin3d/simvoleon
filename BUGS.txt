@@ -312,3 +312,30 @@ Aborted
     20050530 mortene.
 
 ========================================================================
+
+026 Rendering datasets with one dimension size < 4 using 2D textures
+    causes mem-corruption.
+
+    There seems to be some ugly memory corruption taking place when
+    rendering a dataset where one of the dimensions are less than 4,
+    f.ex 2x50x50. The error appears both when rendering a full volume
+    and when rendering a single OrthoSlice.
+
+    Take the example code from the SimVoleon doc mainpage and set the
+    size to 2x50x50. Set the envvar CVS_FORCE_2D_TEXTURES=1 to force
+    2D texture rendering.
+
+    The OrthoSlice only gets corrupted when rendering the X-axis
+    slices.
+
+    I suspect *one* of the causes to be the workaround @
+    VoxelChunk.cpp:484 where the dims are changed due to an old NVIDIA
+    driver bug, but changing this does only prevent certain asserts
+    from triggering. The X-axis texture slices are still corrupted.
+
+    Setting the dim to 4x50x50 avoids all these problems.
+
+    reported by <nicolas.remy@stanfordalumni.org>
+
+    20051003 handegar.
+
