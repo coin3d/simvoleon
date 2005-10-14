@@ -77,6 +77,24 @@ get_average_performance_time(const SbList<double> & l)
 
 // *************************************************************************
 
+/*
+  FIXME: some general usage docs here. 20051014 mortene.
+
+  Be aware that this is not meant to be used for measuring cases where
+  there are small differences in performance between competing
+  techiques due to e.g. better pipeline parallelization or other such,
+  rather marginal, effects.
+
+  This is supposed to be used to smoke out systems/drivers where there
+  are *major* performance hits suffered for OpenGL techniques that are
+  available, but not optimal for use. This can for instance happen if
+  a technique is available in the driver, but not hardware
+  accelerated.  Good case in point: 3D texturing is available in all
+  OpenGL 1.2+ drivers, but often not hardware accelerated on many
+  systems.  Or perhaps the GL feature we want to measure / check is
+  just known to be really badly implemented on systems, or to have one
+  or more bugs which causes major slowdowns.
+*/
 static double
 gl_performance_timer(const cc_glglue * glue,
                      pre_render_cb * precb,
