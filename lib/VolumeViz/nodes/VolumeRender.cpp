@@ -34,7 +34,7 @@
 
 // *************************************************************************
 
-#include "PerformanceCheck.cpp" // XXX
+#include "PerformanceCheck.cpp"
 
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
@@ -994,21 +994,18 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
   // different GFX cards to see if the rating threshold is high enough
   // (20040503 handegar)
 
-  const SbTime t = SbTime::getTimeOfDay(); // for debug output below
+  const render_cb * perfchkfuncs[2] = {
+    SoVolumeRenderP::render2DTexturedTriangles,
+    SoVolumeRenderP::render3DTexturedTriangles
+  };
+  double timings[2];
 
-  const double timing2d =
-    gl_performance_timer(glglue,
+  const SbTime t =
+    gl_performance_timer(glglue, 2, perfchkfuncs, timings,
                          SoVolumeRenderP::setupPerformanceTest,
-                         SoVolumeRenderP::render2DTexturedTriangles,
                          SoVolumeRenderP::cleanupPerformanceTest);
 
-  const double timing3d =
-    gl_performance_timer(glglue,
-                         SoVolumeRenderP::setupPerformanceTest,
-                         SoVolumeRenderP::render3DTexturedTriangles,
-                         SoVolumeRenderP::cleanupPerformanceTest);
-
-  const double rating = timing3d / timing2d;
+  const double rating = timings[1] / timings[0]; // 3d / 2d
 
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("SoVolumeRenderP::use3DTexturing",
@@ -1016,8 +1013,8 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
                            "average3dtime==%f, average2dtime==%f --> "
                            "rating(3D/2D)==%f"
                            "   (spent %f seconds in testing)",
-                           timing3d, timing2d, timing3d / timing2d,
-                           (SbTime::getTimeOfDay() - t).getValue());
+                           timings[1], timings[0], rating,
+                           t.getValue());
   }
     
   if (rating < 10.0f) { // 2D should at least be this many times

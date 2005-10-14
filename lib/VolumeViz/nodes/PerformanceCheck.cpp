@@ -1,3 +1,10 @@
+// TODO:
+//
+// - fix interface of gl_performance_timer() to handle multiple render callbacks
+// - don't pollute namespace with function typedefs
+// - convert to C? would make inclusion in Coin's gl-abstraction layer easier
+// - factor our the Coin gl-abstraction layer into its own CVS module
+
 #include <stdlib.h>
 #include <limits.h>
 #include <float.h>
@@ -95,15 +102,19 @@ get_average_performance_time(const SbList<double> & l)
   just known to be really badly implemented on systems, or to have one
   or more bugs which causes major slowdowns.
 */
-static double
+static const SbTime
 gl_performance_timer(const cc_glglue * glue,
-                     pre_render_cb * precb,
-                     render_cb * rendercb,
+                     const unsigned int nrrendercbs,
+                     const render_cb * rendercbs[],
+                     double averagerendertime[],
+                     pre_render_cb * precb = NULL,
                      post_render_cb * postcb = NULL,
-                     unsigned int maxruns = 10,
+                     const unsigned int maxruns = 10,
                      const SbTime maxtime = SbTime(0.5),
                      void * userdata = NULL)
 {
+  const SbTime starttime = SbTime::getTimeOfDay();
+
   glPushAttrib(GL_ALL_ATTRIB_BITS);
 
   if (precb) { (*precb)(glue, userdata); }
@@ -184,34 +195,38 @@ gl_performance_timer(const cc_glglue * glue,
   // being processed.
   glFinish();
 
-  
-  assert(rendercb != NULL);
-
-  SbList<double> timings;
-  SbTime starttime = SbTime::getTimeOfDay();
+  SbList<double> timings[nrrendercbs];
  
   for (unsigned int i = 0; i < maxruns; ++i) {
-    const SbTime start = SbTime::getTimeOfDay();
-    (*rendercb)(glue, userdata);
-    glFinish();
-    const SbTime now = SbTime::getTimeOfDay();
-    timings.append((now - start).getValue());
-            
-    if (debug_gl_timing()) {
-      SoDebugError::postInfo("gl_performance_timer",
-                             "run %u done at %f", i, now.getValue());
-    }
+    for (unsigned int j = 0; j < nrrendercbs; j++) {
+      const SbTime start = SbTime::getTimeOfDay();
+      (*(rendercbs[j]))(glue, userdata);
+      glFinish();
+      const SbTime now = SbTime::getTimeOfDay();
+      const double t = (now - start).getValue();
+      timings[j].append(t);
 
+      if (debug_gl_timing()) {
+        SoDebugError::postInfo("gl_performance_timer",
+                               "run %u with cb %u done at %f (%f since last)",
+                               i, j, now.getValue(), t);
+      }
+    }
+            
     // Don't run the test for more than the maximum alloted.
-    if (((now - starttime).getValue()) > maxtime.getValue()) { break; }
+    const SbTime t = SbTime::getTimeOfDay() - starttime;
+    if (t > maxtime) { break; }
   }
   
-  if (debug_gl_timing()) {
-    SoDebugError::postInfo("gl_performance_timer", "managed %d runs",
-                           timings.getLength());
+  if (debug_gl_timing() && (nrrendercbs > 0)) {
+    SoDebugError::postInfo("gl_performance_timer",
+                           "managed %d runs with all render callbacks",
+                           timings[0].getLength());
   }
 
-  const double averagetime = get_average_performance_time(timings);
+  for (unsigned int j = 0; j < nrrendercbs; j++) {
+    averagerendertime[j] = get_average_performance_time(timings[j]);
+  }
  
   if (postcb) { (*postcb)(glue, userdata); }
 
@@ -237,7 +252,7 @@ gl_performance_timer(const cc_glglue * glue,
 
   glPopAttrib(); 
 
-  return averagetime;
+  return SbTime::getTimeOfDay() - starttime;
 }
 
 // *************************************************************************
