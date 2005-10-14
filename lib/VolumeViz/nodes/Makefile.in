@@ -120,6 +120,7 @@ SIMVOLEON_EXTRA_CPPFLAGS = @SIMVOLEON_EXTRA_CPPFLAGS@
 SIMVOLEON_EXTRA_CXXFLAGS = @SIMVOLEON_EXTRA_CXXFLAGS@
 SIMVOLEON_EXTRA_LDFLAGS = @SIMVOLEON_EXTRA_LDFLAGS@
 SIMVOLEON_EXTRA_LIBS = @SIMVOLEON_EXTRA_LIBS@
+SIMVOLEON_LIB_DSP_DEFS = @SIMVOLEON_LIB_DSP_DEFS@
 SIMVOLEON_MAJOR_VERSION = @SIMVOLEON_MAJOR_VERSION@
 SIMVOLEON_MICRO_VERSION = @SIMVOLEON_MICRO_VERSION@
 SIMVOLEON_MINOR_VERSION = @SIMVOLEON_MINOR_VERSION@
@@ -242,7 +243,8 @@ PrivateHeaders = \
 	CvrFaceSetRenderP.h \
 	CvrIndexedFaceSetRenderP.h \
 	CvrTriangleStripSetRenderP.h \
-	CvrIndexedTriangleStripSetRenderP.h 
+	CvrIndexedTriangleStripSetRenderP.h \
+	PerformanceCheck.cpp 
 
 
 
@@ -287,7 +289,7 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 
 libnodes_la_LDFLAGS =
 libnodes_la_LIBADD =
-am__objects_3 = volumeraypickintersection.lo TransferFunction.lo \
+am__objects_4 = volumeraypickintersection.lo TransferFunction.lo \
 	VolumeData.lo VolumeRender.lo VolumeRendering.lo \
 	ObliqueSlice.lo OrthoSlice.lo VolumeSkin.lo VolumeFaceSet.lo \
 	VolumeIndexedFaceSet.lo VolumeTriangleStripSet.lo \
@@ -295,7 +297,7 @@ am__objects_3 = volumeraypickintersection.lo TransferFunction.lo \
 	CvrNonIndexedSetRenderBaseP.lo CvrFaceSetRenderP.lo \
 	CvrIndexedFaceSetRenderP.lo CvrTriangleStripSetRenderP.lo \
 	CvrIndexedTriangleStripSetRenderP.lo
-am_libnodes_la_OBJECTS = $(am__objects_3)
+am_libnodes_la_OBJECTS = $(am__objects_4)
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
@@ -315,6 +317,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/ObliqueSlice.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/OrthoSlice.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/OrthoSlice.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/PerformanceCheck.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/PerformanceCheck.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/TransferFunction.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/TransferFunction.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeData.Plo \
@@ -410,6 +414,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObliqueSlice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSlice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSlice.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PerformanceCheck.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PerformanceCheck.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeData.Plo@am__quote@
