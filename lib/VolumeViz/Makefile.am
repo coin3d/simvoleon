@@ -17,8 +17,14 @@ endif
 
 # Adding in a dummy C++ source code file to "trick" Automake to set
 # us up with C++ $CXXLD for linking (and not the default C $CCLD).
-libSimVoleon@SUFFIX@_la_SOURCES = dummy.cpp
-simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = dummy.cpp
+Sources = dummy.cpp \
+	Coin/gl/CoinGLPerformance.cpp \
+	Coin/gl/CoinGLPerformance.h
+
+libSimVoleon@SUFFIX@_la_SOURCES = $(Sources)
+simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = $(Sources)
+
+# **************************************************************************
 
 libSimVoleon@SUFFIX@_la_LIBADD = \
 	caches/libcaches.la \

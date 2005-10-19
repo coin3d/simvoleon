@@ -49,8 +49,7 @@ PrivateHeaders = \
 	CvrFaceSetRenderP.h \
 	CvrIndexedFaceSetRenderP.h \
 	CvrTriangleStripSetRenderP.h \
-	CvrIndexedTriangleStripSetRenderP.h \
-	PerformanceCheck.cpp 
+	CvrIndexedTriangleStripSetRenderP.h
 
 # **************************************************************************
 

@@ -34,8 +34,6 @@
 
 // *************************************************************************
 
-#include "PerformanceCheck.cpp"
-
 #include <VolumeViz/nodes/SoVolumeRender.h>
 
 #include <string.h>
@@ -76,6 +74,7 @@
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrGlobalRenderLock.h>
 #include <VolumeViz/elements/CvrLightingElement.h>
+#include <VolumeViz/Coin/gl/CoinGLPerformance.h>
 
 #include "volumeraypickintersection.h"
 
@@ -163,8 +162,6 @@ public:
   static void renderTexturedTriangles(GLenum type);
   static void render2DTexturedTriangles(const cc_glglue *, void *);
   static void render3DTexturedTriangles(const cc_glglue *, void *);
-
-  static double getAveragePerformanceTime(const SbList<double> & l);
 
   CvrPageHandler * pagehandler; // For 2D page rendering
   CvrCubeHandler * cubehandler; // For 3D cube rendering
@@ -994,16 +991,16 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
   // different GFX cards to see if the rating threshold is high enough
   // (20040503 handegar)
 
-  const render_cb * perfchkfuncs[2] = {
+  const cc_perf_render_cb * perfchkfuncs[2] = {
     SoVolumeRenderP::render2DTexturedTriangles,
     SoVolumeRenderP::render3DTexturedTriangles
   };
   double timings[2];
 
   const SbTime t =
-    gl_performance_timer(glglue, 2, perfchkfuncs, timings,
-                         SoVolumeRenderP::setupPerformanceTest,
-                         SoVolumeRenderP::cleanupPerformanceTest);
+    cc_perf_gl_timer(glglue, 2, perfchkfuncs, timings,
+                     SoVolumeRenderP::setupPerformanceTest,
+                     SoVolumeRenderP::cleanupPerformanceTest);
 
   const double rating = timings[1] / timings[0]; // 3d / 2d
 
