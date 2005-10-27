@@ -991,7 +991,7 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
   // different GFX cards to see if the rating threshold is high enough
   // (20040503 handegar)
 
-  const cc_perf_render_cb * perfchkfuncs[2] = {
+  cc_perf_render_cb * perfchkfuncs[2] = {
     SoVolumeRenderP::render2DTexturedTriangles,
     SoVolumeRenderP::render3DTexturedTriangles
   };
