@@ -33,11 +33,11 @@ sed \
   -e "s/$source/..\\\\../g" \
   -e "s/$source_pwd/..\\\\../g" \
   -e 's/$/\r/g' \
-  <installsimvoleonheaders.bat >new.bat
+  <install-headers.bat >new.bat
 
-mv new.bat installsimvoleonheaders.bat
+mv new.bat install-headers.bat
 
 echo "Done."
 echo "Now, run 'devenv simvoleon2.dsw' and save all solution files."
-echo "Afterwards, make sure there are no absolute paths in the .vcprovcproj file."
+echo "Afterwards, make sure there are no absolute paths in the .vcproj file."
 
