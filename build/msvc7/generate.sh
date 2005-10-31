@@ -4,7 +4,7 @@
 #
 # 20041214 larsa
 
-rm -f simvoleon2.dsp simvoleon2.dsw installsimvoleonheaders.bat
+rm -f simvoleon2.dsp simvoleon2.dsw install-headers.bat
 
 ../../configure --enable-msvcdsp --with-msvcrt=mt || exit 1
 make || exit 1

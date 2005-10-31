@@ -4,7 +4,7 @@
 #
 # 20041214 larsa
 
-rm -f simvoleon2.dsp simvoleon2.dsw installsimvoleonheaders.bat
+rm -f simvoleon2.dsp simvoleon2.dsw install-headers.bat
 
 ../../configure --enable-msvcdsp --with-msvcrt=mt || exit 1
 make || exit 1
@@ -33,9 +33,9 @@ sed \
   -e "s/$source/..\\\\../g" \
   -e "s/$source_pwd/..\\\\../g" \
   -e 's/$/\r/g' \
-  <installsimvoleonheaders.bat >new.bat
+  <install-headers.bat >new.bat
 
-mv new.bat installsimvoleonheaders.bat
+mv new.bat install-headers.bat
 
 echo "Done."
 echo "Now, make sure there are no absolute paths in the .dsp file."
