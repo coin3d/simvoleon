@@ -27,19 +27,42 @@
 
   Insert a node of this type after an SoVolumeData node in the scene
   graph to render a single slice from the full volume data set. The
-  slice is specified as a plane with any orientation and position
+  slice is specified as a plane with an orientation and position
   within the volume.
 
   <center>
    <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-obliqueslice.png">
   </center>
 
-  Note that this node will not work with OpenGL drivers too old to
-  contain support for 3D-texturing. All OpenGL drivers of version 1.2
-  and onwards supports 3D-texturing, as does also older OpenGL drivers
-  with the \c GL_EXT_texture3D extension. If none of these are
-  available, and this node is still attempted used, a warning message
-  will be output through Coin's SoDebugError::postWarning().
+  Here is a simple example, in the form of an iv-file:
+
+  \verbatim
+  #Inventor V2.1 ascii
+
+  SoVolumeData { fileName "ENGINE.VOL" }
+   
+  Separator {
+    SoTransferFunction { }  
+    DEF clipper ClipPlaneManip { }
+    SoVolumeRender { }   
+  }
+
+  Separator {
+    SoTransferFunction { predefColorMap GLOW }  
+    SoObliqueSlice {
+      interpolation LINEAR 	
+      alphaUse ALPHA_AS_IS
+      plane = USE clipper . plane
+    }
+  }
+  \endverbatim
+
+  Note that SoObliqueSlice will not work with OpenGL drivers which are
+  too old to support for 3D-texturing. OpenGL drivers of version 1.2
+  and onwards supports 3D-texturing, as does older OpenGL drivers with
+  the \c GL_EXT_texture3D extension. If none of these are available
+  and this node is being used, a warning message will be printed using
+  Coin's SoDebugError::postWarning().
 
   \sa SoVolumeRender, SoOrthoSlice
   \sa SoVolumeTriangleStripSet, SoVolumeIndexedTriangleStripSet, 
