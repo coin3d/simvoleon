@@ -57,12 +57,12 @@
   }
   \endverbatim
 
-  Note that SoObliqueSlice will not work with OpenGL drivers which are
-  too old to support for 3D-texturing. OpenGL drivers of version 1.2
-  and onwards supports 3D-texturing, as does older OpenGL drivers with
-  the \c GL_EXT_texture3D extension. If none of these are available
-  and this node is being used, a warning message will be printed using
-  Coin's SoDebugError::postWarning().
+  Please note that SoObliqueSlice will not work with older OpenGL
+  drivers as they usually lack 3D-texture support. OpenGL drivers of
+  version 1.2 and onwards supports 3D-texturing, as does older OpenGL
+  drivers with the \c GL_EXT_texture3D extension. If none of these are
+  available, a warning message will be printed using Coin's
+  SoDebugError::postWarning().
 
   \sa SoVolumeRender, SoOrthoSlice
   \sa SoVolumeTriangleStripSet, SoVolumeIndexedTriangleStripSet, 
