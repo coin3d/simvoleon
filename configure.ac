@@ -109,6 +109,11 @@ AC_SUBST([SIMVOLEON_EXTRA_CXXFLAGS], [])
 AC_SUBST([SIMVOLEON_EXTRA_LDFLAGS], [$LDFLAGS])
 AC_SUBST([SIMVOLEON_EXTRA_LIBS], [$LIBS])
 
+# **************************************************************************
+# Universal Binary support (Mac OS X)
+  
+SIM_AC_UNIVERSAL_BINARIES
+
 # *******************************************************************
 
 AM_INIT_AUTOMAKE(SIMVoleon, $VERSION)
