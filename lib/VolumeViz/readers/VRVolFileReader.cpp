@@ -261,7 +261,7 @@ SoVRVolFileReader::setUserData(void * data)
   // SoVolumeReader::getBuffer(). 20021125 mortene.
   size_t gotnrbytes =
     fread(this->m_data, 1, (size_t)filesize, f); // FIXME: bogus cast. 2004121 mortene.
-  assert(gotnrbytes == filesize);
+  assert(gotnrbytes == (size_t)filesize); // FIXME: bogus cast. 2004121 mortene.
 
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("SoVRVolFileReader::setUserData",
@@ -272,7 +272,7 @@ SoVRVolFileReader::setUserData(void * data)
   int r = fclose(f);
   assert(r == 0);
 
-  assert(filesize > sizeof(struct vol_header));
+  assert((uint64_t)filesize > sizeof(struct vol_header));
   struct vol_header * volh = &PRIVATE(this)->volh;
   // magic_number and header_length
   (void)memcpy(volh, this->m_data, 2 * sizeof(uint32_t));
