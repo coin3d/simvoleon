@@ -817,8 +817,10 @@ SoVolumeRenderP::setupPerformanceTest(const cc_glglue * glglue, void *)
   const unsigned int TEXTUREBUFSIZE =
     TEXTUREDIMENSION * TEXTUREDIMENSION * TEXTUREDIMENSION * 4;
 
+  unsigned int i;
+
   uint8_t * volumedataset = new uint8_t[TEXTUREBUFSIZE];
-  for (unsigned int i = 0; i < TEXTUREBUFSIZE; i++) {
+  for (i = 0; i < TEXTUREBUFSIZE; i++) {
     volumedataset[i] = (uint8_t)(rand() % 256);
   }
 
@@ -826,7 +828,6 @@ SoVolumeRenderP::setupPerformanceTest(const cc_glglue * glglue, void *)
   glGenTextures(2, SoVolumeRenderP::texture3dids);
   assert(glGetError() == GL_NO_ERROR);
   glEnable(GL_TEXTURE_3D);
-  unsigned int i;
   for (i = 0; i < 2; i++) {
     glBindTexture(GL_TEXTURE_3D, SoVolumeRenderP::texture3dids[i]);
 
