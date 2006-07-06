@@ -110,7 +110,7 @@ private:
 
   static CvrTextureObject * findInstanceMatch(const SoType t,
                                               const struct CvrTextureObject::EqualityComparison & cmp);
-  unsigned long CvrTextureObject::hashKey(void) const;
+  unsigned long hashKey(void) const;
   static unsigned long hashKey(const struct CvrTextureObject::EqualityComparison & cmp);
 };
 

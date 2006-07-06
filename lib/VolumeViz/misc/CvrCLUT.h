@@ -72,7 +72,7 @@ private:
   void setAlphaUse(AlphaUse policy);
 
   struct GLContextStorage {
-    GLContextStorage::GLContextStorage(uint32_t id)
+    GLContextStorage(uint32_t id)
     {
       this->texture1Dclut = 0;
       this->ctxid = id;
@@ -83,7 +83,7 @@ private:
   };
   SbList<struct GLContextStorage *> contextlist;
   struct GlobalGLContextStorage {
-    GlobalGLContextStorage::GlobalGLContextStorage(void)
+    GlobalGLContextStorage(void)
     {
       this->fragmentprogramid[0] = this->fragmentprogramid[1] =
         this->fragmentprogramid[2] = 0;
