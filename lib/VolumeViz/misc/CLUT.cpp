@@ -415,15 +415,16 @@ CvrCLUT::initPaletteTexture(const cc_glglue * glue,
 
   glEnable(GL_TEXTURE_1D);
   glBindTexture(GL_TEXTURE_1D, ctxstorage->texture1Dclut);
-
+  
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
   glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 
   assert(this->nrentries == 256 && "Palette lookup using fragment program will "
          "not work if palette size is != 256");
 
-  glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA8, this->nrentries, 0, GL_RGBA,
+  glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA8, this->nrentries, 1, GL_RGBA,
                GL_UNSIGNED_BYTE, (GLvoid *) this->glcolors);
 
   // FIXME: shouldn't we restore the glEnable(GL_TEXTURE_1D) here?
