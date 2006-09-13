@@ -1,7 +1,5 @@
 Debug
 Release
-StaticDebug
-StaticRelease
 Makefile
 bin
 cfg
@@ -10,9 +8,10 @@ config.status
 config.log
 libtool
 simvoleon-default.cfg
-*.pdb
 *.dll
-*.ilk
-*.ncb
-*.opt
-*.plg
+*.pdb
+simvoleon2.ncb
+simvoleon2.suo
+simvoleon2.dsw
+simvoleon2.dsp
+*.user
