@@ -1,9 +1,0 @@
-Makefile
-.deps
-simvoleon2.so.*
-caches
-details
-elements
-misc
-readers
-render
