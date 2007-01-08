@@ -205,7 +205,7 @@ CvrVoxelBlockElement::getPageGeometry(const int axis, const int slicenr,
   const SbVec3s & dimensions = this->getVoxelCubeDimensions();
  
   const float depthprslice = (spacemax[axis] - spacemin[axis]) / dimensions[axis];
-  const float depth = spacemin[axis] + slicenr * depthprslice;
+  const float depth = spacemin[axis] + slicenr * depthprslice + depthprslice/2.0f;
 
   // "origo" should point at the upper left corner of the page to
   // render. horizspan should point rightwards, and verticalspan
