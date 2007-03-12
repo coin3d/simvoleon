@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simvoleon2", "simvoleon2.vcproj", "{B4B81E9D-F9E0-44CC-9ADA-D1EC22676AC5}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simvoleon2", "simvoleon2.vcproj", "{1F9144C3-345C-4A9A-8B32-D67655C34EFB}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -11,14 +11,14 @@ Global
 		LIB (Release) = LIB (Release)
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{B4B81E9D-F9E0-44CC-9ADA-D1EC22676AC5}.DLL (Debug).ActiveCfg = DLL (Debug)|Win32
-		{B4B81E9D-F9E0-44CC-9ADA-D1EC22676AC5}.DLL (Debug).Build.0 = DLL (Debug)|Win32
-		{B4B81E9D-F9E0-44CC-9ADA-D1EC22676AC5}.DLL (Release).ActiveCfg = DLL (Release)|Win32
-		{B4B81E9D-F9E0-44CC-9ADA-D1EC22676AC5}.DLL (Release).Build.0 = DLL (Release)|Win32
-		{B4B81E9D-F9E0-44CC-9ADA-D1EC22676AC5}.LIB (Debug).ActiveCfg = LIB (Debug)|Win32
-		{B4B81E9D-F9E0-44CC-9ADA-D1EC22676AC5}.LIB (Debug).Build.0 = LIB (Debug)|Win32
-		{B4B81E9D-F9E0-44CC-9ADA-D1EC22676AC5}.LIB (Release).ActiveCfg = LIB (Release)|Win32
-		{B4B81E9D-F9E0-44CC-9ADA-D1EC22676AC5}.LIB (Release).Build.0 = LIB (Release)|Win32
+		{1F9144C3-345C-4A9A-8B32-D67655C34EFB}.DLL (Debug).ActiveCfg = DLL (Debug)|Win32
+		{1F9144C3-345C-4A9A-8B32-D67655C34EFB}.DLL (Debug).Build.0 = DLL (Debug)|Win32
+		{1F9144C3-345C-4A9A-8B32-D67655C34EFB}.DLL (Release).ActiveCfg = DLL (Release)|Win32
+		{1F9144C3-345C-4A9A-8B32-D67655C34EFB}.DLL (Release).Build.0 = DLL (Release)|Win32
+		{1F9144C3-345C-4A9A-8B32-D67655C34EFB}.LIB (Debug).ActiveCfg = LIB (Debug)|Win32
+		{1F9144C3-345C-4A9A-8B32-D67655C34EFB}.LIB (Debug).Build.0 = LIB (Debug)|Win32
+		{1F9144C3-345C-4A9A-8B32-D67655C34EFB}.LIB (Release).ActiveCfg = LIB (Release)|Win32
+		{1F9144C3-345C-4A9A-8B32-D67655C34EFB}.LIB (Release).Build.0 = LIB (Release)|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

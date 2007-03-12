@@ -1,22 +1,9 @@
 @echo off
 
-echo Installing to %COINDIR%
-
-if not "%COINDIR%"=="" goto coindirset
-echo The COINDIR environment variable must be set to point to a directory
-echo to be able to perform the installation procedure.
-exit
-:coindirset
-if exist %COINDIR%\*.* goto coindirexists
-echo The COINDIR environment variable must point to an existing directory
-echo to be able to perform the installation procedure.
-exit
-:coindirexists
-
-pushd %COINDIR%
-
 REM **********************************************************************
 REM * Create all the directories for the installed files
+
+pushd %COINDIR%
 
 if exist bin\*.* goto binexists
 echo mkdir %COINDIR%\bin
@@ -54,15 +41,3 @@ mkdir readers
 :readersexists
 
 popd
-
-REM **********************************************************************
-REM * Copy files
-
-echo Installing header files...
-call install-headers.bat
-
-echo Installing binaries...
-xcopy simvoleon2s.lib %COINDIR%\lib\ /R /Y
-
-echo Done.
-

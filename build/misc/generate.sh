@@ -8,13 +8,13 @@ rm -f simvoleon2.dsp simvoleon2.dsw install-headers.bat
 
 ../../configure --with-msvcrt=mtd --with-suffix=d \
   --enable-debug --enable-symbols || exit 1
-cp lib/config.h lib/config-debug.h
+mv lib/config.h lib/config-debug.h
 
 ../../configure --enable-msvcdsp --with-msvcrt=mt \
   --disable-debug --disable-symbols --enable-optimization || exit 1
-cp lib/config.h lib/config-release.h
+mv lib/config.h lib/config-release.h
 
-cp config-wrapper.h lib/config.h
+cp ../misc/config-wrapper.h lib/config.h
 
 make || exit 1
 

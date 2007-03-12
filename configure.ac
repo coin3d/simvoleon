@@ -448,10 +448,15 @@ AC_OUTPUT([
         lib/VolumeViz/render/common/Makefile
         lib/VolumeViz/render/Pointset/Makefile
         cfg/gendsp.sh
+        cfg/gendsp.pl
 ])
 
 if test -f cfg/gendsp.sh; then
   chmod +x cfg/gendsp.sh
+fi
+
+if test -f cfg/gendsp.pl; then
+  chmod +x cfg/gendsp.pl
 fi
 
 # *******************************************************************
