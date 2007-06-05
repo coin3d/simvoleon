@@ -100,6 +100,8 @@ AC_PROG_CPP
 AC_PROG_CXX
 AC_LANG_CPLUSPLUS
 
+SIM_AC_STRIP_EXIT_DECLARATION
+
 # *******************************************************************
 #  These are used for constructing the simvoleon-config file.
 
