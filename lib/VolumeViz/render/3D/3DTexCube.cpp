@@ -345,11 +345,13 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
 
         SbBox3f subbbox(subcubeorigo, subcubeorigo + subcubeheight + subcubewidth + subcubedepth);
 
-        cubeitem->distancefromcamera = (viewvolumeinv.getProjectionPoint() -
-                                       subbbox.getCenter()).length();
+        // use distance to plane instead of distance to projection
+        // point, since the projection point is only valid for
+        // perspective projections
+        SbPlane cameraplane = viewvolumeinv.getPlane(0.0f);
+        cubeitem->distancefromcamera = -cameraplane.getDistance(subbbox.getCenter());
 
         subbbox.transform(SoModelMatrixElement::get(state));
-
         float sdx, sdy, sdz;
         subbbox.getSize(sdx, sdy, sdz);
         cubeitem->boundingsphereradius = SbVec3f(sdx, sdy, sdz).length() * 0.5f;
