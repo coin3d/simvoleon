@@ -318,15 +318,49 @@ AC_ARG_ENABLE([msvc],
 ])
 
 # **************************************************************************
+# Usage:
+#  SIM_AC_MSC_VERSION
+#
+# Find version number of the Visual C++ compiler. sim_ac_msc_version will
+# contain the full version number string, and sim_ac_msc_major_version
+# will contain only the Visual C++ major version number and
+# sim_ac_msc_minor_version will contain the minor version number.
 
-AC_DEFUN([SIM_AC_MSVC_VERSION], [
-AC_MSG_CHECKING([Visual Studio C++ version])
-AC_TRY_COMPILE([],
-  [long long number = 0;],
-  [sim_ac_msvc_version=7]
-  [sim_ac_msvc_version=6])
-AC_MSG_RESULT($sim_ac_msvc_version)
-])
+AC_DEFUN([SIM_AC_MSC_VERSION], [
+
+AC_MSG_CHECKING([version of Visual C++ compiler])
+
+cat > conftest.c << EOF
+int VerMSC = _MSC_VER;
+EOF
+
+# The " *"-parts of the last sed-expression on the next line are necessary
+# because at least the Solaris/CC preprocessor adds extra spaces before and
+# after the trailing semicolon.
+sim_ac_msc_version=`$CXXCPP $CPPFLAGS conftest.c 2>/dev/null | grep '^int VerMSC' | sed 's%^int VerMSC = %%' | sed 's% *;.*$%%'`
+
+sim_ac_msc_minor_version=0
+if test $sim_ac_msc_version -ge 1400; then
+  sim_ac_msc_major_version=8
+elif test $sim_ac_msc_version -ge 1300; then
+  sim_ac_msc_major_version=7
+  if test $sim_ac_msc_version -ge 1310; then
+    sim_ac_msc_minor_version=1
+  fi
+elif test $sim_ac_msc_version -ge 1200; then
+  sim_ac_msc_major_version=6
+elif test $sim_ac_msc_version -ge 1100; then
+  sim_ac_msc_major_version=5
+else
+  sim_ac_msc_major_version=0
+fi
+
+# compatibility with old version of macro
+sim_ac_msvc_version=$sim_ac_msc_major_version
+
+rm -f conftest.c
+AC_MSG_RESULT($sim_ac_msc_major_version.$sim_ac_msc_minor_version)
+]) # SIM_AC_MSC_VERSION
 
 # **************************************************************************
 # Note: the SIM_AC_SETUP_MSVC_IFELSE macro has been OBSOLETED and
@@ -355,9 +389,6 @@ if $sim_ac_try_msvc; then
       export CC CXX
       BUILD_WITH_MSVC=true
       AC_MSG_RESULT([working])
-
-      # FIXME: why is this here, larsa? 20050714 mortene.
-      # SIM_AC_MSVC_VERSION
 
       # Robustness: we had multiple reports of Cygwin ''link'' getting in
       # the way of MSVC link.exe, so do a little sanity check for that.
@@ -593,6 +624,9 @@ fi])])
 # configure tests to fail later on when configuring for Visual C++
 # compilers.  This macro edits out the exit-declaration (which we
 # really don't need anyway) from the confdefs.h file.
+#
+# Typically, it should be inserted as early as possible, but after
+# AC_PROG_CXX / AC_PROG_CXXCPP.
 #
 # 2007-05-30 larsa
 
@@ -7988,7 +8022,7 @@ if $enable_debug; then
     case $CXX in
     *wrapmsvc* )
       # uninitialized checks
-      if test ${sim_ac_msvc_version-0} -gt 6; then
+      if test ${sim_ac_msc_major_version-0} -gt 6; then
         SIM_AC_CC_COMPILER_OPTION([/RTCu], [sim_ac_compiler_CFLAGS="$sim_ac_compiler_CFLAGS /RTCu"])
         SIM_AC_CXX_COMPILER_OPTION([/RTCu], [sim_ac_compiler_CXXFLAGS="$sim_ac_compiler_CXXFLAGS /RTCu"])
         # stack frame checks
@@ -8038,6 +8072,12 @@ AC_ARG_ENABLE(
   [sim_ac_enable_optimization=true])
 
 if $sim_ac_enable_optimization; then
+  case $CXX in
+  *wrapmsvc* )
+    CFLAGS="/Ox $CFLAGS"
+    CXXFLAGS="/Ox $CXXFLAGS"
+    ;;
+  esac
   :
 else
   CFLAGS="`echo $CFLAGS | sed 's/-O[[0-9]]*[[ ]]*//'`"
@@ -8664,6 +8704,8 @@ AC_DEFUN([SIM_AC_DETECT_COMMON_COMPILER_FLAGS], [
 
 AC_REQUIRE([SIM_AC_CHECK_PROJECT_BETA_STATUS_IFELSE])
 AC_REQUIRE([SIM_AC_CHECK_SIMIAN_IFELSE])
+
+sim_ac_simian=false
 
 SIM_AC_COMPILE_DEBUG([
   if test x"$GCC" = x"yes"; then
