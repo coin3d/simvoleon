@@ -430,6 +430,7 @@ SIM_AC_MSVC_DSP_SETUP([SIMVOLEON], [SIM Voleon], [simvoleon], [-I$simvoleon_buil
 # *******************************************************************
 
 AC_OUTPUT([
+        SIMVoleon.pc
         Makefile
         html/Makefile
         bin/Makefile

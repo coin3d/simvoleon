@@ -29,6 +29,7 @@ CLEANFILES = \
 
 EXTRA_DIST = \
 	simvoleon.cfg.in \
+	SIMVoleon.pc.in \
 	cfg/errors.txt \
 	cfg/wrapmsvc.exe \
 	cfg/gendsp.sh \
@@ -50,6 +51,9 @@ dist_m4data_DATA = cfg/simvoleon.m4
 
 cfgdatadir = $(datadir)/Coin/conf
 cfgdata_DATA = simvoleon-@CONFIG@.cfg
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA= SIMVoleon.pc
 
 simvoleon-@CONFIG@.cfg: config.status $(srcdir)/simvoleon.cfg.in
 	@$(SHELL) config.status --file=$@:simvoleon.cfg.in
