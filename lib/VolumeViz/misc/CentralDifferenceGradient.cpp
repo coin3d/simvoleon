@@ -37,9 +37,9 @@ CvrCentralDifferenceGradient::getGradient(unsigned int vx, unsigned int vy, unsi
   
   // Calculate gradient using the central difference algorithm
   SbVec3f g;
-  g[0] = getVoxel(x-1, y, z) - getVoxel(x+1, y, z);
-  g[1] = getVoxel(x, y-1, z) - getVoxel(x, y+1, z);
-  g[2] = getVoxel(x, y, z-1) - getVoxel(x, y, z+1);
+  g[0] = static_cast<float>(getVoxel(x-1, y, z) - getVoxel(x+1, y, z));
+  g[1] = static_cast<float>(getVoxel(x, y-1, z) - getVoxel(x, y+1, z));
+  g[2] = static_cast<float>(getVoxel(x, y, z-1) - getVoxel(x, y, z+1));
   if (g.length() > 0) {
     g.normalize();
   }
