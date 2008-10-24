@@ -15,6 +15,45 @@ Package=<4>
 
 ###############################################################################
 
+Project: "simvoleon2_install"=.\simvoleon2_install.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name simvoleon2
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "simvoleon2_uninstall"=.\simvoleon2_uninstall.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "simvoleon2_docs"=.\simvoleon2_docs.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
 Global:
 
 Package=<5>

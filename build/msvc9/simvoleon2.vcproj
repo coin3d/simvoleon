@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="9.00"
 	Name="simvoleon2"
-	ProjectGUID="{9874D60D-4E62-4E27-BF25-4DA2C9357F6D}"
+	ProjectGUID="{CEB94527-AFA8-4880-8B19-0E06465C6EC7}"
+	TargetFrameworkVersion="0"
 	>
 	<Platforms>
 		<Platform
@@ -152,6 +153,8 @@
 				ProgramDatabaseFile=".\Release/simvoleon2.pdb"
 				OptimizeForWindows98="1"
 				SetChecksum="true"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Release/simvoleon2.lib"
 				TargetMachine="1"
 			/>
@@ -174,9 +177,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -322,6 +322,8 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/simvoleon2d.pdb"
 				OptimizeForWindows98="1"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\Debug/simvoleon2d.lib"
 				TargetMachine="1"
 			/>
@@ -344,9 +346,6 @@
 			/>
 			<Tool
 				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
