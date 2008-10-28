@@ -105,29 +105,32 @@ rem **********************************************************************
 
 echo Installing to %COINDIR%
 
-REM **********************************************************************
-REM * Create all the directories
+rem **********************************************************************
+rem * Create all the directories
 
+if exist ..\misc\create-directories.bat goto createdirsexists
+goto donecreatedirs
+:createdirsexists
+echo Creating necessary directories...
 call ..\misc\create-directories.bat
+:donecreatedirs
 
 rem **********************************************************************
 rem * Copy files
 
-rem **********************************************************************
-rem * Copy files
-
+if exist ..\misc\install-headers.bat goto installheadersexists
+goto doneinstallheaders
+:installheadersexists
 echo Installing header files...
 call ..\misc\install-headers.bat %msvc%
+:doneinstallheaders
 
-if "%libname%"=="coin2" goto installcoindata
-if "%libname%"=="coin3" goto installcoindata
-goto skipinstallcoindata
-:installcoindata
-rem echo Installing data files...
-rem xcopy ..\..\data\draggerDefaults\*.iv %COINDIR%\data\draggerDefaults\ /R /Y
-rem xcopy ..\..\data\shaders\lights\*.glsl %COINDIR%\data\shaders\lights\ /R /Y
-rem xcopy ..\..\data\shaders\vsm\*.glsl %COINDIR%\data\shaders\vsm\ /R /Y
-:skipinstallcoindata
+if exist ..\misc\install-data.bat goto installdataexists
+goto doneinstalldata
+:installdataexists
+echo Installing data files...
+call ..\misc\install-data.bat %msvc%
+:doneinstalldata
 
 rem **********************************************************************
 
