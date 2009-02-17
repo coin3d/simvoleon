@@ -276,7 +276,7 @@ while test $sim_ac_num_settings -ge 0; do
   sim_ac_description=`echo "$sim_ac_setting" | cut -d: -f1`
   sim_ac_status=`echo "$sim_ac_setting" | cut -d: -f2-`
   # hopefully not too many terminals are too dumb for this
-  echo -e "$sim_ac_padding $sim_ac_status\r  $sim_ac_description:"
+  printf "$sim_ac_padding $sim_ac_status\r  $sim_ac_description:\n"
   sim_ac_configuration_settings=`echo $sim_ac_configuration_settings | cut -d"|" -f2-`
   sim_ac_num_settings=`expr $sim_ac_num_settings - 1`
 done
@@ -340,7 +340,9 @@ EOF
 sim_ac_msc_version=`$CXXCPP $CPPFLAGS conftest.c 2>/dev/null | grep '^int VerMSC' | sed 's%^int VerMSC = %%' | sed 's% *;.*$%%'`
 
 sim_ac_msc_minor_version=0
-if test $sim_ac_msc_version -ge 1400; then
+if test $sim_ac_msc_version -ge 1500; then
+  sim_ac_msc_major_version=9
+elif test $sim_ac_msc_version -ge 1400; then
   sim_ac_msc_major_version=8
 elif test $sim_ac_msc_version -ge 1300; then
   sim_ac_msc_major_version=7
@@ -638,6 +640,41 @@ rm -f confdefs.old
 
 
 # **************************************************************************
+# SIM_AC_MACOS10_DEPLOYMENT_TARGET
+
+AC_DEFUN([SIM_AC_MACOS10_DEPLOYMENT_TARGET], [
+
+# might not case on host_os here in case of crosscompiling in the future...
+case "$host_os" in
+darwin*)
+  AC_MSG_CHECKING([OS X deployment target])
+  cat > conftest.c << EOF
+int VerOSX = __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__;
+EOF
+  # The " *"-parts of the last sed-expression on the next line are necessary
+  # because at least the Solaris/CC preprocessor adds extra spaces before and
+  # after the trailing semicolon.
+  sim_ac_macos10_deployment_target_code=`$CXXCPP $CPPFLAGS conftest.c 2>/dev/null | grep '^int VerOSX' | sed 's%^int VerOSX = %%' | sed 's% *;.*$%%'`
+  rm -f conftest.c
+
+  case "$sim_ac_macos10_deployment_target_code" in
+  10* )
+    sim_ac_macos10_deployment_version_string=`echo $sim_ac_macos10_deployment_target_code | sed -e 's/^\(.\)\(.\)\(.\)\(.\)/\1\2.\3.\4/;'`
+    sim_ac_macos10_deployment_target_major_version=`echo $sim_ac_macos10_deployment_target_code | cut -c1-2`
+    sim_ac_macos10_deployment_target_minor_version=`echo $sim_ac_macos10_deployment_target_code | cut -c3`
+    sim_ac_macos10_deployment_target_micro_version=`echo $sim_ac_macos10_deployment_target_code | cut -c4`
+    AC_MSG_RESULT($sim_ac_macos10_deployment_target_version_string)
+    ;;
+  * )
+    :
+    AC_MSG_RESULT([-])
+    ;;
+  esac
+  ;;
+esac
+]) # SIM_AC_MACOS10_DEPLOYMENT_TARGET
+
+# **************************************************************************
 # SIM_AC_MAC_CPP_ADJUSTMENTS
 #
 # Add --no-cpp-precomp if necessary. Without this option, the
@@ -691,10 +728,10 @@ fi
 #
 #    $sim_ac_enable_universal (true if we are building Universal Binaries)
 #    $sim_ac_universal_flags (extra flags needed for Universal Binaries)
-#  
+#
 #  The CFLAGS and CXXFLAGS variables will also be modified accordingly.
 #
-#  Note that when building Universal Binaries, dependency tracking will 
+#  Note that when building Universal Binaries, dependency tracking will
 #  be turned off.
 #
 #  Important: This macro must be called _before_ AM_INIT_AUTOMAKE.
@@ -707,7 +744,7 @@ sim_ac_enable_universal=false
 
 
 case $host_os in
-  darwin* ) 
+  darwin* )
     AC_ARG_ENABLE(
       [universal],
       AC_HELP_STRING([--enable-universal], [build Universal Binaries]), [
@@ -716,7 +753,7 @@ case $host_os in
           *) ;;
         esac])
 
-    AC_MSG_CHECKING([whether we should build Universal Binaries])   
+    AC_MSG_CHECKING([whether we should build Universal Binaries])
     if $sim_ac_enable_universal; then
       AC_MSG_RESULT([yes])
       SIM_AC_CONFIGURATION_SETTING([Build Universal Binaries], [Yes])
@@ -727,7 +764,7 @@ case $host_os in
       fi
 
       sim_ac_universal_flags="-arch i386 -arch ppc $sim_ac_universal_sdk_flags"
-      
+
       CFLAGS="$sim_ac_universal_flags $CFLAGS"
       CXXFLAGS="$sim_ac_universal_flags $CXXFLAGS"
 
@@ -739,6 +776,7 @@ case $host_os in
     fi
 esac
 ]) # SIM_AC_UNIVERSAL_BINARIES
+
 
 #   Use this file to store miscellaneous macros related to checking
 #   compiler features.
@@ -8048,16 +8086,16 @@ AC_SUBST(DSUFFIX)
 # Description:
 #   Let the user decide if optimization should be attempted turned off
 #   by stripping off an "-O[0-9]" option.
-# 
+#
 #   Note: this macro must be placed after either AC_PROG_CC or AC_PROG_CXX
 #   in the configure.in script.
 #
 # FIXME: this is pretty much just a dirty hack. Unfortunately, this
 # seems to be the best we can do without fixing Autoconf to behave
 # properly wrt setting optimization options. 20011021 mortene.
-# 
+#
 # Author: Morten Eriksen, <mortene@sim.no>.
-# 
+#
 
 AC_DEFUN([SIM_AC_COMPILER_OPTIMIZATION], [
 AC_ARG_ENABLE(
@@ -8427,12 +8465,12 @@ AU_DEFUN([jm_MAINTAINER_MODE], [AM_MAINTAINER_MODE])
 #   Let the user decide if debug symbol information should be compiled
 #   in. The compiled libraries/executables will use a lot less space
 #   if stripped for their symbol information.
-# 
+#
 #   Note: this macro must be placed after either AC_PROG_CC or AC_PROG_CXX
 #   in the configure.in script.
-# 
+#
 # Author: Morten Eriksen, <mortene@sim.no>.
-# 
+#
 
 AC_DEFUN([SIM_AC_DEBUGSYMBOLS], [
 AC_ARG_ENABLE(
@@ -8461,10 +8499,10 @@ fi
 #   Let the user decide if RTTI should be compiled in. The compiled
 #   libraries/executables will use a lot less space if they don't
 #   contain RTTI.
-# 
+#
 #   Note: this macro must be placed after AC_PROG_CXX in the
 #   configure.in script.
-# 
+#
 # Author: Morten Eriksen, <mortene@sim.no>.
 
 AC_DEFUN([SIM_AC_RTTI_SUPPORT], [
@@ -8493,8 +8531,9 @@ fi
 #
 # Description:
 #   Let the user decide if C++ exception handling should be compiled
-#   in. The compiled libraries/executables will use a lot less space
-#   if they have exception handling support.
+#   in. With older compilers the libraries/executables will use a lot
+#   less space if they have exception handling support disabled, on
+#   modern compilers the difference is negligible.
 #
 #   Note: this macro must be placed after AC_PROG_CXX in the
 #   configure.in script.
@@ -8510,13 +8549,13 @@ AC_PREREQ([2.13])
 AC_ARG_ENABLE(
   [exceptions],
   AC_HELP_STRING([--enable-exceptions],
-                 [(g++ only) compile with exceptions [[default=no]]]),
+                 [(g++ only) compile with exceptions [[default=yes]]]),
   [case "${enableval}" in
     yes) enable_exceptions=yes ;;
     no)  enable_exceptions=no ;;
     *) AC_MSG_ERROR(bad value "${enableval}" for --enable-exceptions) ;;
   esac],
-  [enable_exceptions=no])
+  [enable_exceptions=yes])
 
 if test x"$enable_exceptions" = x"no"; then
   if test "x$GXX" = "xyes"; then
@@ -8535,8 +8574,12 @@ if test x"$enable_exceptions" = x"no"; then
     fi
   fi
 else
-  if test x"$GXX" != x"yes"; then
-    AC_MSG_WARN([--enable-exceptions only has effect when using GNU g++])
+  if $BUILD_WITH_MSVC; then
+    SIM_AC_CXX_COMPILER_OPTION([/EHsc], [CXXFLAGS="$CXXFLAGS /EHsc"])
+  else
+    if test x"$GXX" != x"yes"; then
+      AC_MSG_WARN([--enable-exceptions only has effect when using GNU g++])
+    fi
   fi
 fi
 ])
@@ -8782,7 +8825,7 @@ if $BUILD_WITH_MSVC && test x$sim_ac_msvc_version = x6; then
       [],
       [sim_ac_have_nobool=true])])
 fi
- 
+
 if $sim_ac_have_nobool; then
   sim_ac_nobool_CXXFLAGS="/noBool"
   AC_MSG_RESULT([yes])
@@ -9007,7 +9050,7 @@ describing the situation where this failed.
           fi
           LDFLAGS="$LDFLAGS -L$sim_ac_coindir/lib"
           LIBS="-l$sim_ac_coin_lib_name -lopengl32 $LIBS"
-          
+
           AC_LANG_PUSH(C++)
 
           AC_TRY_LINK(
