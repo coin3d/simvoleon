@@ -284,6 +284,7 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
   const float bboxradius = SbVec3f(dx, dy, dz).length() * 0.5f;
 
   const SbPlane camplane = viewvolume.getPlane(0.0f);
+  const SbPlane invcamplane = viewvolumeinv.getPlane(0.0f);
   const SbVec3f bboxcenter = bbox.getCenter();
   const float neardistance = SbAbs(camplane.getDistance(bboxcenter)) - bboxradius;
   const float fardistance = SbAbs(camplane.getDistance(bboxcenter)) + bboxradius;
@@ -344,13 +345,16 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
         subcubelist.append(cubeitem);
 
         SbBox3f subbbox(subcubeorigo, subcubeorigo + subcubeheight + subcubewidth + subcubedepth);
-
-        // use distance to plane instead of distance to projection
-        // point, since the projection point is only valid for
-        // perspective projections
-        SbPlane cameraplane = viewvolumeinv.getPlane(0.0f);
-        cubeitem->distancefromcamera = -cameraplane.getDistance(subbbox.getCenter());
-
+        float dist = -invcamplane.getDistance(subbbox.getCenter());
+        
+        if (viewvolumeinv.getProjectionType() == SbViewVolume::ORTHOGRAPHIC) {
+          cubeitem->distancefromcamera = dist;
+        }
+        else {
+          cubeitem->distancefromcamera = 
+            (float) sqrt((viewvolumeinv.getProjectionPoint() - subbbox.getCenter()).length());
+          if (dist < 0) cubeitem->distancefromcamera = -cubeitem->distancefromcamera;
+        }
         subbbox.transform(SoModelMatrixElement::get(state));
         float sdx, sdy, sdz;
         subbbox.getSize(sdx, sdy, sdz);

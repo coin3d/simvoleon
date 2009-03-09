@@ -55,6 +55,8 @@
 #include <Inventor/elements/SoGLTextureEnabledElement.h>
 #include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
+#include <Inventor/elements/SoShapeStyleElement.h>
+#include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 #include <Inventor/nodes/SoDrawStyle.h>
@@ -414,6 +416,24 @@ SoVolumeRender::initClass(void)
   SO_ENABLE(SoGLRenderAction, CvrLightingElement);
 }
 
+namespace {
+  // helper class used to push/pop the state
+  class SoStatePushPop {
+    
+  public:
+    SoStatePushPop(SoState * state_in) : state(state_in) {
+      state->push();
+    }
+    ~SoStatePushPop() {
+      this->state->pop();
+    }
+  private:
+    SoState * state;
+  };
+  
+};
+
+
 // doc in super
 void
 SoVolumeRender::GLRender(SoGLRenderAction * action)
@@ -423,34 +443,18 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   // code re-entrant / threadsafe. 20041112 mortene.
   CvrGlobalRenderLock lock;
 
+  SoState * state = action->getState();
+  SoStatePushPop pushpop(state);
 
-  // FIXME: need to make sure we're not cached in a renderlist
-
+  // Set transparency type to SORTED_OBJECT_BLEND, and enable a
+  // transparent material. This will delay rendering of this shape,
+  // and set up the state for blending
+  SoShapeStyleElement::setTransparencyType(state, SoGLRenderAction::SORTED_OBJECT_BLEND);
+  SoShapeStyleElement::setTransparentMaterial(state, TRUE);
+  SoCacheElement::invalidate(state); // invalidate cache
+  
   if (!this->shouldGLRender(action)) return;
-
-  // Render at the end, in case the volume is partly (or fully)
-  // transparent.
-  //
-  // FIXME: this makes rendering a bit slower, so we should perhaps
-  // keep a flag around to know whether or not this is actually
-  // necessary. 20040212 mortene.
-  //
-  // FIXME: we really shouldn't do it like this, we should rather let
-  // SoShape::shouldGLRender() handle it automatically -- there could
-  // be bad side effects from doing it like this (what will for
-  // instance happen if there is transparent materials or textures
-  // from graph traversal? Do we get pushed onto the delayed path list
-  // of the action twice?).
-  //
-  // To have SoShape::shouldGLRender() handle it automatically, we
-  // need to "fake" transparency onto the state stack, e.g. by pushing
-  // a material element. Investigate the SoShape::shouldGLRender()
-  // code to find out exactly how. 20040707 mortene.
-  if (!action->isRenderingDelayedPaths()) {
-    action->addDelayedPath(action->getCurPath()->copy());
-    return;
-  }
-
+  
   {
     SbBool lighting = this->lighting.getValue();
     SbVec3f lightDir = this->lightDirection.getValue();
@@ -460,7 +464,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   }
 
   if (CvrUtil::debugRayPicks()) { PRIVATE(this)->rayPickDebug(action); }
-  SoState * state = action->getState();
 
   // Fetching the current volumedata
   const CvrVoxelBlockElement * vbelement = CvrVoxelBlockElement::getInstance(state);
@@ -542,10 +545,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     return;
   }
 
-  state->push();
-  // *** Below this point, don't invoke "return", but do "goto done;",
-  // *** so state->pop() is done before returning.
-
   SbMatrix volumetransform;
   CvrUtil::getTransformFromVolumeBoxDimensions(vbelement, volumetransform);
   SoModelMatrixElement::mult(state, this, volumetransform);
@@ -560,7 +559,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 
   if (renderwithglpoints) {
     PointRendering::render(action);
-    goto done;
+    return;
   }
 
   rendermethod = SoVolumeRenderP::TEXTURE2D; // we consider this the default
@@ -601,7 +600,9 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   if (rendermethod == SoVolumeRenderP::TEXTURE3D) {
 
     const int numslices = PRIVATE(this)->calculateNrOf3DSlices(action, voxcubedims);
-    if (numslices == 0) goto done;
+    if (numslices == 0) {
+      return;
+    }
 
     if (!PRIVATE(this)->cubehandler) {
       PRIVATE(this)->cubehandler = new CvrCubeHandler();
@@ -629,7 +630,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     SoModelMatrixElement::scaleBy(state, this, SbVec3f(voxcubedims[0], voxcubedims[1], voxcubedims[2]));
 
     const int numslices = PRIVATE(this)->calculateNrOf2DSlices(action, voxcubedims);
-    if (numslices == 0) goto done;
+    if (numslices == 0) return;
 
     if (!PRIVATE(this)->pagehandler) {
       PRIVATE(this)->pagehandler = new CvrPageHandler(action);
@@ -652,10 +653,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   else {
     assert(FALSE && "Rendering method not implemented/supported.");
   }
-
-
-done:
-  state->pop();
 }
 
 // doc in super
