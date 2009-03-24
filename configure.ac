@@ -363,16 +363,27 @@ CXXFLAGS="$CXXFLAGS $sim_ac_compiler_CXXFLAGS"
 
 AC_SUBST([LIBFLAGS], [])
 
-if $BUILD_WITH_MSVC; then
-  rm -f vc60.pdb
+# check if compiler/linker handles __declspec()
+sim_ac_win32_declspec_available=false
+AC_MSG_CHECKING([for __declspec() support])
+AC_TRY_LINK(
+ [],
+ [__declspec(dllimport) int foo;],
+ [sim_ac_win32_declspec_available=true
+  AC_MSG_RESULT([available])],
+ [AC_MSG_RESULT([not available])])
+
+if $sim_ac_win32_declspec_available; then
   if $SIMVOLEON_STATIC; then
     SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS -DSIMVOLEON_NOT_DLL"
   else
     CPPFLAGS="-DSIMVOLEON_MAKE_DLL $CPPFLAGS"
     SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS -DSIMVOLEON_DLL"
-    LIBFLAGS="$sim_ac_msvcrt_LIBLDFLAGS $LIBFLAGS"
-    LIBS="$sim_ac_msvcrt_LIBLIBS $LIBS"
   fi
+fi
+
+if $BUILD_WITH_MSVC; then
+  rm -f vc60.pdb
   debugfile="`pwd`/lib/VolumeViz/simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.pdb"
   debugfile=`cygpath -w "$debugfile" | sed 's,\\\\,\\\\\\\\,g'`
   if $SIMVOLEON_STATIC; then
@@ -380,7 +391,8 @@ if $BUILD_WITH_MSVC; then
     LIBFLAGS="-LIB $LIBFLAGS"
     LIBFLAGS="$LIBFLAGS /OUT:simvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX}.lib"
   else
-    LIBFLAGS="-DLL /INCREMENTAL:NO $LIBFLAGS"
+    LIBFLAGS="-DLL /INCREMENTAL:NO $sim_ac_msvcrt_LIBLDFLAGS $LIBFLAGS"
+    LIBS="$sim_ac_msvcrt_LIBLIBS $LIBS"
     case $enable_symbols in
     no | false)
       SIM_AC_CONFIGURATION_SETTING([SIM Voleon build type],
