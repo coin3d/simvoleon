@@ -62,23 +62,23 @@
 // Once you create texture(s), you can give it(them) a priority using
 // glPrioritizeTexture
 // (http://www.3dlabs.com/support/developer/GLmanpages/glprioritizetextures.htm)
-// 
+//
 // this should tell the ICD to put textures with the highest priority
 // (and according to available texture memory on your hardware) into
 // the actual video ram on you sweet geforce (or whatever card you
 // happen to use:-).
-// 
+//
 // and then, you can see if that texture(s) is really resident (stored
 // in vram) by calling glAreTexturesResident
 // (http://www.3dlabs.com/support/developer/GLmanpages/glaretexturesresident.htm)
-// 
+//
 // So if you want to test how many textures you can cram into your
 // vram, you can just keep on creating new textures and setting their
 // priority to high (1) and for every new one you create see if it is
 // really stored in vram.  Keep in mind that you need to use a given
 // texture at least once before it can be "prioritized", put into
 // vram.
-// 
+//
 // This is really really cool, because say you want to use 10 textures
 // interchangeably. If you put them in vram then calls to
 // glBindTexture will be ultra fricking fast, because the texture will
@@ -497,15 +497,26 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   // FIXME: I guess we should really use proxy texture checking first,
   // before calling glTexImage[2|3]D() below. 20050628 mortene.
 
+
+
+
+
   if (nrtexdims == 2) {
+    // Adding a border to get rid of seams between tiled textures
+    // See: http://www.opengl.org/resources/code/samples/sig99/advanced99/notes/node64.html
+    // Changes was also bad CvrVoxelChunk::buildSubPageX/Y/Z as well as increasing the
+    // texture size by 2 in CvrTextureObject::create 20090730 eigils
+    int border = 1;
+    glPixelStorei(GL_UNPACK_ROW_LENGTH,texdims[0]);
     glTexImage2D(gltextypeenum,
                  0,
                  internalFormat,
-                 texdims[0], texdims[1],
-                 0,
+                 texdims[0]+2*border, texdims[1]+2*border,
+                 border,
                  this->isPaletted() ? gltextureformat : GL_RGBA,
                  GL_UNSIGNED_BYTE,
                  imgptr);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
   }
   else {
     assert(nrtexdims == 3);
@@ -585,7 +596,7 @@ CvrTextureObject::ref(void) const
   ((CvrTextureObject *)this)->refcounter++;
 }
 
-void 
+void
 CvrTextureObject::unref(void) const
 {
   assert(this->refcounter > 0);
@@ -613,7 +624,7 @@ CvrTextureObject::findInstanceMatch(const SoType t,
     CvrTextureObject * to = (*l)[i];
     if ((to->eqcmp == obj) && (to->getTypeId() == t)) { return to; }
   }
-  
+
   return NULL;
 }
 
@@ -642,7 +653,9 @@ CvrTextureObject::create(const SoGLRenderAction * action,
                          const unsigned int axisidx,
                          const int pageidx)
 {
-  const SbVec3s tex(texsize[0], texsize[1], 1);
+  // Adding 2 to make room for borders 20090730 eigils
+  const SbVec3s tex(texsize[0]+2, texsize[1]+2, 1);
+
   const SbBox3s dummy; // constructor initializes it to an empty box
 
   return CvrTextureObject::create(action, clut, tex, dummy, cutslice, axisidx, pageidx);
@@ -682,7 +695,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   incoming.cutslice = cutslice; // For 2D tex
   incoming.axisidx = axisidx; // For 2D tex
   incoming.pageidx = pageidx; // For 2D tex
-  
+
   CvrTextureObject * obj =
     CvrTextureObject::findInstanceMatch(createtype, incoming);
   if (obj) { return obj; }
@@ -878,7 +891,7 @@ CvrTextureObject::EqualityComparison::operator==(const CvrTextureObject::Equalit
     (this->cutslice == obj.cutslice) &&
     (this->axisidx == obj.axisidx) &&
     (this->pageidx == obj.pageidx);
-  
+
 }
 
 // *************************************************************************

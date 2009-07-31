@@ -1,4 +1,4 @@
-/**************************************************************************\
+/************************************************************************** \
  *
  *  This file is part of the SIM Voleon visualization library.
  *  Copyright (C) 2003-2004 by Systems in Motion.  All rights reserved.
@@ -295,7 +295,7 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
   //
   // UPDATE: freya is now running an ATI card, so I can't easily track
   // this down any further. 20040716 mortene.
-  // 
+  //
   // UPDATE: Using 4 as minimum size causes an ugly mem-corruption as
   // the allocated buffer gets too small when the real size is 2. The
   // original fix does not seem to have any effect on 3D textures. I
@@ -334,12 +334,12 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
 
   const int unitsize = this->getUnitSize();
   clut->ref();
-  
+
   if (palettetex) { palettetex->setCLUT(clut); }
-  
+
   const int32_t shiftval = transferfunc->shift.getValue();
   const int32_t offsetval = transferfunc->offset.getValue();
-  
+
   const void * inputbytebuffer;
   if (unitsize == 1) { inputbytebuffer = this->getBuffer8(); }
   else if (unitsize == 2) {
@@ -350,10 +350,10 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
                                 "yet. Voxels will therefore be scaled down to 8 bits.");
       flag = TRUE;
     }
-    inputbytebuffer = this->getBuffer16();      
+    inputbytebuffer = this->getBuffer16();
   }
   else { assert(FALSE && "Unknown unit size!"); }
-  
+
   uint8_t * output;
   if (palettetex) output = palettetex->getIndex8Buffer();
   else output = (uint8_t *) rgbatex->getRGBABuffer();
@@ -369,7 +369,7 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
   for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
     for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
       for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
-        
+
         int voxelidx;
         if (CvrUtil::useFlippedYAxis()) {
           voxelidx = (z * (size[0]*size[1])) + (((size[1]-1) - y) * size[0]) + x;
@@ -378,15 +378,15 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
           voxelidx = (z * (size[0]*size[1])) + (size[0]*y) + x;
         }
 
-        int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;        
+        int texelidx = (z * (texsize[0] * texsize[1])) + (y * texsize[0]) + x;
         assert(voxelidx <= (size[0] * size[1] * size[2]));
         assert(texelidx <= (texsize[0] * texsize[1] * texsize[2]));
 
         if (palettetex) {
           if (lighting) texelidx *= 4;
           uint8_t voldataidx;
-          if (unitsize == 1) voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];            
-          else voldataidx = (((uint16_t *) inputbytebuffer)[voxelidx] >> 8); // Shift value to 8bit 
+          if (unitsize == 1) voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];
+          else voldataidx = (((uint16_t *) inputbytebuffer)[voxelidx] >> 8); // Shift value to 8bit
           output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
           if (lighting) {
             SbVec3f voxgrad = grad->getGradientRangeCompressed(x, y, z);
@@ -394,10 +394,10 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
             output[texelidx+2] = (uint8_t) voxgrad[1];
             output[texelidx+3] = (uint8_t) voxgrad[2];
           }
-        } 
+        }
         else {
           const uint32_t voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];
-          const uint32_t colidx = (voldataidx << shiftval) + offsetval;            
+          const uint32_t colidx = (voldataidx << shiftval) + offsetval;
           clut->lookupRGBA(colidx, &output[texelidx * 4]);
           SbBool inv = output[texelidx * 4 + 3] == 0x00;
           if (lighting && !inv) {
@@ -410,11 +410,11 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
           }
           invisible = invisible && inv;
         }
-        
+
       }
     }
   }
-    
+
   // FIXME: should set the ''invisible'' flag correctly to
   // optimize the amount of the available fill-rate of the gfx
   // card we're using.
@@ -502,51 +502,51 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, const CvrCLUT * clut,
 
   const int unitsize = this->getUnitSize();
   clut->ref();
-  
+
   if (palettetex) { palettetex->setCLUT(clut); }
-  
+
   const int32_t shiftval = transferfunc->shift.getValue();
   const int32_t offsetval = transferfunc->offset.getValue();
-  
+
   const void * inputbytebuffer;
   if (unitsize == 1) { inputbytebuffer = this->getBuffer8(); }
   else if (unitsize == 2) {
-    assert(palettetex && "16 bits textures must be palette textures!");    
+    assert(palettetex && "16 bits textures must be palette textures!");
     static SbBool flag = FALSE;
     if (!flag) { // Print only once
       SoDebugError::postWarning("transfer2D", "16 bits pr voxel unit size is not properly implemented "
                                 "yet. Voxels will therefore be scaled down to 8 bits.");
       flag = TRUE;
-    }   
-    inputbytebuffer = this->getBuffer16();      
+    }
+    inputbytebuffer = this->getBuffer16();
   }
   else { assert(FALSE && "Unknown unit size!"); }
-  
+
   uint8_t * output;
   if (palettetex) output = palettetex->getIndex8Buffer();
   else output = (uint8_t *) rgbatex->getRGBABuffer();
-  
+
   for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {
     for (unsigned int x = 0; x < (unsigned int) size[0]; x++) {
-            
+
       const int voxelidx = y * size[0] + x;
       const int texelidx = y * texsize[0] + x;
 
       if (palettetex) {
         uint8_t voldataidx;
-        if (unitsize == 1) voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];            
-        else voldataidx = (((uint16_t *) inputbytebuffer)[voxelidx] >> 8); // Shift value to 8bit 
+        if (unitsize == 1) voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];
+        else voldataidx = (((uint16_t *) inputbytebuffer)[voxelidx] >> 8); // Shift value to 8bit
         output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
-      } 
+      }
       else {
         const uint32_t voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];
-        const uint32_t colidx = (voldataidx << shiftval) + offsetval;            
+        const uint32_t colidx = (voldataidx << shiftval) + offsetval;
         clut->lookupRGBA(colidx, &output[texelidx * 4]);
         invisible = invisible && (output[texelidx * 4 + 3] == 0x00);
-      }      
-    }    
+      }
+    }
   }
-    
+
   // FIXME: should set the ''invisible'' flag correctly to
   // optimize the amount of the available fill-rate of the gfx
   // card we're using.
@@ -665,13 +665,22 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
 
   const int zAdd = dim[0] * dim[1];
 
-  const int nrhorizvoxels = ssmax[0] - ssmin[0];
-  assert(nrhorizvoxels > 0);
-  const int nrvertvoxels = ssmax[1] - ssmin[1];
-  assert(nrvertvoxels > 0);
+  // We're adding 2 here to make room for the border that helps of get
+  // rid of the seams between tiles.
+  // Have are substracting 1 from ssmin compensate for the offset we
+  // would otherwise have. Also, special care is taken on the outer border,
+  // by letting the border pixels on the outer edges of the destination texture
+  // equal the border pixel of the source image 20090730 eigils
+
+  const int nrhorizvoxels = ssmax[0] - ssmin[0] + 2;
+  assert(nrhorizvoxels > 2);
+  const int nrvertvoxels = ssmax[1] - ssmin[1] + 2;
+  assert(nrvertvoxels > 2);
 
   const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
   CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, this->getUnitSize());
+
+  ssmin[0]-=1; ssmin[1]-=1;
 
   const unsigned int staticoffset =
     pageidx + ssmin[1] * dim[0] + ssmin[0] * zAdd;
@@ -681,18 +690,44 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
   uint8_t * outputbytebuffer = (uint8_t *)output->getBuffer();
 
   for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
-    const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
-    const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
-    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
+    int rowidx_t = rowidx;
+    if(ssmin[1]<0 && rowidx==0) rowidx_t++;
+    if(ssmax[1]>(dim[1]-1) && rowidx==(nrvertvoxels-1)) rowidx_t--;
+
+    const unsigned int inoffset = staticoffset + (rowidx_t * dim[0]);
+
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx_t * voxelsize]);
+
+    int pixcropfront = ssmin[0]<0 ? 1 : 0;
+    int pixcropback = ssmax[0]>(dim[2]-1) ? 1 : 0;
+
+    uint8_t * srcptr = 	srcptr = &(inputbytebuffer[(inoffset + pixcropfront*zAdd)*voxelsize]);
 
     // FIXME: should optimize this loop. 20021125 mortene.
-    for (int horizidx = 0; horizidx < nrhorizvoxels; horizidx++) {
+    int startidx=0;
+    if(ssmin[0]<0)
+      {
+	uint8_t *srcptr_t = srcptr;
+	*dstptr++ = *srcptr_t++;
+	if (voxelsize > 1) *dstptr++ = *srcptr_t++;
+	if (voxelsize == 4) { *dstptr++ = *srcptr_t++; *dstptr++ = *srcptr_t++; }
+      }
+
+    for (int horizidx = pixcropfront; horizidx < nrhorizvoxels; horizidx++) {
+
+      if(pixcropback && horizidx==(nrhorizvoxels-1))
+	{
+	srcptr -= zAdd * voxelsize - voxelsize;
+	}
+
       *dstptr++ = *srcptr++;
       if (voxelsize > 1) *dstptr++ = *srcptr++;
       if (voxelsize == 4) { *dstptr++ = *srcptr++; *dstptr++ = *srcptr++; }
 
       srcptr += zAdd * voxelsize - voxelsize;
     }
+
+
   }
 
   return output;
@@ -724,7 +759,7 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
 
   Cutting is done top-to-bottom, and is placed in the output slice
   buffer left-to-right, top-to-bottom.
- */
+*/
 CvrVoxelChunk *
 CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by using an SbBox3s for cutslice. 20021203 mortene.
                              const SbBox2s & cutslice)
@@ -737,13 +772,23 @@ CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by usi
 
   const SbVec3s dim = this->getDimensions();
 
-  const int nrhorizvoxels = ssmax[0] - ssmin[0];
+
+  // We're adding 2 here to make room for the border that helps of get
+  // rid of the seams between tiles.
+  // Have are substracting 1 from ssmin compensate for the offset we
+  // would otherwise have. Also, special care is taken on the outer border,
+  // by letting the border pixels on the outer edges of the destination texture
+  // equal the border pixel of the source image 20090730 eigils
+
+  const int nrhorizvoxels = ssmax[0] - ssmin[0] + 2;
   assert(nrhorizvoxels > 0);
-  const int nrvertvoxels = ssmax[1] - ssmin[1];
+  const int nrvertvoxels = ssmax[1] - ssmin[1] + 2;
   assert(nrvertvoxels > 0);
 
   const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
   CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, this->getUnitSize());
+
+  ssmin[0]-=1;   ssmin[1]-=1;
 
   const unsigned int staticoffset =
     (ssmin[1] * dim[0] * dim[1]) + (pageidx * dim[0]) + ssmin[0];
@@ -752,13 +797,28 @@ CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by usi
   uint8_t * inputbytebuffer = (uint8_t *)this->getBuffer();
   uint8_t * outputbytebuffer = (uint8_t *)output->getBuffer();
 
-  for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
-    const unsigned int inoffset = staticoffset + (rowidx * dim[0] * dim[1]);
-    const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
+  for (int rowidx = 0; rowidx < nrvertvoxels ; rowidx++) {
+    int rowidx_t = rowidx;
+    if(ssmin[1]<0 && rowidx==0) rowidx_t++;
+    if(ssmax[1]>(dim[2]-1) && rowidx==(nrvertvoxels-1)) rowidx_t--;
 
-    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
+    const unsigned int inoffset = staticoffset + (rowidx_t * dim[0] * dim[1]);
 
-    (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx_t * voxelsize]);
+
+    int pixcropfront = ssmin[0]<0 ? 1 : 0;
+    int pixcropback = ssmax[0]>(dim[0]-1) ? 1 : 0;
+
+    const uint8_t * srcptr = &(inputbytebuffer[(inoffset+pixcropfront) * voxelsize]);
+
+    if(ssmin[0]<0)
+      (void)memcpy(dstptr, srcptr, voxelsize);
+
+    if(ssmax[0]>(dim[0]-1))
+      (void)memcpy(&dstptr[(dim[0]-1)*voxelsize], &srcptr[(dim[0]-1-pixcropfront)*voxelsize], voxelsize);
+
+    (void)memcpy(&dstptr[pixcropfront*voxelsize], srcptr, (nrhorizvoxels-pixcropfront-pixcropback) * voxelsize);
+
   }
 
   return output;
@@ -777,13 +837,23 @@ CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by usi
 
   const SbVec3s dim = this->getDimensions();
 
-  const int nrhorizvoxels = ssmax[0] - ssmin[0];
+  // We're adding 2 here to make room for the border that helps of get
+  // rid of the seams between tiles.
+  // Have are substracting 1 from ssmin compensate for the offset we
+  // would otherwise have. Also, special care is taken on the outer border,
+  // by letting the border pixels on the outer edges of the destination texture
+  // equal the border pixel of the source image 20090730 eigils
+
+  const int nrhorizvoxels = ssmax[0] - ssmin[0] + 2;
   assert(nrhorizvoxels > 0);
-  const int nrvertvoxels = ssmax[1] - ssmin[1];
+  const int nrvertvoxels = ssmax[1] - ssmin[1] + 2;
   assert(nrvertvoxels > 0);
 
   const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
   CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, this->getUnitSize());
+
+  ssmin[0]-=1;
+  ssmin[1]-=1;
 
   const unsigned int staticoffset =
     (pageidx * dim[0] * dim[1]) + (ssmin[1] * dim[0]) + ssmin[0];
@@ -793,10 +863,27 @@ CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by usi
   uint8_t * outputbytebuffer = (uint8_t *)output->getBuffer();
 
   for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
-    const unsigned int inoffset = staticoffset + (rowidx * dim[0]);
-    const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
-    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
-    (void)memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
+    int rowidx_t = rowidx;
+    if(ssmin[1]<0 && rowidx==0) rowidx_t++;
+    if(ssmax[1]>(dim[1]-1) && rowidx==(nrvertvoxels-1)) rowidx_t--;
+
+    unsigned int inoffset = staticoffset + (rowidx_t * dim[0]);
+
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx_t * voxelsize]);
+
+    int pixcropfront = ssmin[0]<0 ? 1 : 0;
+    int pixcropback = ssmax[0]>(dim[0]-1) ? 1 : 0;
+
+    const uint8_t * srcptr = &(inputbytebuffer[(inoffset+pixcropfront) * voxelsize]);
+
+    if(ssmin[0]<0)
+      (void)memcpy(dstptr, srcptr, voxelsize);
+
+    if(ssmax[0]>(dim[0]-1))
+      (void)memcpy(&dstptr[(dim[0]-1)*voxelsize], &srcptr[(dim[0]-1-pixcropfront)*voxelsize], voxelsize);
+
+    (void)memcpy(&dstptr[pixcropfront*voxelsize], srcptr, (nrhorizvoxels-pixcropfront-pixcropback) * voxelsize);
+
   }
 
   return output;
