@@ -653,8 +653,8 @@ CvrTextureObject::create(const SoGLRenderAction * action,
                          const unsigned int axisidx,
                          const int pageidx)
 {
-  // Adding 2 to make room for borders 20090730 eigils
-  const SbVec3s tex(texsize[0]+2, texsize[1]+2, 1);
+
+  const SbVec3s tex(texsize[0], texsize[1], 1);
 
   const SbBox3s dummy; // constructor initializes it to an empty box
 
@@ -717,8 +717,12 @@ CvrTextureObject::create(const SoGLRenderAction * action,
 
   // The actual dimensions of the GL texture must be values that are
   // power-of-two's:
+  // Adding 2 to make room for borders in 2D textures 0090730 eigils
   for (unsigned int i=0; i < 3; i++) {
-    newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i]);
+    if(!is2d || i==2)
+      newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i]);
+    else
+      newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i]) + 2;
   }
 
   SbBool invisible = FALSE;
