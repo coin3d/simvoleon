@@ -71,7 +71,8 @@ Cvr2DPaletteTexture::getIndex8Buffer(void) const
     // Cast away constness.
     Cvr2DPaletteTexture * that = (Cvr2DPaletteTexture *)this;
     const SbVec3s dim = this->getDimensions();
-    that->indexbuffer = new uint8_t[dim[0] * dim[1]];
+    //adding 2 two each dimension to make room for border 20090408 eigils
+    that->indexbuffer = new uint8_t[(dim[0]+2) * (dim[1]+2)];
   }
 
   return this->indexbuffer;
@@ -84,19 +85,19 @@ Cvr2DPaletteTexture::blankUnused(const SbVec3s & texsize) const
 {
   assert(this->indexbuffer);
   assert(texsize[2] == 1);
-  
+
   const SbVec3s texobjdims = this->getDimensions();
   {
-    for (short y=texsize[1]; y < texobjdims[1]; y++) {
-      for (short x=0; x < texobjdims[0]; x++) {
-        this->indexbuffer[y * texobjdims[0] + x] = 0x00;
+    for (short y=texsize[1]+2; y < texobjdims[1]+2; y++) {
+      for (short x=0; x < texobjdims[0]+2; x++) {
+        this->indexbuffer[y * (texobjdims[0]+2) + x] = 0x00;
       }
     }
   }
   {
-    for (short x=texsize[0]; x < texobjdims[0]; x++) {
-      for (short y=0; y < texobjdims[1]; y++) {
-        this->indexbuffer[y * texobjdims[0] + x] = 0x00;
+    for (short x=texsize[0]+2; x < texobjdims[0]+2; x++) {
+      for (short y=0; y < texobjdims[1]+2; y++) {
+        this->indexbuffer[y * (texobjdims[0]+2) + x] = 0x00;
       }
     }
   }

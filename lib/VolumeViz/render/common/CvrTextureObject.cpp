@@ -1,4 +1,4 @@
-/**************************************************************************\
+/************************************************************************** \
  *
  *  This file is part of the SIM Voleon visualization library.
  *  Copyright (C) 2003-2004 by Systems in Motion.  All rights reserved.
@@ -507,7 +507,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
     // Changes was also bad CvrVoxelChunk::buildSubPageX/Y/Z as well as increasing the
     // texture size by 2 in CvrTextureObject::create 20090730 eigils
     int border = 1;
-    glPixelStorei(GL_UNPACK_ROW_LENGTH,texdims[0]);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(gltextypeenum,
                  0,
                  internalFormat,
@@ -516,7 +516,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
                  this->isPaletted() ? gltextureformat : GL_RGBA,
                  GL_UNSIGNED_BYTE,
                  imgptr);
-    glPixelStorei(GL_UNPACK_ROW_LENGTH,0);
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
   }
   else {
     assert(nrtexdims == 3);
@@ -719,10 +719,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   // power-of-two's:
   // Adding 2 to make room for borders in 2D textures 0090730 eigils
   for (unsigned int i=0; i < 3; i++) {
-    if(!is2d || i==2)
-      newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i]);
-    else
-      newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i]) + 2;
+          newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i]);
   }
 
   SbBool invisible = FALSE;

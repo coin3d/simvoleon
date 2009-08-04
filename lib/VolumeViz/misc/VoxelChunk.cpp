@@ -484,8 +484,8 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, const CvrCLUT * clut,
   const SbVec2s texsize(coin_next_power_of_two(size[0] - 1),
                         coin_next_power_of_two(size[1] - 1));
 #else
-  const SbVec2s texsize(SbMax((uint32_t)4, coin_next_power_of_two(size[0] - 1)),
-                        SbMax((uint32_t)4, coin_next_power_of_two(size[1] - 1)));
+  const SbVec2s texsize(SbMax((uint32_t)4, coin_next_power_of_two(size[0] - 3) + 2),
+                        SbMax((uint32_t)4, coin_next_power_of_two(size[1] - 3) + 2));
 #endif
 
   invisible = TRUE;
@@ -667,7 +667,7 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
 
   // We're adding 2 here to make room for the border that helps of get
   // rid of the seams between tiles.
-  // Have are substracting 1 from ssmin compensate for the offset we
+  // Substracting 1 from ssmin to compensate for the offset we
   // would otherwise have. Also, special care is taken on the outer border,
   // by letting the border pixels on the outer edges of the destination texture
   // equal the border pixel of the source image 20090730 eigils
@@ -692,20 +692,20 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
   for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
     int rowidx_t = rowidx;
     if(ssmin[1]<0 && rowidx==0) rowidx_t++;
-    if(ssmax[1]>(dim[1]-1) && rowidx==(nrvertvoxels-1)) rowidx_t--;
+    if(ssmax[1]==dim[1] && rowidx==(nrvertvoxels-1)) rowidx_t--;
 
     const unsigned int inoffset = staticoffset + (rowidx_t * dim[0]);
 
-    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx_t * voxelsize]);
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
 
     int pixcropfront = ssmin[0]<0 ? 1 : 0;
-    int pixcropback = ssmax[0]>(dim[2]-1) ? 1 : 0;
+    int pixcropback = ssmax[0]==dim[2] ? 1 : 0;
 
     uint8_t * srcptr = 	srcptr = &(inputbytebuffer[(inoffset + pixcropfront*zAdd)*voxelsize]);
 
     // FIXME: should optimize this loop. 20021125 mortene.
     int startidx=0;
-    if(ssmin[0]<0)
+    if(pixcropfront)
       {
 	uint8_t *srcptr_t = srcptr;
 	*dstptr++ = *srcptr_t++;
@@ -775,7 +775,7 @@ CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by usi
 
   // We're adding 2 here to make room for the border that helps of get
   // rid of the seams between tiles.
-  // Have are substracting 1 from ssmin compensate for the offset we
+  // Substracting 1 from ssmin to compensate for the offset we
   // would otherwise have. Also, special care is taken on the outer border,
   // by letting the border pixels on the outer edges of the destination texture
   // equal the border pixel of the source image 20090730 eigils
@@ -800,22 +800,22 @@ CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by usi
   for (int rowidx = 0; rowidx < nrvertvoxels ; rowidx++) {
     int rowidx_t = rowidx;
     if(ssmin[1]<0 && rowidx==0) rowidx_t++;
-    if(ssmax[1]>(dim[2]-1) && rowidx==(nrvertvoxels-1)) rowidx_t--;
+    if(ssmax[1]==dim[2] && rowidx==(nrvertvoxels-1)) rowidx_t--;
 
     const unsigned int inoffset = staticoffset + (rowidx_t * dim[0] * dim[1]);
 
-    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx_t * voxelsize]);
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
 
     int pixcropfront = ssmin[0]<0 ? 1 : 0;
-    int pixcropback = ssmax[0]>(dim[0]-1) ? 1 : 0;
+    int pixcropback = ssmax[0]==dim[0] ? 1 : 0;
 
     const uint8_t * srcptr = &(inputbytebuffer[(inoffset+pixcropfront) * voxelsize]);
 
-    if(ssmin[0]<0)
+    if(pixcropfront)
       (void)memcpy(dstptr, srcptr, voxelsize);
 
-    if(ssmax[0]>(dim[0]-1))
-      (void)memcpy(&dstptr[(dim[0]-1)*voxelsize], &srcptr[(dim[0]-1-pixcropfront)*voxelsize], voxelsize);
+    if(pixcropback)
+      (void)memcpy(&dstptr[(nrhorizvoxels-1)*voxelsize], &srcptr[(nrhorizvoxels-pixcropfront-pixcropback-1)*voxelsize], voxelsize);
 
     (void)memcpy(&dstptr[pixcropfront*voxelsize], srcptr, (nrhorizvoxels-pixcropfront-pixcropback) * voxelsize);
 
@@ -839,7 +839,7 @@ CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by usi
 
   // We're adding 2 here to make room for the border that helps of get
   // rid of the seams between tiles.
-  // Have are substracting 1 from ssmin compensate for the offset we
+  // Substracting 1 from ssmin to compensate for the offset we
   // would otherwise have. Also, special care is taken on the outer border,
   // by letting the border pixels on the outer edges of the destination texture
   // equal the border pixel of the source image 20090730 eigils
@@ -865,22 +865,26 @@ CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by usi
   for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
     int rowidx_t = rowidx;
     if(ssmin[1]<0 && rowidx==0) rowidx_t++;
-    if(ssmax[1]>(dim[1]-1) && rowidx==(nrvertvoxels-1)) rowidx_t--;
+    if(ssmax[1]==dim[1] && rowidx==(nrvertvoxels-1)) rowidx_t--;
 
     unsigned int inoffset = staticoffset + (rowidx_t * dim[0]);
 
-    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx_t * voxelsize]);
+    uint8_t * dstptr = &(outputbytebuffer[nrhorizvoxels * rowidx * voxelsize]);
 
     int pixcropfront = ssmin[0]<0 ? 1 : 0;
-    int pixcropback = ssmax[0]>(dim[0]-1) ? 1 : 0;
+    int pixcropback = ssmax[0]==dim[0] ? 1 : 0;
 
     const uint8_t * srcptr = &(inputbytebuffer[(inoffset+pixcropfront) * voxelsize]);
 
-    if(ssmin[0]<0)
+    if(pixcropfront)
+      {
       (void)memcpy(dstptr, srcptr, voxelsize);
+      }
 
-    if(ssmax[0]>(dim[0]-1))
-      (void)memcpy(&dstptr[(dim[0]-1)*voxelsize], &srcptr[(dim[0]-1-pixcropfront)*voxelsize], voxelsize);
+    if(pixcropback)
+      {
+	(void)memcpy(&dstptr[(nrhorizvoxels-1)*voxelsize], &srcptr[(nrhorizvoxels-pixcropfront-pixcropback-1)*voxelsize], voxelsize);
+      }
 
     (void)memcpy(&dstptr[pixcropfront*voxelsize], srcptr, (nrhorizvoxels-pixcropfront-pixcropback) * voxelsize);
 
