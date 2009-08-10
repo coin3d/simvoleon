@@ -276,12 +276,14 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
   const SbBox3s voxelbounds(SbVec3s(0, 0, 0), voxcubedims - SbVec3s(1, 1, 1));
 
   SbVec3s ijk, lastijk(-1, -1, -1);
-  SbVec3f objectcoord = raystart;
   SoPickedPoint * pickedpoint = NULL;
   CvrCLUT * clut = NULL;
   SbBool opaquevoxelhit = FALSE;
 
-  while (TRUE) {
+  for (SbVec3f objectcoord = raystart;
+       (objectcoord - raystart).length() < (rayend - raystart).length();
+       objectcoord += stepvec) {
+
     // FIXME: we're not hitting the voxels in an exact manner with the
     // intersection testing (it seems we're slightly off in the
     // x-direction, at least), as can be seen from the
@@ -293,68 +295,63 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
     // fixed an offset bug in the objectCoordsToIJK() method
     // today. 20030320 mortene.
 
+    // check if coords is not inside action's volume for picking
+    if (!action->isBetweenPlanes(objectcoord)) { continue; }
+
     ijk = vbelem->objectCoordsToIJK(objectcoord);
-    if (!voxelbounds.intersect(ijk)) break;
-    
-    if (!action->isBetweenPlanes(objectcoord)) {
-      objectcoord += stepvec;
-      continue;
-    }
-    
-    if (ijk != lastijk) { // touched new voxel
 
-      if (CvrUtil::debugRayPicks()) {
-        SoDebugError::postInfo("SoVolumeDetail::rayPick",
-                               "ijk=<%d, %d, %d>", ijk[0], ijk[1], ijk[2]);
-      }    
-      
-      clut = CvrVoxelChunk::getCLUT(transferfunctionelement, CvrCLUT::ALPHA_AS_IS);
-      clut->ref();
-      uint8_t rgba[4];
-      const uint32_t voxelvalue = vbelem->getVoxelValue(ijk);      
-      clut->lookupRGBA(voxelvalue, rgba);
+    // voxel out of bounds?
+    if (!voxelbounds.intersect(ijk)) { continue; }
+    // ray already touched this voxel?
+    if (ijk == lastijk) { continue; }
+
+    if (CvrUtil::debugRayPicks()) {
+      SoDebugError::postInfo("SoVolumeDetail::setDetails",
+                             "ray touched new voxel ijk=<%d, %d, %d>",
+                             ijk[0], ijk[1], ijk[2]);
+    }
+
+    clut = CvrVoxelChunk::getCLUT(transferfunctionelement, CvrCLUT::ALPHA_AS_IS);
+    clut->ref();
+    uint8_t rgba[4];
+    const uint32_t voxelvalue = vbelem->getVoxelValue(ijk);      
+    clut->lookupRGBA(voxelvalue, rgba);
      
-      if (pickedpoint == NULL) {                
-        if (rgba[3] != 0) {
-          pickedpoint = action->addIntersection(objectcoord);        
-          opaquevoxelhit = TRUE;
-          // if NULL, something else is obstructing the view to the
-          // volume, the app programmer only want the nearest, and we
-          // don't need to continue our intersection tests
-          if (pickedpoint == NULL) return;
-        }
-        // FIXME: should fill in the normal vector of the pickedpoint:
-        //  ->setObjectNormal(<voxcube-side-normal>);
-        // 20030320 mortene.       
+    if (pickedpoint == NULL) {                
+      if (rgba[3] != 0) {
+        pickedpoint = action->addIntersection(objectcoord);        
+        opaquevoxelhit = TRUE;
+        // if NULL, something else is obstructing the view to the
+        // volume, the app programmer only want the nearest, and we
+        // don't need to continue our intersection tests
+        if (pickedpoint == NULL) return;
       }
-
-
-      if (CvrUtil::debugRayPicks()) { // Draw a voxel-line through the volume
-        static uint8_t raypickdebugcounter = 0;
-        PRIVATE(this)->setVoxelValue(ijk, 255 - (raypickdebugcounter++ & 2), vbelem);
-        if (pickedpoint) {
-          SoPath * path = pickedpoint->getPath();          
-          SoSearchAction sa;
-          sa.setType(SoVolumeData::getClassTypeId());
-          sa.setInterest(SoSearchAction::LAST);
-          sa.apply(path);          
-          SoPath * result = sa.getPath();
-          assert(result && "Could not find a SoVolumeData node in path.");
-          SoVolumeData * vd = (SoVolumeData *) result->getTail();
-          vd->touch(); // Update volume data
-        }
-      }
-
-      PRIVATE(this)->addVoxelIntersection(objectcoord, ijk, voxelvalue, rgba);
-      lastijk = ijk;      
-      
-    }
-    else if (CvrUtil::debugRayPicks()) {
-      SoDebugError::postInfo("SoVolumeDetail::rayPick", "duplicate");
+      // FIXME: should fill in the normal vector of the pickedpoint:
+      //  ->setObjectNormal(<voxcube-side-normal>);
+      // 20030320 mortene.       
     }
 
-    objectcoord += stepvec;
+
+    if (CvrUtil::debugRayPicks()) { // Draw a voxel-line through the volume
+      static uint8_t raypickdebugcounter = 0;
+      PRIVATE(this)->setVoxelValue(ijk, 255 - (raypickdebugcounter++ & 2), vbelem);
+      if (pickedpoint) {
+        SoPath * path = pickedpoint->getPath();          
+        SoSearchAction sa;
+        sa.setType(SoVolumeData::getClassTypeId());
+        sa.setInterest(SoSearchAction::LAST);
+        sa.apply(path);          
+        SoPath * result = sa.getPath();
+        assert(result && "Could not find a SoVolumeData node in path.");
+        SoVolumeData * vd = (SoVolumeData *) result->getTail();
+        vd->touch(); // Update volume data
+      }
+    }
+
+    PRIVATE(this)->addVoxelIntersection(objectcoord, ijk, voxelvalue, rgba);
+    lastijk = ijk;      
   }
+
  
   if (clut) clut->unref();
   

@@ -157,23 +157,10 @@ CvrVoxelBlockElement::objectCoordsToIJK(const SbVec3f & objectpos) const
   SbVec3s ijk;
   for (int i=0; i < 3; i++) {
     const float normcoord = (objectpos[i] - mincorner[i]) / size[i];
-    if (normcoord < 0) { // exited the far side of the ijk-cube
-      // note: this is an optimization (since it will shortcut further
-      // ray traversal in the calling code).
-      //
-      // it also takes care of handling the border case where we have
-      // a volume which has any dimension == 1 (ie a 1xYxZ sheet, a
-      // 1x1xZ bar, or a 1x1x1 cube), which will otherwise always set
-      // this ijk position to zero in the code line in the "else"
-      // part. (normcoord will be multiplied with 0.)
-      ijk[i] = -1;
-    }
-    else {
-      ijk[i] = (short)(normcoord * (voxeldims[i] - 1));
-    }
+    ijk[i] = (short)(normcoord * voxeldims[i]);
   }
 
-  if (CvrUtil::debugRayPicks()) {
+  if (0 && CvrUtil::debugRayPicks()) {
     SoDebugError::postInfo("CvrVoxelBlockElement::objectCoordsToIJK",
                            "objectpos==<%f, %f, %f>, volumesize==<%f, %f, %f>, "
                            "mincorner==<%f, %f, %f>, voxeldims==<%d, %d, %d> "
