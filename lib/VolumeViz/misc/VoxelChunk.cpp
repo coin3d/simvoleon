@@ -484,8 +484,7 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, const CvrCLUT * clut,
   const SbVec2s texsize(coin_next_power_of_two(size[0] - 1),
                         coin_next_power_of_two(size[1] - 1));
 #else
-  const SbVec2s texsize(SbMax((uint32_t)4, coin_next_power_of_two(size[0] - 3) + 2),
-                        SbMax((uint32_t)4, coin_next_power_of_two(size[1] - 3) + 2));
+  const SbVec2s texsize(texobj->getDimensions()[0] + 2, texobj->getDimensions()[1] + 2);
 #endif
 
   invisible = TRUE;
