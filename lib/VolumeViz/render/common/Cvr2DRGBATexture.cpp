@@ -24,6 +24,7 @@
 #include <VolumeViz/render/common/Cvr2DRGBATexture.h>
 
 #include <assert.h>
+#include <string.h>
 #include <Inventor/SbName.h>
 #include <Inventor/SbVec3s.h>
 
@@ -70,7 +71,17 @@ Cvr2DRGBATexture::getRGBABuffer(void) const
     Cvr2DRGBATexture * that = (Cvr2DRGBATexture *)this;
     const SbVec3s dims = this->getDimensions();
     //adding 2 two each dimension to make room for border 20090408 eigils
+    //
+    // FIXME: i believe this shouldn't really be necessary, see
+    // discussion in the FIXME in
+    // Cvr2DPaletteTexture::getIndex8Buffer(). 20090812 mortene.
     that->rgbabuffer = new uint32_t[(dims[0]+2) * (dims[1]+2)];
+
+    // FIXME: suddenly, this was also needed, which was not the case
+    // previously. should investigate why. see FIXME in
+    // Cvr2DPaletteTexture::getIndex8Buffer() for info on how to
+    // reproduce. 20090813 mortene.
+    (void)memset(that->rgbabuffer, 0, (dims[0]+2) * (dims[1]+2) * sizeof(uint32_t));
   }
 
   return this->rgbabuffer;

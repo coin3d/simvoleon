@@ -24,6 +24,7 @@
 #include <VolumeViz/render/common/Cvr2DPaletteTexture.h>
 
 #include <assert.h>
+#include <string.h>
 #include <Inventor/SbName.h>
 #include <Inventor/SbVec3s.h>
 #include <VolumeViz/misc/CvrCLUT.h>
@@ -71,8 +72,26 @@ Cvr2DPaletteTexture::getIndex8Buffer(void) const
     // Cast away constness.
     Cvr2DPaletteTexture * that = (Cvr2DPaletteTexture *)this;
     const SbVec3s dim = this->getDimensions();
-    //adding 2 two each dimension to make room for border 20090408 eigils
-    that->indexbuffer = new uint8_t[(dim[0]+2) * (dim[1]+2)];
+    // adding 2 two each dimension to make room for border 20090408 eigils
+    //
+    // FIXME: i don't quite understand why it is necessary to add in
+    // the extra 2 pixels for border seams here, as the value from
+    // getDimensions() already has been justified with that +2. we get
+    // a crash from the OpenGL driver if left out, however, so it is
+    // obviously needed (the crash seems to happen where a texture is
+    // created from this memory buffer). should investigate. 20090812 mortene.
+    const size_t bufsize = (dim[0]+2) * (dim[1]+2);
+    that->indexbuffer = new uint8_t[bufsize];
+    // FIXME: suddenly, this was also needed, which was not the case
+    // previously. should investigate why. 20090813 mortene.
+    (void)memset(that->indexbuffer, 0, bufsize);
+
+    // FIXME: to reproduce the problem seen without the memset(),
+    // enable the code below to produce a distinct pattern, then run
+    // the minimal example from the SIM Voleon Doxygen main page, but
+    // with DIM=29 (set near the top). 20090813 mortene.
+    //
+    // for (size_t i = 0; i < bufsize; i++) { that->indexbuffer[i] = i % 0xff; }
   }
 
   return this->indexbuffer;

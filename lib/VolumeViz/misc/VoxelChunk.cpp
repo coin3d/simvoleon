@@ -472,20 +472,8 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, const CvrCLUT * clut,
 
   const SbVec2s size(this->getDimensions()[0], this->getDimensions()[1]);
 
-  // FIXME: this is just a temporary fix for what seems like a really
-  // weird and nasty NVidia driver bug; allocate enough textures of 1-
-  // or 2-pixel width, and the driver will eventually crash. (We're
-  // talking ~ a few tens of such textures, plus 1000-2000 other
-  // textures, as seen on freya.trh.sim.no.)  20031031 mortene.
-  //
-  // UPDATE: freya is now running an ATI card, so I can't easily track
-  // this down any further. 20040716 mortene.
-#if 0
-  const SbVec2s texsize(coin_next_power_of_two(size[0] - 1),
-                        coin_next_power_of_two(size[1] - 1));
-#else
-  const SbVec2s texsize(texobj->getDimensions()[0] + 2, texobj->getDimensions()[1] + 2);
-#endif
+  const SbVec2s texsize(texobj->getDimensions()[0],
+                        texobj->getDimensions()[1]);
 
   invisible = TRUE;
 
@@ -700,7 +688,7 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
     int pixcropfront = ssmin[0]<0 ? 1 : 0;
     int pixcropback = ssmax[0]==dim[2] ? 1 : 0;
 
-    uint8_t * srcptr = 	srcptr = &(inputbytebuffer[(inoffset + pixcropfront*zAdd)*voxelsize]);
+    uint8_t * srcptr = &(inputbytebuffer[(inoffset + pixcropfront*zAdd)*voxelsize]);
 
     // FIXME: should optimize this loop. 20021125 mortene.
     int startidx=0;
