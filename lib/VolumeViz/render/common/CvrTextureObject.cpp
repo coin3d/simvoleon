@@ -503,9 +503,14 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
 
   if (nrtexdims == 2) {
     // Adding a border to get rid of seams between tiled textures
+    //
     // See: http://www.opengl.org/resources/code/samples/sig99/advanced99/notes/node64.html
-    // Changes was also bad CvrVoxelChunk::buildSubPageX/Y/Z as well as increasing the
-    // texture size by 2 in CvrTextureObject::create 20090730 eigils
+    //
+    // Changes was also made to CvrVoxelChunk::buildSubPageX/Y/Z() as
+    // well as increasing the texture size by 2 in
+    // CvrTextureObject::create().
+    //
+    // 20090730 eigils
     int border = 1;
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(gltextypeenum,
@@ -717,10 +722,21 @@ CvrTextureObject::create(const SoGLRenderAction * action,
 
   // The actual dimensions of the GL texture must be values that are
   // power-of-two's:
-  // Adding 2 to make room for borders in 2D textures 0090730 eigils
   for (unsigned int i=0; i < 3; i++) {
-          newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i]);
+    // SbMax(4, ...) to work around a crash bug in older NVidia
+    // drivers when a lot of 1x- or 2x-dimensions textures are
+    // allocated. 20090812 mortene.
+    newtexobj->dimensions[i] =
+      SbMax((uint32_t)4, coin_geq_power_of_two(texsize[i]));
   }
+
+  // +2 to make room for borders in 2D textures. 20090730 eigils.
+  if (is2d) {
+    newtexobj->dimensions[0] += 2;
+    newtexobj->dimensions[1] += 2;
+    newtexobj->dimensions[2] = 1;
+  }
+
 
   SbBool invisible = FALSE;
   cubechunk->transfer(action, clut, newtexobj, invisible);
