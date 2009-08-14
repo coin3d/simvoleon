@@ -472,8 +472,8 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, const CvrCLUT * clut,
 
   const SbVec2s size(this->getDimensions()[0], this->getDimensions()[1]);
 
-  const SbVec2s texsize(texobj->getDimensions()[0],
-                        texobj->getDimensions()[1]);
+  const SbVec2s texsize(texobj->getDimensions()[0]+2,
+                        texobj->getDimensions()[1]+2);
 
   invisible = TRUE;
 
