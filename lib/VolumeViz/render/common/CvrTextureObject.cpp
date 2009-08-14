@@ -730,12 +730,22 @@ CvrTextureObject::create(const SoGLRenderAction * action,
       SbMax((uint32_t)4, coin_geq_power_of_two(texsize[i]));
   }
 
-  // +2 to make room for borders in 2D textures. 20090730 eigils.
-  if (is2d) {
-    newtexobj->dimensions[0] += 2;
-    newtexobj->dimensions[1] += 2;
-    newtexobj->dimensions[2] = 1;
-  }
+    if (is2d) {
+      // code in many other spots adds the extra +2 to make room for
+      // borders in 2D textures.
+      //
+      // FIXME: need to audit and figure out exactly why it can't /
+      // shouldn't be done here. as it is now, the extra allocations
+      // are spread out in a lot of places, which seems to me to be
+      // somewhat unfortunate, as there are suddenly a lot of possible
+      // points of failure for (often) hard to detect errors.
+      //
+      // 20090813 mortene.
+
+  //    newtexobj->dimensions[0] += 2;
+  //    newtexobj->dimensions[1] += 2;
+      newtexobj->dimensions[2] = 1;
+    }
 
 
   SbBool invisible = FALSE;
