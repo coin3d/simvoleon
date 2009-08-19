@@ -315,13 +315,13 @@ SoVRVolFileReader::setUserData(void * data)
   volh->bits_per_voxel = coin_ntoh_uint32(volh->bits_per_voxel);
   volh->index_bits = coin_ntoh_uint32(volh->index_bits);
 
-  volh->scaleX = coin_ntoh_float(volh->scaleX);
-  volh->scaleY = coin_ntoh_float(volh->scaleY);
-  volh->scaleZ = coin_ntoh_float(volh->scaleZ);
+  volh->scaleX = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->scaleX));
+  volh->scaleY = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->scaleY));
+  volh->scaleZ = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->scaleZ));
 
-  volh->rotX = coin_ntoh_float(volh->rotX);
-  volh->rotY = coin_ntoh_float(volh->rotY);
-  volh->rotZ = coin_ntoh_float(volh->rotZ);
+  volh->rotX = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->rotX));
+  volh->rotY = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->rotY));
+  volh->rotZ = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->rotZ));
 
   const char * descrptr = ((const char *)(this->m_data)) + sizeof(struct vol_header);
   PRIVATE(this)->description = descrptr;
