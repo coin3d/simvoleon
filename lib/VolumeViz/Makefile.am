@@ -13,6 +13,23 @@ else
 lib_LTLIBRARIES = libSimVoleon@SUFFIX@.la
 endif
 
+# On Mac OS 10.2 or later, create two-level namespace binaries and use
+# prebinding. Also pad the install_name to make it possible to change it
+# later (e.g. to include the library in an app bundle).
+
+if MACOSX_10_2FF
+LibtoolLinkArgs = -no-undefined -Wl,-twolevel_namespace -Wl,-undefined,error -Wl,-prebind -Wl,-seg1addr,0x30000000 -Wl,-headerpad_max_install_names 
+else
+LibtoolLinkArgs = -no-undefined
+endif
+
+
+if MAC_FRAMEWORK
+# hack to change libdir value when installing Mac OS X compiler framework
+lib@nop@dir = $(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Libraries
+endif
+
+
 # **************************************************************************
 
 # Adding in a dummy C++ source code file to "trick" Automake to set
@@ -51,7 +68,7 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
         render/common/commonrender.lst
 
 libSimVoleon@SUFFIX@_la_LDFLAGS = \
-	-no-undefined \
+        $(LibtoolLinkArgs) \
 	-version-info $(LT_CURRENT):$(LT_REVISION):$(LT_AGE)
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@.lib: Makefile \
@@ -92,6 +109,22 @@ else
 install-exec-local:
 endif
 
+if MAC_FRAMEWORK
+install-data-local:
+	@$(NORMAL_INSTALL)
+	@echo "Setting up Mac OS X framework"
+	@$(mkinstalldirs) $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)
+	@$(mkinstalldirs) $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Resources
+	@$(mkinstalldirs) $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Resources/include
+	@ln -sf $(MAC_FRAMEWORK_VERSION) $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/Current
+	@ln -sf Versions/Current/Headers $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Headers
+	@ln -sf Versions/Current/Libraries $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Libraries
+	@ln -sf Versions/Current/Resources $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Resources
+	cd $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/Current && ln -sf Libraries/libSimVoleon.dylib $(MAC_FRAMEWORK_NAME) && cd -; \
+	cd $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework && ln -sf Versions/Current/$(MAC_FRAMEWORK_NAME) $(MAC_FRAMEWORK_NAME) && install_name_tool -id $(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/$(MAC_FRAMEWORK_NAME) $(MAC_FRAMEWORK_NAME) && cd -;
+        # Additional symlink to allow non-framework (-I) includes.
+	cd $(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Resources/include && rm -f $(MAC_FRAMEWORK_NAME) && ln -s ../../Headers $(MAC_FRAMEWORK_NAME) && cd -;
+else
 install-data-local:
 	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@"; \
 	for ext in lib; do \
@@ -102,13 +135,15 @@ install-data-local:
 	    $(INSTALL_PROGRAM) "$$file" "$(DESTDIR)$(libdir)/$$file" || exit 1; \
 	  fi \
 	done
+endif
 
 uninstall-local:
 	@basename="simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@"; \
 	for file in \
 	  "$(DESTDIR)$(bindir)/$$basename.dll" \
 	  "$(DESTDIR)$(bindir)/$$basename.pdb" \
-	  "$(DESTDIR)$(libdir)/$$basename.lib"; do \
+	  "$(DESTDIR)$(libdir)/$$basename.lib" \
+	  "$(DESTDIR)$(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/$(MAKE_FRAMEWORK_NAME)"; do \
 	  if test -f "$$file"; then \
 	    echo " rm -f" "$$file"; \
 	    rm -f "$$file"; \
