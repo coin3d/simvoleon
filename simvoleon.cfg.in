@@ -11,5 +11,6 @@ libs="@SIMVOLEON_EXTRA_LIBS@"
 msvcrt="@SIMVOLEON_MSVC_LIBC@"
 datadir="@datadir@"
 includedir="@includedir@"
+frameworkdir="@frameworkdir@"
 compiler="@COMPILER@"
 compiler_is_gcc=@ac_compiler_gnu@
