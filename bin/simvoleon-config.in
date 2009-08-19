@@ -51,6 +51,7 @@ Options:
   --ldflags
   --libs
   --includedir
+  --frameworkdir
   --datadir
   --msvcrt
   --ac-subst <string> | <sourcefile.in>
@@ -58,6 +59,7 @@ Options:
   --compile <sourcefile> [<sourcefile>]...
   --link <program> <object> [<object>]...
   --build <program> <sourcefile> [<sourcefile>]...
+  --build-app <program> <sourcefile> [<sourcefile>]...
   --setup | --setup-front
   --header <classname>
   --version
@@ -133,6 +135,7 @@ do
   --ldflags)         echo "$ldflags"       ;;
   --libs)            echo "$libs"          ;;
   --includedir)      echo "$includedir"    ;;
+  --frameworkdir)    echo "$frameworkdir"  ;;
   --datadir)         echo "$datadir"       ;;
   --msvcrt)          echo "$msvcrt"        ;;
   --ac-subst)
@@ -300,15 +303,37 @@ do
       $extralibs $libs $LIBS
     retval=$?
     test $retval -ne 0 && exit $retval
+    exit 0
+    ;;
+  --build-app)
     case $host in
     *-darwin*)
-      echo "$me: making Mac OS X application"
+      shift
+      progname=$1
+      shift
+      if test $@; then
+        $program --alternate="$alternate" --build $progname $@ || exit $?
+      fi
+      echo "$me: making Mac OS X application \"$progname.app\""
       mkdir $progname.app 2>/dev/null
       mkdir $progname.app/Contents 2>/dev/null
       mkdir $progname.app/Contents/MacOS 2>/dev/null
       if test -d $progname.app/Contents/MacOS &&
         mv -f $progname $progname.app/Contents/MacOS/ &&
-        echo "APPL????" >$progname.app/Contents/PkgInfo; then
+        echo "APPL????" >$progname.app/Contents/PkgInfo &&
+        cat > $progname.app/Contents/Info.plist <<EOF ; then
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1
+.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>CFBundleExecutable</key>
+        <string>$progname</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+</dict>
+</plist>
+EOF
         :
       else
         echo >&2 "$me: failed to make Mac OS X application"
