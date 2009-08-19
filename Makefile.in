@@ -95,9 +95,16 @@ LTLIBOBJS = @LTLIBOBJS@
 LT_AGE = @LT_AGE@
 LT_CURRENT = @LT_CURRENT@
 LT_REVISION = @LT_REVISION@
+MACOSX_10_2FF_FALSE = @MACOSX_10_2FF_FALSE@
+MACOSX_10_2FF_TRUE = @MACOSX_10_2FF_TRUE@
+MACOSX_FALSE = @MACOSX_FALSE@
+MACOSX_TRUE = @MACOSX_TRUE@
 MAC_FRAMEWORK = @MAC_FRAMEWORK@
 MAC_FRAMEWORK_FALSE = @MAC_FRAMEWORK_FALSE@
+MAC_FRAMEWORK_NAME = @MAC_FRAMEWORK_NAME@
+MAC_FRAMEWORK_PREFIX = @MAC_FRAMEWORK_PREFIX@
 MAC_FRAMEWORK_TRUE = @MAC_FRAMEWORK_TRUE@
+MAC_FRAMEWORK_VERSION = @MAC_FRAMEWORK_VERSION@
 MAINT = @MAINT@
 MAINTAINER_MODE_FALSE = @MAINTAINER_MODE_FALSE@
 MAINTAINER_MODE_TRUE = @MAINTAINER_MODE_TRUE@
@@ -156,6 +163,7 @@ build_os = @build_os@
 build_vendor = @build_vendor@
 datadir = @datadir@
 exec_prefix = @exec_prefix@
+frameworkdir = @frameworkdir@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -169,6 +177,7 @@ libdir = @libdir@
 libexecdir = @libexecdir@
 localstatedir = @localstatedir@
 mandir = @mandir@
+nop = @nop@
 oldincludedir = @oldincludedir@
 path_tag = @path_tag@
 prefix = @prefix@
@@ -205,10 +214,14 @@ SUBDIRS = bin $(SRCDIRS) $(HTMLDIRS)
 
 BUILT_SOURCES = \
 	lib/VolumeViz/C/basic.h \
-	simvoleon-@CONFIG@.cfg
+	simvoleon-@CONFIG@.cfg \
+	Info.plist \
+	version.plist
 
 
 DISTCLEANFILES = \
+	Info.plist \
+	version.plist \
 	simvoleon-@CONFIG@.cfg
 
 
@@ -219,6 +232,8 @@ CLEANFILES = \
 EXTRA_DIST = \
 	simvoleon.cfg.in \
 	SIMVoleon.pc.in \
+	Info.plist.in \
+	version.plist.in \
 	cfg/errors.txt \
 	cfg/wrapmsvc.exe \
 	cfg/gendsp.sh \
@@ -244,13 +259,17 @@ cfgdata_DATA = simvoleon-@CONFIG@.cfg
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = SIMVoleon.pc
+
+@MAC_FRAMEWORK_TRUE@frameworkdatadir = $(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Resources
+@MAC_FRAMEWORK_TRUE@frameworkdata_DATA = Info.plist version.plist
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/lib/config.h
 CONFIG_CLEAN_FILES = SIMVoleon.pc cfg/gendsp.sh cfg/gendsp.pl
 DIST_SOURCES =
-DATA = $(cfgdata_DATA) $(dist_m4data_DATA) $(pkgconfig_DATA)
+DATA = $(cfgdata_DATA) $(dist_m4data_DATA) $(frameworkdata_DATA) \
+	$(pkgconfig_DATA)
 
 
 RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
@@ -335,6 +354,24 @@ uninstall-dist_m4dataDATA:
 	  f="`echo $$p | sed -e 's|^.*/||'`"; \
 	  echo " rm -f $(DESTDIR)$(m4datadir)/$$f"; \
 	  rm -f $(DESTDIR)$(m4datadir)/$$f; \
+	done
+frameworkdataDATA_INSTALL = $(INSTALL_DATA)
+install-frameworkdataDATA: $(frameworkdata_DATA)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(frameworkdatadir)
+	@list='$(frameworkdata_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " $(frameworkdataDATA_INSTALL) $$d$$p $(DESTDIR)$(frameworkdatadir)/$$f"; \
+	  $(frameworkdataDATA_INSTALL) $$d$$p $(DESTDIR)$(frameworkdatadir)/$$f; \
+	done
+
+uninstall-frameworkdataDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(frameworkdata_DATA)'; for p in $$list; do \
+	  f="`echo $$p | sed -e 's|^.*/||'`"; \
+	  echo " rm -f $(DESTDIR)$(frameworkdatadir)/$$f"; \
+	  rm -f $(DESTDIR)$(frameworkdatadir)/$$f; \
 	done
 pkgconfigDATA_INSTALL = $(INSTALL_DATA)
 install-pkgconfigDATA: $(pkgconfig_DATA)
@@ -610,7 +647,7 @@ check: $(BUILT_SOURCES)
 all-am: Makefile $(DATA)
 installdirs: installdirs-recursive
 installdirs-am:
-	$(mkinstalldirs) $(DESTDIR)$(cfgdatadir) $(DESTDIR)$(m4datadir) $(DESTDIR)$(pkgconfigdir)
+	$(mkinstalldirs) $(DESTDIR)$(cfgdatadir) $(DESTDIR)$(m4datadir) $(DESTDIR)$(frameworkdatadir) $(DESTDIR)$(pkgconfigdir)
 
 install: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) install-recursive
@@ -658,7 +695,7 @@ info: info-recursive
 info-am:
 
 install-data-am: install-cfgdataDATA install-dist_m4dataDATA \
-	install-pkgconfigDATA
+	install-frameworkdataDATA install-pkgconfigDATA
 
 install-exec-am:
 
@@ -686,7 +723,8 @@ ps: ps-recursive
 ps-am:
 
 uninstall-am: uninstall-cfgdataDATA uninstall-dist_m4dataDATA \
-	uninstall-info-am uninstall-pkgconfigDATA
+	uninstall-frameworkdataDATA uninstall-info-am \
+	uninstall-pkgconfigDATA
 
 uninstall-info: uninstall-info-recursive
 
@@ -698,19 +736,26 @@ uninstall-info: uninstall-info-recursive
 	dvi-am dvi-recursive info info-am info-recursive install \
 	install-am install-cfgdataDATA install-data install-data-am \
 	install-data-recursive install-dist_m4dataDATA install-exec \
-	install-exec-am install-exec-recursive install-info \
-	install-info-am install-info-recursive install-man \
-	install-pkgconfigDATA install-recursive install-strip \
-	installcheck installcheck-am installdirs installdirs-am \
-	installdirs-recursive maintainer-clean maintainer-clean-generic \
+	install-exec-am install-exec-recursive \
+	install-frameworkdataDATA install-info install-info-am \
+	install-info-recursive install-man install-pkgconfigDATA \
+	install-recursive install-strip installcheck installcheck-am \
+	installdirs installdirs-am installdirs-recursive \
+	maintainer-clean maintainer-clean-generic \
 	maintainer-clean-recursive mostlyclean mostlyclean-generic \
 	mostlyclean-libtool mostlyclean-recursive pdf pdf-am \
 	pdf-recursive ps ps-am ps-recursive tags tags-recursive \
 	uninstall uninstall-am uninstall-cfgdataDATA \
-	uninstall-dist_m4dataDATA uninstall-info-am \
-	uninstall-info-recursive uninstall-pkgconfigDATA \
-	uninstall-recursive
+	uninstall-dist_m4dataDATA uninstall-frameworkdataDATA \
+	uninstall-info-am uninstall-info-recursive \
+	uninstall-pkgconfigDATA uninstall-recursive
 
+
+Info.plist: config.status $(srcdir)/Info.plist.in
+	@$(SHELL) config.status --file=$@:Info.plist.in
+
+version.plist: config.status $(srcdir)/version.plist.in
+	@$(SHELL) config.status --file=$@:version.plist.in
 
 simvoleon-@CONFIG@.cfg: config.status $(srcdir)/simvoleon.cfg.in
 	@$(SHELL) config.status --file=$@:simvoleon.cfg.in
