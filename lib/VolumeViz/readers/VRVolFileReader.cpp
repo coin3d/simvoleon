@@ -290,12 +290,12 @@ SoVRVolFileReader::setUserData(void * data)
 //   volh->scaleX = coin_hton_float(1.0f);
 //   volh->scaleY = coin_hton_float(1.0f);
 //   volh->scaleZ = coin_hton_float(1.0f);
-  volh->scaleX = coin_hton_float(0.0f);
-  volh->scaleY = coin_hton_float(0.0f);
-  volh->scaleZ = coin_hton_float(0.0f);
-  volh->rotX = coin_hton_float(0.0f);
-  volh->rotY = coin_hton_float(0.0f);
-  volh->rotZ = coin_hton_float(0.0f);
+  volh->scaleX = 0.0f;
+  volh->scaleY = 0.0f;
+  volh->scaleZ = 0.0f;
+  volh->rotX = 0.0f;
+  volh->rotY = 0.0f;
+  volh->rotZ = 0.0f;
 
   const int copylen =
     SbMin((uint32_t)sizeof(struct vol_header), volh->header_length) - 2 * sizeof(uint32_t);
