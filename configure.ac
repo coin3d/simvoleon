@@ -85,11 +85,10 @@ if test x"$SIMVOLEON_BETA_VERSION" = x""; then :; else
     [define this to the libSimVoleon beta version letter])
 fi
 
-# **************************************************************************
-# FIXME: Mac OS X support not in place yet. 20040506 mortene.
-
-AC_SUBST([MAC_FRAMEWORK], false)
-AM_CONDITIONAL([MAC_FRAMEWORK], false)
+# For Mac OS X Compiler Frameworks:
+m4_define([MAC_FRAMEWORK_NAME_DEFAULT], [VolumeViz])
+m4_define([MAC_FRAMEWORK_PREFIX_DEFAULT], [/Library/Frameworks])
+m4_define([MAC_FRAMEWORK_VERSION_DEFAULT], [A])
 
 # **************************************************************************
 #  Locate C++ compiler and set C++ as the default language to use
@@ -169,6 +168,8 @@ if $BUILD_WITH_MSVC; then
   export RANLIB
 fi
 
+SIM_AC_MAC_CPP_ADJUSTMENTS
+
 # Initialize libtool.
 #
 # FIXME: this must be done even when we're not using libtool (as when
@@ -193,8 +194,6 @@ SIM_AC_DETECT_COMMON_COMPILER_FLAGS
 # things.
 
 CPPFLAGS="$CPPFLAGS -DSIMVOLEON_INTERNAL"
-
-# *******************************************************************
 
 # **************************************************************************
 # Figure out if library should be built static or dynamic.
@@ -304,6 +303,70 @@ voleon_src_dir=`cd "$srcdir"; pwd`
 AC_SUBST([voleon_build_dir])
 AC_SUBST([voleon_src_dir])
 
+# **************************************************************************
+# decide if we want to build Mac OS X framework
+
+AC_ARG_WITH([framework],
+  [  --with-framework  Do Mac OS X-like framework installation
+  --without-framework  Do regular installation on Mac OS X],
+  [sim_ac_framework_name="MAC_FRAMEWORK_NAME_DEFAULT"
+  case $withval in
+  yes ) sim_ac_framework=true ;;
+  no ) sim_ac_framework=false ;;
+  * ) sim_ac_framework=true; sim_ac_framework_name="$withval" ;;
+  esac],
+  [sim_ac_framework_name="MAC_FRAMEWORK_NAME_DEFAULT"
+  case $host_os in
+  darwin* ) sim_ac_framework=true ;;
+  * ) sim_ac_framework=false ;;
+  esac])
+
+
+# don't allow name to be overridden - just toggled on/off
+sim_ac_framework_name="MAC_FRAMEWORK_NAME_DEFAULT"
+sim_ac_framework_prefix="MAC_FRAMEWORK_PREFIX_DEFAULT"
+sim_ac_framework_version="MAC_FRAMEWORK_VERSION_DEFAULT"
+
+AC_ARG_WITH([framework-prefix],
+  [  --with-framework-prefix=<path>  (default: "MAC_FRAMEWORK_PREFIX_DEFAULT")],
+  [sim_ac_framework_prefix="$withval"],
+  [sim_ac_framework_prefix="MAC_FRAMEWORK_PREFIX_DEFAULT"])
+
+if $sim_ac_framework; then
+   # use the normal Coin m4 macro
+   sim_ac_enable_pkgconfig=false
+fi
+
+# Detect Mac OS X
+case $host_os in
+darwin* )
+  sim_ac_macosx=true
+  sim_ac_macosx_10_2ff=true
+  ;;
+* ) # not a Mac OS X
+  sim_ac_macosx=false
+  sim_ac_macosx_10_2ff=false 
+  ;;
+esac
+
+AC_SUBST([MAC_FRAMEWORK], [$sim_ac_framework])
+AC_SUBST([MAC_FRAMEWORK_NAME], [$sim_ac_framework_name])
+AC_SUBST([MAC_FRAMEWORK_PREFIX], [$sim_ac_framework_prefix])
+AC_SUBST([MAC_FRAMEWORK_VERSION], [$sim_ac_framework_version])
+AC_SUBST([nop], [])
+
+AM_CONDITIONAL([MAC_FRAMEWORK], [$sim_ac_framework])
+AM_CONDITIONAL([MACOSX], [$sim_ac_macosx])
+AM_CONDITIONAL([MACOSX_10_2FF], [$sim_ac_macosx_10_2ff])
+
+frameworkdir=
+if $sim_ac_framework; then
+  frameworkdir="${sim_ac_framework_prefix}/${sim_ac_framework_name}.framework"
+  includedir="$frameworkdir/Resources/include"
+fi
+
+AC_SUBST([frameworkdir])
+
 # *******************************************************************
 # Check that we can compile and link against a Coin version >= 2.0.0.
 
@@ -350,6 +413,26 @@ if $sim_ac_build_library; then
     LIBS=$sim_ac_configure_save_libs
   fi
 fi # sim_ac_build_library
+
+# *******************************************************************
+# if we want Mac OS X framework, check if Coin is installed as a framework
+sim_ac_have_inventor_framework=false
+
+if $sim_ac_framework && $sim_ac_coin_avail; then
+  sim_ac_coin_frameworkdir=`$sim_ac_coin_configcmd --frameworkdir 2>/dev/null`
+  if test x"$sim_ac_coin_frameworkdir" = x""; then
+    SIM_AC_CONFIGURATION_WARNING([Coin was not installed as a framework, so SIMVoleon can't be either (option was disabled).])
+    sim_ac_framework=false
+  else
+    sim_ac_have_inventor_framework=true
+    if test x"$sim_ac_framework_prefix" = x""; then
+      sim_ac_framework_prefix=`dirname "${sim_ac_coin_frameworkdir}"`
+    fi
+  fi
+  SIM_AC_CONFIGURATION_SETTING([Framework Installation Prefix], [$sim_ac_framework_prefix])
+else
+  sim_ac_framework=false
+fi
 
 # **************************************************************************
 
@@ -415,6 +498,28 @@ if $BUILD_WITH_MSVC; then
   SIMVOLEON_EXTRA_LIBS="-lsimvoleon${SIMVOLEON_MAJOR_VERSION}${SUFFIX} $SIMVOLEON_EXTRA_LIBS"
 else
   SIMVOLEON_EXTRA_LIBS="-lSimVoleon${SUFFIX} $SIMVOLEON_EXTRA_LIBS"
+
+  if $sim_ac_framework; then
+    # setup for SIMVoleon usage
+    SIMVOLEON_EXTRA_CPPFLAGS=
+    if test x"$sim_ac_framework_prefix" != x"MAC_FRAMEWORK_PREFIX_DEFAULT"; then
+      SIMVOLEON_EXTRA_CPPFLAGS="-F$sim_ac_framework_prefix"
+    fi
+    SIMVOLEON_EXTRA_CFLAGS=
+    SIMVOLEON_EXTRA_CXXFLAGS=
+    SIMVOLEON_EXTRA_FP_LDFLAGS=
+    if test x"$sim_ac_framework_prefix" != x"MAC_FRAMEWORK_PREFIX_DEFAULT"; then
+      SIMVOLEON_EXTRA_FP_LDFLAGS="-Wl,-F$sim_ac_framework_prefix"
+    fi
+    SIMVOLEON_EXTRA_LDFLAGS="-Wl,-multiply_defined,suppress $SIMVOLEON_EXTRA_FP_LDFLAGS -Wl,-framework,VolumeViz"
+    SIMVOLEON_EXTRA_LIBS=
+    # adjust for Coin usage
+    SIMVOLEON_EXTRA_CPPFLAGS="$SIMVOLEON_EXTRA_CPPFLAGS $sim_ac_coin_cppflags"
+    SIMVOLEON_EXTRA_CFLAGS="$SIMVOLEON_EXTRA_CFLAGS $sim_ac_coin_cflags"
+    SIMVOLEON_EXTRA_CXXFLAGS="$SIMVOLEON_EXTRA_CXXFLAGS $sim_ac_coin_cxxflags"
+    SIMVOLEON_EXTRA_LDFLAGS="$SIMVOLEON_EXTRA_LDFLAGS $sim_ac_coin_ldflags"
+    SIMVOLEON_EXTRA_LIBS="$sim_ac_coin_libs $SIMVOLEON_EXTRA_LIBS"
+  fi # sim_ac_framework
 fi
 
 # *******************************************************************

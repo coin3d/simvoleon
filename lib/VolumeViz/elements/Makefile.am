@@ -45,7 +45,12 @@ EXTRA_elements_lst_SOURCES = $(PublicHeaders) $(PrivateHeaders)
 
 # **************************************************************************
 
+if MAC_FRAMEWORK
+libelementsincdir = $(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Headers/elements
+else
 libelementsincdir = $(includedir)/VolumeViz/elements
+endif
+
 libelementsinc_HEADERS = $(PublicHeaders)
 
 # **************************************************************************

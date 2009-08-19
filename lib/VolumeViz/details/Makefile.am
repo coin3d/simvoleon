@@ -17,7 +17,11 @@ libdetails_la_SOURCES = $(SOURCES)
 
 details_lst_SOURCES = $(SOURCES)
 
+if MAC_FRAMEWORK
+libdetailsincdir = $(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Headers/details
+else
 libdetailsincdir = $(includedir)/VolumeViz/details
+endif
 
 libdetailsinc_HEADERS = \
 	SoVolumeDetail.h \

@@ -19,9 +19,13 @@ SUBDIRS = bin $(SRCDIRS) $(HTMLDIRS)
 
 BUILT_SOURCES = \
 	lib/VolumeViz/C/basic.h \
-	simvoleon-@CONFIG@.cfg
+	simvoleon-@CONFIG@.cfg \
+	Info.plist \
+	version.plist
 
 DISTCLEANFILES = \
+	Info.plist \
+	version.plist \
 	simvoleon-@CONFIG@.cfg
 
 CLEANFILES = \
@@ -30,6 +34,8 @@ CLEANFILES = \
 EXTRA_DIST = \
 	simvoleon.cfg.in \
 	SIMVoleon.pc.in \
+	Info.plist.in \
+	version.plist.in \
 	cfg/errors.txt \
 	cfg/wrapmsvc.exe \
 	cfg/gendsp.sh \
@@ -54,6 +60,17 @@ cfgdata_DATA = simvoleon-@CONFIG@.cfg
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA= SIMVoleon.pc
+
+if MAC_FRAMEWORK
+frameworkdatadir = $(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Resources
+frameworkdata_DATA = Info.plist version.plist
+endif
+
+Info.plist: config.status $(srcdir)/Info.plist.in
+	@$(SHELL) config.status --file=$@:Info.plist.in
+
+version.plist: config.status $(srcdir)/version.plist.in
+	@$(SHELL) config.status --file=$@:version.plist.in
 
 simvoleon-@CONFIG@.cfg: config.status $(srcdir)/simvoleon.cfg.in
 	@$(SHELL) config.status --file=$@:simvoleon.cfg.in

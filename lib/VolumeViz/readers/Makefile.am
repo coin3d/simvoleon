@@ -35,7 +35,12 @@ EXTRA_readers_lst_SOURCES = $(PublicHeaders) $(PrivateHeaders)
 
 # **************************************************************************
 
+if MAC_FRAMEWORK
+libreadersincdir = $(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Headers/readers
+else
 libreadersincdir = $(includedir)/VolumeViz/readers
+endif
+
 libreadersinc_HEADERS = $(PublicHeaders)
 
 # **************************************************************************

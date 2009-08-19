@@ -67,7 +67,12 @@ EXTRA_nodes_lst_SOURCES = $(PublicHeaders) $(PrivateHeaders)
 
 # **************************************************************************
 
+if MAC_FRAMEWORK
+libnodesincdir = $(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Headers/nodes
+else
 libnodesincdir = $(includedir)/VolumeViz/nodes
+endif
+
 libnodesinc_HEADERS = $(PublicHeaders)
 
 # **************************************************************************
