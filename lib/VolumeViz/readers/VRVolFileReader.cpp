@@ -92,6 +92,36 @@ struct vol_header {
   float rotX, rotY, rotZ;
 };
 
+// workaround for buggy coin_hton_float()/coin_ntoh_float() (obsoleted
+// in Coin-4) 
+
+// FIXME: consider just using coin_hton_float_bytes() and
+// coin_ntoh_float_bytes() instead. They were added quite recently
+// though, which means SimVoleon won't compile for older versions of
+// Coin
+
+namespace {
+  void hton_float(float v, float * dst) {
+    union {
+      float f32;
+      uint32_t u32;
+    } val;
+    val.f32 = v;
+    uint32_t * dsti = reinterpret_cast<uint32_t*> (dst);
+    *dsti = coin_hton_uint32(val.u32);
+  }
+  float ntoh_float(const float * src) {
+    const uint32_t * srci = reinterpret_cast<const uint32_t*> (src);
+    union {
+      float f32;
+      uint32_t u32;
+    } val;
+    val.u32 = *srci;
+    val.u32 = coin_ntoh_uint32(val.u32);
+    return val.f32;
+  }
+};
+
 // *************************************************************************
 
 #define PRIVATE(p) (p->pimpl)
@@ -290,12 +320,13 @@ SoVRVolFileReader::setUserData(void * data)
 //   volh->scaleX = coin_hton_float(1.0f);
 //   volh->scaleY = coin_hton_float(1.0f);
 //   volh->scaleZ = coin_hton_float(1.0f);
-  volh->scaleX = 0.0f;
-  volh->scaleY = 0.0f;
-  volh->scaleZ = 0.0f;
-  volh->rotX = 0.0f;
-  volh->rotY = 0.0f;
-  volh->rotZ = 0.0f;
+
+  hton_float(0.0f, &volh->scaleX);
+  hton_float(0.0f, &volh->scaleY);
+  hton_float(0.0f, &volh->scaleZ);
+  hton_float(0.0f, &volh->rotX);
+  hton_float(0.0f, &volh->rotY);
+  hton_float(0.0f, &volh->rotZ);
 
   const int copylen =
     SbMin((uint32_t)sizeof(struct vol_header), volh->header_length) - 2 * sizeof(uint32_t);
@@ -315,13 +346,13 @@ SoVRVolFileReader::setUserData(void * data)
   volh->bits_per_voxel = coin_ntoh_uint32(volh->bits_per_voxel);
   volh->index_bits = coin_ntoh_uint32(volh->index_bits);
 
-  volh->scaleX = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->scaleX));
-  volh->scaleY = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->scaleY));
-  volh->scaleZ = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->scaleZ));
+  volh->scaleX = ntoh_float(&volh->scaleX);
+  volh->scaleY = ntoh_float(&volh->scaleY);
+  volh->scaleZ = ntoh_float(&volh->scaleZ);
 
-  volh->rotX = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->rotX));
-  volh->rotY = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->rotY));
-  volh->rotZ = coin_ntoh_float_bytes(reinterpret_cast<const char *>(&volh->rotZ));
+  volh->rotX = ntoh_float(&volh->rotX);
+  volh->rotY = ntoh_float(&volh->rotY);
+  volh->rotZ = ntoh_float(&volh->rotZ);
 
   const char * descrptr = ((const char *)(this->m_data)) + sizeof(struct vol_header);
   PRIVATE(this)->description = descrptr;
