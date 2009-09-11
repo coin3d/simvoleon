@@ -51,7 +51,6 @@
 #include <Inventor/actions/SoGetBoundingBoxAction.h>
 #include <Inventor/actions/SoRayPickAction.h>
 #include <Inventor/bundles/SoMaterialBundle.h>
-#include <Inventor/elements/SoGLTexture3EnabledElement.h>
 #include <Inventor/elements/SoGLTextureEnabledElement.h>
 #include <Inventor/elements/SoLazyElement.h>
 #include <Inventor/elements/SoModelMatrixElement.h>
@@ -788,7 +787,6 @@ SoVolumeRenderP::rayPickDebug(SoGLRenderAction * action)
   SoLazyElement::setLightModel(state, SoLazyElement::BASE_COLOR);
   // disable texture mapping
   SoGLTextureEnabledElement::set(state, PUBLIC(this), FALSE);
-  SoGLTexture3EnabledElement::set(state, PUBLIC(this), FALSE);
 
   SoMaterialBundle mb(action);
   mb.sendFirst(); // set current color
