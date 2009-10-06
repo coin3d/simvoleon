@@ -16,13 +16,6 @@ AC_CONFIG_SRCDIR(lib/VolumeViz/nodes/VolumeRendering.cpp)
 AC_CONFIG_AUX_DIR(cfg)
 
 # **************************************************************************
-# test for older checkouts
-
-if test -d $srcdir/lib/VolumeViz/Coin/gl; then :; else
-  AC_MSG_ERROR([Detected old CVS checkout of SIMVoleon, exiting. To fix, do a 'cvs co glshare' from the SIMVoleon root directory, 'cvs update -d', and re-run configure.])
-fi
-
-# **************************************************************************
 # If the Microsoft Visual C++ cl.exe compiler is available, set us up for
 # compiling with it and to generate an MSWindows .dll file.
 
