@@ -223,9 +223,6 @@ AM_CONDITIONAL(BUILD_LIBRARY, $sim_ac_build_library)
 
 # Documentation generation settings.
 
-AC_ARG_VAR([htmldir],
-           [destination for HTML docs (default ${datadir}/SIMVoleon/html)])
-
 AC_ARG_ENABLE(html,
   AC_HELP_STRING([--enable-html], [build and install SIM Voleon HTML documentation]),
   [case $enableval in
@@ -235,14 +232,12 @@ AC_ARG_ENABLE(html,
   [want_html=no])
 
 case $htmldir in
-"")
-  htmldir="$datadir/SIMVoleon/html"
-  ;;
 /*)
   # do nothing - absolute path
   ;;
 *)
-  htmldir="\${prefix}/$htmldir"
+  # expand $docdir and append /html
+  htmldir=`eval echo ${docdir}`/html
   ;;
 esac
 
