@@ -15,16 +15,7 @@
 @SET_MAKE@
 
 
-SOURCES =  
-	CvrTextureObject.cpp CvrTextureObject.h  
-	CvrRGBATexture.cpp CvrRGBATexture.h  
-	CvrPaletteTexture.cpp CvrPaletteTexture.h  
-	Cvr2DPaletteTexture.cpp Cvr2DPaletteTexture.h  
-	Cvr3DPaletteTexture.cpp Cvr3DPaletteTexture.h  
-	Cvr3DPaletteGradientTexture.cpp Cvr3DPaletteGradientTexture.h  
-	Cvr2DRGBATexture.cpp Cvr2DRGBATexture.h  
-	Cvr3DRGBATexture.cpp Cvr3DRGBATexture.h
-
+SOURCES = $(commonrender_lst_SOURCES) $(libcommonrender_la_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -132,6 +123,7 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(commonrender_lst_SOURCES) $(libcommonrender_la_SOURCES)
 DIST_SOURCES = $(commonrender_lst_SOURCES) \
 	$(libcommonrender_la_SOURCES)
 ETAGS = etags
@@ -310,7 +302,7 @@ voleon_src_dir = @voleon_src_dir@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = commonrender.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libcommonrender.la
-SOURCES = \
+RegularSources = \
 	CvrTextureObject.cpp CvrTextureObject.h \
 	CvrRGBATexture.cpp CvrRGBATexture.h \
 	CvrPaletteTexture.cpp CvrPaletteTexture.h \
@@ -320,8 +312,8 @@ SOURCES = \
 	Cvr2DRGBATexture.cpp Cvr2DRGBATexture.h \
 	Cvr3DRGBATexture.cpp Cvr3DRGBATexture.h
 
-libcommonrender_la_SOURCES = $(SOURCES)
-commonrender_lst_SOURCES = $(SOURCES)
+libcommonrender_la_SOURCES = $(RegularSources)
+commonrender_lst_SOURCES = $(RegularSources)
 all: all-am
 
 .SUFFIXES:

@@ -43,7 +43,7 @@ DIST_COMMON = README $(am__configure_deps) $(dist_m4data_DATA) \
 	$(srcdir)/Makefile.am $(srcdir)/Makefile.in \
 	$(srcdir)/SIMVoleon.pc.in $(top_srcdir)/cfg/gendsp.pl.in \
 	$(top_srcdir)/cfg/gendsp.sh.in $(top_srcdir)/configure AUTHORS \
-	COPYING INSTALL NEWS cfg/config.guess cfg/config.sub \
+	COPYING ChangeLog INSTALL NEWS cfg/config.guess cfg/config.sub \
 	cfg/depcomp cfg/install-sh cfg/ltmain.sh cfg/missing \
 	cfg/mkinstalldirs
 subdir = .

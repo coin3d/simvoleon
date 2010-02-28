@@ -15,11 +15,7 @@
 @SET_MAKE@
 
 
-SOURCES =  
-	CubeHandler.cpp CvrCubeHandler.h  
-	3DTexSubCube.cpp Cvr3DTexSubCube.h  
-	3DTexCube.cpp Cvr3DTexCube.h
-
+SOURCES = $(3Drender_lst_SOURCES) $(lib3Drender_la_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -111,6 +107,7 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(3Drender_lst_SOURCES) $(lib3Drender_la_SOURCES)
 DIST_SOURCES = $(3Drender_lst_SOURCES) $(lib3Drender_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
@@ -288,13 +285,13 @@ voleon_src_dir = @voleon_src_dir@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = 3Drender.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = lib3Drender.la
-SOURCES = \
+RegularSources = \
 	CubeHandler.cpp CvrCubeHandler.h \
 	3DTexSubCube.cpp Cvr3DTexSubCube.h \
 	3DTexCube.cpp Cvr3DTexCube.h
 
-lib3Drender_la_SOURCES = $(SOURCES)
-3Drender_lst_SOURCES = $(SOURCES)
+lib3Drender_la_SOURCES = $(RegularSources)
+3Drender_lst_SOURCES = $(RegularSources)
 all: all-am
 
 .SUFFIXES:

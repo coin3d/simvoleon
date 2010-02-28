@@ -15,9 +15,7 @@
 @SET_MAKE@
 
 
-SOURCES =  
-	GLTextureCache.cpp CvrGLTextureCache.h
-
+SOURCES = $(caches_lst_SOURCES) $(libcaches_la_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -104,6 +102,7 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(caches_lst_SOURCES) $(libcaches_la_SOURCES)
 DIST_SOURCES = $(caches_lst_SOURCES) $(libcaches_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
@@ -281,11 +280,11 @@ voleon_src_dir = @voleon_src_dir@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = caches.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libcaches.la
-SOURCES = \
+RegularSources = \
 	GLTextureCache.cpp CvrGLTextureCache.h
 
-libcaches_la_SOURCES = $(SOURCES)
-caches_lst_SOURCES = $(SOURCES)
+libcaches_la_SOURCES = $(RegularSources)
+caches_lst_SOURCES = $(RegularSources)
 all: all-am
 
 .SUFFIXES:
