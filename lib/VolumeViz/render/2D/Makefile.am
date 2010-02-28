@@ -6,7 +6,7 @@ else
 noinst_LTLIBRARIES = lib2Drender.la
 endif
 
-SOURCES = \
+RegularSources = \
 	PageHandler.cpp CvrPageHandler.h \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
 	2DTexPage.cpp Cvr2DTexPage.h
@@ -14,9 +14,9 @@ SOURCES = \
 EXTRA_DIST = \
 	texmemfullimg.h
 
-lib2Drender_la_SOURCES = $(SOURCES)
+lib2Drender_la_SOURCES = $(RegularSources)
 
-2Drender_lst_SOURCES = $(SOURCES)
+2Drender_lst_SOURCES = $(RegularSources)
 
 2Drender.lst: $(2Drender_lst_OBJECTS)
 	@echo "Linking $@..."; \
