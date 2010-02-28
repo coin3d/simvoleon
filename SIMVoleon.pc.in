@@ -2,6 +2,8 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
+datarootdir=@datarootdir@
+datadir=${datarootdir}
 
 Name: SIMVoleon
 Description: a volume rendering library for Coin
@@ -14,7 +16,6 @@ Cflags: -I${includedir} @SIMVOLEON_EXTRA_CFLAGS@ @SIMVOLEON_EXTRA_CPPFLAGS@
 simvoleon_host=@host@
 compiler=@COMPILER@
 compiler_is_gcc=@ac_compiler_gnu@
-datadir=@datadir@
 frameworkdir=@frameworkdir@
 htmldir=@htmldir@
 msvcrt=@SIMVOLEON_MSVC_LIBC@
