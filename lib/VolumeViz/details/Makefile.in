@@ -16,13 +16,7 @@
 
 
 
-SOURCES =  
-	VolumeDetail.cpp  
-	VolumeRenderDetail.cpp  
-	VolumeSkinDetail.cpp  
-	OrthoSliceDetail.cpp  
-	ObliqueSliceDetail.cpp
-
+SOURCES = $(details_lst_SOURCES) $(libdetails_la_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -113,6 +107,7 @@ LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(details_lst_SOURCES) $(libdetails_la_SOURCES)
 DIST_SOURCES = $(details_lst_SOURCES) $(libdetails_la_SOURCES)
 am__installdirs = "$(DESTDIR)$(libdetailsincdir)"
 libdetailsincHEADERS_INSTALL = $(INSTALL_HEADER)
@@ -293,15 +288,15 @@ voleon_src_dir = @voleon_src_dir@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = details.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libdetails.la
-SOURCES = \
+RegularSources = \
 	VolumeDetail.cpp \
 	VolumeRenderDetail.cpp \
 	VolumeSkinDetail.cpp \
 	OrthoSliceDetail.cpp \
 	ObliqueSliceDetail.cpp
 
-libdetails_la_SOURCES = $(SOURCES)
-details_lst_SOURCES = $(SOURCES)
+libdetails_la_SOURCES = $(RegularSources)
+details_lst_SOURCES = $(RegularSources)
 @MAC_FRAMEWORK_FALSE@libdetailsincdir = $(includedir)/VolumeViz/details
 @MAC_FRAMEWORK_TRUE@libdetailsincdir = $(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Headers/details
 libdetailsinc_HEADERS = \

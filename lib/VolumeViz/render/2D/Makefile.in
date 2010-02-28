@@ -15,11 +15,7 @@
 @SET_MAKE@
 
 
-SOURCES =  
-	PageHandler.cpp CvrPageHandler.h  
-	2DTexSubPage.cpp Cvr2DTexSubPage.h  
-	2DTexPage.cpp Cvr2DTexPage.h
-
+SOURCES = $(2Drender_lst_SOURCES) $(lib2Drender_la_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -111,6 +107,7 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(2Drender_lst_SOURCES) $(lib2Drender_la_SOURCES)
 DIST_SOURCES = $(2Drender_lst_SOURCES) $(lib2Drender_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
@@ -288,7 +285,7 @@ voleon_src_dir = @voleon_src_dir@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = 2Drender.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = lib2Drender.la
-SOURCES = \
+RegularSources = \
 	PageHandler.cpp CvrPageHandler.h \
 	2DTexSubPage.cpp Cvr2DTexSubPage.h \
 	2DTexPage.cpp Cvr2DTexPage.h
@@ -296,8 +293,8 @@ SOURCES = \
 EXTRA_DIST = \
 	texmemfullimg.h
 
-lib2Drender_la_SOURCES = $(SOURCES)
-2Drender_lst_SOURCES = $(SOURCES)
+lib2Drender_la_SOURCES = $(RegularSources)
+2Drender_lst_SOURCES = $(RegularSources)
 all: all-am
 
 .SUFFIXES:

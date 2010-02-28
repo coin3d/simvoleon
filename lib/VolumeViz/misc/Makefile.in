@@ -15,16 +15,7 @@
 @SET_MAKE@
 
 
-SOURCES =  
-	VoxelChunk.cpp CvrVoxelChunk.h  
-	CLUT.cpp CvrCLUT.h  
-	Util.cpp CvrUtil.h  
-	ResourceManager.cpp CvrResourceManager.h  
-	CvrGlobalRenderLock.h GlobalRenderLock.cpp  
-	GIMPGradient.cpp CvrGIMPGradient.h  
-	Gradient.cpp CvrGradient.h  
-	CentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h
-
+SOURCES = $(misc_lst_SOURCES) $(libmisc_la_SOURCES)
 
 srcdir = @srcdir@
 top_srcdir = @top_srcdir@
@@ -127,6 +118,7 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(misc_lst_SOURCES) $(libmisc_la_SOURCES)
 DIST_SOURCES = $(misc_lst_SOURCES) $(libmisc_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
@@ -304,7 +296,7 @@ voleon_src_dir = @voleon_src_dir@
 DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = misc.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libmisc.la
-SOURCES = \
+RegularSources = \
 	VoxelChunk.cpp CvrVoxelChunk.h \
 	CLUT.cpp CvrCLUT.h \
 	Util.cpp CvrUtil.h \
@@ -314,8 +306,8 @@ SOURCES = \
 	Gradient.cpp CvrGradient.h \
 	CentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h
 
-libmisc_la_SOURCES = $(SOURCES)
-misc_lst_SOURCES = $(SOURCES)
+libmisc_la_SOURCES = $(RegularSources)
+misc_lst_SOURCES = $(RegularSources)
 all: all-am
 
 .SUFFIXES:
