@@ -6,7 +6,7 @@ else
 noinst_LTLIBRARIES = libmisc.la
 endif
 
-SOURCES = \
+RegularSources = \
 	VoxelChunk.cpp CvrVoxelChunk.h \
 	CLUT.cpp CvrCLUT.h \
 	Util.cpp CvrUtil.h \
@@ -16,9 +16,9 @@ SOURCES = \
 	Gradient.cpp CvrGradient.h \
 	CentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h
 
-libmisc_la_SOURCES = $(SOURCES)
+libmisc_la_SOURCES = $(RegularSources)
 
-misc_lst_SOURCES = $(SOURCES)
+misc_lst_SOURCES = $(RegularSources)
 
 misc.lst: $(misc_lst_OBJECTS)
 	@echo "Linking $@..."; \

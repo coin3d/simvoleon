@@ -6,12 +6,12 @@ else
 noinst_LTLIBRARIES = libpointsetrender.la
 endif
 
-SOURCES = \
+RegularSources = \
 	PointRendering.cpp PointRendering.h
 
-libpointsetrender_la_SOURCES = $(SOURCES)
+libpointsetrender_la_SOURCES = $(RegularSources)
 
-pointsetrender_lst_SOURCES = $(SOURCES)
+pointsetrender_lst_SOURCES = $(RegularSources)
 
 pointsetrender.lst: $(pointsetrender_lst_OBJECTS)
 	@echo "Linking $@..."; \

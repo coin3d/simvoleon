@@ -6,7 +6,7 @@ else
 noinst_LTLIBRARIES = libcommonrender.la
 endif
 
-SOURCES = \
+RegularSources = \
 	CvrTextureObject.cpp CvrTextureObject.h \
 	CvrRGBATexture.cpp CvrRGBATexture.h \
 	CvrPaletteTexture.cpp CvrPaletteTexture.h \
@@ -16,9 +16,9 @@ SOURCES = \
 	Cvr2DRGBATexture.cpp Cvr2DRGBATexture.h \
 	Cvr3DRGBATexture.cpp Cvr3DRGBATexture.h
 
-libcommonrender_la_SOURCES = $(SOURCES)
+libcommonrender_la_SOURCES = $(RegularSources)
 
-commonrender_lst_SOURCES = $(SOURCES)
+commonrender_lst_SOURCES = $(RegularSources)
 
 commonrender.lst: $(commonrender_lst_OBJECTS)
 	@echo "Linking $@..."; \

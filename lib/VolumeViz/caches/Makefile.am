@@ -6,12 +6,12 @@ else
 noinst_LTLIBRARIES = libcaches.la
 endif
 
-SOURCES = \
+RegularSources = \
 	GLTextureCache.cpp CvrGLTextureCache.h
 
-libcaches_la_SOURCES = $(SOURCES)
+libcaches_la_SOURCES = $(RegularSources)
 
-caches_lst_SOURCES = $(SOURCES)
+caches_lst_SOURCES = $(RegularSources)
 
 caches.lst: $(caches_lst_OBJECTS)
 	@echo "Linking $@..."; \

@@ -6,16 +6,16 @@ else
 noinst_LTLIBRARIES = libdetails.la
 endif
 
-SOURCES = \
+RegularSources = \
 	VolumeDetail.cpp \
 	VolumeRenderDetail.cpp \
 	VolumeSkinDetail.cpp \
 	OrthoSliceDetail.cpp \
 	ObliqueSliceDetail.cpp
 
-libdetails_la_SOURCES = $(SOURCES)
+libdetails_la_SOURCES = $(RegularSources)
 
-details_lst_SOURCES = $(SOURCES)
+details_lst_SOURCES = $(RegularSources)
 
 if MAC_FRAMEWORK
 libdetailsincdir = $(MAC_FRAMEWORK_PREFIX)/$(MAC_FRAMEWORK_NAME).framework/Versions/$(MAC_FRAMEWORK_VERSION)/Headers/details
