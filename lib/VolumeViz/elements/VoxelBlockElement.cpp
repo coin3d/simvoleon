@@ -49,6 +49,7 @@ CvrVoxelBlockElement::~CvrVoxelBlockElement(void)
 {
 }
 
+
 void
 CvrVoxelBlockElement::init(SoState * state)
 {
@@ -60,6 +61,7 @@ CvrVoxelBlockElement::init(SoState * state)
   this->voxels = NULL;
 }
 
+
 const CvrVoxelBlockElement *
 CvrVoxelBlockElement::getInstance(SoState * const state)
 {
@@ -68,7 +70,9 @@ CvrVoxelBlockElement::getInstance(SoState * const state)
                                           CvrVoxelBlockElement::classStackIndex);
 }
 
+
 // *************************************************************************
+
 
 SbBool
 CvrVoxelBlockElement::matches(const SoElement * element) const
@@ -84,6 +88,7 @@ CvrVoxelBlockElement::matches(const SoElement * element) const
     elem->unitdimensionsbox == this->unitdimensionsbox;
 }
 
+
 SoElement *
 CvrVoxelBlockElement::copyMatchInfo(void) const
 {
@@ -91,13 +96,14 @@ CvrVoxelBlockElement::copyMatchInfo(void) const
 
   CvrVoxelBlockElement * element = (CvrVoxelBlockElement *)
     this->getTypeId().createInstance();
-
   *element = *this;
 
   return element;
 }
 
+
 // *************************************************************************
+
 
 void
 CvrVoxelBlockElement::set(SoState * state, SoNode * node,
@@ -117,7 +123,9 @@ CvrVoxelBlockElement::set(SoState * state, SoNode * node,
   elem->unitdimensionsbox = unitdimensionsbox;
 }
 
+
 // *************************************************************************
+
 
 unsigned int
 CvrVoxelBlockElement::getBytesPrVoxel(void) const
@@ -125,11 +133,13 @@ CvrVoxelBlockElement::getBytesPrVoxel(void) const
   return this->bytesprvoxel;
 }
 
+
 const SbVec3s &
 CvrVoxelBlockElement::getVoxelCubeDimensions(void) const
 {
   return this->voxelcubedims;
 }
+
 
 const uint8_t *
 CvrVoxelBlockElement::getVoxels(void) const
@@ -137,13 +147,16 @@ CvrVoxelBlockElement::getVoxels(void) const
   return this->voxels;
 }
 
+
 const SbBox3f &
 CvrVoxelBlockElement::getUnitDimensionsBox(void) const
 {
   return this->unitdimensionsbox;
 }
 
+
 // *************************************************************************
+
 
 SbVec3s
 CvrVoxelBlockElement::objectCoordsToIJK(const SbVec3f & objectpos) const
@@ -174,6 +187,7 @@ CvrVoxelBlockElement::objectCoordsToIJK(const SbVec3f & objectpos) const
 
   return ijk;
 }
+
 
 // The returned vectors will be:
 //
@@ -250,11 +264,12 @@ CvrVoxelBlockElement::getPageGeometry(const int axis, const int slicenr,
   }
 }
 
+
 // *************************************************************************
+
 
 // FIXME: this function is also present in SoVolumeData.  Refactor
 // to common util function. 20040719 mortene.
-
 uint32_t
 CvrVoxelBlockElement::getVoxelValue(const SbVec3s & voxelpos) const
 {
@@ -284,5 +299,6 @@ CvrVoxelBlockElement::getVoxelValue(const SbVec3s & voxelpos) const
   }
   return val;
 }
+
 
 // *************************************************************************

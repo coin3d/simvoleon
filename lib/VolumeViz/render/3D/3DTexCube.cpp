@@ -107,6 +107,7 @@ Cvr3DTexCube::Cvr3DTexCube(const SoGLRenderAction * action)
   this->abortfuncdata = NULL;
 }
 
+
 Cvr3DTexCube::~Cvr3DTexCube()
 {
   this->releaseAllSubCubes();
@@ -120,6 +121,7 @@ Cvr3DTexCube::setAbortCallback(SoVolumeRenderAbortCB * func, void * userdata)
   this->abortfunc = func;
   this->abortfuncdata = userdata;
 }
+
 
 /*!
   Release resources used by a page in the slice.
@@ -135,6 +137,7 @@ Cvr3DTexCube::releaseSubCube(const unsigned int row, const unsigned int col, con
     delete p;
   }
 }
+
 
 void
 Cvr3DTexCube::releaseAllSubCubes(void)
@@ -153,6 +156,7 @@ Cvr3DTexCube::releaseAllSubCubes(void)
   this->subcubes = NULL;
 }
 
+
 static int
 subcube_qsort_compare(const void * element1, const void * element2)
 {
@@ -161,6 +165,7 @@ subcube_qsort_compare(const void * element1, const void * element2)
 
   return ((*sc1)->distancefromcamera > (*sc2)->distancefromcamera) ? -1 : 1;
 }
+
 
 SbVec3s
 Cvr3DTexCube::clampSubCubeSize(const SbVec3s & size)
@@ -305,7 +310,7 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
     if (str) {
       const int nr =
         sscanf(str, "%u,%u,%u", &forcerow, &forcecolumn, &forcedepth);
-      assert(nr == 3);
+      assert(nr == 3 && "Invalid CVR_DEBUG_FORCE_SUBCUBE param. Expected '=X,Y,Z'");
       SoDebugError::postInfo("Cvr3DTexCube::render",
                              "debug: forced rendering of sub-cube "
                              "<%u, %u, %u> only",
@@ -328,6 +333,7 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
   for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
     for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
       for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {
+
         Cvr3DTexSubCubeItem * cubeitem = this->getSubCube(state, colidx, rowidx, depthidx);
 
         const SbVec3f subcubeorigo =
@@ -335,6 +341,7 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
           subcubewidth * (float)colidx +
           subcubeheight * (float)rowidx +
           subcubedepth * (float)depthidx;
+
         if (cubeitem == NULL) { 
           cubeitem = this->buildSubCube(action, subcubeorigo, colidx, rowidx, depthidx); 
         }
@@ -342,19 +349,28 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
 
         if (cubeitem->invisible) continue;
         assert(cubeitem->cube != NULL);
+
         subcubelist.append(cubeitem);
 
         SbBox3f subbbox(subcubeorigo, subcubeorigo + subcubeheight + subcubewidth + subcubedepth);
         float dist = -invcamplane.getDistance(subbbox.getCenter());
+
+        //subbbox.transform(SoModelMatrixElement::get(state));
         
         if (viewvolumeinv.getProjectionType() == SbViewVolume::ORTHOGRAPHIC) {
           cubeitem->distancefromcamera = dist;
         }
         else {
+          SbVec3f p = viewvolumeinv.getProjectionPoint();
+
           cubeitem->distancefromcamera = 
             (float) sqrt((viewvolumeinv.getProjectionPoint() - subbbox.getCenter()).length());
-          if (dist < 0) cubeitem->distancefromcamera = -cubeitem->distancefromcamera;
+
+          if (dist < 0) {
+            cubeitem->distancefromcamera = -cubeitem->distancefromcamera;
+          }
         }
+
         subbbox.transform(SoModelMatrixElement::get(state));
         float sdx, sdy, sdz;
         subbbox.getSize(sdx, sdy, sdz);
@@ -435,6 +451,7 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
   this->renderResult(action, subcubelist);
 }
 
+
 // Renders *one* slice of the volume according to the specified
 // plane. Loads all the subcubes needed.
 void
@@ -512,6 +529,7 @@ Cvr3DTexCube::renderObliqueSlice(const SoGLRenderAction * action,
   this->renderResult(action, subcubelist);
 }
 
+
 // Renders a indexed faceset inside the volume. Loads all the subcubes needed.
 void
 Cvr3DTexCube::renderIndexedSet(const SoGLRenderAction * action,
@@ -520,7 +538,6 @@ Cvr3DTexCube::renderIndexedSet(const SoGLRenderAction * action,
                                const unsigned int numindices,
                                const enum IndexedSetType type)
 {
-
   assert(vertexarray);
   assert(indices);
 
@@ -579,6 +596,7 @@ Cvr3DTexCube::renderIndexedSet(const SoGLRenderAction * action,
   this->renderResult(action, subcubelist);
 }
 
+
 // Renders a nonindexed faceset inside the volume. Loads all the subcubes needed.
 void
 Cvr3DTexCube::renderNonindexedSet(const SoGLRenderAction * action,
@@ -587,7 +605,6 @@ Cvr3DTexCube::renderNonindexedSet(const SoGLRenderAction * action,
                                   const unsigned int listlength,
                                   const enum NonindexedSetType type)
 {
-
   assert(vertexarray);
   assert(numVertices);
 
@@ -647,8 +664,6 @@ Cvr3DTexCube::renderNonindexedSet(const SoGLRenderAction * action,
 }
 
 
-
-
 unsigned int
 Cvr3DTexCube::calcSubCubeIdx(unsigned int row, unsigned int col, unsigned int depth) const
 {
@@ -663,6 +678,7 @@ Cvr3DTexCube::calcSubCubeIdx(unsigned int row, unsigned int col, unsigned int de
 
   return idx;
 }
+
 
 // Builds a cube if it doesn't exist. Rebuilds it if it does exist.
 Cvr3DTexSubCubeItem *
@@ -758,7 +774,9 @@ Cvr3DTexCube::buildSubCube(const SoGLRenderAction * action,
   return pitem;
 }
 
+
 // *******************************************************************
+
 
 void
 Cvr3DTexCube::setPalette(const CvrCLUT * c)
@@ -798,7 +816,9 @@ Cvr3DTexCube::setPalette(const CvrCLUT * c)
   }
 }
 
+
 // *******************************************************************
+
 
 const CvrCLUT *
 Cvr3DTexCube::getPalette(void) const
@@ -806,7 +826,9 @@ Cvr3DTexCube::getPalette(void) const
   return this->clut;
 }
 
+
 // *******************************************************************
+
 
 Cvr3DTexSubCubeItem *
 Cvr3DTexCube::getSubCube(SoState * state, unsigned int col, unsigned int row, unsigned int depth)

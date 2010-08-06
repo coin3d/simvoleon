@@ -450,6 +450,8 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action)
 void
 Cvr3DTexSubCube::renderBBox(void) const
 {
+  glPushAttrib(GL_CULL_FACE | GL_DEPTH_TEST | GL_TEXTURE_2D | GL_TEXTURE_3D | GL_BLEND);
+
   glDisable(GL_CULL_FACE);
   glDisable(GL_DEPTH_TEST);
   glDisable(GL_TEXTURE_2D);
@@ -468,6 +470,8 @@ Cvr3DTexSubCube::renderBBox(void) const
   glVertex3fv((this->origo + SbVec3f(0, this->dimensions[1], this->dimensions[2])).getValue());
   glVertex3fv((this->origo + SbVec3f(0, 0, this->dimensions[2])).getValue());
   glEnd();
+
+  glPopAttrib();
 }
 
 // *************************************************************************

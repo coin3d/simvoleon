@@ -346,8 +346,9 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
     assert(palettetex && "16 bits textures must be palette textures!");
     static SbBool flag = FALSE;
     if (!flag) { // Print only once.
-      SoDebugError::postWarning("transfer3D", "16 bits pr voxel unit size is not properly implemented "
-                                "yet. Voxels will therefore be scaled down to 8 bits.");
+      SoDebugError::postWarning("transfer3D", "16 bits pr voxel unit size is not "
+                                "properly implemented yet. Voxels will therefore be "
+                                "scaled down to 8 bits.");
       flag = TRUE;
     }
     inputbytebuffer = this->getBuffer16();
@@ -364,7 +365,8 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
   SbVec3f lightDir;
   float lightIntensity;
   lightelem->get(action->getState(), lightDir, lightIntensity);
-  CvrGradient * grad = new CvrCentralDifferenceGradient((uint8_t *) inputbytebuffer, size, CvrUtil::useFlippedYAxis());
+  CvrGradient * grad = new CvrCentralDifferenceGradient((uint8_t *) inputbytebuffer, size, 
+                                                        CvrUtil::useFlippedYAxis());
 
   for (unsigned int z = 0; z < (unsigned int)  size[2]; z++) {
     for (unsigned int y = 0; y < (unsigned int) size[1]; y++) {

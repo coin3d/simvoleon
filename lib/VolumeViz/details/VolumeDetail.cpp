@@ -53,19 +53,15 @@
 
 class SoVolumeDetailP {
 public:
-  SoVolumeDetailP(SoVolumeDetail * master)
-  {
+  SoVolumeDetailP(SoVolumeDetail * master) {
     this->master = master;
   }
 
-  ~SoVolumeDetailP() 
-  {
-  }
+  ~SoVolumeDetailP() {}
 
   // Override default assignment operator, as we don't want to
   // overwrite the "master" member.
-  SoVolumeDetailP & operator=(const SoVolumeDetailP & c)
-  {
+  SoVolumeDetailP & operator=(const SoVolumeDetailP & c) {
     this->voxelinfolist = c.voxelinfolist;
     return *this;
   }
@@ -103,16 +99,19 @@ SO_DETAIL_SOURCE(SoVolumeDetail);
 
 // *************************************************************************
 
+
 SoVolumeDetail::SoVolumeDetail(void)
 {
   assert(SoVolumeDetail::getClassTypeId() != SoType::badType());
   PRIVATE(this) = new SoVolumeDetailP(this);
 }
 
+
 SoVolumeDetail::~SoVolumeDetail()
 {
   delete PRIVATE(this);
 }
+
 
 // doc in super
 void
@@ -120,6 +119,7 @@ SoVolumeDetail::initClass(void)
 {
   SO_DETAIL_INIT_CLASS(SoVolumeDetail, SoDetail);
 }
+
 
 // doc in super
 SoDetail *
@@ -129,6 +129,7 @@ SoVolumeDetail::copy(void) const
   *(PRIVATE(copy)) = *(PRIVATE(this));
   return copy;
 }
+
 
 // *************************************************************************
 
@@ -146,6 +147,7 @@ SoVolumeDetail::getProfileObjectPos(SbVec3f profile[2]) const
   profile[0] = PRIVATE(this)->voxelinfolist[0].voxelcoord;
   profile[1] = PRIVATE(this)->voxelinfolist[nrprofilepoints - 1].voxelcoord;
 }
+
 
 /*!
   Sets start and end points of ray intersecting the volume in the \a
@@ -173,6 +175,7 @@ SoVolumeDetail::getProfileDataPos(SbVec3s profile[2]) const
   return nrprofilepoints;
 }
 
+
 /*!
   Returns voxel value at the given index along the ray intersection
   profile.
@@ -198,6 +201,7 @@ SoVolumeDetail::getProfileValue(int index,
   if (objpos) { *objpos = PRIVATE(this)->voxelinfolist[index].voxelcoord; }
   return PRIVATE(this)->voxelinfolist[index].voxelvalue;
 }
+
 
 /*!
   Fills in the information about the first voxel along the pick ray
@@ -249,7 +253,6 @@ void
 SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend, 
                            SoState * state, SoNode * caller)
 {
-
   SoRayPickAction * action = (SoRayPickAction *) state->getAction();
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
   const SoTransferFunctionElement * transferfunctionelement =
@@ -314,7 +317,12 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
     clut = CvrVoxelChunk::getCLUT(transferfunctionelement, CvrCLUT::ALPHA_AS_IS);
     clut->ref();
     uint8_t rgba[4];
-    const uint32_t voxelvalue = vbelem->getVoxelValue(ijk);      
+
+    // FIXME: As SIMVoleon does not support 16bits voxels 100% yet,
+    // we'll have to scale down the value to 8bit if needed before
+    // passing on the data. (20100806 handegar)
+    const uint32_t voxelvalue = vbelem->getVoxelValue(ijk) >> 8*(vbelem->getBytesPrVoxel() - 1);
+
     clut->lookupRGBA(voxelvalue, rgba);
      
     if (pickedpoint == NULL) {                
@@ -366,8 +374,8 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
       action->reset();
     } 
   } 
-  
 }
+
 
 void
 SoVolumeDetailP::addVoxelIntersection(const SbVec3f & voxelcoord,
@@ -384,6 +392,7 @@ SoVolumeDetailP::addVoxelIntersection(const SbVec3f & voxelcoord,
   this->voxelinfolist.append(vxinfo);
 }
 
+
 // *************************************************************************
 
 
@@ -392,7 +401,6 @@ void
 SoVolumeDetailP::setVoxelValue(const SbVec3s & voxelpos, uint8_t value, 
                                const CvrVoxelBlockElement * elem)
 {
-
   SbVec3s voxelcubedims = elem->getVoxelCubeDimensions();
 
   assert(voxelpos[0] < voxelcubedims[0]);
@@ -417,7 +425,6 @@ SoVolumeDetailP::setVoxelValue(const SbVec3s & voxelpos, uint8_t value,
   case 2: *((uint16_t *)voxptr) = value; break;
   default: assert(FALSE); break;
   }
-
 }
 
 #undef PRIVATE
