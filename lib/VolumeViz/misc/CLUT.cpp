@@ -157,7 +157,6 @@ static const char * CVRCLUT_STATIC_KEYID = "foobar";
 // colormap values are between 0 and 255
 CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap, AlphaUse policy)
 {
-
   this->nrentries = nrcols;
   this->nrcomponents = 4;
   this->datatype = INTS;
@@ -171,6 +170,7 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap, AlphaUse p
   this->commonConstructor(policy);
 }
 
+
 // nrcomponents == 1: LUMINANCE
 // nrcomponents == 2: LUMINANCE + ALPHA
 // nrcomponents == 4: RGBA
@@ -179,7 +179,6 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const uint8_t * colormap, AlphaUse p
 CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
                  const float * colormap, AlphaUse policy)
 {
-
   this->nrentries = nrcols;
   this->nrcomponents = nrcomponents;
   this->datatype = FLOATS;
@@ -194,6 +193,7 @@ CvrCLUT::CvrCLUT(const unsigned int nrcols, const unsigned int nrcomponents,
   this->commonConstructor(policy);
 }
 
+
 void
 CvrCLUT::commonConstructor(AlphaUse policy)
 {
@@ -206,6 +206,7 @@ CvrCLUT::commonConstructor(AlphaUse policy)
   this->glcolors = new uint8_t[this->nrentries * 4];
   this->regenerateGLColorData();
 }
+
 
 // Copy constructor.
 CvrCLUT::CvrCLUT(const CvrCLUT & clut)
@@ -229,6 +230,7 @@ CvrCLUT::CvrCLUT(const CvrCLUT & clut)
 
   default: assert(FALSE); break;
   }
+
   this->crc32cmap = clut.crc32cmap;
 
   this->refcount = 0;
@@ -242,6 +244,7 @@ CvrCLUT::CvrCLUT(const CvrCLUT & clut)
   this->regenerateGLColorData();
 }
 
+
 CvrCLUT::~CvrCLUT()
 {
   this->killAllGLContextData();
@@ -253,6 +256,7 @@ CvrCLUT::~CvrCLUT()
 
   delete[] this->glcolors;
 }
+
 
 void
 CvrCLUT::killAllGLContextData(void)
@@ -269,7 +273,9 @@ CvrCLUT::killAllGLContextData(void)
   this->contextlist.truncate(0);
 }
 
+
 // *************************************************************************
+
 
 void
 CvrCLUT::ref(void) const
@@ -277,6 +283,7 @@ CvrCLUT::ref(void) const
   CvrCLUT * that = (CvrCLUT *)this; // cast away constness
   that->refcount++;
 }
+
 
 void
 CvrCLUT::unref(void) const
@@ -287,11 +294,13 @@ CvrCLUT::unref(void) const
   if (this->refcount == 0) delete this;
 }
 
+
 int32_t
 CvrCLUT::getRefCount(void) const
 {
   return this->refcount;
 }
+
 
 // *************************************************************************
 
@@ -324,13 +333,16 @@ operator==(const CvrCLUT & c1, const CvrCLUT & c2)
   return TRUE;
 }
 
+
 int
 operator!=(const CvrCLUT & c1, const CvrCLUT & c2)
 {
   return ! operator==(c1, c2);
 }
 
+
 // *************************************************************************
+
 
 // Everything below "low" (but not including) and above "high" (but
 // not including), will be fully transparent.
@@ -351,6 +363,7 @@ CvrCLUT::setTransparencyThresholds(uint32_t low, uint32_t high)
 
   this->regenerateGLColorData();
 }
+
 
 void
 CvrCLUT::initFragmentProgram(const cc_glglue * glue,
@@ -403,6 +416,7 @@ CvrCLUT::initFragmentProgram(const cc_glglue * glue,
   }
 }
 
+
 // Initializes the 1D-texture set up for the fragment program to use
 // for palette entry lookups.
 void
@@ -431,7 +445,9 @@ CvrCLUT::initPaletteTexture(const cc_glglue * glue,
   // 20041103 mortene.
 }
 
+
 // *************************************************************************
+
 
 void
 CvrCLUT::contextDeletedCB(void * closure, uint32_t ctxid)
@@ -489,6 +505,7 @@ CvrCLUT::contextDeletedCB(void * closure, uint32_t ctxid)
   }
 }
 
+
 CvrCLUT::GLContextStorage *
 CvrCLUT::getGLContextStorage(uint32_t ctxid)
 {
@@ -505,6 +522,7 @@ CvrCLUT::getGLContextStorage(uint32_t ctxid)
   return (CvrCLUT::GLContextStorage *)ptr;
 }
 
+
 CvrCLUT::GlobalGLContextStorage *
 CvrCLUT::getGlobalGLContextStorage(uint32_t ctxid)
 {
@@ -518,6 +536,7 @@ CvrCLUT::getGlobalGLContextStorage(uint32_t ctxid)
 
   return (CvrCLUT::GlobalGLContextStorage *)ptr;
 }
+
 
 // *************************************************************************
 
@@ -552,6 +571,7 @@ CvrCLUT::activateFragmentProgram(uint32_t ctxid, CvrCLUT::TextureType texturetyp
 
   glEnable(GL_FRAGMENT_PROGRAM_ARB);
 }
+
 
 void
 CvrCLUT::activatePalette(const cc_glglue * glw, CvrCLUT::TextureType texturetype) const
@@ -624,6 +644,7 @@ CvrCLUT::activatePalette(const cc_glglue * glw, CvrCLUT::TextureType texturetype
   assert(actualsize == (GLint)this->nrentries);
 }
 
+
 /*!
   Activates the palette we carry, for OpenGL.
 */
@@ -643,6 +664,7 @@ CvrCLUT::activate(uint32_t ctxid, CvrCLUT::TextureType texturetype) const
   }
 }
 
+
 /*!
   Cleans up whatever was done for palette activation.
 */
@@ -657,15 +679,20 @@ CvrCLUT::deactivate(const cc_glglue * glw) const
   }
 }
 
+
 // *************************************************************************
+
 
 // Find RGBA color at the given idx.
 void
 CvrCLUT::lookupRGBA(const unsigned int idx, uint8_t rgba[4]) const
 {
-  assert(idx < this->nrentries);
-  for (int i=0; i < 4; i++) { rgba[i] = this->glcolors[idx * 4 + i]; }
+  assert(idx < this->nrentries);  
+  for (int i=0; i < 4; i++) { 
+    rgba[i] = this->glcolors[idx * 4 + i]; 
+  }
 }
+
 
 // FIXME: this doesn't seem compatible with the fact that
 // CvrCLUT-instances should be possible to share between any number of
@@ -679,6 +706,7 @@ CvrCLUT::setAlphaUse(AlphaUse policy)
   this->alphapolicy = policy;
   this->regenerateGLColorData();
 }
+
 
 void
 CvrCLUT::regenerateGLColorData(void)
@@ -735,7 +763,9 @@ CvrCLUT::regenerateGLColorData(void)
   this->killAll1DTextures();
 }
 
+
 // *************************************************************************
+
 
 void
 CvrCLUT::killAll1DTextures(void)
@@ -749,7 +779,9 @@ CvrCLUT::killAll1DTextures(void)
   }
 }
 
+
 // *************************************************************************
+
 
 SbBool
 CvrCLUT::usePaletteTextures(const SoGLRenderAction * action)
@@ -787,6 +819,7 @@ CvrCLUT::usePaletteTextures(const SoGLRenderAction * action)
   return usepalettetex;
 }
 
+
 SbBool
 CvrCLUT::usePaletteExtension(const cc_glglue * glw)
 {
@@ -806,6 +839,7 @@ CvrCLUT::usePaletteExtension(const cc_glglue * glw)
 
   return cc_glglue_has_paletted_textures(glw);
 }
+
 
 SbBool
 CvrCLUT::useFragmentProgramLookup(const cc_glglue * glw)
