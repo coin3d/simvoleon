@@ -41,6 +41,7 @@
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/render/common/Cvr3DPaletteTexture.h>
 
+
 // *************************************************************************
 
 /*! \a cubeorigo is the "lower left" position of this subcube in the
@@ -102,6 +103,7 @@ Cvr3DTexSubCube::~Cvr3DTexSubCube()
   if (this->clut) this->clut->unref();
 }
 
+
 // *************************************************************************
 
 SbBool
@@ -109,6 +111,7 @@ Cvr3DTexSubCube::isPaletted(void) const
 {
   return this->textureobject->isPaletted();
 }
+
 
 void
 Cvr3DTexSubCube::setPalette(const CvrCLUT * newclut)
@@ -120,6 +123,7 @@ Cvr3DTexSubCube::setPalette(const CvrCLUT * newclut)
   this->clut = newclut;
   this->clut->ref();
 }
+
 
 // *************************************************************************
 
@@ -151,6 +155,7 @@ Cvr3DTexSubCube::activateCLUT(const SoGLRenderAction * action)
 
 }
 
+
 void
 Cvr3DTexSubCube::deactivateCLUT(const SoGLRenderAction * action)
 {
@@ -160,6 +165,7 @@ Cvr3DTexSubCube::deactivateCLUT(const SoGLRenderAction * action)
   const cc_glglue * glw = cc_glglue_instance(action->getCacheContext());
   this->clut->deactivate(glw);
 }
+
 
 // *************************************************************************
 
@@ -182,6 +188,7 @@ Cvr3DTexSubCube::intersectFaceSet(const SbVec3f * vertexlist,
     this->clipPolygonAgainstCube();
   }
 }
+
 
 // Check if this cube is intersected by a triangle strip set.
 void
@@ -216,6 +223,7 @@ Cvr3DTexSubCube::intersectTriangleStripSet(const SbVec3f * vertexlist,
     }
   }
 }
+
 
 // Check if this cube is intersected by an indexed triangle strip set.
 void
@@ -274,6 +282,7 @@ Cvr3DTexSubCube::intersectIndexedFaceSet(const SbVec3f * vertexlist,
   this->clipPolygonAgainstCube();
 }
 
+
 // Check if this cube is intersected by the viewport aligned clip plane.
 void
 Cvr3DTexSubCube::intersectSlice(const SbVec3f * sliceplanecorners)
@@ -282,6 +291,7 @@ Cvr3DTexSubCube::intersectSlice(const SbVec3f * sliceplanecorners)
   for (unsigned int i=0; i < 4; i++) { this->clippoly.addVertex(sliceplanecorners[i]); }
   this->clipPolygonAgainstCube();
 }
+
 
 // Check if this cube is intersected by the viewport aligned clip plane.
 void
@@ -319,6 +329,7 @@ Cvr3DTexSubCube::intersectSlice(const SbViewVolume & viewvolume,
   this->clipPolygonAgainstCube();
 }
 
+
 // Internal method
 void
 Cvr3DTexSubCube::clipPolygonAgainstCube(void)
@@ -348,22 +359,37 @@ Cvr3DTexSubCube::clipPolygonAgainstCube(void)
       subcube_slice s;
       this->volumeslices.append(s);
     }
-    slice = &this->volumeslices[this->volumesliceslength];
-    this->volumesliceslength++;
 
+    slice = &this->volumeslices[this->volumesliceslength++];
     slice->vertex.truncate(0);
     slice->texcoord.truncate(0);
+
+    // Due to the padding of subcubes which are not of size 2^n, we'll
+    // have to cap the calculated texture coordinate with one voxel to
+    // prevent OpenGL from interpolating "into the" padded data (only
+    // visible when using GL_LINEAR and the voxelvalue zero has a
+    // non-transparent color).
+    // This resolves issue COINSUPPORT-1264.
+    SbVec3s texdimsmodded = texdims;
+    for (int i=0;i<3;++i) {
+      if (this->dimensions[i] < texdims[i])
+        texdimsmodded[i] += 1;
+    }      
     
     for (unsigned int i=0; i < nrvertices; i++) {
       this->clippoly.getVertex(i, vert);
       slice->vertex.append(vert);
-
+      
       const SbVec3f dist = vert - this->origo;
-      const SbVec3f v(dist[0] / texdims[0], dist[1] / texdims[1], dist[2] / texdims[2]);
+      const SbVec3f v(dist[0] / texdimsmodded[0], 
+                      dist[1] / texdimsmodded[1], 
+                      dist[2] / texdimsmodded[2]);
+
       slice->texcoord.append(v);
     }
   }
 }
+
 
 // *************************************************************************
 
@@ -416,6 +442,7 @@ Cvr3DTexSubCube::renderSlices(const SoGLRenderAction * action, SbBool wireframe)
   }
 }
 
+
 void
 Cvr3DTexSubCube::render(const SoGLRenderAction * action)
 {
@@ -445,6 +472,7 @@ Cvr3DTexSubCube::render(const SoGLRenderAction * action)
   this->renderSlices(action, renderstyle == 2);
   if (renderstyle == 1) { this->renderBBox(); }
 }
+
 
 // For debugging purposes
 void
