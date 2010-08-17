@@ -120,7 +120,7 @@ static void
 show_usage(const char * exe)
 {
   (void)fprintf(stderr, 
-                "\n\tUsage: %s WIDTH HEIGHT DEPTH IN-FILENAME.raw OUT-FILENAME.vol\n\n",
+                "\n Usage: %s WIDTH HEIGHT DEPTH BITS[:8,12,16] IN-FILENAME.raw OUT-FILENAME.vol\n\n",
                 exe);
 }
 
@@ -138,7 +138,7 @@ main(int argc, char ** argv)
   };
 
   const char * exename = argc > 0 ? argv[0] : "raw2vol";
-  if (argc != 6) {
+  if (argc != 7) {
     show_usage(exename);
     exit(1);
   }
@@ -146,12 +146,19 @@ main(int argc, char ** argv)
   uint32_t width = atoi(argv[1]);
   uint32_t height = atoi(argv[2]);
   uint32_t images = atoi(argv[3]);
+  uint32_t bits_per_voxel = atoi(argv[4]);
 
   vh.width = hton_uint32(width);
   vh.height = hton_uint32(height);
   vh.images = hton_uint32(images);
+  vh.bits_per_voxel = hton_uint32(bits_per_voxel);
 
-  FILE * rawf = fopen(argv[4], "rb");
+  // FIXME: What does "index_bits" actually mean? (20100817 handegar)
+  if (bits_per_voxel == 16 || bits_per_voxel == 12)
+    vh.index_bits = hton_uint32(8);
+
+
+  FILE * rawf = fopen(argv[5], "rb");
   if (!rawf) {
     show_usage(exename);
     (void)fprintf(stderr, "Couldn't open file '%s' for reading: %s\n\n",
@@ -159,7 +166,7 @@ main(int argc, char ** argv)
     exit(1);
   }
 
-  FILE * volf = fopen(argv[5], "wb");
+  FILE * volf = fopen(argv[6], "wb");
   if (!volf) {
     show_usage(exename);
     (void)fprintf(stderr, "Couldn't open file '%s' for writing: %s\n\n",
@@ -167,17 +174,37 @@ main(int argc, char ** argv)
     exit(1);
   }
 
-  const unsigned int rawsize = width * height * images;
-  uint8_t * rawblock = (uint8_t *)malloc(rawsize);
-  assert(rawblock);
-
-  size_t wasread = fread(rawblock, 1, rawsize, rawf);
-  assert(wasread == rawsize);
 
   size_t waswritten = fwrite(&vh, 1, sizeof(struct vol_header), volf);
   assert(waswritten == sizeof(struct vol_header));
-  waswritten = fwrite(rawblock, 1, rawsize, volf);
+
+  const unsigned int rawsize = width * height * images;
+  unsigned int voxelsize = 0;
+  void * rawblock;
+
+  if (bits_per_voxel == 8) {
+    voxelsize = sizeof(unsigned char);
+    rawblock = (uint8_t *)malloc(rawsize*voxelsize);
+    assert(rawblock);
+  }
+  else if (bits_per_voxel == 16 || bits_per_voxel == 12) {
+    voxelsize = sizeof(unsigned short);
+    rawblock = (uint16_t *)malloc(rawsize*voxelsize);
+    assert(rawblock);
+  }
+  else {
+    assert(0 && "Unknown bitsize. Must be 8, 12 or 16.");
+  }
+
+  printf("* %d-bits dataset (%d voxels, %d bytes).\n", 
+         bits_per_voxel, rawsize, rawsize*voxelsize);
+
+  size_t wasread = fread(rawblock, voxelsize, rawsize, rawf);
+  assert(wasread == rawsize);
+  
+  waswritten = fwrite(rawblock, voxelsize, rawsize, volf);
   assert(waswritten == rawsize);
+
 
   free(rawblock);
   fclose(rawf);
