@@ -92,7 +92,6 @@ private:
   const CvrTextureObject * textureobject;
   const CvrCLUT * clut;
 
-  SbVec3s texdims;
   SbVec3s dimensions;
   SbVec3f origo;
 
