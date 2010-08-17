@@ -151,7 +151,15 @@ main(int argc, char ** argv)
   vh.width = hton_uint32(width);
   vh.height = hton_uint32(height);
   vh.images = hton_uint32(images);
-  vh.bits_per_voxel = hton_uint32(bits_per_voxel);
+
+  if (bits_per_voxel == 8)
+    vh.bits_per_voxel = hton_uint32(8);
+  else if (bits_per_voxel == 16 || bits_per_voxel == 12) 
+    vh.bits_per_voxel = hton_uint32(16);
+  else {
+    printf("ERROR: Only 8, 12 or 16 bits datasets supported.\n");
+    exit(1);
+  }
 
   // FIXME: What does "index_bits" actually mean? (20100817 handegar)
   if (bits_per_voxel == 16 || bits_per_voxel == 12)
@@ -191,6 +199,16 @@ main(int argc, char ** argv)
     voxelsize = sizeof(unsigned short);
     rawblock = (uint16_t *)malloc(rawsize*voxelsize);
     assert(rawblock);
+
+    // We'll shift the 12 bits data 4 bits to the right.
+    if (bits_per_voxel == 12) {
+      printf("* Scaling the 12-bit data up to 16-bits.\n");
+      uint16_t * ptr = (uint16_t *) rawblock;
+      for (int i=0;i<rawsize;++i) {
+        ptr[i] = ptr[i] >> 4;
+      }
+    }
+
   }
   else {
     assert(0 && "Unknown bitsize. Must be 8, 12 or 16.");
