@@ -205,7 +205,7 @@ main(int argc, char ** argv)
       printf("* Scaling the 12-bit data up to 16-bits.\n");
       uint16_t * ptr = (uint16_t *) rawblock;
       for (int i=0;i<rawsize;++i) {
-        ptr[i] = ptr[i] >> 4;
+        ptr[i] = ptr[i] << 4;
       }
     }
 
