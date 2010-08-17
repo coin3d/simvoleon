@@ -79,7 +79,6 @@ SbDict * CvrVoxelChunk::CLUTdict = NULL;
 CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, unsigned int size,
                              const void * buffer)
 {
-
   assert(dimensions[0] > 0);
   assert(dimensions[1] > 0);
   assert(dimensions[2] > 0);
@@ -98,10 +97,12 @@ CvrVoxelChunk::CvrVoxelChunk(const SbVec3s & dimensions, unsigned int size,
   }
 }
 
+
 CvrVoxelChunk::~CvrVoxelChunk()
 {
   if (this->destructbuffer) { delete[] (uint8_t *)this->voxelbuffer; }
 }
+
 
 // Number of bytes in buffer.
 unsigned int
@@ -112,12 +113,14 @@ CvrVoxelChunk::bufferSize(void) const
     this->unitsize;
 }
 
+
 // Returns the buffer start pointer.
 const void *
 CvrVoxelChunk::getBuffer(void) const
 {
   return this->voxelbuffer;
 }
+
 
 // Returns the buffer start pointer. Convenience method to return the
 // pointer casted to the correct size. Don't use this method unless
@@ -129,6 +132,7 @@ CvrVoxelChunk::getBuffer8(void) const
   return (uint8_t *)this->voxelbuffer;
 }
 
+
 // Returns the buffer start pointer. Convenience method to return the
 // pointer casted to the correct size. Don't use this method unless
 // there're two bytes pr voxel.
@@ -139,17 +143,20 @@ CvrVoxelChunk::getBuffer16(void) const
   return (uint16_t *)this->voxelbuffer;
 }
 
+
 const SbVec3s &
 CvrVoxelChunk::getDimensions(void) const
 {
   return this->dimensions;
 }
 
+
 unsigned int
 CvrVoxelChunk::getUnitSize(void) const
 {
   return this->unitsize;
 }
+
 
 // Converts the transferfunction's colormap into a CvrCLUT object.
 CvrCLUT *
@@ -202,6 +209,7 @@ CvrVoxelChunk::makeCLUT(const SoTransferFunctionElement * tfelement, CvrCLUT::Al
   return clut;
 }
 
+
 // Fetch a CLUT that represents the current
 // SoTransferFunction. Facilitates sharing of palettes.
 CvrCLUT *
@@ -243,6 +251,7 @@ CvrVoxelChunk::getCLUT(const SoTransferFunctionElement * tfelement, CvrCLUT::Alp
   return clut;
 }
 
+
 void
 CvrVoxelChunk::transfer(const SoGLRenderAction * action, const CvrCLUT * clut,
                         CvrTextureObject * texobj, SbBool & invisible) const
@@ -256,13 +265,13 @@ CvrVoxelChunk::transfer(const SoGLRenderAction * action, const CvrCLUT * clut,
   }
 }
 
+
 // FIXME: handegar duplicated this from transfer2D(). Should merge
 // back the common code again. Grmbl. 20040721 mortene.
 void
 CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
                           CvrTextureObject * texobj, SbBool & invisible) const
 {
-
   // FIXME: Only the CvrTextureManager should be allowed to create
   // texture objects. A small rearrangement should be done
   // here... (20040628 handegar)
@@ -325,7 +334,7 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
   CvrRGBATexture * rgbatex =
     (texobj->getTypeId().isDerivedFrom(CvrRGBATexture::getClassTypeId())) ?
     (CvrRGBATexture *)texobj : NULL;
-
+  
   CvrPaletteTexture * palettetex =
     (texobj->getTypeId().isDerivedFrom(CvrPaletteTexture::getClassTypeId())) ?
     (CvrPaletteTexture *)texobj : NULL;
@@ -440,8 +449,8 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
     invisible = FALSE;
 
   clut->unref();
-
 }
+
 
 /*!
   Transfers voxel data to a 2D texture.
@@ -503,7 +512,8 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, const CvrCLUT * clut,
     assert(palettetex && "16 bits textures must be palette textures!");
     static SbBool flag = FALSE;
     if (!flag) { // Print only once
-      SoDebugError::postWarning("transfer2D", "16 bits pr voxel unit size is not properly implemented "
+      SoDebugError::postWarning("transfer2D", 
+                                "16 bits pr voxel unit size is not properly implemented "
                                 "yet. Voxels will therefore be scaled down to 8 bits.");
       flag = TRUE;
     }
@@ -560,6 +570,7 @@ CvrVoxelChunk::transfer2D(const SoGLRenderAction * action, const CvrCLUT * clut,
   clut->unref();
 }
 
+
 // Initialize all predefined colormaps.
 void
 CvrVoxelChunk::initPredefGradients(void)
@@ -591,6 +602,7 @@ CvrVoxelChunk::initPredefGradients(void)
 #endif // DEBUG
   }
 }
+
 
 // For debugging purposes.
 void
@@ -660,12 +672,12 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
   // would otherwise have. Also, special care is taken on the outer border,
   // by letting the border pixels on the outer edges of the destination texture
   // equal the border pixel of the source image 20090730 eigils
-
+  
   const int nrhorizvoxels = ssmax[0] - ssmin[0] + 2;
   assert(nrhorizvoxels > 2);
   const int nrvertvoxels = ssmax[1] - ssmin[1] + 2;
   assert(nrvertvoxels > 2);
-
+  
   const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
   CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, this->getUnitSize());
 
@@ -722,6 +734,7 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
   return output;
 }
 
+
 // Copies rows of x-axis data along the z-axis.
 /*
   Here's how a 4x3 slice would be cut, from the memory layout:
@@ -777,7 +790,8 @@ CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by usi
   const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, 1);
   CvrVoxelChunk * output = new CvrVoxelChunk(outputdims, this->getUnitSize());
 
-  ssmin[0]-=1;   ssmin[1]-=1;
+  ssmin[0]-=1;   
+  ssmin[1]-=1;
 
   const unsigned int staticoffset =
     (ssmin[1] * dim[0] * dim[1]) + (pageidx * dim[0]) + ssmin[0];
@@ -812,6 +826,7 @@ CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by usi
 
   return output;
 }
+
 
 // Copies rows of x-axis data down the y-axis.
 CvrVoxelChunk *
@@ -881,6 +896,7 @@ CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by usi
 
   return output;
 }
+
 
 CvrVoxelChunk *
 CvrVoxelChunk::buildSubCube(const SbBox3s & cutcube)

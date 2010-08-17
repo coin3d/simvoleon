@@ -144,6 +144,7 @@ cvr_debug_textureuse(void)
 
 // *************************************************************************
 
+
 void
 CvrTextureObject::initClass(void)
 {
@@ -163,11 +164,13 @@ CvrTextureObject::initClass(void)
   CvrTextureObject::instancedict = new SbDict;
 }
 
+
 CvrTextureObject::CvrTextureObject(void)
 {
   assert(CvrTextureObject::classTypeId != SoType::badType());
   this->refcounter = 0;
 }
+
 
 CvrTextureObject::~CvrTextureObject()
 {
@@ -206,7 +209,9 @@ CvrTextureObject::~CvrTextureObject()
   }
 }
 
+
 // *************************************************************************
+
 
 const SbVec3s &
 CvrTextureObject::getDimensions(void) const
@@ -214,7 +219,9 @@ CvrTextureObject::getDimensions(void) const
   return this->dimensions;
 }
 
+
 // *************************************************************************
+
 
 SbList<CvrGLTextureCache *> *
 CvrTextureObject::cacheListForGLContext(const uint32_t glctxid) const
@@ -224,6 +231,7 @@ CvrTextureObject::cacheListForGLContext(const uint32_t glctxid) const
   if (!found) { return NULL; }
   return (SbList<CvrGLTextureCache *> *)ptr;
 }
+
 
 SbBool
 CvrTextureObject::findGLTexture(const SoGLRenderAction * action, GLuint & texid) const
@@ -249,6 +257,7 @@ CvrTextureObject::findGLTexture(const SoGLRenderAction * action, GLuint & texid)
   }
   return FALSE;
 }
+
 
 // *************************************************************************
 
@@ -294,6 +303,7 @@ coin_glerror_string(GLenum errorcode)
   return NULL; /* avoid compiler warning */
 }
 
+
 /* Simple utility function for dumping the current set of error codes
    returned from glGetError(). Returns number of errors reported by
    OpenGL.
@@ -316,7 +326,9 @@ coin_catch_gl_errors(cc_string * str)
   return errs;
 }
 
+
 // *************************************************************************
+
 
 GLuint
 CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
@@ -498,9 +510,6 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   // before calling glTexImage[2|3]D() below. 20050628 mortene.
 
 
-
-
-
   if (nrtexdims == 2) {
     // Adding a border to get rid of seams between tiled textures
     //
@@ -587,7 +596,9 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   return texid;
 }
 
+
 // *************************************************************************
+
 
 uint32_t
 CvrTextureObject::getRefCount(void) const
@@ -595,11 +606,13 @@ CvrTextureObject::getRefCount(void) const
   return this->refcounter;
 }
 
+
 void
 CvrTextureObject::ref(void) const
 {
   ((CvrTextureObject *)this)->refcounter++;
 }
+
 
 void
 CvrTextureObject::unref(void) const
@@ -608,6 +621,7 @@ CvrTextureObject::unref(void) const
   ((CvrTextureObject *)this)->refcounter--;
   if (this->refcounter == 0) { delete this; }
 }
+
 
 // *************************************************************************
 
@@ -633,6 +647,7 @@ CvrTextureObject::findInstanceMatch(const SoType t,
   return NULL;
 }
 
+
 /*! Returns an instance which embodies a chunk of voxels out of the
     current SoVolumeData on the state stack, as given by the \a
     cutcube argument.
@@ -650,6 +665,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   return CvrTextureObject::create(action, clut, texsize, cutcube, dummy, UINT_MAX, INT_MAX);
 }
 
+
 const CvrTextureObject *
 CvrTextureObject::create(const SoGLRenderAction * action,
                          const CvrCLUT * clut,
@@ -666,6 +682,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   return CvrTextureObject::create(action, clut, tex, dummy, cutslice, axisidx, pageidx);
 }
 
+
 // The common create function, used for both 2D and 3D cuts of the
 // volume.
 CvrTextureObject *
@@ -673,7 +690,9 @@ CvrTextureObject::create(const SoGLRenderAction * action,
                          const CvrCLUT * clut,
                          /* common: */ const SbVec3s & texsize,
                          /* 3D only: */ const SbBox3s & cutcube,
-                         /* 2D only: */ const SbBox2s & cutslice, const unsigned int axisidx, const int pageidx)
+                         /* 2D only: */ const SbBox2s & cutslice, 
+                         const unsigned int axisidx, 
+                         const int pageidx)
 {
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
   assert(vbelem != NULL);
@@ -686,13 +705,23 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   const SbBool lighting = lightelem->useLighting(action->getState());
 
   SoType createtype;
-  if (is2d && paletted) { createtype = Cvr2DPaletteTexture::getClassTypeId(); }
-  else if (is2d) { createtype = Cvr2DRGBATexture::getClassTypeId(); }
-  // FIXME: I believe this next may also depend on the presence of
-  // support for fragment programs..? Investigate. 20050628 mortene.
-  else if (paletted && lighting) { createtype = Cvr3DPaletteGradientTexture::getClassTypeId(); }
-  else if (paletted) { createtype = Cvr3DPaletteTexture::getClassTypeId(); }
-  else { createtype = Cvr3DRGBATexture::getClassTypeId(); }
+  if (is2d && paletted) { 
+    createtype = Cvr2DPaletteTexture::getClassTypeId(); 
+  }
+  else if (is2d) { 
+    createtype = Cvr2DRGBATexture::getClassTypeId(); 
+  }
+  else if (paletted && lighting) { 
+    // FIXME: I believe this next may also depend on the presence of
+    // support for fragment programs..? Investigate. 20050628 mortene.
+    createtype = Cvr3DPaletteGradientTexture::getClassTypeId(); 
+  }
+  else if (paletted) { 
+    createtype = Cvr3DPaletteTexture::getClassTypeId(); 
+  }
+  else { 
+    createtype = Cvr3DRGBATexture::getClassTypeId(); 
+  }
 
   struct CvrTextureObject::EqualityComparison incoming;
   incoming.sovolumedata_id = vbelem->getNodeId();
@@ -703,8 +732,10 @@ CvrTextureObject::create(const SoGLRenderAction * action,
 
   CvrTextureObject * obj =
     CvrTextureObject::findInstanceMatch(createtype, incoming);
-  if (obj) { return obj; }
-
+  if (obj) { 
+    return obj; 
+  }
+  
   const SbVec3s & voxdims = vbelem->getVoxelCubeDimensions();
   const void * dataptr = vbelem->getVoxels();
 
@@ -713,8 +744,12 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   CvrVoxelChunk * input =
     new CvrVoxelChunk(voxdims, vbelem->getBytesPrVoxel(), dataptr);
   CvrVoxelChunk * cubechunk;
-  if (is2d) { cubechunk = input->buildSubPage(axisidx, pageidx, cutslice); }
-  else { cubechunk = input->buildSubCube(cutcube); }
+  if (is2d) { 
+    cubechunk = input->buildSubPage(axisidx, pageidx, cutslice); 
+  }
+  else { 
+    cubechunk = input->buildSubCube(cutcube); 
+  }
   delete input;
 
   CvrTextureObject * newtexobj = (CvrTextureObject *)
@@ -726,27 +761,29 @@ CvrTextureObject::create(const SoGLRenderAction * action,
     // SbMax(4, ...) to work around a crash bug in older NVidia
     // drivers when a lot of 1x- or 2x-dimensions textures are
     // allocated. 20090812 mortene.
+    
     newtexobj->dimensions[i] =
       SbMax((uint32_t)4, coin_geq_power_of_two(texsize[i]));
+    
   }
 
-    if (is2d) {
-      // code in many other spots adds the extra +2 to make room for
-      // borders in 2D textures.
-      //
-      // FIXME: need to audit and figure out exactly why it can't /
-      // shouldn't be done here. as it is now, the extra allocations
-      // are spread out in a lot of places, which seems to me to be
-      // somewhat unfortunate, as there are suddenly a lot of possible
-      // points of failure for (often) hard to detect errors.
-      //
-      // 20090813 mortene.
-
-  //    newtexobj->dimensions[0] += 2;
-  //    newtexobj->dimensions[1] += 2;
-      newtexobj->dimensions[2] = 1;
-    }
-
+  if (is2d) {
+    // code in many other spots adds the extra +2 to make room for
+    // borders in 2D textures.
+    //
+    // FIXME: need to audit and figure out exactly why it can't /
+    // shouldn't be done here. as it is now, the extra allocations
+    // are spread out in a lot of places, which seems to me to be
+    // somewhat unfortunate, as there are suddenly a lot of possible
+    // points of failure for (often) hard to detect errors.
+    //
+    // 20090813 mortene.
+    
+    //    newtexobj->dimensions[0] += 2;
+    //    newtexobj->dimensions[1] += 2;
+    newtexobj->dimensions[2] = 1;
+  }
+  
 
   SbBool invisible = FALSE;
   cubechunk->transfer(action, clut, newtexobj, invisible);
@@ -792,7 +829,9 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   return newtexobj;
 }
 
+
 // *************************************************************************
+
 
 void
 CvrTextureObject::activateTexture(const SoGLRenderAction * action) const
@@ -868,13 +907,16 @@ CvrTextureObject::activateTexture(const SoGLRenderAction * action) const
 #endif // debug
 }
 
+
 // *************************************************************************
+
 
 unsigned long
 CvrTextureObject::hashKey(void) const
 {
   return CvrTextureObject::hashKey(this->eqcmp);
 }
+
 
 unsigned long
 CvrTextureObject::hashKey(const struct CvrTextureObject::EqualityComparison & obj)
@@ -901,7 +943,9 @@ CvrTextureObject::hashKey(const struct CvrTextureObject::EqualityComparison & ob
   return key;
 }
 
+
 // *************************************************************************
+
 
 int
 CvrTextureObject::EqualityComparison::operator==(const CvrTextureObject::EqualityComparison & obj)
@@ -918,7 +962,6 @@ CvrTextureObject::EqualityComparison::operator==(const CvrTextureObject::Equalit
     (this->cutslice == obj.cutslice) &&
     (this->axisidx == obj.axisidx) &&
     (this->pageidx == obj.pageidx);
-
 }
 
 // *************************************************************************
