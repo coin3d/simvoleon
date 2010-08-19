@@ -170,7 +170,7 @@ main(int argc, char ** argv)
   if (!rawf) {
     show_usage(exename);
     (void)fprintf(stderr, "Couldn't open file '%s' for reading: %s\n\n",
-                  strerror(errno));
+                  argv[5], strerror(errno));
     exit(1);
   }
 
@@ -178,7 +178,7 @@ main(int argc, char ** argv)
   if (!volf) {
     show_usage(exename);
     (void)fprintf(stderr, "Couldn't open file '%s' for writing: %s\n\n",
-                  strerror(errno));
+                  argv[6], strerror(errno));
     exit(1);
   }
 
