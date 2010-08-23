@@ -1,1 +1,2 @@
-SUBDIRS = 2D 3D common Pointset
+SUBDIRS = 2D 3D common Pointset raycast
+

@@ -23423,7 +23423,6 @@ exec_prefix=$sim_ac_save_exec_prefix
 
 
 
-## Microsoft Developer Studio Project files
 SIMVOLEON_DSP_LIBDIRS=
 SIMVOLEON_DSP_LIBS=
 SIMVOLEON_DSP_INCS=
@@ -23523,7 +23522,7 @@ fi
 
 # *******************************************************************
 
-ac_config_files="$ac_config_files SIMVoleon.pc Makefile html/Makefile bin/Makefile bin/simvoleon-config lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/caches/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile lib/VolumeViz/render/3D/Makefile lib/VolumeViz/render/common/Makefile lib/VolumeViz/render/Pointset/Makefile cfg/gendsp.sh cfg/gendsp.pl"
+ac_config_files="$ac_config_files SIMVoleon.pc Makefile html/Makefile bin/Makefile bin/simvoleon-config lib/Makefile lib/VolumeViz/Makefile lib/VolumeViz/C/Makefile lib/VolumeViz/caches/Makefile lib/VolumeViz/details/Makefile lib/VolumeViz/elements/Makefile lib/VolumeViz/misc/Makefile lib/VolumeViz/nodes/Makefile lib/VolumeViz/nodes/gradients/Makefile lib/VolumeViz/readers/Makefile lib/VolumeViz/render/Makefile lib/VolumeViz/render/2D/Makefile lib/VolumeViz/render/3D/Makefile lib/VolumeViz/render/common/Makefile lib/VolumeViz/render/Pointset/Makefile lib/VolumeViz/render/raycast/Makefile cfg/gendsp.sh cfg/gendsp.pl"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -24284,6 +24283,7 @@ do
     "lib/VolumeViz/render/3D/Makefile") CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/3D/Makefile" ;;
     "lib/VolumeViz/render/common/Makefile") CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/common/Makefile" ;;
     "lib/VolumeViz/render/Pointset/Makefile") CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/Pointset/Makefile" ;;
+    "lib/VolumeViz/render/raycast/Makefile") CONFIG_FILES="$CONFIG_FILES lib/VolumeViz/render/raycast/Makefile" ;;
     "cfg/gendsp.sh") CONFIG_FILES="$CONFIG_FILES cfg/gendsp.sh" ;;
     "cfg/gendsp.pl") CONFIG_FILES="$CONFIG_FILES cfg/gendsp.pl" ;;
 

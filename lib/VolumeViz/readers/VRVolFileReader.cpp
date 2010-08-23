@@ -92,6 +92,7 @@ struct vol_header {
   float rotX, rotY, rotZ;
 };
 
+
 // workaround for buggy coin_hton_float()/coin_ntoh_float() (obsoleted
 // in Coin-4) 
 
@@ -122,6 +123,7 @@ namespace {
   }
 };
 
+
 // *************************************************************************
 
 #define PRIVATE(p) (p->pimpl)
@@ -143,6 +145,7 @@ public:
   SbBool valid;
 };
 
+
 /* Return value of CVR_DEBUG_IMPORT environment variable. */
 SbBool
 SoVRVolFileReaderP::debugFileRead(void)
@@ -155,6 +158,7 @@ SoVRVolFileReaderP::debugFileRead(void)
   return (d > 0) ? TRUE : FALSE;
 }
 
+
 SoVolumeData::DataType
 SoVRVolFileReaderP::dataType(void)
 {
@@ -165,6 +169,7 @@ SoVRVolFileReaderP::dataType(void)
   }
   return (SoVolumeData::DataType)0; // kills a compiler warning
 }
+
 
 void
 SoVRVolFileReaderP::debugDumpHeader(struct vol_header * vh)
@@ -184,6 +189,7 @@ SoVRVolFileReaderP::debugDumpHeader(struct vol_header * vh)
                          vh->rotX, vh->rotY, vh->rotZ);
 }
 
+
 // *************************************************************************
 
 
@@ -192,10 +198,12 @@ SoVRVolFileReader::SoVRVolFileReader(void)
   PRIVATE(this) = new SoVRVolFileReaderP;
 }
 
+
 SoVRVolFileReader::~SoVRVolFileReader()
 {
   delete PRIVATE(this);
 }
+
 
 // Documented in superclass.
 void
@@ -221,6 +229,7 @@ SoVRVolFileReader::getDataChar(SbBox3f & size, SoVolumeData::DataType & type,
   size.setBounds(-normdims / 2.0f, normdims / 2.0f);
 }
 
+
 // Documented in superclass.
 //
 // FIXME: this is supposed to be the sole interface (well, together
@@ -240,7 +249,7 @@ SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data)
   SbVec3s dims(volh->width, volh->height, volh->images);
   SoVolumeData::DataType type = PRIVATE(this)->dataType();
 
-#if CVR_DEBUG && 0 // debug
+#if 1 //CVR_DEBUG && 0 // debug
   SbVec2s ssmin, ssmax;
   subslice.getBounds(ssmin, ssmax);
   SoDebugError::postInfo("SoVRVolFileReader::getSubSlice",
@@ -264,6 +273,7 @@ SoVRVolFileReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data)
   (void)memcpy(data, output->getBuffer(), output->bufferSize());
   delete output;
 }
+
 
 /*!
   \a data should be a pointer to a character string with the full

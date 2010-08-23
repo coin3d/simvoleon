@@ -53,6 +53,7 @@ libSimVoleon@SUFFIX@_la_LIBADD = \
 	render/2D/lib2Drender.la \
         render/3D/lib3Drender.la \
         render/Pointset/libpointsetrender.la \
+        render/raycast/libraycastrender.la \
         render/common/libcommonrender.la
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
@@ -65,6 +66,7 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
 	render/2D/2Drender.lst \
         render/3D/3Drender.lst \
         render/Pointset/pointsetrender.lst \
+        render/raycast/raycastrender.lst \
         render/common/commonrender.lst
 
 libSimVoleon@SUFFIX@_la_LDFLAGS = \

@@ -558,6 +558,7 @@ AC_OUTPUT([
         lib/VolumeViz/render/3D/Makefile
         lib/VolumeViz/render/common/Makefile
         lib/VolumeViz/render/Pointset/Makefile
+        lib/VolumeViz/render/raycast/Makefile
         cfg/gendsp.sh
         cfg/gendsp.pl
 ])

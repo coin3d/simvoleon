@@ -27,7 +27,8 @@ RegularSources = \
 	CvrFaceSetRenderP.cpp \
 	CvrIndexedFaceSetRenderP.cpp \
 	CvrTriangleStripSetRenderP.cpp \
-	CvrIndexedTriangleStripSetRenderP.cpp
+	CvrIndexedTriangleStripSetRenderP.cpp \
+        SoRaycastRender.cpp
 
 PublicHeaders = \
 	SoOrthoSlice.h \
@@ -40,7 +41,8 @@ PublicHeaders = \
 	SoVolumeFaceSet.h \
 	SoVolumeIndexedFaceSet.h \
 	SoVolumeTriangleStripSet.h \
-	SoVolumeIndexedTriangleStripSet.h
+	SoVolumeIndexedTriangleStripSet.h \
+        SoRaycastRender.h
 
 PrivateHeaders = \
 	volumeraypickintersection.h \

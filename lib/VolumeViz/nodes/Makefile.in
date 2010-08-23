@@ -45,28 +45,7 @@ subdir = lib/VolumeViz/nodes
 DIST_COMMON = $(libnodesinc_HEADERS) $(srcdir)/Makefile.am \
 	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/../simacros/bin/../cfg/m4/coin.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_debug.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_exceptions.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_profiling.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_rtti.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_symbols.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_warnings.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compiler_capabilities.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/configuration_summary.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/doxygen_detection.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/errors.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/exit.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/gendsp.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/mac.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/misc_compiler.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/project.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/sim.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/sourcedir.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/uniqify.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/uniqify_option_list.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/wrapmsvc.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
@@ -88,7 +67,8 @@ am__objects_1 = volumeraypickintersection.$(OBJEXT) \
 	CvrNonIndexedSetRenderBaseP.$(OBJEXT) \
 	CvrFaceSetRenderP.$(OBJEXT) CvrIndexedFaceSetRenderP.$(OBJEXT) \
 	CvrTriangleStripSetRenderP.$(OBJEXT) \
-	CvrIndexedTriangleStripSetRenderP.$(OBJEXT)
+	CvrIndexedTriangleStripSetRenderP.$(OBJEXT) \
+	SoRaycastRender.$(OBJEXT)
 am_nodes_lst_OBJECTS = $(am__objects_1)
 nodes_lst_OBJECTS = $(am_nodes_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
@@ -100,7 +80,7 @@ am__objects_3 = volumeraypickintersection.lo TransferFunction.lo \
 	VolumeIndexedTriangleStripSet.lo CvrIndexedSetRenderBaseP.lo \
 	CvrNonIndexedSetRenderBaseP.lo CvrFaceSetRenderP.lo \
 	CvrIndexedFaceSetRenderP.lo CvrTriangleStripSetRenderP.lo \
-	CvrIndexedTriangleStripSetRenderP.lo
+	CvrIndexedTriangleStripSetRenderP.lo SoRaycastRender.lo
 am_libnodes_la_OBJECTS = $(am__objects_3)
 libnodes_la_OBJECTS = $(am_libnodes_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
@@ -121,6 +101,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/ObliqueSlice.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/OrthoSlice.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/OrthoSlice.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/SoRaycastRender.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/SoRaycastRender.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/TransferFunction.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/TransferFunction.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/VolumeData.Plo \
@@ -371,7 +353,8 @@ RegularSources = \
 	CvrFaceSetRenderP.cpp \
 	CvrIndexedFaceSetRenderP.cpp \
 	CvrTriangleStripSetRenderP.cpp \
-	CvrIndexedTriangleStripSetRenderP.cpp
+	CvrIndexedTriangleStripSetRenderP.cpp \
+        SoRaycastRender.cpp
 
 PublicHeaders = \
 	SoOrthoSlice.h \
@@ -384,7 +367,8 @@ PublicHeaders = \
 	SoVolumeFaceSet.h \
 	SoVolumeIndexedFaceSet.h \
 	SoVolumeTriangleStripSet.h \
-	SoVolumeIndexedTriangleStripSet.h
+	SoVolumeIndexedTriangleStripSet.h \
+        SoRaycastRender.h
 
 PrivateHeaders = \
 	volumeraypickintersection.h \
@@ -478,6 +462,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObliqueSlice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSlice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSlice.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoRaycastRender.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoRaycastRender.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunction.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeData.Plo@am__quote@

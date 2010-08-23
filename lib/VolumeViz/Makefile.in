@@ -43,28 +43,7 @@ target_triplet = @target@
 subdir = lib/VolumeViz
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/../simacros/bin/../cfg/m4/coin.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_debug.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_exceptions.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_profiling.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_rtti.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_symbols.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compile_warnings.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/compiler_capabilities.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/configuration_summary.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/doxygen_detection.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/errors.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/exit.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/gendsp.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/mac.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/misc_compiler.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/project.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/sim.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/sourcedir.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/uniqify.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/uniqify_option_list.m4 \
-	$(top_srcdir)/../simacros/bin/../cfg/m4/wrapmsvc.m4 \
-	$(top_srcdir)/configure.ac
+am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(SHELL) $(top_srcdir)/cfg/mkinstalldirs
@@ -80,6 +59,7 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_DEPENDENCIES =  \
 	misc/misc.lst nodes/nodes.lst readers/readers.lst \
 	render/2D/2Drender.lst render/3D/3Drender.lst \
 	render/Pointset/pointsetrender.lst \
+	render/raycast/raycastrender.lst \
 	render/common/commonrender.lst
 am__objects_1 = dummy.$(OBJEXT) CoinGLPerformance.$(OBJEXT)
 am_simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS =  \
@@ -93,6 +73,7 @@ libSimVoleon@SUFFIX@_la_DEPENDENCIES = caches/libcaches.la \
 	nodes/libnodes.la readers/libreaders.la \
 	render/2D/lib2Drender.la render/3D/lib3Drender.la \
 	render/Pointset/libpointsetrender.la \
+	render/raycast/libraycastrender.la \
 	render/common/libcommonrender.la
 am__objects_2 = dummy.lo CoinGLPerformance.lo
 am_libSimVoleon@SUFFIX@_la_OBJECTS = $(am__objects_2)
@@ -346,6 +327,7 @@ libSimVoleon@SUFFIX@_la_LIBADD = \
 	render/2D/lib2Drender.la \
         render/3D/lib3Drender.la \
         render/Pointset/libpointsetrender.la \
+        render/raycast/libraycastrender.la \
         render/common/libcommonrender.la
 
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
@@ -358,6 +340,7 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_LIBADD = \
 	render/2D/2Drender.lst \
         render/3D/3Drender.lst \
         render/Pointset/pointsetrender.lst \
+        render/raycast/raycastrender.lst \
         render/common/commonrender.lst
 
 libSimVoleon@SUFFIX@_la_LDFLAGS = \
