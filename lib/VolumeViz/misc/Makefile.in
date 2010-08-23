@@ -53,34 +53,36 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 misc_lst_AR = $(AR) $(ARFLAGS)
 misc_lst_LIBADD =
-am__objects_1 = VoxelChunk.$(OBJEXT) CLUT.$(OBJEXT) Util.$(OBJEXT) \
-	ResourceManager.$(OBJEXT) GlobalRenderLock.$(OBJEXT) \
-	GIMPGradient.$(OBJEXT) Gradient.$(OBJEXT) \
-	CentralDifferenceGradient.$(OBJEXT)
+am__objects_1 = CvrVoxelChunk.$(OBJEXT) CvrCLUT.$(OBJEXT) \
+	CvrUtil.$(OBJEXT) CvrResourceManager.$(OBJEXT) \
+	CvrGlobalRenderLock.$(OBJEXT) CvrGIMPGradient.$(OBJEXT) \
+	CvrGradient.$(OBJEXT) CvrCentralDifferenceGradient.$(OBJEXT)
 am_misc_lst_OBJECTS = $(am__objects_1)
 misc_lst_OBJECTS = $(am_misc_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libmisc_la_LIBADD =
-am__objects_2 = VoxelChunk.lo CLUT.lo Util.lo ResourceManager.lo \
-	GlobalRenderLock.lo GIMPGradient.lo Gradient.lo \
-	CentralDifferenceGradient.lo
+am__objects_2 = CvrVoxelChunk.lo CvrCLUT.lo CvrUtil.lo \
+	CvrResourceManager.lo CvrGlobalRenderLock.lo \
+	CvrGIMPGradient.lo CvrGradient.lo \
+	CvrCentralDifferenceGradient.lo
 am_libmisc_la_OBJECTS = $(am__objects_2)
 libmisc_la_OBJECTS = $(am_libmisc_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CLUT.Plo ./$(DEPDIR)/CLUT.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/CentralDifferenceGradient.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CentralDifferenceGradient.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/GIMPGradient.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/GIMPGradient.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/GlobalRenderLock.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/GlobalRenderLock.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/Gradient.Plo ./$(DEPDIR)/Gradient.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/ResourceManager.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/ResourceManager.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/Util.Plo ./$(DEPDIR)/Util.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/VoxelChunk.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/VoxelChunk.Po
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrCLUT.Plo ./$(DEPDIR)/CvrCLUT.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrCentralDifferenceGradient.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrCentralDifferenceGradient.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrGIMPGradient.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrGIMPGradient.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrGlobalRenderLock.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrGlobalRenderLock.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrGradient.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrGradient.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrResourceManager.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrResourceManager.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrUtil.Plo ./$(DEPDIR)/CvrUtil.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrVoxelChunk.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrVoxelChunk.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -276,14 +278,14 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = misc.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libmisc.la
 RegularSources = \
-	VoxelChunk.cpp CvrVoxelChunk.h \
-	CLUT.cpp CvrCLUT.h \
-	Util.cpp CvrUtil.h \
-	ResourceManager.cpp CvrResourceManager.h \
-	CvrGlobalRenderLock.h GlobalRenderLock.cpp \
-	GIMPGradient.cpp CvrGIMPGradient.h \
-	Gradient.cpp CvrGradient.h \
-	CentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h
+	CvrVoxelChunk.cpp CvrVoxelChunk.h \
+	CvrCLUT.cpp CvrCLUT.h \
+	CvrUtil.cpp CvrUtil.h \
+	CvrResourceManager.cpp CvrResourceManager.h \
+	CvrGlobalRenderLock.h CvrGlobalRenderLock.cpp \
+	CvrGIMPGradient.cpp CvrGIMPGradient.h \
+	CvrGradient.cpp CvrGradient.h \
+	CvrCentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h
 
 libmisc_la_SOURCES = $(RegularSources)
 misc_lst_SOURCES = $(RegularSources)
@@ -341,22 +343,22 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CLUT.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CLUT.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CentralDifferenceGradient.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CentralDifferenceGradient.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GIMPGradient.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GIMPGradient.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GlobalRenderLock.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GlobalRenderLock.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Gradient.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Gradient.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ResourceManager.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ResourceManager.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Util.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Util.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VoxelChunk.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VoxelChunk.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCLUT.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCLUT.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCentralDifferenceGradient.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCentralDifferenceGradient.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGIMPGradient.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGIMPGradient.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGlobalRenderLock.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGlobalRenderLock.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGradient.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGradient.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrResourceManager.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrResourceManager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrUtil.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrUtil.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrVoxelChunk.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrVoxelChunk.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

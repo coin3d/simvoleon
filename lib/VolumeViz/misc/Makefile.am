@@ -7,14 +7,14 @@ noinst_LTLIBRARIES = libmisc.la
 endif
 
 RegularSources = \
-	VoxelChunk.cpp CvrVoxelChunk.h \
-	CLUT.cpp CvrCLUT.h \
-	Util.cpp CvrUtil.h \
-	ResourceManager.cpp CvrResourceManager.h \
-	CvrGlobalRenderLock.h GlobalRenderLock.cpp \
-	GIMPGradient.cpp CvrGIMPGradient.h \
-	Gradient.cpp CvrGradient.h \
-	CentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h
+	CvrVoxelChunk.cpp CvrVoxelChunk.h \
+	CvrCLUT.cpp CvrCLUT.h \
+	CvrUtil.cpp CvrUtil.h \
+	CvrResourceManager.cpp CvrResourceManager.h \
+	CvrGlobalRenderLock.h CvrGlobalRenderLock.cpp \
+	CvrGIMPGradient.cpp CvrGIMPGradient.h \
+	CvrGradient.cpp CvrGradient.h \
+	CvrCentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h
 
 libmisc_la_SOURCES = $(RegularSources)
 

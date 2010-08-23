@@ -53,23 +53,23 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 3Drender_lst_AR = $(AR) $(ARFLAGS)
 3Drender_lst_LIBADD =
-am__objects_1 = CubeHandler.$(OBJEXT) 3DTexSubCube.$(OBJEXT) \
-	3DTexCube.$(OBJEXT)
+am__objects_1 = CvrCubeHandler.$(OBJEXT) Cvr3DTexSubCube.$(OBJEXT) \
+	Cvr3DTexCube.$(OBJEXT)
 am_3Drender_lst_OBJECTS = $(am__objects_1)
 3Drender_lst_OBJECTS = $(am_3Drender_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 lib3Drender_la_LIBADD =
-am__objects_2 = CubeHandler.lo 3DTexSubCube.lo 3DTexCube.lo
+am__objects_2 = CvrCubeHandler.lo Cvr3DTexSubCube.lo Cvr3DTexCube.lo
 am_lib3Drender_la_OBJECTS = $(am__objects_2)
 lib3Drender_la_OBJECTS = $(am_lib3Drender_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/3DTexCube.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/3DTexCube.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/3DTexSubCube.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/3DTexSubCube.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/CubeHandler.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CubeHandler.Po
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/Cvr3DTexCube.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/Cvr3DTexCube.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/Cvr3DTexSubCube.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/Cvr3DTexSubCube.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrCubeHandler.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrCubeHandler.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -265,9 +265,9 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = 3Drender.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = lib3Drender.la
 RegularSources = \
-	CubeHandler.cpp CvrCubeHandler.h \
-	3DTexSubCube.cpp Cvr3DTexSubCube.h \
-	3DTexCube.cpp Cvr3DTexCube.h
+	CvrCubeHandler.cpp CvrCubeHandler.h \
+	Cvr3DTexSubCube.cpp Cvr3DTexSubCube.h \
+	Cvr3DTexCube.cpp Cvr3DTexCube.h
 
 lib3Drender_la_SOURCES = $(RegularSources)
 3Drender_lst_SOURCES = $(RegularSources)
@@ -329,12 +329,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3DTexCube.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3DTexCube.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3DTexSubCube.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/3DTexSubCube.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CubeHandler.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CubeHandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cvr3DTexCube.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cvr3DTexCube.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cvr3DTexSubCube.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cvr3DTexSubCube.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCubeHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCubeHandler.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

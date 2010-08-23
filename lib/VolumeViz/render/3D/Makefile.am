@@ -7,9 +7,9 @@ noinst_LTLIBRARIES = lib3Drender.la
 endif
 
 RegularSources = \
-	CubeHandler.cpp CvrCubeHandler.h \
-	3DTexSubCube.cpp Cvr3DTexSubCube.h \
-	3DTexCube.cpp Cvr3DTexCube.h
+	CvrCubeHandler.cpp CvrCubeHandler.h \
+	Cvr3DTexSubCube.cpp Cvr3DTexSubCube.h \
+	Cvr3DTexCube.cpp Cvr3DTexCube.h
 
 lib3Drender_la_SOURCES = $(RegularSources)
 

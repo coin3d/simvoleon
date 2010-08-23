@@ -55,39 +55,42 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 elements_lst_AR = $(AR) $(ARFLAGS)
 elements_lst_LIBADD =
-am__objects_1 = CompressedTexturesElement.$(OBJEXT) \
-	GLInterpolationElement.$(OBJEXT) \
-	PalettedTexturesElement.$(OBJEXT) PageSizeElement.$(OBJEXT) \
-	StorageHintElement.$(OBJEXT) VoxelBlockElement.$(OBJEXT) \
-	TransferFunctionElement.$(OBJEXT) LightingElement.$(OBJEXT)
+am__objects_1 = CvrCompressedTexturesElement.$(OBJEXT) \
+	CvrGLInterpolationElement.$(OBJEXT) \
+	CvrPalettedTexturesElement.$(OBJEXT) \
+	CvrPageSizeElement.$(OBJEXT) CvrStorageHintElement.$(OBJEXT) \
+	CvrVoxelBlockElement.$(OBJEXT) \
+	SoTransferFunctionElement.$(OBJEXT) \
+	CvrLightingElement.$(OBJEXT)
 am_elements_lst_OBJECTS = $(am__objects_1)
 elements_lst_OBJECTS = $(am_elements_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libelements_la_LIBADD =
-am__objects_3 = CompressedTexturesElement.lo GLInterpolationElement.lo \
-	PalettedTexturesElement.lo PageSizeElement.lo \
-	StorageHintElement.lo VoxelBlockElement.lo \
-	TransferFunctionElement.lo LightingElement.lo
+am__objects_3 = CvrCompressedTexturesElement.lo \
+	CvrGLInterpolationElement.lo CvrPalettedTexturesElement.lo \
+	CvrPageSizeElement.lo CvrStorageHintElement.lo \
+	CvrVoxelBlockElement.lo SoTransferFunctionElement.lo \
+	CvrLightingElement.lo
 am_libelements_la_OBJECTS = $(am__objects_3)
 libelements_la_OBJECTS = $(am_libelements_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CompressedTexturesElement.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CompressedTexturesElement.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/GLInterpolationElement.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/GLInterpolationElement.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/LightingElement.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/LightingElement.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/PageSizeElement.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/PageSizeElement.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/PalettedTexturesElement.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/PalettedTexturesElement.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/StorageHintElement.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/StorageHintElement.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/TransferFunctionElement.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/TransferFunctionElement.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/VoxelBlockElement.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/VoxelBlockElement.Po
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrCompressedTexturesElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrCompressedTexturesElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrGLInterpolationElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrGLInterpolationElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrLightingElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrLightingElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrPageSizeElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrPageSizeElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrPalettedTexturesElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrPalettedTexturesElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrStorageHintElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrStorageHintElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrVoxelBlockElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrVoxelBlockElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/SoTransferFunctionElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/SoTransferFunctionElement.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -293,14 +296,14 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 #                    installed - including source-included source files.
 # RegularSources   - source files compiled in this directory
 RegularSources = \
-	CompressedTexturesElement.cpp \
-	GLInterpolationElement.cpp \
-	PalettedTexturesElement.cpp \
-	PageSizeElement.cpp \
-	StorageHintElement.cpp \
-	VoxelBlockElement.cpp \
-	TransferFunctionElement.cpp \
-	LightingElement.cpp
+	CvrCompressedTexturesElement.cpp \
+	CvrGLInterpolationElement.cpp \
+	CvrPalettedTexturesElement.cpp \
+	CvrPageSizeElement.cpp \
+	CvrStorageHintElement.cpp \
+	CvrVoxelBlockElement.cpp \
+	SoTransferFunctionElement.cpp \
+	CvrLightingElement.cpp
 
 PublicHeaders = 
 PrivateHeaders = \
@@ -380,22 +383,22 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CompressedTexturesElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CompressedTexturesElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GLInterpolationElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GLInterpolationElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LightingElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/LightingElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PageSizeElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PageSizeElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PalettedTexturesElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PalettedTexturesElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StorageHintElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StorageHintElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunctionElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TransferFunctionElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VoxelBlockElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VoxelBlockElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCompressedTexturesElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCompressedTexturesElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGLInterpolationElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGLInterpolationElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrLightingElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrLightingElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPageSizeElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPageSizeElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPalettedTexturesElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPalettedTexturesElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrStorageHintElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrStorageHintElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrVoxelBlockElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrVoxelBlockElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoTransferFunctionElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoTransferFunctionElement.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

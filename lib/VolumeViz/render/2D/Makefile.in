@@ -53,23 +53,23 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 2Drender_lst_AR = $(AR) $(ARFLAGS)
 2Drender_lst_LIBADD =
-am__objects_1 = PageHandler.$(OBJEXT) 2DTexSubPage.$(OBJEXT) \
-	2DTexPage.$(OBJEXT)
+am__objects_1 = CvrPageHandler.$(OBJEXT) Cvr2DTexSubPage.$(OBJEXT) \
+	Cvr2DTexPage.$(OBJEXT)
 am_2Drender_lst_OBJECTS = $(am__objects_1)
 2Drender_lst_OBJECTS = $(am_2Drender_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 lib2Drender_la_LIBADD =
-am__objects_2 = PageHandler.lo 2DTexSubPage.lo 2DTexPage.lo
+am__objects_2 = CvrPageHandler.lo Cvr2DTexSubPage.lo Cvr2DTexPage.lo
 am_lib2Drender_la_OBJECTS = $(am__objects_2)
 lib2Drender_la_OBJECTS = $(am_lib2Drender_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/2DTexPage.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/2DTexPage.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/2DTexSubPage.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/2DTexSubPage.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/PageHandler.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/PageHandler.Po
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/Cvr2DTexPage.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/Cvr2DTexPage.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/Cvr2DTexSubPage.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/Cvr2DTexSubPage.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrPageHandler.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrPageHandler.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -265,9 +265,9 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = 2Drender.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = lib2Drender.la
 RegularSources = \
-	PageHandler.cpp CvrPageHandler.h \
-	2DTexSubPage.cpp Cvr2DTexSubPage.h \
-	2DTexPage.cpp Cvr2DTexPage.h
+	CvrPageHandler.cpp CvrPageHandler.h \
+	Cvr2DTexSubPage.cpp Cvr2DTexSubPage.h \
+	Cvr2DTexPage.cpp Cvr2DTexPage.h
 
 EXTRA_DIST = \
 	texmemfullimg.h
@@ -332,12 +332,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/2DTexPage.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/2DTexPage.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/2DTexSubPage.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/2DTexSubPage.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PageHandler.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/PageHandler.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cvr2DTexPage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cvr2DTexPage.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cvr2DTexSubPage.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Cvr2DTexSubPage.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPageHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPageHandler.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

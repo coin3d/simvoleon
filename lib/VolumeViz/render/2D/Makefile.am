@@ -7,9 +7,9 @@ noinst_LTLIBRARIES = lib2Drender.la
 endif
 
 RegularSources = \
-	PageHandler.cpp CvrPageHandler.h \
-	2DTexSubPage.cpp Cvr2DTexSubPage.h \
-	2DTexPage.cpp Cvr2DTexPage.h
+	CvrPageHandler.cpp CvrPageHandler.h \
+	Cvr2DTexSubPage.cpp Cvr2DTexSubPage.h \
+	Cvr2DTexPage.cpp Cvr2DTexPage.h
 
 EXTRA_DIST = \
 	texmemfullimg.h

@@ -227,7 +227,7 @@ voleon_build_dir = @voleon_build_dir@
 voleon_html_dir = @voleon_html_dir@
 voleon_man_dir = @voleon_man_dir@
 voleon_src_dir = @voleon_src_dir@
-SUBDIRS = 2D 3D common Pointset raycast
+SUBDIRS = 2D 3D common pointset raycast
 all: all-recursive
 
 .SUFFIXES:

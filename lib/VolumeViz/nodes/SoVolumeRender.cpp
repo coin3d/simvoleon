@@ -68,7 +68,7 @@
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/render/2D/CvrPageHandler.h>
 #include <VolumeViz/render/3D/CvrCubeHandler.h>
-#include <VolumeViz/render/Pointset/PointRendering.h>
+#include <VolumeViz/render/pointset/PointRendering.h>
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrCLUT.h>

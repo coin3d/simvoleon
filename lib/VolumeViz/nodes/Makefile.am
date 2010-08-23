@@ -11,17 +11,17 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 
 RegularSources = \
 	volumeraypickintersection.cpp \
-	TransferFunction.cpp \
-	VolumeData.cpp \
-	VolumeRender.cpp \
-	VolumeRendering.cpp \
-	ObliqueSlice.cpp \
-	OrthoSlice.cpp \
-	VolumeSkin.cpp \
-	VolumeFaceSet.cpp \
-	VolumeIndexedFaceSet.cpp \
-	VolumeTriangleStripSet.cpp \
-	VolumeIndexedTriangleStripSet.cpp \
+	SoTransferFunction.cpp \
+	SoVolumeData.cpp \
+	SoVolumeRender.cpp \
+	SoVolumeRendering.cpp \
+	SoObliqueSlice.cpp \
+	SoOrthoSlice.cpp \
+	SoVolumeSkin.cpp \
+	SoVolumeFaceSet.cpp \
+	SoVolumeIndexedFaceSet.cpp \
+	SoVolumeTriangleStripSet.cpp \
+	SoVolumeIndexedTriangleStripSet.cpp \
 	CvrIndexedSetRenderBaseP.cpp \
 	CvrNonIndexedSetRenderBaseP.cpp \
 	CvrFaceSetRenderP.cpp \

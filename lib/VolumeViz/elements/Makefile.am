@@ -8,14 +8,14 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 # RegularSources   - source files compiled in this directory
 
 RegularSources = \
-	CompressedTexturesElement.cpp \
-	GLInterpolationElement.cpp \
-	PalettedTexturesElement.cpp \
-	PageSizeElement.cpp \
-	StorageHintElement.cpp \
-	VoxelBlockElement.cpp \
-	TransferFunctionElement.cpp \
-	LightingElement.cpp
+	CvrCompressedTexturesElement.cpp \
+	CvrGLInterpolationElement.cpp \
+	CvrPalettedTexturesElement.cpp \
+	CvrPageSizeElement.cpp \
+	CvrStorageHintElement.cpp \
+	CvrVoxelBlockElement.cpp \
+	SoTransferFunctionElement.cpp \
+	CvrLightingElement.cpp
 
 PublicHeaders = 
 

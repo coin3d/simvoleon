@@ -55,29 +55,30 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 details_lst_AR = $(AR) $(ARFLAGS)
 details_lst_LIBADD =
-am__objects_1 = VolumeDetail.$(OBJEXT) VolumeRenderDetail.$(OBJEXT) \
-	VolumeSkinDetail.$(OBJEXT) OrthoSliceDetail.$(OBJEXT) \
-	ObliqueSliceDetail.$(OBJEXT)
+am__objects_1 = SoVolumeDetail.$(OBJEXT) \
+	SoVolumeRenderDetail.$(OBJEXT) SoVolumeSkinDetail.$(OBJEXT) \
+	SoOrthoSliceDetail.$(OBJEXT) SoObliqueSliceDetail.$(OBJEXT)
 am_details_lst_OBJECTS = $(am__objects_1)
 details_lst_OBJECTS = $(am_details_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libdetails_la_LIBADD =
-am__objects_2 = VolumeDetail.lo VolumeRenderDetail.lo \
-	VolumeSkinDetail.lo OrthoSliceDetail.lo ObliqueSliceDetail.lo
+am__objects_2 = SoVolumeDetail.lo SoVolumeRenderDetail.lo \
+	SoVolumeSkinDetail.lo SoOrthoSliceDetail.lo \
+	SoObliqueSliceDetail.lo
 am_libdetails_la_OBJECTS = $(am__objects_2)
 libdetails_la_OBJECTS = $(am_libdetails_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/ObliqueSliceDetail.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/ObliqueSliceDetail.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/OrthoSliceDetail.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/OrthoSliceDetail.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/VolumeDetail.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/VolumeDetail.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/VolumeRenderDetail.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/VolumeRenderDetail.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/VolumeSkinDetail.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/VolumeSkinDetail.Po
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/SoObliqueSliceDetail.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/SoObliqueSliceDetail.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/SoOrthoSliceDetail.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/SoOrthoSliceDetail.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/SoVolumeDetail.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/SoVolumeDetail.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/SoVolumeRenderDetail.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/SoVolumeRenderDetail.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/SoVolumeSkinDetail.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/SoVolumeSkinDetail.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -268,11 +269,11 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = details.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libdetails.la
 RegularSources = \
-	VolumeDetail.cpp \
-	VolumeRenderDetail.cpp \
-	VolumeSkinDetail.cpp \
-	OrthoSliceDetail.cpp \
-	ObliqueSliceDetail.cpp
+	SoVolumeDetail.cpp \
+	SoVolumeRenderDetail.cpp \
+	SoVolumeSkinDetail.cpp \
+	SoOrthoSliceDetail.cpp \
+	SoObliqueSliceDetail.cpp
 
 libdetails_la_SOURCES = $(RegularSources)
 details_lst_SOURCES = $(RegularSources)
@@ -339,16 +340,16 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObliqueSliceDetail.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ObliqueSliceDetail.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSliceDetail.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OrthoSliceDetail.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeDetail.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeDetail.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRenderDetail.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeRenderDetail.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeSkinDetail.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/VolumeSkinDetail.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoObliqueSliceDetail.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoObliqueSliceDetail.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoOrthoSliceDetail.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoOrthoSliceDetail.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoVolumeDetail.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoVolumeDetail.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoVolumeRenderDetail.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoVolumeRenderDetail.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoVolumeSkinDetail.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoVolumeSkinDetail.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \

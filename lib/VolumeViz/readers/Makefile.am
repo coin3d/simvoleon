@@ -8,9 +8,9 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 # RegularSources   - source files compiled in this directory
 
 RegularSources = \
-	VolumeReader.cpp \
-	VRVolFileReader.cpp \
-	VRMemReader.cpp
+	SoVolumeReader.cpp \
+	SoVRVolFileReader.cpp \
+	SoVRMemReader.cpp
 
 PublicHeaders = \
 	SoVolumeReader.h \

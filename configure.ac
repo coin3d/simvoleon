@@ -12,7 +12,7 @@ AC_INIT([SIM Voleon],
         [SIMVOLEON_MAJOR.SIMVOLEON_MINOR.SIMVOLEON_MICRO[]SIMVOLEON_BETA],
         [coin-support@coin3d.org])
 
-AC_CONFIG_SRCDIR(lib/VolumeViz/nodes/VolumeRendering.cpp)
+AC_CONFIG_SRCDIR(lib/VolumeViz/nodes/SoVolumeRendering.cpp)
 AC_CONFIG_AUX_DIR(cfg)
 
 # **************************************************************************
@@ -557,7 +557,7 @@ AC_OUTPUT([
 	lib/VolumeViz/render/2D/Makefile
         lib/VolumeViz/render/3D/Makefile
         lib/VolumeViz/render/common/Makefile
-        lib/VolumeViz/render/Pointset/Makefile
+        lib/VolumeViz/render/pointset/Makefile
         lib/VolumeViz/render/raycast/Makefile
         cfg/gendsp.sh
         cfg/gendsp.pl

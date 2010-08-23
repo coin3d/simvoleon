@@ -7,7 +7,7 @@ noinst_LTLIBRARIES = libcaches.la
 endif
 
 RegularSources = \
-	GLTextureCache.cpp CvrGLTextureCache.h
+	CvrGLTextureCache.cpp CvrGLTextureCache.h
 
 libcaches_la_SOURCES = $(RegularSources)
 

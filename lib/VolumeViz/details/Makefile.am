@@ -7,11 +7,11 @@ noinst_LTLIBRARIES = libdetails.la
 endif
 
 RegularSources = \
-	VolumeDetail.cpp \
-	VolumeRenderDetail.cpp \
-	VolumeSkinDetail.cpp \
-	OrthoSliceDetail.cpp \
-	ObliqueSliceDetail.cpp
+	SoVolumeDetail.cpp \
+	SoVolumeRenderDetail.cpp \
+	SoVolumeSkinDetail.cpp \
+	SoOrthoSliceDetail.cpp \
+	SoObliqueSliceDetail.cpp
 
 libdetails_la_SOURCES = $(RegularSources)
 

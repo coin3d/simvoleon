@@ -53,18 +53,18 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 caches_lst_AR = $(AR) $(ARFLAGS)
 caches_lst_LIBADD =
-am__objects_1 = GLTextureCache.$(OBJEXT)
+am__objects_1 = CvrGLTextureCache.$(OBJEXT)
 am_caches_lst_OBJECTS = $(am__objects_1)
 caches_lst_OBJECTS = $(am_caches_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libcaches_la_LIBADD =
-am__objects_2 = GLTextureCache.lo
+am__objects_2 = CvrGLTextureCache.lo
 am_libcaches_la_OBJECTS = $(am__objects_2)
 libcaches_la_OBJECTS = $(am_libcaches_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/GLTextureCache.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/GLTextureCache.Po
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrGLTextureCache.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrGLTextureCache.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 LTCXXCOMPILE = $(LIBTOOL) --mode=compile $(CXX) $(DEFS) \
@@ -260,7 +260,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = caches.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libcaches.la
 RegularSources = \
-	GLTextureCache.cpp CvrGLTextureCache.h
+	CvrGLTextureCache.cpp CvrGLTextureCache.h
 
 libcaches_la_SOURCES = $(RegularSources)
 caches_lst_SOURCES = $(RegularSources)
@@ -318,8 +318,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GLTextureCache.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GLTextureCache.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGLTextureCache.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGLTextureCache.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	if $(CXXCOMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
