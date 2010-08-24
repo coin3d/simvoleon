@@ -89,7 +89,7 @@
 
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/elements/CvrPalettedTexturesElement.h>
-#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrDataSizeElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/readers/SoVRMemReader.h>
@@ -312,7 +312,7 @@ SoVolumeData::initClass(void)
 
   SO_ENABLE(SoGLRenderAction, CvrCompressedTexturesElement);
   SO_ENABLE(SoGLRenderAction, CvrPalettedTexturesElement);
-  SO_ENABLE(SoGLRenderAction, CvrPageSizeElement);
+  SO_ENABLE(SoGLRenderAction, CvrDataSizeElement);
   SO_ENABLE(SoGLRenderAction, CvrStorageHintElement);
 }
 
@@ -599,7 +599,7 @@ SoVolumeData::GLRender(SoGLRenderAction * action)
   SoState * s = action->getState();
   CvrCompressedTexturesElement::set(s, this->useCompressedTexture.getValue());
   CvrPalettedTexturesElement::set(s, this->usePalettedTexture.getValue());
-  CvrPageSizeElement::set(s, this->getPageSize());
+  CvrDataSizeElement::set(s, this->getPageSize());
   CvrStorageHintElement::set(s, this->storageHint.getValue());
 }
 

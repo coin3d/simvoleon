@@ -71,7 +71,7 @@
 
 #include <VolumeViz/details/SoOrthoSliceDetail.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
-#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrDataSizeElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
@@ -534,7 +534,7 @@ SoOrthoSliceP::getPage(const SoGLRenderAction * action,
   if (cp && (cp->volumedataid != vbelem->getNodeId())) { delete cp; cp = NULL; }
 
   if (!cp) {
-    const SbVec3s & pagesize = CvrPageSizeElement::get(state);
+    const SbVec3s & pagesize = CvrDataSizeElement::get(state);
     // Pagesize according to axis: X => [Z, Y], Y => [X, Z], Z => [X, Y].
     SbVec2s subpagesize =
       SbVec2s(pagesize[(axis == 0) ? 2 : 0], pagesize[(axis == 1) ? 2 : 1]);

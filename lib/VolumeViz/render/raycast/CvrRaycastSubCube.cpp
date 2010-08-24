@@ -22,6 +22,7 @@
 \**************************************************************************/
 
 #include "CvrRaycastSubCube.h"
+#include <VolumeViz/render/common/CvrTextureObject.h>
 
 
 CvrRaycastSubCube::CvrRaycastSubCube(const SoGLRenderAction * action,

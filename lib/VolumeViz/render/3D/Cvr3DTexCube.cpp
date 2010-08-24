@@ -37,7 +37,7 @@
 #include <Inventor/elements/SoViewingMatrixElement.h>
 #include <Inventor/errors/SoDebugError.h>
 
-#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrDataSizeElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
@@ -79,7 +79,7 @@ Cvr3DTexCube::Cvr3DTexCube(const SoGLRenderAction * action)
   SoState * state = action->getState();
 
   this->subcubesize =
-    CvrUtil::clampSubCubeSize(CvrPageSizeElement::get(state));
+    CvrUtil::clampSubCubeSize(CvrDataSizeElement::get(state));
 
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("Cvr3DTexCube::Cvr3DTexCube",

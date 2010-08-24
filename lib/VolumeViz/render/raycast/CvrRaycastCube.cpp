@@ -39,7 +39,8 @@
 
 #include <Inventor/actions/SoGLRenderAction.h>
 
-#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrDataSizeElement.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/render/raycast/CvrRaycastSubCube.h>
 #include <VolumeViz/misc/CvrUtil.h>
 
@@ -59,7 +60,7 @@ CvrRaycastCube::CvrRaycastCube(const SoGLRenderAction * action)
 {
   SoState * state = action->getState();
   this->subcubesize =
-    CvrUtil::clampSubCubeSize(CvrPageSizeElement::get(state));
+    CvrUtil::clampSubCubeSize(CvrDataSizeElement::get(state));
   
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("CvrRaycastCube::Cvr3DTexCube",

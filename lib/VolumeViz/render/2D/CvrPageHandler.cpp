@@ -37,7 +37,7 @@
 
 #include <VolumeViz/render/2D/Cvr2DTexPage.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
-#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrDataSizeElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/misc/CvrUtil.h>
@@ -208,7 +208,7 @@ CvrPageHandler::render(const SoGLRenderAction * action, CvrCLUT::AlphaUse alphau
                        void * abortcbdata)
 {
   SoState * state = action->getState();
-  this->comparePageSize(CvrPageSizeElement::get(state));
+  this->comparePageSize(CvrDataSizeElement::get(state));
 
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
 

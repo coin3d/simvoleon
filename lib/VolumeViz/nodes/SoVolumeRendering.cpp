@@ -258,7 +258,7 @@
 #include <VolumeViz/details/SoVolumeDetail.h>
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
-#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrDataSizeElement.h>
 #include <VolumeViz/elements/CvrPalettedTexturesElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
@@ -327,7 +327,7 @@ SoVolumeRendering::init(void)
   SoTransferFunctionElement::initClass();
   CvrCompressedTexturesElement::initClass();
   CvrGLInterpolationElement::initClass();
-  CvrPageSizeElement::initClass();
+  CvrDataSizeElement::initClass();
   CvrPalettedTexturesElement::initClass();
   CvrStorageHintElement::initClass();
   CvrVoxelBlockElement::initClass();

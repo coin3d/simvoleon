@@ -58,7 +58,7 @@ elements_lst_LIBADD =
 am__objects_1 = CvrCompressedTexturesElement.$(OBJEXT) \
 	CvrGLInterpolationElement.$(OBJEXT) \
 	CvrPalettedTexturesElement.$(OBJEXT) \
-	CvrPageSizeElement.$(OBJEXT) CvrStorageHintElement.$(OBJEXT) \
+	CvrDataSizeElement.$(OBJEXT) CvrStorageHintElement.$(OBJEXT) \
 	CvrVoxelBlockElement.$(OBJEXT) \
 	SoTransferFunctionElement.$(OBJEXT) \
 	CvrLightingElement.$(OBJEXT)
@@ -68,7 +68,7 @@ LTLIBRARIES = $(noinst_LTLIBRARIES)
 libelements_la_LIBADD =
 am__objects_3 = CvrCompressedTexturesElement.lo \
 	CvrGLInterpolationElement.lo CvrPalettedTexturesElement.lo \
-	CvrPageSizeElement.lo CvrStorageHintElement.lo \
+	CvrDataSizeElement.lo CvrStorageHintElement.lo \
 	CvrVoxelBlockElement.lo SoTransferFunctionElement.lo \
 	CvrLightingElement.lo
 am_libelements_la_OBJECTS = $(am__objects_3)
@@ -77,12 +77,12 @@ depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrCompressedTexturesElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrCompressedTexturesElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrDataSizeElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrDataSizeElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrGLInterpolationElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrGLInterpolationElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrLightingElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrLightingElement.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/CvrPageSizeElement.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CvrPageSizeElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrPalettedTexturesElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrPalettedTexturesElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrStorageHintElement.Plo \
@@ -299,7 +299,7 @@ RegularSources = \
 	CvrCompressedTexturesElement.cpp \
 	CvrGLInterpolationElement.cpp \
 	CvrPalettedTexturesElement.cpp \
-	CvrPageSizeElement.cpp \
+	CvrDataSizeElement.cpp \
 	CvrStorageHintElement.cpp \
 	CvrVoxelBlockElement.cpp \
 	SoTransferFunctionElement.cpp \
@@ -385,12 +385,12 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCompressedTexturesElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCompressedTexturesElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrDataSizeElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrDataSizeElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGLInterpolationElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrGLInterpolationElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrLightingElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrLightingElement.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPageSizeElement.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPageSizeElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPalettedTexturesElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrPalettedTexturesElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrStorageHintElement.Plo@am__quote@

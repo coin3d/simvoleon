@@ -11,7 +11,7 @@ RegularSources = \
 	CvrCompressedTexturesElement.cpp \
 	CvrGLInterpolationElement.cpp \
 	CvrPalettedTexturesElement.cpp \
-	CvrPageSizeElement.cpp \
+	CvrDataSizeElement.cpp \
 	CvrStorageHintElement.cpp \
 	CvrVoxelBlockElement.cpp \
 	SoTransferFunctionElement.cpp \

@@ -86,6 +86,8 @@ public:
 
   void setPageSize(int size);
   void setPageSize(const SbVec3s & size);
+
+  // FIXME: Rename to getDataSize()? (20100824 handegar)
   const SbVec3s & getPageSize(void) const;
 
   void setReader(SoVolumeReader & reader);

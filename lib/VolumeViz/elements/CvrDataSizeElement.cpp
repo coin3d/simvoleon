@@ -21,58 +21,58 @@
  *
 \**************************************************************************/
 
-#include <VolumeViz/elements/CvrPageSizeElement.h>
+#include <VolumeViz/elements/CvrDataSizeElement.h>
 
 #include <assert.h>
 
 // *************************************************************************
 
-SO_ELEMENT_SOURCE(CvrPageSizeElement);
+SO_ELEMENT_SOURCE(CvrDataSizeElement);
 
 // *************************************************************************
 
 void
-CvrPageSizeElement::initClass(void)
+CvrDataSizeElement::initClass(void)
 {
-  SO_ELEMENT_INIT_CLASS(CvrPageSizeElement, inherited);
+  SO_ELEMENT_INIT_CLASS(CvrDataSizeElement, inherited);
 }
 
 
-CvrPageSizeElement::~CvrPageSizeElement(void)
+CvrDataSizeElement::~CvrDataSizeElement(void)
 {
 }
 
 void
-CvrPageSizeElement::init(SoState * state)
+CvrDataSizeElement::init(SoState * state)
 {
   inherited::init(state);
   this->size.setValue(0, 0, 0);
 }
 
-const CvrPageSizeElement *
-CvrPageSizeElement::getInstance(SoState * const state)
+const CvrDataSizeElement *
+CvrDataSizeElement::getInstance(SoState * const state)
 {
-  return (const CvrPageSizeElement *)
-    CvrPageSizeElement::getConstElement(state,
-                                        CvrPageSizeElement::classStackIndex);
+  return (const CvrDataSizeElement *)
+    CvrDataSizeElement::getConstElement(state,
+                                        CvrDataSizeElement::classStackIndex);
 }
 
 // *************************************************************************
 
 SbBool
-CvrPageSizeElement::matches(const SoElement * element) const
+CvrDataSizeElement::matches(const SoElement * element) const
 {
   return
     inherited::matches(element) &&
-    ((CvrPageSizeElement *)element)->size == this->size;
+    ((CvrDataSizeElement *)element)->size == this->size;
 }
 
 SoElement *
-CvrPageSizeElement::copyMatchInfo(void) const
+CvrDataSizeElement::copyMatchInfo(void) const
 {
   assert(this->getTypeId().canCreateInstance());
 
-  CvrPageSizeElement * element = (CvrPageSizeElement *)
+  CvrDataSizeElement * element = (CvrDataSizeElement *)
     this->getTypeId().createInstance();
 
   *element = *this;
@@ -82,18 +82,18 @@ CvrPageSizeElement::copyMatchInfo(void) const
 
 
 void
-CvrPageSizeElement::set(SoState * state, const SbVec3s & value)
+CvrDataSizeElement::set(SoState * state, const SbVec3s & value)
 {
-  CvrPageSizeElement * element = (CvrPageSizeElement *)
-    CvrPageSizeElement::getElement(state, CvrPageSizeElement::classStackIndex);
+  CvrDataSizeElement * element = (CvrDataSizeElement *)
+    CvrDataSizeElement::getElement(state, CvrDataSizeElement::classStackIndex);
   element->size = value;
 }
 
 SbVec3s
-CvrPageSizeElement::get(SoState * state)
+CvrDataSizeElement::get(SoState * state)
 {
-  const CvrPageSizeElement * element = (const CvrPageSizeElement *)
-    CvrPageSizeElement::getConstElement(state, CvrPageSizeElement::classStackIndex);
+  const CvrDataSizeElement * element = (const CvrDataSizeElement *)
+    CvrDataSizeElement::getConstElement(state, CvrDataSizeElement::classStackIndex);
   return element->size;
 }
 
