@@ -63,7 +63,7 @@ CvrRaycastCube::CvrRaycastCube(const SoGLRenderAction * action)
     CvrUtil::clampSubCubeSize(CvrDataSizeElement::get(state));
   
   if (CvrUtil::doDebugging()) {
-    SoDebugError::postInfo("CvrRaycastCube::Cvr3DTexCube",
+    SoDebugError::postInfo("CvrRaycastCube::CvrRaycastCube",
                            "subcubedimensions==<%d, %d, %d>",
                            this->subcubesize[0],
                            this->subcubesize[1],
