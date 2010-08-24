@@ -46,7 +46,7 @@ void
 CvrPageSizeElement::init(SoState * state)
 {
   inherited::init(state);
-  this->pagesize.setValue(0, 0, 0);
+  this->size.setValue(0, 0, 0);
 }
 
 const CvrPageSizeElement *
@@ -64,7 +64,7 @@ CvrPageSizeElement::matches(const SoElement * element) const
 {
   return
     inherited::matches(element) &&
-    ((CvrPageSizeElement *)element)->pagesize == this->pagesize;
+    ((CvrPageSizeElement *)element)->size == this->size;
 }
 
 SoElement *
@@ -86,7 +86,7 @@ CvrPageSizeElement::set(SoState * state, const SbVec3s & value)
 {
   CvrPageSizeElement * element = (CvrPageSizeElement *)
     CvrPageSizeElement::getElement(state, CvrPageSizeElement::classStackIndex);
-  element->pagesize = value;
+  element->size = value;
 }
 
 SbVec3s
@@ -94,7 +94,7 @@ CvrPageSizeElement::get(SoState * state)
 {
   const CvrPageSizeElement * element = (const CvrPageSizeElement *)
     CvrPageSizeElement::getConstElement(state, CvrPageSizeElement::classStackIndex);
-  return element->pagesize;
+  return element->size;
 }
 
 // *************************************************************************

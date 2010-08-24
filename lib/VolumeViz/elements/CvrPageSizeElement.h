@@ -49,7 +49,7 @@ protected:
   virtual ~CvrPageSizeElement();
 
 private:
-  SbVec3s pagesize;
+  SbVec3s size;
 };
 
 // *************************************************************************
