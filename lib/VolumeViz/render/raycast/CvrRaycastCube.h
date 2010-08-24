@@ -30,20 +30,38 @@
 #endif // !SIMVOLEON_INTERNAL
 
 #include <Inventor/SbVec3s.h>
+#include <Inventor/SbVec3ui32.h>
 #include <Inventor/SbVec3f.h>
 
 class SoGLRenderAction;
+class SoState;
 
 class CvrRaycastCube {
 public:
   CvrRaycastCube(const SoGLRenderAction * action);
   ~CvrRaycastCube();
 
-  void render(const SoGLRenderAction * action, float quality=1.0f);
+  void render(const SoGLRenderAction * action);
 
 private:
   SbVec3s dimensions;
+  SbVec3s subcubesize;
   SbVec3f origo;
+  SbVec3ui32 nrsubcubes; // Number of subcubes in x-y-z direction
+  class SubCube ** subcubes;
+  
+  class SubCube * getSubCube(SoState * state, 
+                             unsigned int row, 
+                             unsigned int col, 
+                             unsigned int depth);
+  class SubCube * buildSubCube(const SoGLRenderAction * action,
+                               const SbVec3f & origo,
+                               unsigned int row,
+                               unsigned int col,
+                               unsigned int depth);   
+  unsigned int getSubCubeIdx(unsigned int row, unsigned int col, unsigned int depth) const;
+  void releaseSubCube(unsigned int row, unsigned int col, unsigned int depth);
+  void releaseAllSubCubes();
 };
 
 #endif // !CVR_RAYCASTCUBE_H

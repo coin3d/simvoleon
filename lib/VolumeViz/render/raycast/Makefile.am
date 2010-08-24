@@ -7,7 +7,9 @@ noinst_LTLIBRARIES = libraycastrender.la
 endif
 
 RegularSources = \
-	CvrRaycastCube.cpp CvrRaycastCube.h 
+	CvrRaycastSubCube.cpp CvrRaycastSubCube.h \
+	CvrRaycastCube.cpp CvrRaycastCube.h \
+        SoRaycastRendering.cpp SoRaycastRendering.h 
 
 libraycastrender_la_SOURCES = $(RegularSources)
 

@@ -1,5 +1,5 @@
-#ifndef SO_RAYCASTRENDER_H
-#define SO_RAYCASTRENDER_H
+#ifndef SO_RAYCASTRENDERING_H
+#define SO_RAYCASTRENDERING_H
 
 /**************************************************************************\
  *
@@ -25,39 +25,20 @@
  *
 \**************************************************************************/
 
-// FIXME: Enable this #ifdef safety. (20100824 handegar)
-/*
-#ifndef HAVE_LIBCLVOL
-#error "This node is not avalilable as SIMVoleon was not compiled with libCLVol support."
-#else
-*/
-
-#include <Inventor/nodes/SoNode.h>
-#include <Inventor/nodes/SoSubNode.h>
-#include <Inventor/nodes/SoShape.h>
-
 #include <VolumeViz/C/basic.h>
 
-class SIMVOLEON_DLL_API SoRaycastRender : public SoShape {
-  typedef SoShape inherited;
-  SO_NODE_HEADER(SoVolumeRender);
+#ifndef SIMVOLEON_INTERNAL
+#error this is a private header file
+#endif // !SIMVOLEON_INTERNAL
 
+// FIXME: It is abit strange to use to 'So' prefix for this class as
+// it is not a 'Scene Object', but this is how its done in Coin and
+// VolumeViz with the SoDB and SoVolumeRendering classes. (20100824
+// handegar)
+
+class SIMVOLEON_DLL_API SoRaycastRendering {
 public:
-  static void initClass(void);
-  SoRaycastRender(void);
-
-protected:
-  ~SoRaycastRender();
-
-  virtual void GLRender(SoGLRenderAction * action);
-  virtual void rayPick(SoRayPickAction * action);
-  virtual void generatePrimitives(SoAction * action);
-  virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
-  
-private: 
-  friend class SoRaycastRenderP;
-  class SoRaycastRenderP * pimpl;
+  static void init();
 };
 
-//#endif // !HAVE_LIBCLVOL
-#endif // !SO_RAYCASTRENDER_H
+#endif // !SO_RAYCASTRENDERING_H

@@ -24,11 +24,12 @@
 
 /*!
   \class SoRaycastRender VolumeViz/nodes/SoRaycastRender.h
-  \brief Render the full volume.
+  \brief Render the full volume using raycasting instead of the
+  traditional slicing.
 
   Insert a node of this type after an SoVolumeData node in the scene
-  graph to render the full volume data set using raycast rendering via
-  OpenCL.
+  graph to render the full volume data set using raycast rendering
+  through OpenCL.
 
   <b>NB:</b> This node is only available when SIMVoleon is compiled with
   libCLVol support.
@@ -38,9 +39,17 @@
   \sa SoVolumeTriangleStripSet, SoVolumeIndexedTriangleStripSet
 */
 
-
-
 #include "SoRaycastRender.h"
+
+#include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/actions/SoGetBoundingBoxAction.h>
+#include <Inventor/actions/SoRayPickAction.h>
+#include <Inventor/elements/SoLazyElement.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
+
+#include <VolumeViz/elements/SoTransferFunctionElement.h>
+
+#include <VolumeViz/render/raycast/CvrRaycastCube.h>
 
 // *************************************************************************
 
@@ -54,7 +63,6 @@ public:
   SoRaycastRenderP(SoRaycastRender * master) {
     this->master = master;
   }
-  
   SoRaycastRender * master;
 };
 
@@ -72,6 +80,20 @@ SoRaycastRender::SoRaycastRender()
 
 SoRaycastRender::~SoRaycastRender()
 {
+}
+
+
+void
+SoRaycastRender::initClass(void)
+{
+  SO_NODE_INIT_CLASS(SoRaycastRender, SoShape, "SoShape");
+
+  SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoGLRenderAction, SoModelMatrixElement);
+  SO_ENABLE(SoGLRenderAction, SoLazyElement);
+
+  SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
+  SO_ENABLE(SoRayPickAction, SoModelMatrixElement);
 }
 
 

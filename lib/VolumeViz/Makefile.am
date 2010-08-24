@@ -36,7 +36,8 @@ endif
 # us up with C++ $CXXLD for linking (and not the default C $CCLD).
 Sources = dummy.cpp \
 	Coin/gl/CoinGLPerformance.cpp \
-	Coin/gl/CoinGLPerformance.h
+	Coin/gl/CoinGLPerformance.h \
+        SIMVoleon.cpp SIMVoleon.h
 
 libSimVoleon@SUFFIX@_la_SOURCES = $(Sources)
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = $(Sources)

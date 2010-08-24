@@ -1,5 +1,5 @@
-#ifndef SO_RAYCASTRENDER_H
-#define SO_RAYCASTRENDER_H
+#ifndef CVR_RAYCASTSUBCUBE_H
+#define CVR_RAYCASTSUBCUBE_H
 
 /**************************************************************************\
  *
@@ -25,39 +25,31 @@
  *
 \**************************************************************************/
 
-// FIXME: Enable this #ifdef safety. (20100824 handegar)
-/*
-#ifndef HAVE_LIBCLVOL
-#error "This node is not avalilable as SIMVoleon was not compiled with libCLVol support."
-#else
-*/
+#ifndef SIMVOLEON_INTERNAL
+#error this is a private header file
+#endif // !SIMVOLEON_INTERNAL
 
-#include <Inventor/nodes/SoNode.h>
-#include <Inventor/nodes/SoSubNode.h>
-#include <Inventor/nodes/SoShape.h>
+#include <Inventor/SbVec3s.h>
+#include <Inventor/SbVec3f.h>
 
-#include <VolumeViz/C/basic.h>
+class SoGLRenderAction;
+class CvrTextureObject;
 
-class SIMVOLEON_DLL_API SoRaycastRender : public SoShape {
-  typedef SoShape inherited;
-  SO_NODE_HEADER(SoVolumeRender);
-
+class CvrRaycastSubCube {
 public:
-  static void initClass(void);
-  SoRaycastRender(void);
-
-protected:
-  ~SoRaycastRender();
-
-  virtual void GLRender(SoGLRenderAction * action);
-  virtual void rayPick(SoRayPickAction * action);
-  virtual void generatePrimitives(SoAction * action);
-  virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
+  CvrRaycastSubCube(const SoGLRenderAction * action,
+                    const CvrTextureObject * texobj,
+                    const SbVec3f & cubeorigo,
+                    const SbVec3s & cubesize);
+  ~CvrRaycastSubCube();
   
-private: 
-  friend class SoRaycastRenderP;
-  class SoRaycastRenderP * pimpl;
+  void render(const SoGLRenderAction * action);
+  
+  
+private:
+  SbVec3s dimensions;
+  SbVec3f origo;
+  const CvrTextureObject * textureobject;
 };
 
-//#endif // !HAVE_LIBCLVOL
-#endif // !SO_RAYCASTRENDER_H
+#endif // !CVR_RAYCASTSUBCUBE_H

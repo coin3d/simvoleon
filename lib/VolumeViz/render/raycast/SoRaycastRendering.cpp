@@ -1,6 +1,3 @@
-#ifndef SO_RAYCASTRENDER_H
-#define SO_RAYCASTRENDER_H
-
 /**************************************************************************\
  *
  *  This file is part of the SIM Voleon visualization library.
@@ -25,39 +22,21 @@
  *
 \**************************************************************************/
 
-// FIXME: Enable this #ifdef safety. (20100824 handegar)
-/*
-#ifndef HAVE_LIBCLVOL
-#error "This node is not avalilable as SIMVoleon was not compiled with libCLVol support."
-#else
-*/
+#include "SoRaycastRendering.h"
+#include <cstdio>
 
-#include <Inventor/nodes/SoNode.h>
-#include <Inventor/nodes/SoSubNode.h>
-#include <Inventor/nodes/SoShape.h>
+#include <VolumeViz/nodes/SoRaycastRender.h>
 
-#include <VolumeViz/C/basic.h>
+void
+SoRaycastRendering::init()
+{
 
-class SIMVOLEON_DLL_API SoRaycastRender : public SoShape {
-  typedef SoShape inherited;
-  SO_NODE_HEADER(SoVolumeRender);
+  SoRaycastRender::initClass();
 
-public:
-  static void initClass(void);
-  SoRaycastRender(void);
-
-protected:
-  ~SoRaycastRender();
-
-  virtual void GLRender(SoGLRenderAction * action);
-  virtual void rayPick(SoRayPickAction * action);
-  virtual void generatePrimitives(SoAction * action);
-  virtual void computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center);
-  
-private: 
-  friend class SoRaycastRenderP;
-  class SoRaycastRenderP * pimpl;
-};
-
-//#endif // !HAVE_LIBCLVOL
-#endif // !SO_RAYCASTRENDER_H
+  /*
+    TODO:
+    * Call libCLVol init
+      - Creates a valid OpenCL device + context.
+    * Create a API for setting up custom device configurations via libCLVol?
+   */
+}

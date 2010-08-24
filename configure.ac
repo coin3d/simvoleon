@@ -204,6 +204,14 @@ yes | true) SIMVOLEON_STATIC=false ;;
 esac
 
 # *******************************************************************
+# Figure out whether there is a libCLVol library present.
+
+# FIXME: Actually implement a check here. (20100824 handegar)
+CFLAGS="$CFLAGS $sim_ac_compiler_CFLAGS -DHAVE_LIBCLVOL"
+CXXFLAGS="$CXXFLAGS $sim_ac_compiler_CXXFLAGS -DHAVE_LIBCLVOL"
+
+
+# *******************************************************************
 # Option to disable potential error condition in configure script
 # (e.g. for when only building documentation on a Coin-install-less
 # system).

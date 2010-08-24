@@ -61,7 +61,8 @@ simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_DEPENDENCIES =  \
 	render/pointset/pointsetrender.lst \
 	render/raycast/raycastrender.lst \
 	render/common/commonrender.lst
-am__objects_1 = dummy.$(OBJEXT) CoinGLPerformance.$(OBJEXT)
+am__objects_1 = dummy.$(OBJEXT) CoinGLPerformance.$(OBJEXT) \
+	SIMVoleon.$(OBJEXT)
 am_simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS =  \
 	$(am__objects_1)
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_OBJECTS =  \
@@ -75,7 +76,7 @@ libSimVoleon@SUFFIX@_la_DEPENDENCIES = caches/libcaches.la \
 	render/pointset/libpointsetrender.la \
 	render/raycast/libraycastrender.la \
 	render/common/libcommonrender.la
-am__objects_2 = dummy.lo CoinGLPerformance.lo
+am__objects_2 = dummy.lo CoinGLPerformance.lo SIMVoleon.lo
 am_libSimVoleon@SUFFIX@_la_OBJECTS = $(am__objects_2)
 libSimVoleon@SUFFIX@_la_OBJECTS =  \
 	$(am_libSimVoleon@SUFFIX@_la_OBJECTS)
@@ -83,6 +84,7 @@ depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CoinGLPerformance.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CoinGLPerformance.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/SIMVoleon.Plo ./$(DEPDIR)/SIMVoleon.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/dummy.Plo ./$(DEPDIR)/dummy.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -311,7 +313,8 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 # us up with C++ $CXXLD for linking (and not the default C $CCLD).
 Sources = dummy.cpp \
 	Coin/gl/CoinGLPerformance.cpp \
-	Coin/gl/CoinGLPerformance.h
+	Coin/gl/CoinGLPerformance.h \
+        SIMVoleon.cpp SIMVoleon.h
 
 libSimVoleon@SUFFIX@_la_SOURCES = $(Sources)
 simvoleon@SIMVOLEON_MAJOR_VERSION@@SUFFIX@_lib_SOURCES = $(Sources)
@@ -454,6 +457,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CoinGLPerformance.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CoinGLPerformance.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SIMVoleon.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SIMVoleon.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dummy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dummy.Po@am__quote@
 
