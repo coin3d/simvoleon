@@ -24,7 +24,12 @@
  *
 \**************************************************************************/
 
+#ifndef SIMVOLEON_INTERNAL
+#error this is a private header file
+#endif // !SIMVOLEON_INTERNAL
+
 #include <Inventor/SbBasic.h>
+#include <Inventor/SbVec3s.h>
 
 class SbMatrix;
 class CvrVoxelBlockElement;
@@ -46,6 +51,10 @@ public:
 
   static void getTransformFromVolumeBoxDimensions(const CvrVoxelBlockElement * vd,
                                                   SbMatrix & m);
+
+  static SbVec3s clampSubCubeSize(const SbVec3s & size);
+
+
 };
 
 // *************************************************************************

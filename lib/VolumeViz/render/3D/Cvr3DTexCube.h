@@ -83,8 +83,6 @@ private:
   void renderResult(const SoGLRenderAction * action, 
                     SbList <Cvr3DTexSubCubeItem *> & subcubelist);
 
-  static SbVec3s clampSubCubeSize(const SbVec3s & size);
-
   class Cvr3DTexSubCubeItem ** subcubes;
 
   SbVec3s subcubesize;

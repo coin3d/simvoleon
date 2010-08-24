@@ -23,7 +23,8 @@
 
 #include <VolumeViz/misc/CvrUtil.h>
 
-#include <string.h>
+#include <cstring>
+#include <climits>
 
 #include <Inventor/SbRotation.h>
 #include <Inventor/SbLinear.h>
@@ -48,6 +49,7 @@ CvrUtil::doDebugging(void)
   return do_debugging == 1 ? TRUE : FALSE;
 }
 
+
 // If this environment flag is set, output debugging information
 // specifically about raypick-related operations.
 SbBool
@@ -60,6 +62,7 @@ CvrUtil::debugRayPicks(void)
   }
   return (CVR_DEBUG_RAYPICKS == 0) ? FALSE : TRUE;
 }
+
 
 // For debugging. Force different way of rendering, to aid in
 // visualizing how the slices are set up. The significance of the
@@ -83,6 +86,7 @@ CvrUtil::debugRenderStyle(void)
   return (unsigned int)renderstyle;
 }
 
+
 // If the environment flag is set, data along the Y axis will be
 // flipped upside down. This to keep compatibility with an old bug,
 // since there's client code depending on this behavior.
@@ -96,6 +100,7 @@ CvrUtil::useFlippedYAxis(void)
   }
   return (val == 0) ? FALSE : TRUE;
 }
+
 
 // A performance gain can be achieved if texture modulation is to be
 // ignored. The largest gain is achieved when rendering using
@@ -111,6 +116,7 @@ CvrUtil::dontModulateTextures(void)
   return (flag == 0) ? FALSE : TRUE;
 }
 
+
 // Shall we force 2D texture rendering?
 SbBool
 CvrUtil::force2DTextureRendering(void)
@@ -122,6 +128,7 @@ CvrUtil::force2DTextureRendering(void)
   }
   return (flag == 0) ? FALSE : TRUE;
 }
+
 
 static uint32_t crc32_precalc_table[] = {
   0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
@@ -169,11 +176,13 @@ static uint32_t crc32_precalc_table[] = {
   0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
+
 static inline uint32_t
 updc32(uint8_t octet, uint32_t crc)
 {
   return crc32_precalc_table[(crc ^ octet) & 0xff] ^ (crc >> 8);
 }
+
 
 // Calculates CRC32 checksum from a block of bytes.
 uint32_t
@@ -183,6 +192,7 @@ CvrUtil::crc32(uint8_t * buf, unsigned int len)
   for (unsigned int i = 0; i < len; i++) { crc = updc32(buf[i], crc); }
   return crc;
 }
+
 
 void
 CvrUtil::getTransformFromVolumeBoxDimensions(const CvrVoxelBlockElement * vd,
@@ -210,3 +220,72 @@ CvrUtil::getTransformFromVolumeBoxDimensions(const CvrVoxelBlockElement * vd,
 
   m.setTransform(localtrans, SbRotation::identity(), localspan);
 }
+
+
+SbVec3s
+CvrUtil::clampSubCubeSize(const SbVec3s & size)
+{
+  // FIXME: this doesn't guarantee that we can actually use a texture
+  // of this size, should instead use Coin's
+  // cc_glglue_is_texture_size_legal() (at least in combination with
+  // the subcubesize found here). 20040709 mortene.
+  //
+  // UPDATE: the above Coin cc_glglue function was introduced with
+  // Coin 2.3, so we can't use this without first separating out the
+  // gl-wrapper, as planned. 20040714 mortene.
+
+  // FIXME: this design is a bit bogus. Consider this: the size can be
+  // set in one GL context, but the tex-cube can later be attempted
+  // used in another GL context, with a smaller max size. Not sure how
+  // to fix this yet. 20041221 mortene.
+
+  GLint maxsize = -1;
+  glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxsize);
+
+  // This has been reported by an external developer to hit on an ATI
+  // OpenGL driver on a Linux system. As 3D texture based rendering
+  // otherwise seemed to work just fine, we simply warn, correct the
+  // problem, and go on.
+  if (maxsize == -1) {
+    static const char CVR_IGNORE_ATI_QUERY_BUG[] = "CVR_IGNORE_ATI_QUERY_BUG";
+    const char * env = coin_getenv(CVR_IGNORE_ATI_QUERY_BUG);
+
+    static SbBool first = TRUE;
+    if (first && (env == NULL)) {
+      SoDebugError::postWarning("Cvr3DTexCube::clampSubCubeSize",
+                                "Obscure bug found with your OpenGL driver. "
+                                "If you are employed by Systems in Motion, "
+                                "report this occurrence to <mortene@sim.no> "
+                                "for further debugging. Otherwise, you can "
+                                "safely ignore this warning. (Set the "
+                                "environment variable '%s' on the system to "
+                                "not get this notification again.)",
+                                CVR_IGNORE_ATI_QUERY_BUG);
+    }
+    first = FALSE;
+    maxsize = 128; // this should be safe
+  }
+
+  if (CvrUtil::doDebugging()) {
+    SoDebugError::postInfo("Cvr3DTexCube::clampSubCubeSize",
+                           "GL_MAX_3D_TEXTURE_SIZE==%d", maxsize);
+  }
+
+  const char * envstr = coin_getenv("CVR_FORCE_SUBCUBE_SIZE");
+  if (envstr) {
+    short forcedsubcubesize = atoi(envstr);
+    assert(forcedsubcubesize > 0);
+    assert(forcedsubcubesize <= maxsize && "subcube size must be <= than max 3D texture size");
+    assert(coin_is_power_of_two(forcedsubcubesize) && "subcube size must be power of two");
+    return SbVec3s(forcedsubcubesize, forcedsubcubesize, forcedsubcubesize);
+  }
+
+  // FIXME: My GeforceFX 5600 card sometime fails when asking for 512 as
+  // cube size even if it is supposed to handle it. (20040302 handegar)
+  //maxsize = SbMin(256, maxsize);
+
+  assert((maxsize < SHRT_MAX) && "unsafe cast");
+  const short smax = (short)maxsize;
+  return SbVec3s(SbMin(size[0], smax), SbMin(size[1], smax), SbMin(size[2], smax));
+}
+

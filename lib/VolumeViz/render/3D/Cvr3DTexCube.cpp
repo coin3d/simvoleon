@@ -23,8 +23,8 @@
 
 #include <VolumeViz/render/3D/Cvr3DTexCube.h>
 
-#include <limits.h>
-#include <string.h>
+#include <climits>
+#include <cstring>
 
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
@@ -79,7 +79,7 @@ Cvr3DTexCube::Cvr3DTexCube(const SoGLRenderAction * action)
   SoState * state = action->getState();
 
   this->subcubesize =
-    Cvr3DTexCube::clampSubCubeSize(CvrPageSizeElement::get(state));
+    CvrUtil::clampSubCubeSize(CvrPageSizeElement::get(state));
 
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("Cvr3DTexCube::Cvr3DTexCube",
@@ -164,74 +164,6 @@ subcube_qsort_compare(const void * element1, const void * element2)
   Cvr3DTexSubCubeItem ** sc2 = (Cvr3DTexSubCubeItem **) element2;
 
   return ((*sc1)->distancefromcamera > (*sc2)->distancefromcamera) ? -1 : 1;
-}
-
-
-SbVec3s
-Cvr3DTexCube::clampSubCubeSize(const SbVec3s & size)
-{
-  // FIXME: this doesn't guarantee that we can actually use a texture
-  // of this size, should instead use Coin's
-  // cc_glglue_is_texture_size_legal() (at least in combination with
-  // the subcubesize found here). 20040709 mortene.
-  //
-  // UPDATE: the above Coin cc_glglue function was introduced with
-  // Coin 2.3, so we can't use this without first separating out the
-  // gl-wrapper, as planned. 20040714 mortene.
-
-  // FIXME: this design is a bit bogus. Consider this: the size can be
-  // set in one GL context, but the tex-cube can later be attempted
-  // used in another GL context, with a smaller max size. Not sure how
-  // to fix this yet. 20041221 mortene.
-
-  GLint maxsize = -1;
-  glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxsize);
-
-  // This has been reported by an external developer to hit on an ATI
-  // OpenGL driver on a Linux system. As 3D texture based rendering
-  // otherwise seemed to work just fine, we simply warn, correct the
-  // problem, and go on.
-  if (maxsize == -1) {
-    static const char CVR_IGNORE_ATI_QUERY_BUG[] = "CVR_IGNORE_ATI_QUERY_BUG";
-    const char * env = coin_getenv(CVR_IGNORE_ATI_QUERY_BUG);
-
-    static SbBool first = TRUE;
-    if (first && (env == NULL)) {
-      SoDebugError::postWarning("Cvr3DTexCube::clampSubCubeSize",
-                                "Obscure bug found with your OpenGL driver. "
-                                "If you are employed by Systems in Motion, "
-                                "report this occurrence to <mortene@sim.no> "
-                                "for further debugging. Otherwise, you can "
-                                "safely ignore this warning. (Set the "
-                                "environment variable '%s' on the system to "
-                                "not get this notification again.)",
-                                CVR_IGNORE_ATI_QUERY_BUG);
-    }
-    first = FALSE;
-    maxsize = 128; // this should be safe
-  }
-
-  if (CvrUtil::doDebugging()) {
-    SoDebugError::postInfo("Cvr3DTexCube::clampSubCubeSize",
-                           "GL_MAX_3D_TEXTURE_SIZE==%d", maxsize);
-  }
-
-  const char * envstr = coin_getenv("CVR_FORCE_SUBCUBE_SIZE");
-  if (envstr) {
-    short forcedsubcubesize = atoi(envstr);
-    assert(forcedsubcubesize > 0);
-    assert(forcedsubcubesize <= maxsize && "subcube size must be <= than max 3D texture size");
-    assert(coin_is_power_of_two(forcedsubcubesize) && "subcube size must be power of two");
-    return SbVec3s(forcedsubcubesize, forcedsubcubesize, forcedsubcubesize);
-  }
-
-  // FIXME: My GeforceFX 5600 card sometime fails when asking for 512 as
-  // cube size even if it is supposed to handle it. (20040302 handegar)
-  //maxsize = SbMin(256, maxsize);
-
-  assert((maxsize < SHRT_MAX) && "unsafe cast");
-  const short smax = (short)maxsize;
-  return SbVec3s(SbMin(size[0], smax), SbMin(size[1], smax), SbMin(size[2], smax));
 }
 
 
