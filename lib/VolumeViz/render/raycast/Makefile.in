@@ -267,9 +267,9 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = raycastrender.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libraycastrender.la
 RegularSources = \
-	CvrRaycastSubCube.cpp CvrRaycastSubCube.h \
-	CvrRaycastCube.cpp CvrRaycastCube.h \
-        SoRaycastRendering.cpp SoRaycastRendering.h 
+        CvrRaycastSubCube.cpp CvrRaycastSubCube.h \
+        CvrRaycastCube.cpp CvrRaycastCube.h \
+        SoRaycastRendering.cpp SoRaycastRendering.h
 
 libraycastrender_la_SOURCES = $(RegularSources)
 raycastrender_lst_SOURCES = $(RegularSources)

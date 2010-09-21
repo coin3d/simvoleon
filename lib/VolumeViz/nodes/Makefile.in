@@ -56,11 +56,11 @@ ARFLAGS = cru
 nodes_lst_AR = $(AR) $(ARFLAGS)
 nodes_lst_LIBADD =
 am__objects_1 = volumeraypickintersection.$(OBJEXT) \
-	SoTransferFunction.$(OBJEXT) SoVolumeData.$(OBJEXT) \
-	SoVolumeRender.$(OBJEXT) SoVolumeRendering.$(OBJEXT) \
-	SoObliqueSlice.$(OBJEXT) SoOrthoSlice.$(OBJEXT) \
-	SoVolumeSkin.$(OBJEXT) SoVolumeFaceSet.$(OBJEXT) \
-	SoVolumeIndexedFaceSet.$(OBJEXT) \
+	SoTransferFunction.$(OBJEXT) So2DTransferFunction.$(OBJEXT) \
+	SoVolumeData.$(OBJEXT) SoVolumeRender.$(OBJEXT) \
+	SoVolumeRendering.$(OBJEXT) SoObliqueSlice.$(OBJEXT) \
+	SoOrthoSlice.$(OBJEXT) SoVolumeSkin.$(OBJEXT) \
+	SoVolumeFaceSet.$(OBJEXT) SoVolumeIndexedFaceSet.$(OBJEXT) \
 	SoVolumeTriangleStripSet.$(OBJEXT) \
 	SoVolumeIndexedTriangleStripSet.$(OBJEXT) \
 	CvrIndexedSetRenderBaseP.$(OBJEXT) \
@@ -74,9 +74,9 @@ nodes_lst_OBJECTS = $(am_nodes_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libnodes_la_LIBADD =
 am__objects_3 = volumeraypickintersection.lo SoTransferFunction.lo \
-	SoVolumeData.lo SoVolumeRender.lo SoVolumeRendering.lo \
-	SoObliqueSlice.lo SoOrthoSlice.lo SoVolumeSkin.lo \
-	SoVolumeFaceSet.lo SoVolumeIndexedFaceSet.lo \
+	So2DTransferFunction.lo SoVolumeData.lo SoVolumeRender.lo \
+	SoVolumeRendering.lo SoObliqueSlice.lo SoOrthoSlice.lo \
+	SoVolumeSkin.lo SoVolumeFaceSet.lo SoVolumeIndexedFaceSet.lo \
 	SoVolumeTriangleStripSet.lo SoVolumeIndexedTriangleStripSet.lo \
 	CvrIndexedSetRenderBaseP.lo CvrNonIndexedSetRenderBaseP.lo \
 	CvrFaceSetRenderP.lo CvrIndexedFaceSetRenderP.lo \
@@ -98,6 +98,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/CvrNonIndexedSetRenderBaseP.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrTriangleStripSetRenderP.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrTriangleStripSetRenderP.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/So2DTransferFunction.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/So2DTransferFunction.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/SoObliqueSlice.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/SoObliqueSlice.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/SoOrthoSlice.Plo \
@@ -339,6 +341,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 RegularSources = \
 	volumeraypickintersection.cpp \
 	SoTransferFunction.cpp \
+	So2DTransferFunction.cpp \
 	SoVolumeData.cpp \
 	SoVolumeRender.cpp \
 	SoVolumeRendering.cpp \
@@ -362,6 +365,7 @@ PublicHeaders = \
 	SoVolumeSkin.h \
 	SoObliqueSlice.h \
 	SoTransferFunction.h \
+	So2DTransferFunction.h \
 	SoVolumeData.h \
 	SoVolumeRender.h \
 	SoVolumeRendering.h \
@@ -459,6 +463,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrNonIndexedSetRenderBaseP.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrTriangleStripSetRenderP.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrTriangleStripSetRenderP.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/So2DTransferFunction.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/So2DTransferFunction.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoObliqueSlice.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoObliqueSlice.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoOrthoSlice.Plo@am__quote@

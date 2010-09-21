@@ -15,12 +15,13 @@ RegularSources = \
 	CvrStorageHintElement.cpp \
 	CvrVoxelBlockElement.cpp \
 	SoTransferFunctionElement.cpp \
+	So2DTransferFunctionElement.cpp \
 	CvrLightingElement.cpp
 
 PublicHeaders = 
 
 PrivateHeaders = \
-	SoTransferFunctionElement.h \
+	So2DTransferFunctionElement.h \
 	CvrCompressedTexturesElement.h \
 	CvrGLInterpolationElement.h \
 	CvrPalettedTexturesElement.h \

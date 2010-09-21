@@ -61,6 +61,7 @@ am__objects_1 = CvrCompressedTexturesElement.$(OBJEXT) \
 	CvrDataSizeElement.$(OBJEXT) CvrStorageHintElement.$(OBJEXT) \
 	CvrVoxelBlockElement.$(OBJEXT) \
 	SoTransferFunctionElement.$(OBJEXT) \
+	So2DTransferFunctionElement.$(OBJEXT) \
 	CvrLightingElement.$(OBJEXT)
 am_elements_lst_OBJECTS = $(am__objects_1)
 elements_lst_OBJECTS = $(am_elements_lst_OBJECTS)
@@ -70,7 +71,7 @@ am__objects_3 = CvrCompressedTexturesElement.lo \
 	CvrGLInterpolationElement.lo CvrPalettedTexturesElement.lo \
 	CvrDataSizeElement.lo CvrStorageHintElement.lo \
 	CvrVoxelBlockElement.lo SoTransferFunctionElement.lo \
-	CvrLightingElement.lo
+	So2DTransferFunctionElement.lo CvrLightingElement.lo
 am_libelements_la_OBJECTS = $(am__objects_3)
 libelements_la_OBJECTS = $(am_libelements_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
@@ -89,6 +90,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/CvrStorageHintElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrVoxelBlockElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrVoxelBlockElement.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/So2DTransferFunctionElement.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/So2DTransferFunctionElement.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/SoTransferFunctionElement.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/SoTransferFunctionElement.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -303,11 +306,12 @@ RegularSources = \
 	CvrStorageHintElement.cpp \
 	CvrVoxelBlockElement.cpp \
 	SoTransferFunctionElement.cpp \
+	So2DTransferFunctionElement.cpp \
 	CvrLightingElement.cpp
 
 PublicHeaders = 
 PrivateHeaders = \
-	SoTransferFunctionElement.h \
+	So2DTransferFunctionElement.h \
 	CvrCompressedTexturesElement.h \
 	CvrGLInterpolationElement.h \
 	CvrPalettedTexturesElement.h \
@@ -397,6 +401,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrStorageHintElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrVoxelBlockElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrVoxelBlockElement.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/So2DTransferFunctionElement.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/So2DTransferFunctionElement.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoTransferFunctionElement.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoTransferFunctionElement.Po@am__quote@
 

@@ -12,6 +12,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 RegularSources = \
 	volumeraypickintersection.cpp \
 	SoTransferFunction.cpp \
+	So2DTransferFunction.cpp \
 	SoVolumeData.cpp \
 	SoVolumeRender.cpp \
 	SoVolumeRendering.cpp \
@@ -35,6 +36,7 @@ PublicHeaders = \
 	SoVolumeSkin.h \
 	SoObliqueSlice.h \
 	SoTransferFunction.h \
+	So2DTransferFunction.h \
 	SoVolumeData.h \
 	SoVolumeRender.h \
 	SoVolumeRendering.h \
