@@ -31,25 +31,55 @@
 
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbVec3f.h>
+#include <Inventor/SbVec2f.h>
+#include <Inventor/C/glue/gl.h>
+
+#include <vector>
+
 
 class SoGLRenderAction;
 class CvrTextureObject;
+class CvrCLUT;
+class SbViewVolume;
+
+namespace CLVol {
+  class RenderManager;
+  struct TransferFunctionPoint;
+}
 
 class CvrRaycastSubCube {
 public:
   CvrRaycastSubCube(const SoGLRenderAction * action,
                     const CvrTextureObject * texobj,
                     const SbVec3f & cubeorigo,
-                    const SbVec3s & cubesize);
+                    const SbVec3s & cubesize,
+                    CLVol::RenderManager * rm);
   ~CvrRaycastSubCube();
-  
-  void render(const SoGLRenderAction * action);
-  
-  
+
+  void setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & tf);
+
+  void setRenderTarget(GLuint targetfbo,
+                       unsigned int viewportx,
+                       unsigned int viewporty,
+                       unsigned int viewportwidth,
+                       unsigned int viewportheight);
+
+  void attachGLLayers(std::vector<GLuint> layerscolortexture,
+                      std::vector<GLuint> layersdepthtexture,
+                      unsigned int layerswidth,
+                      unsigned int layersheight);
+
+  void detachGLResources();
+
+  void render(const SoGLRenderAction * action, SbViewVolume adjustedviewvolume);
+  void setPalette(const CvrCLUT * newclut);
+
 private:
   SbVec3s dimensions;
   SbVec3f origo;
   const CvrTextureObject * textureobject;
+  const CvrCLUT * clut;
+  CLVol::RenderManager * rendermanager;
 };
 
 #endif // !CVR_RAYCASTSUBCUBE_H

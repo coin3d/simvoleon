@@ -32,15 +32,29 @@
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbVec3ui32.h>
 #include <Inventor/SbVec3f.h>
+#include <Inventor/C/glue/gl.h>
+#include <Inventor/SbViewportRegion.h>
+
+#include <vector>
 
 class SoGLRenderAction;
 class SoState;
+class So2DTransferFunction;
+class SbViewVolume;
+class CvrCLUT;
+class CvrRaycastSubcube;
+
+namespace CLVol {
+  class RenderManager;
+  struct TransferFunctionPoint;
+};
 
 class CvrRaycastCube {
 public:
   CvrRaycastCube(const SoGLRenderAction * action);
   ~CvrRaycastCube();
 
+  void setTransferFunction(So2DTransferFunction * tf);
   void render(const SoGLRenderAction * action);
 
 private:
@@ -48,8 +62,27 @@ private:
   SbVec3s subcubesize;
   SbVec3f origo;
   SbVec3ui32 nrsubcubes; // Number of subcubes in x-y-z direction
+
+  CLVol::RenderManager * rendermanager;
+  std::vector<GLuint> glcolorlayers;
+  std::vector<GLuint> gldepthlayers;
+  std::vector<GLuint> gllayerfbos;
+  GLuint gltargetfbo;
+  GLuint gltargetcolorlayer;
+  GLuint gltargetdepthlayer;
   class SubCube ** subcubes;
-  
+
+  std::vector<CLVol::TransferFunctionPoint> transferfunction;
+  bool transferfunctionchanged;
+
+  bool reattachglresources;
+  SbViewportRegion previousviewportregion;
+  uint32_t previoustransferfunctionid;
+
+  void setupRenderManager(const SoGLRenderAction * action);
+  void adjustLayers(const SoGLRenderAction * action);
+  const SbViewVolume calculateAdjustedViewVolume(const SoGLRenderAction * action) const;
+
   class SubCube * getSubCube(SoState * state, 
                              unsigned int row, 
                              unsigned int col, 

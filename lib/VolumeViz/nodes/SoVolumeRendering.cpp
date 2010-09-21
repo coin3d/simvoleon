@@ -264,9 +264,11 @@
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/CvrLightingElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/elements/So2DTransferFunctionElement.h>
 #include <VolumeViz/nodes/SoObliqueSlice.h>
 #include <VolumeViz/nodes/SoOrthoSlice.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/nodes/So2DTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/SoVolumeFaceSet.h>
 #include <VolumeViz/nodes/SoVolumeIndexedFaceSet.h>
@@ -333,6 +335,11 @@ SoVolumeRendering::init(void)
   CvrVoxelBlockElement::initClass();
   CvrLightingElement::initClass();
 
+  // FIXME: Hack (20100915 handegar)
+  So2DTransferFunctionElement::initClass();
+  So2DTransferFunction::initClass();
+
+
   SoVolumeRendering::initClass();
   SoVolumeData::initClass();
   SoTransferFunction::initClass();
@@ -356,6 +363,7 @@ SoVolumeRendering::init(void)
   // Internal classes follows:
 
   CvrTextureObject::initClass();
+
 }
 
 /*!

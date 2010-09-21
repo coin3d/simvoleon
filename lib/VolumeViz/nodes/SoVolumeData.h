@@ -58,12 +58,12 @@ public:
     TEX3D,
     MEMORY,
     VOLUMEPRO,
-    TEX2D_SINGLE
+    TEX2D_SINGLE,
+    RAYCAST // FIXME: Hack. Used for switching on libCLVol rendering (20100909 handegar)
   };
 
   enum SubMethod { NEAREST, MAX, AVERAGE };
   enum OverMethod { NONE, CONSTANT, LINEAR, CUBIC };
-
   enum DataType { UNSIGNED_BYTE, UNSIGNED_SHORT };
 
   SoSFString fileName;

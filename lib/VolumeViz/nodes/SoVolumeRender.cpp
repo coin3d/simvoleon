@@ -56,19 +56,23 @@
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoShapeStyleElement.h>
 #include <Inventor/elements/SoCacheElement.h>
+#include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/errors/SoDebugError.h>
 #include <Inventor/system/gl.h>
 #include <Inventor/nodes/SoDrawStyle.h>
 #include <Inventor/nodes/SoCube.h>
 
 #include <VolumeViz/nodes/SoVolumeData.h>
+#include <VolumeViz/nodes/So2DTransferFunction.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/elements/So2DTransferFunctionElement.h>
 #include <VolumeViz/render/2D/CvrPageHandler.h>
 #include <VolumeViz/render/3D/CvrCubeHandler.h>
 #include <VolumeViz/render/pointset/PointRendering.h>
+#include <VolumeViz/render/raycast/CvrRaycastCube.h>
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrCLUT.h>
@@ -76,6 +80,8 @@
 #include <VolumeViz/misc/CvrGlobalRenderLock.h>
 #include <VolumeViz/elements/CvrLightingElement.h>
 #include <VolumeViz/Coin/gl/CoinGLPerformance.h>
+
+
 
 #include "volumeraypickintersection.h"
 
@@ -142,6 +148,7 @@ public:
     this->master = master;
     this->pagehandler = NULL;
     this->cubehandler = NULL;
+    this->raycastcube = NULL;
     this->abortfunc = NULL;
     this->abortfuncdata = NULL;
     this->linestylevolumecube = NULL;
@@ -166,6 +173,7 @@ public:
 
   CvrPageHandler * pagehandler; // For 2D page rendering
   CvrCubeHandler * cubehandler; // For 3D cube rendering
+  CvrRaycastCube * raycastcube; // // FIXME: Temp. hack (20100910 handegar)
 
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
   void * abortfuncdata;
@@ -177,7 +185,7 @@ public:
   void rayPickDebug(SoGLRenderAction * action);
   SbList<SbVec3f> raypicklines;
 
-  enum RenderingMethod { TEXTURE3D, TEXTURE2D, NOTIMPLEMENTED };
+  enum RenderingMethod { TEXTURE3D, TEXTURE2D, RAYCAST, NOTIMPLEMENTED };
 
 private:
   SoVolumeRender * master;
@@ -393,10 +401,12 @@ SoVolumeRender::SoVolumeRender(void)
 
 }
 
+
 SoVolumeRender::~SoVolumeRender()
 {
   delete PRIVATE(this);
 }
+
 
 // Doc from parent class.
 void
@@ -405,15 +415,18 @@ SoVolumeRender::initClass(void)
   SO_NODE_INIT_CLASS(SoVolumeRender, SoShape, "SoShape");
 
   SO_ENABLE(SoGLRenderAction, SoTransferFunctionElement);
+  SO_ENABLE(SoGLRenderAction, So2DTransferFunctionElement);
   SO_ENABLE(SoGLRenderAction, SoModelMatrixElement);
   SO_ENABLE(SoGLRenderAction, SoLazyElement);
 
   SO_ENABLE(SoRayPickAction, SoTransferFunctionElement);
+  SO_ENABLE(SoRayPickAction, So2DTransferFunctionElement);
   SO_ENABLE(SoRayPickAction, SoModelMatrixElement);
 
   SO_ENABLE(SoGLRenderAction, CvrGLInterpolationElement);
   SO_ENABLE(SoGLRenderAction, CvrLightingElement);
 }
+
 
 namespace {
   // helper class used to push/pop the state
@@ -567,6 +580,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     const int storagehint = CvrStorageHintElement::get(state);
     if (storagehint == SoVolumeData::TEX3D ||
         storagehint == SoVolumeData::AUTO ||
+        storagehint == SoVolumeData::RAYCAST || // FIXME: Temp. hack (20100910 handegar)
         // FIXME: should also warn on attempts to use the VOLUMEPRO
         // setting. 20040712 mortene.
         storagehint == SoVolumeData::VOLUMEPRO) {
@@ -581,7 +595,10 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
         }
       }
       else if (PRIVATE(this)->use3DTexturing(glue)) {
-        rendermethod = SoVolumeRenderP::TEXTURE3D;
+        if (storagehint == SoVolumeData::RAYCAST)
+          rendermethod = SoVolumeRenderP::RAYCAST; // FIXME: Temp. hack (20100910 handegar)
+        else
+          rendermethod = SoVolumeRenderP::TEXTURE3D;
       }
     }
   }
@@ -595,8 +612,23 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 
   CvrGLInterpolationElement::set(state, interp);
 
+  // Setup a raycast-cube handler
+  if (rendermethod == SoVolumeRenderP::RAYCAST) {
+    if (!PRIVATE(this)->raycastcube)
+      PRIVATE(this)->raycastcube = new CvrRaycastCube(action);
+
+    // Scale to unit-size
+    SoModelMatrixElement::scaleBy(state, this, SbVec3f(voxcubedims[0], voxcubedims[1], voxcubedims[2]));
+    // Translate to origo
+    SoModelMatrixElement::translateBy(state, this, SbVec3f(-0.5, -0.5, -0.5));
+    
+    // FIXME: Detect changes before setting the transferfunction (20100916 handegar)
+    const So2DTransferFunctionElement * tfe = So2DTransferFunctionElement::getInstance(state);
+    PRIVATE(this)->raycastcube->setTransferFunction(tfe->getTransferFunction());    
+    PRIVATE(this)->raycastcube->render(action);
+  }
   // viewport-aligned 3D textures
-  if (rendermethod == SoVolumeRenderP::TEXTURE3D) {
+  else if (rendermethod == SoVolumeRenderP::TEXTURE3D) {
 
     const int numslices = PRIVATE(this)->calculateNrOf3DSlices(action, voxcubedims);
     if (numslices == 0) {
@@ -654,6 +686,7 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   }
 }
 
+
 // doc in super
 void
 SoVolumeRender::generatePrimitives(SoAction * action)
@@ -669,6 +702,7 @@ SoVolumeRender::generatePrimitives(SoAction * action)
   }
 #endif // debug
 }
+
 
 /*!
   Picking of a volume doesn't work in quite the same manner as picking
@@ -703,6 +737,7 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
 
 }
 
+
 // doc in super
 void
 SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
@@ -710,14 +745,19 @@ SoVolumeRender::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
   SoState * state = action->getState();
 
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
-  if (vbelem == NULL) { return; }
+  if (vbelem == NULL) { 
+    return; 
+  }
 
   const SbBox3f & vdbox = vbelem->getUnitDimensionsBox();
-  if (vdbox.isEmpty()) { return; }
-
+  if (vdbox.isEmpty()) { 
+    return; 
+  }
+  
   box.extendBy(vdbox);
   center = vdbox.getCenter();
 }
+
 
 /*!
   \enum SoVolumeRender::AbortCode
@@ -771,6 +811,7 @@ SoVolumeRender::setAbortCallback(SoVolumeRenderAbortCB * func, void * userdata)
   PRIVATE(this)->abortfuncdata = userdata;
 }
 
+
 // Will render the intersection lines for all ray picks attempted so
 // far. For debugging purposes only.
 void
@@ -803,7 +844,9 @@ SoVolumeRenderP::rayPickDebug(SoGLRenderAction * action)
   state->pop();
 }
 
+
 // *************************************************************************
+
 
 void
 SoVolumeRenderP::setupPerformanceTest(const cc_glglue * glglue, void *)
@@ -855,12 +898,14 @@ SoVolumeRenderP::setupPerformanceTest(const cc_glglue * glglue, void *)
   delete[] volumedataset;
 }
 
+
 void
 SoVolumeRenderP::cleanupPerformanceTest(const cc_glglue * glglue, void *)
 {
   glDeleteTextures(2, SoVolumeRenderP::texture3dids);
   glDeleteTextures(2, SoVolumeRenderP::texture2dids);
 }
+
 
 static inline void
 render_textured_triangle(const SbVec3f * v)
@@ -874,6 +919,7 @@ render_textured_triangle(const SbVec3f * v)
   glVertex3fv(v[2].getValue());
   glEnd();
 }
+
 
 void
 SoVolumeRenderP::renderTexturedTriangles(GLenum type)
@@ -905,17 +951,20 @@ SoVolumeRenderP::renderTexturedTriangles(GLenum type)
   }
 }
 
+
 void
 SoVolumeRenderP::render2DTexturedTriangles(const cc_glglue *, void *)
 {
   SoVolumeRenderP::renderTexturedTriangles(GL_TEXTURE_2D);
 }
 
+
 void
 SoVolumeRenderP::render3DTexturedTriangles(const cc_glglue *, void *)
 {
   SoVolumeRenderP::renderTexturedTriangles(GL_TEXTURE_3D);
 }
+
 
 SbBool
 SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
@@ -1029,6 +1078,7 @@ SoVolumeRenderP::use3DTexturing(const cc_glglue * glglue) const
   return FALSE;
 }
 
+
 unsigned int
 SoVolumeRenderP::calculateNrOf2DSlices(SoGLRenderAction * action,
                                        const SbVec3s & dimensions)
@@ -1060,6 +1110,7 @@ SoVolumeRenderP::calculateNrOf2DSlices(SoGLRenderAction * action,
 
   return numslices;
 }
+
 
 unsigned int
 SoVolumeRenderP::calculateNrOf3DSlices(SoGLRenderAction * action,

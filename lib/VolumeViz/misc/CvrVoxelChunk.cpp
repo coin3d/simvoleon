@@ -43,6 +43,7 @@
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrGIMPGradient.h>
 #include <VolumeViz/misc/CvrUtil.h>
+#include <VolumeViz/misc/CvrCentralDifferenceGradient.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/gradients/BLUE_RED.h>
 #include <VolumeViz/nodes/gradients/GLOW.h>
@@ -57,7 +58,7 @@
 #include <VolumeViz/render/common/Cvr3DRGBATexture.h>
 #include <VolumeViz/render/common/CvrPaletteTexture.h>
 #include <VolumeViz/render/common/CvrRGBATexture.h>
-#include <VolumeViz/misc/CvrCentralDifferenceGradient.h>
+
 
 // *************************************************************************
 
@@ -261,8 +262,9 @@ CvrVoxelChunk::transfer(const SoGLRenderAction * action, const CvrCLUT * clut,
     this->transfer2D(action, clut, texobj, invisible);
   }
   else {
-    this->transfer3D(action, clut, texobj, invisible);
+    this->transfer3D(action, clut, texobj, invisible);   
   }
+
 }
 
 
@@ -342,9 +344,11 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
   assert((rgbatex && !palettetex) || (!rgbatex && palettetex));
 
   const int unitsize = this->getUnitSize();
-  clut->ref();
 
-  if (palettetex) { palettetex->setCLUT(clut); }
+  if (clut)
+    clut->ref();
+
+  if (palettetex && clut) { palettetex->setCLUT(clut); }
 
   const int32_t shiftval = transferfunc->shift.getValue();
   const int32_t offsetval = transferfunc->offset.getValue();
@@ -409,7 +413,8 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
         else {
           const uint32_t voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];
           const uint32_t colidx = (voldataidx << shiftval) + offsetval;
-          clut->lookupRGBA(colidx, &output[texelidx * 4]);
+          if (clut)
+            clut->lookupRGBA(colidx, &output[texelidx * 4]);
           SbBool inv = output[texelidx * 4 + 3] == 0x00;
           if (lighting && !inv) {
             SbVec3f voxgrad = grad->getGradient(x, y, z);
@@ -448,7 +453,8 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
   if (palettetex)
     invisible = FALSE;
 
-  clut->unref();
+  if (clut)
+    clut->unref();
 }
 
 

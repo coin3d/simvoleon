@@ -39,11 +39,13 @@
 #include <Inventor/elements/SoCacheElement.h>
 #include <Inventor/errors/SoDebugError.h>
 
+#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/caches/CvrGLTextureCache.h>
 #include <VolumeViz/elements/CvrCompressedTexturesElement.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/elements/CvrLightingElement.h>
+#include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
@@ -348,6 +350,11 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   assert(lightelem != NULL);
   const SbBool lighting = lightelem->useLighting(action->getState());
 
+  
+  // FIXME: Hack just to see if raycasting will actually work (20100909 handegar)
+  const SbBool raycast  = CvrStorageHintElement::get(action->getState()) & SoVolumeData::RAYCAST;
+ 
+
   // FIXME: in SoAsciiText, pederb uses this right after making a
   // cache -- what does this do?:
   //
@@ -440,7 +447,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   void * imgptr = NULL;
   if (this->isPaletted()) imgptr = ((CvrPaletteTexture *)this)->getIndex8Buffer();
   else imgptr = ((CvrRGBATexture *)this)->getRGBABuffer();
-
+  
 
   GLenum gltextureformat = GL_COLOR_INDEX;
   if (this->isPaletted() && CvrCLUT::useFragmentProgramLookup(glw)) {
@@ -534,15 +541,30 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   }
   else {
     assert(nrtexdims == 3);
-    cc_glglue_glTexImage3D(glw,
-                           gltextypeenum,
-                           0,
-                           internalFormat,
-                           texdims[0], texdims[1], texdims[2],
-                           0,
-                           this->isPaletted() ? gltextureformat : GL_RGBA,
-                           GL_UNSIGNED_BYTE,
-                           imgptr);
+
+    if (raycast) {
+      // FIXME: Quick hack (20100910 handegar)
+      cc_glglue_glTexImage3D(glw,
+                             gltextypeenum,
+                             0,
+                             GL_LUMINANCE8UI_EXT, 
+                             texdims[0], texdims[1], texdims[2],
+                             0,
+                             GL_LUMINANCE_INTEGER_EXT,
+                             GL_UNSIGNED_BYTE,
+                             imgptr);
+    }
+    else {
+      cc_glglue_glTexImage3D(glw,
+                             gltextypeenum,
+                             0,
+                             internalFormat,
+                             texdims[0], texdims[1], texdims[2],
+                             0,
+                             this->isPaletted() ? gltextureformat : GL_RGBA,
+                             GL_UNSIGNED_BYTE,
+                             imgptr);
+    }
   }
 
   { // We've had a report of GL errors here, so dump lots of debug info.
@@ -704,23 +726,28 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   assert(lightelem != NULL);
   const SbBool lighting = lightelem->useLighting(action->getState());
 
+  // FIXME: Hack just to see if raycasting will actually work (20100909 handegar)
+  const SbBool raycast  = CvrStorageHintElement::get(action->getState()) & SoVolumeData::RAYCAST;
+  
+
   SoType createtype;
-  if (is2d && paletted) { 
+  
+  if (is2d && paletted && !raycast) { 
     createtype = Cvr2DPaletteTexture::getClassTypeId(); 
   }
-  else if (is2d) { 
+  else if (is2d && !raycast) { 
     createtype = Cvr2DRGBATexture::getClassTypeId(); 
   }
-  else if (paletted && lighting) { 
+  else if (paletted && lighting && !raycast) { 
     // FIXME: I believe this next may also depend on the presence of
     // support for fragment programs..? Investigate. 20050628 mortene.
     createtype = Cvr3DPaletteGradientTexture::getClassTypeId(); 
   }
-  else if (paletted) { 
+  else if (paletted || raycast) { 
     createtype = Cvr3DPaletteTexture::getClassTypeId(); 
   }
   else { 
-    createtype = Cvr3DRGBATexture::getClassTypeId(); 
+    createtype = Cvr3DRGBATexture::getClassTypeId();   
   }
 
   struct CvrTextureObject::EqualityComparison incoming;
@@ -752,8 +779,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   }
   delete input;
 
-  CvrTextureObject * newtexobj = (CvrTextureObject *)
-    createtype.createInstance();
+  CvrTextureObject * newtexobj = (CvrTextureObject *) createtype.createInstance();
 
   // The actual dimensions of the GL texture must be values that are
   // power-of-two's:
@@ -787,6 +813,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
 
   SbBool invisible = FALSE;
   cubechunk->transfer(action, clut, newtexobj, invisible);
+
   delete cubechunk;
 
   // If completely transparent, and not in palette mode, we need not

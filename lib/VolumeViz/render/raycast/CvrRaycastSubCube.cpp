@@ -22,17 +22,30 @@
 \**************************************************************************/
 
 #include "CvrRaycastSubCube.h"
+
+#include <Inventor/SbLinear.h>
+#include <Inventor/elements/SoViewportRegionElement.h>
+#include <Inventor/elements/SoModelMatrixElement.h>
+#include <Inventor/elements/SoClipPlaneElement.h>
+#include <Inventor/elements/SoViewVolumeElement.h>
+#include <Inventor/actions/SoGLRenderAction.h>
+
+
 #include <VolumeViz/render/common/CvrTextureObject.h>
 
+#include <RenderManager.h>
+
+using namespace CLVol;
 
 CvrRaycastSubCube::CvrRaycastSubCube(const SoGLRenderAction * action,
                                      const CvrTextureObject * texobj,
                                      const SbVec3f & cubeorigo,
-                                     const SbVec3s & cubesize)
-  : dimensions(cubesize), origo(cubeorigo), textureobject(texobj)
+                                     const SbVec3s & cubesize,
+                                     CLVol::RenderManager * rm)
+  : dimensions(cubesize), origo(cubeorigo), textureobject(texobj), rendermanager(rm)
 {
+  this->clut = NULL;
   this->textureobject->ref();
-
 }
 
 
@@ -42,25 +55,102 @@ CvrRaycastSubCube::~CvrRaycastSubCube()
 }
 
 
-void 
-CvrRaycastSubCube::render(const SoGLRenderAction * action)
+void
+CvrRaycastSubCube::setPalette(const CvrCLUT * newclut)
 {
-  // **
-  // FIXME: Trigger a rendering using libCLVol here (20100824 handegar)
-  // **
+  assert(newclut != NULL);
 
-  /*
-    Todo:
-    * share textureobject with libCLVol
-    * share current modelmatrix with libCLVol
-    * trigger libCLVol rendering
+  if (this->clut) { this->clut->unref(); }
 
-    All rendering will be done to the same framebuffer in libCLVol
-    activated by CvrRaycastCube.
-
-   */
-
+  this->clut = newclut;
+  this->clut->ref();
 }
 
 
+void
+CvrRaycastSubCube::setRenderTarget(GLuint targetfbo,
+                                   unsigned int viewportx,
+                                   unsigned int viewporty,
+                                   unsigned int viewportwidth,
+                                   unsigned int viewportheight)
+{
+  this->rendermanager->setRenderTarget(targetfbo,
+                                       viewportx,
+                                       viewporty,
+                                       viewportwidth,
+                                       viewportheight);
+}
+
+
+void 
+CvrRaycastSubCube::attachGLLayers(std::vector<GLuint> layerscolortexture,
+                                  std::vector<GLuint> layersdepthtexture,
+                                  unsigned int layerswidth,
+                                  unsigned int layersheight)
+{
+  this->rendermanager->attachGLLayers(layerscolortexture,
+                                      layersdepthtexture,
+                                      layerswidth,
+                                      layersheight);
+}
+
+
+void
+CvrRaycastSubCube::detachGLResources()
+{
+  this->rendermanager->detachGLResources();
+}
+
+
+void
+CvrRaycastSubCube::setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & tf)
+{
+  this->rendermanager->setTransferFunction(tf);
+}
+
+
+void
+CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjustedviewvolume)
+{
+  assert(this->rendermanager && "No rendermanager initialized");
+  SoState * state = action->getState();
+
+  std::vector<GLfloat> clipplanes;
+  clipplanes.clear();
+
+  const SbMatrix mm = SoModelMatrixElement::get(state);
+  const SbMatrix projectionmatrix = adjustedviewvolume.getMatrix();
+  const SbMatrix pminv = (mm*projectionmatrix).inverse();  
+
+  // FIXME: get the clipplanes stuff working. (20100910 handegar)
+  /*
+  const SoClipPlaneElement * cpe = SoClipPlaneElement::getInstance(state);
+  int num = cpe->getNum();
+  for (int i=0;i<num;++i) {
+    SbPlane p = cpe->get(i, false);
+    SbVec3f n = p.getNormal();
+    clipplanes.push_back(n[0]);
+    clipplanes.push_back(n[1]);
+    clipplanes.push_back(n[2]);
+    clipplanes.push_back(p.getDistanceFromOrigin());    
+    printf("%d clipplane=[%f, %f, %f,  %f]\n", i, n[0], n[1], n[2], p.getDistanceFromOrigin());
+  }
+  */    
+         
+  GLfloat projmarray[16];
+  GLfloat mminvarray[16];
+  // Doh....  Theres got to be a better way... :-(
+  for (int i=0;i<4;++i) {
+    for (int j=0;j<4;++j) {
+      projmarray[i*4 + j] = projectionmatrix[i][j];
+      mminvarray[i*4 + j] = pminv[i][j];
+    }
+  }
+   
+  this->rendermanager->setVolumeTexture(this->textureobject->getGLTexture(action));
+   
+  this->rendermanager->render((const GLfloat *) &projmarray, 
+                              (const GLfloat *) &mminvarray,
+                              clipplanes);
+}
 

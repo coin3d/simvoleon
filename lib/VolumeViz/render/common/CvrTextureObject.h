@@ -69,6 +69,8 @@ public:
   virtual void blankUnused(const SbVec3s & texsize) const = 0;
   virtual unsigned short getNrOfTextureDimensions(void) const = 0;
 
+  GLuint getGLTexture(const SoGLRenderAction * action) const;
+
 protected:
   // Constructor and destructor is protected as instances should
   // always be made through the create() function.
@@ -85,7 +87,7 @@ private:
                                    const unsigned int axisidx,
                                    const int pageidx);
 
-  GLuint getGLTexture(const SoGLRenderAction * action) const;
+  //GLuint getGLTexture(const SoGLRenderAction * action) const;
 
   static SoType classTypeId;
   SbVec3s dimensions;
