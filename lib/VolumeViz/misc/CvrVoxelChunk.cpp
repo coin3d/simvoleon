@@ -40,11 +40,13 @@
 #include <VolumeViz/elements/CvrPalettedTexturesElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 #include <VolumeViz/elements/CvrLightingElement.h>
+#include <VolumeViz/elements/CvrStorageHintElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrGIMPGradient.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrCentralDifferenceGradient.h>
 #include <VolumeViz/nodes/SoTransferFunction.h>
+#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/nodes/gradients/BLUE_RED.h>
 #include <VolumeViz/nodes/gradients/GLOW.h>
 #include <VolumeViz/nodes/gradients/GREY.h>
@@ -295,6 +297,8 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
 
   const SbVec3s size(this->dimensions[0], this->dimensions[1], this->dimensions[2]);
 
+  const SbBool raycast  = CvrStorageHintElement::get(state) & SoVolumeData::RAYCAST;
+
   // FIXME: this is just a temporary fix for what seems like a really
   // weird and nasty NVidia driver bug; allocate enough textures of 1-
   // or 2-pixel width, and the driver will eventually crash. (We're
@@ -322,9 +326,15 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
   // not -- the code-paths in the driver is likely to be different).
   // 20050419 mortene.
 #if 1
-  const SbVec3s texsize(coin_next_power_of_two(size[0] - 1),
-                        coin_next_power_of_two(size[1] - 1),
-                        coin_next_power_of_two(size[2] - 1));
+  SbVec3s texsize;
+  if (raycast) {  
+    texsize = size;
+  }
+  else {
+    texsize = SbVec3s(coin_next_power_of_two(size[0] - 1),
+                      coin_next_power_of_two(size[1] - 1),
+                      coin_next_power_of_two(size[2] - 1));
+  }
 #else
   const SbVec3s texsize(SbMax((uint32_t)4, coin_next_power_of_two(size[0] - 1)),
                         SbMax((uint32_t)4, coin_next_power_of_two(size[1] - 1)),

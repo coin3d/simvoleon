@@ -78,8 +78,7 @@ CvrRaycastCube::CvrRaycastCube(const SoGLRenderAction * action)
     transferfunctionchanged(false), previoustransferfunctionid(0)
 {
   SoState * state = action->getState();
-  this->subcubesize =
-    CvrUtil::clampSubCubeSize(CvrDataSizeElement::get(state));
+  this->subcubesize = CvrUtil::clampSubCubeSize(CvrDataSizeElement::get(state));
   
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("CvrRaycastCube::CvrRaycastCube",
@@ -89,7 +88,7 @@ CvrRaycastCube::CvrRaycastCube(const SoGLRenderAction * action)
                            this->subcubesize[2]);
   }
 
-  this->previousviewportregion = SbViewportRegion(-1, -1);
+  this->previousviewportregion = SbViewportRegion(0, 0);
   
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
   const SbVec3s & dim = vbelem->getVoxelCubeDimensions();

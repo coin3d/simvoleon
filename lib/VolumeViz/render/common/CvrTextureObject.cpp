@@ -783,14 +783,16 @@ CvrTextureObject::create(const SoGLRenderAction * action,
 
   // The actual dimensions of the GL texture must be values that are
   // power-of-two's:
-  for (unsigned int i=0; i < 3; i++) {
-    // SbMax(4, ...) to work around a crash bug in older NVidia
-    // drivers when a lot of 1x- or 2x-dimensions textures are
-    // allocated. 20090812 mortene.
-    
-    newtexobj->dimensions[i] =
-      SbMax((uint32_t)4, coin_geq_power_of_two(texsize[i]));
-    
+  if (raycast) {
+    newtexobj->dimensions = texsize;
+  }
+  else {
+    for (unsigned int i=0; i < 3; i++) {
+      // SbMax(4, ...) to work around a crash bug in older NVidia
+      // drivers when a lot of 1x- or 2x-dimensions textures are
+      // allocated. 20090812 mortene.      
+      newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i] - 1);
+    }
   }
 
   if (is2d) {

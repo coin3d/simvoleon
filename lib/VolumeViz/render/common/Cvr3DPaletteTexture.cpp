@@ -72,7 +72,6 @@ Cvr3DPaletteTexture::getIndex8Buffer(void) const
     const SbVec3s dims = this->getDimensions();
     that->indexbuffer = new uint8_t[dims[0] * dims[1] * dims[2]];
   }
-
   return this->indexbuffer;
 }
 
