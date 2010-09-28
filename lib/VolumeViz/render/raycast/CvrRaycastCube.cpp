@@ -263,31 +263,22 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   const bool reattachglresources = vpr != this->previousviewportregion;
   this->previousviewportregion = vpr;
 
-  if (!this->rendermanager) {
-    this->setupRenderManager(action);  
-  }
-
   const SbVec2s size = vpr.getWindowSize();                 
   const unsigned int startrow = 0, endrow = this->nrsubcubes[0] - 1;
   const unsigned int startcolumn = 0, endcolumn = this->nrsubcubes[1] - 1;
   const unsigned int startdepth = 0, enddepth = this->nrsubcubes[2] - 1;
+
+  if (!this->rendermanager) {
+    this->setupRenderManager(action);  
+  }
   
   if (reattachglresources) {
-    for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
-      for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
-        for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {          
-          SubCube * cubeitem = this->getSubCube(state, rowidx, colidx, depthidx);
-          if (cubeitem) {
-            assert(cubeitem->cube);
-            cubeitem->cube->detachGLResources();
-            cubeitem->cube->setRenderTarget(0, // Target fbo=0 => Direct to screen
-                                            0, 0, size[0], size[1]);                        
-          }
-        }
-      }
-    }
-
+    this->rendermanager->detachGLResources();   
+    this->rendermanager->setRenderTarget(0, // Target fbo=0 => Direct to screen
+                                         0, 0, size[0], size[1]);
     this->adjustLayers(action);
+    this->rendermanager->attachGLLayers(this->glcolorlayers, this->gldepthlayers,
+                                        size[0], size[1]);
   }
 
   const uint32_t glctxid = action->getCacheContext();
@@ -295,33 +286,35 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   const SbViewVolume adjustedviewvolume =  this->calculateAdjustedViewVolume(action);
 
   
-  // FIXME: Do we need to copy the color+depth buffer to BOTH fbos? (20100922 handegar)
+  // FIXME: Do we need to copy the color+depth buffer to BOTH fbos?
+  // (20100922 handegar)
   /*
   glEnable(GL_DEPTH_TEST);      
   // FIXME: Use glglue for EXT calls (20100914 handegar)
   cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-     
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     
   cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
   cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
   // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
-  glBlitFramebuffer(0, 0, size[0], size[1],
-                    0, 0, size[0], size[1],
-                    GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-  
+  glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
+                    GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);  
   cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
   cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[0]);
   // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
-  glBlitFramebuffer(0, 0, size[0], size[1],
-                    0, 0, size[0], size[1],
+  glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
   */  
 
+       
   glEnable(GL_DEPTH_TEST);      
   // FIXME: Use glglue for EXT calls (20100914 handegar)
   cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+  if (this->transferfunctionchanged) 
+    this->rendermanager->setTransferFunction(this->transferfunction);
+     
   for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
     for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
       for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {
@@ -332,28 +325,13 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
         glBlitFramebuffer(0, 0, size[0], size[1],
                           0, 0, size[0], size[1],
                           GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        assert(glGetError() == GL_NO_ERROR);
-        
-       
+        assert(glGetError() == GL_NO_ERROR);       
+               
         SubCube * cubeitem = this->getSubCube(state, rowidx, colidx, depthidx);
-
-        if (cubeitem == NULL) { 
-          cubeitem = this->buildSubCube(action, rowidx, colidx, depthidx); 
-          cubeitem->cube->setRenderTarget(0, // Target fbo=0 => Direct to screen
-                                          0, 0, size[0], size[1]);
-        }
+        if (cubeitem == NULL)
+          cubeitem = this->buildSubCube(action, rowidx, colidx, depthidx);                  
         assert(cubeitem != NULL);
         assert(cubeitem->cube != NULL);
-        
-        if (reattachglresources) {         
-          cubeitem->cube->attachGLLayers(this->glcolorlayers,
-                                         this->gldepthlayers,
-                                         size[0], size[1]);             
-        }
-        
-        if (this->transferfunctionchanged) {
-          cubeitem->cube->setTransferFunction(this->transferfunction);
-        }
         
         // -- copy depth from solid pass into depth of transparent pass
         cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, this->gllayerfbos[1]);

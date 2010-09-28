@@ -55,57 +55,14 @@ CvrRaycastSubCube::~CvrRaycastSubCube()
 }
 
 
+// FIXME: Not in use. Refactor. (20100928 handegar)
 void
 CvrRaycastSubCube::setPalette(const CvrCLUT * newclut)
 {
   assert(newclut != NULL);
-
   if (this->clut) { this->clut->unref(); }
-
   this->clut = newclut;
   this->clut->ref();
-}
-
-
-void
-CvrRaycastSubCube::setRenderTarget(GLuint targetfbo,
-                                   unsigned int viewportx,
-                                   unsigned int viewporty,
-                                   unsigned int viewportwidth,
-                                   unsigned int viewportheight)
-{
-  this->rendermanager->setRenderTarget(targetfbo,
-                                       viewportx,
-                                       viewporty,
-                                       viewportwidth,
-                                       viewportheight);
-}
-
-
-void 
-CvrRaycastSubCube::attachGLLayers(std::vector<GLuint> layerscolortexture,
-                                  std::vector<GLuint> layersdepthtexture,
-                                  unsigned int layerswidth,
-                                  unsigned int layersheight)
-{
-  this->rendermanager->attachGLLayers(layerscolortexture,
-                                      layersdepthtexture,
-                                      layerswidth,
-                                      layersheight);
-}
-
-
-void
-CvrRaycastSubCube::detachGLResources()
-{
-  this->rendermanager->detachGLResources();
-}
-
-
-void
-CvrRaycastSubCube::setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & tf)
-{
-  this->rendermanager->setTransferFunction(tf);
 }
 
 

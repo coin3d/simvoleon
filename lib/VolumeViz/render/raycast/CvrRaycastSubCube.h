@@ -55,23 +55,7 @@ public:
                     const SbBox3s cubebbox,
                     const SbVec3s totalsize,
                     CLVol::RenderManager * rm);
-  ~CvrRaycastSubCube();
-
-  void setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & tf);
-
-  void setRenderTarget(GLuint targetfbo,
-                       unsigned int viewportx,
-                       unsigned int viewporty,
-                       unsigned int viewportwidth,
-                       unsigned int viewportheight);
-
-  void attachGLLayers(std::vector<GLuint> layerscolortexture,
-                      std::vector<GLuint> layersdepthtexture,
-                      unsigned int layerswidth,
-                      unsigned int layersheight);
-
-  void detachGLResources();
-
+  ~CvrRaycastSubCube(); 
   void render(const SoGLRenderAction * action, SbViewVolume adjustedviewvolume);
   void setPalette(const CvrCLUT * newclut);
 
