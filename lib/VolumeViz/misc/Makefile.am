@@ -14,7 +14,8 @@ RegularSources = \
 	CvrGlobalRenderLock.h CvrGlobalRenderLock.cpp \
 	CvrGIMPGradient.cpp CvrGIMPGradient.h \
 	CvrGradient.cpp CvrGradient.h \
-	CvrCentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h
+	CvrCentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h \
+	CvrBBoxSubdivider.cpp CvrBBoxSubdivider.h
 
 libmisc_la_SOURCES = $(RegularSources)
 

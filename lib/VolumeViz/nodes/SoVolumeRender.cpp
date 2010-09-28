@@ -617,15 +617,13 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     if (!PRIVATE(this)->raycastcube)
       PRIVATE(this)->raycastcube = new CvrRaycastCube(action);
 
-    // Scale to unit-size
-    SoModelMatrixElement::scaleBy(state, this, SbVec3f(voxcubedims[0], voxcubedims[1], voxcubedims[2]));
-    // Translate to origo
-    SoModelMatrixElement::translateBy(state, this, SbVec3f(-0.5, -0.5, -0.5));
-    
-    // FIXME: Detect changes before setting the transferfunction (20100916 handegar)
-    const So2DTransferFunctionElement * tfe = So2DTransferFunctionElement::getInstance(state);
+    // FIXME: Detect changes before setting the transferfunction
+    // (20100916 handegar)
+    const So2DTransferFunctionElement * tfe = 
+      So2DTransferFunctionElement::getInstance(state);
     PRIVATE(this)->raycastcube->setTransferFunction(tfe->getTransferFunction());    
     PRIVATE(this)->raycastcube->render(action);
+
   }
   // viewport-aligned 3D textures
   else if (rendermethod == SoVolumeRenderP::TEXTURE3D) {

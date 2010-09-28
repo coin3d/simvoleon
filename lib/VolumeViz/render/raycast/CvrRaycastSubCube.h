@@ -32,6 +32,7 @@
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbVec3f.h>
 #include <Inventor/SbVec2f.h>
+#include <Inventor/SbBox3s.h>
 #include <Inventor/C/glue/gl.h>
 
 #include <vector>
@@ -51,8 +52,8 @@ class CvrRaycastSubCube {
 public:
   CvrRaycastSubCube(const SoGLRenderAction * action,
                     const CvrTextureObject * texobj,
-                    const SbVec3f & cubeorigo,
-                    const SbVec3s & cubesize,
+                    const SbBox3s cubebbox,
+                    const SbVec3s totalsize,
                     CLVol::RenderManager * rm);
   ~CvrRaycastSubCube();
 
@@ -75,9 +76,9 @@ public:
   void setPalette(const CvrCLUT * newclut);
 
 private:
-  SbVec3s dimensions;
-  SbVec3f origo;
   const CvrTextureObject * textureobject;
+  SbBox3s bbox;
+  SbVec3s totalsize;
   const CvrCLUT * clut;
   CLVol::RenderManager * rendermanager;
 };

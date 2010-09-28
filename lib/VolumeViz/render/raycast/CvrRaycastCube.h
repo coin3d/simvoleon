@@ -32,8 +32,10 @@
 #include <Inventor/SbVec3s.h>
 #include <Inventor/SbVec3ui32.h>
 #include <Inventor/SbVec3f.h>
+#include <Inventor/SbBox3f.h>
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/SbViewportRegion.h>
+#include <Inventor/lists/SbList.h>
 
 #include <vector>
 
@@ -43,6 +45,7 @@ class So2DTransferFunction;
 class SbViewVolume;
 class CvrCLUT;
 class CvrRaycastSubcube;
+class SbBox3f;
 
 namespace CLVol {
   class RenderManager;
@@ -59,9 +62,10 @@ public:
 
 private:
   SbVec3s dimensions;
-  SbVec3s subcubesize;
   SbVec3f origo;
+
   SbVec3ui32 nrsubcubes; // Number of subcubes in x-y-z direction
+  SbList<SbBox3f> subcubeboxes;
 
   CLVol::RenderManager * rendermanager;
   std::vector<GLuint> glcolorlayers;
@@ -82,13 +86,11 @@ private:
   void setupRenderManager(const SoGLRenderAction * action);
   void adjustLayers(const SoGLRenderAction * action);
   const SbViewVolume calculateAdjustedViewVolume(const SoGLRenderAction * action) const;
-
   class SubCube * getSubCube(SoState * state, 
                              unsigned int row, 
                              unsigned int col, 
                              unsigned int depth);
   class SubCube * buildSubCube(const SoGLRenderAction * action,
-                               const SbVec3f & origo,
                                unsigned int row,
                                unsigned int col,
                                unsigned int depth);   

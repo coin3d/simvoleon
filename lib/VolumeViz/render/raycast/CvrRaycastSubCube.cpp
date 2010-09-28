@@ -39,10 +39,10 @@ using namespace CLVol;
 
 CvrRaycastSubCube::CvrRaycastSubCube(const SoGLRenderAction * action,
                                      const CvrTextureObject * texobj,
-                                     const SbVec3f & cubeorigo,
-                                     const SbVec3s & cubesize,
+                                     const SbBox3s cubebbox,
+                                     const SbVec3s totalsize,
                                      CLVol::RenderManager * rm)
-  : dimensions(cubesize), origo(cubeorigo), textureobject(texobj), rendermanager(rm)
+  : textureobject(texobj), bbox(cubebbox), totalsize(totalsize), rendermanager(rm)
 {
   this->clut = NULL;
   this->textureobject->ref();
@@ -118,14 +118,22 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
   std::vector<GLfloat> clipplanes;
   clipplanes.clear();
 
+  SbMatrix t, s;
   const SbMatrix mm = SoModelMatrixElement::get(state);
+  const SbVec3s span = this->bbox.getSize();
+  const SbVec3f origo = this->bbox.getCenter();  
+  s.setScale(SbVec3f(span[0], span[1], span[2]));   
+  t.setTranslate(SbVec3f(origo[0] - (span[0] + this->totalsize[0])/2.0f,
+                         origo[1] - (span[1] + this->totalsize[1])/2.0f,
+                         origo[2] - (span[2] + this->totalsize[2])/2.0f));     
   const SbMatrix projectionmatrix = adjustedviewvolume.getMatrix();
-  const SbMatrix pminv = (mm*projectionmatrix).inverse();  
+  const SbMatrix pminv = (s*t*mm*projectionmatrix).inverse();  
+  
 
   // FIXME: get the clipplanes stuff working. (20100910 handegar)
   /*
   const SoClipPlaneElement * cpe = SoClipPlaneElement::getInstance(state);
-  int num = cpe->getNum();
+  const int num = cpe->getNum();
   for (int i=0;i<num;++i) {
     SbPlane p = cpe->get(i, false);
     SbVec3f n = p.getNormal();
@@ -135,7 +143,7 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
     clipplanes.push_back(p.getDistanceFromOrigin());    
     printf("%d clipplane=[%f, %f, %f,  %f]\n", i, n[0], n[1], n[2], p.getDistanceFromOrigin());
   }
-  */    
+  */      
          
   GLfloat projmarray[16];
   GLfloat mminvarray[16];
@@ -147,8 +155,7 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
     }
   }
    
-  this->rendermanager->setVolumeTexture(this->textureobject->getGLTexture(action));
-   
+  this->rendermanager->setVolumeTexture(this->textureobject->getGLTexture(action));   
   this->rendermanager->render((const GLfloat *) &projmarray, 
                               (const GLfloat *) &mminvarray,
                               clipplanes);

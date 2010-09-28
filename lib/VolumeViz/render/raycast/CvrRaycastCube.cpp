@@ -55,9 +55,10 @@
 #include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/nodes/So2DTransferFunction.h>
 #include <VolumeViz/misc/CvrUtil.h>
-
+#include <VolumeViz/misc/CvrBBoxSubdivider.h>
 #include <VolumeViz/render/raycast/CvrRaycastSubCube.h>
 #include <VolumeViz/render/common/CvrTextureObject.h>
+
 
 #include <RenderManager.h>
 
@@ -66,9 +67,10 @@ class SubCube {
 public:
   SubCube(CvrRaycastSubCube * p) { this->cube = p; }
   CvrRaycastSubCube * cube;
-  double distancefromcamera;
-  double cameraplane2cubecenter;
-  float boundingsphereradius;    
+  SbBox3f bbox;
+  //double distancefromcamera;
+  //double cameraplane2cubecenter;
+  //float boundingsphereradius;    
   uint32_t volumedataid;
 };
 
@@ -78,14 +80,14 @@ CvrRaycastCube::CvrRaycastCube(const SoGLRenderAction * action)
     transferfunctionchanged(false), previoustransferfunctionid(0)
 {
   SoState * state = action->getState();
-  this->subcubesize = CvrUtil::clampSubCubeSize(CvrDataSizeElement::get(state));
+  const SbVec3s subcubesize = CvrUtil::clampSubCubeSize(CvrDataSizeElement::get(state));
   
   if (CvrUtil::doDebugging()) {
     SoDebugError::postInfo("CvrRaycastCube::CvrRaycastCube",
                            "subcubedimensions==<%d, %d, %d>",
-                           this->subcubesize[0],
-                           this->subcubesize[1],
-                           this->subcubesize[2]);
+                           subcubesize[0],
+                           subcubesize[1],
+                           subcubesize[2]);
   }
 
   this->previousviewportregion = SbViewportRegion(0, 0);
@@ -95,14 +97,23 @@ CvrRaycastCube::CvrRaycastCube(const SoGLRenderAction * action)
   assert(dim[0] > 0 && dim[1] > 0 && dim[2] > 0 && "Invalid voxel block size");
 
   this->dimensions = dim;
-  this->origo = SbVec3f(-((float) dim[0]) / 2.0f, 
-                        -((float) dim[1]) / 2.0f, 
-                        -((float) dim[2]) / 2.0f);
-
-  //Note: cols and rows were swiched in Cvr3DTexCube
-  this->nrsubcubes[0] = (this->dimensions[0] + this->subcubesize[0] - 1) / this->subcubesize[0];
-  this->nrsubcubes[1] = (this->dimensions[1] + this->subcubesize[1] - 1) / this->subcubesize[1];
-  this->nrsubcubes[2] = (this->dimensions[2] + this->subcubesize[2] - 1) / this->subcubesize[2];
+  this->origo = -SbVec3f(dim[0] / 2.0f, dim[1] / 2.0f, dim[2] / 2.0f);
+  
+  const SbBox3f cubebox(SbVec3f(0, 0, 0), SbVec3f(dim[0], dim[1], dim[2]));
+  const SbBox3f subcubebox(SbVec3f(0, 0, 0), SbVec3f(subcubesize[0], subcubesize[1], subcubesize[2]));
+    
+  CvrBBoxSubdivider bbs;
+  SbBox3f b = subcubebox;
+  SbMatrix t = SbMatrix::identity();
+  t.setTranslate(SbVec3f(subcubesize[0], 0, 0));
+  this->nrsubcubes[0] = bbs.countIntersectingBoxesInDirection(cubebox, b, t);
+  b = subcubebox;
+  t.setTranslate(SbVec3f(0, subcubesize[1], 0));
+  this->nrsubcubes[1] = bbs.countIntersectingBoxesInDirection(cubebox, b, t);
+  b = subcubebox;
+  t.setTranslate(SbVec3f(0, 0, subcubesize[2]));
+  this->nrsubcubes[2] = bbs.countIntersectingBoxesInDirection(cubebox, b, t);
+  bbs.collectAllBoxesInside(cubebox, subcubebox, this->subcubeboxes);
 }
 
 
@@ -259,13 +270,10 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   }
 
   const SbVec2s size = vpr.getWindowSize();                 
-  const SbVec3f subcubewidth(this->subcubesize[0], 0, 0);
-  const SbVec3f subcubeheight(0, this->subcubesize[1], 0);
-  const SbVec3f subcubedepth(0, 0, this->subcubesize[2]);
   const unsigned int startrow = 0, endrow = this->nrsubcubes[0] - 1;
   const unsigned int startcolumn = 0, endcolumn = this->nrsubcubes[1] - 1;
   const unsigned int startdepth = 0, enddepth = this->nrsubcubes[2] - 1;
-
+  
   if (reattachglresources) {
     for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
       for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
@@ -279,6 +287,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
         }
       }
     } 
+
     this->adjustLayers(action);
   }
 
@@ -286,21 +295,20 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   const cc_glglue * glw = cc_glglue_instance(glctxid);
   const SbViewVolume adjustedviewvolume =  this->calculateAdjustedViewVolume(action);
 
-
+  
+  // FIXME: Do we need to copy the color+depth buffer to BOTH fbos? (20100922 handegar)
+  /*
   glEnable(GL_DEPTH_TEST);      
   // FIXME: Use glglue for EXT calls (20100914 handegar)
   cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
      
-
   cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
   cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
   // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
   glBlitFramebuffer(0, 0, size[0], size[1],
                     0, 0, size[0], size[1],
                     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-  assert(glGetError() == GL_NO_ERROR);
-
   
   cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
   cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[0]);
@@ -308,31 +316,36 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   glBlitFramebuffer(0, 0, size[0], size[1],
                     0, 0, size[0], size[1],
                     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-  assert(glGetError() == GL_NO_ERROR);
-  
+  */  
 
+  glEnable(GL_DEPTH_TEST);      
+  // FIXME: Use glglue for EXT calls (20100914 handegar)
+  cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
- 
   for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
     for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
       for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {
         
+        cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
+        cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
+        // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
+        glBlitFramebuffer(0, 0, size[0], size[1],
+                          0, 0, size[0], size[1],
+                          GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        assert(glGetError() == GL_NO_ERROR);
+        
+       
         SubCube * cubeitem = this->getSubCube(state, rowidx, colidx, depthidx);
 
-        const SbVec3f subcubeorigo =
-          this->origo +
-          subcubewidth * (float)colidx + 
-          subcubeheight * (float)rowidx + 
-          subcubedepth * (float)depthidx;
-
         if (cubeitem == NULL) { 
-          cubeitem = this->buildSubCube(action, subcubeorigo, rowidx, colidx, depthidx); 
+          cubeitem = this->buildSubCube(action, rowidx, colidx, depthidx); 
           cubeitem->cube->setRenderTarget(0, // Target fbo=0 => Direct to screen
                                           0, 0, size[0], size[1]);
         }
         assert(cubeitem != NULL);
         assert(cubeitem->cube != NULL);
-
+        
         if (reattachglresources) {         
           cubeitem->cube->attachGLLayers(this->glcolorlayers,
                                          this->gldepthlayers,
@@ -342,11 +355,6 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
         if (this->transferfunctionchanged) {
           cubeitem->cube->setTransferFunction(this->transferfunction);
         }
-
-
-        // -- Do regular GL code here
-        //  ... but how?
-        // --------------------------
         
         // -- copy depth from solid pass into depth of transparent pass
         cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, this->gllayerfbos[1]);
@@ -368,12 +376,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
     }
   }
   
- 
-
-
-  glPopAttrib();
-
-  
+  glPopAttrib();  
   this->transferfunctionchanged = false;
 }
 
@@ -419,15 +422,12 @@ CvrRaycastCube::calculateAdjustedViewVolume(const SoGLRenderAction * action) con
 
 SubCube * 
 CvrRaycastCube::getSubCube(SoState * state, 
-                           unsigned int row, 
-                           unsigned int col, 
-                           unsigned int depth)
+                           unsigned int row, unsigned int col, unsigned int depth)
 {
   assert(row < this->nrsubcubes[0]);
   assert(col < this->nrsubcubes[1]);
   assert(depth < this->nrsubcubes[2]);
-  if (this->subcubes == NULL) 
-    return NULL;
+  if (this->subcubes == NULL) return NULL;
 
   const unsigned int idx = this->getSubCubeIdx(row, col, depth);
   SubCube * subp = this->subcubes[idx];
@@ -456,14 +456,13 @@ CvrRaycastCube::getSubCube(SoState * state,
 
 SubCube * 
 CvrRaycastCube::buildSubCube(const SoGLRenderAction * action,
-                             const SbVec3f & origo,
                              unsigned int row,
                              unsigned int col,
                              unsigned int depth)
 {
   assert((this->getSubCube(action->getState(), row, col, depth) == NULL) && 
          "Subcube already created!");
-
+  
   // No subcubes created yet?
   if (this->subcubes == NULL) {
     if (CvrUtil::doDebugging()) {
@@ -472,7 +471,7 @@ CvrRaycastCube::buildSubCube(const SoGLRenderAction * action,
                              this->nrsubcubes[0]*this->nrsubcubes[1]*this->nrsubcubes[2],
                              this->nrsubcubes[0], this->nrsubcubes[1], this->nrsubcubes[2]);
     }
-    
+
     this->subcubes = new SubCube*[this->nrsubcubes[0]*this->nrsubcubes[1]*this->nrsubcubes[2]];
     for (unsigned int i=0; i < this->nrsubcubes[0]; i++) {
       for (unsigned int j=0; j < this->nrsubcubes[1]; j++) {
@@ -483,38 +482,24 @@ CvrRaycastCube::buildSubCube(const SoGLRenderAction * action,
       }
     }
   }
-        
-  SbVec3s subcubemin, subcubemax;
-  subcubemin = SbVec3s(col * this->subcubesize[0],
-                       row * this->subcubesize[1],
-                       depth * this->subcubesize[2]);
-  subcubemax = SbVec3s((col + 1) * this->subcubesize[0],
-                       (row + 1) * this->subcubesize[1],
-                       (depth + 1) * this->subcubesize[2]);
-  
-  // Crop subcube size
-  subcubemax[0] = SbMin(subcubemax[0], this->dimensions[0]);
-  subcubemax[1] = SbMin(subcubemax[1], this->dimensions[1]);
-  subcubemax[2] = SbMin(subcubemax[2], this->dimensions[2]);
+   
 
-  subcubemin[1] = SbMax(subcubemin[1], (short) 0);
+  const int idx = this->getSubCubeIdx(row, col, depth);
+  assert(idx < this->subcubeboxes.getLength());
 
-#if CVR_DEBUG && 0 // debug
-  SoDebugError::postInfo("CvrRaycastCube::buildSubCube",
-                         "subcubemin=[%d, %d, %d] subcubemax=[%d, %d, %d]",
-                         subcubemin[0], subcubemin[1], subcubemin[2],
-                         subcubemax[0], subcubemax[1], subcubemax[2]);
-#endif // debug
-
-  const SbBox3s subcubecut(subcubemin, subcubemax);
+  const SbBox3s subcubecut(this->subcubeboxes[idx]);
   const CvrTextureObject * texobj = 
     CvrTextureObject::create(action, NULL, subcubecut);
   // if NULL is returned, it means all voxels are fully transparent
   
   CvrRaycastSubCube * cube = NULL;
   if (texobj) {
-    cube = new CvrRaycastSubCube(action, texobj, origo,
-                                 subcubecut.getMax() - subcubecut.getMin(),
+    // FIXME: Give the bbox as parameter, not center+dims (20100924 handegar)
+    cube = new CvrRaycastSubCube(action, texobj, 
+                                 subcubecut,
+                                 this->dimensions,
+                                 //subcubecut.getCenter() + this->origo,
+                                 //subcubecut.getMax() - subcubecut.getMin(),
                                  this->rendermanager);
   }
 
@@ -523,11 +508,11 @@ CvrRaycastCube::buildSubCube(const SoGLRenderAction * action,
   assert(vbelem != NULL);
   
   SubCube * item = new SubCube(cube);
+  item->bbox = this->subcubeboxes[idx];
+  item->bbox.print(stdout);
   item->volumedataid = vbelem->getNodeId();
 
-  const int idx = this->getSubCubeIdx(row, col, depth);
   this->subcubes[idx] = item;
-
   return item;
 }
 
@@ -541,8 +526,8 @@ CvrRaycastCube::getSubCubeIdx(unsigned int row,
   assert(col < this->nrsubcubes[1]);
   assert(depth < this->nrsubcubes[2]);
 
-  unsigned int idx =
-    (col + (row * this->nrsubcubes[1])) + (depth * this->nrsubcubes[0] * this->nrsubcubes[1]);
+  unsigned int idx = (col + (row * this->nrsubcubes[1])) + 
+    (depth * this->nrsubcubes[0] * this->nrsubcubes[1]);
   
   assert(idx < (this->nrsubcubes[0] * this->nrsubcubes[1] * this->nrsubcubes[2]));
   return idx;
@@ -608,3 +593,4 @@ CvrRaycastCube::setTransferFunction(So2DTransferFunction * tf)
   this->transferfunctionchanged = true;
   this->previoustransferfunctionid = tf->getNodeId();
 }
+

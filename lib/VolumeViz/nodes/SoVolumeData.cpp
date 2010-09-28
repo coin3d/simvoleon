@@ -199,7 +199,7 @@ public:
     this->dimensions = SbVec3s(0, 0, 0);
     
     // FIXME: Raycast-hack untill the subcube systems gets working again. (20100916 handegar)
-    this->subpagesize = SbVec3s(512, 512, 512); //SbVec3s(128, 128, 128);
+    this->subpagesize = SbVec3s(128, 128, 128);
 
     // Our default size (0 == unlimited).
     this->maxnrtexels = 0;

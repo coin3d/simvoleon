@@ -56,7 +56,8 @@ misc_lst_LIBADD =
 am__objects_1 = CvrVoxelChunk.$(OBJEXT) CvrCLUT.$(OBJEXT) \
 	CvrUtil.$(OBJEXT) CvrResourceManager.$(OBJEXT) \
 	CvrGlobalRenderLock.$(OBJEXT) CvrGIMPGradient.$(OBJEXT) \
-	CvrGradient.$(OBJEXT) CvrCentralDifferenceGradient.$(OBJEXT)
+	CvrGradient.$(OBJEXT) CvrCentralDifferenceGradient.$(OBJEXT) \
+	CvrBBoxSubdivider.$(OBJEXT)
 am_misc_lst_OBJECTS = $(am__objects_1)
 misc_lst_OBJECTS = $(am_misc_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
@@ -64,12 +65,14 @@ libmisc_la_LIBADD =
 am__objects_2 = CvrVoxelChunk.lo CvrCLUT.lo CvrUtil.lo \
 	CvrResourceManager.lo CvrGlobalRenderLock.lo \
 	CvrGIMPGradient.lo CvrGradient.lo \
-	CvrCentralDifferenceGradient.lo
+	CvrCentralDifferenceGradient.lo CvrBBoxSubdivider.lo
 am_libmisc_la_OBJECTS = $(am__objects_2)
 libmisc_la_OBJECTS = $(am_libmisc_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrCLUT.Plo ./$(DEPDIR)/CvrCLUT.Po \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrBBoxSubdivider.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrBBoxSubdivider.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrCLUT.Plo ./$(DEPDIR)/CvrCLUT.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrCentralDifferenceGradient.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrCentralDifferenceGradient.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrGIMPGradient.Plo \
@@ -285,7 +288,8 @@ RegularSources = \
 	CvrGlobalRenderLock.h CvrGlobalRenderLock.cpp \
 	CvrGIMPGradient.cpp CvrGIMPGradient.h \
 	CvrGradient.cpp CvrGradient.h \
-	CvrCentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h
+	CvrCentralDifferenceGradient.cpp CvrCentralDifferenceGradient.h \
+	CvrBBoxSubdivider.cpp CvrBBoxSubdivider.h
 
 libmisc_la_SOURCES = $(RegularSources)
 misc_lst_SOURCES = $(RegularSources)
@@ -343,6 +347,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrBBoxSubdivider.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrBBoxSubdivider.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCLUT.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCLUT.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrCentralDifferenceGradient.Plo@am__quote@
