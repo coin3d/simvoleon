@@ -72,6 +72,14 @@ public:
   uint32_t volumedataid;
 };
 
+static int
+subcube_qsort_compare(const void * element1, const void * element2)
+{
+  SubCube ** sc1 = (SubCube **) element1;
+  SubCube ** sc2 = (SubCube **) element2;
+  return ((*sc1)->distancefromcamera > (*sc2)->distancefromcamera) ? -1 : 1;
+}
+
 
 CvrRaycastCube::CvrRaycastCube(const SoGLRenderAction * action)
   : rendermanager(NULL), subcubes(NULL), 
@@ -285,6 +293,42 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   const cc_glglue * glw = cc_glglue_instance(glctxid);
   const SbViewVolume adjustedviewvolume =  this->calculateAdjustedViewVolume(action);
 
+  //
+  // Sort the subcubes according to distance from the camera
+  //
+  SbList<SubCube *> subcuberenderorder;
+  SbViewVolume viewvolumeinv = SoViewVolumeElement::get(state);
+  viewvolumeinv.transform(SoModelMatrixElement::get(state).inverse());
+  for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
+    for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
+      for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {
+        SubCube * cubeitem = this->getSubCube(state, rowidx, colidx, depthidx);
+        if (cubeitem == NULL)
+          cubeitem = this->buildSubCube(action, rowidx, colidx, depthidx);           
+
+        const SbPlane invcamplane = viewvolumeinv.getPlane(0.0f);
+        const float dist = -invcamplane.getDistance(cubeitem->bbox.getCenter());
+
+        if (viewvolumeinv.getProjectionType() == SbViewVolume::ORTHOGRAPHIC) {
+          cubeitem->distancefromcamera = dist;
+        }
+        else {
+          cubeitem->distancefromcamera = 
+            (float) sqrt((viewvolumeinv.getProjectionPoint() - cubeitem->bbox.getCenter()).length());
+          if (dist < 0) {
+            cubeitem->distancefromcamera = -cubeitem->distancefromcamera;
+          }
+        }
+        subcuberenderorder.append(cubeitem);
+      }
+    }
+  }
+ 
+  assert(subcuberenderorder.getLength() == 
+         this->nrsubcubes[0]*this->nrsubcubes[1]*this->nrsubcubes[2]);
+  qsort((void *) subcuberenderorder.getArrayPtr(), subcuberenderorder.getLength(),
+        sizeof(SubCube *), subcube_qsort_compare);
+
   
   // FIXME: Do we need to copy the color+depth buffer to BOTH fbos?
   // (20100922 handegar)
@@ -304,55 +348,46 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
   */  
-
        
   glEnable(GL_DEPTH_TEST);      
   // FIXME: Use glglue for EXT calls (20100914 handegar)
   cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
   if (this->transferfunctionchanged) 
     this->rendermanager->setTransferFunction(this->transferfunction);
-     
-  for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
-    for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
-      for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {
+    
+ 
+  for (int i=0;i<subcuberenderorder.getLength();++i) {
+    cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
+    cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
+    // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
+    glBlitFramebuffer(0, 0, size[0], size[1],
+                      0, 0, size[0], size[1],
+                      GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    assert(glGetError() == GL_NO_ERROR);       
+    
+    SubCube * cubeitem = subcuberenderorder[i];
+    assert(cubeitem);
         
-        cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
-        cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
-        // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
-        glBlitFramebuffer(0, 0, size[0], size[1],
-                          0, 0, size[0], size[1],
-                          GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        assert(glGetError() == GL_NO_ERROR);       
-               
-        SubCube * cubeitem = this->getSubCube(state, rowidx, colidx, depthidx);
-        if (cubeitem == NULL)
-          cubeitem = this->buildSubCube(action, rowidx, colidx, depthidx);                  
-        assert(cubeitem != NULL);
-        assert(cubeitem->cube != NULL);
-        
-        // -- copy depth from solid pass into depth of transparent pass
-        cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, this->gllayerfbos[1]);
-        cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[0]);
-        // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
-        glBlitFramebuffer(0, 0, size[0], size[1],
-                          0, 0, size[0], size[1],
-                          GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        
-        // -- transparency pass
-        cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[0]);
-        glClear(GL_COLOR_BUFFER_BIT);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-        glDisable(GL_BLEND);
-
-        cubeitem->cube->render(action, adjustedviewvolume); 
-      }
-    }
+    // -- copy depth from solid pass into depth of transparent pass
+    cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, this->gllayerfbos[1]);
+    cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[0]);
+    // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
+    glBlitFramebuffer(0, 0, size[0], size[1],
+                      0, 0, size[0], size[1],
+                      GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    
+    // -- transparency pass
+    cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[0]);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    glDisable(GL_BLEND);
+    
+    cubeitem->cube->render(action, adjustedviewvolume); 
   }
-  
+
   glPopAttrib();  
   this->transferfunctionchanged = false;
 }
