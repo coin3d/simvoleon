@@ -68,9 +68,7 @@ public:
   SubCube(CvrRaycastSubCube * p) { this->cube = p; }
   CvrRaycastSubCube * cube;
   SbBox3f bbox;
-  //double distancefromcamera;
-  //double cameraplane2cubecenter;
-  //float boundingsphereradius;    
+  double distancefromcamera;
   uint32_t volumedataid;
 };
 
@@ -279,14 +277,15 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
       for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
         for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {          
           SubCube * cubeitem = this->getSubCube(state, rowidx, colidx, depthidx);
-          if (cubeitem) {            
+          if (cubeitem) {
+            assert(cubeitem->cube);
             cubeitem->cube->detachGLResources();
             cubeitem->cube->setRenderTarget(0, // Target fbo=0 => Direct to screen
-                                            0, 0, size[0], size[1]);            
+                                            0, 0, size[0], size[1]);                        
           }
         }
       }
-    } 
+    }
 
     this->adjustLayers(action);
   }
@@ -498,8 +497,6 @@ CvrRaycastCube::buildSubCube(const SoGLRenderAction * action,
     cube = new CvrRaycastSubCube(action, texobj, 
                                  subcubecut,
                                  this->dimensions,
-                                 //subcubecut.getCenter() + this->origo,
-                                 //subcubecut.getMax() - subcubecut.getMin(),
                                  this->rendermanager);
   }
 
@@ -509,7 +506,6 @@ CvrRaycastCube::buildSubCube(const SoGLRenderAction * action,
   
   SubCube * item = new SubCube(cube);
   item->bbox = this->subcubeboxes[idx];
-  item->bbox.print(stdout);
   item->volumedataid = vbelem->getNodeId();
 
   this->subcubes[idx] = item;
