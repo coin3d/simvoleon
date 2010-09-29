@@ -65,12 +65,18 @@ Cvr3DPaletteTexture::~Cvr3DPaletteTexture()
 // it if necessary.
 uint8_t *
 Cvr3DPaletteTexture::getIndex8Buffer(void) const
-{
+{  
   if (this->indexbuffer == NULL) {
     // Cast away constness.
     Cvr3DPaletteTexture * that = (Cvr3DPaletteTexture *)this;
     const SbVec3s dims = this->getDimensions();
-    that->indexbuffer = new uint8_t[dims[0] * dims[1] * dims[2]];
+    
+    // FIXME: Allocating a larger buffer than needed. Used for
+    // spotting a possible bug where the resulting texture becomes
+    // larger than the allocated size pulling in garbage for the last
+    // slices.  (20100929 handegar)
+    that->indexbuffer = new uint8_t[dims[0] * dims[1] * dims[2]*2];
+    memset(that->indexbuffer, 128, dims[0] * dims[1] * dims[2]*2);
   }
   return this->indexbuffer;
 }

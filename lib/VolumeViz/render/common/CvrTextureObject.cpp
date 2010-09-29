@@ -151,9 +151,8 @@ void
 CvrTextureObject::initClass(void)
 {
   assert(CvrTextureObject::classTypeId == SoType::badType());
-  CvrTextureObject::classTypeId = SoType::createType(SoType::badType(),
-                                                     "CvrTextureObject");
-
+  CvrTextureObject::classTypeId = 
+    SoType::createType(SoType::badType(), "CvrTextureObject");
   CvrRGBATexture::initClass();
   CvrPaletteTexture::initClass();
   Cvr2DRGBATexture::initClass();
@@ -552,7 +551,7 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
                              0,
                              GL_LUMINANCE_INTEGER_EXT,
                              GL_UNSIGNED_BYTE,
-                             imgptr);
+                             imgptr);      
     }
     else {
       cc_glglue_glTexImage3D(glw,
@@ -696,11 +695,8 @@ CvrTextureObject::create(const SoGLRenderAction * action,
                          const unsigned int axisidx,
                          const int pageidx)
 {
-
   const SbVec3s tex(texsize[0], texsize[1], 1);
-
   const SbBox3s dummy; // constructor initializes it to an empty box
-
   return CvrTextureObject::create(action, clut, tex, dummy, cutslice, axisidx, pageidx);
 }
 
@@ -812,7 +808,6 @@ CvrTextureObject::create(const SoGLRenderAction * action,
     newtexobj->dimensions[2] = 1;
   }
   
-
   SbBool invisible = FALSE;
   cubechunk->transfer(action, clut, newtexobj, invisible);
 

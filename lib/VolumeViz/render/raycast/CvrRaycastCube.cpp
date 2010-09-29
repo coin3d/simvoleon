@@ -282,38 +282,32 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   // Sort the subcubes according to distance from the camera
   //
   SbList<SubCube *> subcuberenderorder;
-  SbViewVolume viewvolumeinv = adjustedviewvolume;//SoViewVolumeElement::get(state);
+  SbViewVolume viewvolumeinv = SoViewVolumeElement::get(state);
   viewvolumeinv.transform(SoModelMatrixElement::get(state).inverse());
+  SbMatrix bboxtrans;
+  bboxtrans.setTranslate(this->origo);
+
   for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
     for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
       for (unsigned int depthidx = startdepth; depthidx <= enddepth; depthidx++) {
         SubCube * cubeitem = this->getSubCube(state, rowidx, colidx, depthidx);
         if (cubeitem == NULL)
           cubeitem = this->buildSubCube(action, rowidx, colidx, depthidx);           
-
-        const SbPlane invcamplane = viewvolumeinv.getPlane(0.0f);
-        const float dist = -invcamplane.getDistance(cubeitem->bbox.getCenter());
         
-        if (viewvolumeinv.getProjectionType() == SbViewVolume::ORTHOGRAPHIC) {
-          cubeitem->distancefromcamera = dist;
-        }
-        else {
-          cubeitem->distancefromcamera = 
-            (float) sqrt((viewvolumeinv.getProjectionPoint() - cubeitem->bbox.getCenter()).length());
-          if (dist < 0) {
-            assert(0);
-            cubeitem->distancefromcamera = -cubeitem->distancefromcamera;
-          }
-        }               
+        SbBox3f bbox = cubeitem->bbox;
+        bbox.transform(bboxtrans);
+
+        const float dist = this->getMostDistantPoint(viewvolumeinv.getProjectionPoint(), bbox);
+        cubeitem->distancefromcamera = dist;
+
         subcuberenderorder.append(cubeitem);
       }
     }
   }
-
-  assert(subcuberenderorder.getLength() == 
-         this->nrsubcubes[0]*this->nrsubcubes[1]*this->nrsubcubes[2]);
+  
   qsort((void *) subcuberenderorder.getArrayPtr(), subcuberenderorder.getLength(),
         sizeof(SubCube *), subcube_qsort_compare);
+  
 
          
   glEnable(GL_DEPTH_TEST);      
@@ -331,10 +325,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
     glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                       GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     assert(glGetError() == GL_NO_ERROR);       
-    
-    SubCube * cubeitem = subcuberenderorder[i];
-    assert(cubeitem);
-          
+              
     // -- copy depth from solid pass into depth of transparent pass
     cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, this->gllayerfbos[1]);
     cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[0]);
@@ -348,13 +339,44 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
     glDisable(GL_BLEND);
-        
+    
+    SubCube * cubeitem = subcuberenderorder[i];
+    assert(cubeitem);
+    
     cubeitem->cube->render(action, adjustedviewvolume); 
   }
 
   glPopAttrib();  
   this->transferfunctionchanged = false;
 }
+
+
+float 
+CvrRaycastCube::getMostDistantPoint(SbVec3f point, SbBox3f box) const
+{
+  float dist = 0;
+  
+  float b[6];  
+  box.getBounds(b[0], b[1], b[2], b[3], b[4], b[5]);
+  
+  SbVec3f corners[8];
+  corners[0] = SbVec3f(b[0], b[1], b[2]);
+  corners[1] = SbVec3f(b[0], b[1], b[5]);
+  corners[2] = SbVec3f(b[0], b[4], b[5]);
+  corners[3] = SbVec3f(b[0], b[4], b[2]);
+  corners[4] = SbVec3f(b[3], b[1], b[2]);
+  corners[5] = SbVec3f(b[3], b[1], b[5]);
+  corners[6] = SbVec3f(b[3], b[4], b[5]);
+  corners[7] = SbVec3f(b[3], b[4], b[2]);
+
+  for (int i=0;i<8;++i) {
+    const float d = (point - corners[i]).length();
+    dist = dist < d ? d : dist;
+  }
+  
+  return dist;
+}
+
 
 
 const SbViewVolume
