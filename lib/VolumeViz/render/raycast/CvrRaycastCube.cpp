@@ -72,6 +72,7 @@ public:
   uint32_t volumedataid;
 };
 
+
 static int
 subcube_qsort_compare(const void * element1, const void * element2)
 {
@@ -108,6 +109,8 @@ CvrRaycastCube::CvrRaycastCube(const SoGLRenderAction * action)
   const SbBox3f cubebox(SbVec3f(0, 0, 0), SbVec3f(dim[0], dim[1], dim[2]));
   const SbBox3f subcubebox(SbVec3f(0, 0, 0), SbVec3f(subcubesize[0], subcubesize[1], subcubesize[2]));
     
+  // FIXME: What if the dataset changes? Won't this have to be
+  // recalculated? (20100928 handegar)
   CvrBBoxSubdivider bbs;
   SbBox3f b = subcubebox;
   SbMatrix t = SbMatrix::identity();
@@ -164,22 +167,16 @@ CvrRaycastCube::adjustLayers(const SoGLRenderAction * action)
 
   // -- Target fbo
   glBindTexture(GL_TEXTURE_2D, this->gltargetcolorlayer);
-  glTexImage2D(GL_TEXTURE_2D, 0,
-               GL_RGBA,
-               size[0], size[1], 0,
-               GL_RGBA, GL_UNSIGNED_BYTE, NULL);  
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size[0], size[1], 
+               0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);  
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   
   glBindTexture(GL_TEXTURE_2D, this->gltargetdepthlayer);
-  glTexImage2D(GL_TEXTURE_2D, 0,
-               GL_DEPTH_COMPONENT,
-               //GL_DEPTH_COMPONENT32F,
-               size[0], size[1], 0,
-               GL_DEPTH_COMPONENT, 
-               GL_FLOAT, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, size[0], size[1], 
+               0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -195,22 +192,16 @@ CvrRaycastCube::adjustLayers(const SoGLRenderAction * action)
 
   // -- solid layer
   glBindTexture(GL_TEXTURE_2D, this->glcolorlayers[0]);
-  glTexImage2D(GL_TEXTURE_2D, 0,
-               GL_RGBA,
-               size[0], size[1], 0,
-               GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size[0], size[1], 
+               0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);  
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   
   glBindTexture(GL_TEXTURE_2D, this->gldepthlayers[0]);
-  glTexImage2D(GL_TEXTURE_2D, 0,
-               GL_DEPTH_COMPONENT,
-               //GL_DEPTH_COMPONENT32F,
-               size[0], size[1], 0,
-               GL_DEPTH_COMPONENT, GL_FLOAT, NULL );
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, size[0], size[1], 
+               0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL );
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -224,22 +215,16 @@ CvrRaycastCube::adjustLayers(const SoGLRenderAction * action)
   
   // -- transparency layer
   glBindTexture(GL_TEXTURE_2D, this->glcolorlayers[1]);
-  glTexImage2D(GL_TEXTURE_2D, 0,
-               GL_RGBA,
-               size[0], size[1], 0,
-               GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size[0], size[1], 
+               0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);  
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   
   glBindTexture(GL_TEXTURE_2D, this->gldepthlayers[1]);
-  glTexImage2D(GL_TEXTURE_2D, 0,
-               GL_DEPTH_COMPONENT,
-               //GL_DEPTH_COMPONENT32F,
-                size[0], size[1], 0,
-                GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, size[0], size[1], 
+               0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -297,7 +282,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   // Sort the subcubes according to distance from the camera
   //
   SbList<SubCube *> subcuberenderorder;
-  SbViewVolume viewvolumeinv = SoViewVolumeElement::get(state);
+  SbViewVolume viewvolumeinv = adjustedviewvolume;//SoViewVolumeElement::get(state);
   viewvolumeinv.transform(SoModelMatrixElement::get(state).inverse());
   for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
     for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
@@ -308,7 +293,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
 
         const SbPlane invcamplane = viewvolumeinv.getPlane(0.0f);
         const float dist = -invcamplane.getDistance(cubeitem->bbox.getCenter());
-
+        
         if (viewvolumeinv.getProjectionType() == SbViewVolume::ORTHOGRAPHIC) {
           cubeitem->distancefromcamera = dist;
         }
@@ -316,39 +301,21 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
           cubeitem->distancefromcamera = 
             (float) sqrt((viewvolumeinv.getProjectionPoint() - cubeitem->bbox.getCenter()).length());
           if (dist < 0) {
+            assert(0);
             cubeitem->distancefromcamera = -cubeitem->distancefromcamera;
           }
-        }
+        }               
         subcuberenderorder.append(cubeitem);
       }
     }
   }
- 
+
   assert(subcuberenderorder.getLength() == 
          this->nrsubcubes[0]*this->nrsubcubes[1]*this->nrsubcubes[2]);
   qsort((void *) subcuberenderorder.getArrayPtr(), subcuberenderorder.getLength(),
         sizeof(SubCube *), subcube_qsort_compare);
 
-  
-  // FIXME: Do we need to copy the color+depth buffer to BOTH fbos?
-  // (20100922 handegar)
-  /*
-  glEnable(GL_DEPTH_TEST);      
-  // FIXME: Use glglue for EXT calls (20100914 handegar)
-  cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);     
-  cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
-  cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
-  // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
-  glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
-                    GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);  
-  cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
-  cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[0]);
-  // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
-  glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
-                    GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-  */  
-       
+         
   glEnable(GL_DEPTH_TEST);      
   // FIXME: Use glglue for EXT calls (20100914 handegar)
   cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
@@ -357,34 +324,31 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   if (this->transferfunctionchanged) 
     this->rendermanager->setTransferFunction(this->transferfunction);
     
- 
   for (int i=0;i<subcuberenderorder.getLength();++i) {
     cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
     cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
     // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
-    glBlitFramebuffer(0, 0, size[0], size[1],
-                      0, 0, size[0], size[1],
+    glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                       GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     assert(glGetError() == GL_NO_ERROR);       
     
     SubCube * cubeitem = subcuberenderorder[i];
     assert(cubeitem);
-        
+          
     // -- copy depth from solid pass into depth of transparent pass
     cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, this->gllayerfbos[1]);
     cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[0]);
     // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
-    glBlitFramebuffer(0, 0, size[0], size[1],
-                      0, 0, size[0], size[1],
+    glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                       GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    
+        
     // -- transparency pass
     cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[0]);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
     glDisable(GL_BLEND);
-    
+        
     cubeitem->cube->render(action, adjustedviewvolume); 
   }
 
