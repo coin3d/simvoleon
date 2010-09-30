@@ -293,8 +293,6 @@ Cvr3DTexCube::render(const SoGLRenderAction * action,
           cubeitem->distancefromcamera = dist;
         }
         else {
-          SbVec3f p = viewvolumeinv.getProjectionPoint();
-
           cubeitem->distancefromcamera = 
             (float) sqrt((viewvolumeinv.getProjectionPoint() - subbbox.getCenter()).length());
 

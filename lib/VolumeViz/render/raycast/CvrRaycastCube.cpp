@@ -276,7 +276,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
 
   const uint32_t glctxid = action->getCacheContext();
   const cc_glglue * glw = cc_glglue_instance(glctxid);
-  const SbViewVolume adjustedviewvolume =  this->calculateAdjustedViewVolume(action);
+  const SbViewVolume adjustedviewvolume = this->calculateAdjustedViewVolume(action);
 
   //
   // Sort the subcubes according to distance from the camera
@@ -286,6 +286,8 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   viewvolumeinv.transform(SoModelMatrixElement::get(state).inverse());
   SbMatrix bboxtrans;
   bboxtrans.setTranslate(this->origo);
+
+  const SbPlane invcamplane = viewvolumeinv.getPlane(0.0f);
 
   for (unsigned int rowidx = startrow; rowidx <= endrow; rowidx++) {
     for (unsigned int colidx = startcolumn; colidx <= endcolumn; colidx++) {
@@ -299,6 +301,10 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
 
         const float dist = this->getMostDistantPoint(viewvolumeinv.getProjectionPoint(), bbox);
         cubeitem->distancefromcamera = dist;
+
+        if (invcamplane.getDistance(bbox.getCenter()) > 0)
+          cubeitem->distancefromcamera = -dist;
+
 
         subcuberenderorder.append(cubeitem);
       }
@@ -370,7 +376,7 @@ CvrRaycastCube::getMostDistantPoint(SbVec3f point, SbBox3f box) const
   corners[7] = SbVec3f(b[3], b[4], b[2]);
 
   for (int i=0;i<8;++i) {
-    const float d = (point - corners[i]).length();
+    const float d = ((point - corners[i]).length());
     dist = dist < d ? d : dist;
   }
   
@@ -378,21 +384,20 @@ CvrRaycastCube::getMostDistantPoint(SbVec3f point, SbBox3f box) const
 }
 
 
-
 const SbViewVolume
 CvrRaycastCube::calculateAdjustedViewVolume(const SoGLRenderAction * action) const
 {
-  SoState * state = action->getState();
-  
-  SbBox3f bbox(this->origo, this->origo +
+  SoState * state = action->getState(); 
+  SbBox3f bbox(SbVec3f(0, 0, 0),
                SbVec3f(this->dimensions[0],
                        this->dimensions[1],
                        this->dimensions[2]));
+  
   SbMatrix mm = SoModelMatrixElement::get(state);
   mm.setTranslate(SbVec3f(0.5, 0.5, 0.5));  
-  mm.setScale(SbVec3f(1.0f / this->dimensions[0],
-                      1.0f / this->dimensions[1],
-                      1.0f / this->dimensions[2]));  
+  mm.setScale(SbVec3f(2.0f / this->dimensions[0],
+                      2.0f / this->dimensions[1],
+                      2.0f / this->dimensions[2]));
   bbox.transform(mm);
 
   // FIXME: Calculate the optimal sphere in which the bbox will fit
