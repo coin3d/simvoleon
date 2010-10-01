@@ -81,6 +81,7 @@
 #include <VolumeViz/elements/CvrLightingElement.h>
 #include <VolumeViz/Coin/gl/CoinGLPerformance.h>
 
+#include <RenderManager.h>
 
 
 #include "volumeraypickintersection.h"
@@ -458,6 +459,28 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   SoState * state = action->getState();
   SoStatePushPop pushpop(state);
 
+
+  const int storagehint = CvrStorageHintElement::get(state);
+
+  // Do a quick test to see if OpenCL rendering is supported
+  if (storagehint == SoVolumeData::RAYCAST) {
+    static SbBool checked = FALSE;
+    static SbBool supports = FALSE;
+    if (!checked) {
+      static SbBool first = TRUE;   
+      supports = CLVol::RenderManager::supportsOpenCL();
+      if (first && !supports) {
+        SoDebugError::postWarning("SoVolumeRender::GLRender",
+                                  "Warning: System does not support OpenCL raycast rendering. "
+                                  "-- Rendering aborted.");
+        first = false;    
+      }
+      checked = TRUE;
+    }    
+    if (!supports)
+      return;
+  }
+
   // Set transparency type to SORTED_OBJECT_BLEND, and enable a
   // transparent material. This will delay rendering of this shape,
   // and set up the state for blending
@@ -523,8 +546,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   assert(transferfunctionelement != NULL);  
   SoTransferFunction * transferfunction =
     transferfunctionelement->getTransferFunction();
-
-  const int storagehint = CvrStorageHintElement::get(state);
 
   if (transferfunction == NULL && storagehint != SoVolumeData::RAYCAST) {
     // FIXME: should instead just use a default transferfunction.

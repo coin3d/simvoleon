@@ -299,14 +299,17 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
         SbBox3f bbox = cubeitem->bbox;
         bbox.transform(bboxtrans);
 
+        // FIXME: Do a check if the bbox is inside the frustrum at all
+        // here? (20100930 handegar)
+        
         const float dist = this->getMostDistantPoint(viewvolumeinv.getProjectionPoint(), bbox);
         cubeitem->distancefromcamera = dist;
-
+        
         if (invcamplane.getDistance(bbox.getCenter()) > 0)
           cubeitem->distancefromcamera = -dist;
-
-
+        
         subcuberenderorder.append(cubeitem);
+       
       }
     }
   }
