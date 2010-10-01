@@ -520,25 +520,26 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   // sake of simplicity of the code we're calling.
   const SoTransferFunctionElement * transferfunctionelement =
     SoTransferFunctionElement::getInstance(state);
-  assert(transferfunctionelement != NULL);
-
+  assert(transferfunctionelement != NULL);  
   SoTransferFunction * transferfunction =
     transferfunctionelement->getTransferFunction();
 
-  if (transferfunction == NULL) {
+  const int storagehint = CvrStorageHintElement::get(state);
+
+  if (transferfunction == NULL && storagehint != SoVolumeData::RAYCAST) {
     // FIXME: should instead just use a default transferfunction.
     // Perhaps SoVolumeData (?) could place one on the state stack?
     // 20040220 mortene.
     static SbBool first = TRUE;
     if (first) {
       SoDebugError::postWarning("SoVolumeRender::GLRender",
-                                "No SoTransferFunction in scene graph before "
-                                "SoVolumeRender node -- rendering aborted.");
+                                "Warning: No SoTransferFunction in scene graph before "
+                                "SoVolumeRender node -- Rendering aborted.");
       first = FALSE;
     }
     return;
   }
-
+  
 
 #if CVR_DEBUG && 0 // debug
   SoDebugError::postInfo("SoVolumeRender::GLRender", "voxcubedims==[%d, %d, %d]",
@@ -577,7 +578,6 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
   rendermethod = SoVolumeRenderP::TEXTURE2D; // we consider this the default
 
   if (!CvrUtil::force2DTextureRendering()) {
-    const int storagehint = CvrStorageHintElement::get(state);
     if (storagehint == SoVolumeData::TEX3D ||
         storagehint == SoVolumeData::AUTO ||
         storagehint == SoVolumeData::RAYCAST || // FIXME: Temp. hack (20100910 handegar)
