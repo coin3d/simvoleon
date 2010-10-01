@@ -292,8 +292,6 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
   SoState * state = action->getState();
   const SoTransferFunctionElement * tfelement = SoTransferFunctionElement::getInstance(state);
   assert(tfelement != NULL);
-  const SoTransferFunction * transferfunc = tfelement->getTransferFunction();
-  assert(transferfunc != NULL);
 
   const SbVec3s size(this->dimensions[0], this->dimensions[1], this->dimensions[2]);
 
@@ -360,8 +358,14 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
 
   if (palettetex && clut) { palettetex->setCLUT(clut); }
 
-  const int32_t shiftval = transferfunc->shift.getValue();
-  const int32_t offsetval = transferfunc->offset.getValue();
+  const SoTransferFunction * transferfunc = tfelement->getTransferFunction();  
+  int32_t shiftval = 0;
+  int32_t offsetval = 0;
+
+  if (transferfunc) {
+    shiftval = transferfunc->shift.getValue();
+    offsetval = transferfunc->offset.getValue();   
+  }
 
   const void * inputbytebuffer;
   if (unitsize == 1) { inputbytebuffer = this->getBuffer8(); }
