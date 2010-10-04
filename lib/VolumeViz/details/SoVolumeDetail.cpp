@@ -314,17 +314,29 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
                              ijk[0], ijk[1], ijk[2]);
     }
 
-    clut = CvrVoxelChunk::getCLUT(transferfunctionelement, CvrCLUT::ALPHA_AS_IS);
-    clut->ref();
-    uint8_t rgba[4];
 
     // FIXME: As SIMVoleon does not support 16bits voxels 100% yet,
     // we'll have to scale down the value to 8bit if needed before
-    // passing on the data. (20100806 handegar)
+    // passing on the data. (20100806 handegar)    
     const uint32_t voxelvalue = vbelem->getVoxelValue(ijk) >> 8*(vbelem->getBytesPrVoxel() - 1);
+    uint8_t rgba[4];
+    
+    clut = CvrVoxelChunk::getCLUT(transferfunctionelement, CvrCLUT::ALPHA_AS_IS);
+    if (clut) {
+      clut->ref();
+      clut->lookupRGBA(voxelvalue, rgba);
+    }
+    else {
+      // FIXME: Temp. hack to handle missing transfer-function in
+      // scenegraph. (20101004 handegar)
+      rgba[0] = (uint8_t) voxelvalue;
+      rgba[1] = (uint8_t) voxelvalue;
+      rgba[2] = (uint8_t) voxelvalue;
+      rgba[3] = (uint8_t) voxelvalue;
+    }     
 
-    clut->lookupRGBA(voxelvalue, rgba);
-     
+
+
     if (pickedpoint == NULL) {                
       if (rgba[3] != 0) {
         pickedpoint = action->addIntersection(objectcoord);        
@@ -339,6 +351,7 @@ SoVolumeDetail::setDetails(const SbVec3f raystart, const SbVec3f rayend,
       // 20030320 mortene.       
     }
 
+    
 
     if (CvrUtil::debugRayPicks()) { // Draw a voxel-line through the volume
       static uint8_t raypickdebugcounter = 0;

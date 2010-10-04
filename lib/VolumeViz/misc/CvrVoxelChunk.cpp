@@ -224,7 +224,8 @@ CvrVoxelChunk::getCLUT(const SoTransferFunctionElement * tfelement, CvrCLUT::Alp
   }
 
   SoTransferFunction * transferfunc = tfelement->getTransferFunction();
-  assert(transferfunc != NULL);
+  if (!transferfunc)
+    return NULL;
 
   void * clutptr;
   CvrCLUT * clut;

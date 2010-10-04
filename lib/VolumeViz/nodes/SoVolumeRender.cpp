@@ -753,7 +753,6 @@ SoVolumeRender::rayPick(SoRayPickAction * action)
  
   SoVolumeRenderDetail * detail = new SoVolumeRenderDetail;
   detail->setDetails(intersects[0], intersects[1], state, this);
-
 }
 
 
