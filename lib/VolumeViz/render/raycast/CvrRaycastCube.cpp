@@ -59,9 +59,7 @@
 #include <VolumeViz/render/raycast/CvrRaycastSubCube.h>
 #include <VolumeViz/render/common/CvrTextureObject.h>
 
-
 #include <RenderManager.h>
-
 
 class SubCube {
 public:
@@ -301,15 +299,20 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
 
         // FIXME: Do a check if the bbox is inside the frustrum at all
         // here? (20100930 handegar)
-        
-        const float dist = this->getMostDistantPoint(viewvolumeinv.getProjectionPoint(), bbox);
-        cubeitem->distancefromcamera = dist;
-        
-        if (invcamplane.getDistance(bbox.getCenter()) > 0)
-          cubeitem->distancefromcamera = -dist;
-        
-        subcuberenderorder.append(cubeitem);
-       
+
+        if (viewvolumeinv.getProjectionType() == SbViewVolume::ORTHOGRAPHIC) {
+          // FIXME: Don't work properly (20101006 handegar)
+          cubeitem->distancefromcamera= -invcamplane.getDistance(bbox.getCenter());
+        }
+        else {
+          const SbVec3f point = viewvolumeinv.getProjectionPoint();
+          const float dist = (point - bbox.getClosestPoint(point)).length();
+          cubeitem->distancefromcamera = dist;          
+          if (invcamplane.getDistance(bbox.getCenter()) >= 0)
+            cubeitem->distancefromcamera = -dist;         
+        }
+
+        subcuberenderorder.append(cubeitem);       
       }
     }
   }
@@ -326,29 +329,33 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
 
   if (this->transferfunctionchanged) 
     this->rendermanager->setTransferFunction(this->transferfunction);
+
     
-  for (int i=0;i<subcuberenderorder.getLength();++i) {
+  for (int i=0;i<subcuberenderorder.getLength();++i) {    
     cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
     cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
     // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
     glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                       GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     assert(glGetError() == GL_NO_ERROR);       
-              
+      
+    // FIXME: Needed? (20101006 handegar)
+    /*
     // -- copy depth from solid pass into depth of transparent pass
     cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, this->gllayerfbos[1]);
     cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[0]);
     // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
     glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                       GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-        
+    */
+            
     // -- transparency pass
     cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[0]);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
     glDisable(GL_BLEND);
-    
+        
     SubCube * cubeitem = subcuberenderorder[i];
     assert(cubeitem);
     
@@ -357,33 +364,6 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
 
   glPopAttrib();  
   this->transferfunctionchanged = false;
-}
-
-
-float 
-CvrRaycastCube::getMostDistantPoint(SbVec3f point, SbBox3f box) const
-{
-  float dist = 0;
-  
-  float b[6];  
-  box.getBounds(b[0], b[1], b[2], b[3], b[4], b[5]);
-  
-  SbVec3f corners[8];
-  corners[0] = SbVec3f(b[0], b[1], b[2]);
-  corners[1] = SbVec3f(b[0], b[1], b[5]);
-  corners[2] = SbVec3f(b[0], b[4], b[5]);
-  corners[3] = SbVec3f(b[0], b[4], b[2]);
-  corners[4] = SbVec3f(b[3], b[1], b[2]);
-  corners[5] = SbVec3f(b[3], b[1], b[5]);
-  corners[6] = SbVec3f(b[3], b[4], b[5]);
-  corners[7] = SbVec3f(b[3], b[4], b[2]);
-
-  for (int i=0;i<8;++i) {
-    const float d = ((point - corners[i]).length());
-    dist = dist < d ? d : dist;
-  }
-  
-  return dist;
 }
 
 

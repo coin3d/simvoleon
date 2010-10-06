@@ -97,7 +97,6 @@ private:
   unsigned int getSubCubeIdx(unsigned int row, unsigned int col, unsigned int depth) const;
   void releaseSubCube(unsigned int row, unsigned int col, unsigned int depth);
   void releaseAllSubCubes();
-  float getMostDistantPoint(SbVec3f point, SbBox3f box) const;
 };
 
 #endif // !CVR_RAYCASTCUBE_H
