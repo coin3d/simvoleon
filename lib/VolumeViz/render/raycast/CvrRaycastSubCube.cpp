@@ -30,21 +30,20 @@
 #include <Inventor/elements/SoViewVolumeElement.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 
-
 #include <VolumeViz/render/common/CvrTextureObject.h>
+#include <VolumeViz/render/raycast/CvrRaycastTexture.h>
 
 #include <RenderManager.h>
 
 using namespace CLVol;
 
 CvrRaycastSubCube::CvrRaycastSubCube(const SoGLRenderAction * action,
-                                     const CvrTextureObject * texobj,
+                                     const CvrRaycastTexture * texobj,
                                      const SbBox3s cubebbox,
                                      const SbVec3s totalsize,
                                      CLVol::RenderManager * rm)
   : textureobject(texobj), bbox(cubebbox), totalsize(totalsize), rendermanager(rm)
 {
-  this->clut = NULL;
   this->textureobject->ref();
 }
 
@@ -52,17 +51,6 @@ CvrRaycastSubCube::CvrRaycastSubCube(const SoGLRenderAction * action,
 CvrRaycastSubCube::~CvrRaycastSubCube()
 {
   this->textureobject->unref();
-}
-
-
-// FIXME: Not in use. Refactor. (20100928 handegar)
-void
-CvrRaycastSubCube::setPalette(const CvrCLUT * newclut)
-{
-  assert(newclut != NULL);
-  if (this->clut) { this->clut->unref(); }
-  this->clut = newclut;
-  this->clut->ref();
 }
 
 
@@ -112,9 +100,9 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
     }
   }
    
-  this->rendermanager->setVolumeTexture(this->textureobject->getGLTexture(action));   
+  this->rendermanager->bindVoxelData(this->textureobject->getVoxelDataId());     
   this->rendermanager->render((const GLfloat *) &projmarray, 
                               (const GLfloat *) &mminvarray,
-                              clipplanes);
+                              clipplanes);  
 }
 

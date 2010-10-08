@@ -54,13 +54,13 @@ ARFLAGS = cru
 raycastrender_lst_AR = $(AR) $(ARFLAGS)
 raycastrender_lst_LIBADD =
 am__objects_1 = CvrRaycastSubCube.$(OBJEXT) CvrRaycastCube.$(OBJEXT) \
-	SoRaycastRendering.$(OBJEXT)
+	CvrRaycastTexture.$(OBJEXT) SoRaycastRendering.$(OBJEXT)
 am_raycastrender_lst_OBJECTS = $(am__objects_1)
 raycastrender_lst_OBJECTS = $(am_raycastrender_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libraycastrender_la_LIBADD =
 am__objects_2 = CvrRaycastSubCube.lo CvrRaycastCube.lo \
-	SoRaycastRendering.lo
+	CvrRaycastTexture.lo SoRaycastRendering.lo
 am_libraycastrender_la_OBJECTS = $(am__objects_2)
 libraycastrender_la_OBJECTS = $(am_libraycastrender_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
@@ -69,6 +69,8 @@ am__depfiles_maybe = depfiles
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastCube.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastSubCube.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastSubCube.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastTexture.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastTexture.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/SoRaycastRendering.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/SoRaycastRendering.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -269,6 +271,7 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 RegularSources = \
         CvrRaycastSubCube.cpp CvrRaycastSubCube.h \
         CvrRaycastCube.cpp CvrRaycastCube.h \
+        CvrRaycastTexture.cpp CvrRaycastTexture.h \
         SoRaycastRendering.cpp SoRaycastRendering.h
 
 libraycastrender_la_SOURCES = $(RegularSources)
@@ -331,6 +334,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastCube.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastSubCube.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastSubCube.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastTexture.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastTexture.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoRaycastRendering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoRaycastRendering.Po@am__quote@
 

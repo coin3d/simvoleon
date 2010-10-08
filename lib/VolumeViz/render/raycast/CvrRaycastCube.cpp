@@ -29,7 +29,7 @@
   NOTE: A lot of this code is copied from and inspired by the
   Cvr3DTexCube class, but somewhat refined. The code in Cvr3DTexCube
   will, in the long run, become obsolete when SIMVoleon somewhere in
-  the furure relies on raycasting for volemendering of gigabyte-sized
+  the future relies on raycasting for volemendering of gigabyte-sized
   datasets. This is why we don't just build on the old structure, but
   start fresh instead.
 
@@ -57,7 +57,7 @@
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrBBoxSubdivider.h>
 #include <VolumeViz/render/raycast/CvrRaycastSubCube.h>
-#include <VolumeViz/render/common/CvrTextureObject.h>
+#include <VolumeViz/render/raycast/CvrRaycastTexture.h>
 
 #include <RenderManager.h>
 
@@ -299,19 +299,13 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
 
         // FIXME: Do a check if the bbox is inside the frustrum at all
         // here? (20100930 handegar)
-
-        if (viewvolumeinv.getProjectionType() == SbViewVolume::ORTHOGRAPHIC) {
-          // FIXME: Don't work properly (20101006 handegar)
-          cubeitem->distancefromcamera= -invcamplane.getDistance(bbox.getCenter());
-        }
-        else {
-          const SbVec3f point = viewvolumeinv.getProjectionPoint();
-          const float dist = (point - bbox.getClosestPoint(point)).length();
-          cubeitem->distancefromcamera = dist;          
-          if (invcamplane.getDistance(bbox.getCenter()) >= 0)
-            cubeitem->distancefromcamera = -dist;         
-        }
-
+       
+        const SbVec3f point = viewvolumeinv.getProjectionPoint();
+        const float dist = (point - bbox.getClosestPoint(point)).length();
+        cubeitem->distancefromcamera = dist;          
+        if (invcamplane.getDistance(bbox.getCenter()) >= 0)
+          cubeitem->distancefromcamera = -dist;         
+        
         subcuberenderorder.append(cubeitem);       
       }
     }
@@ -319,9 +313,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   
   qsort((void *) subcuberenderorder.getArrayPtr(), subcuberenderorder.getLength(),
         sizeof(SubCube *), subcube_qsort_compare);
-  
-
-         
+           
   glEnable(GL_DEPTH_TEST);      
   // FIXME: Use glglue for EXT calls (20100914 handegar)
   cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
@@ -334,7 +326,8 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   for (int i=0;i<subcuberenderorder.getLength();++i) {    
     cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
     cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
-    // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
+    // FIXME: glBlitFramebuffer is not bound by glue. Must fix in
+    // Coin. (20100914 handegar)
     glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                       GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     assert(glGetError() == GL_NO_ERROR);       
@@ -474,18 +467,12 @@ CvrRaycastCube::buildSubCube(const SoGLRenderAction * action,
   assert(idx < this->subcubeboxes.getLength());
 
   const SbBox3s subcubecut(this->subcubeboxes[idx]);
-  const CvrTextureObject * texobj = 
-    CvrTextureObject::create(action, NULL, subcubecut);
-  // if NULL is returned, it means all voxels are fully transparent
-  
-  CvrRaycastSubCube * cube = NULL;
-  if (texobj) {
-    // FIXME: Give the bbox as parameter, not center+dims (20100924 handegar)
-    cube = new CvrRaycastSubCube(action, texobj, 
-                                 subcubecut,
-                                 this->dimensions,
-                                 this->rendermanager);
-  }
+  const CvrRaycastTexture * texobj = CvrRaycastTexture::create(this->rendermanager, action, subcubecut);
+
+  CvrRaycastSubCube * cube = new CvrRaycastSubCube(action, texobj, 
+                                                   subcubecut,
+                                                   this->dimensions,
+                                                   this->rendermanager);
 
   SoState * state = action->getState();
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);

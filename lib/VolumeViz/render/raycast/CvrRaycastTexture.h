@@ -1,5 +1,5 @@
-#ifndef CVR_RAYCASTSUBCUBE_H
-#define CVR_RAYCASTSUBCUBE_H
+#ifndef CVR_RAYCASTTEXTURE_H
+#define CVR_RAYCASTTEXTURE_H
 
 /**************************************************************************\
  *
@@ -29,39 +29,41 @@
 #error this is a private header file
 #endif // !SIMVOLEON_INTERNAL
 
-#include <Inventor/SbVec3s.h>
-#include <Inventor/SbVec3f.h>
-#include <Inventor/SbVec2f.h>
 #include <Inventor/SbBox3s.h>
-#include <Inventor/C/glue/gl.h>
 
-#include <vector>
-
-
-class SoGLRenderAction;
-class CvrRaycastTexture;
-class SbViewVolume;
 
 namespace CLVol {
   class RenderManager;
-  struct TransferFunctionPoint;
+  class VoxelDataID;
 }
+class SoGLRenderAction;
 
-class CvrRaycastSubCube {
+class CvrRaycastTexture {
+
 public:
-  CvrRaycastSubCube(const SoGLRenderAction * action,
-                    const CvrRaycastTexture * texobj,
-                    const SbBox3s cubebbox,
-                    const SbVec3s totalsize,
-                    CLVol::RenderManager * rm);
-  ~CvrRaycastSubCube(); 
-  void render(const SoGLRenderAction * action, SbViewVolume adjustedviewvolume);
+  static const CvrRaycastTexture * create(CLVol::RenderManager * rm,
+                                          const SoGLRenderAction * action,
+                                          const SbBox3s cut);
+
+  uint32_t getRefCount(void) const;
+  void ref(void) const;
+  void unref(void) const;
+
+  const CLVol::VoxelDataID * getVoxelDataId() const;
+
+
+  const SbVec3s & getDimensions(void) const;
+
+protected:
+  CvrRaycastTexture();
+  virtual ~CvrRaycastTexture();
 
 private:
-  const CvrRaycastTexture * textureobject;
   SbBox3s bbox;
-  SbVec3s totalsize;
-  CLVol::RenderManager * rendermanager;
+  uint32_t refcount;
+  const CLVol::VoxelDataID * voxeldataid;
+
+  static unsigned char * buildCube(SbVec3s dims, SbBox3s cut, const uint8_t * data);
 };
 
-#endif // !CVR_RAYCASTSUBCUBE_H
+#endif // !CVR_RAYCASTTEXTURE_H

@@ -339,20 +339,19 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
 
   SoState * state = action->getState();
 
+  const SbBool raycast  = CvrStorageHintElement::get(state) & SoVolumeData::RAYCAST;
+  assert(!raycast && "getGLTexture() should not be called when using raycast. Check your code");
+
+
   // FIXME: why is this necessary? Investigate. 20040722 mortene.
   const SbBool storedinvalid = SoCacheElement::setInvalid(FALSE);
 
   // FIXME: is the value of the lighting flag picked up outside of the
   // cache tracking on purpose? Or is this a bug?  Investigate.
   // 20050628 mortene.
-  const CvrLightingElement * lightelem = CvrLightingElement::getInstance(action->getState());
+  const CvrLightingElement * lightelem = CvrLightingElement::getInstance(state);
   assert(lightelem != NULL);
-  const SbBool lighting = lightelem->useLighting(action->getState());
-
-  
-  // FIXME: Hack just to see if raycasting will actually work (20100909 handegar)
-  const SbBool raycast  = CvrStorageHintElement::get(action->getState()) & SoVolumeData::RAYCAST;
- 
+  const SbBool lighting = lightelem->useLighting(state);
 
   // FIXME: in SoAsciiText, pederb uses this right after making a
   // cache -- what does this do?:
@@ -540,30 +539,15 @@ CvrTextureObject::getGLTexture(const SoGLRenderAction * action) const
   }
   else {
     assert(nrtexdims == 3);
-
-    if (raycast) {
-      // FIXME: Quick hack (20100910 handegar)
-      cc_glglue_glTexImage3D(glw,
-                             gltextypeenum,
-                             0,
-                             GL_LUMINANCE8UI_EXT, 
-                             texdims[0], texdims[1], texdims[2],
-                             0,
-                             GL_LUMINANCE_INTEGER_EXT,
-                             GL_UNSIGNED_BYTE,
-                             imgptr);      
-    }
-    else {
-      cc_glglue_glTexImage3D(glw,
-                             gltextypeenum,
-                             0,
-                             internalFormat,
-                             texdims[0], texdims[1], texdims[2],
-                             0,
-                             this->isPaletted() ? gltextureformat : GL_RGBA,
-                             GL_UNSIGNED_BYTE,
-                             imgptr);
-    }
+    cc_glglue_glTexImage3D(glw,
+                           gltextypeenum,
+                           0,
+                           internalFormat,
+                           texdims[0], texdims[1], texdims[2],
+                           0,
+                           this->isPaletted() ? gltextureformat : GL_RGBA,
+                           GL_UNSIGNED_BYTE,
+                           imgptr);  
   }
 
   { // We've had a report of GL errors here, so dump lots of debug info.
@@ -712,6 +696,9 @@ CvrTextureObject::create(const SoGLRenderAction * action,
                          const unsigned int axisidx, 
                          const int pageidx)
 {
+  const SbBool raycast  = CvrStorageHintElement::get(action->getState()) & SoVolumeData::RAYCAST;
+  assert(!raycast && "CvrTextureObject::create() is not supported to be called when using raycast.");
+
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
   assert(vbelem != NULL);
 
@@ -722,24 +709,20 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   assert(lightelem != NULL);
   const SbBool lighting = lightelem->useLighting(action->getState());
 
-  // FIXME: Hack just to see if raycasting will actually work (20100909 handegar)
-  const SbBool raycast  = CvrStorageHintElement::get(action->getState()) & SoVolumeData::RAYCAST;
-  
-
   SoType createtype;
   
-  if (is2d && paletted && !raycast) { 
+  if (is2d && paletted) { 
     createtype = Cvr2DPaletteTexture::getClassTypeId(); 
   }
-  else if (is2d && !raycast) { 
+  else if (is2d) { 
     createtype = Cvr2DRGBATexture::getClassTypeId(); 
   }
-  else if (paletted && lighting && !raycast) { 
+  else if (paletted && lighting) { 
     // FIXME: I believe this next may also depend on the presence of
     // support for fragment programs..? Investigate. 20050628 mortene.
     createtype = Cvr3DPaletteGradientTexture::getClassTypeId(); 
   }
-  else if (paletted || raycast) { 
+  else if (paletted) { 
     createtype = Cvr3DPaletteTexture::getClassTypeId(); 
   }
   else { 
@@ -779,16 +762,11 @@ CvrTextureObject::create(const SoGLRenderAction * action,
 
   // The actual dimensions of the GL texture must be values that are
   // power-of-two's:
-  if (raycast) {
-    newtexobj->dimensions = texsize;
-  }
-  else {
-    for (unsigned int i=0; i < 3; i++) {
-      // SbMax(4, ...) to work around a crash bug in older NVidia
-      // drivers when a lot of 1x- or 2x-dimensions textures are
-      // allocated. 20090812 mortene.      
-      newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i] - 1);
-    }
+  for (unsigned int i=0; i < 3; i++) {
+    // SbMax(4, ...) to work around a crash bug in older NVidia
+    // drivers when a lot of 1x- or 2x-dimensions textures are
+    // allocated. 20090812 mortene.      
+    newtexobj->dimensions[i] = coin_geq_power_of_two(texsize[i] - 1);    
   }
 
   if (is2d) {

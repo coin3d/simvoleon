@@ -9,6 +9,7 @@ endif
 RegularSources = \
         CvrRaycastSubCube.cpp CvrRaycastSubCube.h \
         CvrRaycastCube.cpp CvrRaycastCube.h \
+        CvrRaycastTexture.cpp CvrRaycastTexture.h \
         SoRaycastRendering.cpp SoRaycastRendering.h
 
 libraycastrender_la_SOURCES = $(RegularSources)
