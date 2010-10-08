@@ -63,7 +63,9 @@ private:
   uint32_t refcount;
   const CLVol::VoxelDataID * voxeldataid;
 
-  static unsigned char * buildCube(SbVec3s dims, SbBox3s cut, const uint8_t * data);
+  static unsigned char * buildCube(SbVec3s dims, SbBox3s cut, 
+                                   unsigned int bytespervoxel,
+                                   const uint8_t * data);
 };
 
 #endif // !CVR_RAYCASTTEXTURE_H

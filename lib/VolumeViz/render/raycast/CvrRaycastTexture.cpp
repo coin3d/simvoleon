@@ -49,18 +49,14 @@ CvrRaycastTexture::create(CLVol::RenderManager * rm,
   CvrRaycastTexture * tex = new CvrRaycastTexture();
   tex->bbox = cut;
 
-
   const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
-
-  unsigned int bytespervoxel = vbelem->getBytesPrVoxel();
-  assert(bytespervoxel == 1 && "Only 8-bits voxels supported for now");
-
-  // FIXME: Support non 8-bits data. (20101008 handegar)
-  
-  unsigned char * rawdata = CvrRaycastTexture::buildCube(vbelem->getVoxelCubeDimensions(), cut, vbelem->getVoxels());
+  unsigned int bytespervoxel = vbelem->getBytesPrVoxel();  
+  unsigned char * rawdata = CvrRaycastTexture::buildCube(vbelem->getVoxelCubeDimensions(), cut, 
+                                                         bytespervoxel,
+                                                         vbelem->getVoxels());
 
   SbVec3s size = cut.getSize();  
-  tex->voxeldataid = rm->createVoxelData(size[0], size[1], size[2], 8, 
+  tex->voxeldataid = rm->createVoxelData(size[0], size[1], size[2], 8*bytespervoxel, 
                                          (const unsigned char *) rawdata);
   delete rawdata; // Data has been transferred to libCLVol. 
   return tex;
@@ -68,7 +64,7 @@ CvrRaycastTexture::create(CLVol::RenderManager * rm,
 
 
 unsigned char * 
-CvrRaycastTexture::buildCube(SbVec3s dim, SbBox3s cutcube, const uint8_t * data)
+CvrRaycastTexture::buildCube(SbVec3s dim, SbBox3s cutcube, unsigned int bytespervoxel, const uint8_t * data)
 {
   SbVec3s ccmin, ccmax;
   cutcube.getBounds(ccmin, ccmax);
@@ -84,8 +80,8 @@ CvrRaycastTexture::buildCube(SbVec3s dim, SbBox3s cutcube, const uint8_t * data)
   const SbVec3s outputdims(nrhorizvoxels, nrvertvoxels, nrdepthvoxels);
   const unsigned int staticoffset = (ccmin[2] * dim[0] * dim[1]) + (ccmin[1] * dim[0]) + ccmin[0];
 
-  const unsigned int voxelsize = sizeof(uint8_t);
-  uint8_t * output = new uint8_t[nrhorizvoxels* nrvertvoxels*nrdepthvoxels];
+  const unsigned int voxelsize = sizeof(uint8_t)*bytespervoxel;
+  uint8_t * output = new uint8_t[nrhorizvoxels* nrvertvoxels*nrdepthvoxels*bytespervoxel];
 
   for (int depthidx = 0; depthidx < nrdepthvoxels; depthidx++) {
     for (int rowidx = 0; rowidx < nrvertvoxels; rowidx++) {
