@@ -306,6 +306,10 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
         if (invcamplane.getDistance(bbox.getCenter()) >= 0)
           cubeitem->distancefromcamera = -dist;         
         
+        // Update the transferfunction while we're at it.
+        if (this->transferfunctionchanged) 
+          cubeitem->cube->setTransferFunction(this->transferfunction);
+        
         subcuberenderorder.append(cubeitem);       
       }
     }
@@ -318,9 +322,6 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   // FIXME: Use glglue for EXT calls (20100914 handegar)
   cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  if (this->transferfunctionchanged) 
-    this->rendermanager->setTransferFunction(this->transferfunction);
 
     
   for (int i=0;i<subcuberenderorder.getLength();++i) {    
@@ -468,6 +469,7 @@ CvrRaycastCube::buildSubCube(const SoGLRenderAction * action,
 
   const SbBox3s subcubecut(this->subcubeboxes[idx]);
   const CvrRaycastTexture * texobj = CvrRaycastTexture::create(this->rendermanager, action, subcubecut);
+  texobj->ref(); // FIXME: Never unref'ed! (20101008 handegar)
 
   CvrRaycastSubCube * cube = new CvrRaycastSubCube(action, texobj, 
                                                    subcubecut,

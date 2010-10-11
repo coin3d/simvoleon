@@ -30,11 +30,12 @@
 #endif // !SIMVOLEON_INTERNAL
 
 #include <Inventor/SbBox3s.h>
-
+#include <vector>
 
 namespace CLVol {
   class RenderManager;
-  class VoxelDataID;
+  class VoxelData;
+  struct TransferFunctionPoint;
 }
 class SoGLRenderAction;
 
@@ -49,10 +50,9 @@ public:
   void ref(void) const;
   void unref(void) const;
 
-  const CLVol::VoxelDataID * getVoxelDataId() const;
-
-
-  const SbVec3s & getDimensions(void) const;
+  const CLVol::VoxelData * getVoxelData() const;
+  void setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & tf);
+  const SbVec3s getDimensions(void) const;
 
 protected:
   CvrRaycastTexture();
@@ -61,8 +61,8 @@ protected:
 private:
   SbBox3s bbox;
   uint32_t refcount;
-  const CLVol::VoxelDataID * voxeldataid;
-
+  CLVol::VoxelData * voxeldata;
+  
   static unsigned char * buildCube(SbVec3s dims, SbBox3s cut, 
                                    unsigned int bytespervoxel,
                                    const uint8_t * data);

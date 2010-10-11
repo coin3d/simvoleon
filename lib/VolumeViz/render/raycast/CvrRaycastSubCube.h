@@ -55,6 +55,8 @@ public:
                     const SbVec3s totalsize,
                     CLVol::RenderManager * rm);
   ~CvrRaycastSubCube(); 
+
+  void setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & transferfunction);
   void render(const SoGLRenderAction * action, SbViewVolume adjustedviewvolume);
 
 private:

@@ -54,6 +54,15 @@ CvrRaycastSubCube::~CvrRaycastSubCube()
 }
 
 
+void 
+CvrRaycastSubCube::setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & tf)
+{
+  // FIXME: Cleanup so that this const-cast becomes obsolete. (20101011 handegar)
+  CvrRaycastTexture * rt = (CvrRaycastTexture *) this->textureobject;
+  rt->setTransferFunction(tf);
+}
+
+
 void
 CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjustedviewvolume)
 {
@@ -100,7 +109,7 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
     }
   }
    
-  this->rendermanager->bindVoxelData(this->textureobject->getVoxelDataId());     
+  this->rendermanager->bindVoxelData(this->textureobject->getVoxelData());     
   this->rendermanager->render((const GLfloat *) &projmarray, 
                               (const GLfloat *) &mminvarray,
                               clipplanes);  

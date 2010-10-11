@@ -28,7 +28,7 @@
 #include "CvrRaycastTexture.h"
 
 #include <RenderManager.h>
-#include <VoxelDataID.h>
+#include <VoxelData.h>
 
 CvrRaycastTexture::CvrRaycastTexture()
   : refcount(0)
@@ -56,8 +56,8 @@ CvrRaycastTexture::create(CLVol::RenderManager * rm,
                                                          vbelem->getVoxels());
 
   SbVec3s size = cut.getSize();  
-  tex->voxeldataid = rm->createVoxelData(size[0], size[1], size[2], 8*bytespervoxel, 
-                                         (const unsigned char *) rawdata);
+  tex->voxeldata = rm->createVoxelData(size[0], size[1], size[2], 8*bytespervoxel, 
+                                       (const unsigned char *) rawdata);
   delete rawdata; // Data has been transferred to libCLVol. 
   return tex;
 }
@@ -118,15 +118,22 @@ CvrRaycastTexture::unref() const
 }
 
 
-const SbVec3s &
+const SbVec3s 
 CvrRaycastTexture::getDimensions() const
 {
   return this->bbox.getSize();
 }
 
 
-const CLVol::VoxelDataID * 
-CvrRaycastTexture::getVoxelDataId() const
+const CLVol::VoxelData * 
+CvrRaycastTexture::getVoxelData() const
 {
-  return this->voxeldataid;
+  return this->voxeldata;
+}
+
+
+void 
+CvrRaycastTexture::setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & tf)
+{
+  this->voxeldata->setTransferFunction(tf);
 }
