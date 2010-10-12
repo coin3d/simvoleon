@@ -329,6 +329,8 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
     cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
     // FIXME: glBlitFramebuffer is not bound by glue. Must fix in
     // Coin. (20100914 handegar)
+    // FIXME: Only blit the part of the viewport which were actually
+    // used. (20101012 handegar)
     glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                       GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     assert(glGetError() == GL_NO_ERROR);       

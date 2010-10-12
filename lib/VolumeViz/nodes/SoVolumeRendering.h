@@ -40,7 +40,7 @@ public:
   static void initClass(void);
   SoVolumeRendering();
 
-  enum HW_Feature { HW_VOLUMEPRO, HW_3DTEXMAP, HW_TEXCOLORMAP, HW_TEXCOMPRESSION };
+  enum HW_Feature { HW_VOLUMEPRO, HW_3DTEXMAP, HW_TEXCOLORMAP, HW_TEXCOMPRESSION, HW_OPENCL };
   enum HW_SupportStatus { NO, YES, UNKNOWN };
   HW_SupportStatus isSupported(HW_Feature feature);
 

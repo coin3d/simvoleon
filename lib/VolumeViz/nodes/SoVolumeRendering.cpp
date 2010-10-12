@@ -279,6 +279,8 @@
 #include <VolumeViz/render/common/CvrTextureObject.h>
 #include <VolumeViz/misc/CvrGlobalRenderLock.h>
 
+#include <RenderManager.h>
+
 // *************************************************************************
 
 SO_NODE_ABSTRACT_SOURCE(SoVolumeRendering);
@@ -405,6 +407,10 @@ SoVolumeRendering::isSupported(HW_Feature feature)
     // FIXME: return a better indication of actual capability. 20041008 mortene.
     return SoVolumeRendering::UNKNOWN;
 
+  case SoVolumeRendering::HW_OPENCL:
+    return CLVol::RenderManager::supportsOpenCL() ? 
+      SoVolumeRendering::YES : SoVolumeRendering::NO;
+    
   default:
     assert(FALSE && "unknown feature");
     break;
