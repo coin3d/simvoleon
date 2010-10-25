@@ -248,7 +248,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   // control.
   SoGLLazyElement::getInstance(state)->send(state, SoLazyElement::ALL_MASK);
 
-  glPushAttrib(GL_ALL_ATTRIB_BITS);
+  //glPushAttrib(GL_ALL_ATTRIB_BITS);
      
   const SbViewportRegion & vpr = SoViewportRegionElement::get(state);
   const bool reattachglresources = vpr != this->previousviewportregion;
@@ -280,7 +280,8 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   // Sort the subcubes according to distance from the camera
   //
   SbList<SubCube *> subcuberenderorder;
-  SbViewVolume viewvolumeinv = SoViewVolumeElement::get(state);
+  SbViewVolume viewvolume = SoViewVolumeElement::get(state);
+  SbViewVolume viewvolumeinv = viewvolume;
   viewvolumeinv.transform(SoModelMatrixElement::get(state).inverse());
   SbMatrix bboxtrans;
   bboxtrans.setTranslate(this->origo);
@@ -299,7 +300,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
 
         // FIXME: Do a check if the bbox is inside the frustrum at all
         // here? (20100930 handegar)
-       
+        
         const SbVec3f point = viewvolumeinv.getProjectionPoint();
         const float dist = (point - bbox.getClosestPoint(point)).length();
         cubeitem->distancefromcamera = dist;          
@@ -317,11 +318,14 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   
   qsort((void *) subcuberenderorder.getArrayPtr(), subcuberenderorder.getLength(),
         sizeof(SubCube *), subcube_qsort_compare);
-           
+
+  // FIXME: Needed? (20101022 handegar)
+  /*
   glEnable(GL_DEPTH_TEST);      
   // FIXME: Use glglue for EXT calls (20100914 handegar)
   cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  */
 
     
   for (int i=0;i<subcuberenderorder.getLength();++i) {    
@@ -329,12 +333,14 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
     cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
     // FIXME: glBlitFramebuffer is not bound by glue. Must fix in
     // Coin. (20100914 handegar)
+
     // FIXME: Only blit the part of the viewport which were actually
-    // used. (20101012 handegar)
+    // used. This does not seem like a gpu-hog, however. (20101012
+    // handegar)
     glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                       GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    assert(glGetError() == GL_NO_ERROR);       
-      
+    assert(glGetError() == GL_NO_ERROR);
+    
     // FIXME: Needed? (20101006 handegar)
     /*
     // -- copy depth from solid pass into depth of transparent pass
@@ -345,20 +351,23 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
                       GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     */
             
-    // -- transparency pass
     cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[0]);
     glClear(GL_COLOR_BUFFER_BIT);
+
+    // FIXME: Needed? (20101022 handegar)
+    /*
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    */
     glDisable(GL_BLEND);
-        
-    SubCube * cubeitem = subcuberenderorder[i];
-    assert(cubeitem);
     
+
+    const SubCube * cubeitem = subcuberenderorder[i];
+    assert(cubeitem);       
     cubeitem->cube->render(action, adjustedviewvolume); 
   }
 
-  glPopAttrib();  
+  //glPopAttrib();  
   this->transferfunctionchanged = false;
 }
 

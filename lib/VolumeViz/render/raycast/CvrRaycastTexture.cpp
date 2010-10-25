@@ -56,7 +56,7 @@ CvrRaycastTexture::create(CLVol::RenderManager * rm,
                                                          vbelem->getVoxels());
 
   SbVec3s size = cut.getSize();  
-  tex->voxeldata = rm->createVoxelData(size[0], size[1], size[2], 8*bytespervoxel, 
+  tex->voxeldata = rm->createVoxelData(size[0], size[1], size[2], 
                                        (const unsigned char *) rawdata);
   delete rawdata; // Data has been transferred to libCLVol. 
   return tex;

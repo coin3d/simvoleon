@@ -109,7 +109,7 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
     }
   }
    
-  this->rendermanager->bindVoxelData(this->textureobject->getVoxelData());     
+  this->rendermanager->bindVoxelData(this->textureobject->getVoxelData()); 
   this->rendermanager->render((const GLfloat *) &projmarray, 
                               (const GLfloat *) &mminvarray,
                               clipplanes);  
