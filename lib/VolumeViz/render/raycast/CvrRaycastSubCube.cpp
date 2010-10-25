@@ -84,20 +84,20 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
   const SbMatrix pminv = (s*t*mm*projectionmatrix).inverse();  
   
 
-  // FIXME: get the clipplanes stuff working. (20100910 handegar)
-  /*
   const SoClipPlaneElement * cpe = SoClipPlaneElement::getInstance(state);
   const int num = cpe->getNum();
-  for (int i=0;i<num;++i) {
-    SbPlane p = cpe->get(i, false);
-    SbVec3f n = p.getNormal();
-    clipplanes.push_back(n[0]);
-    clipplanes.push_back(n[1]);
-    clipplanes.push_back(n[2]);
-    clipplanes.push_back(p.getDistanceFromOrigin());    
-    printf("%d clipplane=[%f, %f, %f,  %f]\n", i, n[0], n[1], n[2], p.getDistanceFromOrigin());
+  if (num) {
+    const SbMatrix planetransform = (s*t*mm).inverse();   
+    for (int i=0;i<num;++i) {
+      SbPlane p = cpe->get(i);
+      p.transform(planetransform);
+      SbVec3f n = p.getNormal();
+      clipplanes.push_back(n[0]);
+      clipplanes.push_back(n[1]);
+      clipplanes.push_back(n[2]);
+      clipplanes.push_back(-p.getDistanceFromOrigin());    
+    }
   }
-  */      
          
   GLfloat projmarray[16];
   GLfloat mminvarray[16];
