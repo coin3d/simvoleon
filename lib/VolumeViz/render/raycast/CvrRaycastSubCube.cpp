@@ -72,17 +72,19 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
   std::vector<GLfloat> clipplanes;
   clipplanes.clear();
 
-  SbMatrix t, s;
   const SbMatrix mm = SoModelMatrixElement::get(state);
   const SbVec3s span = this->bbox.getSize();
   const SbVec3f origo = this->bbox.getCenter();  
+
+
+#if 0
+  SbMatrix t, s;
   s.setScale(SbVec3f(span[0], span[1], span[2]));   
   t.setTranslate(SbVec3f(origo[0] - (span[0] + this->totalsize[0])/2.0f,
                          origo[1] - (span[1] + this->totalsize[1])/2.0f,
                          origo[2] - (span[2] + this->totalsize[2])/2.0f));     
   const SbMatrix projectionmatrix = adjustedviewvolume.getMatrix();
   const SbMatrix pminv = (s*t*mm*projectionmatrix).inverse();  
-  
 
   const SoClipPlaneElement * cpe = SoClipPlaneElement::getInstance(state);
   const int num = cpe->getNum();
@@ -98,20 +100,54 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
       clipplanes.push_back(-p.getDistanceFromOrigin());    
     }
   }
-         
-  GLfloat projmarray[16];
-  GLfloat mminvarray[16];
-  // Doh....  Theres got to be a better way... :-(
-  for (int i=0;i<4;++i) {
-    for (int j=0;j<4;++j) {
-      projmarray[i*4 + j] = projectionmatrix[i][j];
-      mminvarray[i*4 + j] = pminv[i][j];
-    }
-  }
-   
+ 
   this->rendermanager->bindVoxelData(this->textureobject->getVoxelData()); 
-  this->rendermanager->render((const GLfloat *) &projmarray, 
-                              (const GLfloat *) &mminvarray,
+  this->rendermanager->render((const GLfloat *) projectionmatrix[0], 
+                              (const GLfloat *) pminv[0],
                               clipplanes);  
+
+#else
+
+  // transform unit cube to volume spatial represenation
+  SbMatrix t, s;
+  s.setScale(SbVec3f(span[0], span[1], span[2]));   
+  t.setTranslate(SbVec3f(origo[0] - (span[0] + this->totalsize[0])/2.0f, 
+                         origo[1] - (span[1] + this->totalsize[1])/2.0f, 
+                         origo[2] - (span[2] + this->totalsize[2])/2.0f)); 
+
+  // steal the matrices from OpenGL.
+  SbMatrix M, P;
+  glGetFloatv( GL_MODELVIEW_MATRIX, M[0] );
+  glGetFloatv( GL_PROJECTION_MATRIX, P[0] );
+  
+  // do transformations (opposite order as left-handed is exposed)
+  SbMatrix PMi = (s*t*M*P).inverse();
+  
+  // inverse of world to cam space (for planes)
+  SbMatrix WtCi = (s*t*mm).inverse();
+  
+  const SoClipPlaneElement * cpe = SoClipPlaneElement::getInstance(state);
+  const int num = cpe->getNum();
+  for (int i=0;i<num;++i) {
+    SbPlane p = cpe->get(i, true);
+    p.transform( WtCi );
+    
+    SbVec3f n = p.getNormal();    
+    clipplanes.push_back(n[0]);
+    clipplanes.push_back(n[1]);
+    clipplanes.push_back(n[2]);
+    clipplanes.push_back(-p.getDistanceFromOrigin());
+  }
+  
+  this->rendermanager->bindVoxelData(this->textureobject->getVoxelData()); 
+  this->rendermanager->render((const GLfloat *)P[0],
+                              (const GLfloat *)PMi[0],
+                              clipplanes);  
+  
+
+
+
+#endif
+
 }
 

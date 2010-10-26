@@ -274,6 +274,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
 
   const uint32_t glctxid = action->getCacheContext();
   const cc_glglue * glw = cc_glglue_instance(glctxid);
+
   const SbViewVolume adjustedviewvolume = this->calculateAdjustedViewVolume(action);
 
   //
@@ -325,8 +326,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   // FIXME: Use glglue for EXT calls (20100914 handegar)
   cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);        
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  */
-
+  */  
     
   for (int i=0;i<subcuberenderorder.getLength();++i) {    
     cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
@@ -341,15 +341,12 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
                       GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     assert(glGetError() == GL_NO_ERROR);
     
-    // FIXME: Needed? (20101006 handegar)
-    /*
     // -- copy depth from solid pass into depth of transparent pass
     cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, this->gllayerfbos[1]);
     cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[0]);
     // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
     glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
                       GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-    */
             
     cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[0]);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -358,13 +355,13 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
     /*
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-    */
+    */    
     glDisable(GL_BLEND);
     
-
     const SubCube * cubeitem = subcuberenderorder[i];
     assert(cubeitem);       
     cubeitem->cube->render(action, adjustedviewvolume); 
+
   }
 
   //glPopAttrib();  
