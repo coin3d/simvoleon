@@ -248,7 +248,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
   // control.
   SoGLLazyElement::getInstance(state)->send(state, SoLazyElement::ALL_MASK);
 
-  //glPushAttrib(GL_ALL_ATTRIB_BITS);
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
      
   const SbViewportRegion & vpr = SoViewportRegionElement::get(state);
   const bool reattachglresources = vpr != this->previousviewportregion;
@@ -351,11 +351,6 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
     cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[0]);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // FIXME: Needed? (20101022 handegar)
-    /*
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-    */    
     glDisable(GL_BLEND);
     
     const SubCube * cubeitem = subcuberenderorder[i];
@@ -364,7 +359,7 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
 
   }
 
-  //glPopAttrib();  
+  glPopAttrib();  
   this->transferfunctionchanged = false;
 }
 
