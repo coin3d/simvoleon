@@ -355,6 +355,11 @@ CvrRaycastCube::render(const SoGLRenderAction * action)
     
     const SubCube * cubeitem = subcuberenderorder[i];
     assert(cubeitem);       
+
+    // FIXME: The 'adjustedviewvolume' no longer has any effect (not
+    // in use). Fix this to prevent the render quality from being
+    // affected by changes in the scenegraph geometry. (20101027
+    // handegar)
     cubeitem->cube->render(action, adjustedviewvolume); 
 
   }

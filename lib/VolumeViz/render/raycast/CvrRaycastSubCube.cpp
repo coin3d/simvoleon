@@ -28,6 +28,8 @@
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoClipPlaneElement.h>
 #include <Inventor/elements/SoViewVolumeElement.h>
+#include <Inventor/elements/SoViewingMatrixElement.h>
+#include <Inventor/elements/SoProjectionMatrixElement.h>
 #include <Inventor/actions/SoGLRenderAction.h>
 
 #include <VolumeViz/render/common/CvrTextureObject.h>
@@ -83,17 +85,16 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
                          origo[1] - (span[1] + this->totalsize[1])/2.0f, 
                          origo[2] - (span[2] + this->totalsize[2])/2.0f)); 
 
-  // FIXME: See if these matrices can be fetched from Coin. (20101026 handegar)
-  // steal the matrices from OpenGL.
-  SbMatrix M, P;
-  glGetFloatv(GL_MODELVIEW_MATRIX, M[0]);
-  glGetFloatv(GL_PROJECTION_MATRIX, P[0]);
-  
+
+  const SbMatrix P = SoProjectionMatrixElement::get(state);
+  const SbMatrix viewingmatrix = SoViewingMatrixElement::get(state);
+  const SbMatrix M = mm*viewingmatrix;
+
   // do transformations (opposite order as left-handed is exposed)
-  SbMatrix PMi = (s*t*M*P).inverse();
+  const SbMatrix PMi = (s*t*M*P).inverse();
   
   // inverse of world to cam space (for planes)
-  SbMatrix WtCi = (s*t*mm).inverse();
+  const SbMatrix WtCi = (s*t*mm).inverse();
   
   const SoClipPlaneElement * cpe = SoClipPlaneElement::getInstance(state);
   const int num = cpe->getNum();
