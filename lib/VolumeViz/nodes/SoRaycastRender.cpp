@@ -49,7 +49,7 @@
 
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
 
-#include <VolumeViz/render/raycast/CvrRaycastCube.h>
+#include <VolumeViz/render/raycast/CvrRaycastVolume.h>
 
 // *************************************************************************
 

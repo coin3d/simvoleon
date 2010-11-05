@@ -53,24 +53,27 @@ LIBRARIES = $(noinst_LIBRARIES)
 ARFLAGS = cru
 raycastrender_lst_AR = $(AR) $(ARFLAGS)
 raycastrender_lst_LIBADD =
-am__objects_1 = CvrRaycastSubCube.$(OBJEXT) CvrRaycastCube.$(OBJEXT) \
+am__objects_1 = CvrRaycastRenderBase.$(OBJEXT) \
+	CvrRaycastSubCube.$(OBJEXT) CvrRaycastVolume.$(OBJEXT) \
 	CvrRaycastTexture.$(OBJEXT) SoRaycastRendering.$(OBJEXT)
 am_raycastrender_lst_OBJECTS = $(am__objects_1)
 raycastrender_lst_OBJECTS = $(am_raycastrender_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libraycastrender_la_LIBADD =
-am__objects_2 = CvrRaycastSubCube.lo CvrRaycastCube.lo \
-	CvrRaycastTexture.lo SoRaycastRendering.lo
+am__objects_2 = CvrRaycastRenderBase.lo CvrRaycastSubCube.lo \
+	CvrRaycastVolume.lo CvrRaycastTexture.lo SoRaycastRendering.lo
 am_libraycastrender_la_OBJECTS = $(am__objects_2)
 libraycastrender_la_OBJECTS = $(am_libraycastrender_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrRaycastCube.Plo \
-@AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastCube.Po \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrRaycastRenderBase.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastRenderBase.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastSubCube.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastSubCube.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastTexture.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastTexture.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastVolume.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastVolume.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/SoRaycastRendering.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/SoRaycastRendering.Po
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
@@ -269,8 +272,9 @@ DEFAULT_INCLUDES = -I$(top_builddir)/lib -I$(top_srcdir)/lib
 @BUILD_WITH_MSVC_TRUE@noinst_LIBRARIES = raycastrender.lst
 @BUILD_WITH_MSVC_FALSE@noinst_LTLIBRARIES = libraycastrender.la
 RegularSources = \
+        CvrRaycastRenderBase.cpp CvrRaycastRenderBase.h \
         CvrRaycastSubCube.cpp CvrRaycastSubCube.h \
-        CvrRaycastCube.cpp CvrRaycastCube.h \
+        CvrRaycastVolume.cpp CvrRaycastVolume.h \
         CvrRaycastTexture.cpp CvrRaycastTexture.h \
         SoRaycastRendering.cpp SoRaycastRendering.h
 
@@ -330,12 +334,14 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastCube.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastCube.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastRenderBase.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastRenderBase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastSubCube.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastSubCube.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastTexture.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastTexture.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastVolume.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastVolume.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoRaycastRendering.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SoRaycastRendering.Po@am__quote@
 

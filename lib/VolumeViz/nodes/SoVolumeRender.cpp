@@ -72,7 +72,7 @@
 #include <VolumeViz/render/2D/CvrPageHandler.h>
 #include <VolumeViz/render/3D/CvrCubeHandler.h>
 #include <VolumeViz/render/pointset/PointRendering.h>
-#include <VolumeViz/render/raycast/CvrRaycastCube.h>
+#include <VolumeViz/render/raycast/CvrRaycastVolume.h>
 #include <VolumeViz/details/SoVolumeRenderDetail.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrCLUT.h>
@@ -149,7 +149,7 @@ public:
     this->master = master;
     this->pagehandler = NULL;
     this->cubehandler = NULL;
-    this->raycastcube = NULL;
+    this->raycastvolume = NULL;
     this->abortfunc = NULL;
     this->abortfuncdata = NULL;
     this->linestylevolumecube = NULL;
@@ -174,7 +174,7 @@ public:
 
   CvrPageHandler * pagehandler; // For 2D page rendering
   CvrCubeHandler * cubehandler; // For 3D cube rendering
-  CvrRaycastCube * raycastcube; // // FIXME: Temp. hack (20100910 handegar)
+  CvrRaycastVolume * raycastvolume; // // FIXME: Temp. hack (20100910 handegar)
 
   SoVolumeRender::SoVolumeRenderAbortCB * abortfunc;
   void * abortfuncdata;
@@ -635,15 +635,15 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
 
   // Setup a raycast-cube handler
   if (rendermethod == SoVolumeRenderP::RAYCAST) {
-    if (!PRIVATE(this)->raycastcube)
-      PRIVATE(this)->raycastcube = new CvrRaycastCube(action);
+    if (!PRIVATE(this)->raycastvolume)
+      PRIVATE(this)->raycastvolume = new CvrRaycastVolume(action);
 
     // FIXME: Detect changes before setting the transferfunction
     // (20100916 handegar)
     const So2DTransferFunctionElement * tfe = 
       So2DTransferFunctionElement::getInstance(state);
-    PRIVATE(this)->raycastcube->setTransferFunction(tfe->getTransferFunction());    
-    PRIVATE(this)->raycastcube->render(action);
+    PRIVATE(this)->raycastvolume->setTransferFunction(tfe->getTransferFunction());    
+    PRIVATE(this)->raycastvolume->render(action);
 
   }
   // viewport-aligned 3D textures

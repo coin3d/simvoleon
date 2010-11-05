@@ -417,7 +417,7 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
           uint8_t voldataidx;
           if (unitsize == 1) voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];
           else voldataidx = (((uint16_t *) inputbytebuffer)[voxelidx] >> 8); // Shift value to 8bit
-          output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;
+          output[texelidx] = (uint8_t) (voldataidx << shiftval) + offsetval;          
           if (lighting) {
             SbVec3f voxgrad = grad->getGradientRangeCompressed(x, y, z);
             output[texelidx+1] = (uint8_t) voxgrad[0];
@@ -428,6 +428,7 @@ CvrVoxelChunk::transfer3D(const SoGLRenderAction * action, const CvrCLUT * clut,
         else {
           const uint32_t voldataidx = ((uint8_t *) inputbytebuffer)[voxelidx];
           const uint32_t colidx = (voldataidx << shiftval) + offsetval;
+
           if (clut)
             clut->lookupRGBA(colidx, &output[texelidx * 4]);
           SbBool inv = output[texelidx * 4 + 3] == 0x00;

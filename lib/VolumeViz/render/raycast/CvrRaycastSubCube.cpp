@@ -66,7 +66,7 @@ CvrRaycastSubCube::setTransferFunction(std::vector<CLVol::TransferFunctionPoint>
 
 
 void
-CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjustedviewvolume)
+CvrRaycastSubCube::renderVolume(const SoGLRenderAction * action)
 {
   assert(this->rendermanager && "No rendermanager initialized");
   SoState * state = action->getState();
@@ -113,5 +113,12 @@ CvrRaycastSubCube::render(const SoGLRenderAction * action, SbViewVolume adjusted
   this->rendermanager->render((const GLfloat *) P[0],
                               (const GLfloat *) PMi[0],
                               clipplanes);  
+}
+
+
+void 
+CvrRaycastSubCube::renderFaces(const SoGLRenderAction * action)
+{
+  assert(0 && "Not implemented yet");
 }
 

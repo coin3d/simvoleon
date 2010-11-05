@@ -1,5 +1,5 @@
-#ifndef CVR_RAYCASTSUBCUBE_H
-#define CVR_RAYCASTSUBCUBE_H
+#ifndef CVR_RAYCASTVOLUME_H
+#define CVR_RAYCASTVOLUME_H
 
 /**************************************************************************\
  *
@@ -29,42 +29,22 @@
 #error this is a private header file
 #endif // !SIMVOLEON_INTERNAL
 
-#include <Inventor/SbVec3s.h>
-#include <Inventor/SbVec3f.h>
-#include <Inventor/SbVec2f.h>
-#include <Inventor/SbBox3s.h>
-#include <Inventor/C/glue/gl.h>
+#include "CvrRaycastRenderBase.h"
 
 #include <vector>
 
-
 class SoGLRenderAction;
-class CvrRaycastTexture;
-class SbViewVolume;
 
 namespace CLVol {
   class RenderManager;
   struct TransferFunctionPoint;
-}
-
-class CvrRaycastSubCube {
-public:
-  CvrRaycastSubCube(const SoGLRenderAction * action,
-                    const CvrRaycastTexture * texobj,
-                    const SbBox3s cubebbox,
-                    const SbVec3s totalsize,
-                    CLVol::RenderManager * rm);
-  ~CvrRaycastSubCube(); 
-
-  void setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & transferfunction);
-  void renderVolume(const SoGLRenderAction * action);
-  void renderFaces(const SoGLRenderAction * action);
-
-private:
-  const CvrRaycastTexture * textureobject;
-  SbBox3s bbox;
-  SbVec3s totalsize;
-  CLVol::RenderManager * rendermanager;
 };
 
-#endif // !CVR_RAYCASTSUBCUBE_H
+class CvrRaycastVolume : public CvrRaycastRenderBase {
+public:
+  CvrRaycastVolume(const SoGLRenderAction * action);
+  ~CvrRaycastVolume();
+  void render(const SoGLRenderAction * action);
+};
+
+#endif // !CVR_RAYCASTVOLUME_H

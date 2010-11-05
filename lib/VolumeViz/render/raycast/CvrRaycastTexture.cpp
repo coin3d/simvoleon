@@ -56,8 +56,17 @@ CvrRaycastTexture::create(CLVol::RenderManager * rm,
                                                          vbelem->getVoxels());
 
   SbVec3s size = cut.getSize();  
-  tex->voxeldata = rm->createVoxelData(size[0], size[1], size[2], 
-                                       (const unsigned char *) rawdata);
+  if (bytespervoxel == 1) {
+    tex->voxeldata = rm->createVoxelData(size[0], size[1], size[2], 
+                                         (const unsigned char *) rawdata);
+  }
+  else {
+    SoDebugError::postInfo("CvrRaycastTexture::create", 
+                           "Experimental > 8bits data used.");
+    tex->voxeldata = rm->createVoxelData(size[0], size[1], size[2], 
+                                         (const unsigned short *) rawdata);
+  }
+
   delete rawdata; // Data has been transferred to libCLVol. 
   return tex;
 }
