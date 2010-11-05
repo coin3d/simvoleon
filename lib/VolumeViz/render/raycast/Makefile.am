@@ -10,6 +10,7 @@ RegularSources = \
         CvrRaycastRenderBase.cpp CvrRaycastRenderBase.h \
         CvrRaycastSubCube.cpp CvrRaycastSubCube.h \
         CvrRaycastVolume.cpp CvrRaycastVolume.h \
+        CvrRaycastIndexedFaceSet.cpp CvrRaycastIndexedFaceSet.h \
         CvrRaycastTexture.cpp CvrRaycastTexture.h \
         SoRaycastRendering.cpp SoRaycastRendering.h
 

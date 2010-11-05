@@ -1,6 +1,3 @@
-#ifndef CVR_RAYCASTVOLUME_H
-#define CVR_RAYCASTVOLUME_H
-
 /**************************************************************************\
  *
  *  This file is part of the SIM Voleon visualization library.
@@ -25,21 +22,27 @@
  *
 \**************************************************************************/
 
-#ifndef SIMVOLEON_INTERNAL
-#error this is a private header file
-#endif // !SIMVOLEON_INTERNAL
+#include "CvrRaycastIndexedFaceSet.h"
 
-#include "CvrRaycastRenderBase.h"
+#include <Inventor/actions/SoGLRenderAction.h>
 
-#include <vector>
 
-class SoGLRenderAction;
+CvrRaycastIndexedFaceSet::CvrRaycastIndexedFaceSet(const SoGLRenderAction * action)
+  : CvrRaycastRenderBase(action)
+{
+}
 
-class CvrRaycastVolume : public CvrRaycastRenderBase {
-public:
-  CvrRaycastVolume(const SoGLRenderAction * action);
-  ~CvrRaycastVolume();
-  void render(const SoGLRenderAction * action);
-};
 
-#endif // !CVR_RAYCASTVOLUME_H
+CvrRaycastIndexedFaceSet::~CvrRaycastIndexedFaceSet()
+{
+}
+
+
+void 
+CvrRaycastIndexedFaceSet::render(const SoGLRenderAction * action)
+{
+
+}
+
+
+

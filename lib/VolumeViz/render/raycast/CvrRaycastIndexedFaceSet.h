@@ -1,5 +1,5 @@
-#ifndef CVR_RAYCASTVOLUME_H
-#define CVR_RAYCASTVOLUME_H
+#ifndef CVS_RAYCASTINDEXEDFACESET_H
+#define CVS_RAYCASTINDEXEDFACESET_H
 
 /**************************************************************************\
  *
@@ -25,21 +25,20 @@
  *
 \**************************************************************************/
 
+
 #ifndef SIMVOLEON_INTERNAL
 #error this is a private header file
 #endif // !SIMVOLEON_INTERNAL
 
 #include "CvrRaycastRenderBase.h"
 
-#include <vector>
-
 class SoGLRenderAction;
 
-class CvrRaycastVolume : public CvrRaycastRenderBase {
+class CvrRaycastIndexedFaceSet : public CvrRaycastRenderBase {
 public:
-  CvrRaycastVolume(const SoGLRenderAction * action);
-  ~CvrRaycastVolume();
+  CvrRaycastIndexedFaceSet(const SoGLRenderAction * action);
+  ~CvrRaycastIndexedFaceSet();
   void render(const SoGLRenderAction * action);
 };
 
-#endif // !CVR_RAYCASTVOLUME_H
+#endif // !CVS_RAYCASTINDEXEDFACESET_H

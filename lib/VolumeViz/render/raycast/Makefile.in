@@ -55,18 +55,22 @@ raycastrender_lst_AR = $(AR) $(ARFLAGS)
 raycastrender_lst_LIBADD =
 am__objects_1 = CvrRaycastRenderBase.$(OBJEXT) \
 	CvrRaycastSubCube.$(OBJEXT) CvrRaycastVolume.$(OBJEXT) \
-	CvrRaycastTexture.$(OBJEXT) SoRaycastRendering.$(OBJEXT)
+	CvrRaycastIndexedFaceSet.$(OBJEXT) CvrRaycastTexture.$(OBJEXT) \
+	SoRaycastRendering.$(OBJEXT)
 am_raycastrender_lst_OBJECTS = $(am__objects_1)
 raycastrender_lst_OBJECTS = $(am_raycastrender_lst_OBJECTS)
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libraycastrender_la_LIBADD =
 am__objects_2 = CvrRaycastRenderBase.lo CvrRaycastSubCube.lo \
-	CvrRaycastVolume.lo CvrRaycastTexture.lo SoRaycastRendering.lo
+	CvrRaycastVolume.lo CvrRaycastIndexedFaceSet.lo \
+	CvrRaycastTexture.lo SoRaycastRendering.lo
 am_libraycastrender_la_OBJECTS = $(am__objects_2)
 libraycastrender_la_OBJECTS = $(am_libraycastrender_la_OBJECTS)
 depcomp = $(SHELL) $(top_srcdir)/cfg/depcomp
 am__depfiles_maybe = depfiles
-@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrRaycastRenderBase.Plo \
+@AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/CvrRaycastIndexedFaceSet.Plo \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastIndexedFaceSet.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastRenderBase.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastRenderBase.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastSubCube.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/CvrRaycastSubCube.Po \
@@ -275,6 +279,7 @@ RegularSources = \
         CvrRaycastRenderBase.cpp CvrRaycastRenderBase.h \
         CvrRaycastSubCube.cpp CvrRaycastSubCube.h \
         CvrRaycastVolume.cpp CvrRaycastVolume.h \
+        CvrRaycastIndexedFaceSet.cpp CvrRaycastIndexedFaceSet.h \
         CvrRaycastTexture.cpp CvrRaycastTexture.h \
         SoRaycastRendering.cpp SoRaycastRendering.h
 
@@ -334,6 +339,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastIndexedFaceSet.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastIndexedFaceSet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastRenderBase.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastRenderBase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CvrRaycastSubCube.Plo@am__quote@
