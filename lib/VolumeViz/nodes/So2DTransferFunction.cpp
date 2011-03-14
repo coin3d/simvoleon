@@ -98,7 +98,6 @@ public:
     this->master = master;
     this->predefsensor = new SoFieldSensor(So2DTransferFunctionP::predefCB, this);
     this->predefsensor->attach(&master->predefColorMap);    
-
   }
 
   ~So2DTransferFunctionP() {

@@ -52,15 +52,26 @@
 #include <Inventor/elements/SoCoordinateElement.h>
 #include <Inventor/elements/SoClipPlaneElement.h>
 #include <Inventor/elements/SoTextureQualityElement.h>
+#include <Inventor/elements/SoShapeStyleElement.h>
+#include <Inventor/elements/SoCacheElement.h>
+#include <Inventor/nodes/SoMaterial.h>
 
+#include <VolumeViz/nodes/SoVolumeData.h>
 #include <VolumeViz/elements/CvrGLInterpolationElement.h>
 #include <VolumeViz/elements/SoTransferFunctionElement.h>
+#include <VolumeViz/elements/So2DTransferFunctionElement.h>
+#include <VolumeViz/elements/CvrStorageHintElement.h>
+#include <VolumeViz/elements/CvrVoxelBlockElement.h>
 #include <VolumeViz/misc/CvrCLUT.h>
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 #include <VolumeViz/misc/CvrUtil.h>
 #include <VolumeViz/misc/CvrGlobalRenderLock.h>
+#include <VolumeViz/render/raycast/CvrRaycastIndexedFaceSet.h>
 
 #include "CvrIndexedFaceSetRenderP.h"
+
+#include <RenderManager.h>
+
 
 // *************************************************************************
 
@@ -76,12 +87,26 @@ public:
     this->renderp = new CvrIndexedFaceSetRenderP(master);
     this->renderp->clipgeometryshape = new SoIndexedFaceSet;
     this->renderp->clipgeometryshape->ref();    
+
+    this->raycastfaceset = NULL;
+
+    this->raycastchromakey = new SoMaterial;
+    this->raycastchromakey->diffuseColor.set1Value(0, SbColor(1.0, 0.0, 1.0));
+    this->raycastchromakey->emissiveColor.set1Value(0, SbColor(1.0, 0.0, 1.0));
+    this->raycastchromakey->ambientColor.set1Value(0, SbColor(1.0, 0.0, 1.0));
+    this->raycastchromakey->shininess = 0.0f;
+    this->raycastchromakey->transparency = 0.0f;
+    this->raycastchromakey->ref();
   }
   ~SoVolumeIndexedFaceSetP() {
     this->renderp->clipgeometryshape->unref();
     delete this->renderp;
+    this->raycastchromakey->unref();
   }
   CvrIndexedFaceSetRenderP * renderp;
+
+  CvrRaycastIndexedFaceSet * raycastfaceset;
+  SoMaterial * raycastchromakey;
 
 private:
   SoVolumeIndexedFaceSet * master;
@@ -89,6 +114,24 @@ private:
 
 #define PRIVATE(p) (p->pimpl)
 #define PUBLIC(p) (p->master)
+
+// FIXME: Move this to a Util-class? (20101115 handegar)
+namespace {
+  // helper class used to push/pop the state
+  class SoStatePushPop {    
+  public:
+    SoStatePushPop(SoState * state_in) : state(state_in) {
+      state->push();
+    }
+    ~SoStatePushPop() {
+      this->state->pop();
+    }
+  private:
+    SoState * state;
+  };
+  
+};
+
 
 // *************************************************************************
 
@@ -123,22 +166,80 @@ SoVolumeIndexedFaceSet::GLRender(SoGLRenderAction * action)
   // code re-entrant / threadsafe. 20041112 mortene.
   CvrGlobalRenderLock lock;
 
+  SoState * state = action->getState();
+  SoStatePushPop pushpop(state);
 
   // FIXME: need to make sure we're not cached in a renderlist
   if (!this->shouldGLRender(action)) return;
-
+  
   // Render at the end, in case the volume is partly (or fully)
   // transparent.
   //
   // FIXME: this makes rendering a bit slower, so we should perhaps
   // keep a flag around to know whether or not this is actually
-  // necessary. 20040212 mortene.
-  
+  // necessary. 20040212 mortene.    
   if (!action->isRenderingDelayedPaths()) {
     action->addDelayedPath(action->getCurPath()->copy());
     return;
   }
-  
-  PRIVATE(this)->renderp->GLRender(action, this->offset.getValue(), this->clipGeometry.getValue());
-  
+
+
+
+  const int storagehint = CvrStorageHintElement::get(state);
+  // Do a quick test to see if OpenCL rendering is supported
+  if (storagehint == SoVolumeData::RAYCAST) {
+    static SbBool checked = FALSE;
+    static SbBool supports = FALSE;
+    if (!checked) {
+      static SbBool first = TRUE;   
+      supports = CLVol::RenderManager::supportsOpenCL();
+      if (first && !supports) {
+        SoDebugError::postWarning("SoVolumeIndexedFaceSet::GLRender",
+                                  "Warning: System does not support OpenCL "
+                                  "raycast rendering. -- Rendering aborted.");
+        first = false;    
+      }
+      checked = TRUE;
+    }    
+    if (!supports) {
+      assert(0);
+      return; // OpenCL not supported.
+    }
+
+    // We'll have to invalidate the cache or something will start
+    // reporting GL_ERRORS in Coin due to displaylist errors.
+    SoCacheElement::invalidate(state);
+
+    if (!PRIVATE(this)->raycastfaceset) {
+      PRIVATE(this)->raycastfaceset = new CvrRaycastIndexedFaceSet(action);     
+    }
+    
+    const uint32_t glctxid = action->getCacheContext();
+    const cc_glglue * glw = cc_glglue_instance(glctxid);
+    cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, 0);
+
+
+    // Apply chromakey color/material.
+    action->traverse(PRIVATE(this)->raycastchromakey);
+
+    inherited::GLRender(action); 
+    
+    const CvrVoxelBlockElement * vbelement = CvrVoxelBlockElement::getInstance(state);
+    SbMatrix volumetransform;
+    CvrUtil::getTransformFromVolumeBoxDimensions(vbelement, volumetransform);
+    SoModelMatrixElement::mult(state, this, volumetransform);
+    
+    // FIXME: Detect changes before setting the transferfunction
+    // (20100916 handegar)
+    const So2DTransferFunctionElement * tfe = 
+      So2DTransferFunctionElement::getInstance(state);
+    PRIVATE(this)->raycastfaceset->setTransferFunction(tfe->getTransferFunction());      
+    PRIVATE(this)->raycastfaceset->render(action, this);
+    
+  }
+  else {        
+    PRIVATE(this)->renderp->GLRender(action, this->offset.getValue(), 
+                                     this->clipGeometry.getValue());
+  }
+
 }

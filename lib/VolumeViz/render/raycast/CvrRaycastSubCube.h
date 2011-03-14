@@ -41,6 +41,7 @@
 class SoGLRenderAction;
 class CvrRaycastTexture;
 class SbViewVolume;
+class SbMatrix;
 
 namespace CLVol {
   class RenderManager;
@@ -56,11 +57,14 @@ public:
                     CLVol::RenderManager * rm);
   ~CvrRaycastSubCube(); 
 
-  void setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & transferfunction);
   void renderVolume(const SoGLRenderAction * action);
-  void renderFaces(const SoGLRenderAction * action);
+  void renderFaceset(const SoGLRenderAction * action);
 
 private:
+  void prepareForRendering(const SoGLRenderAction * action,
+                           SbMatrix & P, SbMatrix & PMi, 
+                           std::vector<GLfloat> & clipplanes);
+
   const CvrRaycastTexture * textureobject;
   SbBox3s bbox;
   SbVec3s totalsize;

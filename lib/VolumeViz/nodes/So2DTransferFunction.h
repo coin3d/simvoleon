@@ -55,7 +55,7 @@ class SIMVOLEON_DLL_API So2DTransferFunction : public SoNode {
 
   SoMFColorRGBA colors;
   SoMFFloat colorPoints;
-  SoMFVec2f gradientPoints; // Support not implemented yet.
+  SoMFVec2f gradientPoints; // Not implemented yet.
 
   SoSFEnum predefColorMap;
 

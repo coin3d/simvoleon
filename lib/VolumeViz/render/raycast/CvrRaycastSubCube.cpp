@@ -57,22 +57,11 @@ CvrRaycastSubCube::~CvrRaycastSubCube()
 
 
 void 
-CvrRaycastSubCube::setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & tf)
+CvrRaycastSubCube::prepareForRendering(const SoGLRenderAction * action,
+                                       SbMatrix & P, SbMatrix & PMi, 
+                                       std::vector<GLfloat> & clipplanes)
 {
-  // FIXME: Cleanup so that this const-cast becomes obsolete. (20101011 handegar)
-  CvrRaycastTexture * rt = (CvrRaycastTexture *) this->textureobject;
-  rt->setTransferFunction(tf);
-}
-
-
-void
-CvrRaycastSubCube::renderVolume(const SoGLRenderAction * action)
-{
-  assert(this->rendermanager && "No rendermanager initialized");
   SoState * state = action->getState();
-
-  std::vector<GLfloat> clipplanes;
-  clipplanes.clear();
 
   const SbMatrix mm = SoModelMatrixElement::get(state);
   const SbVec3s span = this->bbox.getSize();
@@ -86,12 +75,12 @@ CvrRaycastSubCube::renderVolume(const SoGLRenderAction * action)
                          origo[2] - (span[2] + this->totalsize[2])/2.0f)); 
 
 
-  const SbMatrix P = SoProjectionMatrixElement::get(state);
+  P = SoProjectionMatrixElement::get(state);
   const SbMatrix viewingmatrix = SoViewingMatrixElement::get(state);
   const SbMatrix M = mm*viewingmatrix;
 
   // do transformations (opposite order as left-handed is exposed)
-  const SbMatrix PMi = (s*t*M*P).inverse();
+  PMi = (s*t*M*P).inverse();
   
   // inverse of world to cam space (for planes)
   const SbMatrix WtCi = (s*t*mm).inverse();
@@ -109,16 +98,42 @@ CvrRaycastSubCube::renderVolume(const SoGLRenderAction * action)
     clipplanes.push_back(-p.getDistanceFromOrigin());
   }
   
-  this->rendermanager->bindVoxelData(this->textureobject->getVoxelData()); 
-  this->rendermanager->render((const GLfloat *) P[0],
-                              (const GLfloat *) PMi[0],
-                              clipplanes);  
 }
 
 
-void 
-CvrRaycastSubCube::renderFaces(const SoGLRenderAction * action)
+void
+CvrRaycastSubCube::renderVolume(const SoGLRenderAction * action)
 {
-  assert(0 && "Not implemented yet");
+  assert(this->rendermanager && "No rendermanager initialized");
+  SoState * state = action->getState();
+
+  std::vector<GLfloat> clipplanes;
+  clipplanes.clear();
+
+  SbMatrix P, PMi;
+  this->prepareForRendering(action, P, PMi, clipplanes);
+
+  this->rendermanager->bindVoxelData(this->textureobject->getVoxelData()); 
+  this->rendermanager->renderVolume((const GLfloat *) P[0],
+                                    (const GLfloat *) PMi[0],
+                                    clipplanes);  
 }
 
+
+void
+CvrRaycastSubCube::renderFaceset(const SoGLRenderAction * action)
+{
+  assert(this->rendermanager && "No rendermanager initialized");
+  SoState * state = action->getState();
+
+  std::vector<GLfloat> clipplanes;
+  clipplanes.clear();
+
+  SbMatrix P, PMi;
+  this->prepareForRendering(action, P, PMi, clipplanes);
+
+  this->rendermanager->bindVoxelData(this->textureobject->getVoxelData()); 
+  this->rendermanager->renderFaceset((const GLfloat *) P[0],
+                                     (const GLfloat *) PMi[0],
+                                     clipplanes);
+}

@@ -35,7 +35,6 @@
 namespace CLVol {
   class RenderManager;
   class VoxelData;
-  struct TransferFunctionPoint;
 }
 class SoGLRenderAction;
 
@@ -51,7 +50,6 @@ public:
   void unref(void) const;
 
   const CLVol::VoxelData * getVoxelData() const;
-  void setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & tf);
   const SbVec3s getDimensions(void) const;
 
 protected:
@@ -61,8 +59,20 @@ protected:
 private:
   SbBox3s bbox;
   uint32_t refcount;
+
   CLVol::VoxelData * voxeldata;
   
+  struct EqualityComparison {
+    uint32_t volumedataid;
+    SbBox3s bbox;
+    int operator==(const struct EqualityComparison & cmp);
+  } eqcmp;
+
+  static SbDict * instancedict;
+  static unsigned long hashKey(const struct CvrRaycastTexture::EqualityComparison & cmp);
+  static CvrRaycastTexture * findInstanceMatch(const struct CvrRaycastTexture::EqualityComparison & cmp);
+
+
   static unsigned char * buildCube(SbVec3s dims, SbBox3s cut, 
                                    unsigned int bytespervoxel,
                                    const uint8_t * data);

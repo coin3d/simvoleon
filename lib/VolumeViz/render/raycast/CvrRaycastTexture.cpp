@@ -30,6 +30,11 @@
 #include <RenderManager.h>
 #include <VoxelData.h>
 
+
+// FIXME: Mem-leak. Never cleaned up. (20101108 handegar)
+SbDict * CvrRaycastTexture::instancedict = new SbDict;;
+
+
 CvrRaycastTexture::CvrRaycastTexture()
   : refcount(0)
 {
@@ -38,6 +43,7 @@ CvrRaycastTexture::CvrRaycastTexture()
 
 CvrRaycastTexture::~CvrRaycastTexture()
 {
+  // FIXME: Remove instance from cache-dict (20101108 handegar)
 }
 
 
@@ -46,15 +52,30 @@ CvrRaycastTexture::create(CLVol::RenderManager * rm,
                           const SoGLRenderAction * action,
                           const SbBox3s cut)
 {
+  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
+
+  // Check the cache-dict to see if this texture has been created
+  // before.
+  struct CvrRaycastTexture::EqualityComparison incoming;
+  incoming.volumedataid = vbelem->getNodeId();
+  incoming.bbox = cut; // For 3D tex
+  CvrRaycastTexture * obj =
+    CvrRaycastTexture::findInstanceMatch(incoming);
+  if (obj) { 
+    return obj; // Found it!
+  }
+
+
   CvrRaycastTexture * tex = new CvrRaycastTexture();
   tex->bbox = cut;
 
-  const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(action->getState());
+
   unsigned int bytespervoxel = vbelem->getBytesPrVoxel();  
-  unsigned char * rawdata = CvrRaycastTexture::buildCube(vbelem->getVoxelCubeDimensions(), cut, 
+  unsigned char * rawdata = CvrRaycastTexture::buildCube(vbelem->getVoxelCubeDimensions(), 
+                                                         cut, 
                                                          bytespervoxel,
                                                          vbelem->getVoxels());
-
+  
   SbVec3s size = cut.getSize();  
   if (bytespervoxel == 1) {
     tex->voxeldata = rm->createVoxelData(size[0], size[1], size[2], 
@@ -68,12 +89,23 @@ CvrRaycastTexture::create(CLVol::RenderManager * rm,
   }
 
   delete rawdata; // Data has been transferred to libCLVol. 
+
+
+  // Enter new texture-object into the cache-dict.
+  const unsigned long key = CvrRaycastTexture::hashKey(incoming);
+  
+  const SbBool newentry = 
+    CvrRaycastTexture::instancedict->enter(key, tex);
+  assert(newentry);
+
   return tex;
 }
 
 
 unsigned char * 
-CvrRaycastTexture::buildCube(SbVec3s dim, SbBox3s cutcube, unsigned int bytespervoxel, const uint8_t * data)
+CvrRaycastTexture::buildCube(SbVec3s dim, SbBox3s cutcube, 
+                             unsigned int bytespervoxel, 
+                             const uint8_t * data)
 {
   SbVec3s ccmin, ccmax;
   cutcube.getBounds(ccmin, ccmax);
@@ -141,8 +173,40 @@ CvrRaycastTexture::getVoxelData() const
 }
 
 
-void 
-CvrRaycastTexture::setTransferFunction(std::vector<CLVol::TransferFunctionPoint> & tf)
+int
+CvrRaycastTexture::EqualityComparison::operator==(const CvrRaycastTexture::EqualityComparison & obj)
 {
-  this->voxeldata->setTransferFunction(tf);
+  // FIXME: In actual use? (20101108 handegar)
+  return
+    (this->volumedataid == obj.volumedataid) &&
+    (this->bbox.getMin() == obj.bbox.getMin()) &&
+    (this->bbox.getMax() == obj.bbox.getMax());
+}
+
+
+CvrRaycastTexture * 
+CvrRaycastTexture::findInstanceMatch(const struct CvrRaycastTexture::EqualityComparison & obj)
+{
+  const unsigned long key = CvrRaycastTexture::hashKey(obj);  
+  void * ptr;
+  const SbBool ok = CvrRaycastTexture::instancedict->find(key, ptr);
+  if (!ok) { return NULL; }  
+
+  return (CvrRaycastTexture *) ptr;
+}
+
+
+unsigned long 
+CvrRaycastTexture::hashKey(const struct CvrRaycastTexture::EqualityComparison & cmp)
+{
+  unsigned long key = cmp.volumedataid;
+  
+  SbBox3s empty3;
+  if (cmp.bbox.getMin() != empty3.getMin()) {
+    short v[6];
+    cmp.bbox.getBounds(v[0], v[1], v[2], v[3], v[4], v[5]);
+    for (unsigned int i = 0; i < 6; i++) { key += v[i]; }
+  }
+
+  return key;
 }

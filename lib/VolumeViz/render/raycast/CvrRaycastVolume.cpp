@@ -48,7 +48,7 @@ CvrRaycastVolume::~CvrRaycastVolume()
 
 
 void 
-CvrRaycastVolume::render(const SoGLRenderAction * action)
+CvrRaycastVolume::render(SoGLRenderAction * action)
 {
   SoState * state = action->getState();
 
@@ -62,7 +62,6 @@ CvrRaycastVolume::render(const SoGLRenderAction * action)
   const cc_glglue * glw = cc_glglue_instance(glctxid);
   const SbViewportRegion & vpr = SoViewportRegionElement::get(state);
   const SbVec2s size = vpr.getWindowSize();  
- 
   SbList<SubCube *> subcuberenderorder = this->processSubCubes(action);
 
 
@@ -102,8 +101,6 @@ CvrRaycastVolume::render(const SoGLRenderAction * action)
     const SubCube * cubeitem = subcuberenderorder[i];
     assert(cubeitem);       
     assert(cubeitem->cube);       
-
-    
     cubeitem->cube->renderVolume(action); 
   }
 

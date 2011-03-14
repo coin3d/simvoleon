@@ -39,7 +39,7 @@ class CvrRaycastVolume : public CvrRaycastRenderBase {
 public:
   CvrRaycastVolume(const SoGLRenderAction * action);
   ~CvrRaycastVolume();
-  void render(const SoGLRenderAction * action);
+  void render(SoGLRenderAction * action);
 };
 
 #endif // !CVR_RAYCASTVOLUME_H

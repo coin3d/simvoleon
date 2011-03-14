@@ -126,18 +126,15 @@ public:
 private:
   class CachedPage {
   public:
-    CachedPage(Cvr2DTexPage * page, SoOrthoSlice * node)
-    {
+    CachedPage(Cvr2DTexPage * page, SoOrthoSlice * node) {
       this->page = page;
     }
 
-    ~CachedPage()
-    {
+    ~CachedPage() {
       delete this->page;
     }
 
-    Cvr2DTexPage * getPage(void) const
-    {
+    Cvr2DTexPage * getPage(void) const {
       return this->page;
     }
 
@@ -230,10 +227,12 @@ SoOrthoSlice::SoOrthoSlice(void)
   SO_NODE_ADD_FIELD(alternateRep, (NULL));
 }
 
+
 SoOrthoSlice::~SoOrthoSlice()
 {
   delete PRIVATE(this);
 }
+
 
 // Doc from parent class.
 void
@@ -260,6 +259,7 @@ SoOrthoSlice::affectsState(void) const
 {
   return this->clipping.getValue();
 }
+
 
 // *************************************************************************
 
@@ -301,6 +301,7 @@ SoOrthoSliceP::getSliceAsPlane(SoAction * action) const
   return SbPlane(planenormal, origo);
 }
 
+
 // Doc from superclass.
 void
 SoOrthoSlice::doAction(SoAction * action)
@@ -311,6 +312,7 @@ SoOrthoSlice::doAction(SoAction * action)
                             PRIVATE(this)->getSliceAsPlane(action));
   }
 }
+
 
 // Check whether or not everything is ok and valid for any action
 // traversal.
@@ -344,6 +346,7 @@ SoOrthoSliceP::confirmValidInContext(SoState * state) const
 
   return TRUE;
 }
+
 
 void
 SoOrthoSlice::GLRender(SoGLRenderAction * action)
@@ -514,6 +517,7 @@ SoOrthoSlice::GLRender(SoGLRenderAction * action)
   SoOrthoSlice::doAction(action);
 }
 
+
 Cvr2DTexPage *
 SoOrthoSliceP::getPage(const SoGLRenderAction * action,
                        const int axis, const int slice)
@@ -548,6 +552,7 @@ SoOrthoSliceP::getPage(const SoGLRenderAction * action,
 
   return cp->getPage();
 }
+
 
 void
 SoOrthoSlice::rayPick(SoRayPickAction * action)
@@ -607,6 +612,7 @@ SoOrthoSlice::rayPick(SoRayPickAction * action)
   SoOrthoSlice::doAction(action);
 }
 
+
 void
 SoOrthoSlice::generatePrimitives(SoAction * action)
 {
@@ -621,6 +627,7 @@ SoOrthoSlice::generatePrimitives(SoAction * action)
   }
 #endif // debug
 }
+
 
 // doc in super
 void
@@ -650,6 +657,7 @@ SoOrthoSlice::computeBBox(SoAction * action, SbBox3f & box, SbVec3f & center)
   box.extendBy(vdbox);
   center = vdbox.getCenter();
 }
+
 
 // *************************************************************************
 
@@ -716,6 +724,7 @@ SoOrthoSliceP::renderBox(SoGLRenderAction * action, SbBox3f box)
   glPopAttrib();
 }
 
+
 // *************************************************************************
 
 // Overridden so we can give special attention to alternateRep.
@@ -731,6 +740,7 @@ SoOrthoSlice::write(SoWriteAction * action)
 
   inherited::write(action);
 }
+
 
 // Overridden so we can give special attention to alternateRep.
 SbBool

@@ -1029,7 +1029,7 @@ SoVolumeDataP::downSample(SbVec3s dimensions, SoVolumeData::SubMethod subMethod,
             resultvoxel = resultvoxel << 8;
             resultvoxel += (uint8_t) (averagevoxel[1] / nr);
             resultvoxel = resultvoxel << 8;
-            resultvoxel += (uint8_t) (averagevoxel[0] / nr);                         
+            resultvoxel += (uint8_t) (averagevoxel[0] / nr); 
           }
           
         } 

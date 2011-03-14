@@ -642,9 +642,8 @@ SoVolumeRender::GLRender(SoGLRenderAction * action)
     // (20100916 handegar)
     const So2DTransferFunctionElement * tfe = 
       So2DTransferFunctionElement::getInstance(state);
-    PRIVATE(this)->raycastvolume->setTransferFunction(tfe->getTransferFunction());    
+    PRIVATE(this)->raycastvolume->setTransferFunction(tfe->getTransferFunction());
     PRIVATE(this)->raycastvolume->render(action);
-
   }
   // viewport-aligned 3D textures
   else if (rendermethod == SoVolumeRenderP::TEXTURE3D) {

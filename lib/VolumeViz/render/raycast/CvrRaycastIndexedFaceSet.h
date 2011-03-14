@@ -33,12 +33,17 @@
 #include "CvrRaycastRenderBase.h"
 
 class SoGLRenderAction;
+class SoIndexedFaceSet;
 
 class CvrRaycastIndexedFaceSet : public CvrRaycastRenderBase {
 public:
   CvrRaycastIndexedFaceSet(const SoGLRenderAction * action);
   ~CvrRaycastIndexedFaceSet();
-  void render(const SoGLRenderAction * action);
+  void render(SoGLRenderAction * action, SoIndexedFaceSet * facesetnode);
+
+private:
+  void render(SoGLRenderAction * action);
+  SoIndexedFaceSet * facesetnode;
 };
 
 #endif // !CVS_RAYCASTINDEXEDFACESET_H

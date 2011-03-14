@@ -24,12 +24,23 @@
 
 #include "CvrRaycastIndexedFaceSet.h"
 
+#include <Inventor/C/glue/gl.h>
+#include <Inventor/system/gl.h>
+#include <Inventor/elements/SoViewportRegionElement.h>
+#include <Inventor/elements/SoGLLazyElement.h>
 #include <Inventor/actions/SoGLRenderAction.h>
+#include <Inventor/SbVec3s.h>
+#include <Inventor/nodes/SoIndexedFaceSet.h>
+
+#include <VolumeViz/render/raycast/CvrRaycastSubCube.h>
+
+#include <RenderManager.h>
 
 
 CvrRaycastIndexedFaceSet::CvrRaycastIndexedFaceSet(const SoGLRenderAction * action)
   : CvrRaycastRenderBase(action)
 {
+  this->facesetnode = new SoIndexedFaceSet;  
 }
 
 
@@ -39,8 +50,72 @@ CvrRaycastIndexedFaceSet::~CvrRaycastIndexedFaceSet()
 
 
 void 
-CvrRaycastIndexedFaceSet::render(const SoGLRenderAction * action)
+CvrRaycastIndexedFaceSet::render(SoGLRenderAction * action,
+                                 SoIndexedFaceSet * facesetnode)
 {
+  this->facesetnode->coordIndex.copyFrom(facesetnode->coordIndex);
+  this->render(action);
+}
+
+
+void 
+CvrRaycastIndexedFaceSet::render(SoGLRenderAction * action)
+{
+  SoState * state = action->getState();
+
+  // This must be done, as we want to control stuff in the GL state
+  // machine. Without it, state changes could trigger outside our
+  // control.
+  SoGLLazyElement::getInstance(state)->send(state, SoLazyElement::ALL_MASK);
+
+  const uint32_t glctxid = action->getCacheContext();
+  const cc_glglue * glw = cc_glglue_instance(glctxid);
+
+  glPushAttrib(GL_ALL_ATTRIB_BITS);
+ 
+  const SbViewportRegion & vpr = SoViewportRegionElement::get(state);
+  const SbVec2s size = vpr.getWindowSize(); 
+  SbList<SubCube *> subcuberenderorder = this->processSubCubes(action);
+
+  // FIXME: Needed? (20101022 handegar)
+  
+  glEnable(GL_DEPTH_TEST);    
+  cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[1]);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  
+  for (int i=0;i<subcuberenderorder.getLength();++i) {        
+    cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, 0);
+    cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[1]);
+    // FIXME: glBlitFramebuffer is not bound by glue. Must fix in
+    // Coin. (20100914 handegar)
+
+    // FIXME: Only blit the part of the viewport which were actually
+    // used. This does not seem like a gpu-hog, however. (20101012
+    // handegar)
+    glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
+                      GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    assert(glGetError() == GL_NO_ERROR);
+    
+    // -- copy depth from solid pass into depth of transparent pass
+    cc_glglue_glBindFramebuffer(glw, GL_READ_FRAMEBUFFER, this->gllayerfbos[1]);
+    cc_glglue_glBindFramebuffer(glw, GL_DRAW_FRAMEBUFFER, this->gllayerfbos[0]);
+    // FIXME: glBlitFramebuffer is not bound by glue. Must fix in Coin. (20100914 handegar)
+    glBlitFramebuffer(0, 0, size[0], size[1], 0, 0, size[0], size[1],
+                      GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+                  
+    cc_glglue_glBindFramebuffer(glw, GL_FRAMEBUFFER, this->gllayerfbos[0]);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    glDisable(GL_BLEND);
+    
+    const SubCube * cubeitem = subcuberenderorder[i];
+    assert(cubeitem);       
+    assert(cubeitem->cube);
+
+    cubeitem->cube->renderFaceset(action); 
+  }
+
+  glPopAttrib();
 
 }
 
