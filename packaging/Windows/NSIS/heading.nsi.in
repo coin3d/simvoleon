@@ -10,7 +10,7 @@ OutFile "@PACKAGE_TARNAME@-v@sdk_version@-install.exe"
 SilentInstall "normal"
 CRCCheck "on"
 
-LicenseText "GNU General Public License"
+LicenseText "BSD"
 LicenseData LICENSE.TXT
 
 ComponentText "Installing the @PACKAGE_NAME@ library"
