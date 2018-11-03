@@ -1,0 +1,26 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+bindir=@CMAKE_INSTALL_FULL_BINDIR@
+libdir=@CMAKE_INSTALL_FULL_LIBDIR@
+includedir=@CMAKE_INSTALL_FULL_INCLUDEDIR@
+datarootdir=@CMAKE_INSTALL_FULL_DATAROOTDIR@
+datadir=@CMAKE_INSTALL_FULL_DATADIR@
+docdir=@CMAKE_INSTALL_FULL_DOCDIR@
+infodir=@CMAKE_INSTALL_FULL_INFODIR@
+mandir=@CMAKE_INSTALL_FULL_MANDIR@
+htmldir=${docdir}/html
+
+Name: @PROJECT_NAME@
+Description: @PROJECT_DESCRIPTION@
+Version: @PROJECT_VERSION@
+Requires:
+Conflicts:
+Libs: -L${libdir} @SIMVOLEON_EXTRA_LDFLAGS@ @SIMVOLEON_EXTRA_LIBS@
+Cflags: -I${includedir} @SIMVOLEON_EXTRA_CFLAGS@ @SIMVOLEON_EXTRA_CPPFLAGS@
+
+simvoleon_host=@host@
+compiler=@COMPILER@
+compiler_is_gcc=@ac_compiler_gnu@
+frameworkdir=@frameworkdir@
+htmldir=@htmldir@
+msvcrt=@SIMVOLEON_MSVC_LIBC@
