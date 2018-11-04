@@ -3,10 +3,8 @@ configure_file(VolumeViz/C/basic.h.cmake.in VolumeViz/C/basic.h)
 
 # Note misc/ must be built after nodes/gradients/.
 file(GLOB_RECURSE GRADIENTS LIST_DIRECTORIES false RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/VolumeViz/nodes/gradients/" *.gg)
-dump_variable(
-GRADIENTS
-)
 
+# FIXME this will not work on Windows systems without a bash
 foreach(GG IN LISTS GRADIENTS)
   string(REPLACE ".gg" ".h" HDR ${GG})
   execute_process(
@@ -15,12 +13,8 @@ foreach(GG IN LISTS GRADIENTS)
     RESULT_VARIABLE RESULT
     OUTPUT_FILE "${HDR}"
   )
-  message("${GG} --> ${HDR} : ${RESULT}")
   list(APPEND INST_GRADIENTS_HDRS "VolumeViz/nodes/gradients/${HDR}")
 endforeach()
-dump_variable(
-INST_GRADIENTS_HDRS 
-)
 
 set(HDRS
   VolumeViz/Coin/gl/CoinGLPerformance.h
@@ -128,12 +122,6 @@ endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${SIMVOLEON_VERSION} SOVERSION ${SIMVOLEON_SO_VERSION})
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE HAVE_CONFIG_H SIMVOLEON_INTERNAL SIMVOLEON_DEBUG=$<CONFIG:Debug>)
-
-dump_variable(
-PROJECT_NAME
-SIMVOLEON_VERSION
-SIMVOLEON_SO_VERSION
-)
 
 if(WIN32)
   if(MSVC)
