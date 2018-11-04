@@ -420,7 +420,9 @@ SoVolumeDetailP::setVoxelValue(const SbVec3s & voxelpos, uint8_t value,
 
   int advance = 0;
   const unsigned int dim[3] = { // so we don't overflow a short
-    voxelcubedims[0], voxelcubedims[1],  voxelcubedims[2]
+    static_cast<unsigned int>(voxelcubedims[0]),
+    static_cast<unsigned int>(voxelcubedims[1]),
+    static_cast<unsigned int>(voxelcubedims[2])
   };
   advance += voxelpos[2] * dim[0] * dim[1];
   advance += voxelpos[1] * dim[0];
