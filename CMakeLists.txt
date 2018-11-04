@@ -51,7 +51,7 @@ include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 
 # ############################################################################
-# Macros
+# Macros & functions
 # ############################################################################
 
 function(dump_variable)
@@ -81,13 +81,10 @@ endfunction(executable)
 # Provide options to customise the build
 # ############################################################################
 
-option(OPTION_VERBOSE "Verbose build " ON)
-option(COIN_IV_EXTENSIONS "Enable extra Open Inventor extensions" ON)
+option(OPTION_VERBOSE "Verbose build " OFF)
 option(SIMVOLEON_BUILD_SHARED_LIBS "Build shared libraries" ON)
-option(SIMVOLEON_USE_QT5 "Prefer Qt5 over Qt4 if available" ON)
-option(WITH_STATIC_DEFAULTS "Enable statically linked in default materials" ON)
-option(HAVE_SPACENAV_SUPPORT "Enable Space Navigator support" ON)
 option(SIMVOLEON_BUILD_DOCUMENTATION "Build and install API documentation (requires Doxygen)." OFF)
+option(SIMVOLEON_BUILD_TESTS "Build test code" OFF)
 cmake_dependent_option(SIMVOLEON_BUILD_INTERNAL_DOCUMENTATION "Document internal code not part of the API." OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
 cmake_dependent_option(SIMVOLEON_BUILD_DOC_MAN "Build So${Gui} man pages." OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
 cmake_dependent_option(SIMVOLEON_BUILD_DOC_QTHELP "Build QtHelp documentation." OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
@@ -100,6 +97,9 @@ cmake_dependent_option(SIMVOLEON_BUILD_DOC_CHM "Build compressed HTML help manua
 find_package(OpenGL REQUIRED) # FIXME really needed?
 find_package(Coin REQUIRED)
 find_package(X11)  # FIXME really needed?
+if (SIMVOLEON_BUILD_TESTS)
+  find_package(GLUT) # needed only for testcode/tabula/glutclut.c
+endif()
 
 # ##########################################################################
 # Setup build environment
@@ -128,56 +128,6 @@ else()
 endif()
 check_cxx_source_compiles("
   int main() {__builtin_expect (x, 0);return 0;}" HAVE___BUILTIN_EXPECT)
-
-# FIXME to be tested if necessary
-set(CMAKE_REQUIRED_LIBRARIES Coin::Coin)
-
-check_cxx_source_compiles("
-  #include <Inventor/SbImage.h>
-  int main() { SbImage::addReadImageCB(NULL, NULL); return 0; }
-" HAVE_SBIMAGE_ADDREADIMAGECB)
-check_cxx_source_compiles("
-  #include <Inventor/nodes/SoPerspectiveCamera.h>
-  int main() { SoPerspectiveCamera * c = new SoPerspectiveCamera; c->setStereoMode(SoCamera::MONOSCOPIC); return 0; }
-" HAVE_SOCAMERA_SETSTEREOMODE)
-check_cxx_source_compiles("
-  #include <Inventor/misc/SoContextHandler.h>
-  int main() { SoContextHandler::destructingContext(0); return 0; }
-" HAVE_SOCONTEXTHANDLER)
-check_cxx_source_compiles("
-  #include <Inventor/events/SoKeyboardEvent.h>
-  int main() { SoKeyboardEvent::Key key = SoKeyboardEvent::DELETE; return 0; }
-" HAVE_SOKEYBOARDEVENT_DELETE)
-check_cxx_source_compiles("
-  #include <Inventor/events/SoMouseButtonEvent.h>
-  int main() { SoMouseButtonEvent::Button button = SoMouseButtonEvent::BUTTON5; return 0; }
-" HAVE_SOMOUSEBUTTONEVENT_BUTTON5)
-check_cxx_source_compiles("
-  #include <Inventor/nodes/SoPolygonOffset.h>
-  int main() { SoPolygonOffset * p = new SoPolygonOffset; return 0; }
-" HAVE_SOPOLYGONOFFSET)
-check_cxx_source_compiles("
-  #include <Inventor/actions/SoGLRenderAction.h>
-  int main() { int num = (int) SoGLRenderAction::SORTED_LAYERS_BLEND; return 0; }
-" HAVE_SORTED_LAYERS_BLEND)
-check_cxx_source_compiles("
-  #include <Inventor/VRMLnodes/SoVRMLBackground.h>
-  int main() { SoVRMLBackground * p = new SoVRMLBackground; return 0; }
-" HAVE_SOVRMLBACKGROUND)
-check_cxx_source_compiles("
-  #include <Inventor/VRMLnodes/SoVRMLFog.h>
-  int main() { SoVRMLFog * p = new SoVRMLFog; return 0; }
-" HAVE_SOVRMLFOG)
-check_cxx_source_compiles("
-  #include <Inventor/VRMLnodes/SoVRMLMaterial.h>
-  int main() { SoVRMLMaterial * p = new SoVRMLMaterial; return 0; }
-" HAVE_SOVRMLMATERIAL)
-check_cxx_source_compiles("
-  #include <Inventor/VRMLnodes/SoVRMLViewpoint.h>
-  int main() { SoVRMLViewpoint * p = new SoVRMLViewpoint; return 0; }
-" HAVE_SOVRMLVIEWPOINT)
-
-unset(CMAKE_REQUIRED_LIBRARIES)
 
 check_include_files(stdint.h HAVE_STDINT_H)
 check_include_files(stdlib.h HAVE_STDLIB_H)
@@ -211,7 +161,7 @@ endif()
 set(USE_EXCEPTIONS ON)
 
 set(PACKAGE ${PROJECT_NAME})
-set(PACKAGE_DESCRIPTION "A Qt Gui-toolkit binding for Coin")
+set(PACKAGE_DESCRIPTION "${PROJECT_DESCRIPTION}")
 set(PACKAGE_BUGREPORT "coin-support@coin3d.org")
 set(PACKAGE_NAME ${PROJECT_NAME})
 set(PACKAGE_STRING "${PROJECT_NAME} ${PROJECT_VERSION}")
@@ -229,7 +179,9 @@ set(PACKAGE_REQUIREMENTS "Coin, ${PACKAGE_ADDITIONAL_REQUIREMENTS}")
 add_subdirectory(data)
 add_subdirectory(lib)
 ##### small test programs (to be run interactively)
-#add_subdirectory(test-code)
+if (SIMVOLEON_BUILD_TESTS)
+  add_subdirectory(testcode)
+endif()
 
 ############################################################################
 # New CPACK section, please see the README file inside cpack.d directory.
