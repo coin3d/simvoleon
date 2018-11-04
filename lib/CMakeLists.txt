@@ -23,68 +23,13 @@ INST_GRADIENTS_HDRS
 )
 
 set(HDRS
-  VolumeViz/elements/CvrPageSizeElement.h
-  VolumeViz/elements/CvrVoxelBlockElement.h
-  VolumeViz/elements/CvrGLInterpolationElement.h
-  VolumeViz/elements/CvrLightingElement.h
-  VolumeViz/elements/CvrPalettedTexturesElement.h
-  VolumeViz/elements/CvrStorageHintElement.h
-  VolumeViz/elements/SoTransferFunctionElement.h
-  VolumeViz/elements/CvrCompressedTexturesElement.h
-  VolumeViz/nodes/SoVolumeFaceSet.h
+  VolumeViz/Coin/gl/CoinGLPerformance.h
   VolumeViz/nodes/CvrIndexedFaceSetRenderP.h
-  VolumeViz/nodes/SoTransferFunction.h
-  VolumeViz/nodes/SoVolumeRender.h
-  VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h
   VolumeViz/nodes/CvrIndexedTriangleStripSetRenderP.h
-  VolumeViz/nodes/SoVolumeIndexedFaceSet.h
-  VolumeViz/nodes/SoVolumeSkin.h
   VolumeViz/nodes/CvrFaceSetRenderP.h
   VolumeViz/nodes/CvrIndexedSetRenderBaseP.h
-  # VolumeViz/nodes/SoROI.h                             # not yet implemented?!
-  VolumeViz/nodes/SoVolumeTriangleStripSet.h
-  VolumeViz/nodes/SoObliqueSlice.h
-  VolumeViz/nodes/volumeraypickintersection.h
-  VolumeViz/nodes/SoOrthoSlice.h
-  VolumeViz/nodes/SoVolumeData.h
-  VolumeViz/nodes/SoVolumeRendering.h
   VolumeViz/nodes/CvrTriangleStripSetRenderP.h
   VolumeViz/nodes/CvrNonIndexedSetRenderBaseP.h
-  VolumeViz/misc/CvrGlobalRenderLock.h
-  VolumeViz/misc/CvrResourceManager.h
-  VolumeViz/misc/CvrCentralDifferenceGradient.h
-  VolumeViz/misc/Gradient.h
-  VolumeViz/misc/CvrVoxelChunk.h
-  VolumeViz/misc/CvrUtil.h
-  VolumeViz/misc/CvrCLUT.h
-  VolumeViz/misc/CvrGradient.h
-  VolumeViz/misc/CvrGIMPGradient.h
-  VolumeViz/details/SoVolumeDetail.h
-  VolumeViz/details/SoVolumeSkinDetail.h
-  VolumeViz/details/SoVolumeRenderDetail.h
-  VolumeViz/details/SoOrthoSliceDetail.h
-  VolumeViz/details/SoObliqueSliceDetail.h
-  VolumeViz/Coin/gl/CoinGLPerformance.h
-  VolumeViz/render/2D/Cvr2DTexPage.h
-  VolumeViz/render/2D/CvrPageHandler.h
-  VolumeViz/render/2D/texmemfullimg.h
-  VolumeViz/render/2D/Cvr2DTexSubPage.h
-  VolumeViz/render/Pointset/PointRendering.h
-  VolumeViz/render/common/CvrRGBATexture.h
-  VolumeViz/render/common/Cvr3DPaletteTexture.h
-  VolumeViz/render/common/Cvr2DPaletteTexture.h
-  VolumeViz/render/common/CvrPaletteTexture.h
-  VolumeViz/render/common/Cvr2DRGBATexture.h
-  VolumeViz/render/common/CvrTextureObject.h
-  VolumeViz/render/common/Cvr3DRGBATexture.h
-  VolumeViz/render/common/Cvr3DPaletteGradientTexture.h
-  VolumeViz/render/3D/CvrCubeHandler.h
-  VolumeViz/render/3D/Cvr3DTexSubCube.h
-  VolumeViz/render/3D/Cvr3DTexCube.h
-  VolumeViz/readers/SoVRVolFileReader.h
-  VolumeViz/readers/SoVRMemReader.h
-  VolumeViz/readers/SoVolumeReader.h
-  VolumeViz/caches/CvrGLTextureCache.h
 )
 
 set(SRCS
@@ -318,8 +263,103 @@ set(INST_C_HDRS
   "${CMAKE_CURRENT_BINARY_DIR}/VolumeViz/C/basic.h"
 )
 
-install(FILES ${INST_C_HDRS}         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/C               COMPONENT development)
-install(FILES ${INST_GRADIENTS_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/nodes/gradients COMPONENT development)
+set(INST_ELEMENTS_HDRS
+  VolumeViz/elements/CvrPageSizeElement.h
+  VolumeViz/elements/CvrVoxelBlockElement.h
+  VolumeViz/elements/CvrGLInterpolationElement.h
+  VolumeViz/elements/CvrLightingElement.h
+  VolumeViz/elements/CvrPalettedTexturesElement.h
+  VolumeViz/elements/CvrStorageHintElement.h
+  VolumeViz/elements/SoTransferFunctionElement.h
+  VolumeViz/elements/CvrCompressedTexturesElement.h
+)
+
+set(INST_NODES_HDRS
+  VolumeViz/nodes/SoVolumeFaceSet.h
+  VolumeViz/nodes/SoTransferFunction.h
+  VolumeViz/nodes/SoVolumeRender.h
+  VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h
+  VolumeViz/nodes/SoVolumeIndexedFaceSet.h
+  VolumeViz/nodes/SoVolumeSkin.h
+  # VolumeViz/nodes/SoROI.h                             # not yet implemented?!
+  VolumeViz/nodes/SoVolumeTriangleStripSet.h
+  VolumeViz/nodes/SoObliqueSlice.h
+  VolumeViz/nodes/volumeraypickintersection.h
+  VolumeViz/nodes/SoOrthoSlice.h
+  VolumeViz/nodes/SoVolumeData.h
+  VolumeViz/nodes/SoVolumeRendering.h
+)
+
+set(INST_MISC_HDRS
+  VolumeViz/misc/CvrGlobalRenderLock.h
+  VolumeViz/misc/CvrResourceManager.h
+  VolumeViz/misc/CvrCentralDifferenceGradient.h
+  VolumeViz/misc/Gradient.h
+  VolumeViz/misc/CvrVoxelChunk.h
+  VolumeViz/misc/CvrUtil.h
+  VolumeViz/misc/CvrCLUT.h
+  VolumeViz/misc/CvrGradient.h
+  VolumeViz/misc/CvrGIMPGradient.h
+)
+
+set(INST_DETAILS_HDRS
+  VolumeViz/details/SoVolumeDetail.h
+  VolumeViz/details/SoVolumeSkinDetail.h
+  VolumeViz/details/SoVolumeRenderDetail.h
+  VolumeViz/details/SoOrthoSliceDetail.h
+  VolumeViz/details/SoObliqueSliceDetail.h
+)
+
+set(INST_RENDER_2D_HDRS
+  VolumeViz/render/2D/Cvr2DTexPage.h
+  VolumeViz/render/2D/CvrPageHandler.h
+  VolumeViz/render/2D/texmemfullimg.h
+  VolumeViz/render/2D/Cvr2DTexSubPage.h
+)
+
+set(INST_RENDER_POINTSET_HDRS
+  VolumeViz/render/Pointset/PointRendering.h
+)
+
+set(INST_RENDER_COMMON_HDRS
+  VolumeViz/render/common/CvrRGBATexture.h
+  VolumeViz/render/common/Cvr3DPaletteTexture.h
+  VolumeViz/render/common/Cvr2DPaletteTexture.h
+  VolumeViz/render/common/CvrPaletteTexture.h
+  VolumeViz/render/common/Cvr2DRGBATexture.h
+  VolumeViz/render/common/CvrTextureObject.h
+  VolumeViz/render/common/Cvr3DRGBATexture.h
+  VolumeViz/render/common/Cvr3DPaletteGradientTexture.h
+)
+
+set(INST_RENDER_3D_HDRS
+  VolumeViz/render/3D/CvrCubeHandler.h
+  VolumeViz/render/3D/Cvr3DTexSubCube.h
+  VolumeViz/render/3D/Cvr3DTexCube.h
+)
+
+set(INST_READERS_HDRS
+  VolumeViz/readers/SoVRVolFileReader.h
+  VolumeViz/readers/SoVRMemReader.h
+  VolumeViz/readers/SoVolumeReader.h
+)
+
+set(INST_CACHES_HDRS
+  VolumeViz/caches/CvrGLTextureCache.h
+)
+
+install(FILES ${INST_GRADIENTS_HDRS}       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/nodes/gradients COMPONENT development)
+install(FILES ${INST_C_HDRS}               DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/C               COMPONENT development)
+install(FILES ${INST_ELEMENTS_HDRS}        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/elements        COMPONENT development)
+install(FILES ${INST_NODES_HDRS}           DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/nodes           COMPONENT development)
+install(FILES ${INST_MISC_HDRS}            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/misc            COMPONENT development)
+install(FILES ${INST_DETAILS_HDRS}         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/details         COMPONENT development)
+install(FILES ${INST_RENDER_2D_HDRS}       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/render/2D       COMPONENT development)
+install(FILES ${INST_RENDER_POINTSET_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/render/Pointset COMPONENT development)
+install(FILES ${INST_RENDER_COMMON_HDRS}   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/render/common   COMPONENT development)
+install(FILES ${INST_RENDER_3D_HDRS}       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/render/3D       COMPONENT development)
+install(FILES ${INST_READERS_HDRS}         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/readers         COMPONENT development)
+install(FILES ${INST_CACHES_HDRS}          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/caches          COMPONENT development)
 
 # ############################################################################
 # Install targets
