@@ -27,7 +27,7 @@ static uint8_t *generate8bitVoxelSet(SbVec3s & dim) {
 }
 
 int main(int argc, char ** argv) {
-  @WIDGET@ window = So@Gui@::init(argv[0]);
+  auto window = So@Gui@::init(argv[0]);
   SoVolumeRendering::init();
   SoSeparator * root = new SoSeparator;
   root->ref();
