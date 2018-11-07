@@ -98,6 +98,7 @@ find_package(OpenGL REQUIRED) # FIXME really needed?
 find_package(Coin REQUIRED)
 find_package(X11)  # FIXME really needed?
 if (SIMVOLEON_BUILD_TESTS)
+  find_package(SoQt)
   find_package(GLUT) # needed only for testcode/tabula/glutclut.c
 endif()
 
@@ -175,7 +176,6 @@ set(PACKAGE_REQUIREMENTS "Coin, ${PACKAGE_ADDITIONAL_REQUIREMENTS}")
 # ############################################################################
 # Setup targets in subdirectories
 # ############################################################################
-
 add_subdirectory(data)
 add_subdirectory(lib)
 ##### small test programs (to be run interactively)
@@ -185,4 +185,4 @@ endif()
 
 ############################################################################
 # New CPACK section, please see the README file inside cpack.d directory.
-# add_subdirectory(cpack.d)
+add_subdirectory(cpack.d)
