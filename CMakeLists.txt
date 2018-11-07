@@ -96,7 +96,6 @@ cmake_dependent_option(SIMVOLEON_BUILD_DOC_CHM "Build compressed HTML help manua
 
 find_package(OpenGL REQUIRED) # FIXME really needed?
 find_package(Coin REQUIRED)
-find_package(X11)  # FIXME really needed?
 if (SIMVOLEON_BUILD_TESTS)
   set(Gui "Qt" CACHE STRING "Target GUI for the example code")
   set(GuiValues "Qt;Xt;Win" CACHE INTERNAL "List of possible values for the GUI cache variable")
