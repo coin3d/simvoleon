@@ -24,6 +24,7 @@ set(HDRS
   VolumeViz/nodes/CvrIndexedSetRenderBaseP.h
   VolumeViz/nodes/CvrTriangleStripSetRenderP.h
   VolumeViz/nodes/CvrNonIndexedSetRenderBaseP.h
+  ${INST_GRADIENTS_HDRS}
 )
 
 set(SRCS
@@ -148,19 +149,7 @@ target_include_directories(${PROJECT_NAME}
     ${OPENGL_INCLUDE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} ${COIN_LIBRARY} ${OPENGL_LIBRARIES})
-dump_variable(
-OPENGL_LIBRARIES
-)
-
-if(X11_FOUND)
-  target_include_directories(${PROJECT_NAME} PUBLIC ${X11_INCLUDE_DIR})
-  target_link_libraries(${PROJECT_NAME} ${X11_LIBRARIES})
-endif()
-if(X11_Xi_FOUND)
-  target_include_directories(${PROJECT_NAME} PUBLIC ${X11_Xi_INCLUDE_DIR})
-  target_link_libraries(${PROJECT_NAME} ${X11_Xi_LIB})
-endif()
+target_link_libraries(${PROJECT_NAME} ${Coin_LIBRARY} ${OPENGL_LIBRARIES})
 
 # Add a target to generate API documentation with Doxygen
 if(SIMVOLEON_BUILD_DOCUMENTATION)
@@ -212,7 +201,7 @@ if(SIMVOLEON_BUILD_DOCUMENTATION)
 
   set(DOXYFILE "${CMAKE_CURRENT_BINARY_DIR}/Doxyfile")
   set(DOXYGEN_OUTPUT "${CMAKE_BINARY_DIR}/html/index.html")
-  configure_file("${CMAKE_CURRENT_SOURCE_DIR}/Inventor/${Gui}/common/sogui.doxygen.cmake.in" ${DOXYFILE} @ONLY)
+  configure_file("${PROJECT_SOURCE_DIR}/docs/${PROJECT_NAME_LOWER}.doxygen.cmake.in" ${DOXYFILE} @ONLY)
 
 # ############################################################################
 # Setup documentation targets
@@ -336,7 +325,6 @@ set(INST_CACHES_HDRS
   VolumeViz/caches/CvrGLTextureCache.h
 )
 
-install(FILES ${INST_GRADIENTS_HDRS}       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/nodes/gradients COMPONENT development)
 install(FILES ${INST_C_HDRS}               DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/C               COMPONENT development)
 install(FILES ${INST_ELEMENTS_HDRS}        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/elements        COMPONENT development)
 install(FILES ${INST_NODES_HDRS}           DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/nodes           COMPONENT development)
