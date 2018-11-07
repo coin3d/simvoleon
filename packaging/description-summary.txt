@@ -1,0 +1,1 @@
+A volume rendering library for Coin.
