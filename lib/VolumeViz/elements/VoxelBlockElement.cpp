@@ -290,7 +290,9 @@ CvrVoxelBlockElement::getVoxelValue(const SbVec3s & voxelpos) const
 
   int advance = 0;
   const unsigned int dim[3] = { // so we don't overflow a short
-    this->voxelcubedims[0], this->voxelcubedims[1],  this->voxelcubedims[2]
+    static_cast<unsigned int>(this->voxelcubedims[0]),
+    static_cast<unsigned int>(this->voxelcubedims[1]),  
+    static_cast<unsigned int>(this->voxelcubedims[2])
   };
   advance += voxelpos[2] * dim[0] * dim[1];
   advance += voxelpos[1] * dim[0];

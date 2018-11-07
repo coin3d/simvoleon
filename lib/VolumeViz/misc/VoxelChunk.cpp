@@ -29,11 +29,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 \**************************************************************************/
-
 #include <VolumeViz/misc/CvrVoxelChunk.h>
 
-#include <assert.h>
-#include <string.h> // memcpy()
+#include <cassert>
+#include <cstring> // memcpy()
 
 #include <Inventor/C/glue/gl.h>
 #include <Inventor/C/tidbits.h>
