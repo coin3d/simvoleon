@@ -495,7 +495,9 @@ SoVolumeData::getVoxelValue(const SbVec3s & voxelpos) const
   uint8_t * voxptr = (uint8_t *)PRIVATE(this)->reader->m_data;
   int advance = 0;
   const unsigned int dim[3] = { // so we don't overflow a short
-    PRIVATE(this)->dimensions[0], PRIVATE(this)->dimensions[1],  PRIVATE(this)->dimensions[2]
+    static_cast<unsigned int>(PRIVATE(this)->dimensions[0]),
+    static_cast<unsigned int>(PRIVATE(this)->dimensions[1]),
+    static_cast<unsigned int>(PRIVATE(this)->dimensions[2])
   };
   advance += voxelpos[2] * dim[0] * dim[1];
   advance += voxelpos[1] * dim[0];
@@ -733,7 +735,9 @@ SoVolumeData::getHistogram(int & length, int *& histogram)
   }
 
   const unsigned int dim[3] = { // so we don't overflow a short
-    PRIVATE(this)->dimensions[0], PRIVATE(this)->dimensions[1],  PRIVATE(this)->dimensions[2]
+    static_cast<unsigned int>(PRIVATE(this)->dimensions[0]),
+    static_cast<unsigned int>(PRIVATE(this)->dimensions[1]),
+    static_cast<unsigned int>(PRIVATE(this)->dimensions[2])
   };
 
   switch (PRIVATE(this)->datatype) {

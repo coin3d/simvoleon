@@ -339,3 +339,13 @@ Aborted
 
     20051003 handegar.
 
+========================================================================
+
+027 SoQt binding in the client code seems introducing mem-corruption 
+    ending up in crash when invoking 
+    CvrGIMPGradient * CvrGIMPGradient::read(const char * buf)
+
+    Same code with SoXt binding works.
+    To be tested with SoWin.
+    
+    20181107 Giampiero
