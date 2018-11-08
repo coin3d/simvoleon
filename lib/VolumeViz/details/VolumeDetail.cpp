@@ -252,7 +252,7 @@ SoVolumeDetail::getFirstNonTransparentValue(unsigned int * value,
 
 
 /*!
-  \COININTERNAL
+  \VOLEONINTERNAL
   
   Used to set raypick details.  
   NOTE: This method takes different arguments than the TGS equivalent.
