@@ -76,10 +76,6 @@
   <li> Maximum Intensity Projection and Sum Intensity Projection is
   supported through hardware if available. </li>
 
-  <center>
-   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-spine.png">
-  </center>
-  
   </ul>
 
   Here's a simple usage example, which sets up a complete environment
@@ -209,7 +205,6 @@
   </ul>
 
   <p>
-  <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-engine.png" align=right>
 
   SIM Voleon does currently support loading of VOL files, which is a
   format introduced by the book <i>"Introduction To Volume
@@ -232,8 +227,8 @@
   memory, leading to reduced performance.
   </p>
 
-  \sa The documentation for the \COIN library: <http://doc.coin3d.org/Coin>.
-  \sa The documentation for the SoQt library: <http://doc.coin3d.org/SoQt>.
+  \sa The documentation for the \COIN library: <https://coin3d.bitbucket.io/Coin>.
+  \sa The documentation for the SoQt library: <https://coin3d.bitbucket.io/SoQt>.
 */
 
 // *************************************************************************
