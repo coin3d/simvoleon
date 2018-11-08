@@ -210,6 +210,7 @@
 
   <p>
   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-engine.png" align=right>
+  \image html SIMVoleon.png
 
   SIM Voleon does currently support loading of VOL files, which is a
   format introduced by the book <i>"Introduction To Volume
@@ -232,8 +233,8 @@
   memory, leading to reduced performance.
   </p>
 
-  \sa The documentation for the \COIN library: <http://doc.coin3d.org/Coin>.
-  \sa The documentation for the SoQt library: <http://doc.coin3d.org/SoQt>.
+  \sa The documentation for the \COIN library: <https://coin3d.bitbucket.io/Coin>.
+  \sa The documentation for the SoQt library: <https://coin3d.bitbucket.io/SoQt>.
 */
 
 // *************************************************************************
