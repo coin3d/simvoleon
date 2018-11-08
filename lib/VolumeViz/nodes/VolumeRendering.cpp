@@ -76,10 +76,6 @@
   <li> Maximum Intensity Projection and Sum Intensity Projection is
   supported through hardware if available. </li>
 
-  <center>
-   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-spine.png">
-  </center>
-  
   </ul>
 
   Here's a simple usage example, which sets up a complete environment
@@ -209,8 +205,6 @@
   </ul>
 
   <p>
-  <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-engine.png" align=right>
-  \image html SIMVoleon.png
 
   SIM Voleon does currently support loading of VOL files, which is a
   format introduced by the book <i>"Introduction To Volume
