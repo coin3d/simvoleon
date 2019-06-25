@@ -149,7 +149,7 @@ target_include_directories(${PROJECT_NAME}
     ${OPENGL_INCLUDE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} ${Coin_LIBRARY} ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} Coin::Coin ${OPENGL_LIBRARIES})
 
 # Add a target to generate API documentation with Doxygen
 if(SIMVOLEON_BUILD_DOCUMENTATION)
