@@ -76,7 +76,7 @@ void
 CvrResourceManager::set(const void * resourceholder, void * resource,
                         ToBeDeletedCB * cb, void * cbclosure)
 {
-  const unsigned long dictkey = (unsigned long)resourceholder;
+  const uintptr_t dictkey = (uintptr_t)resourceholder;
   const SbBool newentry = this->resourceholders.enter(dictkey, resource);
   assert(newentry);
 
@@ -89,14 +89,14 @@ CvrResourceManager::set(const void * resourceholder, void * resource,
 SbBool
 CvrResourceManager::get(const void * resourceholder, void *& resource) const
 {
-  const unsigned long dictkey = (unsigned long)resourceholder;
+  const uintptr_t dictkey = (uintptr_t)resourceholder;
   return this->resourceholders.find(dictkey, resource);
 }
 
 void
 CvrResourceManager::remove(const void * resourceholder)
 {
-  const unsigned long dictkey = (unsigned long)resourceholder;
+  const uintptr_t dictkey = (uintptr_t)resourceholder;
   const SbBool ok = this->resourceholders.remove(dictkey);
   assert(ok);
 
