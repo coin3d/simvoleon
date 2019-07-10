@@ -94,7 +94,7 @@ private:
   Default transfer function color map. The checker board indicates
   that this gradient is partly transparent.
 
-  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/grey.png"></center>
+  <center><img src="grey.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GRAY
@@ -105,42 +105,42 @@ private:
 
   This gradient is fully opaque.
 
-  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/temperature.png"></center>
+  <center><img src="temperature.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::PHYSICS
 
   This gradient is fully opaque.
 
-  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/physics.png"></center>
+  <center><img src="physics.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::STANDARD
 
   This gradient is fully opaque.
 
-  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/standard.png"></center>
+  <center><img src="standard.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::GLOW
 
   This gradient is fully opaque.
 
-  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/glow.png"></center>
+  <center><img src="glow.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::BLUE_RED
 
   This gradient is fully opaque.
 
-  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/blue_red.png"></center>
+  <center><img src="blue_red.png"></center>
 */
 /*!
   \var SoTransferFunction::PredefColorMap SoTransferFunction::SEISMIC
 
   This gradient is partly transparent.
 
-  <center><img src="http://doc.coin3d.org/images/SIMVoleon/gradients/seismic.png"></center>
+  <center><img src="seismic.png"></center>
 */
 
 /*!
