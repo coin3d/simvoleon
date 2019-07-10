@@ -1,31 +1,42 @@
 configure_file(config.h.cmake.in config.h)
 configure_file(VolumeViz/C/basic.h.cmake.in VolumeViz/C/basic.h)
 
+macro(strfy _input _postfix)
+  set(COIN_INPUT_FILE_NAME ${_input})
+  get_filename_component(_basename "${_input}" NAME_WE)
+  get_filename_component(_suffix "${_input}" EXT)
+  get_filename_component(_path "${_input}" PATH)
+  string(SUBSTRING ${_suffix} 1 -1 _suffix)
+  string(TOUPPER "${_basename}_${_suffix}_H" COIN_HEADER_DEF)
+  string(TOUPPER ${_basename} COIN_TEXTVAR_NAME)
+  set(COIN_TEXTVAR_NAME "${COIN_TEXTVAR_NAME}${_postfix}")
+  #message(STATUS "Parse: ${CMAKE_CURRENT_SOURCE_DIR}/${_input}")
+  FILE(READ ${CMAKE_CURRENT_SOURCE_DIR}/${_input} f0)
+  STRING(REGEX REPLACE "\\\\" "\\\\\\\\" f1 "${f0}")
+  STRING(REGEX REPLACE "\"" "\\\\\"" f2 "${f1}")
+  STRING(REGEX REPLACE "\r?\n" "\\\\n\"\n  \"" COIN_STR_SOURCE_CODE "${f2}")
+  configure_file(strfytemplate.cmake.in "${_path}/${_basename}.h")
+endmacro()
+
 # Note misc/ must be built after nodes/gradients/.
 file(GLOB_RECURSE GRADIENTS LIST_DIRECTORIES false RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}/VolumeViz/nodes/gradients/" *.gg)
-
-# FIXME this will not work on Windows systems without a bash
-foreach(GG IN LISTS GRADIENTS)
-  string(REPLACE ".gg" ".h" HDR ${GG})
-  execute_process(
-    COMMAND "${CMAKE_CURRENT_SOURCE_DIR}/VolumeViz/nodes/gradients/grad2h.sh" "${GG}"
-    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/VolumeViz/nodes/gradients/"
-    RESULT_VARIABLE RESULT
-    OUTPUT_FILE "${HDR}"
-  )
-  list(APPEND INST_GRADIENTS_HDRS "VolumeViz/nodes/gradients/${HDR}")
+foreach(_input_file ${GRADIENTS})
+  strfy(VolumeViz/nodes/gradients/${_input_file} "_gradient")
 endforeach()
 
-set(HDRS
-  VolumeViz/Coin/gl/CoinGLPerformance.h
-  VolumeViz/nodes/CvrIndexedFaceSetRenderP.h
-  VolumeViz/nodes/CvrIndexedTriangleStripSetRenderP.h
-  VolumeViz/nodes/CvrFaceSetRenderP.h
-  VolumeViz/nodes/CvrIndexedSetRenderBaseP.h
-  VolumeViz/nodes/CvrTriangleStripSetRenderP.h
-  VolumeViz/nodes/CvrNonIndexedSetRenderBaseP.h
-  ${INST_GRADIENTS_HDRS}
-)
+#set(HDRS
+#  VolumeViz/Coin/gl/CoinGLPerformance.h
+#  VolumeViz/nodes/CvrIndexedFaceSetRenderP.h
+#  VolumeViz/nodes/CvrIndexedTriangleStripSetRenderP.h
+#  VolumeViz/nodes/CvrFaceSetRenderP.h
+#  VolumeViz/nodes/CvrIndexedSetRenderBaseP.h
+#  VolumeViz/nodes/CvrTriangleStripSetRenderP.h
+#  VolumeViz/nodes/CvrNonIndexedSetRenderBaseP.h
+#  ${INST_GRADIENTS_HDRS}
+#)
+
+file(GLOB_RECURSE HDRS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
+file(GLOB_RECURSE BIN_HDRS ${CMAKE_CURRENT_BINARY_DIR}/*.h)
 
 set(SRCS
   VolumeViz/Coin/gl/CoinGLPerformance.cpp 
@@ -88,7 +99,6 @@ set(SRCS
   VolumeViz/render/common/CvrRGBATexture.cpp
   VolumeViz/render/common/CvrTextureObject.cpp
   VolumeViz/render/Pointset/PointRendering.cpp
-
 )
 
 if(WIN32)
@@ -115,9 +125,9 @@ else()
 endif()
 
 if(SIMVOLEON_BUILD_SHARED_LIBS)
-  add_library(${PROJECT_NAME} SHARED ${HDRS} ${COMMON_HDRS} ${SRCS} ${COMMON_SRCS})
+  add_library(${PROJECT_NAME} SHARED ${HDRS} ${BIN_HDRS} ${SRCS})
 else()
-  add_library(${PROJECT_NAME} STATIC ${HDRS} ${COMMON_HDRS} ${SRCS} ${COMMON_SRCS})
+  add_library(${PROJECT_NAME} STATIC ${HDRS} ${BIN_HDRS} ${SRCS})
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${SIMVOLEON_VERSION} SOVERSION ${SIMVOLEON_SO_VERSION})
