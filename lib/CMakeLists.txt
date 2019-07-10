@@ -24,17 +24,6 @@ foreach(_input_file ${GRADIENTS})
   strfy(VolumeViz/nodes/gradients/${_input_file} "_gradient")
 endforeach()
 
-#set(HDRS
-#  VolumeViz/Coin/gl/CoinGLPerformance.h
-#  VolumeViz/nodes/CvrIndexedFaceSetRenderP.h
-#  VolumeViz/nodes/CvrIndexedTriangleStripSetRenderP.h
-#  VolumeViz/nodes/CvrFaceSetRenderP.h
-#  VolumeViz/nodes/CvrIndexedSetRenderBaseP.h
-#  VolumeViz/nodes/CvrTriangleStripSetRenderP.h
-#  VolumeViz/nodes/CvrNonIndexedSetRenderBaseP.h
-#  ${INST_GRADIENTS_HDRS}
-#)
-
 file(GLOB_RECURSE HDRS ${CMAKE_CURRENT_SOURCE_DIR}/*.h)
 file(GLOB_RECURSE BIN_HDRS ${CMAKE_CURRENT_BINARY_DIR}/*.h)
 
