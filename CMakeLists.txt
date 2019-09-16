@@ -77,6 +77,20 @@ function(executable executable_name)
   endif()
 endfunction(executable)
 
+function(report_prepare)
+  set(multiValueArgs IF_APPLE IF_WIN32)
+  cmake_parse_arguments(REPORT "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+  if (REPORT_IF_APPLE AND APPLE)
+    list(APPEND res ${REPORT_IF_APPLE})
+  endif()
+  if (REPORT_IF_WIN32 AND WIN32)
+    list(APPEND res ${REPORT_IF_WIN32})
+  endif()
+  list(APPEND res ${REPORT_UNPARSED_ARGUMENTS})
+  list(APPEND PACKAGE_OPTIONS ${res})
+  set(PACKAGE_OPTIONS "${PACKAGE_OPTIONS}" PARENT_SCOPE)
+endfunction(report_prepare)
+
 # ############################################################################
 # Provide options to customise the build
 # ############################################################################
@@ -89,6 +103,16 @@ cmake_dependent_option(SIMVOLEON_BUILD_INTERNAL_DOCUMENTATION "Document internal
 cmake_dependent_option(SIMVOLEON_BUILD_DOC_MAN "Build So${Gui} man pages." OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
 cmake_dependent_option(SIMVOLEON_BUILD_DOC_QTHELP "Build QtHelp documentation." OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
 cmake_dependent_option(SIMVOLEON_BUILD_DOC_CHM "Build compressed HTML help manual (requires HTML help compiler)" OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
+
+report_prepare(
+  SIMVOLEON_BUILD_SHARED_LIBS
+  SIMVOLEON_BUILD_DOCUMENTATION
+  SIMVOLEON_BUILD_TESTS
+  SIMVOLEON_BUILD_INTERNAL_DOCUMENTATION
+  SIMVOLEON_BUILD_DOC_MAN
+  SIMVOLEON_BUILD_DOC_QTHELP
+  SIMVOLEON_BUILD_DOC_CHM
+)
 
 # ############################################################################
 # Find all necessary and optional dependencies
