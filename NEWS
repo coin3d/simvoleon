@@ -1,11 +1,13 @@
-New in SIM Voleon v2.0.2a (so far):
+New in SIM Voleon v2.1.0 (2019-12-26):
+* new:
+  - Kongsberg Oil & Gas Technologies AS ended SimVoleon as a commercial product
+    and re-licensed it under the BSD 3-clause license as a service to the
+    user community.
+  - The build system has been migrated from GNU Autotools to CMake
+  - Support for BitBucket and AppVeyor as continuous integration service providers
 
-* bugfixes
-  [none]
-
-* new features
-  [none]
-
+* bugfixes:
+
 New in SIM Voleon v2.0.1:
 
 * bugfixes
@@ -14,7 +16,7 @@ New in SIM Voleon v2.0.1:
   - fixed a major resource leak for OpenGL textures
   - obscure bug in optimalization feature for tracking "open" areas fixed
   - rendering code is now multithread-safe
-
+
 New in SIM Voleon v2.0.0:
 
 * new features

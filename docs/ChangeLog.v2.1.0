@@ -1,0 +1,2080 @@
+2019-11-09 15:07 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (ecea5e213472 [tip])
+
+	* .hgsubstate:
+	Updated to last cpack.d for centOS and RHEL support
+
+2019-10-13 13:42 +0200  Giampiero Gabbiani  <giampiero@gabbiani.org>  (e923708c7e00)
+
+	* .hgsubstate:
+	Aligned with last cpack.d commit
+
+2019-09-17 20:30 +0000  Volker Enderlein  <volkerenderlein@hotmail.com>  (8c7b0f260701)
+
+	* appveyor.yml:
+	Only use the generic Qt version (major.minor) in appveyor scripts.
+
+2019-09-16 21:51 +0200  Giampiero Gabbiani  <giampiero@gabbiani.org>  (b6e25ccc23ee)
+
+	* .hgsubstate, CMakeLists.txt:
+	cpack.d update and report setup
+
+2019-07-11 00:02 +0200  Volker Enderlein  <volkerenderlein@hotmail.com>  (e91e788a2abb)
+
+	* appveyor.yml: new file.
+	* appveyor.yml:
+	Added AppVeyor CI script.
+
+2019-07-10 23:48 +0200  Volker Enderlein  <volkerenderlein@hotmail.com>  (2e5c5cb3cc74)
+
+	* docs/doxygen/images/blue_red.png, docs/doxygen/images/glow.png,
+	docs/doxygen/images/grey.png, docs/doxygen/images/physics.png,
+	docs/doxygen/images/seismic.png, docs/doxygen/images/standard.png,
+	docs/doxygen/images/temperature.png: new file.
+	* docs/doxygen/images/blue_red.png, docs/doxygen/images/glow.png,
+	docs/doxygen/images/grey.png, docs/doxygen/images/physics.png,
+	docs/doxygen/images/seismic.png, docs/doxygen/images/standard.png,
+	docs/doxygen/images/temperature.png,
+	docs/simvoleon.doxygen.cmake.in,
+	lib/VolumeViz/nodes/TransferFunction.cpp:
+	Fixed some documentation issues. Added missing images.
+
+2019-07-10 23:48 +0200  Volker Enderlein  <volkerenderlein@hotmail.com>  (5a5b0afb9bea)
+
+	* lib/VolumeViz/misc/ResourceManager.cpp:
+	Fixed 64bit warnings.
+
+2019-07-10 23:47 +0200  Volker Enderlein  <volkerenderlein@hotmail.com>  (4978e65e9b26)
+
+	* lib/CMakeLists.txt:
+	Removed obsoleted section.
+
+2019-07-10 23:44 +0200  Volker Enderlein  <volkerenderlein@hotmail.com>  (e0e58f15c74c)
+
+	* lib/SIMVoleon.rc.cmake.in:
+	Fixed description in Windows DLL resource file.
+
+2019-07-10 23:41 +0200  Volker Enderlein  <volkerenderlein@hotmail.com>  (812a18c86d15)
+
+	* lib/strfytemplate.cmake.in: new file.
+	* lib/CMakeLists.txt, lib/strfytemplate.cmake.in:
+	Fixed generation of gradient header files for Windows.
+
+2019-06-26 00:10 +0200  Giampiero Gabbiani  <giampiero@gabbiani.org>  (1ba622cb8137)
+
+	* .hgsubstate, CMakeLists.txt, data/CMakeLists.txt,
+	lib/CMakeLists.txt:
+	Fixed lib dependencies and updated cpack.d
+
+2019-02-06 00:09 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (73d468e78a8f)
+
+	* .hgsub, .hgsubstate:
+	updated cpack.d sub and substate
+
+2018-11-10 08:57 +0000  Giampiero Gabbiani  <giampiero@gabbiani.org>  (bc50c03749cd)
+
+	* Merged in ggabbiani/simvoleon-fork/cpack.d (pull request #3)
+
+	Added cpack.d as a subrepo
+
+2018-11-10 08:57 +0000  Giampiero Gabbiani  <giampiero@gabbiani.org>  (3357c8c352d9 <cpack.d>)
+
+	* Close branch cpack.d
+
+2018-11-10 09:54 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (7ad21b155ded <cpack.d>)
+
+	* .hgsub, .hgsubstate:
+	Added cpack.d as a subrepo
+
+2018-11-08 02:42 +0000  Giampiero Gabbiani  <giampiero@gabbiani.org>  (b8a8071da63f)
+
+	* Merged in ggabbiani/simvoleon-fork/fix-docs (pull request #2)
+
+	Docs fixes
+
+2018-11-08 02:42 +0000  Giampiero Gabbiani  <giampiero@gabbiani.org>  (2bebd7a39532 <fix-docs>)
+
+	* Close branch fix-docs
+
+2018-11-08 03:37 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (249a78714286 <fix-docs>)
+
+	* lib/VolumeViz/nodes/VolumeRendering.cpp:
+	removed missing image references
+
+2018-11-08 03:37 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (939c0fb6219f <fix-docs>)
+
+	* docs/simvoleon.doxygen.cmake.in:
+	some fixes
+
+2018-11-08 03:36 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (378058fd82fb <fix-docs>)
+
+	* docs/doxygen/footer.html, docs/doxygen/header.html,
+	docs/doxygen/stylesheet.css:
+	updated style
+
+2018-11-08 01:51 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (088b4207b566 <fix-docs>)
+
+	* lib/VolumeViz/details/VolumeDetail.cpp,
+	lib/VolumeViz/nodes/VolumeRendering.cpp:
+	fixed macro and references to bitbucket site
+
+2018-11-07 18:25 +0000  Giampiero Gabbiani  <giampiero@gabbiani.org>  (b5cd9cbb7655)
+
+	* .hgignore, CMakeLists.txt, SIMVoleon.pc.cmake.in,
+	data/CMakeLists.txt, docs/simvoleon.doxygen.cmake.in,
+	lib/CMakeLists.txt, lib/SIMVoleon.rc.cmake.in,
+	lib/VolumeViz/C/basic.h.cmake.in, lib/config.h.cmake.in, packaging
+	/description-summary.txt, simvoleon-config.cmake.in,
+	testcode/CMakeLists.txt, testcode/doc-example.cpp.in,
+	testcode/tabula/CMakeLists.txt: new file.
+	* Merged in ggabbiani/simvoleon-fork/CMake (pull request #1)
+
+	CMake
+
+2018-11-07 18:25 +0000  Giampiero Gabbiani  <giampiero@gabbiani.org>  (0b0886c8a5c1 <CMake>)
+
+	* Close branch CMake
+
+2018-11-07 03:11 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (71ca352ee84c <CMake>)
+
+	* BUGS.txt:
+	added note on problem encountered when binding to SoQt
+
+2018-11-07 03:08 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (b92d7ca10474 <CMake>)
+
+	* CMakeLists.txt, testcode/doc-example.cpp.in:
+	GUI binding changes
+
+2018-11-07 03:05 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (6b46791d5432 <CMake>)
+
+	* docs/simvoleon.doxygen.cmake.in:
+	fixed typo
+
+2018-11-07 02:56 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (e8d540b02c40 <CMake>)
+
+	* docs/simvoleon.doxygen.cmake.in, packaging/description-summary.txt,
+	testcode/doc-example.cpp.in: new file.
+	* docs/simvoleon.doxygen.cmake.in, packaging/description-summary.txt,
+	testcode/doc-example.cpp.in:
+	first import
+
+2018-11-07 02:54 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (525e8f9364cc <CMake>)
+
+	* testcode/tabula/CMakeLists.txt:
+	commented out test code for problems with glut
+
+2018-11-07 02:53 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (14945400e834 <CMake>)
+
+	* lib/VolumeViz/misc/GIMPGradient.cpp,
+	lib/VolumeViz/misc/VoxelChunk.cpp:
+	modernized standard C headers
+
+2018-11-07 02:52 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (063be0eee25d <CMake>)
+
+	* CMakeLists.txt:
+	removed redundant X11 lib
+
+2018-11-07 02:51 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (255bee62c687 <CMake>)
+
+	* lib/CMakeLists.txt:
+	removed redundant X11 libs, fixed doxygen, removed gradient headers
+	from install
+
+2018-11-07 02:41 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (c971c9cb1327 <CMake>)
+
+	* CMakeLists.txt, testcode/CMakeLists.txt:
+	implemented multi GUI binding for possible BUG when using SoQt
+
+2018-11-07 01:45 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (e8f824bfe118 <CMake>)
+
+	* CMakeLists.txt:
+	added SoQt for code example and cpack.d for package management
+
+2018-11-04 10:01 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (c12812ad4de7 <CMake>)
+
+	* lib/CMakeLists.txt:
+	removed some debug messages
+
+2018-11-04 10:01 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (f8e6ae055a56 <CMake>)
+
+	* lib/VolumeViz/details/VolumeDetail.cpp,
+	lib/VolumeViz/elements/VoxelBlockElement.cpp,
+	lib/VolumeViz/nodes/VolumeData.cpp:
+	fixed narrowing from (short int) to (unsigned int) inside {}
+
+2018-11-04 09:46 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (5edc0bd27eca <CMake>)
+
+	* lib/SIMVoleon.rc.cmake.in, testcode/CMakeLists.txt,
+	testcode/tabula/CMakeLists.txt: new file.
+	* lib/SIMVoleon.rc.cmake.in, testcode/CMakeLists.txt,
+	testcode/tabula/CMakeLists.txt:
+	first import
+
+2018-11-04 09:46 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (701be6e6c73f <CMake>)
+
+	* CMakeLists.txt:
+	clean up
+
+2018-11-04 09:21 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (5846fdfdb210 <CMake>)
+
+	* lib/CMakeLists.txt:
+	headers reorg
+
+2018-11-03 15:01 +0100  Giampiero Gabbiani  <giampiero@gabbiani.org>  (ae1930ae7aa8 <CMake>)
+
+	* .hgignore, CMakeLists.txt, SIMVoleon.pc.cmake.in,
+	data/CMakeLists.txt, lib/CMakeLists.txt,
+	lib/VolumeViz/C/basic.h.cmake.in, lib/config.h.cmake.in, simvoleon-
+	config.cmake.in: new file.
+	* .hgignore, CMakeLists.txt, SIMVoleon.pc.cmake.in,
+	data/CMakeLists.txt, lib/CMakeLists.txt,
+	lib/VolumeViz/C/basic.h.cmake.in, lib/config.h.cmake.in, simvoleon-
+	config.cmake.in:
+	first CMake release
+
+2011-12-05 00:38 +0100  Marius Kintel  <marius@kintel.net>  (99617b213037)
+
+	* LICENSE.GPL: deleted file.
+	* LICENSE.GPL, README, build/msvc6/simvoleon2.dsp,
+	build/msvc7/simvoleon2.vcproj, build/msvc8/simvoleon2.vcproj,
+	build/msvc9/simvoleon2.vcproj, cfg/gendsp.pl.in,
+	packaging/Windows/NSIS/Makefile.in,
+	packaging/Windows/NSIS/heading.nsi.in:
+	fixed issue #5
+
+2011-12-04 22:47 +0100  Marius Kintel  <marius@kintel.net>  (1007a67c5ace)
+
+	* COPYING:
+	fixed issue #5
+
+2011-12-04 14:54 +0100  Marius Kintel  <marius@kintel.net>  (d1bb2bb0e129)
+
+	* .hgsubstate:
+	Updated subrepos
+
+2011-12-03 16:24 +0100  Marius Kintel  <marius@kintel.net>  (a86675032f27)
+
+	* .hgsubstate, build/msvc6/lib/VolumeViz/C/basic.h,
+	build/msvc7/lib/VolumeViz/C/basic.h,
+	build/msvc8/lib/VolumeViz/C/basic.h,
+	build/msvc9/lib/VolumeViz/C/basic.h, lib/VolumeViz/C/basic.h.in,
+	lib/VolumeViz/caches/CvrGLTextureCache.h,
+	lib/VolumeViz/caches/GLTextureCache.cpp,
+	lib/VolumeViz/details/ObliqueSliceDetail.cpp,
+	lib/VolumeViz/details/OrthoSliceDetail.cpp,
+	lib/VolumeViz/details/SoObliqueSliceDetail.h,
+	lib/VolumeViz/details/SoOrthoSliceDetail.h,
+	lib/VolumeViz/details/SoVolumeDetail.h,
+	lib/VolumeViz/details/SoVolumeRenderDetail.h,
+	lib/VolumeViz/details/SoVolumeSkinDetail.h,
+	lib/VolumeViz/details/VolumeDetail.cpp,
+	lib/VolumeViz/details/VolumeRenderDetail.cpp,
+	lib/VolumeViz/details/VolumeSkinDetail.cpp,
+	lib/VolumeViz/elements/CompressedTexturesElement.cpp,
+	lib/VolumeViz/elements/CvrCompressedTexturesElement.h,
+	lib/VolumeViz/elements/CvrGLInterpolationElement.h,
+	lib/VolumeViz/elements/CvrLightingElement.h,
+	lib/VolumeViz/elements/CvrPageSizeElement.h,
+	lib/VolumeViz/elements/CvrPalettedTexturesElement.h,
+	lib/VolumeViz/elements/CvrStorageHintElement.h,
+	lib/VolumeViz/elements/CvrVoxelBlockElement.h,
+	lib/VolumeViz/elements/GLInterpolationElement.cpp,
+	lib/VolumeViz/elements/LightingElement.cpp,
+	lib/VolumeViz/elements/PageSizeElement.cpp,
+	lib/VolumeViz/elements/PalettedTexturesElement.cpp,
+	lib/VolumeViz/elements/SoTransferFunctionElement.h,
+	lib/VolumeViz/elements/StorageHintElement.cpp,
+	lib/VolumeViz/elements/TransferFunctionElement.cpp,
+	lib/VolumeViz/elements/VoxelBlockElement.cpp,
+	lib/VolumeViz/misc/CLUT.cpp,
+	lib/VolumeViz/misc/CentralDifferenceGradient.cpp,
+	lib/VolumeViz/misc/CvrCLUT.h,
+	lib/VolumeViz/misc/CvrCentralDifferenceGradient.h,
+	lib/VolumeViz/misc/CvrGIMPGradient.h,
+	lib/VolumeViz/misc/CvrGlobalRenderLock.h,
+	lib/VolumeViz/misc/CvrGradient.h,
+	lib/VolumeViz/misc/CvrResourceManager.h,
+	lib/VolumeViz/misc/CvrUtil.h, lib/VolumeViz/misc/CvrVoxelChunk.h,
+	lib/VolumeViz/misc/GIMPGradient.cpp,
+	lib/VolumeViz/misc/GlobalRenderLock.cpp,
+	lib/VolumeViz/misc/Gradient.cpp, lib/VolumeViz/misc/Gradient.h,
+	lib/VolumeViz/misc/ResourceManager.cpp, lib/VolumeViz/misc/Util.cpp,
+	lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/nodes/CvrFaceSetRenderP.cpp,
+	lib/VolumeViz/nodes/CvrFaceSetRenderP.h,
+	lib/VolumeViz/nodes/CvrIndexedFaceSetRenderP.cpp,
+	lib/VolumeViz/nodes/CvrIndexedFaceSetRenderP.h,
+	lib/VolumeViz/nodes/CvrIndexedSetRenderBaseP.cpp,
+	lib/VolumeViz/nodes/CvrIndexedSetRenderBaseP.h,
+	lib/VolumeViz/nodes/CvrIndexedTriangleStripSetRenderP.cpp,
+	lib/VolumeViz/nodes/CvrIndexedTriangleStripSetRenderP.h,
+	lib/VolumeViz/nodes/CvrNonIndexedSetRenderBaseP.cpp,
+	lib/VolumeViz/nodes/CvrNonIndexedSetRenderBaseP.h,
+	lib/VolumeViz/nodes/CvrTriangleStripSetRenderP.cpp,
+	lib/VolumeViz/nodes/CvrTriangleStripSetRenderP.h,
+	lib/VolumeViz/nodes/ObliqueSlice.cpp,
+	lib/VolumeViz/nodes/OrthoSlice.cpp, lib/VolumeViz/nodes/ROI.cpp,
+	lib/VolumeViz/nodes/SoObliqueSlice.h,
+	lib/VolumeViz/nodes/SoOrthoSlice.h, lib/VolumeViz/nodes/SoROI.h,
+	lib/VolumeViz/nodes/SoTransferFunction.h,
+	lib/VolumeViz/nodes/SoVolumeData.h,
+	lib/VolumeViz/nodes/SoVolumeFaceSet.h,
+	lib/VolumeViz/nodes/SoVolumeIndexedFaceSet.h,
+	lib/VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h,
+	lib/VolumeViz/nodes/SoVolumeRender.h,
+	lib/VolumeViz/nodes/SoVolumeRendering.h,
+	lib/VolumeViz/nodes/SoVolumeSkin.h,
+	lib/VolumeViz/nodes/SoVolumeTriangleStripSet.h,
+	lib/VolumeViz/nodes/TransferFunction.cpp,
+	lib/VolumeViz/nodes/VolumeData.cpp,
+	lib/VolumeViz/nodes/VolumeFaceSet.cpp,
+	lib/VolumeViz/nodes/VolumeIndexedFaceSet.cpp,
+	lib/VolumeViz/nodes/VolumeIndexedTriangleStripSet.cpp,
+	lib/VolumeViz/nodes/VolumeRender.cpp,
+	lib/VolumeViz/nodes/VolumeRendering.cpp,
+	lib/VolumeViz/nodes/VolumeSkin.cpp,
+	lib/VolumeViz/nodes/VolumeTriangleStripSet.cpp,
+	lib/VolumeViz/nodes/volumeraypickintersection.cpp,
+	lib/VolumeViz/nodes/volumeraypickintersection.h,
+	lib/VolumeViz/readers/SoVRMemReader.h,
+	lib/VolumeViz/readers/SoVRVolFileReader.h,
+	lib/VolumeViz/readers/SoVolumeReader.h,
+	lib/VolumeViz/readers/VRMemReader.cpp,
+	lib/VolumeViz/readers/VRVolFileReader.cpp,
+	lib/VolumeViz/readers/VolumeReader.cpp,
+	lib/VolumeViz/render/2D/2DTexPage.cpp,
+	lib/VolumeViz/render/2D/2DTexSubPage.cpp,
+	lib/VolumeViz/render/2D/Cvr2DTexPage.h,
+	lib/VolumeViz/render/2D/Cvr2DTexSubPage.h,
+	lib/VolumeViz/render/2D/CvrPageHandler.h,
+	lib/VolumeViz/render/2D/PageHandler.cpp,
+	lib/VolumeViz/render/2D/texmemfullimg.h,
+	lib/VolumeViz/render/3D/3DTexCube.cpp,
+	lib/VolumeViz/render/3D/3DTexSubCube.cpp,
+	lib/VolumeViz/render/3D/CubeHandler.cpp,
+	lib/VolumeViz/render/3D/Cvr3DTexCube.h,
+	lib/VolumeViz/render/3D/Cvr3DTexSubCube.h,
+	lib/VolumeViz/render/3D/CvrCubeHandler.h,
+	lib/VolumeViz/render/Pointset/PointRendering.cpp,
+	lib/VolumeViz/render/Pointset/PointRendering.h,
+	lib/VolumeViz/render/common/Cvr2DPaletteTexture.cpp,
+	lib/VolumeViz/render/common/Cvr2DPaletteTexture.h,
+	lib/VolumeViz/render/common/Cvr2DRGBATexture.cpp,
+	lib/VolumeViz/render/common/Cvr2DRGBATexture.h,
+	lib/VolumeViz/render/common/Cvr3DPaletteGradientTexture.cpp,
+	lib/VolumeViz/render/common/Cvr3DPaletteGradientTexture.h,
+	lib/VolumeViz/render/common/Cvr3DPaletteTexture.cpp,
+	lib/VolumeViz/render/common/Cvr3DPaletteTexture.h,
+	lib/VolumeViz/render/common/Cvr3DRGBATexture.cpp,
+	lib/VolumeViz/render/common/Cvr3DRGBATexture.h,
+	lib/VolumeViz/render/common/CvrPaletteTexture.cpp,
+	lib/VolumeViz/render/common/CvrPaletteTexture.h,
+	lib/VolumeViz/render/common/CvrRGBATexture.cpp,
+	lib/VolumeViz/render/common/CvrRGBATexture.h,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.h:
+	Updated license headers to BSD
+
+2011-12-01 18:42 +0100  Marius Kintel  <marius@kintel.net>  (e6d931efac84)
+
+	* .hgsub:
+	Made coincodeshare subrepos relative
+
+2011-03-14 14:45 +0100  Øystein Handegard  <handegar@sim.no>  (635fbf5fcb76 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastRenderBase.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastRenderBase.h: new file.
+	* lib/VolumeViz/nodes/So2DTransferFunction.cpp,
+	lib/VolumeViz/nodes/So2DTransferFunction.h,
+	lib/VolumeViz/nodes/SoOrthoSlice.cpp,
+	lib/VolumeViz/nodes/SoVolumeData.cpp,
+	lib/VolumeViz/nodes/SoVolumeIndexedFaceSet.cpp,
+	lib/VolumeViz/nodes/SoVolumeRender.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastIndexedFaceSet.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastIndexedFaceSet.h,
+	lib/VolumeViz/render/raycast/CvrRaycastRenderBase.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastRenderBase.h,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.h,
+	lib/VolumeViz/render/raycast/CvrRaycastTexture.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastTexture.h,
+	lib/VolumeViz/render/raycast/CvrRaycastVolume.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastVolume.h:
+	Missing files. Sync.
+
+2010-11-05 11:58 +0100  Øystein Handegard  <handegar@sim.no>  (0030768ef7b8 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastIndexedFaceSet.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastIndexedFaceSet.h: new file.
+	* lib/VolumeViz/render/raycast/CvrRaycastIndexedFaceSet.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastIndexedFaceSet.h,
+	lib/VolumeViz/render/raycast/CvrRaycastVolume.h,
+	lib/VolumeViz/render/raycast/Makefile.am,
+	lib/VolumeViz/render/raycast/Makefile.in:
+	New stub-class for IndexedFaceSet rendering. Bootstrap.
+
+2010-11-05 11:39 +0100  Øystein Handegard  <handegar@sim.no>  (39b02b8f6bcf <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastVolume.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastVolume.h: new file.
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.h: deleted file.
+	* lib/VolumeViz/misc/CvrVoxelChunk.cpp,
+	lib/VolumeViz/nodes/SoRaycastRender.cpp,
+	lib/VolumeViz/nodes/SoVolumeRender.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.h,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.h,
+	lib/VolumeViz/render/raycast/CvrRaycastTexture.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastVolume.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastVolume.h,
+	lib/VolumeViz/render/raycast/Makefile.am,
+	lib/VolumeViz/render/raycast/Makefile.in:
+	Refactored CvrRaycastCube => CvrRaycastRenderBase + CvrRaycastVolume
+	Bootstrap.
+
+2010-10-27 11:46 +0200  Øystein Handegard  <handegar@sim.no>  (30eb8fd530a6 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp:
+	Use Coin to fetch the matrices intead of raw OpenGL.
+
+2010-10-26 16:55 +0200  Øystein Handegard  <handegar@sim.no>  (47cdd12db96d <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp:
+	Cleanups.
+
+2010-10-26 16:52 +0200  Øystein Handegard  <handegar@sim.no>  (4cf030159bf2 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp:
+	Depthbuffer flickering fix.
+
+2010-10-25 16:07 +0200  Øystein Handegard  <handegar@sim.no>  (b54177112964 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp:
+	Clipplanes now work as expected.
+
+2010-10-25 10:27 +0200  Øystein Handegard  <handegar@sim.no>  (ea60ee5ce810 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastTexture.cpp:
+	update
+
+2010-10-12 10:15 +0200  Øystein Handegard  <handegar@sim.no>  (4dd78a3c78f8 <raycast-experiment-1>)
+
+	* lib/VolumeViz/nodes/SoVolumeRendering.cpp,
+	lib/VolumeViz/nodes/SoVolumeRendering.h,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp:
+	Add check for OpenCL in hardware-check. (NB: will be refactored
+	sooner or later as this mechanism is worthless for OpenGL (as
+	mentioned by MortenE in the comments)).
+
+2010-10-11 13:54 +0200  Øystein Handegard  <handegar@sim.no>  (334ec36e208d <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.h,
+	lib/VolumeViz/render/raycast/CvrRaycastTexture.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastTexture.h:
+	The transfer func is now applied to the voxel-data obj, not the
+	rendermanager.
+
+2010-10-08 16:18 +0200  Øystein Handegard  <handegar@sim.no>  (701fec84c932 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastTexture.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastTexture.h:
+	Allow loading of non 8-bits data (Not rendered properly, though).
+
+2010-10-08 14:18 +0200  Øystein Handegard  <handegar@sim.no>  (960073297227 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastTexture.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastTexture.h: new file.
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.h,
+	lib/VolumeViz/render/raycast/CvrRaycastTexture.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastTexture.h,
+	lib/VolumeViz/render/raycast/Makefile.am,
+	lib/VolumeViz/render/raycast/Makefile.in:
+	Don't use OpenGL 3d textures when rendering using libCLVol.
+
+2010-10-06 17:22 +0200  Øystein Handegard  <handegar@sim.no>  (d5e69f27c63b <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.h:
+	Subcube renderorder-sorting now works as expected.
+
+2010-10-04 11:50 +0200  Øystein Handegard  <handegar@sim.no>  (d248c371837f <raycast-experiment-1>)
+
+	* lib/VolumeViz/details/SoVolumeDetail.cpp,
+	lib/VolumeViz/misc/CvrVoxelChunk.cpp,
+	lib/VolumeViz/nodes/SoVolumeRender.cpp:
+	Crash fix when an SoTransferFunction node is missing.
+
+2010-10-01 11:56 +0200  Øystein Handegard  <handegar@sim.no>  (087b28ea0b17 <raycast-experiment-1>)
+
+	* lib/VolumeViz/nodes/SoVolumeRender.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp:
+	Abort rendering if raycast engine cannot be initialized properly.
+
+2010-10-01 11:56 +0200  Øystein Handegard  <handegar@sim.no>  (cf557138ba1b <raycast-experiment-1>)
+
+	* lib/VolumeViz/nodes/SoVolumeData.cpp:
+	Increased the default subcube size from 128^3 to 256^3.
+
+2010-10-01 11:55 +0200  Øystein Handegard  <handegar@sim.no>  (847e61dbd196 <raycast-experiment-1>)
+
+	* lib/VolumeViz/misc/CvrVoxelChunk.cpp:
+	Fix for missing SoTransferFunction.
+
+2010-10-01 10:26 +0200  Øystein Handegard  <handegar@sim.no>  (82c37c14ca8d <raycast-experiment-1>)
+
+	* lib/VolumeViz/nodes/SoVolumeRender.cpp:
+	Don't warn about missing SoTransferFunction node when doing raycast
+	rendering.
+
+2010-09-30 13:40 +0200  Øystein Handegard  <handegar@sim.no>  (1187b9ed2540 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/3D/Cvr3DTexCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp:
+	Fixed the viewport near/far calculations for certain bbox'es.
+
+2010-09-29 16:25 +0200  Øystein Handegard  <handegar@sim.no>  (4507294c386e <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/common/Cvr3DPaletteTexture.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.h:
+	Better subcube render-order sorting (not 100% yet).
+
+2010-09-29 10:17 +0200  Øystein Handegard  <handegar@sim.no>  (eb75ecda9108 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp:
+	Cleanups
+
+2010-09-28 16:45 +0200  Øystein Handegard  <handegar@sim.no>  (cc9c91c9d0a9 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp:
+	Better subcube-rendering. Sorting now kinda works.
+
+2010-09-28 16:27 +0200  Øystein Handegard  <handegar@sim.no>  (d0782d00fb46 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.h:
+	Cleanups
+
+2010-09-28 15:49 +0200  Øystein Handegard  <handegar@sim.no>  (bd41232a3df6 <raycast-experiment-1>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp:
+	Cleanups
+
+2010-09-28 13:42 +0200  Øystein Handegard  <handegar@sim.no>  (c2e9d240c1c5 <raycast-experiment-1>)
+
+	* lib/VolumeViz/misc/Makefile.am, lib/VolumeViz/misc/Makefile.in,
+	lib/VolumeViz/nodes/SoVolumeData.cpp,
+	lib/VolumeViz/nodes/SoVolumeRender.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.h,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.h:
+	Work in progress: New subcube algorithm for raycast-rendering
+	supporting non-uniform subcube sizes => saves a lot of memory.
+	Bootstrap.
+
+2010-09-28 13:41 +0200  Øystein Handegard  <handegar@sim.no>  (fe42c7e5577b <raycast-experiment-1>)
+
+	* lib/VolumeViz/misc/CvrBBoxSubdivider.cpp,
+	lib/VolumeViz/misc/CvrBBoxSubdivider.h: new file.
+	* lib/VolumeViz/misc/CvrBBoxSubdivider.cpp,
+	lib/VolumeViz/misc/CvrBBoxSubdivider.h:
+	New utility class for subdividing a boundingbox into non regular
+	subboxes.
+
+2010-09-22 11:34 +0200  Øystein Handegard  <handegar@sim.no>  (715cd8b474b0 <raycast-experiment-1>)
+
+	* lib/VolumeViz/misc/CvrVoxelChunk.cpp,
+	lib/VolumeViz/render/common/Cvr3DPaletteTexture.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp:
+	Don't pad the texture size to get a 2^n dimension when raycasting as
+	there is no longer need for such ancient workarounds.
+
+2010-09-21 14:43 +0200  Øystein Handegard  <handegar@sim.no>  (3b62e44e769b <raycast-experiment-1>)
+
+	* lib/VolumeViz/misc/CvrVoxelChunk.cpp,
+	lib/VolumeViz/nodes/SoVolumeData.cpp,
+	lib/VolumeViz/nodes/SoVolumeData.h,
+	lib/VolumeViz/nodes/SoVolumeRender.cpp,
+	lib/VolumeViz/nodes/SoVolumeRendering.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.h,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.h,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.h:
+	First version of a semi-working raycast support in SIMVoleon.
+
+2010-09-21 14:41 +0200  Øystein Handegard  <handegar@sim.no>  (b9ae1ee896b5 <raycast-experiment-1>)
+
+	* lib/VolumeViz/elements/Makefile.am,
+	lib/VolumeViz/elements/Makefile.in, lib/VolumeViz/nodes/Makefile.am,
+	lib/VolumeViz/nodes/Makefile.in,
+	lib/VolumeViz/render/raycast/Makefile.am,
+	lib/VolumeViz/render/raycast/Makefile.in:
+	Bootstrap
+
+2010-09-21 14:41 +0200  Øystein Handegard  <handegar@sim.no>  (144619db735d <raycast-experiment-1>)
+
+	* lib/VolumeViz/elements/So2DTransferFunctionElement.cpp,
+	lib/VolumeViz/elements/So2DTransferFunctionElement.h,
+	lib/VolumeViz/nodes/So2DTransferFunction.cpp,
+	lib/VolumeViz/nodes/So2DTransferFunction.h: new file.
+	* lib/VolumeViz/elements/So2DTransferFunctionElement.cpp,
+	lib/VolumeViz/elements/So2DTransferFunctionElement.h,
+	lib/VolumeViz/nodes/So2DTransferFunction.cpp,
+	lib/VolumeViz/nodes/So2DTransferFunction.h:
+	New transferfunction nodes which is based on floats and control-
+	points, not an byte-array. Will support gradients in the future.
+
+2010-09-09 10:43 +0200  Øystein Handegard  <handegar@sim.no>  (7f6e236aa4a4 <raycast-experiment-1>)
+
+	* New branch for quick raycast experiment using libCLVol.
+
+2010-09-09 10:42 +0200  Øystein Handegard  <handegar@sim.no>  (137e5b6a5871 <raycast-milestone-2>)
+
+	* build/msvc9/lib/VolumeViz/nodes/gradients/BLUE_RED.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/GLOW.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/GREY.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/PHYSICS.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/SEISMIC.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/STANDARD.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/TEMPERATURE.h: new file.
+	* Merged build-fix for MSVC9 from default.
+
+2010-09-08 12:02 +0200  Øystein Handegard  <handegar@sim.no>  (0025cceaa982)
+
+	* build/msvc9/lib/VolumeViz/nodes/gradients/BLUE_RED.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/GLOW.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/GREY.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/PHYSICS.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/SEISMIC.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/STANDARD.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/TEMPERATURE.h: new file.
+	* build/msvc9/lib/VolumeViz/nodes/gradients/BLUE_RED.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/GLOW.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/GREY.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/PHYSICS.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/SEISMIC.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/STANDARD.h,
+	build/msvc9/lib/VolumeViz/nodes/gradients/TEMPERATURE.h:
+	Project build fix for MSVC9.
+
+2010-08-24 16:38 +0200  Øystein Handegard  <handegar@sim.no>  (baf1715d55b2 <raycast-milestone-2>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp:
+	Typo
+
+2010-08-24 16:35 +0200  Øystein Handegard  <handegar@sim.no>  (02a9b6ee25cb <raycast-milestone-2>)
+
+	* lib/VolumeViz/elements/CvrDataSizeElement.cpp,
+	lib/VolumeViz/elements/CvrDataSizeElement.h: new file.
+	* lib/VolumeViz/elements/CvrPageSizeElement.cpp,
+	lib/VolumeViz/elements/CvrPageSizeElement.h: deleted file.
+	* lib/VolumeViz/elements/CvrDataSizeElement.cpp,
+	lib/VolumeViz/elements/CvrDataSizeElement.h,
+	lib/VolumeViz/elements/CvrPageSizeElement.cpp,
+	lib/VolumeViz/elements/CvrPageSizeElement.h,
+	lib/VolumeViz/elements/Makefile.am,
+	lib/VolumeViz/elements/Makefile.in,
+	lib/VolumeViz/nodes/SoOrthoSlice.cpp,
+	lib/VolumeViz/nodes/SoVolumeData.cpp,
+	lib/VolumeViz/nodes/SoVolumeData.h,
+	lib/VolumeViz/nodes/SoVolumeRendering.cpp,
+	lib/VolumeViz/render/2D/CvrPageHandler.cpp,
+	lib/VolumeViz/render/3D/Cvr3DTexCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp:
+	Renamed CvrPageSizeElement to CvrDataSizeElement, which is more
+	correct. Bootstrap.
+
+2010-08-24 16:24 +0200  Øystein Handegard  <handegar@sim.no>  (fe9122b9d4ef <raycast-milestone-2>)
+
+	* lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.h,
+	lib/VolumeViz/render/raycast/Makefile.in,
+	lib/VolumeViz/render/raycast/SoRaycastRendering.cpp,
+	lib/VolumeViz/render/raycast/SoRaycastRendering.h: new file.
+	* configure, configure.ac, lib/VolumeViz/Makefile.am,
+	lib/VolumeViz/Makefile.in, lib/VolumeViz/nodes/SoRaycastRender.cpp,
+	lib/VolumeViz/nodes/SoRaycastRender.h,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.h,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastSubCube.h,
+	lib/VolumeViz/render/raycast/Makefile.am,
+	lib/VolumeViz/render/raycast/Makefile.in,
+	lib/VolumeViz/render/raycast/SoRaycastRendering.cpp,
+	lib/VolumeViz/render/raycast/SoRaycastRendering.h:
+	New wrapper-classes for the libCLVol library.
+
+2010-08-24 16:20 +0200  Øystein Handegard  <handegar@sim.no>  (918da9ddb9dc <raycast-milestone-2>)
+
+	* lib/VolumeViz/SIMVoleon.cpp, lib/VolumeViz/SIMVoleon.h: new file.
+	* lib/VolumeViz/SIMVoleon.cpp, lib/VolumeViz/SIMVoleon.h:
+	New init files for SIMVoleon. Will replace SoVolumeRendering as
+	library init function.
+
+2010-08-24 15:36 +0200  Øystein Handegard  <handegar@sim.no>  (47064ba6bada <raycast-milestone-2>)
+
+	* lib/VolumeViz/elements/CvrPageSizeElement.cpp,
+	lib/VolumeViz/elements/CvrPageSizeElement.h:
+	Tiny fix. Will rename the entire class to CvrDataSizeElement later.
+
+2010-08-24 15:04 +0200  Øystein Handegard  <handegar@sim.no>  (ef7ce5e84679 <raycast-milestone-2>)
+
+	* lib/VolumeViz/misc/CvrUtil.cpp, lib/VolumeViz/misc/CvrUtil.h,
+	lib/VolumeViz/render/3D/Cvr3DTexCube.cpp,
+	lib/VolumeViz/render/3D/Cvr3DTexCube.h:
+	Moved util function from Cvr3DTexCube to CvrUtil. Marked CvrUtil
+	header as private.
+
+2010-08-24 09:14 +0200  Øystein Handegard  <handegar@sim.no>  (a32f9ddc7cf3 <raycast-milestone-2>)
+
+	* lib/VolumeViz/misc/Gradient.h: deleted file.
+	* lib/VolumeViz/misc/Gradient.h:
+	Removed obsolete file.
+
+2010-08-23 17:33 +0200  Øystein Handegard  <handegar@sim.no>  (4c9b7ae8825f <raycast-milestone-2>)
+
+	* lib/VolumeViz/caches/CvrGLTextureCache.cpp,
+	lib/VolumeViz/details/SoObliqueSliceDetail.cpp,
+	lib/VolumeViz/details/SoOrthoSliceDetail.cpp,
+	lib/VolumeViz/details/SoVolumeDetail.cpp,
+	lib/VolumeViz/details/SoVolumeRenderDetail.cpp,
+	lib/VolumeViz/details/SoVolumeSkinDetail.cpp,
+	lib/VolumeViz/elements/CvrCompressedTexturesElement.cpp,
+	lib/VolumeViz/elements/CvrGLInterpolationElement.cpp,
+	lib/VolumeViz/elements/CvrLightingElement.cpp,
+	lib/VolumeViz/elements/CvrPageSizeElement.cpp,
+	lib/VolumeViz/elements/CvrPalettedTexturesElement.cpp,
+	lib/VolumeViz/elements/CvrStorageHintElement.cpp,
+	lib/VolumeViz/elements/CvrVoxelBlockElement.cpp,
+	lib/VolumeViz/elements/SoTransferFunctionElement.cpp,
+	lib/VolumeViz/misc/CvrCLUT.cpp,
+	lib/VolumeViz/misc/CvrCentralDifferenceGradient.cpp,
+	lib/VolumeViz/misc/CvrGIMPGradient.cpp,
+	lib/VolumeViz/misc/CvrGlobalRenderLock.cpp,
+	lib/VolumeViz/misc/CvrGradient.cpp,
+	lib/VolumeViz/misc/CvrResourceManager.cpp,
+	lib/VolumeViz/misc/CvrUtil.cpp,
+	lib/VolumeViz/misc/CvrVoxelChunk.cpp,
+	lib/VolumeViz/nodes/SoObliqueSlice.cpp,
+	lib/VolumeViz/nodes/SoOrthoSlice.cpp, lib/VolumeViz/nodes/SoROI.cpp,
+	lib/VolumeViz/nodes/SoTransferFunction.cpp,
+	lib/VolumeViz/nodes/SoVolumeData.cpp,
+	lib/VolumeViz/nodes/SoVolumeFaceSet.cpp,
+	lib/VolumeViz/nodes/SoVolumeIndexedFaceSet.cpp,
+	lib/VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.cpp,
+	lib/VolumeViz/nodes/SoVolumeRender.cpp,
+	lib/VolumeViz/nodes/SoVolumeRendering.cpp,
+	lib/VolumeViz/nodes/SoVolumeSkin.cpp,
+	lib/VolumeViz/nodes/SoVolumeTriangleStripSet.cpp,
+	lib/VolumeViz/readers/SoVRMemReader.cpp,
+	lib/VolumeViz/readers/SoVRVolFileReader.cpp,
+	lib/VolumeViz/readers/SoVolumeReader.cpp,
+	lib/VolumeViz/render/2D/Cvr2DTexPage.cpp,
+	lib/VolumeViz/render/2D/Cvr2DTexSubPage.cpp,
+	lib/VolumeViz/render/2D/CvrPageHandler.cpp,
+	lib/VolumeViz/render/3D/Cvr3DTexCube.cpp,
+	lib/VolumeViz/render/3D/Cvr3DTexSubCube.cpp,
+	lib/VolumeViz/render/3D/CvrCubeHandler.cpp,
+	lib/VolumeViz/render/pointset/Makefile.am,
+	lib/VolumeViz/render/pointset/Makefile.in,
+	lib/VolumeViz/render/pointset/PointRendering.cpp,
+	lib/VolumeViz/render/pointset/PointRendering.h: new file.
+	* lib/VolumeViz/caches/GLTextureCache.cpp,
+	lib/VolumeViz/details/ObliqueSliceDetail.cpp,
+	lib/VolumeViz/details/OrthoSliceDetail.cpp,
+	lib/VolumeViz/details/VolumeDetail.cpp,
+	lib/VolumeViz/details/VolumeRenderDetail.cpp,
+	lib/VolumeViz/details/VolumeSkinDetail.cpp,
+	lib/VolumeViz/elements/CompressedTexturesElement.cpp,
+	lib/VolumeViz/elements/GLInterpolationElement.cpp,
+	lib/VolumeViz/elements/LightingElement.cpp,
+	lib/VolumeViz/elements/PageSizeElement.cpp,
+	lib/VolumeViz/elements/PalettedTexturesElement.cpp,
+	lib/VolumeViz/elements/StorageHintElement.cpp,
+	lib/VolumeViz/elements/TransferFunctionElement.cpp,
+	lib/VolumeViz/elements/VoxelBlockElement.cpp,
+	lib/VolumeViz/misc/CLUT.cpp,
+	lib/VolumeViz/misc/CentralDifferenceGradient.cpp,
+	lib/VolumeViz/misc/GIMPGradient.cpp,
+	lib/VolumeViz/misc/GlobalRenderLock.cpp,
+	lib/VolumeViz/misc/Gradient.cpp,
+	lib/VolumeViz/misc/ResourceManager.cpp, lib/VolumeViz/misc/Util.cpp,
+	lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/nodes/ObliqueSlice.cpp,
+	lib/VolumeViz/nodes/OrthoSlice.cpp, lib/VolumeViz/nodes/ROI.cpp,
+	lib/VolumeViz/nodes/TransferFunction.cpp,
+	lib/VolumeViz/nodes/VolumeData.cpp,
+	lib/VolumeViz/nodes/VolumeFaceSet.cpp,
+	lib/VolumeViz/nodes/VolumeIndexedFaceSet.cpp,
+	lib/VolumeViz/nodes/VolumeIndexedTriangleStripSet.cpp,
+	lib/VolumeViz/nodes/VolumeRender.cpp,
+	lib/VolumeViz/nodes/VolumeRendering.cpp,
+	lib/VolumeViz/nodes/VolumeSkin.cpp,
+	lib/VolumeViz/nodes/VolumeTriangleStripSet.cpp,
+	lib/VolumeViz/readers/VRMemReader.cpp,
+	lib/VolumeViz/readers/VRVolFileReader.cpp,
+	lib/VolumeViz/readers/VolumeReader.cpp,
+	lib/VolumeViz/render/2D/2DTexPage.cpp,
+	lib/VolumeViz/render/2D/2DTexSubPage.cpp,
+	lib/VolumeViz/render/2D/PageHandler.cpp,
+	lib/VolumeViz/render/3D/3DTexCube.cpp,
+	lib/VolumeViz/render/3D/3DTexSubCube.cpp,
+	lib/VolumeViz/render/3D/CubeHandler.cpp,
+	lib/VolumeViz/render/Pointset/Makefile.am,
+	lib/VolumeViz/render/Pointset/Makefile.in,
+	lib/VolumeViz/render/Pointset/PointRendering.cpp,
+	lib/VolumeViz/render/Pointset/PointRendering.h: deleted file.
+	* configure, configure.ac, lib/VolumeViz/Makefile.am,
+	lib/VolumeViz/Makefile.in,
+	lib/VolumeViz/caches/CvrGLTextureCache.cpp,
+	lib/VolumeViz/caches/GLTextureCache.cpp,
+	lib/VolumeViz/caches/Makefile.am, lib/VolumeViz/caches/Makefile.in,
+	lib/VolumeViz/details/Makefile.am,
+	lib/VolumeViz/details/Makefile.in,
+	lib/VolumeViz/details/ObliqueSliceDetail.cpp,
+	lib/VolumeViz/details/OrthoSliceDetail.cpp,
+	lib/VolumeViz/details/SoObliqueSliceDetail.cpp,
+	lib/VolumeViz/details/SoOrthoSliceDetail.cpp,
+	lib/VolumeViz/details/SoVolumeDetail.cpp,
+	lib/VolumeViz/details/SoVolumeRenderDetail.cpp,
+	lib/VolumeViz/details/SoVolumeSkinDetail.cpp,
+	lib/VolumeViz/details/VolumeDetail.cpp,
+	lib/VolumeViz/details/VolumeRenderDetail.cpp,
+	lib/VolumeViz/details/VolumeSkinDetail.cpp,
+	lib/VolumeViz/elements/CompressedTexturesElement.cpp,
+	lib/VolumeViz/elements/CvrCompressedTexturesElement.cpp,
+	lib/VolumeViz/elements/CvrGLInterpolationElement.cpp,
+	lib/VolumeViz/elements/CvrLightingElement.cpp,
+	lib/VolumeViz/elements/CvrPageSizeElement.cpp,
+	lib/VolumeViz/elements/CvrPalettedTexturesElement.cpp,
+	lib/VolumeViz/elements/CvrStorageHintElement.cpp,
+	lib/VolumeViz/elements/CvrVoxelBlockElement.cpp,
+	lib/VolumeViz/elements/GLInterpolationElement.cpp,
+	lib/VolumeViz/elements/LightingElement.cpp,
+	lib/VolumeViz/elements/Makefile.am,
+	lib/VolumeViz/elements/Makefile.in,
+	lib/VolumeViz/elements/PageSizeElement.cpp,
+	lib/VolumeViz/elements/PalettedTexturesElement.cpp,
+	lib/VolumeViz/elements/SoTransferFunctionElement.cpp,
+	lib/VolumeViz/elements/StorageHintElement.cpp,
+	lib/VolumeViz/elements/TransferFunctionElement.cpp,
+	lib/VolumeViz/elements/VoxelBlockElement.cpp,
+	lib/VolumeViz/misc/CLUT.cpp,
+	lib/VolumeViz/misc/CentralDifferenceGradient.cpp,
+	lib/VolumeViz/misc/CvrCLUT.cpp,
+	lib/VolumeViz/misc/CvrCentralDifferenceGradient.cpp,
+	lib/VolumeViz/misc/CvrGIMPGradient.cpp,
+	lib/VolumeViz/misc/CvrGlobalRenderLock.cpp,
+	lib/VolumeViz/misc/CvrGradient.cpp,
+	lib/VolumeViz/misc/CvrResourceManager.cpp,
+	lib/VolumeViz/misc/CvrUtil.cpp,
+	lib/VolumeViz/misc/CvrVoxelChunk.cpp,
+	lib/VolumeViz/misc/GIMPGradient.cpp,
+	lib/VolumeViz/misc/GlobalRenderLock.cpp,
+	lib/VolumeViz/misc/Gradient.cpp, lib/VolumeViz/misc/Makefile.am,
+	lib/VolumeViz/misc/Makefile.in,
+	lib/VolumeViz/misc/ResourceManager.cpp, lib/VolumeViz/misc/Util.cpp,
+	lib/VolumeViz/misc/VoxelChunk.cpp, lib/VolumeViz/nodes/Makefile.am,
+	lib/VolumeViz/nodes/Makefile.in,
+	lib/VolumeViz/nodes/ObliqueSlice.cpp,
+	lib/VolumeViz/nodes/OrthoSlice.cpp, lib/VolumeViz/nodes/ROI.cpp,
+	lib/VolumeViz/nodes/SoObliqueSlice.cpp,
+	lib/VolumeViz/nodes/SoOrthoSlice.cpp, lib/VolumeViz/nodes/SoROI.cpp,
+	lib/VolumeViz/nodes/SoTransferFunction.cpp,
+	lib/VolumeViz/nodes/SoVolumeData.cpp,
+	lib/VolumeViz/nodes/SoVolumeFaceSet.cpp,
+	lib/VolumeViz/nodes/SoVolumeIndexedFaceSet.cpp,
+	lib/VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.cpp,
+	lib/VolumeViz/nodes/SoVolumeRender.cpp,
+	lib/VolumeViz/nodes/SoVolumeRendering.cpp,
+	lib/VolumeViz/nodes/SoVolumeSkin.cpp,
+	lib/VolumeViz/nodes/SoVolumeTriangleStripSet.cpp,
+	lib/VolumeViz/nodes/TransferFunction.cpp,
+	lib/VolumeViz/nodes/VolumeData.cpp,
+	lib/VolumeViz/nodes/VolumeFaceSet.cpp,
+	lib/VolumeViz/nodes/VolumeIndexedFaceSet.cpp,
+	lib/VolumeViz/nodes/VolumeIndexedTriangleStripSet.cpp,
+	lib/VolumeViz/nodes/VolumeRender.cpp,
+	lib/VolumeViz/nodes/VolumeRendering.cpp,
+	lib/VolumeViz/nodes/VolumeSkin.cpp,
+	lib/VolumeViz/nodes/VolumeTriangleStripSet.cpp,
+	lib/VolumeViz/readers/Makefile.am,
+	lib/VolumeViz/readers/Makefile.in,
+	lib/VolumeViz/readers/SoVRMemReader.cpp,
+	lib/VolumeViz/readers/SoVRVolFileReader.cpp,
+	lib/VolumeViz/readers/SoVolumeReader.cpp,
+	lib/VolumeViz/readers/VRMemReader.cpp,
+	lib/VolumeViz/readers/VRVolFileReader.cpp,
+	lib/VolumeViz/readers/VolumeReader.cpp,
+	lib/VolumeViz/render/2D/2DTexPage.cpp,
+	lib/VolumeViz/render/2D/2DTexSubPage.cpp,
+	lib/VolumeViz/render/2D/Cvr2DTexPage.cpp,
+	lib/VolumeViz/render/2D/Cvr2DTexSubPage.cpp,
+	lib/VolumeViz/render/2D/CvrPageHandler.cpp,
+	lib/VolumeViz/render/2D/Makefile.am,
+	lib/VolumeViz/render/2D/Makefile.in,
+	lib/VolumeViz/render/2D/PageHandler.cpp,
+	lib/VolumeViz/render/3D/3DTexCube.cpp,
+	lib/VolumeViz/render/3D/3DTexSubCube.cpp,
+	lib/VolumeViz/render/3D/CubeHandler.cpp,
+	lib/VolumeViz/render/3D/Cvr3DTexCube.cpp,
+	lib/VolumeViz/render/3D/Cvr3DTexSubCube.cpp,
+	lib/VolumeViz/render/3D/CvrCubeHandler.cpp,
+	lib/VolumeViz/render/3D/Makefile.am,
+	lib/VolumeViz/render/3D/Makefile.in,
+	lib/VolumeViz/render/Makefile.am, lib/VolumeViz/render/Makefile.in,
+	lib/VolumeViz/render/Pointset/Makefile.am,
+	lib/VolumeViz/render/Pointset/Makefile.in,
+	lib/VolumeViz/render/Pointset/PointRendering.cpp,
+	lib/VolumeViz/render/Pointset/PointRendering.h,
+	lib/VolumeViz/render/pointset/Makefile.am,
+	lib/VolumeViz/render/pointset/Makefile.in,
+	lib/VolumeViz/render/pointset/PointRendering.cpp,
+	lib/VolumeViz/render/pointset/PointRendering.h:
+	Renamed all files where the .cpp name mismatched the .h filename.
+	Renamed the 'Pointset' dir to 'pointset' for consistency. Bootstrap.
+
+2010-08-23 17:03 +0200  Øystein Handegard  <handegar@sim.no>  (8df521318e55 <raycast-milestone-2>)
+
+	* Makefile.in, aclocal.m4, bin/Makefile.in, cfg/csubst.exe,
+	cfg/gendsp.pl.in, cfg/wrapmsvc.exe, configure, configure.ac,
+	html/Makefile.in, lib/Makefile.in, lib/VolumeViz/C/Makefile.in,
+	lib/VolumeViz/Makefile.am, lib/VolumeViz/Makefile.in,
+	lib/VolumeViz/caches/Makefile.in, lib/VolumeViz/details/Makefile.in,
+	lib/VolumeViz/elements/Makefile.in, lib/VolumeViz/misc/Makefile.in,
+	lib/VolumeViz/nodes/Makefile.am, lib/VolumeViz/nodes/Makefile.in,
+	lib/VolumeViz/nodes/gradients/Makefile.in,
+	lib/VolumeViz/readers/Makefile.in,
+	lib/VolumeViz/readers/VRVolFileReader.cpp,
+	lib/VolumeViz/render/2D/Makefile.in,
+	lib/VolumeViz/render/3D/Makefile.in,
+	lib/VolumeViz/render/Makefile.am, lib/VolumeViz/render/Makefile.in,
+	lib/VolumeViz/render/Pointset/Makefile.in,
+	lib/VolumeViz/render/common/Makefile.in:
+	bootstrap
+
+2010-08-23 17:02 +0200  Øystein Handegard  <handegar@sim.no>  (7c180111b967 <raycast-milestone-2>)
+
+	* lib/VolumeViz/nodes/SoRaycastRender.cpp,
+	lib/VolumeViz/nodes/SoRaycastRender.h,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.h,
+	lib/VolumeViz/render/raycast/Makefile.am: new file.
+	* lib/VolumeViz/nodes/SoRaycastRender.cpp,
+	lib/VolumeViz/nodes/SoRaycastRender.h,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
+	lib/VolumeViz/render/raycast/CvrRaycastCube.h,
+	lib/VolumeViz/render/raycast/Makefile.am:
+	New raycast files.
+
+2010-08-19 09:28 +0200  Øystein Handegard  <handegar@sim.no>  (a2ff6cd3397a)
+
+	* data/raw2vol.cpp:
+	Compile warning fix.
+
+2010-08-17 15:38 +0200  Øystein Handegard  <handegar@sim.no>  (d8dcc0d65b0b)
+
+	* data/raw2vol.cpp:
+	Tiny fix.
+
+2010-08-17 14:02 +0200  Øystein Handegard  <handegar@sim.no>  (b78edba16ecc)
+
+	* data/raw2vol.cpp, data/resources.txt:
+	Make raw2vol properly support 12-bits. Added a volumedata resource
+	link.
+
+2010-08-17 11:09 +0200  Øystein Handegard  <handegar@sim.no>  (00291a688c19)
+
+	* data/raw2vol.cpp:
+	Support converting of 12/16 bits dataset.
+
+2010-08-17 09:49 +0200  Øystein Handegard  <handegar@sim.no>  (c5924d8e55c5)
+
+	* lib/VolumeViz/render/3D/3DTexSubCube.cpp,
+	lib/VolumeViz/render/3D/Cvr3DTexSubCube.h:
+	COINSUPPORT-1264: Texture coordinate fix for 3D textures when
+	rendering padded subcubes.
+
+2010-08-17 09:49 +0200  Øystein Handegard  <handegar@sim.no>  (1fbdcc5d089a)
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	Code style adjustments.
+
+2010-08-06 15:40 +0200  Øystein Handegard  <handegar@sim.no>  (4617509ea85e)
+
+	* lib/VolumeViz/details/VolumeDetail.cpp,
+	lib/VolumeViz/elements/VoxelBlockElement.cpp,
+	lib/VolumeViz/misc/CLUT.cpp, lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/render/3D/3DTexCube.cpp,
+	lib/VolumeViz/render/3D/3DTexSubCube.cpp:
+	COIN-383: 16 bits voleon picking issue resolved. Codestyle
+	adjustments. minor stuff.
+
+2010-03-22 14:53 +0100  Tamer Fahmy  <tamer@sim.no>  (bd5085fd7e09)
+
+	* docs/doxygen/footer.html, docs/doxygen/header.html,
+	docs/doxygen/stylesheet.css:
+	update URLs and disable borders around images.
+
+2010-02-28 14:40 +0100  Tamer Fahmy  <tamer@sim.no>  (0eb85216a1ad)
+
+	* Makefile.in, lib/VolumeViz/caches/Makefile.in,
+	lib/VolumeViz/details/Makefile.in, lib/VolumeViz/misc/Makefile.in,
+	lib/VolumeViz/render/2D/Makefile.in,
+	lib/VolumeViz/render/3D/Makefile.in,
+	lib/VolumeViz/render/Pointset/Makefile.in,
+	lib/VolumeViz/render/common/Makefile.in:
+	bootstrap.
+
+2010-02-28 14:39 +0100  Tamer Fahmy  <tamer@sim.no>  (84fabee31020)
+
+	* lib/VolumeViz/caches/Makefile.am, lib/VolumeViz/details/Makefile.am,
+	lib/VolumeViz/misc/Makefile.am, lib/VolumeViz/render/2D/Makefile.am,
+	lib/VolumeViz/render/3D/Makefile.am,
+	lib/VolumeViz/render/Pointset/Makefile.am,
+	lib/VolumeViz/render/common/Makefile.am:
+	Do not use special automake SOURCES variable.
+
+2010-02-28 14:33 +0100  Tamer Fahmy  <tamer@sim.no>  (7e1b2b9130f0)
+
+	* Makefile.in, aclocal.m4, bin/Makefile.in, cfg/config.guess,
+	cfg/config.sub, cfg/ltmain.sh, configure, html/Makefile.in,
+	lib/Makefile.in, lib/VolumeViz/C/Makefile.in,
+	lib/VolumeViz/Makefile.in, lib/VolumeViz/caches/Makefile.in,
+	lib/VolumeViz/details/Makefile.in,
+	lib/VolumeViz/elements/Makefile.in, lib/VolumeViz/misc/Makefile.in,
+	lib/VolumeViz/nodes/Makefile.in,
+	lib/VolumeViz/nodes/gradients/Makefile.in,
+	lib/VolumeViz/readers/Makefile.in,
+	lib/VolumeViz/render/2D/Makefile.in,
+	lib/VolumeViz/render/3D/Makefile.in,
+	lib/VolumeViz/render/Makefile.in,
+	lib/VolumeViz/render/Pointset/Makefile.in,
+	lib/VolumeViz/render/common/Makefile.in, lib/config.h.in:
+	bootstrap with updated compatible autotools versions.
+
+2010-02-28 14:33 +0100  Tamer Fahmy  <tamer@sim.no>  (631d89cf60fc)
+
+	* ChangeLog: new file.
+	* ChangeLog:
+	added ChangeLog placeholder.
+
+2010-02-28 14:32 +0100  Tamer Fahmy  <tamer@sim.no>  (3c8eef4134ef)
+
+	* configure.ac:
+	autoconf provides htmldir now. make sure to append html to an
+	expanded docdir variable.
+
+2010-02-28 14:31 +0100  Tamer Fahmy  <tamer@sim.no>  (782ab7bf39ed)
+
+	* SIMVoleon.pc.in, simvoleon.cfg.in:
+	change autoconf datadir to datarootdir.
+
+2009-10-14 16:00 +0200  Tamer Fahmy  <tamer@sim.no>  (53290f22b192)
+
+	* Makefile.in, bin/Makefile.in, configure, html/Makefile.in,
+	lib/Makefile.in, lib/VolumeViz/C/Makefile.in,
+	lib/VolumeViz/Makefile.in, lib/VolumeViz/caches/Makefile.in,
+	lib/VolumeViz/details/Makefile.in,
+	lib/VolumeViz/elements/Makefile.in, lib/VolumeViz/misc/Makefile.in,
+	lib/VolumeViz/nodes/Makefile.in,
+	lib/VolumeViz/nodes/gradients/Makefile.in,
+	lib/VolumeViz/readers/Makefile.in,
+	lib/VolumeViz/render/2D/Makefile.in,
+	lib/VolumeViz/render/3D/Makefile.in,
+	lib/VolumeViz/render/Makefile.in,
+	lib/VolumeViz/render/Pointset/Makefile.in,
+	lib/VolumeViz/render/common/Makefile.in:
+	bootstrap.
+
+2009-10-14 16:00 +0200  Tamer Fahmy  <tamer@sim.no>  (9965bb89215f)
+
+	* configure.ac:
+	allow to specify empty framework dir.
+
+2009-10-13 14:18 +0200  Thoralf Will  <thoralf@sim.no>  (8fc06a037fa5)
+
+	* .hgsub, .hgsubstate: new file.
+	* .hgsub, .hgsubstate:
+	added subrepo CoinCodeShare
+
+2009-10-06 17:04 +0200  Tamer Fahmy  <tamer@sim.no>  (fdac22ccf42a)
+
+	* Makefile.in, cfg/ltmain.sh, configure:
+	bootstrap
+
+2009-10-06 17:04 +0200  Tamer Fahmy  <tamer@sim.no>  (a5607b1d791e)
+
+	* configure.ac:
+	remove old obsolete check about a missing CVS subrepository
+
+2009-09-26 08:35 +0000  convert-repo  <convert-repo>  (02f722e96488)
+
+	* .hgtags: new file.
+	* .hgtags:
+	update tags
+
+2009-09-11 12:36 +0000  Peder Blekken  <pederb@sim.no>  (e482d902f35f)
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp:
+	Don't use coin_hton_bytes()/coin_ntoh_float_bytes() yet. It was
+	added quite recently.
+
+2009-09-11 10:36 +0000  Peder Blekken  <pederb@sim.no>  (5c35bc233ebd)
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp:
+	Remove obsoleted call to SoGLTexture3EnabledElement in debugging
+	code.
+
+2009-08-19 15:58 +0000  Tamer Fahmy  <tamer@sim.no>  (9fa9f4c6f941)
+
+	* Makefile.in, aclocal.m4, bin/Makefile.in, cfg/errors.txt,
+	cfg/wrapmsvc.exe, configure, html/Makefile.in, lib/Makefile.in,
+	lib/VolumeViz/C/Makefile.in, lib/VolumeViz/Makefile.in,
+	lib/VolumeViz/caches/Makefile.in, lib/VolumeViz/details/Makefile.in,
+	lib/VolumeViz/elements/Makefile.in, lib/VolumeViz/misc/Makefile.in,
+	lib/VolumeViz/nodes/Makefile.in,
+	lib/VolumeViz/nodes/gradients/Makefile.in,
+	lib/VolumeViz/readers/Makefile.in,
+	lib/VolumeViz/render/2D/Makefile.in,
+	lib/VolumeViz/render/3D/Makefile.in,
+	lib/VolumeViz/render/Makefile.in,
+	lib/VolumeViz/render/Pointset/Makefile.in,
+	lib/VolumeViz/render/common/Makefile.in:
+	bootstrap.
+
+2009-08-19 15:58 +0000  Tamer Fahmy  <tamer@sim.no>  (4170b4a53aab)
+
+	* Info.plist.in, version.plist.in: new file.
+	* Info.plist.in, version.plist.in:
+	add osx framework resource information.
+
+2009-08-19 15:57 +0000  Tamer Fahmy  <tamer@sim.no>  (72a59cc3efdc)
+
+	* Makefile.am, configure.ac, lib/VolumeViz/C/Makefile.am,
+	lib/VolumeViz/Makefile.am, lib/VolumeViz/details/Makefile.am,
+	lib/VolumeViz/elements/Makefile.am, lib/VolumeViz/nodes/Makefile.am,
+	lib/VolumeViz/readers/Makefile.am:
+	add OS X framework build support.
+
+2009-08-19 15:56 +0000  Tamer Fahmy  <tamer@sim.no>  (f58a67316ada)
+
+	* simvoleon.cfg.in:
+	add frameworkdir variable
+
+2009-08-19 15:55 +0000  Tamer Fahmy  <tamer@sim.no>  (e70855a62656)
+
+	* bin/simvoleon-config.in:
+	add --frameworkdir, --build-app to support os x framework builds.
+
+2009-08-19 15:49 +0000  Tamer Fahmy  <tamer@sim.no>  (0f27258cb48f)
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp:
+	use coin_ntoh_float_bytes() instead of deprecated coin_ntoh_float()
+	for byteswapping.
+
+2009-08-19 14:49 +0000  Tamer Fahmy  <tamer@sim.no>  (4e7bcc45cff9)
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp:
+	coin_hton_float has been deprecrated. assumption: endianness does
+	not matter for zero initialized float.
+
+2009-08-14 11:45 +0000  Morten Eriksen  <mortene@sim.no>  (1b5819485c10)
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	bugfix: eigils' fix for my recent attempt at a fix. ugh..
+
+2009-08-13 13:12 +0000  Morten Eriksen  <mortene@sim.no>  (68eab69ddde5)
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/render/common/Cvr2DPaletteTexture.cpp,
+	lib/VolumeViz/render/common/Cvr2DRGBATexture.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	bugfix: removes a memory overwrite, caused by the membuffer used to
+	seed textures being too small. also cleans up some code and adds in
+	some FIXME notes about things to look closer at.
+
+2009-08-11 20:12 +0000  Eigil Samset  <eigils@sim.no>  (49d2c6a58571)
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp:
+	fix for COINSUPPORT-932
+
+2009-08-10 14:11 +0000  Morten Eriksen  <mortene@sim.no>  (d88989dcb345)
+
+	* lib/VolumeViz/details/VolumeDetail.cpp,
+	lib/VolumeViz/elements/VoxelBlockElement.cpp:
+	bugfixes: ray intersection code was unnecessary complicated and had
+	several bugs and improper handling of edge cases.
+
+2009-08-06 14:05 +0000  Morten Eriksen  <mortene@sim.no>  (ec4c411a92d8)
+
+	* lib/VolumeViz/elements/VoxelBlockElement.cpp:
+	bugfix: handle ray intersection of volumes with any dimension (i,j
+	or k) of 1. problem reported by Kristofer tingdahl.
+
+2009-08-04 21:23 +0000  Eigil Samset  <eigils@sim.no>  (6da4765cd4e2)
+
+	* lib/VolumeViz/render/common/Cvr2DRGBATexture.cpp:
+	
+
+2009-08-04 21:20 +0000  Eigil Samset  <eigils@sim.no>  (a990f6af7a5c)
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/render/common/Cvr2DPaletteTexture.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	improvement to fix for tile seams, previous commit didn't tackle
+	non-power-of-2 textures correctly
+
+2009-08-03 09:33 +0000  Eigil Samset  <eigils@sim.no>  (5968fe63e946)
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	added border to 2D texture sent to OpenGL, instead of incomming
+	texture
+
+2009-07-31 08:47 +0000  Eigil Samset  <eigils@sim.no>  (f33d885e3a89)
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	Fix for ugly seams between tiles in orthoslices The fix adds a
+	border to the texture with pixels from the neighbouring tile The
+	total size of the texture is increased with 2 in each dimension On
+	the outer border of the orthoslice the boarder is filled with a copy
+	of the pixels from the tile (otherwise the border would be filled
+	with junk which then blends into the texture) y
+
+2009-03-24 19:23 +0000  Tamer Fahmy  <tamer@sim.no>  (7c4988617ca7)
+
+	* configure, configure.ac:
+	Compiler/Linker __declspec check to include DLL define in config
+	scripts.
+
+2009-03-09 18:36 +0000  Peder Blekken  <pederb@sim.no>  (7e174ab36570)
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp,
+	lib/VolumeViz/render/3D/3DTexCube.cpp:
+	Fixes for transparency rendering.
+
+2009-02-17 19:26 +0000  Tamer Fahmy  <tamer@sim.no>  (de4b099aa9fc)
+
+	* aclocal.m4, cfg/config.guess, cfg/config.sub, cfg/doxy4win.pl,
+	cfg/errors.txt, cfg/gendsp.pl.in, configure:
+	bootstrap. (config summary echo fix)
+
+2008-10-28 14:55 +0000  Lars J. Aas  <larsa@sim.no>  (217582e2704e)
+
+	* build/misc/install-sdk.bat:
+	Clone from Coin/build/misc/
+
+2008-10-24 15:58 +0000  Lars J. Aas  <larsa@sim.no>  (40fc91dc6ae2)
+
+	* build/misc/build-docs.bat, build/misc/install-headers.bat,
+	build/misc/uninstall-headers.bat, build/misc/uninstall-sdk.bat,
+	build/msvc6/simvoleon2_docs.dsp, build/msvc6/simvoleon2_install.dsp,
+	build/msvc6/simvoleon2_uninstall.dsp,
+	build/msvc7/simvoleon2_docs.vcproj,
+	build/msvc7/simvoleon2_install.vcproj,
+	build/msvc7/simvoleon2_uninstall.vcproj,
+	build/msvc8/simvoleon2_docs.vcproj,
+	build/msvc8/simvoleon2_install.vcproj,
+	build/msvc8/simvoleon2_uninstall.vcproj,
+	build/msvc9/lib/VolumeViz/C/basic.h, build/msvc9/lib/config-debug.h,
+	build/msvc9/lib/config-release.h, build/msvc9/lib/config.h,
+	build/msvc9/simvoleon2.sln, build/msvc9/simvoleon2.vcproj,
+	build/msvc9/simvoleon2_docs.vcproj,
+	build/msvc9/simvoleon2_install.vcproj,
+	build/msvc9/simvoleon2_uninstall.vcproj: new file.
+	* build/msvc6/install-headers.bat, build/msvc7/install-headers.bat,
+	build/msvc8/install-headers.bat: deleted file.
+	* build/misc/build-docs.bat, build/misc/generate.sh, build/misc
+	/install-headers.bat, build/misc/install-sdk.bat, build/misc
+	/uninstall-headers.bat, build/misc/uninstall-sdk.bat, build/msvc6
+	/install-headers.bat, build/msvc6/simvoleon2.dsp,
+	build/msvc6/simvoleon2.dsw, build/msvc6/simvoleon2_docs.dsp,
+	build/msvc6/simvoleon2_install.dsp,
+	build/msvc6/simvoleon2_uninstall.dsp, build/msvc7/install-
+	headers.bat, build/msvc7/simvoleon2.sln,
+	build/msvc7/simvoleon2.vcproj, build/msvc7/simvoleon2_docs.vcproj,
+	build/msvc7/simvoleon2_install.vcproj,
+	build/msvc7/simvoleon2_uninstall.vcproj, build/msvc8/install-
+	headers.bat, build/msvc8/simvoleon2.sln,
+	build/msvc8/simvoleon2.vcproj, build/msvc8/simvoleon2_docs.vcproj,
+	build/msvc8/simvoleon2_install.vcproj,
+	build/msvc8/simvoleon2_uninstall.vcproj,
+	build/msvc9/lib/VolumeViz/C/basic.h, build/msvc9/lib/config-debug.h,
+	build/msvc9/lib/config-release.h, build/msvc9/lib/config.h,
+	build/msvc9/simvoleon2.sln, build/msvc9/simvoleon2.vcproj,
+	build/msvc9/simvoleon2_docs.vcproj,
+	build/msvc9/simvoleon2_install.vcproj,
+	build/msvc9/simvoleon2_uninstall.vcproj:
+	Visual Studio build file overhaul
+
+2008-10-24 13:49 +0000  Lars J. Aas  <larsa@sim.no>  (0ee826864de7)
+
+	* lib/VolumeViz/misc/CentralDifferenceGradient.cpp:
+	kill warning
+
+2007-11-22 03:37 +0000  Tamer Fahmy  <tamer@sim.no>  (376ad699b6ad)
+
+	* Makefile.in, aclocal.m4, cfg/config.guess, cfg/config.sub,
+	cfg/errors.txt, cfg/gendsp.pl.in, cfg/wrapmsvc.exe, configure:
+	bootstrap.
+
+2007-11-22 03:36 +0000  Tamer Fahmy  <tamer@sim.no>  (9bc5c517fba2)
+
+	* SIMVoleon.pc.in: new file.
+	* Makefile.am, SIMVoleon.pc.in, configure.ac:
+	added pkg-config support.
+
+2007-11-16 14:23 +0000  Peder Blekken  <pederb@sim.no>  (12b1629701a4)
+
+	* lib/VolumeViz/render/3D/3DTexCube.cpp:
+	Fix orthographic camera subcube sorting bug.
+
+2007-06-05 14:00 +0000  Lars J. Aas  <larsa@sim.no>  (c5be879e04c1)
+
+	* aclocal.m4, cfg/csubst.exe, cfg/gendsp.pl.in, configure,
+	configure.ac:
+	cygwin fix
+
+2007-05-29 16:10 +0000  Tamer Fahmy  <tamer@sim.no>  (ba4cb67e8618)
+
+	* cfg/csubst.exe: new file.
+	* aclocal.m4, cfg/config.guess, cfg/config.sub, cfg/csubst.exe,
+	cfg/gendsp.pl.in, cfg/ltmain.sh, configure:
+	bootstrap.
+
+2007-03-12 19:24 +0000  Lars J. Aas  <larsa@sim.no>  (72dde217dc3c)
+
+	* build/misc/config-wrapper.h, build/misc/create-directories.bat,
+	build/misc/generate.sh, build/misc/install-sdk.bat,
+	cfg/gendsp.pl.in: new file.
+	* build/msvc6/config-wrapper.h, build/msvc6/generate.sh, build/msvc6
+	/install-dll-debug.bat, build/msvc6/install-dll-release.bat,
+	build/msvc6/install-lib-debug.bat, build/msvc6/install-lib-
+	release.bat, build/msvc7/config-wrapper.h, build/msvc7/generate.sh,
+	build/msvc7/install-dll-debug.bat, build/msvc7/install-dll-
+	release.bat, build/msvc7/install-lib-debug.bat, build/msvc7/install-
+	lib-release.bat, build/msvc8/config-wrapper.h,
+	build/msvc8/generate.sh, build/msvc8/install-dll-debug.bat,
+	build/msvc8/install-dll-release.bat, build/msvc8/install-lib-
+	debug.bat, build/msvc8/install-lib-release.bat: deleted file.
+	* Makefile.in, aclocal.m4, build/misc/config-wrapper.h, build/misc
+	/create-directories.bat, build/misc/generate.sh, build/misc/install-
+	sdk.bat, build/msvc6/config-wrapper.h, build/msvc6/generate.sh,
+	build/msvc6/install-dll-debug.bat, build/msvc6/install-dll-
+	release.bat, build/msvc6/install-lib-debug.bat, build/msvc6/install-
+	lib-release.bat, build/msvc6/simvoleon2.dsp, build/msvc7/config-
+	wrapper.h, build/msvc7/generate.sh, build/msvc7/install-dll-
+	debug.bat, build/msvc7/install-dll-release.bat, build/msvc7/install-
+	lib-debug.bat, build/msvc7/install-lib-release.bat,
+	build/msvc7/simvoleon2.sln, build/msvc7/simvoleon2.vcproj,
+	build/msvc8/config-wrapper.h, build/msvc8/generate.sh, build/msvc8
+	/install-dll-debug.bat, build/msvc8/install-dll-release.bat,
+	build/msvc8/install-lib-debug.bat, build/msvc8/install-lib-
+	release.bat, build/msvc8/simvoleon2.sln,
+	build/msvc8/simvoleon2.vcproj, cfg/config.guess, cfg/config.sub,
+	cfg/errors.txt, cfg/gendsp.pl.in, cfg/ltmain.sh, cfg/wrapmsvc.exe,
+	configure, configure.ac:
+	updated Visual Studio files
+
+2007-01-08 12:35 +0000  Morten Eriksen  <mortene@sim.no>  (90990d4e5d66)
+
+	* lib/VolumeViz/elements/VoxelBlockElement.cpp:
+	bugfix: corrects the geometric positioning of ortho-slices. problem
+	found and fixed by Kristofer Tingdahl.
+
+2006-10-01 20:36 +0000  autosvn  <autosvn@sim.no>  (8c2298887740)
+
+	* cfg/ltmain.sh:
+	Automatic Property adjustment.
+
+2006-10-01 20:34 +0000  autosvn  <autosvn@sim.no>  (e0da75c12c16)
+
+	* .cvsignore, bin/.cvsignore, build/msvc6/.cvsignore,
+	build/msvc6/lib/.cvsignore, build/msvc6/lib/VolumeViz/.cvsignore,
+	build/msvc6/lib/VolumeViz/C/.cvsignore,
+	build/msvc6/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc6/lib/VolumeViz/nodes/gradients/.cvsignore,
+	build/msvc7/.cvsignore, build/msvc7/lib/.cvsignore,
+	build/msvc7/lib/VolumeViz/.cvsignore,
+	build/msvc7/lib/VolumeViz/C/.cvsignore,
+	build/msvc7/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc7/lib/VolumeViz/nodes/gradients/.cvsignore,
+	build/msvc8/.cvsignore, build/msvc8/lib/.cvsignore,
+	build/msvc8/lib/VolumeViz/.cvsignore,
+	build/msvc8/lib/VolumeViz/C/.cvsignore,
+	build/msvc8/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc8/lib/VolumeViz/nodes/gradients/.cvsignore,
+	cfg/.cvsignore, data/.cvsignore, html/.cvsignore, lib/.cvsignore,
+	lib/VolumeViz/.cvsignore, lib/VolumeViz/C/.cvsignore,
+	lib/VolumeViz/caches/.cvsignore, lib/VolumeViz/details/.cvsignore,
+	lib/VolumeViz/elements/.cvsignore, lib/VolumeViz/misc/.cvsignore,
+	lib/VolumeViz/nodes/.cvsignore,
+	lib/VolumeViz/nodes/gradients/.cvsignore,
+	lib/VolumeViz/readers/.cvsignore, lib/VolumeViz/render/.cvsignore,
+	lib/VolumeViz/render/2D/.cvsignore,
+	lib/VolumeViz/render/3D/.cvsignore,
+	lib/VolumeViz/render/Pointset/.cvsignore,
+	lib/VolumeViz/render/common/.cvsignore: deleted file.
+	* .cvsignore, bin/.cvsignore, build/msvc6/.cvsignore,
+	build/msvc6/lib/.cvsignore, build/msvc6/lib/VolumeViz/.cvsignore,
+	build/msvc6/lib/VolumeViz/C/.cvsignore,
+	build/msvc6/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc6/lib/VolumeViz/nodes/gradients/.cvsignore,
+	build/msvc7/.cvsignore, build/msvc7/lib/.cvsignore,
+	build/msvc7/lib/VolumeViz/.cvsignore,
+	build/msvc7/lib/VolumeViz/C/.cvsignore,
+	build/msvc7/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc7/lib/VolumeViz/nodes/gradients/.cvsignore,
+	build/msvc8/.cvsignore, build/msvc8/lib/.cvsignore,
+	build/msvc8/lib/VolumeViz/.cvsignore,
+	build/msvc8/lib/VolumeViz/C/.cvsignore,
+	build/msvc8/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc8/lib/VolumeViz/nodes/gradients/.cvsignore,
+	cfg/.cvsignore, data/.cvsignore, html/.cvsignore, lib/.cvsignore,
+	lib/VolumeViz/.cvsignore, lib/VolumeViz/C/.cvsignore,
+	lib/VolumeViz/caches/.cvsignore, lib/VolumeViz/details/.cvsignore,
+	lib/VolumeViz/elements/.cvsignore, lib/VolumeViz/misc/.cvsignore,
+	lib/VolumeViz/nodes/.cvsignore,
+	lib/VolumeViz/nodes/gradients/.cvsignore,
+	lib/VolumeViz/readers/.cvsignore, lib/VolumeViz/render/.cvsignore,
+	lib/VolumeViz/render/2D/.cvsignore,
+	lib/VolumeViz/render/3D/.cvsignore,
+	lib/VolumeViz/render/Pointset/.cvsignore,
+	lib/VolumeViz/render/common/.cvsignore:
+	remove now obsolete .cvsignore files.
+
+2006-09-13 21:36 +0000  Lars J. Aas  <larsa@sim.no>  (640e5a439150)
+
+	* build/msvc6/config-wrapper.h, build/msvc6/lib/config-debug.h,
+	build/msvc6/lib/config-release.h, build/msvc7/config-wrapper.h,
+	build/msvc7/lib/config-debug.h, build/msvc7/lib/config-release.h,
+	build/msvc8/.cvsignore, build/msvc8/config-wrapper.h,
+	build/msvc8/generate.sh, build/msvc8/install-dll-debug.bat,
+	build/msvc8/install-dll-release.bat, build/msvc8/install-
+	headers.bat, build/msvc8/install-lib-debug.bat, build/msvc8/install-
+	lib-release.bat, build/msvc8/lib/.cvsignore,
+	build/msvc8/lib/VolumeViz/.cvsignore,
+	build/msvc8/lib/VolumeViz/C/.cvsignore,
+	build/msvc8/lib/VolumeViz/C/basic.h,
+	build/msvc8/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc8/lib/VolumeViz/nodes/gradients/.cvsignore,
+	build/msvc8/lib/VolumeViz/nodes/gradients/BLUE_RED.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/GLOW.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/GREY.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/PHYSICS.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/SEISMIC.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/STANDARD.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/TEMPERATURE.h,
+	build/msvc8/lib/config-debug.h, build/msvc8/lib/config-release.h,
+	build/msvc8/lib/config.h, build/msvc8/simvoleon2.sln,
+	build/msvc8/simvoleon2.vcproj: new file.
+	* build/msvc6/.cvsignore, build/msvc6/config-wrapper.h,
+	build/msvc6/generate.sh, build/msvc6/lib/VolumeViz/.cvsignore,
+	build/msvc6/lib/VolumeViz/nodes/.cvsignore, build/msvc6/lib/config-
+	debug.h, build/msvc6/lib/config-release.h, build/msvc6/lib/config.h,
+	build/msvc6/simvoleon2.dsp, build/msvc7/config-wrapper.h,
+	build/msvc7/generate.sh, build/msvc7/lib/VolumeViz/.cvsignore,
+	build/msvc7/lib/VolumeViz/nodes/.cvsignore, build/msvc7/lib/config-
+	debug.h, build/msvc7/lib/config-release.h, build/msvc7/lib/config.h,
+	build/msvc7/simvoleon2.sln, build/msvc7/simvoleon2.vcproj,
+	build/msvc8/.cvsignore, build/msvc8/config-wrapper.h,
+	build/msvc8/generate.sh, build/msvc8/install-dll-debug.bat,
+	build/msvc8/install-dll-release.bat, build/msvc8/install-
+	headers.bat, build/msvc8/install-lib-debug.bat, build/msvc8/install-
+	lib-release.bat, build/msvc8/lib/.cvsignore,
+	build/msvc8/lib/VolumeViz/.cvsignore,
+	build/msvc8/lib/VolumeViz/C/.cvsignore,
+	build/msvc8/lib/VolumeViz/C/basic.h,
+	build/msvc8/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc8/lib/VolumeViz/nodes/gradients/.cvsignore,
+	build/msvc8/lib/VolumeViz/nodes/gradients/BLUE_RED.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/GLOW.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/GREY.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/PHYSICS.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/SEISMIC.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/STANDARD.h,
+	build/msvc8/lib/VolumeViz/nodes/gradients/TEMPERATURE.h,
+	build/msvc8/lib/config-debug.h, build/msvc8/lib/config-release.h,
+	build/msvc8/lib/config.h, build/msvc8/simvoleon2.sln,
+	build/msvc8/simvoleon2.vcproj:
+	updated build files, including new msvc8 files
+
+2006-08-02 08:00 +0000  Øystein Handegard  <handegar@sim.no>  (2fed9f8453af)
+
+	* lib/VolumeViz/misc/CLUT.cpp:
+	Color lookup table fix
+
+2006-07-06 19:15 +0000  Tamer Fahmy  <tamer@sim.no>  (4d21468921f3)
+
+	* lib/VolumeViz/misc/CvrCLUT.h,
+	lib/VolumeViz/render/common/CvrTextureObject.h:
+	fix for extra qualification error with newer versions of gcc found
+	e.g. on Fedora Core 5. reported and patch provided by Petter Risholm
+	and Kristofer Tingdahl.
+
+2006-06-29 13:22 +0000  Tamer Fahmy  <tamer@sim.no>  (1dcb5f8f5d79)
+
+	* aclocal.m4, cfg/config.guess, cfg/config.sub, cfg/ltmain.sh,
+	configure:
+	bootstrap to newer libtool version.
+
+2006-06-14 12:57 +0000  Øystein Handegard  <handegar@sim.no>  (e23b9b61c1bd)
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp:
+	compile fix
+
+2006-06-14 12:57 +0000  Øystein Handegard  <handegar@sim.no>  (7d91230a6105)
+
+	* cfg/wrapmsvc.exe:
+	updated wrapmsvc.exe
+
+2006-05-30 08:18 +0000  Tamer Fahmy  <tamer@sim.no>  (14b3587de6bf)
+
+	* lib/VolumeViz/readers/VRVolFileReader.cpp:
+	shut up compiler warnings about unsigned/signed comparions.
+
+2006-03-31 18:10 +0000  Karin (kyrah) Kosina  <kyrah@sim.no>  (6092dec460da)
+
+	* configure.ac:
+	Universal Binary support.
+
+2006-03-24 12:50 +0000  Øystein Handegard  <handegar@sim.no>  (aebc78b7bcdb)
+
+	* lib/VolumeViz/nodes/ObliqueSlice.cpp:
+	minor doc fix.
+
+2006-03-23 12:23 +0000  Øystein Handegard  <handegar@sim.no>  (fa0cbeaf63f6)
+
+	* lib/VolumeViz/nodes/ObliqueSlice.cpp:
+	Added an IV-example to the doc.
+
+2005-10-31 13:55 +0000  Lars J. Aas  <larsa@sim.no>  (58ceb1ab90da)
+
+	* build/msvc6/install-dll-debug.bat, build/msvc6/install-dll-
+	release.bat, build/msvc6/install-headers.bat, build/msvc6/install-
+	lib-debug.bat, build/msvc6/install-lib-release.bat: new file.
+	* build/msvc6/installsimvoleon.bat,
+	build/msvc6/installsimvoleonheaders.bat: deleted file.
+	* build/msvc6/generate.sh, build/msvc6/install-dll-debug.bat,
+	build/msvc6/install-dll-release.bat, build/msvc6/install-
+	headers.bat, build/msvc6/install-lib-debug.bat, build/msvc6/install-
+	lib-release.bat, build/msvc6/installsimvoleon.bat,
+	build/msvc6/installsimvoleonheaders.bat, build/msvc6/simvoleon2.dsp,
+	build/msvc7/generate.sh, build/msvc7/install-headers.bat,
+	build/msvc7/simvoleon2.sln:
+	updates
+
+2005-10-31 13:10 +0000  Lars J. Aas  <larsa@sim.no>  (37fb75b9a919)
+
+	* build/msvc7/install-dll-debug.bat, build/msvc7/install-dll-
+	release.bat, build/msvc7/install-headers.bat, build/msvc7/install-
+	lib-debug.bat, build/msvc7/install-lib-release.bat: new file.
+	* build/msvc7/installsimvoleon.bat,
+	build/msvc7/installsimvoleonheaders.bat: deleted file.
+	* build/msvc7/generate.sh, build/msvc7/install-dll-debug.bat,
+	build/msvc7/install-dll-release.bat, build/msvc7/install-
+	headers.bat, build/msvc7/install-lib-debug.bat, build/msvc7/install-
+	lib-release.bat, build/msvc7/installsimvoleon.bat,
+	build/msvc7/installsimvoleonheaders.bat, build/msvc7/simvoleon2.sln,
+	build/msvc7/simvoleon2.vcproj:
+	updates
+
+2005-10-27 13:58 +0000  Morten Eriksen  <mortene@sim.no>  (7d947b87bd15)
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp:
+	Compile fix: match up a change in CoinGLPerformance.h.
+
+2005-10-27 12:44 +0000  Morten Eriksen  <mortene@sim.no>  (3acf5bcce3ac)
+
+	* lib/VolumeViz/nodes/VolumeRender.cpp:
+	Compile fix: remove extraneous const, which caused gcc 3.3 on OS X
+	to complain. Reported by Arend Lammertink.
+
+2005-10-19 11:58 +0000  Morten Eriksen  <mortene@sim.no>  (c6f6b75427d6)
+
+	* lib/VolumeViz/nodes/PerformanceCheck.cpp: deleted file.
+	* aclocal.m4, configure, configure.ac, lib/VolumeViz/Makefile.am,
+	lib/VolumeViz/Makefile.in, lib/VolumeViz/nodes/Makefile.am,
+	lib/VolumeViz/nodes/Makefile.in,
+	lib/VolumeViz/nodes/PerformanceCheck.cpp,
+	lib/VolumeViz/nodes/VolumeRender.cpp:
+	Reorg: use GL performance checking code from the shared Coin src.
+
+2005-10-14 13:52 +0000  Morten Eriksen  <mortene@sim.no>  (49b3594d5239)
+
+	* lib/VolumeViz/nodes/PerformanceCheck.cpp,
+	lib/VolumeViz/nodes/VolumeRender.cpp:
+	Optimize: make it possible to pass multiple render callbacks into
+	performance timings, to avoid unnecessary setup/shutdowns.
+
+2005-10-14 11:05 +0000  Morten Eriksen  <mortene@sim.no>  (ad06f9115669)
+
+	* lib/VolumeViz/nodes/PerformanceCheck.cpp:
+	Docs: explain purpose.
+
+2005-10-14 10:00 +0000  Morten Eriksen  <mortene@sim.no>  (5a6d524bc9e6)
+
+	* Makefile.in, aclocal.m4, bin/Makefile.in, cfg/config.guess,
+	cfg/config.sub, cfg/errors.txt, cfg/gendsp.sh.in, configure,
+	html/Makefile.in, lib/Makefile.in, lib/VolumeViz/C/Makefile.in,
+	lib/VolumeViz/Makefile.in, lib/VolumeViz/caches/Makefile.in,
+	lib/VolumeViz/details/Makefile.in,
+	lib/VolumeViz/elements/Makefile.in, lib/VolumeViz/misc/Makefile.in,
+	lib/VolumeViz/nodes/Makefile.in,
+	lib/VolumeViz/nodes/gradients/Makefile.in,
+	lib/VolumeViz/readers/Makefile.in,
+	lib/VolumeViz/render/2D/Makefile.in,
+	lib/VolumeViz/render/3D/Makefile.in,
+	lib/VolumeViz/render/Makefile.in,
+	lib/VolumeViz/render/Pointset/Makefile.in,
+	lib/VolumeViz/render/common/Makefile.in:
+	bootstrap
+
+2005-10-14 09:58 +0000  Morten Eriksen  <mortene@sim.no>  (40fe4f1b7ecd)
+
+	* lib/VolumeViz/nodes/PerformanceCheck.cpp: new file.
+	* lib/VolumeViz/nodes/Makefile.am,
+	lib/VolumeViz/nodes/PerformanceCheck.cpp,
+	lib/VolumeViz/nodes/VolumeRender.cpp:
+	Refactoring: factor out the framework for performance testing into a
+	general framework.
+
+2005-10-03 11:43 +0000  Øystein Handegard  <handegar@sim.no>  (3c029c114ee1)
+
+	* BUGS.txt:
+	New item
+
+2005-09-26 10:23 +0000  Lars J. Aas  <larsa@sim.no>  (14d2133ef439)
+
+	* build/msvc7/generate.sh, build/msvc7/simvoleon2.sln,
+	build/msvc7/simvoleon2.vcproj:
+	update
+
+2005-09-26 10:16 +0000  Lars J. Aas  <larsa@sim.no>  (c2b1a25ad1ef)
+
+	* build/msvc6/generate.sh, build/msvc6/simvoleon2.dsp:
+	update
+
+2005-08-04 13:20 +0000  Tamer Fahmy  <tamer@sim.no>  (e086aaa7acd1)
+
+	* bin/simvoleon-config.in, simvoleon.cfg.in:
+	added includedir and datadir. the Pivy build system makes use of
+	includedir.
+
+2005-07-12 14:08 +0000  Morten Eriksen  <mortene@sim.no>  (47d7261ae854)
+
+	* lib/VolumeViz/render/common/Cvr3DPaletteGradientTexture.cpp:
+	FIXME note.
+
+2005-07-01 13:44 +0000  Morten Eriksen  <mortene@sim.no>  (843e4045e70e)
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	Bugfix: don't mix and match EXT paletted and fragment-program
+	paletted textures on systems which supports both. Kills GL errors.
+
+2005-06-30 11:56 +0000  Morten Eriksen  <mortene@sim.no>  (9c0da14557db)
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	Doc: remove bogus FIXME (wrong assumption about how compressed
+	textures are set up).
+
+2005-06-29 08:31 +0000  Lars J. Aas  <larsa@sim.no>  (224ce6c2d045)
+
+	* bin/.cvsignore, cfg/.cvsignore, html/.cvsignore, lib/.cvsignore,
+	lib/VolumeViz/.cvsignore, lib/VolumeViz/C/.cvsignore,
+	lib/VolumeViz/caches/.cvsignore, lib/VolumeViz/details/.cvsignore,
+	lib/VolumeViz/elements/.cvsignore, lib/VolumeViz/misc/.cvsignore,
+	lib/VolumeViz/nodes/.cvsignore,
+	lib/VolumeViz/nodes/gradients/.cvsignore,
+	lib/VolumeViz/readers/.cvsignore, lib/VolumeViz/render/.cvsignore,
+	lib/VolumeViz/render/2D/.cvsignore,
+	lib/VolumeViz/render/3D/.cvsignore,
+	lib/VolumeViz/render/Pointset/.cvsignore,
+	lib/VolumeViz/render/common/.cvsignore: new file.
+	* .cvsignore, bin/.cvsignore, cfg/.cvsignore, html/.cvsignore,
+	lib/.cvsignore, lib/VolumeViz/.cvsignore,
+	lib/VolumeViz/C/.cvsignore, lib/VolumeViz/caches/.cvsignore,
+	lib/VolumeViz/details/.cvsignore, lib/VolumeViz/elements/.cvsignore,
+	lib/VolumeViz/misc/.cvsignore, lib/VolumeViz/nodes/.cvsignore,
+	lib/VolumeViz/nodes/gradients/.cvsignore,
+	lib/VolumeViz/readers/.cvsignore, lib/VolumeViz/render/.cvsignore,
+	lib/VolumeViz/render/2D/.cvsignore,
+	lib/VolumeViz/render/3D/.cvsignore,
+	lib/VolumeViz/render/Pointset/.cvsignore,
+	lib/VolumeViz/render/common/.cvsignore:
+	ignore for source-dir builds
+
+2005-06-28 11:45 +0000  Morten Eriksen  <mortene@sim.no>  (9991c15b7e66)
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	Bugfix: don't try to use a paletted internal format for OpenGL, if
+	the palette extension is not available in the driver.
+
+2005-06-28 09:49 +0000  Morten Eriksen  <mortene@sim.no>  (7cc64785c4d7)
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	Debugging: replace assert on GL errors, which is too strict, with
+	error and context info dump.
+
+2005-06-28 09:48 +0000  Morten Eriksen  <mortene@sim.no>  (90ddbbe46e1a)
+
+	* lib/VolumeViz/misc/CvrCLUT.h:
+	Bugfix: fragment program array was too short. Reported by Peter
+	Cech.
+
+2005-06-28 09:23 +0000  Morten Eriksen  <mortene@sim.no>  (84031ac14e53)
+
+	* lib/VolumeViz/misc/CLUT.cpp, lib/VolumeViz/misc/CvrCLUT.h:
+	Bugfix: avoid using variable before it has been initialized. Problem
+	reported and analyzed by Peter Cech.
+
+2005-06-28 08:29 +0000  Morten Eriksen  <mortene@sim.no>  (5fb06f8591a1)
+
+	* BUGS.txt:
+	New item, tentative, may not be a real bug.
+
+2005-06-18 16:44 +0000  Karin (kyrah) Kosina  <kyrah@sim.no>  (a3b4930102f7)
+
+	* testcode/tabula/glutclut.c:
+	Mac OS X and gcc4 fixes.
+
+2005-06-07 16:18 +0000  kristian  <kristian>  (f05d23d6c093)
+
+	* docs/efficient-texture-size.patch: new file.
+	* BUGS.txt, docs/efficient-texture-size.patch:
+	- A first attempt at fixing bug #15 (inefficient use of texture
+	memory)
+
+2005-06-02 10:44 +0000  Morten Eriksen  <mortene@sim.no>  (8178875fa8ce)
+
+	* lib/VolumeViz/render/common/CvrTextureObject.cpp:
+	Bugfix: allow txeture compression to be turned on. Also clarify and
+	document the code better.
+
+2005-06-02 10:12 +0000  Morten Eriksen  <mortene@sim.no>  (deec01549d60)
+
+	* lib/VolumeViz/nodes/VolumeData.cpp:
+	Doc: clarify API doc on paletted vs compressed textures, as per a
+	request from kintel.
+
+2005-05-31 10:59 +0000  kristian  <kristian>  (87f8c304d954)
+
+	* BUGS.txt:
+	- Remove bug #22 as it was fixed by the last committ
+
+2005-05-26 16:53 +0000  kristian  <kristian>  (99e59de91080)
+
+	* lib/VolumeViz/details/VolumeDetail.cpp, lib/VolumeViz/misc/CLUT.cpp,
+	lib/VolumeViz/misc/CvrCLUT.h, lib/VolumeViz/misc/CvrVoxelChunk.h,
+	lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/nodes/CvrIndexedSetRenderBaseP.cpp,
+	lib/VolumeViz/nodes/CvrNonIndexedSetRenderBaseP.cpp,
+	lib/VolumeViz/nodes/OrthoSlice.cpp,
+	lib/VolumeViz/nodes/VolumeRender.cpp,
+	lib/VolumeViz/render/2D/2DTexPage.cpp,
+	lib/VolumeViz/render/2D/CvrPageHandler.h,
+	lib/VolumeViz/render/2D/PageHandler.cpp,
+	lib/VolumeViz/render/3D/3DTexCube.cpp,
+	lib/VolumeViz/render/3D/CubeHandler.cpp,
+	lib/VolumeViz/render/3D/CvrCubeHandler.h,
+	lib/VolumeViz/render/Pointset/PointRendering.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp,
+	lib/VolumeViz/render/common/CvrTextureObject.h:
+	Require CvrCLUT::AlphaUse as an argument to create a CvrCLUT object
+	and propagate the argument down the call stack as needed.
+
+2005-05-18 13:38 +0000  Tamer Fahmy  <tamer@sim.no>  (c7e5e3bb0ab7)
+
+	* docs/doxygen/footer.html:
+	update of (C) date
+
+2005-05-18 13:00 +0000  Tamer Fahmy  <tamer@sim.no>  (bf1b2c1bfcb0)
+
+	* docs/simvoleon.doxygen.in:
+	updated config to newer version with 'doxygen -u'
+
+2005-05-04 12:42 +0000  kristian  <kristian>  (5e96ed389f68)
+
+	* lib/VolumeViz/render/3D/CubeHandler.cpp,
+	lib/VolumeViz/render/3D/CvrCubeHandler.h:
+	- If not using paletted textures, re-generate subcubes if light
+	direction or light intensity changes
+
+2005-05-04 12:32 +0000  kristian  <kristian>  (3e780f228abd)
+
+	* lib/VolumeViz/misc/CentralDifferenceGradient.cpp,
+	lib/VolumeViz/misc/CvrGradient.h, lib/VolumeViz/misc/Gradient.cpp,
+	lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/nodes/VolumeRender.cpp:
+	- Implement light support for RGBA (non-paletted) textures
+
+2005-05-04 11:05 +0000  kristian  <kristian>  (146dfe68ca51)
+
+	* lib/VolumeViz/elements/LightingElement.cpp,
+	lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/nodes/VolumeRender.cpp,
+	lib/VolumeViz/nodes/VolumeRendering.cpp,
+	lib/VolumeViz/render/3D/CubeHandler.cpp,
+	lib/VolumeViz/render/3D/CvrCubeHandler.h:
+	- Enable LightingElement in VolumeRender
+	- Re-generate volume cubes if light is turend on or off
+	- Fix crash if light is enabled for non-paletted texture (though no
+	support for light in this case yet)
+
+2005-05-02 13:48 +0000  kristian  <kristian>  (816b918e6710)
+
+	* lib/VolumeViz/elements/CvrLightingElement.h,
+	lib/VolumeViz/elements/LightingElement.cpp,
+	lib/VolumeViz/misc/CentralDifferenceGradient.cpp,
+	lib/VolumeViz/misc/CvrCentralDifferenceGradient.h,
+	lib/VolumeViz/misc/CvrGradient.h, lib/VolumeViz/misc/Gradient.cpp,
+	lib/VolumeViz/misc/Gradient.h,
+	lib/VolumeViz/render/common/Cvr3DPaletteGradientTexture.cpp,
+	lib/VolumeViz/render/common/Cvr3DPaletteGradientTexture.h: new file.
+	* aclocal.m4, configure, lib/VolumeViz/elements/CvrLightingElement.h,
+	lib/VolumeViz/elements/LightingElement.cpp,
+	lib/VolumeViz/elements/Makefile.am,
+	lib/VolumeViz/elements/Makefile.in, lib/VolumeViz/misc/CLUT.cpp,
+	lib/VolumeViz/misc/CentralDifferenceGradient.cpp,
+	lib/VolumeViz/misc/CvrCLUT.h,
+	lib/VolumeViz/misc/CvrCentralDifferenceGradient.h,
+	lib/VolumeViz/misc/CvrGradient.h, lib/VolumeViz/misc/Gradient.cpp,
+	lib/VolumeViz/misc/Gradient.h, lib/VolumeViz/misc/Makefile.am,
+	lib/VolumeViz/misc/Makefile.in, lib/VolumeViz/misc/VoxelChunk.cpp,
+	lib/VolumeViz/nodes/VolumeRender.cpp,
+	lib/VolumeViz/render/3D/3DTexSubCube.cpp,
+	lib/VolumeViz/render/common/Cvr3DPaletteGradientTexture.cpp,
+	lib/VolumeViz/render/common/Cvr3DPaletteGradientTexture.h,
+	lib/VolumeViz/render/common/CvrTextureObject.cpp,
+	lib/VolumeViz/render/common/Makefile.am,
+	lib/VolumeViz/render/common/Makefile.in:
+	Add lighting support. The central difference algorithm is used to
+	compute the voxel gradients, which are stored in an RGBA texture.
+	Dynamic lighting is supported.
+
+2005-04-19 10:11 +0000  Morten Eriksen  <mortene@sim.no>  (0969cdc07df8)
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp:
+	Minor code comment addition.
+
+2005-04-13 14:07 +0000  Morten Eriksen  <mortene@sim.no>  (4b41fe8e68a6)
+
+	* BUGS.txt:
+	Two new items.
+
+2005-04-13 14:06 +0000  Morten Eriksen  <mortene@sim.no>  (f48c7e07f22b)
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp:
+	Additional API doc.
+
+2005-03-31 16:18 +0000  Lars J. Aas  <larsa@sim.no>  (8657c410bcf8)
+
+	* build/msvc7/lib/config.h, build/msvc7/simvoleon2.sln:
+	autogenerated files
+
+2005-03-31 16:18 +0000  Lars J. Aas  <larsa@sim.no>  (b40d98ffff78)
+
+	* build/msvc7/generate.sh:
+	updates/fixes
+
+2005-03-31 16:01 +0000  Lars J. Aas  <larsa@sim.no>  (2ba973283e1d)
+
+	* build/msvc6/lib/config.h, build/msvc6/simvoleon2.dsp:
+	autogenerated files
+
+2005-03-31 16:01 +0000  Lars J. Aas  <larsa@sim.no>  (f2c52028d95f)
+
+	* build/msvc6/generate.sh:
+	update/fixes
+
+2005-03-30 17:11 +0000  Lars J. Aas  <larsa@sim.no>  (c5c210812768)
+
+	* aclocal.m4, cfg/ltmain.sh, configure:
+	bootstrap
+
+2005-03-04 11:09 +0000  Lars J. Aas  <larsa@sim.no>  (af12953645ab)
+
+	* build/msvc6/simvoleon2.dsp, build/msvc6/simvoleon2.dsw,
+	build/msvc7/simvoleon2.sln, build/msvc7/simvoleon2.vcproj: new file.
+	* build/msvc6/simvoleon2.dsp, build/msvc6/simvoleon2.dsw,
+	build/msvc7/simvoleon2.sln, build/msvc7/simvoleon2.vcproj:
+	redo checkin
+
+2005-03-04 11:09 +0000  Lars J. Aas  <larsa@sim.no>  (6a92dc0ec67d)
+
+	* build/msvc7/simvoleon2.sln, build/msvc7/simvoleon2.vcproj: deleted
+	file.
+	* build/msvc7/simvoleon2.sln, build/msvc7/simvoleon2.vcproj:
+	should be checked in as binary files
+
+2005-03-04 11:07 +0000  Lars J. Aas  <larsa@sim.no>  (0fc3e01b6b0a)
+
+	* build/msvc6/simvoleon2.dsp, build/msvc6/simvoleon2.dsw: deleted
+	file.
+	* build/msvc6/simvoleon2.dsp, build/msvc6/simvoleon2.dsw:
+	should be commited as binary files
+
+2005-02-24 09:50 +0000  Øystein Handegard  <handegar@sim.no>  (42f6a72d09c8)
+
+	* lib/VolumeViz/nodes/OrthoSlice.cpp:
+	Added doc for the 'alphaUse' field.
+
+2005-02-23 10:05 +0000  Øystein Handegard  <handegar@sim.no>  (fe684c07c544)
+
+	* lib/VolumeViz/misc/VoxelChunk.cpp:
+	Memcorruption fix.
+
+2005-01-12 13:19 +0000  Morten Eriksen  <mortene@sim.no>  (a286bdf3a1c2)
+
+	* lib/VolumeViz/nodes/VolumeData.cpp:
+	Bugfixes: grave errors in release-builds.
+
+2005-01-12 10:29 +0000  Lars J. Aas  <larsa@sim.no>  (76f6bf3468dd)
+
+	* cfg/gendsp.sh.in: new file.
+	* cfg/gendsp.sh: deleted file.
+	* cfg/gendsp.sh, cfg/gendsp.sh.in:
+	update
+
+2005-01-12 10:19 +0000  Lars J. Aas  <larsa@sim.no>  (b2bd0496bbb3)
+
+	* Makefile.in, aclocal.m4, bin/Makefile.in, configure,
+	html/Makefile.in, lib/Makefile.in, lib/VolumeViz/C/Makefile.in,
+	lib/VolumeViz/Makefile.in, lib/VolumeViz/caches/Makefile.in,
+	lib/VolumeViz/details/Makefile.in,
+	lib/VolumeViz/elements/Makefile.in, lib/VolumeViz/misc/Makefile.in,
+	lib/VolumeViz/nodes/Makefile.in,
+	lib/VolumeViz/nodes/gradients/Makefile.in,
+	lib/VolumeViz/readers/Makefile.in,
+	lib/VolumeViz/render/2D/Makefile.in,
+	lib/VolumeViz/render/3D/Makefile.in,
+	lib/VolumeViz/render/Makefile.in,
+	lib/VolumeViz/render/Pointset/Makefile.in,
+	lib/VolumeViz/render/common/Makefile.in:
+	bootstrap
+
+2005-01-12 10:16 +0000  Lars J. Aas  <larsa@sim.no>  (9d446dc1b733)
+
+	* configure.ac:
+	updates needed for msvc build files generation
+
+2005-01-12 10:10 +0000  Lars J. Aas  <larsa@sim.no>  (9d4b2e37d0bb)
+
+	* build/msvc6/.cvsignore, build/msvc6/generate.sh,
+	build/msvc6/installsimvoleon.bat,
+	build/msvc6/installsimvoleonheaders.bat, build/msvc6/simvoleon2.dsp,
+	build/msvc6/simvoleon2.dsw: new file.
+	* build/msvc6/.cvsignore, build/msvc6/generate.sh,
+	build/msvc6/installsimvoleon.bat,
+	build/msvc6/installsimvoleonheaders.bat, build/msvc6/simvoleon2.dsp,
+	build/msvc6/simvoleon2.dsw:
+	build/install setup
+
+2005-01-12 10:10 +0000  Lars J. Aas  <larsa@sim.no>  (764b0c634dda)
+
+	* build/msvc6/lib/.cvsignore, build/msvc6/lib/VolumeViz/.cvsignore,
+	build/msvc6/lib/VolumeViz/C/.cvsignore,
+	build/msvc6/lib/VolumeViz/C/basic.h,
+	build/msvc6/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc6/lib/VolumeViz/nodes/gradients/.cvsignore,
+	build/msvc6/lib/VolumeViz/nodes/gradients/BLUE_RED.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/GLOW.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/GREY.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/PHYSICS.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/SEISMIC.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/STANDARD.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/TEMPERATURE.h,
+	build/msvc6/lib/config.h: new file.
+	* build/msvc6/lib/.cvsignore, build/msvc6/lib/VolumeViz/.cvsignore,
+	build/msvc6/lib/VolumeViz/C/.cvsignore,
+	build/msvc6/lib/VolumeViz/C/basic.h,
+	build/msvc6/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc6/lib/VolumeViz/nodes/gradients/.cvsignore,
+	build/msvc6/lib/VolumeViz/nodes/gradients/BLUE_RED.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/GLOW.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/GREY.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/PHYSICS.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/SEISMIC.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/STANDARD.h,
+	build/msvc6/lib/VolumeViz/nodes/gradients/TEMPERATURE.h,
+	build/msvc6/lib/config.h:
+	ignore-files and autogenerated files
+
+2005-01-11 17:13 +0000  Lars J. Aas  <larsa@sim.no>  (246cbc6fd1b3)
+
+	* build/msvc7/.cvsignore, build/msvc7/lib/.cvsignore,
+	build/msvc7/lib/VolumeViz/.cvsignore,
+	build/msvc7/lib/VolumeViz/C/.cvsignore,
+	build/msvc7/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc7/lib/VolumeViz/nodes/gradients/.cvsignore: new file.
+	* build/msvc7/.cvsignore, build/msvc7/lib/.cvsignore,
+	build/msvc7/lib/VolumeViz/.cvsignore,
+	build/msvc7/lib/VolumeViz/C/.cvsignore,
+	build/msvc7/lib/VolumeViz/nodes/.cvsignore,
+	build/msvc7/lib/VolumeViz/nodes/gradients/.cvsignore:
+	ignore files
+
+2005-01-11 16:57 +0000  Lars J. Aas  <larsa@sim.no>  (27d2ad1afbad)
+
+	* build/msvc7/generate.sh, build/msvc7/installsimvoleon.bat,
+	build/msvc7/installsimvoleonheaders.bat, build/msvc7/simvoleon2.sln,
+	build/msvc7/simvoleon2.vcproj: new file.
+	* build/msvc7/generate.sh, build/msvc7/installsimvoleon.bat,
+	build/msvc7/installsimvoleonheaders.bat, build/msvc7/simvoleon2.sln,
+	build/msvc7/simvoleon2.vcproj:
+	build setup
+
+2005-01-11 16:57 +0000  Lars J. Aas  <larsa@sim.no>  (083aaeb21fef)
+
+	* build/msvc7/lib/VolumeViz/C/basic.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/BLUE_RED.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/GLOW.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/GREY.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/PHYSICS.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/SEISMIC.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/STANDARD.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/TEMPERATURE.h,
+	build/msvc7/lib/config.h: new file.
+	* build/msvc7/lib/VolumeViz/C/basic.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/BLUE_RED.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/GLOW.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/GREY.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/PHYSICS.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/SEISMIC.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/STANDARD.h,
+	build/msvc7/lib/VolumeViz/nodes/gradients/TEMPERATURE.h,
+	build/msvc7/lib/config.h:
+	autogenerated files
+
+2004-12-21 15:04 +0000  Morten Eriksen  <mortene@sim.no>  (be74c022bbeb)
+
+	* lib/VolumeViz/render/3D/3DTexCube.cpp:
+	Minor fix: only warn once about GL-driver weirdness. Also adds a
+	FIXME about flawed design.
+
+2004-12-20 15:25 +0000  Morten Eriksen  <mortene@sim.no>  (533665606b69)
+
+	* NEWS, configure, configure.ac:
+	init new dev cycle
+
