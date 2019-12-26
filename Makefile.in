@@ -314,6 +314,7 @@ EXTRA_DIST = \
 	packaging/Windows/NSIS/simvoleon-sdk.html.in \
 	docs/ChangeLog.v2.0.0 \
 	docs/ChangeLog.v2.0.1 \
+	docs/ChangeLog.v2.1.0 \
 	docs/announcement-1_0_0.txt \
 	docs/announcement-2_0_0.txt \
 	docs/announcement-2_0_1.txt
