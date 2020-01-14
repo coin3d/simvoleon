@@ -103,6 +103,7 @@ cmake_dependent_option(SIMVOLEON_BUILD_INTERNAL_DOCUMENTATION "Document internal
 cmake_dependent_option(SIMVOLEON_BUILD_DOC_MAN "Build So${Gui} man pages." OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
 cmake_dependent_option(SIMVOLEON_BUILD_DOC_QTHELP "Build QtHelp documentation." OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
 cmake_dependent_option(SIMVOLEON_BUILD_DOC_CHM "Build compressed HTML help manual (requires HTML help compiler)" OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
+option(SIMVOLEON_USE_CPACK "If enabled the cpack subrepo is mandatory" OFF)
 
 report_prepare(
   SIMVOLEON_BUILD_SHARED_LIBS
@@ -228,4 +229,6 @@ endif()
 
 ############################################################################
 # New CPACK section, please see the README file inside cpack.d directory.
-add_subdirectory(cpack.d)
+if (SIMVOLEON_USE_CPACK)
+  add_subdirectory(cpack.d)
+endif()
