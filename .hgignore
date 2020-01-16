@@ -1,7 +1,0 @@
-lib/VolumeViz/nodes/gradients/BLUE_RED.h
-lib/VolumeViz/nodes/gradients/GLOW.h
-lib/VolumeViz/nodes/gradients/GREY.h
-lib/VolumeViz/nodes/gradients/PHYSICS.h
-lib/VolumeViz/nodes/gradients/SEISMIC.h
-lib/VolumeViz/nodes/gradients/STANDARD.h
-lib/VolumeViz/nodes/gradients/TEMPERATURE.h

@@ -187,7 +187,7 @@ TAB_SIZE               = 8
 # You can put \n's in the value part of an alias to insert newlines.
 
 ALIASES                = "VOLEONINTERNAL=<em>This API member is considered internal to the library, as it is not likely to be of interest to the application programmer.</em>\n\n" \
-                         "COIN=<a href=http://www.coin3d.org><b>Coin</b></a>"
+                         "COIN=<a href=https://github.com/coin3d/coin><b>Coin</b></a>"
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C 
 # sources only. Doxygen will then generate output that is more tailored for C. 

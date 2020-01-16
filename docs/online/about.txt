@@ -1,5 +1,5 @@
 SIM Voleon is a software development system, in the form of an add-on
-library to "Coin3D":http://www.coin3d.org/. SIM Voleon complements
+library to "Coin3D":http://coin3d.github.io/. SIM Voleon complements
 Coin's capabilities for polygon-based rendering with visualization of
 volumetric data sets, by providing so-called "volume rendering"
 technology.

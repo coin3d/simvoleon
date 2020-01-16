@@ -56,7 +56,7 @@
   Which will produce something like this when loaded into an
   examinerviewer:
 
-  <center><img src="http://doc.coin3d.org/images/SIMVoleon/nodes/twoorthos.png"></center>
+  \image html twoorthos.png "Rendering of two ortho slices"
 
   \sa SoVolumeRender
 */

@@ -9,7 +9,7 @@
 <ul>
 <li>@PACKAGE@ API HTML Documentation:
   <a href="@PACKAGE@/index.html">off-line</a> (if installed), or
-  <a href="http://doc.coin3d.org/@PACKAGE@/">on-line</a>
+  <a href="http://coin3d.github.io/@PACKAGE@/">on-line</a>
 </ul>
 <hr>
 <h2>Two @PACKAGE@ Libraries?</h2>

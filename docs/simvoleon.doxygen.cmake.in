@@ -193,7 +193,9 @@ HTML_EXTRA_FILES       = @CMAKE_SOURCE_DIR@/docs/doxygen/Coin_logo.png \
                          @CMAKE_SOURCE_DIR@/docs/doxygen/images/physics.png \
                          @CMAKE_SOURCE_DIR@/docs/doxygen/images/seismic.png \
                          @CMAKE_SOURCE_DIR@/docs/doxygen/images/standard.png \
-                         @CMAKE_SOURCE_DIR@/docs/doxygen/images/temperature.png
+                         @CMAKE_SOURCE_DIR@/docs/doxygen/images/temperature.png \
+                         @CMAKE_SOURCE_DIR@/docs/doxygen/images/vol-obliqueslice.png \
+                         @CMAKE_SOURCE_DIR@/docs/doxygen/images/twoorthos.png
 HTML_COLORSTYLE_HUE    = 220
 HTML_COLORSTYLE_SAT    = 100
 HTML_COLORSTYLE_GAMMA  = 80

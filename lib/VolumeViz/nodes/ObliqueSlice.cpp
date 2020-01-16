@@ -39,9 +39,7 @@
   slice is specified as a plane with an orientation and position
   within the volume.
 
-  <center>
-   <img src="http://doc.coin3d.org/images/SIMVoleon/nodes/vol-obliqueslice.png">
-  </center>
+  \image html vol-obliqueslice.png "Rendering of a oblique slice"
 
   Here is a simple example, in the form of an iv-file:
 
