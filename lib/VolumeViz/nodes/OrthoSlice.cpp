@@ -54,7 +54,7 @@
   \endverbatim
 
   Which will produce something like this when loaded into an
-  examinerviewer:
+  examiner viewer:
 
   \image html twoorthos.png "Rendering of two ortho slices"
 
@@ -168,8 +168,8 @@ int SoOrthoSliceP::debug = -1;
 /*!
   \var SoSFEnum SoOrthoSlice::axis
 
-  Decides which plane the orthonormal slice will show. The plane will
-  be the one \e perpendicular to the axis, i.e if this field is set to
+  Determines which plane the orthonormal slice will show. The plane will
+  be the one \e perpendicular to the axis, i.e. if this field is set to
   SoOrthoSlice::Z, the slice will lay in the X-Y plane.
 
   Default value is SoOrthoSlice::Z.
@@ -178,7 +178,7 @@ int SoOrthoSliceP::debug = -1;
 /*!
   \var SoSFEnum SoOrthoSlice::alphaUse
 
-  Decides how to handle the alpha values of the slice. If set to
+  Determines how to handle the alpha values of the slice. If set to
   SoOrthoSlice::ALPHA_AS_IS, slice will be rendered as a regular
   texture. When set to SoOrthoSlice::ALPHA_BINARY, all texels with
   alpha != 0 will become opaque. If set to SoOrthoSlice::ALPHA_OPAQUE, all
@@ -191,7 +191,7 @@ int SoOrthoSliceP::debug = -1;
 /*!
   \var SoSFUInt32 SoOrthoSlice::sliceNumber
 
-  Decides where the slice will be made through the volume.
+  Determines where the slice will be made through the volume.
 
   Default value is 0.
 */

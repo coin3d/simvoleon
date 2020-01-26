@@ -28,7 +28,7 @@ INHERIT_DOCS           = YES
 SEPARATE_MEMBER_PAGES  = NO
 TAB_SIZE               = 8
 ALIASES                = "VOLEONINTERNAL=<em>This API member is considered internal to the library, as it is not likely to be of interest to the application programmer.</em>\n\n" \
-                         "COIN=<a href=https://github.com/coin3d/coin><b>Coin</b></a>"
+                         "COIN=<a href=\"https://github.com/coin3d/coin/\"><b>Coin</b></a>"
 TCL_SUBST              =
 OPTIMIZE_OUTPUT_FOR_C  = NO
 OPTIMIZE_OUTPUT_JAVA   = NO

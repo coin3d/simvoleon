@@ -63,7 +63,7 @@
   \fn void SoVolumeReader::getDataChar(SbBox3f & size, SoVolumeData::DataType & type, SbVec3s & dim)
 
   Returns information about the volume data contained in a volume
-  reader. Sub-classes, i.e. the non-abstract readers, needs to
+  reader. Sub-classes, i.e. the non-abstract readers, need to
   implement this function.
 
   \a size is set to the "world size" of the volume, in unit
@@ -82,7 +82,7 @@
   \fn void SoVolumeReader::getSubSlice(SbBox2s & subslice, int slicenumber, void * data)
 
   Extract a subslice from the volume (which may still reside solely on
-  disk). Sub-classes, i.e. the non-abstract readers, needs to
+  disk). Sub-classes, i.e. the non-abstract readers, need to
   implement this function.
 */
 

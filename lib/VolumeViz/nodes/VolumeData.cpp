@@ -56,10 +56,10 @@
 
   The volume rendering of SIM Voleon works well on volume data sets of
   any dimensions. With other volume rendering systems, it is often
-  necessary to accommodate the rendering system by pre-processing the
+  necessary to accommodate the rendering system by preprocessing the
   dataset to be of power-of-two dimensions, either to avoid the
   rendering to take up an extraordinary amount of resources related to
-  texture-mapping, or from down-right failing. This restriction is not
+  texture mapping, or from down-right failing. This restriction is not
   present in SIM Voleon, which works well with different dimensions
   along the principal axes, and with any non-power-of-two dimension.
 
@@ -73,7 +73,7 @@
   volumedatanode->touch();
   \endcode
 
-  Internal regeneration of textures etc for visualization will then be
+  Internal regeneration of textures etc. for visualization will then be
   done automatically by the SIM Voleon rendering system.
 */
 
@@ -141,7 +141,7 @@
   at the same time -- not both of them. The policy of SIM Voleon is to
   prefer paletted textures, as that has certain other beneficial
   effects apart from resource savings, mainly that one can modify the
-  SoTransferFunction at run-time with no rendering performance hit.
+  SoTransferFunction at runtime with no rendering performance hit.
 */
 
 /*!
@@ -155,7 +155,7 @@
   Default value is \c TRUE. Apart from debugging purposes, there is
   really no good reason to set this field to \c FALSE.
 
-  NOTE: the actions of switching this flag has not been properly
+  NOTE: The actions of switching this flag have not been properly
   implemented in Coin yet, its value is simply ignored.
 
   \since SIM Voleon 2.0
@@ -175,7 +175,7 @@
   the graphics card memory resources, typically by a factor of about
   5x - 15x. Texture compression is however lossy, meaning that there
   will be a certain amount of degradation of visual quality -- but
-  this should usually not be noticable.
+  this should usually not be noticeable.
 
   Not all graphics cards and drivers supports compressed textures, but
   the library will fall back on non-compressed textures automatically
@@ -328,7 +328,7 @@ SoVolumeData::initClass(void)
 /*!
   Sets the geometric size of the volume.
 
-  This will override the value found in a volumedata file by a reader
+  This will override the value found in a volume data file by a reader
   (if any).
 */
 void
@@ -640,7 +640,7 @@ SoVolumeData::pick(SoPickAction * action)
 
   Note that you can in general not know in advance how much actual
   texture memory a texel is going to use, as textures can be paletted
-  with a variable number of bits-pr-texel, and even compressed before
+  with a variable number of bits-per-texel, and even compressed before
   transfered to the graphics card's on-chip memory.
 
   Due to the above mentioned reasons, the usefulness of this method is

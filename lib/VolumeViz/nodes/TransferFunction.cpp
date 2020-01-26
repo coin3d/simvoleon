@@ -37,7 +37,7 @@
   This node sets up the mapping from voxel data values to actual
   on-screen color values and transparency / opaqueness.
 
-  It has a set of pre-defined color maps, commonly used in
+  It has a set of predefined color maps, commonly used in
   e.g. seismic visualization, and the option to set up one's own
   free-form color map lookup table (by setting
   SoTransferFunction::predefColorMap to NONE).
@@ -146,7 +146,7 @@ private:
 /*!
   \enum SoTransferFunction::ColorMapType
 
-  Type of colormap array. Defines the possible values for the
+  Type of color map array. Defines the possible values for the
   SoTransferFunction::colorMapType field.
 */
 /*!
@@ -161,9 +161,9 @@ private:
   \var SoTransferFunction::ColormapType SoTransferFunction::LUM_ALPHA
  
  Each transfer function color map entry in
- SoTransferFunction::colorMap has two components, ie. two floats, so
+ SoTransferFunction::colorMap has two components, i.e. two floats, so
  the field should contain exactly 256*2 = 512 values. The first float
- value of each pair is taken to be an intensity / grey color value,
+ value of each pair is taken to be an intensity / gray color value,
  and the second float of each pair is a transparency value (as for the
  ALPHA enum).
 */
@@ -187,7 +187,7 @@ private:
   \var SoSFInt32 SoTransferFunction::shift
 
   Used to shift the voxel attribute value before assigning a color
-  value from the transfer function color map. In pseudo-code:
+  value from the transfer function color map. In pseudo code:
 
   \code
   colorvalue = transferfunction[(voxelvalue << shift) + offset]
@@ -205,7 +205,7 @@ private:
 
   (Note that it will \e not have any effect when
   SoTransferFunction::predefColorMap is set to any of the actual
-  pre-defined transfer function color maps, i.e. not equal to \c
+  predefined transfer function color maps, i.e. not equal to \c
   NONE.)
 
   See SoTransferFunction::ColorMapType for what possible values this
@@ -216,10 +216,10 @@ private:
   \var SoSFEnum SoTransferFunction::predefColorMap
 
   Sets up the transfer function to use. See
-  SoTransferFunction::PredefColorMap for a list of the pre-defined
+  SoTransferFunction::PredefColorMap for a list of the predefined
   color maps.
 
-  Note that most of the pre-defined color maps are all opaque, even
+  Note that most of the predefined color maps are all opaque, even
   for data value 0. This will often cause the unwanted behavior that
   the full data set will be completely opaque for visualization, so
   only the outer "walls" of the volume are shown. To avoid this, use
@@ -228,7 +228,7 @@ private:
   values outside of the given range will then be fully transparent).
 
   The value SoTransferFunction::NONE has special meaning: it signifies
-  that none of the pre-defined values should be used, but that the
+  that none of the predefined values should be used, but that the
   transfer function color map should be fetched from the
   SoTransferFunction::colorMap field instead.
 */
