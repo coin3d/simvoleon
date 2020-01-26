@@ -39,7 +39,7 @@
   slice is specified as a plane with an orientation and position
   within the volume.
 
-  \image html vol-obliqueslice.png "Rendering of a oblique slice"
+  \image html vol-obliqueslice.png "Rendering of an oblique slice"
 
   Here is a simple example, in the form of an iv-file:
 
@@ -57,7 +57,7 @@
   Separator {
     SoTransferFunction { predefColorMap GLOW }  
     SoObliqueSlice {
-      interpolation LINEAR 	
+      interpolation LINEAR 
       alphaUse ALPHA_AS_IS
       plane = USE clipper . plane
     }
@@ -161,7 +161,7 @@ SoObliqueSlice::~SoObliqueSlice()
 
 /*!
   \enum SoObliqueSlice::Interpolation
-  Enumeration of available types of voxel colors interpolation.
+  Enumeration of available types of voxel color interpolation.
 */
 /*!
   \var SoObliqueSlice::Interpolation SoObliqueSlice::NEAREST
@@ -201,13 +201,13 @@ SoObliqueSlice::~SoObliqueSlice()
 /*!
   \var SoObliqueSlice::alphaUse SoObliqueSlice::ALPHA_BINARY
 
-  All alpha values not equal to 0 is threated as value 1.0f.
+  All alpha values not equal to 0 are treated as value 1.0f.
 */
 
 /*!
   \var SoSFEnum SoObliqueSlice::alphaUse
 
-  How the alpha channel should be threated during rendering.
+  How the alpha channel should be treated during rendering.
   See SoObliqueSlice::AlphaUse.
   
   Default value is SoObliqueSlice::ALPHA_AS_IS

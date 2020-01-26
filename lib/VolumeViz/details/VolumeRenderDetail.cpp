@@ -35,7 +35,7 @@
   \brief The SoVolumeRenderDetail stores ray intersection information through a volume.
 
   An SoVolumeRenderDetail contains the information about a ray
-  intersecting of a volume rendered with the SoVolumeRender node.
+  intersecting a volume rendered with the SoVolumeRender node.
 
   The detail contains a "profile" of voxel values through the volume,
   where the profile is defined by a start point and an end point.

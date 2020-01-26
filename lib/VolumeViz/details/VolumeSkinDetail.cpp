@@ -35,7 +35,7 @@
   \brief The SoVolumeSkinDetail stores ray intersection information through a volume.
 
   An SoVolumeSkinDetail contains the information about a ray
-  intersecting of a volume rendered with the SoVolumeSkin node.
+  intersecting a volume rendered with the SoVolumeSkin node.
 
   The detail contains a "profile" of voxel values through the volume,
   where the profile is defined by a start point and an end point.

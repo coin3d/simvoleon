@@ -69,8 +69,8 @@
   automatically done on graphics card which supports hardware assisted
   3D texture mapping. </li>
 
-  <li> Colour transfer functions can be manipulated in realtime using
-  the either the \c EXT_paletted_texture or the \c
+  <li> Color transfer functions can be manipulated in real time using
+  either the \c EXT_paletted_texture or the \c
   ARB_fragment_program OpenGL extensions. </li>
 
   <li> Maximum Intensity Projection and Sum Intensity Projection is
@@ -179,7 +179,7 @@
 
   Beware that certain nodes requires 3D texture support in the OpenGL
   driver to function properly (e.g. SoObliqueSlice), but does not
-  demand hardware-acceleration of 3D-texturing to be present. Required
+  demand hardware acceleration of 3D-texturing to be present. Required
   3D-texture support was included in the OpenGL specification starting
   with version 1.2, and it had additionally been present in the form
   of vendor and ARB extensions for some time before that. At the
@@ -213,13 +213,13 @@
   format introduced by the book <i>"Introduction To Volume
   Rendering"</i>, by Lichtenbelt, Crane and Naqvi (Hewlett-Packard /
   Prentice Hall), <i>ISBN 0-13-861683-3</i>. (See the
-  SoVRVolFileReader class doc for info). Support for more file-formats
+  SoVRVolFileReader class doc for info). Support for more file formats
   can be added by extending the SoVolumeReader class.
 
   Beware that large voxel sets are divided into sub cubes. The largest
   default sub cube size is by default set to 128x128x128, to match the
   TGS VolumeViz API. Current graphics cards can do much larger
-  textures than this, achieving a higher framerate due to the reduced
+  textures than this, achieving a higher frame rate due to the reduced
   overhead of sub cube switching and slicing. A graphics card with
   128+ MB and true hardware 3D texture support can easily handle voxel
   sets of size 256x256x256. Increasing the maximum sub cube size can
@@ -320,7 +320,7 @@ SoVolumeRendering::~SoVolumeRendering()
 
   Application programmers must call this method explicitly at the
   start of the application, before any volume rendering nodes are
-  made. It must be invoked \e after SoXt::init() / SoQt::init() /
+  created. It must be invoked \e after SoXt::init() / SoQt::init() /
   SoWin::init(), though.
  */
 void
@@ -525,7 +525,7 @@ SoVolumeRendering::setDelayedRendering(SbBool flag)
 }
 
 /*!
-  Returns value of the flag indicating whether or not to always to
+  Returns value of the flag indicating whether or not to always do
   delayed rendering of geometry used for visualizing the volume(s).
 */
 SbBool

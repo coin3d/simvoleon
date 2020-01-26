@@ -32,7 +32,7 @@
 
 /*!
   \class SoVolumeTriangleStripSet VolumeViz/nodes/SoVolumeTriangleStripSet.h
-  \brief Render a set of trianglestrips within the volume.
+  \brief Render a set of triangle strips within the volume.
 
   This node works like the SoVolumeFaceSet node, but specifies
   polygons in triangle strips instead of individual polygons. See

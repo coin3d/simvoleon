@@ -32,7 +32,7 @@
 
 /*!
   \class SoVolumeIndexedTriangleStripSet VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h
-  \brief Render a set of trianglestrips within the volume.
+  \brief Render a set of triangle strips within the volume.
 
   This node works like the SoVolumeTriangleStripSet node, but
   specifies vertex indices in a slightly different manner. See

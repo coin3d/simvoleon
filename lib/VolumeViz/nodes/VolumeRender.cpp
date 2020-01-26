@@ -205,7 +205,7 @@ GLuint SoVolumeRenderP::texture2dids[2];
 
 /*!
   \enum SoVolumeRender::Interpolation
-  Enumeration of available types of voxel colors interpolation.
+  Enumeration of available types of voxel color interpolation.
 */
 /*!
   \var SoVolumeRender::Interpolation SoVolumeRender::NEAREST
@@ -278,13 +278,13 @@ GLuint SoVolumeRenderP::texture2dids[2];
   \var SoSFEnum SoVolumeRender::numSlicesControl
 
   Specifies a strategy to use for calculating the number of slices to
-  use for the visualization. The more slicer, the better quality and
+  use for the visualization. The more slices, the better quality and
   more correct the visualization will be, but the trade-off is that it
   will also influence the rendering performance.
 
   The default value is SoVolumeRender::ALL.
 
-  (The rendering performance can be \e severly improved by changing
+  (The rendering performance can be \e severely improved by changing
   this field's value to either SoVolumeRender::MANUAL or
   SoVolumeRender::AUTOMATIC, and then tuning the
   SoVolumeRender::numSlices field.)
@@ -334,7 +334,7 @@ GLuint SoVolumeRenderP::texture2dids[2];
   enhancing operator for visualizing blood-flows.
 
   Note that the availability of this composition mode for rendering
-  with 2D- and 3D-textureslices will be dependent on features of the
+  with 2D- and 3D-texture slices will be dependent on features of the
   underlying rendering library.
 
   (Specifically, the OpenGL driver must support \c glBlendEquation(),
@@ -351,7 +351,7 @@ GLuint SoVolumeRenderP::texture2dids[2];
   blending function is known as the "attenuate" operator.
 
   Note that the availability of this composition mode for rendering
-  with 2D- and 3D-textureslices will be dependent on features of the
+  with 2D- and 3D-texture slices will be dependent on features of the
   underlying rendering library.
 
   (Specifically, the OpenGL driver must support \c glBlendEquation(),

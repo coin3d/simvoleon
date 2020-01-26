@@ -35,7 +35,7 @@
   \brief The SoVolumeDetail stores ray intersection information through a volume.
 
   An SoVolumeDetail contains the information about a ray
-  intersecting of a volume rendered with the SoVolumeRender node.
+  intersecting a volume rendered with the SoVolumeRender node.
 
   The detail contains a "profile" of voxel values through the volume,
   where the profile is defined by a start point and an end point.
@@ -144,7 +144,7 @@ SoVolumeDetail::copy(void) const
 
 /*!
   Sets start and end points of ray intersecting the volume in the
-  \a profile argument. The points returned are in object-space
+  \a profile argument. The points returned are in object space
   coordinates (i.e. in the same geometry unit system as polygon-based
   geometry in a scene).
 */
@@ -192,7 +192,7 @@ SoVolumeDetail::getProfileDataPos(SbVec3s profile[2]) const
   If \a pos is not \c NULL, sets \a pos argument to voxel-space
   coordinates for voxel.
 
-  If \a objpos is not \c NULL, sets \a objpos argument to object-space
+  If \a objpos is not \c NULL, sets \a objpos argument to object space
   coordinates for voxel.
 
   The \a flag argument is unused and only included for compatibility
@@ -216,15 +216,15 @@ SoVolumeDetail::getProfileValue(int index,
   Fills in the information about the first voxel along the pick ray
   intersection which is not completely transparent.
 
-  Returns \c FALSE if all voxels along pick ray was fully transparent,
+  Returns \c FALSE if all voxels along pick ray were fully transparent,
   otherwise \c TRUE.
 
   Sets \a value to the value of the voxel.
 
-  If \a pos is not \c NULL, sets \a pos argument to voxel-space
+  If \a pos is not \c NULL, sets \a pos argument to voxel space
   coordinates for the first voxel with some opaqueness.
 
-  If \a objpos is not \c NULL, sets \a objpos argument to object-space
+  If \a objpos is not \c NULL, sets \a objpos argument to object space
   coordinates for the first voxel with some opaqueness.
 
   The \a flag argument is unused and only included for compatibility
@@ -254,7 +254,7 @@ SoVolumeDetail::getFirstNonTransparentValue(unsigned int * value,
 /*!
   \VOLEONINTERNAL
   
-  Used to set raypick details.  
+  Used to set ray pick details.  
   NOTE: This method takes different arguments than the TGS equivalent.
 
 */
