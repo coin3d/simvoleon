@@ -37,7 +37,6 @@ jobs:
       - name: Build project
         run: |
           sudo cmake --build cmake_build_dir --target install --config Release -- -j4
-          tar czf simvoleon-latest-Ubuntu-gcc7-x64.tar.gz cmake_install_dir/*
       # - name: Run tests
       #   run: |
       #     cd cmake_build_dir
@@ -46,7 +45,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: Ubuntu-Artifacts
-          path: simvoleon-latest-Ubuntu-gcc7-x64.tar.gz
+          path: cmake_install_dir/
         if: always()
 
   windows-build:
@@ -80,7 +79,6 @@ jobs:
       - name: Build project
         run: |
           cmake --build cmake_build_dir --target INSTALL --config Release -- /nologo /verbosity:minimal /maxcpucount:2 /property:MultiProcessorCompilation=true
-          7z a -tzip simvoleon-latest-msvc16-x64.zip cmake_install_dir
       # - name: Run tests
       #   run: |
       #     cd cmake_build_dir
@@ -89,7 +87,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: Windows-Artifacts
-          path: simvoleon-latest-msvc16-x64.zip
+          path: cmake_install_dir/
         if: always()
 
 #  macos-build:
@@ -121,7 +119,6 @@ jobs:
 #      - name: Build project
 #        run: |
 #          sudo cmake --build cmake_build_dir --target install --config Release -- -j4
-#          tar czf simvoleon-latest-macos-clang11-x64.tar.gz cmake_install_dir/*
 #      # - name: Run tests
 #      #   run: |
 #      #     cd cmake_build_dir
@@ -130,5 +127,5 @@ jobs:
 #        uses: actions/upload-artifact@v1
 #        with:
 #          name: MacOS-Artifacts
-#          path: simvoleon-latest-macos-clang11-x64.tar.gz
+#          path: cmake_install_dir/
 #        if: always()
