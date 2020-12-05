@@ -150,7 +150,7 @@ private:
       return this->page;
     }
 
-    uint32_t volumedataid;
+    SbUniqueId volumedataid;
     Cvr2DTexPage * page;
   };
 

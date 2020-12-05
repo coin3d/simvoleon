@@ -68,7 +68,7 @@ public:
 
   Cvr3DTexCube * cube;
   const CvrCLUT * clut;
-  uint32_t parentnodeid;
+  SbUniqueId parentnodeid;
   SoIndexedShape * clipgeometryshape; 
   enum SetType type;
 

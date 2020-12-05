@@ -204,7 +204,7 @@ main(int argc, char ** argv)
     if (bits_per_voxel == 12) {
       printf("* Scaling the 12-bit data up to 16-bits.\n");
       uint16_t * ptr = (uint16_t *) rawblock;
-      for (int i=0;i<rawsize;++i) {
+      for (unsigned int i=0;i<rawsize;++i) {
         ptr[i] = ptr[i] << 4;
       }
     }

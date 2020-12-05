@@ -198,7 +198,7 @@ CvrTextureObject::~CvrTextureObject()
 
   // Take us out of the static list of all CvrTextureObject instances:
 
-  const unsigned long key = this->hashKey();
+  const uintptr_t key = this->hashKey();
   void * ptr;
   const SbBool ok = CvrTextureObject::instancedict->find(key, ptr);
   assert(ok);
@@ -638,7 +638,7 @@ CvrTextureObject *
 CvrTextureObject::findInstanceMatch(const SoType t,
                                     const struct CvrTextureObject::EqualityComparison & obj)
 {
-  const unsigned long key = CvrTextureObject::hashKey(obj);
+  const uintptr_t key = CvrTextureObject::hashKey(obj);
   void * ptr;
   const SbBool ok = CvrTextureObject::instancedict->find(key, ptr);
   if (!ok) { return NULL; }
@@ -821,7 +821,7 @@ CvrTextureObject::create(const SoGLRenderAction * action,
   // call-chain? I think it may be. Investigate. 20040722 mortene.
   newtexobj->eqcmp = incoming;
 
-  const unsigned long key = newtexobj->hashKey();
+  const uintptr_t key = newtexobj->hashKey();
   void * ptr;
   const SbBool ok = CvrTextureObject::instancedict->find(key, ptr);
   SbList<CvrTextureObject *> * l;
@@ -920,17 +920,17 @@ CvrTextureObject::activateTexture(const SoGLRenderAction * action) const
 // *************************************************************************
 
 
-unsigned long
+uintptr_t
 CvrTextureObject::hashKey(void) const
 {
   return CvrTextureObject::hashKey(this->eqcmp);
 }
 
 
-unsigned long
+uintptr_t
 CvrTextureObject::hashKey(const struct CvrTextureObject::EqualityComparison & obj)
 {
-  unsigned long key = obj.sovolumedata_id;
+  uintptr_t key = obj.sovolumedata_id;
 
   if (obj.axisidx != UINT_MAX) { key += obj.axisidx; }
   if (obj.pageidx != INT_MAX) { key += obj.pageidx; }

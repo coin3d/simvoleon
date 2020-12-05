@@ -47,9 +47,9 @@ CvrGIMPGradient::read(const char * buf)
   //
   // Note that the format has changed after GIMP 1.2.
 
-  const int BUFLEN = strlen(buf);
+  const size_t BUFLEN = strlen(buf);
   const char * HEADER = "GIMP Gradient\n";
-  const int HEADERLEN = strlen(HEADER);
+  const size_t HEADERLEN = strlen(HEADER);
 
   const char * ptr = buf + HEADERLEN;
   assert(ptr < (buf + BUFLEN));
