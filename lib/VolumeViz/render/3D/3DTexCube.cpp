@@ -62,7 +62,7 @@ class Cvr3DTexSubCubeItem {
 public:
   Cvr3DTexSubCubeItem(Cvr3DTexSubCube * p) { this->cube = p; }
   Cvr3DTexSubCube * cube;
-  uint32_t volumedataid; // FIXME: seems bogus to store this here, as
+  SbUniqueId volumedataid; // FIXME: seems bogus to store this here, as
                          // all sub-cubes will have the same
                          // value. 20040916 mortene.
 
@@ -854,7 +854,7 @@ Cvr3DTexCube::getSubCube(SoState * state, unsigned int col, unsigned int row, un
   if (subp) {
     const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
     assert(vbelem != NULL);
-    uint32_t volumedataid = vbelem->getNodeId();
+    SbUniqueId volumedataid = vbelem->getNodeId();
 
     if (subp->volumedataid != volumedataid) {
       // FIXME: it could perhaps be a decent optimalization to store a

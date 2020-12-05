@@ -60,7 +60,7 @@ public:
   }
 
   Cvr2DTexSubPage * page;
-  uint32_t volumedataid;
+  SbUniqueId volumedataid;
   SbBool invisible;
 };
 
@@ -372,7 +372,7 @@ Cvr2DTexPage::getSubPage(SoState * state, int col, int row)
 
   if (subp) {
     const CvrVoxelBlockElement * vbelem = CvrVoxelBlockElement::getInstance(state);
-    uint32_t volumedataid = vbelem->getNodeId();
+    SbUniqueId volumedataid = vbelem->getNodeId();
 
     if (subp->volumedataid != volumedataid) {
       // FIXME: it could perhaps be a decent optimalization to store a

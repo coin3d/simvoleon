@@ -105,7 +105,7 @@ private:
   SbList<CvrGLTextureCache *> * cacheListForGLContext(const uint32_t glctxid) const;
 
   struct EqualityComparison {
-    uint32_t sovolumedata_id;
+    SbUniqueId sovolumedata_id;
     // FIXME: messy, next data should be part of subclasses. 20040721 mortene.
     // for 3D cuts:
     SbBox3s cutcube;
@@ -119,8 +119,8 @@ private:
 
   static CvrTextureObject * findInstanceMatch(const SoType t,
                                               const struct CvrTextureObject::EqualityComparison & cmp);
-  unsigned long hashKey(void) const;
-  static unsigned long hashKey(const struct CvrTextureObject::EqualityComparison & cmp);
+  uintptr_t hashKey(void) const;
+  static uintptr_t hashKey(const struct CvrTextureObject::EqualityComparison & cmp);
 };
 
 #endif // !SIMVOLEON_CVRTEXTUREOBJECT_H
