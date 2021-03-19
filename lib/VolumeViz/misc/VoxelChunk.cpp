@@ -828,7 +828,7 @@ CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by usi
     if(pixcropback)
       (void)memcpy(&dstptr[(nrhorizvoxels-1)*voxelsize], &srcptr[(nrhorizvoxels-pixcropfront-pixcropback-1)*voxelsize], voxelsize);
 
-    (void)memcpy(&dstptr[pixcropfront*voxelsize], srcptr, (nrhorizvoxels-pixcropfront-pixcropback) * voxelsize);
+    (void)memcpy(&dstptr[pixcropfront*voxelsize], srcptr, (size_t)(nrhorizvoxels-pixcropfront-pixcropback) * voxelsize);
 
   }
 
@@ -898,7 +898,7 @@ CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by usi
 	(void)memcpy(&dstptr[(nrhorizvoxels-1)*voxelsize], &srcptr[(nrhorizvoxels-pixcropfront-pixcropback-1)*voxelsize], voxelsize);
       }
 
-    (void)memcpy(&dstptr[pixcropfront*voxelsize], srcptr, (nrhorizvoxels-pixcropfront-pixcropback) * voxelsize);
+    (void)memcpy(&dstptr[pixcropfront*voxelsize], srcptr, (size_t)(nrhorizvoxels-pixcropfront-pixcropback) * voxelsize);
 
   }
 
@@ -935,7 +935,7 @@ CvrVoxelChunk::buildSubCube(const SbBox3s & cutcube)
       const unsigned int inoffset = staticoffset + (rowidx * dim[0]) + (depthidx * dim[0]*dim[1]);
       const uint8_t * srcptr = &(inputbytebuffer[inoffset * voxelsize]);
       uint8_t * dstptr = &(outputbytebuffer[((depthidx * nrhorizvoxels * nrvertvoxels) + (nrhorizvoxels * rowidx)) * voxelsize]);
-      (void) memcpy(dstptr, srcptr, nrhorizvoxels * voxelsize);
+      (void) memcpy(dstptr, srcptr, (size_t)nrhorizvoxels * voxelsize);
     }
   }
 
