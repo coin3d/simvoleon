@@ -91,7 +91,7 @@ public:
     if (this->initialized) {
       for (int i=0;i<6;++i) 
         this->cubesides[i].slice->unref();    
-      delete this->cubesides;
+      delete [] this->cubesides;
     }
   }
 
