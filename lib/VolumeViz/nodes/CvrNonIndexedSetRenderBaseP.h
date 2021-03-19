@@ -50,6 +50,7 @@ class CvrCLUT;
 class CvrNonIndexedSetRenderBaseP {
 
 public:
+  virtual ~CvrNonIndexedSetRenderBaseP();
   virtual void getVertexData(SoState *state, 
                              const SoCoordinateElement *&coords, 
                              const SbVec3f *&normals, 

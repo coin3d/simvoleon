@@ -49,6 +49,7 @@ class CvrCLUT;
 class CvrIndexedSetRenderBaseP {
 
 public:
+  virtual ~CvrIndexedSetRenderBaseP();
   virtual SbBool getVertexData(SoState *state, 
                                const SoCoordinateElement *&coords, 
                                const SbVec3f *&normals, 
