@@ -45,6 +45,7 @@ public:
     this->cube = NULL;
     this->clut = NULL;
     this->parentnodeid = master->getNodeId();  
+    this->clipgeometryshape = NULL;
     this->type = CvrNonIndexedSetRenderBaseP::TRIANGLESTRIPSET;
   }
 

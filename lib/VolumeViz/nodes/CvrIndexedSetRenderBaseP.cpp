@@ -57,6 +57,11 @@
 // FIXME: The 'offset' field is ignored. (20040707 handegar)
 // FIXME: Support for multiple materials is not testet properly yet. (20040707 handegar)
 
+CvrIndexedSetRenderBaseP::~CvrIndexedSetRenderBaseP()
+{
+  delete this->cube;
+}
+
 void
 CvrIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
                                    const float offset,

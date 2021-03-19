@@ -40,13 +40,13 @@
 class CvrIndexedFaceSetRenderP : public CvrIndexedSetRenderBaseP {
 
 public:
- 
   CvrIndexedFaceSetRenderP(SoVolumeIndexedFaceSet * master) {
-    this->master = master;
     this->cube = NULL;
     this->clut = NULL;
-    this->parentnodeid = master->getNodeId();  
+    this->parentnodeid = master->getNodeId();
+    this->clipgeometryshape = NULL;
     this->type = CvrIndexedSetRenderBaseP::FACESET;
+    this->master = master;
   }
 
   virtual SbBool getVertexData(SoState *state, 

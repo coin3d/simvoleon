@@ -60,6 +60,11 @@
 
 // *************************************************************************
 
+CvrNonIndexedSetRenderBaseP::~CvrNonIndexedSetRenderBaseP()
+{
+  delete this->cube;
+}
+
 void
 CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
                                       const float offset,
