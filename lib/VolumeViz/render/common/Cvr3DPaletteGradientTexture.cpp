@@ -82,7 +82,7 @@ Cvr3DPaletteGradientTexture::getIndex8Buffer(void) const
     const SbVec3s dims = this->getDimensions();
     // FIXME: what is calloc()'ed here is probably delete'd somewhere
     // else, which is not good. Fix. 20050628 mortene.
-    that->indexbuffer = (uint8_t *) calloc(dims[0] * dims[1] * dims[2], sizeof(uint8_t) * 4);
+    that->indexbuffer = (uint8_t *) calloc((size_t)dims[0] * dims[1] * dims[2], sizeof(uint8_t) * 4);
     //that->indexbuffer = new uint8_t[dims[0] * dims[1] * dims[2] * 4];
     //for (int i=0; i < dims[0] * dims[1] * dims[2] * 4; i++) that->indexbuffer[i] = 0;
   }
