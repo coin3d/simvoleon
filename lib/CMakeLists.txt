@@ -148,11 +148,11 @@ target_include_directories(${PROJECT_NAME}
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     ${OPENGL_INCLUDE_DIR}
 )
 
-target_link_libraries(${PROJECT_NAME} Coin::Coin ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PUBLIC Coin::Coin ${OPENGL_LIBRARIES})
 
 # Add a target to generate API documentation with Doxygen
 if(SIMVOLEON_BUILD_DOCUMENTATION)
@@ -242,106 +242,38 @@ endif()
 # Install headers
 # ############################################################################
 
-set(INST_C_HDRS
-  "${CMAKE_CURRENT_BINARY_DIR}/VolumeViz/C/basic.h"
-)
-
-set(INST_ELEMENTS_HDRS
-  VolumeViz/elements/CvrPageSizeElement.h
-  VolumeViz/elements/CvrVoxelBlockElement.h
-  VolumeViz/elements/CvrGLInterpolationElement.h
-  VolumeViz/elements/CvrLightingElement.h
-  VolumeViz/elements/CvrPalettedTexturesElement.h
-  VolumeViz/elements/CvrStorageHintElement.h
-  VolumeViz/elements/SoTransferFunctionElement.h
-  VolumeViz/elements/CvrCompressedTexturesElement.h
-)
-
 set(INST_NODES_HDRS
-  VolumeViz/nodes/SoVolumeFaceSet.h
-  VolumeViz/nodes/SoTransferFunction.h
-  VolumeViz/nodes/SoVolumeRender.h
-  VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h
-  VolumeViz/nodes/SoVolumeIndexedFaceSet.h
-  VolumeViz/nodes/SoVolumeSkin.h
-  # VolumeViz/nodes/SoROI.h                             # not yet implemented?!
-  VolumeViz/nodes/SoVolumeTriangleStripSet.h
   VolumeViz/nodes/SoObliqueSlice.h
-  VolumeViz/nodes/volumeraypickintersection.h
   VolumeViz/nodes/SoOrthoSlice.h
+  VolumeViz/nodes/SoTransferFunction.h
   VolumeViz/nodes/SoVolumeData.h
+  VolumeViz/nodes/SoVolumeFaceSet.h
+  VolumeViz/nodes/SoVolumeIndexedFaceSet.h
+  VolumeViz/nodes/SoVolumeIndexedTriangleStripSet.h
+  VolumeViz/nodes/SoVolumeRender.h
   VolumeViz/nodes/SoVolumeRendering.h
-)
-
-set(INST_MISC_HDRS
-  VolumeViz/misc/CvrGlobalRenderLock.h
-  VolumeViz/misc/CvrResourceManager.h
-  VolumeViz/misc/CvrCentralDifferenceGradient.h
-  VolumeViz/misc/Gradient.h
-  VolumeViz/misc/CvrVoxelChunk.h
-  VolumeViz/misc/CvrUtil.h
-  VolumeViz/misc/CvrCLUT.h
-  VolumeViz/misc/CvrGradient.h
-  VolumeViz/misc/CvrGIMPGradient.h
+  VolumeViz/nodes/SoVolumeSkin.h
+  VolumeViz/nodes/SoVolumeTriangleStripSet.h
+  # VolumeViz/nodes/SoROI.h                             # not yet implemented?!
 )
 
 set(INST_DETAILS_HDRS
+  VolumeViz/details/SoObliqueSliceDetail.h
+  VolumeViz/details/SoOrthoSliceDetail.h
   VolumeViz/details/SoVolumeDetail.h
   VolumeViz/details/SoVolumeSkinDetail.h
   VolumeViz/details/SoVolumeRenderDetail.h
-  VolumeViz/details/SoOrthoSliceDetail.h
-  VolumeViz/details/SoObliqueSliceDetail.h
-)
-
-set(INST_RENDER_2D_HDRS
-  VolumeViz/render/2D/Cvr2DTexPage.h
-  VolumeViz/render/2D/CvrPageHandler.h
-  VolumeViz/render/2D/texmemfullimg.h
-  VolumeViz/render/2D/Cvr2DTexSubPage.h
-)
-
-set(INST_RENDER_POINTSET_HDRS
-  VolumeViz/render/Pointset/PointRendering.h
-)
-
-set(INST_RENDER_COMMON_HDRS
-  VolumeViz/render/common/CvrRGBATexture.h
-  VolumeViz/render/common/Cvr3DPaletteTexture.h
-  VolumeViz/render/common/Cvr2DPaletteTexture.h
-  VolumeViz/render/common/CvrPaletteTexture.h
-  VolumeViz/render/common/Cvr2DRGBATexture.h
-  VolumeViz/render/common/CvrTextureObject.h
-  VolumeViz/render/common/Cvr3DRGBATexture.h
-  VolumeViz/render/common/Cvr3DPaletteGradientTexture.h
-)
-
-set(INST_RENDER_3D_HDRS
-  VolumeViz/render/3D/CvrCubeHandler.h
-  VolumeViz/render/3D/Cvr3DTexSubCube.h
-  VolumeViz/render/3D/Cvr3DTexCube.h
 )
 
 set(INST_READERS_HDRS
-  VolumeViz/readers/SoVRVolFileReader.h
-  VolumeViz/readers/SoVRMemReader.h
   VolumeViz/readers/SoVolumeReader.h
+  VolumeViz/readers/SoVRVolFileReader.h
 )
 
-set(INST_CACHES_HDRS
-  VolumeViz/caches/CvrGLTextureCache.h
-)
-
-install(FILES ${INST_C_HDRS}               DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/C               COMPONENT development)
-install(FILES ${INST_ELEMENTS_HDRS}        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/elements        COMPONENT development)
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/VolumeViz/C/basic.h" DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/C COMPONENT development)
 install(FILES ${INST_NODES_HDRS}           DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/nodes           COMPONENT development)
-install(FILES ${INST_MISC_HDRS}            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/misc            COMPONENT development)
 install(FILES ${INST_DETAILS_HDRS}         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/details         COMPONENT development)
-install(FILES ${INST_RENDER_2D_HDRS}       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/render/2D       COMPONENT development)
-install(FILES ${INST_RENDER_POINTSET_HDRS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/render/Pointset COMPONENT development)
-install(FILES ${INST_RENDER_COMMON_HDRS}   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/render/common   COMPONENT development)
-install(FILES ${INST_RENDER_3D_HDRS}       DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/render/3D       COMPONENT development)
 install(FILES ${INST_READERS_HDRS}         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/readers         COMPONENT development)
-install(FILES ${INST_CACHES_HDRS}          DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/VolumeViz/caches          COMPONENT development)
 
 # ############################################################################
 # Install targets
