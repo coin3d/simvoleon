@@ -76,7 +76,7 @@ CvrUtil::debugRayPicks(void)
 //
 // 0 - default, render as usual
 //
-// 1 - render both the usual textured sub-slices aswell as wireframe
+// 1 - render both the usual textured sub-slices as well as wireframe
 //     borders of the sub-slices
 //
 // 2 - render only the (non-textured) sub-slice frames

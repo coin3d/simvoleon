@@ -676,7 +676,7 @@ CvrVoxelChunk::buildSubPageX(const int pageidx, // FIXME: get rid of this by usi
 
   // We're adding 2 here to make room for the border that helps of get
   // rid of the seams between tiles.
-  // Substracting 1 from ssmin to compensate for the offset we
+  // Subtracting 1 from ssmin to compensate for the offset we
   // would otherwise have. Also, special care is taken on the outer border,
   // by letting the border pixels on the outer edges of the destination texture
   // equal the border pixel of the source image 20090730 eigils
@@ -785,7 +785,7 @@ CvrVoxelChunk::buildSubPageY(const int pageidx, // FIXME: get rid of this by usi
 
   // We're adding 2 here to make room for the border that helps of get
   // rid of the seams between tiles.
-  // Substracting 1 from ssmin to compensate for the offset we
+  // Subtracting 1 from ssmin to compensate for the offset we
   // would otherwise have. Also, special care is taken on the outer border,
   // by letting the border pixels on the outer edges of the destination texture
   // equal the border pixel of the source image 20090730 eigils
@@ -851,7 +851,7 @@ CvrVoxelChunk::buildSubPageZ(const int pageidx, // FIXME: get rid of this by usi
 
   // We're adding 2 here to make room for the border that helps of get
   // rid of the seams between tiles.
-  // Substracting 1 from ssmin to compensate for the offset we
+  // Subtracting 1 from ssmin to compensate for the offset we
   // would otherwise have. Also, special care is taken on the outer border,
   // by letting the border pixels on the outer edges of the destination texture
   // equal the border pixel of the source image 20090730 eigils

@@ -112,10 +112,10 @@
 //   that they ignore priorities. One is that the default priority is
 //   set to 1.0, which is the highest priority. That means unless all
 //   textures for all you applications running at the same time
-//   explicitely use texture priorities, the one that uses them
+//   explicitly use texture priorities, the one that uses them
 //   (i.e. lower priorities) will be at a disadvantage. The other
 //   problem is that typically textures are not the only objects that
-//   live in HW accessable memory. There are display lists, color
+//   live in HW accessible memory. There are display lists, color
 //   tables, vertex array objects and so on. However there is no way
 //   to prioritize them. Hence if you are using textures and display
 //   lists at the same time, useng priorities might cause a lot of
@@ -885,7 +885,7 @@ CvrTextureObject::activateTexture(const SoGLRenderAction * action) const
   //
   //   With regards to glAreTexturesResident(), this is kind of
   //   tricky. This function returns which textures are currently
-  //   resident is HW accessable memory (AGP, FB, TB). It does not
+  //   resident is HW accessible memory (AGP, FB, TB). It does not
   //   return whether a set of textures could be made resident at a
   //   future point of time. A lot of OpenGL implementations (APPLE &
   //   XiGraphics for example) do cache a texture upon first use with

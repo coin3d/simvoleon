@@ -370,7 +370,7 @@ EOF
   # ignore some options
   --alternate=*) ;;
   --debug) ;;
-  # args not catched until now are invalid
+  # args not caught until now are invalid
   *)
     echo >&2 "$me: Invalid option: \"$1\""
     echo >&2 "$usage"

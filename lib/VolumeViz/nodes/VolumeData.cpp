@@ -641,7 +641,7 @@ SoVolumeData::pick(SoPickAction * action)
   Note that you can in general not know in advance how much actual
   texture memory a texel is going to use, as textures can be paletted
   with a variable number of bits-per-texel, and even compressed before
-  transfered to the graphics card's on-chip memory.
+  transferred to the graphics card's on-chip memory.
 
   Due to the above mentioned reasons, the usefulness of this method is
   rather dubious, but it is still included for compatibility with

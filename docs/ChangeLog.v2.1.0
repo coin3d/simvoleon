@@ -444,7 +444,7 @@
 
 	* lib/VolumeViz/render/raycast/CvrRaycastCube.cpp,
 	lib/VolumeViz/render/raycast/CvrRaycastSubCube.cpp:
-	Use Coin to fetch the matrices intead of raw OpenGL.
+	Use Coin to fetch the matrices instead of raw OpenGL.
 
 2010-10-26 16:55 +0200  Øystein Handegard  <handegar@sim.no>  (47cdd12db96d <raycast-experiment-1>)
 
@@ -1255,7 +1255,7 @@
 2009-08-03 09:33 +0000  Eigil Samset  <eigils@sim.no>  (5968fe63e946)
 
 	* lib/VolumeViz/render/common/CvrTextureObject.cpp:
-	added border to 2D texture sent to OpenGL, instead of incomming
+	added border to 2D texture sent to OpenGL, instead of incoming
 	texture
 
 2009-07-31 08:47 +0000  Eigil Samset  <eigils@sim.no>  (f33d885e3a89)
@@ -1559,7 +1559,7 @@
 2006-05-30 08:18 +0000  Tamer Fahmy  <tamer@sim.no>  (14b3587de6bf)
 
 	* lib/VolumeViz/readers/VRVolFileReader.cpp:
-	shut up compiler warnings about unsigned/signed comparions.
+	shut up compiler warnings about unsigned/signed comparisons.
 
 2006-03-31 18:10 +0000  Karin (kyrah) Kosina  <kyrah@sim.no>  (6092dec460da)
 
@@ -1788,7 +1788,7 @@
 2005-05-31 10:59 +0000  kristian  <kristian>  (87f8c304d954)
 
 	* BUGS.txt:
-	- Remove bug #22 as it was fixed by the last committ
+	- Remove bug #22 as it was fixed by the last commit
 
 2005-05-26 16:53 +0000  kristian  <kristian>  (99e59de91080)
 
@@ -1940,7 +1940,7 @@
 	* build/msvc6/simvoleon2.dsp, build/msvc6/simvoleon2.dsw: deleted
 	file.
 	* build/msvc6/simvoleon2.dsp, build/msvc6/simvoleon2.dsw:
-	should be commited as binary files
+	should be committed as binary files
 
 2005-02-24 09:50 +0000  Øystein Handegard  <handegar@sim.no>  (42f6a72d09c8)
 

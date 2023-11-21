@@ -30,7 +30,7 @@ CVS access
   projects from Systems in Motion.
   
   For instructions on how to access our public CVS repository, see
-  the "CVS acces info page":http://www.coin3d.org/download/cvs-access/
+  the "CVS access info page":http://www.coin3d.org/download/cvs-access/
   on the Coin3D developer pages.
 
   The SIM Voleon source code repository is named 'SIMVoleon'.

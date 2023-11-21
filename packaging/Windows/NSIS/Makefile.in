@@ -66,7 +66,7 @@ $(Project)-$(VERSION): $(Project)-$(VERSION).tar.gz
 	tar zxf $(Project)-$(VERSION).tar.gz
 
 
-# Note: Making the distdir target in the Makefile.in files, genereated
+# Note: Making the distdir target in the Makefile.in files, generated
 # by automake, can cause two kinds of problems on cygwin.
 # Both problems are fixed below by modifying the Makefile.in files.
 #
@@ -87,7 +87,7 @@ $(Project)-$(VERSION): $(Project)-$(VERSION).tar.gz
 #
 #
 # Simplified case:
-# The following command line will fail with the error message mantioned 
+# The following command line will fail with the error message mentioned 
 # above:
 #
 # [1]

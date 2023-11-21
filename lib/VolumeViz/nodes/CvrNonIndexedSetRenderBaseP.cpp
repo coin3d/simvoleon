@@ -155,9 +155,9 @@ CvrNonIndexedSetRenderBaseP::GLRender(SoGLRenderAction * action,
   else {
     this->getVertexData(state, coords, normals, neednormals);
     vertexarray = coords->getArrayPtr3();
-  }
+  
 
-  // FIXME: Lighting is not properly handeled yet. (20040630 handegar)
+  // FIXME: Lighting is not properly handled yet. (20040630 handegar)
   glDisable(GL_LIGHTING);
 
   const Cvr3DTexCube::NonindexedSetType type = ((this->type == FACESET) ?

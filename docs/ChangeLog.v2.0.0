@@ -484,7 +484,7 @@
 
 2004-07-28 14:40  handegar
 
-	* lib/VolumeViz/misc/VoxelChunk.cpp: Removed alot of redundant
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Removed a lot of redundant
 	  code.  Added support for 2D 16 bits textures.
 
 2004-07-28 14:20  handegar
@@ -519,7 +519,7 @@
 
 2004-07-27 11:48  handegar
 
-	* lib/VolumeViz/misc/VoxelChunk.cpp: Reenabled 16 bit voxel support
+	* lib/VolumeViz/misc/VoxelChunk.cpp: Re-enabled 16 bit voxel support
 	  (scales values down to 8 bit).
 
 2004-07-27 11:35  handegar
@@ -1348,7 +1348,7 @@
 	* lib/VolumeViz/render/3D/: 3DTexCube.cpp, 3DTexSubCube.cpp,
 	  CubeHandler.cpp, Cvr3DTexCube.h, Cvr3DTexSubCube.h,
 	  CvrCubeHandler.h, Makefile.in: Added support for the new
-	  CvrTextureManager system.  Added support for the comming
+	  CvrTextureManager system.  Added support for the coming
 	  SoObliqeSlice node.
 
 2004-06-28 12:50  handegar
@@ -3426,7 +3426,7 @@
 2002-12-03 15:08  mortene
 
 	* docs/resources.txt: Pointers to resources on volume
-	  vizualisation.
+	  visualisation.
 
 2002-12-03 13:57  mortene
 
@@ -3513,7 +3513,7 @@
 2002-12-01 15:59  mortene
 
 	* lib/VolumeViz/nodes/TransferFunction.cpp: Performance
-	  improvement: cache transfered values in an index table.
+	  improvement: cache transferred values in an index table.
 
 2002-12-01 12:54  mortene
 
@@ -3698,7 +3698,7 @@
 
 2002-11-25 15:46  mortene
 
-	* lib/VolumeViz/readers/VRMemReader.cpp: Simplify and clearify the
+	* lib/VolumeViz/readers/VRMemReader.cpp: Simplify and clarify the
 	  code that extracts subpages along the x-axis.
 
 2002-11-25 15:10  mortene
@@ -3708,18 +3708,18 @@
 
 2002-11-25 15:05  mortene
 
-	* lib/VolumeViz/readers/VRMemReader.cpp: Simplify and clearify the
+	* lib/VolumeViz/readers/VRMemReader.cpp: Simplify and clarify the
 	  code that extracts subpages along the y-axis.
 
 2002-11-25 14:49  mortene
 
-	* lib/VolumeViz/readers/VRMemReader.cpp: Simplify and clearify the
+	* lib/VolumeViz/readers/VRMemReader.cpp: Simplify and clarify the
 	  code that extracts subpages along the z-axis.
 
 2002-11-25 12:58  mortene
 
 	* lib/VolumeViz/readers/VRMemReader.cpp: Use fixed-width integer
-	  bit types, to avoid unpleasent surprises on non-32-bits-intel
+	  bit types, to avoid unpleasant surprises on non-32-bits-intel
 	  platforms.
 
 2002-11-25 12:40  mortene
