@@ -250,7 +250,7 @@ before_build:
       rem ##############
       if defined APPVEYOR_REPO_TAG_NAME (set SOQT_REPO_VERSION=%SOQT_VERSION%) else (set SOQT_REPO_VERSION=latest)
       if defined APPVEYOR_REPO_TAG_NAME (set SOQT_REPO_TAG_NAME=v%SOQT_VERSION%) else (set SOQT_REPO_TAG_NAME=CI-builds)
-      set DOWNLOAD_FILE_SOQT=soqt-%SOQT_REPO_VERSION%-%COMPILER_ID%-%CMAKE_PLATFORM%.zip
+      set DOWNLOAD_FILE_SOQT=soqt-%SOQT_REPO_VERSION%-%QT_ID%-%COMPILER_ID%-%CMAKE_PLATFORM%.zip
       for /f %%i in ('curl -s -H "Authorization: token %GH_AUTH_TOKEN%" https://api.github.com/repos/coin3d/soqt/releases ^| jq -r --arg SOQT_REPO_TAG_NAME "%SOQT_REPO_TAG_NAME%" ".[] | select(.tag_name==$SOQT_REPO_TAG_NAME) | .id"') do set RELEASE_ID=%%i
       for /f %%i in ('curl -s -H "Authorization: token %GH_AUTH_TOKEN%" https://api.github.com/repos/coin3d/soqt/releases/%RELEASE_ID% ^| jq -r --arg DOWNLOAD_FILE_SOQT "%DOWNLOAD_FILE_SOQT%" ".assets[] | select(.name==$DOWNLOAD_FILE_SOQT) | .id"') do set ASSET_ID=%%i
       set DOWNLOAD_ADDRESS_SOQT=https://api.github.com/repos/coin3d/soqt/releases/assets/%ASSET_ID%
@@ -295,7 +295,7 @@ before_build:
       ###############
       if [ -n "${APPVEYOR_REPO_TAG_NAME}" ]; then export SOQT_REPO_VERSION=$SOQT_VERSION; else export SOQT_REPO_VERSION=latest; fi
       if [ -n "${APPVEYOR_REPO_TAG_NAME}" ]; then export SOQT_REPO_TAG_NAME=v$SOQT_VERSION; else export SOQT_REPO_TAG_NAME=CI-builds; fi
-      DOWNLOAD_FILE_SOQT=soqt-$SOQT_REPO_VERSION-$COMPILER_ID-$CMAKE_PLATFORM.tar.gz
+      DOWNLOAD_FILE_SOQT=soqt-$SOQT_REPO_VERSION-$QT_ID-$COMPILER_ID-$CMAKE_PLATFORM.tar.gz
       RELEASE_ID=`curl -s -H "Authorization: token $GH_AUTH_TOKEN" https://api.github.com/repos/coin3d/soqt/releases | jq -r --arg SOQT_REPO_TAG_NAME "$SOQT_REPO_TAG_NAME" '.[] | select(.tag_name==$SOQT_REPO_TAG_NAME) | .id'`
       ASSET_ID=`curl -s -H "Authorization: token $GH_AUTH_TOKEN" https://api.github.com/repos/coin3d/soqt/releases/$RELEASE_ID | jq -r --arg DOWNLOAD_FILE_SOQT "$DOWNLOAD_FILE_SOQT" '.assets[] | select(.name==$DOWNLOAD_FILE_SOQT) | .id'`
       export DOWNLOAD_ADDRESS_SOQT=https://api.github.com/repos/coin3d/soqt/releases/assets/$ASSET_ID
