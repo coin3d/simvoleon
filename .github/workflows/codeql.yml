@@ -65,7 +65,7 @@ jobs:
         echo download file $DOWNLOAD_FILE_COIN from address $DOWNLOAD_ADDRESS_COIN
         curl -s -S -L -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/octet-stream" -o $DOWNLOAD_FILE_COIN $DOWNLOAD_ADDRESS_COIN
         tar xzf $DOWNLOAD_FILE_COIN -C cmake_download_dir
-        DOWNLOAD_FILE_SOQT=soqt-latest-Ubuntu2004-gcc9-x64.tar.gz
+        DOWNLOAD_FILE_SOQT=soqt-latest-Qt5-Ubuntu2004-gcc9-x64.tar.gz
         RELEASE_ID=`curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/coin3d/soqt/releases | jq -r --arg SOQT_REPO_TAG_NAME "CI-builds" '.[] | select(.tag_name==$SOQT_REPO_TAG_NAME) | .id'`
         ASSET_ID=`curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" https://api.github.com/repos/coin3d/soqt/releases/$RELEASE_ID | jq -r --arg DOWNLOAD_FILE_SOQT "$DOWNLOAD_FILE_SOQT" '.assets[] | select(.name==$DOWNLOAD_FILE_SOQT) | .id'`
         export DOWNLOAD_ADDRESS_SOQT=https://api.github.com/repos/coin3d/soqt/releases/assets/$ASSET_ID
