@@ -210,7 +210,7 @@ HTML_EXTRA_FILES       = @CMAKE_SOURCE_DIR@/docs/doxygen-awesome/doxygen-awesome
                          @CMAKE_SOURCE_DIR@/docs/doxygen-awesome/doxygen-awesome-paragraph-link.js \
                          @CMAKE_SOURCE_DIR@/docs/doxygen-awesome/doxygen-custom/toggle-alternative-theme.js \
                          @CMAKE_SOURCE_DIR@/docs/doxygen-awesome/doxygen-awesome-interactive-toc.js \
-                         @CMAKE_SOURCE_DIR@/docs/doxygen-awesome/doxygen-awesome-tabs.js
+                         @CMAKE_SOURCE_DIR@/docs/doxygen-awesome/doxygen-awesome-tabs.js \
                          @CMAKE_SOURCE_DIR@/docs/doxygen/Coin_logo.png \
                          @CMAKE_SOURCE_DIR@/docs/doxygen/images/blue_red.png \
                          @CMAKE_SOURCE_DIR@/docs/doxygen/images/glow.png \
