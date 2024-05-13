@@ -271,9 +271,9 @@ SIMVoleon</div></div>
  <p>SIM Voleon does currently support loading of VOL files, which is a format introduced by the book <em>"Introduction To Volume
 Rendering"</em>, by Lichtenbelt, Crane and Naqvi (Hewlett-Packard / Prentice Hall), <em>ISBN 0-13-861683-3</em>. (See the <a class="el" href="classSoVRVolFileReader.html" title="Loader for files in the VOL data format.">SoVRVolFileReader</a> class doc for info). Support for more file formats can be added by extending the <a class="el" href="classSoVolumeReader.html" title="Abstract superclass for all volume data reader classes.">SoVolumeReader</a> class.</p>
 <p>Beware that large voxel sets are divided into sub cubes. The largest default sub cube size is by default set to 128x128x128, to match the TGS VolumeViz API. Current graphics cards can do much larger textures than this, achieving a higher frame rate due to the reduced overhead of sub cube switching and slicing. A graphics card with 128+ MB and true hardware 3D texture support can easily handle voxel sets of size 256x256x256. Increasing the maximum sub cube size can really boost the performance if your graphics card can handle it. Call <a class="el" href="classSoVolumeData.html#a2101671d90683ec37769b1c31a72159d">SoVolumeData::setPageSize(const SbVec3s &amp; size)</a> to adjust the maximum sub cube size. Keep in mind that allowing really large 3D textures might cause other textures to be swapped out of graphics memory, leading to reduced performance. </p>
-<dl class="section see"><dt>See also</dt><dd>The documentation for the <a href="https://github.com/coin3d/coin/"><b>Coin</b></a> library: <a href="https://coin3d.github.io/Coin/html/">https://coin3d.github.io/Coin/html/</a>. </dd>
+<dl class="section see"><dt>See also</dt><dd>The documentation for the <a href="https://github.com/coin3d/coin/"><b>Coin</b></a> library: <a href="https://coin3d.github.io/coin/">https://coin3d.github.io/coin/</a>. </dd>
 <dd>
-The documentation for the <a href="https://github.com/coin3d/soqt">SoQt</a> library: <a href="https://coin3d.github.io/SoQt/html/">https://coin3d.github.io/SoQt/html/</a>. </dd></dl>
+The documentation for the <a href="https://github.com/coin3d/soqt">SoQt</a> library: <a href="https://coin3d.github.io/soqt/">https://coin3d.github.io/soqt/</a>. </dd></dl>
 </div></div><!-- PageDoc -->
 <a href="doxygen_crawl.html"/>
 </div><!-- contents -->
@@ -281,7 +281,7 @@ The documentation for the <a href="https://github.com/coin3d/soqt">SoQt</a> libr
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="footer">Generated on Mon May 13 2024 21:21:18 for SIMVoleon by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.10.0 </li>
+    <li class="footer">Generated on Mon May 13 2024 21:58:52 for SIMVoleon by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.10.0 </li>
   </ul>
 </div>
 </body>
