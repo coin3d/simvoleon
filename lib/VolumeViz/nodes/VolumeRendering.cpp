@@ -230,8 +230,8 @@
   memory, leading to reduced performance.
   </p>
 
-  \sa The documentation for the \COIN library: <https://coin3d.github.io/Coin/html/>.
-  \sa The documentation for the <a href="https://github.com/coin3d/soqt">SoQt</a> library: <https://coin3d.github.io/SoQt/html/>.
+  \sa The documentation for the \COIN library: <https://coin3d.github.io/coin/>.
+  \sa The documentation for the <a href="https://github.com/coin3d/soqt">SoQt</a> library: <https://coin3d.github.io/soqt/>.
 */
 
 // *************************************************************************
