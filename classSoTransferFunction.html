@@ -1,0 +1,440 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.10.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!-- BEGIN opengraph metadata -->
+<meta property="og:title" content="Doxygen Awesome" />
+<meta property="og:image" content="https://repository-images.githubusercontent.com/348492097/4f16df80-88fb-11eb-9d31-4015ff22c452" />
+<meta property="og:description" content="Custom CSS theme for doxygen html-documentation with lots of customization parameters." />
+<meta property="og:url" content="https://jothepro.github.io/doxygen-awesome-css/" />
+<!-- END opengraph metadata -->
+<!-- BEGIN twitter metadata -->
+<meta name="twitter:image:src" content="https://repository-images.githubusercontent.com/348492097/4f16df80-88fb-11eb-9d31-4015ff22c452" />
+<meta name="twitter:title" content="Doxygen Awesome" />
+<meta name="twitter:description" content="Custom CSS theme for doxygen html-documentation with lots of customization parameters." />
+<!-- END twitter metadata -->
+<title>SIMVoleon: SoTransferFunction Class Reference</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+<script type="text/javascript" src="toggle-alternative-theme.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    DoxygenAwesomeTabs.init()
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="custom.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
+<link href="custom-alternative.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<!-- https://tholman.com/github-corners/ -->
+<a href="https://github.com/coin3d/simvoleon" class="github-corner" title="View source on GitHub" target="_blank" rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40" style="position: absolute; top: 0; border: 0; right: 0; z-index: 99;" aria-hidden="true">
+    <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="Coin_logo.png"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">SIMVoleon
+   &#160;<span id="projectnumber">2.1.0</span>
+   </div>
+   <div id="projectbrief">A volume rendering library for Coin</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Generated by Doxygen 1.10.0 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('classSoTransferFunction.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="classSoTransferFunction-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">SoTransferFunction Class Reference</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>Contains the transfer function definition.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="SoTransferFunction_8h_source.html">VolumeViz/nodes/SoTransferFunction.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for SoTransferFunction:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classSoTransferFunction.png" usemap="#SoTransferFunction_map" alt=""/>
+  <map id="SoTransferFunction_map" name="SoTransferFunction_map">
+<area href="classSoVolumeRendering.html" title="Abstract base class for all nodes related to volume rendering." alt="SoVolumeRendering" shape="rect" coords="0,56,127,80"/>
+<area href="classSoNode.html" alt="SoNode" shape="rect" coords="0,0,127,24"/>
+  </map>
+</div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:a09927c2bc3fbc09129b0aa4821fffa08" id="r_a09927c2bc3fbc09129b0aa4821fffa08"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a09927c2bc3fbc09129b0aa4821fffa08">ColorMapType</a> { <a class="el" href="#a09927c2bc3fbc09129b0aa4821fffa08adf04d0647f8b9d1deb09dfa3760f5799">ALPHA</a>
+, <a class="el" href="#a09927c2bc3fbc09129b0aa4821fffa08ac6881810f39b86273b0232a2e69368a6">LUM_ALPHA</a>
+, <a class="el" href="#a09927c2bc3fbc09129b0aa4821fffa08a8433165cea30721ec71cf9b303ae297f">RGBA</a>
+ }</td></tr>
+<tr class="separator:a09927c2bc3fbc09129b0aa4821fffa08"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50b14c0f7e4af53c23ab77bf0b0ab416" id="r_a50b14c0f7e4af53c23ab77bf0b0ab416"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416">PredefColorMap</a> { <br />
+&#160;&#160;<a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416a95847bb961e485b749c829ff0c0a46b7">NONE</a> = 0
+, <a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416abd7ffffe128efcfd5639b3ac48ce1f51">GREY</a>
+, <a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416a09723a165b1702ba39bc931f784cc9e3">GRAY</a> = GREY
+, <a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416a38bdfd652b4c98622479e227f0195787">TEMPERATURE</a>
+, <br />
+&#160;&#160;<a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416a4f3b11c2a6d996e2d3a45db15db07820">PHYSICS</a>
+, <a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416a198d2deadef28f2ae91beda3c3574825">STANDARD</a>
+, <a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416aaa6e529ecfa6bb6060c46b3c6963eb64">GLOW</a>
+, <a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416aef57eba241ef1d294f04fbafd9fa9d29">BLUE_RED</a>
+, <br />
+&#160;&#160;<a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416a4e687d620f6f316cfcf5f4c114677656">SEISMIC</a>
+<br />
+ }</td></tr>
+<tr class="separator:a50b14c0f7e4af53c23ab77bf0b0ab416"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_types_classSoVolumeRendering"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classSoVolumeRendering')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classSoVolumeRendering.html">SoVolumeRendering</a></td></tr>
+<tr class="memitem:ac344b0ec20ac68df8e95f115a3d998cb inherit pub_types_classSoVolumeRendering" id="r_ac344b0ec20ac68df8e95f115a3d998cb"><td class="memItemLeft" align="right" valign="top"><a id="ac344b0ec20ac68df8e95f115a3d998cb" name="ac344b0ec20ac68df8e95f115a3d998cb"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>HW_Feature</b> { <b>HW_VOLUMEPRO</b>
+, <b>HW_3DTEXMAP</b>
+, <b>HW_TEXCOLORMAP</b>
+, <b>HW_TEXCOMPRESSION</b>
+ }</td></tr>
+<tr class="separator:ac344b0ec20ac68df8e95f115a3d998cb inherit pub_types_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2ebba17b42f5a3396651974aab66a38 inherit pub_types_classSoVolumeRendering" id="r_ad2ebba17b42f5a3396651974aab66a38"><td class="memItemLeft" align="right" valign="top"><a id="ad2ebba17b42f5a3396651974aab66a38" name="ad2ebba17b42f5a3396651974aab66a38"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>HW_SupportStatus</b> { <b>NO</b>
+, <b>YES</b>
+, <b>UNKNOWN</b>
+ }</td></tr>
+<tr class="separator:ad2ebba17b42f5a3396651974aab66a38 inherit pub_types_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:ad540eb9a6c01977d89819f6f0ee44cb6" id="r_ad540eb9a6c01977d89819f6f0ee44cb6"><td class="memItemLeft" align="right" valign="top"><a id="ad540eb9a6c01977d89819f6f0ee44cb6" name="ad540eb9a6c01977d89819f6f0ee44cb6"></a>
+SbBool&#160;</td><td class="memItemRight" valign="bottom"><b>hasTransparency</b> (void) const</td></tr>
+<tr class="separator:ad540eb9a6c01977d89819f6f0ee44cb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac464eaf53fb436b5fd351e8153114c19" id="r_ac464eaf53fb436b5fd351e8153114c19"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ac464eaf53fb436b5fd351e8153114c19">reMap</a> (int low, int high)</td></tr>
+<tr class="separator:ac464eaf53fb436b5fd351e8153114c19"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classSoVolumeRendering"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classSoVolumeRendering')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classSoVolumeRendering.html">SoVolumeRendering</a></td></tr>
+<tr class="memitem:a9c205bd0c3cec3c548caa1b367e03a0d inherit pub_methods_classSoVolumeRendering" id="r_a9c205bd0c3cec3c548caa1b367e03a0d"><td class="memItemLeft" align="right" valign="top">
+HW_SupportStatus&#160;</td><td class="memItemRight" valign="bottom"><b>isSupported</b> (HW_Feature feature)</td></tr>
+<tr class="separator:a9c205bd0c3cec3c548caa1b367e03a0d inherit pub_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:a85bc9032aa10882e248e44e0692a5587" id="r_a85bc9032aa10882e248e44e0692a5587"><td class="memItemLeft" align="right" valign="top"><a id="a85bc9032aa10882e248e44e0692a5587" name="a85bc9032aa10882e248e44e0692a5587"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>initClass</b> (void)</td></tr>
+<tr class="separator:a85bc9032aa10882e248e44e0692a5587"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_methods_classSoVolumeRendering"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_methods_classSoVolumeRendering')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="classSoVolumeRendering.html">SoVolumeRendering</a></td></tr>
+<tr class="memitem:ae1fbe55752e940adaf5d2b12e5e46dcf inherit pub_static_methods_classSoVolumeRendering" id="r_ae1fbe55752e940adaf5d2b12e5e46dcf"><td class="memItemLeft" align="right" valign="top">static SbBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#ae1fbe55752e940adaf5d2b12e5e46dcf">getDelayedRendering</a> (void)</td></tr>
+<tr class="separator:ae1fbe55752e940adaf5d2b12e5e46dcf inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cf399c6e78d98640829858d6ec0985f inherit pub_static_methods_classSoVolumeRendering" id="r_a6cf399c6e78d98640829858d6ec0985f"><td class="memItemLeft" align="right" valign="top">static SbBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#a6cf399c6e78d98640829858d6ec0985f">getReadAlternateRep</a> (void)</td></tr>
+<tr class="separator:a6cf399c6e78d98640829858d6ec0985f inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9a01f9f17fefe2951d78c088dab5f09 inherit pub_static_methods_classSoVolumeRendering" id="r_af9a01f9f17fefe2951d78c088dab5f09"><td class="memItemLeft" align="right" valign="top">static SbBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#af9a01f9f17fefe2951d78c088dab5f09">getWriteAlternateRep</a> (void)</td></tr>
+<tr class="separator:af9a01f9f17fefe2951d78c088dab5f09 inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a074e793ccc4ca3decf604b1a4bdb1aa0 inherit pub_static_methods_classSoVolumeRendering" id="r_a074e793ccc4ca3decf604b1a4bdb1aa0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#a074e793ccc4ca3decf604b1a4bdb1aa0">init</a> (void)</td></tr>
+<tr class="separator:a074e793ccc4ca3decf604b1a4bdb1aa0 inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4a4bf9d2ed3328fe29131e8b4be5996 inherit pub_static_methods_classSoVolumeRendering" id="r_ae4a4bf9d2ed3328fe29131e8b4be5996"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#ae4a4bf9d2ed3328fe29131e8b4be5996">initClass</a> (void)</td></tr>
+<tr class="separator:ae4a4bf9d2ed3328fe29131e8b4be5996 inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fc6f7df715f4290a3589a114bbb6e9c inherit pub_static_methods_classSoVolumeRendering" id="r_a8fc6f7df715f4290a3589a114bbb6e9c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#a8fc6f7df715f4290a3589a114bbb6e9c">setDelayedRendering</a> (SbBool flag)</td></tr>
+<tr class="separator:a8fc6f7df715f4290a3589a114bbb6e9c inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19e0309d1f1ee369154c26d8a212c063 inherit pub_static_methods_classSoVolumeRendering" id="r_a19e0309d1f1ee369154c26d8a212c063"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#a19e0309d1f1ee369154c26d8a212c063">setReadAlternateRep</a> (SbBool flag)</td></tr>
+<tr class="separator:a19e0309d1f1ee369154c26d8a212c063 inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc63f86004509d8e8e866a31be7b2f01 inherit pub_static_methods_classSoVolumeRendering" id="r_adc63f86004509d8e8e866a31be7b2f01"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#adc63f86004509d8e8e866a31be7b2f01">setWriteAlternateRep</a> (SbBool flag)</td></tr>
+<tr class="separator:adc63f86004509d8e8e866a31be7b2f01 inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:a643216e2f61a130b8ed721ec5e3f8361" id="r_a643216e2f61a130b8ed721ec5e3f8361"><td class="memItemLeft" align="right" valign="top">SoMFFloat&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a643216e2f61a130b8ed721ec5e3f8361">colorMap</a></td></tr>
+<tr class="separator:a643216e2f61a130b8ed721ec5e3f8361"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a10a8cfcaa42a3099fe05b96d2174ee17" id="r_a10a8cfcaa42a3099fe05b96d2174ee17"><td class="memItemLeft" align="right" valign="top">SoSFEnum&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a10a8cfcaa42a3099fe05b96d2174ee17">colorMapType</a></td></tr>
+<tr class="separator:a10a8cfcaa42a3099fe05b96d2174ee17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab55d725ea9623b8c22f8fd99932402e3" id="r_ab55d725ea9623b8c22f8fd99932402e3"><td class="memItemLeft" align="right" valign="top">SoSFInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab55d725ea9623b8c22f8fd99932402e3">offset</a></td></tr>
+<tr class="separator:ab55d725ea9623b8c22f8fd99932402e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab6074e5837c748418d316b5ff601dea" id="r_aab6074e5837c748418d316b5ff601dea"><td class="memItemLeft" align="right" valign="top">SoSFEnum&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aab6074e5837c748418d316b5ff601dea">predefColorMap</a></td></tr>
+<tr class="separator:aab6074e5837c748418d316b5ff601dea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab06fca240102be9ebdd46a0e1f2dcc33" id="r_ab06fca240102be9ebdd46a0e1f2dcc33"><td class="memItemLeft" align="right" valign="top">SoSFInt32&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab06fca240102be9ebdd46a0e1f2dcc33">shift</a></td></tr>
+<tr class="separator:ab06fca240102be9ebdd46a0e1f2dcc33"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:aa00933362aae8ed1f5833d5c8da15842" id="r_aa00933362aae8ed1f5833d5c8da15842"><td class="memItemLeft" align="right" valign="top"><a id="aa00933362aae8ed1f5833d5c8da15842" name="aa00933362aae8ed1f5833d5c8da15842"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>callback</b> (SoCallbackAction *action)</td></tr>
+<tr class="separator:aa00933362aae8ed1f5833d5c8da15842"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f5fe12852e9611e86580120a796976c" id="r_a2f5fe12852e9611e86580120a796976c"><td class="memItemLeft" align="right" valign="top"><a id="a2f5fe12852e9611e86580120a796976c" name="a2f5fe12852e9611e86580120a796976c"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>doAction</b> (SoAction *action)</td></tr>
+<tr class="separator:a2f5fe12852e9611e86580120a796976c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af79af2d296d32d63b8a770537f15dc7c" id="r_af79af2d296d32d63b8a770537f15dc7c"><td class="memItemLeft" align="right" valign="top"><a id="af79af2d296d32d63b8a770537f15dc7c" name="af79af2d296d32d63b8a770537f15dc7c"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>GLRender</b> (SoGLRenderAction *action)</td></tr>
+<tr class="separator:af79af2d296d32d63b8a770537f15dc7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9b34d59cebb1e292919477e5ff93d78e" id="r_a9b34d59cebb1e292919477e5ff93d78e"><td class="memItemLeft" align="right" valign="top"><a id="a9b34d59cebb1e292919477e5ff93d78e" name="a9b34d59cebb1e292919477e5ff93d78e"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>pick</b> (SoPickAction *action)</td></tr>
+<tr class="separator:a9b34d59cebb1e292919477e5ff93d78e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>Contains the transfer function definition. </p>
+<p>This node sets up the mapping from voxel data values to actual on-screen color values and transparency / opaqueness.</p>
+<p>It has a set of predefined color maps, commonly used in e.g. seismic visualization, and the option to set up one's own free-form color map lookup table (by setting <a class="el" href="#aab6074e5837c748418d316b5ff601dea">SoTransferFunction::predefColorMap</a> to NONE). </p>
+</div><h2 class="groupheader">Member Enumeration Documentation</h2>
+<a id="a09927c2bc3fbc09129b0aa4821fffa08" name="a09927c2bc3fbc09129b0aa4821fffa08"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a09927c2bc3fbc09129b0aa4821fffa08">&#9670;&#160;</a></span>ColorMapType</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a09927c2bc3fbc09129b0aa4821fffa08">SoTransferFunction::ColorMapType</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Type of color map array. Defines the possible values for the <a class="el" href="#a10a8cfcaa42a3099fe05b96d2174ee17">SoTransferFunction::colorMapType</a> field. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a09927c2bc3fbc09129b0aa4821fffa08adf04d0647f8b9d1deb09dfa3760f5799" name="a09927c2bc3fbc09129b0aa4821fffa08adf04d0647f8b9d1deb09dfa3760f5799"></a>ALPHA&#160;</td><td class="fielddoc"><p>Each color entry in the transfer function has only one component, so the <a class="el" href="#a643216e2f61a130b8ed721ec5e3f8361">SoTransferFunction::colorMap</a> field should consist of exactly 256 float values, each value representing a transparency value. The RGB colors will all be set to [1,1,1], i.e. all white. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a09927c2bc3fbc09129b0aa4821fffa08ac6881810f39b86273b0232a2e69368a6" name="a09927c2bc3fbc09129b0aa4821fffa08ac6881810f39b86273b0232a2e69368a6"></a>LUM_ALPHA&#160;</td><td class="fielddoc"><p>Each transfer function color map entry in <a class="el" href="#a643216e2f61a130b8ed721ec5e3f8361">SoTransferFunction::colorMap</a> has two components, i.e. two floats, so the field should contain exactly 256*2 = 512 values. The first float value of each pair is taken to be an intensity / gray color value, and the second float of each pair is a transparency value (as for the ALPHA enum). </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a09927c2bc3fbc09129b0aa4821fffa08a8433165cea30721ec71cf9b303ae297f" name="a09927c2bc3fbc09129b0aa4821fffa08a8433165cea30721ec71cf9b303ae297f"></a>RGBA&#160;</td><td class="fielddoc"><p>Four floats are used to specify each color of the transfer function. <a class="el" href="#a643216e2f61a130b8ed721ec5e3f8361">SoTransferFunction::colorMap</a> should consist of exactly 256*4 = 1024 float values. Each quadruple consist of intensity values for red, green, and blue, and then the fourth value is an alpha value, as for LUM_ALPHA and ALPHA. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="a50b14c0f7e4af53c23ab77bf0b0ab416" name="a50b14c0f7e4af53c23ab77bf0b0ab416"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50b14c0f7e4af53c23ab77bf0b0ab416">&#9670;&#160;</a></span>PredefColorMap</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416">SoTransferFunction::PredefColorMap</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Predefined color transfer functions, each containing exactly 256 colors. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="a50b14c0f7e4af53c23ab77bf0b0ab416a95847bb961e485b749c829ff0c0a46b7" name="a50b14c0f7e4af53c23ab77bf0b0ab416a95847bb961e485b749c829ff0c0a46b7"></a>NONE&#160;</td><td class="fielddoc"><p>If this is set, the <a class="el" href="#a643216e2f61a130b8ed721ec5e3f8361">SoTransferFunction::colorMap</a> field must be used. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a50b14c0f7e4af53c23ab77bf0b0ab416abd7ffffe128efcfd5639b3ac48ce1f51" name="a50b14c0f7e4af53c23ab77bf0b0ab416abd7ffffe128efcfd5639b3ac48ce1f51"></a>GREY&#160;</td><td class="fielddoc"><p>Default transfer function color map. The checker board indicates that this gradient is partly transparent.</p>
+<center><img src="grey.png" alt="" class="inline"/></center> </td></tr>
+<tr><td class="fieldname"><a id="a50b14c0f7e4af53c23ab77bf0b0ab416a09723a165b1702ba39bc931f784cc9e3" name="a50b14c0f7e4af53c23ab77bf0b0ab416a09723a165b1702ba39bc931f784cc9e3"></a>GRAY&#160;</td><td class="fielddoc"><p>Same as GREY. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a50b14c0f7e4af53c23ab77bf0b0ab416a38bdfd652b4c98622479e227f0195787" name="a50b14c0f7e4af53c23ab77bf0b0ab416a38bdfd652b4c98622479e227f0195787"></a>TEMPERATURE&#160;</td><td class="fielddoc"><p>This gradient is fully opaque.</p>
+<center><img src="temperature.png" alt="" class="inline"/></center> </td></tr>
+<tr><td class="fieldname"><a id="a50b14c0f7e4af53c23ab77bf0b0ab416a4f3b11c2a6d996e2d3a45db15db07820" name="a50b14c0f7e4af53c23ab77bf0b0ab416a4f3b11c2a6d996e2d3a45db15db07820"></a>PHYSICS&#160;</td><td class="fielddoc"><p>This gradient is fully opaque.</p>
+<center><img src="physics.png" alt="" class="inline"/></center> </td></tr>
+<tr><td class="fieldname"><a id="a50b14c0f7e4af53c23ab77bf0b0ab416a198d2deadef28f2ae91beda3c3574825" name="a50b14c0f7e4af53c23ab77bf0b0ab416a198d2deadef28f2ae91beda3c3574825"></a>STANDARD&#160;</td><td class="fielddoc"><p>This gradient is fully opaque.</p>
+<center><img src="standard.png" alt="" class="inline"/></center> </td></tr>
+<tr><td class="fieldname"><a id="a50b14c0f7e4af53c23ab77bf0b0ab416aaa6e529ecfa6bb6060c46b3c6963eb64" name="a50b14c0f7e4af53c23ab77bf0b0ab416aaa6e529ecfa6bb6060c46b3c6963eb64"></a>GLOW&#160;</td><td class="fielddoc"><p>This gradient is fully opaque.</p>
+<center><img src="glow.png" alt="" class="inline"/></center> </td></tr>
+<tr><td class="fieldname"><a id="a50b14c0f7e4af53c23ab77bf0b0ab416aef57eba241ef1d294f04fbafd9fa9d29" name="a50b14c0f7e4af53c23ab77bf0b0ab416aef57eba241ef1d294f04fbafd9fa9d29"></a>BLUE_RED&#160;</td><td class="fielddoc"><p>This gradient is fully opaque.</p>
+<center><img src="blue_red.png" alt="" class="inline"/></center> </td></tr>
+<tr><td class="fieldname"><a id="a50b14c0f7e4af53c23ab77bf0b0ab416a4e687d620f6f316cfcf5f4c114677656" name="a50b14c0f7e4af53c23ab77bf0b0ab416a4e687d620f6f316cfcf5f4c114677656"></a>SEISMIC&#160;</td><td class="fielddoc"><p>This gradient is partly transparent.</p>
+<center><img src="seismic.png" alt="" class="inline"/></center> </td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Member Function Documentation</h2>
+<a id="ac464eaf53fb436b5fd351e8153114c19" name="ac464eaf53fb436b5fd351e8153114c19"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac464eaf53fb436b5fd351e8153114c19">&#9670;&#160;</a></span>reMap()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SoTransferFunction::reMap </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>low</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>high</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Set two thresholds, where all transfer function mappings that ends up below the <em>low</em> value or above the <em>high</em> value are set to be completely transparent.</p>
+<p>Initial default values are [0, 65535]. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a643216e2f61a130b8ed721ec5e3f8361" name="a643216e2f61a130b8ed721ec5e3f8361"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a643216e2f61a130b8ed721ec5e3f8361">&#9670;&#160;</a></span>colorMap</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SoMFFloat SoTransferFunction::colorMap</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>An array of floats describing the transfer function. Each value must be normalized to be within [0.0, 1.0] for the intensity value of a color, or the alpha value for transparency.</p>
+<p>The array must contain 256 colors. The number of floats needed in the array for each color depends on the <a class="el" href="#a09927c2bc3fbc09129b0aa4821fffa08">SoTransferFunction::ColorMapType</a> setting. </p>
+
+</div>
+</div>
+<a id="a10a8cfcaa42a3099fe05b96d2174ee17" name="a10a8cfcaa42a3099fe05b96d2174ee17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a10a8cfcaa42a3099fe05b96d2174ee17">&#9670;&#160;</a></span>colorMapType</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SoSFEnum SoTransferFunction::colorMapType</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This field specifies how the <a class="el" href="#a643216e2f61a130b8ed721ec5e3f8361">SoTransferFunction::colorMap</a> field should be interpreted when <a class="el" href="#aab6074e5837c748418d316b5ff601dea">SoTransferFunction::predefColorMap</a> is set to <a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416a95847bb961e485b749c829ff0c0a46b7">SoTransferFunction::NONE</a>.</p>
+<p>(Note that it will <em>not</em> have any effect when <a class="el" href="#aab6074e5837c748418d316b5ff601dea">SoTransferFunction::predefColorMap</a> is set to any of the actual predefined transfer function color maps, i.e. not equal to <code>NONE</code>.)</p>
+<p>See <a class="el" href="#a09927c2bc3fbc09129b0aa4821fffa08">SoTransferFunction::ColorMapType</a> for what possible values this field can have, and their semantics. </p>
+
+</div>
+</div>
+<a id="ab55d725ea9623b8c22f8fd99932402e3" name="ab55d725ea9623b8c22f8fd99932402e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab55d725ea9623b8c22f8fd99932402e3">&#9670;&#160;</a></span>offset</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SoSFInt32 SoTransferFunction::offset</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>See the <a class="el" href="#ab06fca240102be9ebdd46a0e1f2dcc33">SoTransferFunction::shift</a> field. </p>
+
+</div>
+</div>
+<a id="aab6074e5837c748418d316b5ff601dea" name="aab6074e5837c748418d316b5ff601dea"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab6074e5837c748418d316b5ff601dea">&#9670;&#160;</a></span>predefColorMap</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SoSFEnum SoTransferFunction::predefColorMap</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets up the transfer function to use. See <a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416">SoTransferFunction::PredefColorMap</a> for a list of the predefined color maps.</p>
+<p>Note that most of the predefined color maps are all opaque, even for data value 0. This will often cause the unwanted behavior that the full data set will be completely opaque for visualization, so only the outer "walls" of the volume are shown. To avoid this, use the <a class="el" href="#ac464eaf53fb436b5fd351e8153114c19">SoTransferFunction::reMap()</a> method to "narrow" the data values that are to be rendered according to the transfer function (all values outside of the given range will then be fully transparent).</p>
+<p>The value <a class="el" href="#a50b14c0f7e4af53c23ab77bf0b0ab416a95847bb961e485b749c829ff0c0a46b7">SoTransferFunction::NONE</a> has special meaning: it signifies that none of the predefined values should be used, but that the transfer function color map should be fetched from the <a class="el" href="#a643216e2f61a130b8ed721ec5e3f8361">SoTransferFunction::colorMap</a> field instead. </p>
+
+</div>
+</div>
+<a id="ab06fca240102be9ebdd46a0e1f2dcc33" name="ab06fca240102be9ebdd46a0e1f2dcc33"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab06fca240102be9ebdd46a0e1f2dcc33">&#9670;&#160;</a></span>shift</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SoSFInt32 SoTransferFunction::shift</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Used to shift the voxel attribute value before assigning a color value from the transfer function color map. In pseudo code:</p>
+<div class="fragment"><div class="line">colorvalue = transferfunction[(voxelvalue &lt;&lt; <a class="code hl_variable" href="#ab06fca240102be9ebdd46a0e1f2dcc33">shift</a>) + <a class="code hl_variable" href="#ab55d725ea9623b8c22f8fd99932402e3">offset</a>]</div>
+<div class="ttc" id="aclassSoTransferFunction_html_ab06fca240102be9ebdd46a0e1f2dcc33"><div class="ttname"><a href="#ab06fca240102be9ebdd46a0e1f2dcc33">SoTransferFunction::shift</a></div><div class="ttdeci">SoSFInt32 shift</div><div class="ttdef"><b>Definition</b> SoTransferFunction.h:71</div></div>
+<div class="ttc" id="aclassSoTransferFunction_html_ab55d725ea9623b8c22f8fd99932402e3"><div class="ttname"><a href="#ab55d725ea9623b8c22f8fd99932402e3">SoTransferFunction::offset</a></div><div class="ttdeci">SoSFInt32 offset</div><div class="ttdef"><b>Definition</b> SoTransferFunction.h:72</div></div>
+</div><!-- fragment --><p>(<code>offset</code> is the value of the <a class="el" href="#ab55d725ea9623b8c22f8fd99932402e3">SoTransferFunction::offset</a> field.) </p>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li><a class="el" href="SoTransferFunction_8h_source.html">SoTransferFunction.h</a></li>
+<li><b>TransferFunction.cpp</b></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="classSoTransferFunction.html">SoTransferFunction</a></li>
+    <li class="footer">Generated on Mon May 13 2024 21:21:18 for SIMVoleon by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.10.0 </li>
+  </ul>
+</div>
+</body>
+</html>

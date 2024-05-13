@@ -1,0 +1,705 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen 1.10.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<!-- BEGIN opengraph metadata -->
+<meta property="og:title" content="Doxygen Awesome" />
+<meta property="og:image" content="https://repository-images.githubusercontent.com/348492097/4f16df80-88fb-11eb-9d31-4015ff22c452" />
+<meta property="og:description" content="Custom CSS theme for doxygen html-documentation with lots of customization parameters." />
+<meta property="og:url" content="https://jothepro.github.io/doxygen-awesome-css/" />
+<!-- END opengraph metadata -->
+<!-- BEGIN twitter metadata -->
+<meta name="twitter:image:src" content="https://repository-images.githubusercontent.com/348492097/4f16df80-88fb-11eb-9d31-4015ff22c452" />
+<meta name="twitter:title" content="Doxygen Awesome" />
+<meta name="twitter:description" content="Custom CSS theme for doxygen html-documentation with lots of customization parameters." />
+<!-- END twitter metadata -->
+<title>SIMVoleon: SoVolumeData Class Reference</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<link rel="icon" type="image/svg+xml" href="logo.drawio.svg"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="doxygen-awesome-darkmode-toggle.js"></script>
+<script type="text/javascript" src="doxygen-awesome-fragment-copy-button.js"></script>
+<script type="text/javascript" src="doxygen-awesome-paragraph-link.js"></script>
+<script type="text/javascript" src="doxygen-awesome-interactive-toc.js"></script>
+<script type="text/javascript" src="doxygen-awesome-tabs.js"></script>
+<script type="text/javascript" src="toggle-alternative-theme.js"></script>
+<script type="text/javascript">
+    DoxygenAwesomeFragmentCopyButton.init()
+    DoxygenAwesomeDarkModeToggle.init()
+    DoxygenAwesomeParagraphLink.init()
+    DoxygenAwesomeInteractiveToc.init()
+    DoxygenAwesomeTabs.init()
+</script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="navtreedata.js"></script>
+<script type="text/javascript" src="navtree.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+<link href="doxygen-awesome.css" rel="stylesheet" type="text/css"/>
+<link href="custom.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only.css" rel="stylesheet" type="text/css"/>
+<link href="doxygen-awesome-sidebar-only-darkmode-toggle.css" rel="stylesheet" type="text/css"/>
+<link href="custom-alternative.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<!-- https://tholman.com/github-corners/ -->
+<a href="https://github.com/coin3d/simvoleon" class="github-corner" title="View source on GitHub" target="_blank" rel="noopener noreferrer">
+    <svg viewBox="0 0 250 250" width="40" height="40" style="position: absolute; top: 0; border: 0; right: 0; z-index: 99;" aria-hidden="true">
+    <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <td id="projectlogo"><img alt="Logo" src="Coin_logo.png"/></td>
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">SIMVoleon
+   &#160;<span id="projectnumber">2.1.0</span>
+   </div>
+   <div id="projectbrief">A volume rendering library for Coin</div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Generated by Doxygen 1.10.0 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Search');
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+</div><!-- top -->
+<div id="side-nav" class="ui-resizable side-nav-resizable">
+  <div id="nav-tree">
+    <div id="nav-tree-contents">
+      <div id="nav-sync" class="sync"></div>
+    </div>
+  </div>
+  <div id="splitbar" style="-moz-user-select:none;" 
+       class="ui-resizable-handle">
+  </div>
+</div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){initNavTree('classSoVolumeData.html',''); initResizable(); });
+/* @license-end */
+</script>
+<div id="doc-content">
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Loading...</div>
+<div class="SRStatus" id="Searching">Searching...</div>
+<div class="SRStatus" id="NoMatches">No Matches</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="header">
+  <div class="summary">
+<a href="#pub-types">Public Types</a> &#124;
+<a href="#pub-methods">Public Member Functions</a> &#124;
+<a href="#pub-static-methods">Static Public Member Functions</a> &#124;
+<a href="#pub-attribs">Public Attributes</a> &#124;
+<a href="#pro-methods">Protected Member Functions</a> &#124;
+<a href="classSoVolumeData-members.html">List of all members</a>  </div>
+  <div class="headertitle"><div class="title">SoVolumeData Class Reference</div></div>
+</div><!--header-->
+<div class="contents">
+
+<p>The main interface for setting up volume data sets.  
+ <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="SoVolumeData_8h_source.html">VolumeViz/nodes/SoVolumeData.h</a>&gt;</code></p>
+<div class="dynheader">
+Inheritance diagram for SoVolumeData:</div>
+<div class="dyncontent">
+ <div class="center">
+  <img src="classSoVolumeData.png" usemap="#SoVolumeData_map" alt=""/>
+  <map id="SoVolumeData_map" name="SoVolumeData_map">
+<area href="classSoVolumeRendering.html" title="Abstract base class for all nodes related to volume rendering." alt="SoVolumeRendering" shape="rect" coords="0,56,127,80"/>
+<area href="classSoNode.html" alt="SoNode" shape="rect" coords="0,0,127,24"/>
+  </map>
+</div></div>
+<table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-types" name="pub-types"></a>
+Public Types</h2></td></tr>
+<tr class="memitem:adb6d90aedbe0c9b566b4c2199a6b6327" id="r_adb6d90aedbe0c9b566b4c2199a6b6327"><td class="memItemLeft" align="right" valign="top"><a id="adb6d90aedbe0c9b566b4c2199a6b6327" name="adb6d90aedbe0c9b566b4c2199a6b6327"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>DataType</b> { <b>UNSIGNED_BYTE</b>
+, <b>UNSIGNED_SHORT</b>
+ }</td></tr>
+<tr class="separator:adb6d90aedbe0c9b566b4c2199a6b6327"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a72190cc3d73d9a2de6107deabb86ed6b" id="r_a72190cc3d73d9a2de6107deabb86ed6b"><td class="memItemLeft" align="right" valign="top"><a id="a72190cc3d73d9a2de6107deabb86ed6b" name="a72190cc3d73d9a2de6107deabb86ed6b"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>OverMethod</b> { <b>NONE</b>
+, <b>CONSTANT</b>
+, <b>LINEAR</b>
+, <b>CUBIC</b>
+ }</td></tr>
+<tr class="separator:a72190cc3d73d9a2de6107deabb86ed6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a89493e1c2a7c4f922d3737b69382e1a5" id="r_a89493e1c2a7c4f922d3737b69382e1a5"><td class="memItemLeft" align="right" valign="top"><a id="a89493e1c2a7c4f922d3737b69382e1a5" name="a89493e1c2a7c4f922d3737b69382e1a5"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>StorageHint</b> { <br />
+&#160;&#160;<b>AUTO</b>
+, <b>TEX2D_MULTI</b>
+, <b>TEX2D</b> = TEX2D_MULTI
+, <b>TEX3D</b>
+, <br />
+&#160;&#160;<b>MEMORY</b>
+, <b>VOLUMEPRO</b>
+, <b>TEX2D_SINGLE</b>
+<br />
+ }</td></tr>
+<tr class="separator:a89493e1c2a7c4f922d3737b69382e1a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abd6ecd318a1abc01f5c270b2c4ab00b2" id="r_abd6ecd318a1abc01f5c270b2c4ab00b2"><td class="memItemLeft" align="right" valign="top"><a id="abd6ecd318a1abc01f5c270b2c4ab00b2" name="abd6ecd318a1abc01f5c270b2c4ab00b2"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>SubMethod</b> { <b>NEAREST</b>
+, <b>MAX</b>
+, <b>AVERAGE</b>
+ }</td></tr>
+<tr class="separator:abd6ecd318a1abc01f5c270b2c4ab00b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_types_classSoVolumeRendering"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_types_classSoVolumeRendering')"><img src="closed.png" alt="-"/>&#160;Public Types inherited from <a class="el" href="classSoVolumeRendering.html">SoVolumeRendering</a></td></tr>
+<tr class="memitem:ac344b0ec20ac68df8e95f115a3d998cb inherit pub_types_classSoVolumeRendering" id="r_ac344b0ec20ac68df8e95f115a3d998cb"><td class="memItemLeft" align="right" valign="top"><a id="ac344b0ec20ac68df8e95f115a3d998cb" name="ac344b0ec20ac68df8e95f115a3d998cb"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>HW_Feature</b> { <b>HW_VOLUMEPRO</b>
+, <b>HW_3DTEXMAP</b>
+, <b>HW_TEXCOLORMAP</b>
+, <b>HW_TEXCOMPRESSION</b>
+ }</td></tr>
+<tr class="separator:ac344b0ec20ac68df8e95f115a3d998cb inherit pub_types_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2ebba17b42f5a3396651974aab66a38 inherit pub_types_classSoVolumeRendering" id="r_ad2ebba17b42f5a3396651974aab66a38"><td class="memItemLeft" align="right" valign="top"><a id="ad2ebba17b42f5a3396651974aab66a38" name="ad2ebba17b42f5a3396651974aab66a38"></a>enum &#160;</td><td class="memItemRight" valign="bottom"><b>HW_SupportStatus</b> { <b>NO</b>
+, <b>YES</b>
+, <b>UNKNOWN</b>
+ }</td></tr>
+<tr class="separator:ad2ebba17b42f5a3396651974aab66a38 inherit pub_types_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-methods" name="pub-methods"></a>
+Public Member Functions</h2></td></tr>
+<tr class="memitem:af725f3b9a7a9bddab55c918ce960a411" id="r_af725f3b9a7a9bddab55c918ce960a411"><td class="memItemLeft" align="right" valign="top"><a id="af725f3b9a7a9bddab55c918ce960a411" name="af725f3b9a7a9bddab55c918ce960a411"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>enableAutoSubSampling</b> (SbBool enable)</td></tr>
+<tr class="separator:af725f3b9a7a9bddab55c918ce960a411"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acdbd14d3c8c2d4eab6a6187c3c9b23fc" id="r_acdbd14d3c8c2d4eab6a6187c3c9b23fc"><td class="memItemLeft" align="right" valign="top"><a id="acdbd14d3c8c2d4eab6a6187c3c9b23fc" name="acdbd14d3c8c2d4eab6a6187c3c9b23fc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>enableAutoUnSampling</b> (SbBool enable)</td></tr>
+<tr class="separator:acdbd14d3c8c2d4eab6a6187c3c9b23fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae123a86ec72a6427b506822d6ffdd491" id="r_ae123a86ec72a6427b506822d6ffdd491"><td class="memItemLeft" align="right" valign="top"><a id="ae123a86ec72a6427b506822d6ffdd491" name="ae123a86ec72a6427b506822d6ffdd491"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>enableSubSampling</b> (SbBool enable)</td></tr>
+<tr class="separator:ae123a86ec72a6427b506822d6ffdd491"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a090e820d9db524b9445cdeb6ec054d88" id="r_a090e820d9db524b9445cdeb6ec054d88"><td class="memItemLeft" align="right" valign="top">SbBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a090e820d9db524b9445cdeb6ec054d88">getHistogram</a> (int &amp;length, int *&amp;histogram)</td></tr>
+<tr class="separator:a090e820d9db524b9445cdeb6ec054d88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a940f864cdbad5d1823ec2b491ea2cd75" id="r_a940f864cdbad5d1823ec2b491ea2cd75"><td class="memItemLeft" align="right" valign="top"><a id="a940f864cdbad5d1823ec2b491ea2cd75" name="a940f864cdbad5d1823ec2b491ea2cd75"></a>
+SbBool&#160;</td><td class="memItemRight" valign="bottom"><b>getMinMax</b> (int &amp;minval, int &amp;maxval)</td></tr>
+<tr class="separator:a940f864cdbad5d1823ec2b491ea2cd75"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa293b314cf155762229f54672d4dca82" id="r_aa293b314cf155762229f54672d4dca82"><td class="memItemLeft" align="right" valign="top">const SbVec3s &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa293b314cf155762229f54672d4dca82">getPageSize</a> (void) const</td></tr>
+<tr class="separator:aa293b314cf155762229f54672d4dca82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab588cbfc98efea44429815129e6e0f52" id="r_ab588cbfc98efea44429815129e6e0f52"><td class="memItemLeft" align="right" valign="top"><a id="ab588cbfc98efea44429815129e6e0f52" name="ab588cbfc98efea44429815129e6e0f52"></a>
+<a class="el" href="classSoVolumeReader.html">SoVolumeReader</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>getReader</b> (void) const</td></tr>
+<tr class="separator:ab588cbfc98efea44429815129e6e0f52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfb1746225751e54d9ea5e60e7fee1bc" id="r_acfb1746225751e54d9ea5e60e7fee1bc"><td class="memItemLeft" align="right" valign="top"><a id="acfb1746225751e54d9ea5e60e7fee1bc" name="acfb1746225751e54d9ea5e60e7fee1bc"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>getSubSamplingLevel</b> (SbVec3s &amp;roi, SbVec3s &amp;secondary) const</td></tr>
+<tr class="separator:acfb1746225751e54d9ea5e60e7fee1bc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac7cb9422447f10efeb3d6d4c12628f6a" id="r_ac7cb9422447f10efeb3d6d4c12628f6a"><td class="memItemLeft" align="right" valign="top"><a id="ac7cb9422447f10efeb3d6d4c12628f6a" name="ac7cb9422447f10efeb3d6d4c12628f6a"></a>
+SubMethod&#160;</td><td class="memItemRight" valign="bottom"><b>getSubSamplingMethod</b> (void) const</td></tr>
+<tr class="separator:ac7cb9422447f10efeb3d6d4c12628f6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a164e14db6c919c675425201b87639678" id="r_a164e14db6c919c675425201b87639678"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a164e14db6c919c675425201b87639678">getTexMemorySize</a> (void) const</td></tr>
+<tr class="separator:a164e14db6c919c675425201b87639678"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae940e95a09b9d8d7b18d56418b5d9588" id="r_ae940e95a09b9d8d7b18d56418b5d9588"><td class="memItemLeft" align="right" valign="top">SbBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae940e95a09b9d8d7b18d56418b5d9588">getVolumeData</a> (SbVec3s &amp;dimension, void *&amp;data, SoVolumeData::DataType &amp;type, int *significantbits=NULL) const</td></tr>
+<tr class="separator:ae940e95a09b9d8d7b18d56418b5d9588"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56d7c1608c5cda45830fa58969502dda" id="r_a56d7c1608c5cda45830fa58969502dda"><td class="memItemLeft" align="right" valign="top">SbBox3f&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a56d7c1608c5cda45830fa58969502dda">getVolumeSize</a> (void) const</td></tr>
+<tr class="separator:a56d7c1608c5cda45830fa58969502dda"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a016a828cb92bc0d86c0c17eac3945f03" id="r_a016a828cb92bc0d86c0c17eac3945f03"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a016a828cb92bc0d86c0c17eac3945f03">getVoxelValue</a> (const SbVec3s &amp;voxelpos) const</td></tr>
+<tr class="separator:a016a828cb92bc0d86c0c17eac3945f03"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8c3e8a5188566e02fcc6a65cc8cba16e" id="r_a8c3e8a5188566e02fcc6a65cc8cba16e"><td class="memItemLeft" align="right" valign="top"><a id="a8c3e8a5188566e02fcc6a65cc8cba16e" name="a8c3e8a5188566e02fcc6a65cc8cba16e"></a>
+SbBool&#160;</td><td class="memItemRight" valign="bottom"><b>isAutoSubSamplingEnabled</b> (void) const</td></tr>
+<tr class="separator:a8c3e8a5188566e02fcc6a65cc8cba16e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6f5552e6286a00873a6972da8f9ec27" id="r_ab6f5552e6286a00873a6972da8f9ec27"><td class="memItemLeft" align="right" valign="top"><a id="ab6f5552e6286a00873a6972da8f9ec27" name="ab6f5552e6286a00873a6972da8f9ec27"></a>
+SbBool&#160;</td><td class="memItemRight" valign="bottom"><b>isAutoUnSamplingEnabled</b> (void) const</td></tr>
+<tr class="separator:ab6f5552e6286a00873a6972da8f9ec27"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad75c945cf6f4ba6e77e9d0185deb89cd" id="r_ad75c945cf6f4ba6e77e9d0185deb89cd"><td class="memItemLeft" align="right" valign="top"><a id="ad75c945cf6f4ba6e77e9d0185deb89cd" name="ad75c945cf6f4ba6e77e9d0185deb89cd"></a>
+SbBool&#160;</td><td class="memItemRight" valign="bottom"><b>isSubSamplingEnabled</b> (void) const</td></tr>
+<tr class="separator:ad75c945cf6f4ba6e77e9d0185deb89cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44d705f6972e7a0fae8e33d088cb4dcf" id="r_a44d705f6972e7a0fae8e33d088cb4dcf"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a44d705f6972e7a0fae8e33d088cb4dcf">loadRegions</a> (const SbBox3s *region, int num, SoState *state, <a class="el" href="classSoTransferFunction.html">SoTransferFunction</a> *node)</td></tr>
+<tr class="separator:a44d705f6972e7a0fae8e33d088cb4dcf"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49143d474788015f52759807995994aa" id="r_a49143d474788015f52759807995994aa"><td class="memItemLeft" align="right" valign="top"><a id="a49143d474788015f52759807995994aa" name="a49143d474788015f52759807995994aa"></a>
+<a class="el" href="classSoVolumeData.html">SoVolumeData</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>reSampling</b> (const SbVec3s &amp;dimension, SoVolumeData::SubMethod subMethod, SoVolumeData::OverMethod=NONE)</td></tr>
+<tr class="separator:a49143d474788015f52759807995994aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2101671d90683ec37769b1c31a72159d" id="r_a2101671d90683ec37769b1c31a72159d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a2101671d90683ec37769b1c31a72159d">setPageSize</a> (const SbVec3s &amp;size)</td></tr>
+<tr class="separator:a2101671d90683ec37769b1c31a72159d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a06087ad036931385bfb8b0f159e2663b" id="r_a06087ad036931385bfb8b0f159e2663b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a06087ad036931385bfb8b0f159e2663b">setPageSize</a> (int size)</td></tr>
+<tr class="separator:a06087ad036931385bfb8b0f159e2663b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a415e4d332336a8e6f12310c34afa22a8" id="r_a415e4d332336a8e6f12310c34afa22a8"><td class="memItemLeft" align="right" valign="top"><a id="a415e4d332336a8e6f12310c34afa22a8" name="a415e4d332336a8e6f12310c34afa22a8"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setReader</b> (<a class="el" href="classSoVolumeReader.html">SoVolumeReader</a> &amp;reader)</td></tr>
+<tr class="separator:a415e4d332336a8e6f12310c34afa22a8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5999cb2cc237a9ff187667a3c71a3d54" id="r_a5999cb2cc237a9ff187667a3c71a3d54"><td class="memItemLeft" align="right" valign="top"><a id="a5999cb2cc237a9ff187667a3c71a3d54" name="a5999cb2cc237a9ff187667a3c71a3d54"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setSubSamplingLevel</b> (const SbVec3s &amp;roi, const SbVec3s &amp;secondary)</td></tr>
+<tr class="separator:a5999cb2cc237a9ff187667a3c71a3d54"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac807d58391737e15ff59410e0b2195ea" id="r_ac807d58391737e15ff59410e0b2195ea"><td class="memItemLeft" align="right" valign="top"><a id="ac807d58391737e15ff59410e0b2195ea" name="ac807d58391737e15ff59410e0b2195ea"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>setSubSamplingMethod</b> (SubMethod method)</td></tr>
+<tr class="separator:ac807d58391737e15ff59410e0b2195ea"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1db127dc8a426e1e862f9961d767ad68" id="r_a1db127dc8a426e1e862f9961d767ad68"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1db127dc8a426e1e862f9961d767ad68">setTexMemorySize</a> (int megatexels)</td></tr>
+<tr class="separator:a1db127dc8a426e1e862f9961d767ad68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acb3a15fe301d0220347479eb330ed0b1" id="r_acb3a15fe301d0220347479eb330ed0b1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acb3a15fe301d0220347479eb330ed0b1">setVolumeData</a> (const SbVec3s &amp;dimension, void *data, SoVolumeData::DataType type=SoVolumeData::UNSIGNED_BYTE, int significantbits=0)</td></tr>
+<tr class="separator:acb3a15fe301d0220347479eb330ed0b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad7120f6cf39b5f611cc2bc766b62691c" id="r_ad7120f6cf39b5f611cc2bc766b62691c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad7120f6cf39b5f611cc2bc766b62691c">setVolumeSize</a> (const SbBox3f &amp;size)</td></tr>
+<tr class="separator:ad7120f6cf39b5f611cc2bc766b62691c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a442ec0a621cc721e36728a23bf6e770e" id="r_a442ec0a621cc721e36728a23bf6e770e"><td class="memItemLeft" align="right" valign="top"><a id="a442ec0a621cc721e36728a23bf6e770e" name="a442ec0a621cc721e36728a23bf6e770e"></a>
+<a class="el" href="classSoVolumeData.html">SoVolumeData</a> *&#160;</td><td class="memItemRight" valign="bottom"><b>subSetting</b> (const SbBox3s &amp;region)</td></tr>
+<tr class="separator:a442ec0a621cc721e36728a23bf6e770e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50f0fe867e43a4d4c0918e3a94152afb" id="r_a50f0fe867e43a4d4c0918e3a94152afb"><td class="memItemLeft" align="right" valign="top"><a id="a50f0fe867e43a4d4c0918e3a94152afb" name="a50f0fe867e43a4d4c0918e3a94152afb"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>unSample</b> (void)</td></tr>
+<tr class="separator:a50f0fe867e43a4d4c0918e3a94152afb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa08a6e75da68c7cbbce7a22d2b1f7e49" id="r_aa08a6e75da68c7cbbce7a22d2b1f7e49"><td class="memItemLeft" align="right" valign="top"><a id="aa08a6e75da68c7cbbce7a22d2b1f7e49" name="aa08a6e75da68c7cbbce7a22d2b1f7e49"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>updateRegions</b> (const SbBox3s *region, int num)</td></tr>
+<tr class="separator:aa08a6e75da68c7cbbce7a22d2b1f7e49"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_methods_classSoVolumeRendering"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_methods_classSoVolumeRendering')"><img src="closed.png" alt="-"/>&#160;Public Member Functions inherited from <a class="el" href="classSoVolumeRendering.html">SoVolumeRendering</a></td></tr>
+<tr class="memitem:a9c205bd0c3cec3c548caa1b367e03a0d inherit pub_methods_classSoVolumeRendering" id="r_a9c205bd0c3cec3c548caa1b367e03a0d"><td class="memItemLeft" align="right" valign="top">
+HW_SupportStatus&#160;</td><td class="memItemRight" valign="bottom"><b>isSupported</b> (HW_Feature feature)</td></tr>
+<tr class="separator:a9c205bd0c3cec3c548caa1b367e03a0d inherit pub_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-static-methods" name="pub-static-methods"></a>
+Static Public Member Functions</h2></td></tr>
+<tr class="memitem:af27adf6a072d7ddb97fb4ca26e27376b" id="r_af27adf6a072d7ddb97fb4ca26e27376b"><td class="memItemLeft" align="right" valign="top"><a id="af27adf6a072d7ddb97fb4ca26e27376b" name="af27adf6a072d7ddb97fb4ca26e27376b"></a>
+static void&#160;</td><td class="memItemRight" valign="bottom"><b>initClass</b> (void)</td></tr>
+<tr class="separator:af27adf6a072d7ddb97fb4ca26e27376b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="inherit_header pub_static_methods_classSoVolumeRendering"><td colspan="2" onclick="javascript:dynsection.toggleInherit('pub_static_methods_classSoVolumeRendering')"><img src="closed.png" alt="-"/>&#160;Static Public Member Functions inherited from <a class="el" href="classSoVolumeRendering.html">SoVolumeRendering</a></td></tr>
+<tr class="memitem:ae1fbe55752e940adaf5d2b12e5e46dcf inherit pub_static_methods_classSoVolumeRendering" id="r_ae1fbe55752e940adaf5d2b12e5e46dcf"><td class="memItemLeft" align="right" valign="top">static SbBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#ae1fbe55752e940adaf5d2b12e5e46dcf">getDelayedRendering</a> (void)</td></tr>
+<tr class="separator:ae1fbe55752e940adaf5d2b12e5e46dcf inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6cf399c6e78d98640829858d6ec0985f inherit pub_static_methods_classSoVolumeRendering" id="r_a6cf399c6e78d98640829858d6ec0985f"><td class="memItemLeft" align="right" valign="top">static SbBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#a6cf399c6e78d98640829858d6ec0985f">getReadAlternateRep</a> (void)</td></tr>
+<tr class="separator:a6cf399c6e78d98640829858d6ec0985f inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9a01f9f17fefe2951d78c088dab5f09 inherit pub_static_methods_classSoVolumeRendering" id="r_af9a01f9f17fefe2951d78c088dab5f09"><td class="memItemLeft" align="right" valign="top">static SbBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#af9a01f9f17fefe2951d78c088dab5f09">getWriteAlternateRep</a> (void)</td></tr>
+<tr class="separator:af9a01f9f17fefe2951d78c088dab5f09 inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a074e793ccc4ca3decf604b1a4bdb1aa0 inherit pub_static_methods_classSoVolumeRendering" id="r_a074e793ccc4ca3decf604b1a4bdb1aa0"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#a074e793ccc4ca3decf604b1a4bdb1aa0">init</a> (void)</td></tr>
+<tr class="separator:a074e793ccc4ca3decf604b1a4bdb1aa0 inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae4a4bf9d2ed3328fe29131e8b4be5996 inherit pub_static_methods_classSoVolumeRendering" id="r_ae4a4bf9d2ed3328fe29131e8b4be5996"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#ae4a4bf9d2ed3328fe29131e8b4be5996">initClass</a> (void)</td></tr>
+<tr class="separator:ae4a4bf9d2ed3328fe29131e8b4be5996 inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8fc6f7df715f4290a3589a114bbb6e9c inherit pub_static_methods_classSoVolumeRendering" id="r_a8fc6f7df715f4290a3589a114bbb6e9c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#a8fc6f7df715f4290a3589a114bbb6e9c">setDelayedRendering</a> (SbBool flag)</td></tr>
+<tr class="separator:a8fc6f7df715f4290a3589a114bbb6e9c inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19e0309d1f1ee369154c26d8a212c063 inherit pub_static_methods_classSoVolumeRendering" id="r_a19e0309d1f1ee369154c26d8a212c063"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#a19e0309d1f1ee369154c26d8a212c063">setReadAlternateRep</a> (SbBool flag)</td></tr>
+<tr class="separator:a19e0309d1f1ee369154c26d8a212c063 inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adc63f86004509d8e8e866a31be7b2f01 inherit pub_static_methods_classSoVolumeRendering" id="r_adc63f86004509d8e8e866a31be7b2f01"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classSoVolumeRendering.html#adc63f86004509d8e8e866a31be7b2f01">setWriteAlternateRep</a> (SbBool flag)</td></tr>
+<tr class="separator:adc63f86004509d8e8e866a31be7b2f01 inherit pub_static_methods_classSoVolumeRendering"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
+Public Attributes</h2></td></tr>
+<tr class="memitem:ac7885d7cdec820a9921e1a862bff2607" id="r_ac7885d7cdec820a9921e1a862bff2607"><td class="memItemLeft" align="right" valign="top"><a id="ac7885d7cdec820a9921e1a862bff2607" name="ac7885d7cdec820a9921e1a862bff2607"></a>
+SoSFString&#160;</td><td class="memItemRight" valign="bottom"><b>fileName</b></td></tr>
+<tr class="separator:ac7885d7cdec820a9921e1a862bff2607"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a247628ec1ffeaec8a6e6774c7165e607" id="r_a247628ec1ffeaec8a6e6774c7165e607"><td class="memItemLeft" align="right" valign="top"><a id="a247628ec1ffeaec8a6e6774c7165e607" name="a247628ec1ffeaec8a6e6774c7165e607"></a>
+SoSFEnum&#160;</td><td class="memItemRight" valign="bottom"><b>storageHint</b></td></tr>
+<tr class="separator:a247628ec1ffeaec8a6e6774c7165e607"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36af4dd3975e9b06b8b31a4bebdae250" id="r_a36af4dd3975e9b06b8b31a4bebdae250"><td class="memItemLeft" align="right" valign="top">SoSFBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a36af4dd3975e9b06b8b31a4bebdae250">useCompressedTexture</a></td></tr>
+<tr class="separator:a36af4dd3975e9b06b8b31a4bebdae250"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab21a709b2678c16113a38e97e1afdf9d" id="r_ab21a709b2678c16113a38e97e1afdf9d"><td class="memItemLeft" align="right" valign="top">SoSFBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab21a709b2678c16113a38e97e1afdf9d">usePalettedTexture</a></td></tr>
+<tr class="separator:ab21a709b2678c16113a38e97e1afdf9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4025c32788910abd2356617a2e2afa6e" id="r_a4025c32788910abd2356617a2e2afa6e"><td class="memItemLeft" align="right" valign="top">SoSFBool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4025c32788910abd2356617a2e2afa6e">useSharedPalettedTexture</a></td></tr>
+<tr class="separator:a4025c32788910abd2356617a2e2afa6e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="pro-methods" name="pro-methods"></a>
+Protected Member Functions</h2></td></tr>
+<tr class="memitem:a1e1f2418f5409c5b7fcea170a9dff943" id="r_a1e1f2418f5409c5b7fcea170a9dff943"><td class="memItemLeft" align="right" valign="top"><a id="a1e1f2418f5409c5b7fcea170a9dff943" name="a1e1f2418f5409c5b7fcea170a9dff943"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>callback</b> (SoCallbackAction *action)</td></tr>
+<tr class="separator:a1e1f2418f5409c5b7fcea170a9dff943"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a92cdccc3079bd282952803d44973f8a3" id="r_a92cdccc3079bd282952803d44973f8a3"><td class="memItemLeft" align="right" valign="top"><a id="a92cdccc3079bd282952803d44973f8a3" name="a92cdccc3079bd282952803d44973f8a3"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>doAction</b> (SoAction *action)</td></tr>
+<tr class="separator:a92cdccc3079bd282952803d44973f8a3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa1222f373ac513e9ce59fb0620f3d8e" id="r_aaa1222f373ac513e9ce59fb0620f3d8e"><td class="memItemLeft" align="right" valign="top"><a id="aaa1222f373ac513e9ce59fb0620f3d8e" name="aaa1222f373ac513e9ce59fb0620f3d8e"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>getBoundingBox</b> (SoGetBoundingBoxAction *action)</td></tr>
+<tr class="separator:aaa1222f373ac513e9ce59fb0620f3d8e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6621834cc3d89a726a9a52c8d08685f3" id="r_a6621834cc3d89a726a9a52c8d08685f3"><td class="memItemLeft" align="right" valign="top"><a id="a6621834cc3d89a726a9a52c8d08685f3" name="a6621834cc3d89a726a9a52c8d08685f3"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>GLRender</b> (SoGLRenderAction *action)</td></tr>
+<tr class="separator:a6621834cc3d89a726a9a52c8d08685f3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a802c81ed592eee659408678d1e67680f" id="r_a802c81ed592eee659408678d1e67680f"><td class="memItemLeft" align="right" valign="top"><a id="a802c81ed592eee659408678d1e67680f" name="a802c81ed592eee659408678d1e67680f"></a>
+virtual void&#160;</td><td class="memItemRight" valign="bottom"><b>pick</b> (SoPickAction *action)</td></tr>
+<tr class="separator:a802c81ed592eee659408678d1e67680f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
+<div class="textblock"><p>The main interface for setting up volume data sets. </p>
+<p>This node class provides the interface for setting up the voxel data to be rendered. For a complete, stand-alone usage example, see the SIM Voleon main page documentation.</p>
+<p>Volume data will by default be <em>normalized</em> to be within a 2x2x2 unit dimensions cube. (But note that this is up to the reader classes, so it may not be the same for all readers. Check the individual class documentation for the file formats you are using.)</p>
+<p>As an example, if you set up a voxel data set of dimensions 100x400x200, this will be rendered within a bounding box of &lt;-0.25, -1, -0.5&gt; to &lt;0.25, 1, 0.5&gt;. Notice that the largest dimension (the Y dimension in this example) will be made to fit within unit size 2, and the other dimensions will be scaled accordingly.</p>
+<p>You may use <a class="el" href="#ad7120f6cf39b5f611cc2bc766b62691c">SoVolumeData::setVolumeSize()</a> to force a different unit size box around the volume, or you can simply use the standard Coin transformation nodes, like e.g. SoScale, to accomplish this.</p>
+<p>The volume rendering of SIM Voleon works well on volume data sets of any dimensions. With other volume rendering systems, it is often necessary to accommodate the rendering system by preprocessing the dataset to be of power-of-two dimensions, either to avoid the rendering to take up an extraordinary amount of resources related to texture mapping, or from down-right failing. This restriction is not present in SIM Voleon, which works well with different dimensions along the principal axes, and with any non-power-of-two dimension.</p>
+<p>If the volume data is set from a memory location with the <a class="el" href="#acb3a15fe301d0220347479eb330ed0b1">SoVolumeData::setVolumeData()</a> method, the voxel data can be changed during visualization at will. But after making a batch of changes, make sure you notify the node that data has been modified by doing the following:</p>
+<div class="fragment"><div class="line">volumedatanode-&gt;touch();</div>
+</div><!-- fragment --><p>Internal regeneration of textures etc. for visualization will then be done automatically by the SIM Voleon rendering system. </p>
+</div><h2 class="groupheader">Member Function Documentation</h2>
+<a id="a090e820d9db524b9445cdeb6ec054d88" name="a090e820d9db524b9445cdeb6ec054d88"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a090e820d9db524b9445cdeb6ec054d88">&#9670;&#160;</a></span>getHistogram()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SbBool SoVolumeData::getHistogram </td>
+          <td>(</td>
+          <td class="paramtype">int &amp;</td>          <td class="paramname"><span class="paramname"><em>length</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *&amp;</td>          <td class="paramname"><span class="paramname"><em>histogram</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns a reference to a histogram of all voxel values. <em>length</em> will be set to either 256 for 8-bit data or 65356 for 16-bit data.</p>
+<p>At each index of the histogram table, there will be a value indicating the number of voxels that has the data value corresponding to the index.</p>
+<p>Return value is always <code>TRUE</code>. </p>
+
+</div>
+</div>
+<a id="aa293b314cf155762229f54672d4dca82" name="aa293b314cf155762229f54672d4dca82"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa293b314cf155762229f54672d4dca82">&#9670;&#160;</a></span>getPageSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const SbVec3s &amp; SoVolumeData::getPageSize </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns internal dimensions of each 2D texture rectangle or 3D texture cube. </p>
+
+</div>
+</div>
+<a id="a164e14db6c919c675425201b87639678" name="a164e14db6c919c675425201b87639678"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a164e14db6c919c675425201b87639678">&#9670;&#160;</a></span>getTexMemorySize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int SoVolumeData::getTexMemorySize </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns limitation forced on texture memory usage.</p>
+<dl class="section see"><dt>See also</dt><dd><a class="el" href="#a1db127dc8a426e1e862f9961d767ad68">SoVolumeData::setTexMemorySize()</a> </dd></dl>
+<dl class="section since"><dt>Since</dt><dd>SIM Voleon 2.0 </dd></dl>
+
+</div>
+</div>
+<a id="ae940e95a09b9d8d7b18d56418b5d9588" name="ae940e95a09b9d8d7b18d56418b5d9588"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae940e95a09b9d8d7b18d56418b5d9588">&#9670;&#160;</a></span>getVolumeData()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SbBool SoVolumeData::getVolumeData </td>
+          <td>(</td>
+          <td class="paramtype">SbVec3s &amp;</td>          <td class="paramname"><span class="paramname"><em>dimensions</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&amp;</td>          <td class="paramname"><span class="paramname"><em>data</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SoVolumeData::DataType &amp;</td>          <td class="paramname"><span class="paramname"><em>type</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *</td>          <td class="paramname"><span class="paramname"><em>significantbits</em><span class="paramdefsep"> = </span><span class="paramdefval">NULL</span></span>&#160;) const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns information about the voxel <em>dimensions</em>, a data pointer to the memory block of voxels, and a <em>type</em> indicator for how many bytes are used for each voxel.</p>
+<p>The return value is <code>FALSE</code> if the data could not be loaded. </p>
+
+</div>
+</div>
+<a id="a56d7c1608c5cda45830fa58969502dda" name="a56d7c1608c5cda45830fa58969502dda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56d7c1608c5cda45830fa58969502dda">&#9670;&#160;</a></span>getVolumeSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SbBox3f SoVolumeData::getVolumeSize </td>
+          <td>(</td>
+          <td class="paramtype">void</td>          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns geometric size of volume. </p>
+
+</div>
+</div>
+<a id="a016a828cb92bc0d86c0c17eac3945f03" name="a016a828cb92bc0d86c0c17eac3945f03"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a016a828cb92bc0d86c0c17eac3945f03">&#9670;&#160;</a></span>getVoxelValue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t SoVolumeData::getVoxelValue </td>
+          <td>(</td>
+          <td class="paramtype">const SbVec3s &amp;</td>          <td class="paramname"><span class="paramname"><em>voxelpos</em></span></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Returns "raw" value of voxel at given position. </p>
+
+</div>
+</div>
+<a id="a44d705f6972e7a0fae8e33d088cb4dcf" name="a44d705f6972e7a0fae8e33d088cb4dcf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a44d705f6972e7a0fae8e33d088cb4dcf">&#9670;&#160;</a></span>loadRegions()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SoVolumeData::loadRegions </td>
+          <td>(</td>
+          <td class="paramtype">const SbBox3s *</td>          <td class="paramname"><span class="paramname"><em>region</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>num</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SoState *</td>          <td class="paramname"><span class="paramname"><em>state</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classSoTransferFunction.html">SoTransferFunction</a> *</td>          <td class="paramname"><span class="paramname"><em>node</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Force loading of given subregion. This function should usually not be of interest to the application programmer.</p>
+<dl class="section since"><dt>Since</dt><dd>SIM Voleon 2.0 </dd></dl>
+
+</div>
+</div>
+<a id="a2101671d90683ec37769b1c31a72159d" name="a2101671d90683ec37769b1c31a72159d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2101671d90683ec37769b1c31a72159d">&#9670;&#160;</a></span>setPageSize() <span class="overload">[1/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SoVolumeData::setPageSize </td>
+          <td>(</td>
+          <td class="paramtype">const SbVec3s &amp;</td>          <td class="paramname"><span class="paramname"><em>texsize</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets the largest internal size of texture pages and texture cubes. Default value is [128, 128, 128].</p>
+<p>All elements of <em>texsize</em> must be a power of two.</p>
+<p>This is essentially of interest only for the internal implementation, and should usually not be necessary to change from application code. </p>
+
+</div>
+</div>
+<a id="a06087ad036931385bfb8b0f159e2663b" name="a06087ad036931385bfb8b0f159e2663b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a06087ad036931385bfb8b0f159e2663b">&#9670;&#160;</a></span>setPageSize() <span class="overload">[2/2]</span></h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SoVolumeData::setPageSize </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>size</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets the largest internal size of texture pages and texture cubes. This sets all dimensions to the same value at once. Default value is 128^3.</p>
+<p>The <em>size</em> value must be a power of two.</p>
+<p>This is essentially of interest only for the internal implementation, and should usually not be necessary to change from application code. </p>
+
+</div>
+</div>
+<a id="a1db127dc8a426e1e862f9961d767ad68" name="a1db127dc8a426e1e862f9961d767ad68"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1db127dc8a426e1e862f9961d767ad68">&#9670;&#160;</a></span>setTexMemorySize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SoVolumeData::setTexMemorySize </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>megatexels</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Set the maximum number of texels we can bind up for 2D and 3D textures for volume rendering. The value is given in number of megatexels, e.g. an argument value "16" will be interpreted to set the limit at 16*1024*1024=16777216 texels.</p>
+<p>Note that you can in general not know in advance how much actual texture memory a texel is going to use, as textures can be paletted with a variable number of bits-per-texel, and even compressed before transferred to the graphics card's on-chip memory.</p>
+<p>Due to the above mentioned reasons, the usefulness of this method is rather dubious, but it is still included for compatibility with TGS VolumeViz API extension to Open Inventor.</p>
+<p>The default value is to allow unlimited texture memory usage. This means that it's up to the underlying OpenGL driver to take care of the policy of how to handle scarcity of resources. This is the recommended strategy from OpenGL documentation.</p>
+<p>Note that SIM Voleon's default differs from TGS's VolumeViz default, which is set at 64 megatexels. </p>
+
+</div>
+</div>
+<a id="acb3a15fe301d0220347479eb330ed0b1" name="acb3a15fe301d0220347479eb330ed0b1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acb3a15fe301d0220347479eb330ed0b1">&#9670;&#160;</a></span>setVolumeData()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SoVolumeData::setVolumeData </td>
+          <td>(</td>
+          <td class="paramtype">const SbVec3s &amp;</td>          <td class="paramname"><span class="paramname"><em>dimensions</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *</td>          <td class="paramname"><span class="paramname"><em>data</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">SoVolumeData::DataType</td>          <td class="paramname"><span class="paramname"><em>type</em><span class="paramdefsep"> = </span><span class="paramdefval">SoVolumeData::UNSIGNED_BYTE</span>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>significantbits</em><span class="paramdefsep"> = </span><span class="paramdefval">0</span></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>This method lets the user set up a volume data set from data in memory, instead of loading it from file (through the SoVolumeData::fileName field).</p>
+<p><em>data</em> should point to the block of voxels, of the data size given by <em>type</em>. <em>dimensions</em> specifies the size layout of the voxel array along the 3 axes.</p>
+<p>The data block passed in to this function will not be freed when the node is destructed, or new data set &ndash; that is considered the responsibility of the caller.</p>
+<p>The input data will be mapped to the world coordinate system as follows: increasing memory addresses will first be mapped to <em>increasing</em> voxel positions along the <em>X</em> axis, row by row. The rows will be mapped to <em>increasing</em> positions along the <em>Y</em> axis, making up slices. Slices will be mapped to <em>increasing</em> Z axis positions.</p>
+<p>The data will be mapped to be within a cube of size 2x2x2, where the largest voxel dimension(s) will be used to normalize the other dimensions.</p>
+<p>As an example, if you set up a voxel data set of dimensions 100x400x200, this will be rendered within a bounding box of &lt;-0.25, -1, -0.5&gt; to &lt;0.25, 1, 0.5&gt;. Notice that the largest dimension (the Y dimension in this example) will be made to fit within unit size 2, and the other dimensions will be scaled accordingly. </p>
+
+</div>
+</div>
+<a id="ad7120f6cf39b5f611cc2bc766b62691c" name="ad7120f6cf39b5f611cc2bc766b62691c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad7120f6cf39b5f611cc2bc766b62691c">&#9670;&#160;</a></span>setVolumeSize()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void SoVolumeData::setVolumeSize </td>
+          <td>(</td>
+          <td class="paramtype">const SbBox3f &amp;</td>          <td class="paramname"><span class="paramname"><em>size</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Sets the geometric size of the volume.</p>
+<p>This will override the value found in a volume data file by a reader (if any). </p>
+
+</div>
+</div>
+<h2 class="groupheader">Member Data Documentation</h2>
+<a id="a36af4dd3975e9b06b8b31a4bebdae250" name="a36af4dd3975e9b06b8b31a4bebdae250"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36af4dd3975e9b06b8b31a4bebdae250">&#9670;&#160;</a></span>useCompressedTexture</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SoSFBool SoVolumeData::useCompressedTexture</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Indicate whether or not to use compressed textures, if supported by the graphics card and driver.</p>
+<p>Compressed textures can save a major amount of texture memory out of the graphics card memory resources, typically by a factor of about 5x - 15x. Texture compression is however lossy, meaning that there will be a certain amount of degradation of visual quality &ndash; but this should usually not be noticeable.</p>
+<p>Not all graphics cards and drivers supports compressed textures, but the library will fall back on non-compressed textures automatically if that is the case.</p>
+<p>Default value is <code>TRUE</code>. To secure no loss of visual quality, set this field to <code>FALSE</code>.</p>
+<p>Note that texture compression will not be done if paletted textures are used. See the discussion at the end of the API documentation for the <a class="el" href="#ab21a709b2678c16113a38e97e1afdf9d">SoVolumeData::usePalettedTexture</a> field. </p>
+
+</div>
+</div>
+<a id="ab21a709b2678c16113a38e97e1afdf9d" name="ab21a709b2678c16113a38e97e1afdf9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab21a709b2678c16113a38e97e1afdf9d">&#9670;&#160;</a></span>usePalettedTexture</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SoSFBool SoVolumeData::usePalettedTexture</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Indicate whether or not to use paletted textures.</p>
+<p>Paletted textures uses only 1/4th of the amount of graphics card memory resources versus ordinary RGBA textures, with no degradation of rendering quality.</p>
+<p>Not all graphics cards and drivers supports paletted textures, but the library will fall back on non-paletted textures automatically if that is the case.</p>
+<p>SIM Voleon supports two different OpenGL techniques for doing paletted textures: either through using the <code>GL_EXT_paletted_texture</code> extension available on many older OpenGL drivers, or by using fragment shader programs, the latter typically available on most modern OpenGL drivers.</p>
+<p>Default value of this field is <code>TRUE</code>. Apart from debugging purposes, there are not many good reasons to set this field to <code>FALSE</code>.</p>
+<p>It might however be of interest if one wants to take advantage of the typically larger resource savings which can be made from setting <a class="el" href="#a36af4dd3975e9b06b8b31a4bebdae250">SoVolumeData::useCompressedTexture</a> to <code>TRUE</code>, as that hint will be overridden by a <code>TRUE</code> value in this field (as long as paletted textures are actually supported by the OpenGL driver).</p>
+<p>This because paletted textures can not be "lossy" compressed, so only one of paletted textures and texture compression can be active at the same time &ndash; not both of them. The policy of SIM Voleon is to prefer paletted textures, as that has certain other beneficial effects apart from resource savings, mainly that one can modify the <a class="el" href="classSoTransferFunction.html" title="Contains the transfer function definition.">SoTransferFunction</a> at runtime with no rendering performance hit. </p>
+
+</div>
+</div>
+<a id="a4025c32788910abd2356617a2e2afa6e" name="a4025c32788910abd2356617a2e2afa6e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4025c32788910abd2356617a2e2afa6e">&#9670;&#160;</a></span>useSharedPalettedTexture</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">SoSFBool SoVolumeData::useSharedPalettedTexture</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Indicate whether or not to share texture palettes.</p>
+<p>Sharing of texture palettes is useful for slightly better utilization of graphics card memory.</p>
+<p>Default value is <code>TRUE</code>. Apart from debugging purposes, there is really no good reason to set this field to <code>FALSE</code>.</p>
+<p>NOTE: The actions of switching this flag have not been properly implemented in Coin yet, its value is simply ignored.</p>
+<dl class="section since"><dt>Since</dt><dd>SIM Voleon 2.0 </dd>
+<dd>
+TGS VolumeViz ?.? </dd></dl>
+
+</div>
+</div>
+<hr/>The documentation for this class was generated from the following files:<ul>
+<li><a class="el" href="SoVolumeData_8h_source.html">SoVolumeData.h</a></li>
+<li><b>VolumeData.cpp</b></li>
+</ul>
+</div><!-- contents -->
+</div><!-- doc-content -->
+<!-- start footer part -->
+<div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
+  <ul>
+    <li class="navelem"><a class="el" href="classSoVolumeData.html">SoVolumeData</a></li>
+    <li class="footer">Generated on Mon May 13 2024 21:21:18 for SIMVoleon by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.10.0 </li>
+  </ul>
+</div>
+</body>
+</html>
