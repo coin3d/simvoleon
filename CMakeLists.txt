@@ -100,6 +100,7 @@ endfunction()
 option(OPTION_VERBOSE "Verbose build " OFF)
 option(SIMVOLEON_BUILD_SHARED_LIBS "Build shared libraries" ON)
 option(SIMVOLEON_BUILD_DOCUMENTATION "Build and install API documentation (requires Doxygen)." OFF)
+option(SIMVOLEON_BUILD_AWESOME_DOCUMENTATION "Build and install API documentation in new modern style (requires Doxygen)." OFF)
 option(SIMVOLEON_BUILD_TESTS "Build test code" OFF)
 cmake_dependent_option(SIMVOLEON_BUILD_INTERNAL_DOCUMENTATION "Document internal code not part of the API." OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
 cmake_dependent_option(SIMVOLEON_BUILD_DOC_MAN "Build So${Gui} man pages." OFF "SIMVOLEON_BUILD_DOCUMENTATION" OFF)
@@ -110,6 +111,7 @@ option(SIMVOLEON_USE_CPACK "If enabled the cpack subrepo is mandatory" OFF)
 report_prepare(
   SIMVOLEON_BUILD_SHARED_LIBS
   SIMVOLEON_BUILD_DOCUMENTATION
+  SIMVOLEON_BUILD_AWESOME_DOCUMENTATION
   SIMVOLEON_BUILD_TESTS
   SIMVOLEON_BUILD_INTERNAL_DOCUMENTATION
   SIMVOLEON_BUILD_DOC_MAN

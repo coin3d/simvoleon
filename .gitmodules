@@ -4,3 +4,6 @@
 [submodule "lib/VolumeViz/Coin"]
 	path = lib/VolumeViz/Coin
 	url = https://github.com/coin3d/coincodeshare
+[submodule "docs/doxygen-awesome"]
+	path = docs/doxygen-awesome
+	url = https://github.com/coin3d/doxygen-awesome-css.git
