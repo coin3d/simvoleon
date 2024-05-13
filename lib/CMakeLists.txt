@@ -239,7 +239,7 @@ if(SIMVOLEON_BUILD_DOCUMENTATION)
 endif()
 
 # Add a target to generate new modern API documentation with Doxygen
-if(QUARTER_BUILD_AWESOME_DOCUMENTATION)
+if(SIMVOLEON_BUILD_AWESOME_DOCUMENTATION)
   find_package(Doxygen)
   if(NOT DOXYGEN_FOUND)
     message(FATAL_ERROR "Doxygen is needed to build the documentation.")
