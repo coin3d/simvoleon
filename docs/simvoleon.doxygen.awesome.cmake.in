@@ -362,7 +362,7 @@ SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
 # Configuration options related to external references
 #---------------------------------------------------------------------------
-TAGFILES               = @DOXYGEN_TAGFILES@
+TAGFILES               = @DOXYGEN_TAGFILES_AWESOME@
 GENERATE_TAGFILE       = @CMAKE_BINARY_DIR@/html_awesome/@PROJECT_NAME@-@PROJECT_VERSION_MAJOR@.tag
 ALLEXTERNALS           = NO
 EXTERNAL_GROUPS        = YES
